@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using DG.Tweening;
 using Management;
 using Sirenix.OdinInspector;
 using Structure.Rigging;
@@ -129,13 +130,20 @@ namespace Character.Control
         public IEnumerator AttachToControl(IControl control)
         {
             var attachData = control.GetAttachData();
-            transform.position = attachData.anchor.position;
-            transform.rotation = attachData.anchor.rotation;
+            
+
             if (attachData.attachAndLock)
             {
                 CanMove = false;
                 transform.parent = attachData.anchor;
                 collider.isTrigger = true;
+                attachData.transition.Setup(Vector3.zero, transform.DOLocalMove);
+                yield return attachData.transition.Setup(Quaternion.identity, transform.DOLocalRotateQuaternion).WaitForCompletion();
+            }
+            else
+            {
+                attachData.transition.Setup(attachData.anchor.position, transform.DOMove);
+                yield return attachData.transition.Setup(attachData.anchor.rotation, transform.DORotateQuaternion).WaitForCompletion();
             }
 
             yield return new WaitForEndOfFrame();

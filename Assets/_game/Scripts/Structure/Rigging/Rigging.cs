@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Character.Control;
+using Scripts.Utility;
 using Structure.Rigging.Control;
 using Structure.Wires;
 using UnityEngine;
@@ -50,6 +51,7 @@ namespace Structure.Rigging
     {
         public Transform anchor;
         public bool attachAndLock;
+        public DOTweenTransition transition;
     }
 
     public interface IPowerUser : IBlock
