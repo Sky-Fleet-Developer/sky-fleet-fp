@@ -55,6 +55,8 @@ namespace Structure
             }
             else
             {
+                RefreshBlocks();
+                InitParents();
                 InitBlocks();
                 OnInitComplete();
                 StructureManager.RegisterStructure(this);
@@ -80,9 +82,6 @@ namespace Structure
         [Button]
         public void InitBlocks()
         {
-            RefreshBlocks();
-            InitParents();
-
             foreach (var block in blocks)
             {
                 block.InitBlock(this, GetParentFor(block));
@@ -104,12 +103,14 @@ namespace Structure
             InitParents();
         }
 
+        [Button]
         public void RefreshBlocks()
         {
             blocksHash = null;
             blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
+        [Button]
         public void InitParents()
         {
             if (parentsObjects != null)

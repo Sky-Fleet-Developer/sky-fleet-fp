@@ -114,7 +114,7 @@ namespace Structure
                 return;
             }
 
-            structure.InitBlocks();
+            structure.RefreshParents();
 
             List<Task> awaiters = new List<Task>();
 
@@ -135,7 +135,7 @@ namespace Structure
             await Task.WhenAll(awaiters);
             await new WaitForEndOfFrame();
             
-            structure.InitBlocks();
+            structure.RefreshParents();
 
             foreach (var block in structure.Blocks)
             {
@@ -147,6 +147,7 @@ namespace Structure
                 ApplySetup(block, blockConfig.setup);
             }
 
+            structure.InitBlocks();
             structure.InitWires();
             structure.OnInitComplete();
 
@@ -159,16 +160,15 @@ namespace Structure
 
             var wantedBlock = TableRigging.Instance.GetItem(guid);
             var blockSource = await wantedBlock.GetBlock();
-
             Transform instance;
-            
+
             if (Application.isPlaying)
             {
-                instance = DynamicPool.Instance.Get(blockSource.transform, block.Parent.Transform);
+                instance = DynamicPool.Instance.Get(blockSource.transform, block.transform.parent);
             }
             else
             {
-                instance = Object.Instantiate(blockSource.transform, block.Parent.Transform);
+                instance = Object.Instantiate(blockSource.transform, block.transform.parent);
             }
 
             instance.localPosition = block.transform.localPosition;
@@ -176,7 +176,7 @@ namespace Structure
             instance.localScale = block.transform.lossyScale;
             instance.name = block.transform.name;
             instance.SetSiblingIndex(block.transform.GetSiblingIndex());
-            
+
             if (Application.isPlaying)
             {
                 DynamicPool.Instance.Return(block.transform);
