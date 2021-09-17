@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Structure.Rigging.Control.Attributes;
 using Structure.Wires;
 using UnityEngine;
 
@@ -27,6 +28,7 @@ namespace Structure.Rigging.Control
         public float Value => value;
 
         public Port<float> port;
+        public HelmDevice device;
         
         public void Tick()
         {

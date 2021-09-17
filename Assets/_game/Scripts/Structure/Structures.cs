@@ -26,6 +26,7 @@ namespace Structure
         //TODO: Navigation
 
         void InitBlocks();
+        void OnInitComplete();
         void RefreshParents();
         void InitWires();
     }
@@ -34,6 +35,7 @@ namespace Structure
     {
         float Mass { get; }
         Vector3 Velocity { get; }
+        Vector3 GetVelocityForPoint(Vector3 worldPoint);
 
         void AddForce(Vector3 force, Vector3 position);
     }

@@ -4,6 +4,7 @@ using Cinemachine;
 using DG.Tweening;
 using Management;
 using Sirenix.OdinInspector;
+using Structure;
 using Structure.Rigging;
 using UnityEngine;
 
@@ -61,6 +62,10 @@ namespace Character.Control
         [FoldoutGroup("View")] public float horizontalBorders;
         [FoldoutGroup("View")] public float verticalBorders;
 
+        public IControl AttachedControl => attachedControl;
+        private IControl attachedControl;
+
+        
         //public Quaternion globalView;
 
         public readonly InteractionRaycast Interaction = new InteractionRaycast();
@@ -73,6 +78,7 @@ namespace Character.Control
             set
             {
                 motor.enabled = value;
+                motor.ResetPlatform();
                 rigidbody.isKinematic = !value;
             }
         }
@@ -84,23 +90,37 @@ namespace Character.Control
 
         private void Update()
         {
-            if (CanMove)
+            if (attachedControl != null)
+            {
+                if (Input.GetButtonDown("Interaction"))
+                {
+                    attachedControl.LeaveControl(this);
+                }
+
+                if (Input.GetButton("Fire1"))
+                {
+                    //Interaction.CastControl(cameraRoot, attachedControl);
+                }
+            }
+            else if (CanMove)
             {
                 Move();
-            }
-
-            if (Interaction.Cast(cameraRoot, out var block))
-            {
-                var request = block.RequestInteractive(this);
-                if (request.canInteractive)
+                
+                if (Interaction.Cast(cameraRoot, out var block))
                 {
-                    //TODO: write text to HUD
-                    if (Input.GetButtonDown("Interaction"))
+                    var request = block.RequestInteractive(this);
+                    if (request.canInteractive)
                     {
-                        block.Interaction(this);
+                        //TODO: write text to HUD
+                        if (Input.GetButtonDown("Interaction"))
+                        {
+                            block.Interaction(this);
+                        }
                     }
                 }
             }
+
+
         }
         
 
@@ -127,15 +147,15 @@ namespace Character.Control
             }
         }
 
+
         public IEnumerator AttachToControl(IControl control)
         {
             var attachData = control.GetAttachData();
             
-
             if (attachData.attachAndLock)
             {
                 CanMove = false;
-                transform.parent = attachData.anchor;
+                transform.SetParent(attachData.anchor);
                 collider.isTrigger = true;
                 attachData.transition.Setup(Vector3.zero, transform.DOLocalMove);
                 yield return attachData.transition.Setup(Quaternion.identity, transform.DOLocalRotateQuaternion).WaitForCompletion();
@@ -147,6 +167,40 @@ namespace Character.Control
             }
 
             yield return new WaitForEndOfFrame();
+            attachedControl = control;
+        }
+
+        public IEnumerator LeaveControl(CharacterDetachhData detachData)
+        {
+            if (CanMove)
+            {
+                detachData.transition.Setup(detachData.anchor.position, transform.DOMove);
+                yield return detachData.transition.Setup(detachData.anchor.rotation, transform.DORotateQuaternion).WaitForCompletion();
+            }
+            else
+            {
+                transform.SetParent(detachData.anchor);
+                detachData.transition.Setup(Vector3.zero, transform.DOLocalMove);
+                yield return detachData.transition.Setup(Quaternion.identity, transform.DOLocalRotateQuaternion).WaitForCompletion();
+                transform.SetParent(null);
+                CanMove = true;
+                collider.isTrigger = false;
+
+                ScyncVelocity(attachedControl.Structure);
+            }
+            attachedControl = null;
+        }
+
+        private void ScyncVelocity(IStructure structure)
+        {
+            if (structure is IDynamicStructure dynamicStructure)
+            {
+                rigidbody.velocity = dynamicStructure.GetVelocityForPoint(transform.position);
+            }
+            else
+            {
+                rigidbody.velocity = Vector3.zero;
+            }
         }
     }
     
@@ -154,17 +208,22 @@ namespace Character.Control
     {
         public RaycastHit Hit;
 
-        public bool Cast(Transform origin, out IInteractibleBlock block)
+        public bool Cast(Transform origin, out IInteractiveBlock block)
         {
             if (Physics.Raycast(origin.position, origin.forward, out Hit, GameData.Data.interactionDistance,
                 GameData.Data.interactiveLayer))
             {
-                block = Hit.collider.transform.GetComponentInParent<IInteractibleBlock>();
+                block = Hit.collider.transform.GetComponentInParent<IInteractiveBlock>();
                 return true;
             }
 
             block = null;
             return false;
+        }
+
+        public void CastControl(Transform cameraRoot, IControl attachedControl)
+        {
+            //attachedControl.CastControl()
         }
     }
 }

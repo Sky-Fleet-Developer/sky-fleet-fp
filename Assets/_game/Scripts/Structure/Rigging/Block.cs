@@ -36,6 +36,8 @@ namespace Structure.Rigging
             Structure = structure;
         }
 
+        public virtual void OnInitComplete() { }
+
         private void Start()
         {
         }

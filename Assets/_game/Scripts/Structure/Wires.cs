@@ -24,6 +24,7 @@ namespace Structure.Wires
 
         public abstract void SetWire(Wire wire);
         public abstract Wire CreateWire();
+        public abstract Wire GetWire();
     }
 
     [System.Serializable, InlineProperty(LabelWidth = 150)]
@@ -68,6 +69,11 @@ namespace Structure.Wires
         public override Wire CreateWire()
         {
             return new Wire<T>();
+        }
+
+        public override Wire GetWire()
+        {
+            return wire;
         }
     }
 

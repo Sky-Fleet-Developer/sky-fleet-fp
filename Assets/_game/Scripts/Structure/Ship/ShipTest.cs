@@ -16,8 +16,11 @@ namespace Structure.Ship
             rigidbody = GetComponent<Rigidbody>();
         }
 
-        
-        
+        public Vector3 GetVelocityForPoint(Vector3 worldPoint)
+        {
+            return rigidbody.GetPointVelocity(worldPoint);
+        }
+
         public void AddForce(Vector3 force, Vector3 position)
         {
             rigidbody.AddForceAtPosition(force, position);

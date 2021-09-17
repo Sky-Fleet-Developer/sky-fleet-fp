@@ -19,6 +19,7 @@ namespace Structure.Rigging
         string MountingType { get; }
 
         void InitBlock(IStructure structure, Parent parent);
+        void OnInitComplete();
     }
 
     public interface IDamagemleBlock : IBlock
@@ -27,7 +28,12 @@ namespace Structure.Rigging
         ArmorData Armor { get; }
     }
 
-    public interface IInteractibleBlock : IBlock
+    public interface IUpdatableBlock : IBlock
+    {
+        void UpdateBlock();
+    }
+
+    public interface IInteractiveBlock : IBlock
     {
         (bool canInteractive, string data) RequestInteractive(ICharacterController character);
         void Interaction(ICharacterController character);
@@ -38,19 +44,26 @@ namespace Structure.Rigging
         IEnumerable<Port> GetPorts();
     }
     
-    public interface IControl : IInteractibleBlock, ISpecialPorts
+    public interface IControl : IInteractiveBlock, IUpdatableBlock, ISpecialPorts
     {
         bool IsUnderControl { get; }
         List<ControlAxe> Axes { get; }
-        CharacterControlData GetAttachData();
+        CharacterAttachData GetAttachData();
         void ReadInput();
+        void LeaveControl(ICharacterController controller);
     }
 
     [System.Serializable]
-    public struct CharacterControlData
+    public struct CharacterAttachData
     {
         public Transform anchor;
         public bool attachAndLock;
+        public DOTweenTransition transition;
+    }
+    [System.Serializable]
+    public struct CharacterDetachhData
+    {
+        public Transform anchor;
         public DOTweenTransition transition;
     }
 

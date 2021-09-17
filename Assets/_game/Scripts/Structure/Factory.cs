@@ -136,7 +136,7 @@ namespace Structure
             await new WaitForEndOfFrame();
             
             structure.InitBlocks();
-            
+
             foreach (var block in structure.Blocks)
             {
                 var path = GetPath(block);
@@ -147,8 +147,8 @@ namespace Structure
                 ApplySetup(block, blockConfig.setup);
             }
 
-
             structure.InitWires();
+            structure.OnInitComplete();
 
             Debug.Log($"{structure.transform.name} configuration success!");
         }

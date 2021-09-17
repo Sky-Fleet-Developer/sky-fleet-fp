@@ -74,6 +74,12 @@ namespace Character
         {
             jump = false;
         }
+
+        public void ResetPlatform()
+        {
+            platformPoint = Vector3.zero;
+            platform = null;
+        }
         
         private void Start()
         {

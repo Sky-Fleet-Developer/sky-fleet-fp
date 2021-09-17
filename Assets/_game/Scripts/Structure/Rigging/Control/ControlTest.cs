@@ -28,8 +28,20 @@ namespace Structure.Rigging.Control
         [ReadOnly, ShowInInspector] private bool isUnderControl;
         [SerializeField] private List<ControlAxe> axes;
 
-        public CharacterControlData attachData;
+        public CharacterAttachData attachData;
+        public CharacterDetachhData detachData;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
+
+        public override void OnInitComplete()
+        {
+            foreach (var controlAxe in axes)
+            {
+                if (controlAxe.device != null)
+                {
+                    controlAxe.device.Init(Structure, this, controlAxe.port.Guid);
+                }
+            }
+        }
 
         public void ReadInput()
         {
@@ -66,10 +78,35 @@ namespace Structure.Rigging.Control
             controller = character;
         }
         
+        public void LeaveControl(ICharacterController character)
+        {
+            if (isUnderControl && character == controller)
+            {
+                StartCoroutine(LeaveControlRoutine(character));
+            }
+        }
+
+        private IEnumerator LeaveControlRoutine(ICharacterController character)
+        {
+            yield return character.LeaveControl(detachData);
+            isUnderControl = false;
+            controller = null;
+        }
         
-        public CharacterControlData GetAttachData()
+        public CharacterAttachData GetAttachData()
         {
             return attachData;
+        }
+
+        public void UpdateBlock()
+        {
+            foreach (var controlAxe in axes)
+            {
+                if (controlAxe.device != null)
+                {
+                    controlAxe.device.UpdateDevice();
+                }
+            }
         }
     }
 }

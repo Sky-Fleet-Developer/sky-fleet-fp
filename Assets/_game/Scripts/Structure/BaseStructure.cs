@@ -56,6 +56,7 @@ namespace Structure
             else
             {
                 InitBlocks();
+                OnInitComplete();
                 StructureManager.RegisterStructure(this);
             }
         }
@@ -88,6 +89,14 @@ namespace Structure
             }
         }
 
+        public void OnInitComplete()
+        {
+            foreach (var block in blocks)
+            {
+                block.OnInitComplete();
+            }
+        }
+        
         [Button]
         public void RefreshParents()
         {
