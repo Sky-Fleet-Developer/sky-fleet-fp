@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging.Control.Attributes
 {
-    public abstract class DeviceBase<T> : MonoBehaviour, IDevice
+
+    public abstract class DeviceBase : MonoBehaviour, IDevice
     {
         public IStructure Structure => structure;
         public IBlock Block => block;
@@ -12,8 +13,6 @@ namespace Core.Structure.Rigging.Control.Attributes
 
         protected IStructure structure;
         protected IBlock block;
-
-        [ShowInInspector] protected Wire<T> wire;
         
         public virtual void Init(IStructure structure, IBlock block, string port)
         {
@@ -23,12 +22,23 @@ namespace Core.Structure.Rigging.Control.Attributes
 
             var p = Factory.GetAllPorts(structure).FirstOrDefault(x => x.Guid == port);
             if(p == null) return;
+            SetWire(p);
+        }
+
+        protected abstract void SetWire(Port p);
+        public abstract void UpdateDevice();
+    }
+
+    public abstract class DeviceBase<T> : DeviceBase
+    {
+        [ShowInInspector] protected Wire<T> wire;
+
+        protected override void SetWire(Port p)
+        {
             if (p is Port<T> pT)
             {
                 wire = pT.wire;
             }
         }
-
-        public abstract void UpdateDevice();
     }
 }

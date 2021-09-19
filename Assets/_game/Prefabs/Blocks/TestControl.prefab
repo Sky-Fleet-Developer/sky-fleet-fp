@@ -352,27 +352,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 4007178922747367424}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4abef4ecef1e6c34e9077ec28a8fcc2d, type: 3}
+  m_Script: {fileID: 11500000, guid: f6245316add7da44db194bf20a50f12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: c4678263-64da-4de3-83d9-99e320860bdf
-  mountingType: TestControl
+  guid: ec08b3f2-0efb-4f6d-bc15-9ba8cb95f179
+  mountingType: 
   axes:
   - keyPositive: Vertical
     keyNegative: 
     computerInput: 
     value: 0
-    multiply: 1
+    multiply: 0
     trim: 0
     port:
-      guid: ee99d4bb-69a8-4319-a5f0-9a5e01702de2
+      guid: 70de2890-d5b6-4e60-a278-cd0a8c07a256
       hash: 0
       wire:
         value: 0
     device: {fileID: 3156467125343095600}
   attachData:
-    anchor: {fileID: 6229396294549091251}
-    attachAndLock: 1
+    anchor: {fileID: 0}
+    attachAndLock: 0
     transition:
       duration: 0.5
       delay: 0
@@ -402,7 +402,7 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
   detachData:
-    anchor: {fileID: 8906413102848919610}
+    anchor: {fileID: 0}
     transition:
       duration: 0.5
       delay: 0
@@ -655,7 +655,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7842591141830943781}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2eae781e8b88cfc4383f497347e5e148, type: 3}
+  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   handle: {fileID: 6650955081788456794}

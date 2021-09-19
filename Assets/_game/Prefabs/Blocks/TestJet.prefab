@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1915622220691640615}
-  - component: {fileID: 1915622220691640612}
+  - component: {fileID: 69203444365512920}
   m_Layer: 0
   m_Name: TestJet
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
---- !u!114 &1915622220691640612
+--- !u!114 &69203444365512920
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,11 +42,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1915622220691640614}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 760d1e223aeb42049b4782fb230b0beb, type: 3}
+  m_Script: {fileID: 11500000, guid: c8bbc1703a49fd747918341a0b3ff943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 8bbb1157-4b70-4e09-bf1c-c32b29f31e4a
-  mountingType: TestThurster
+  guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+  mountingType: 
   thurstPerFuel:
     serializedVersion: 2
     m_Curve:
@@ -97,12 +97,12 @@ MonoBehaviour:
     m_RotationOrder: 4
   maximalThurst: 55000
   throttle:
-    guid: a833fa68-a742-4aa6-8d41-f5d6acca9e7a
+    guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
     hash: 0
     wire:
       value: 0
   fuel:
-    guid: 63ebaf23-2005-4c00-a3c8-7da767283267
+    guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
     hash: 0
     wire:
       value: 0

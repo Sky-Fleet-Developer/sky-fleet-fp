@@ -25,7 +25,7 @@ namespace Core.Structure.Rigging.Control
         public float Value => value;
 
         public Port<float> port;
-        public IDevice device;
+        public DeviceBase device;
         
         public void Tick()
         {

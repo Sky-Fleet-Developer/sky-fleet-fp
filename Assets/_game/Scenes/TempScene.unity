@@ -833,11 +833,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 744063201}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fcf6a5960b92114ea1b78201414edb3, type: 3}
+  m_Script: {fileID: 11500000, guid: aa2715b62d30df84da40b23db37d5e8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parentsObjects: []
-  configuration: '{"blocks":[{"path":"TestJet","current":"8bbb1157-4b70-4e09-bf1c-c32b29f31e4a","setup":{}},{"path":"TestControl","current":"c4678263-64da-4de3-83d9-99e320860bdf","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"f12b80ab-0f69-4f89-bdea-b4e6a4a4d379","setup":{}}],"wires":["cdf9457e-fcc7-479d-8c01-5bb465fe277a.63ebaf23-2005-4c00-a3c8-7da767283267","a833fa68-a742-4aa6-8d41-f5d6acca9e7a.ee99d4bb-69a8-4319-a5f0-9a5e01702de2"]}'
+  configuration: '{"blocks":[{"path":"TestJet","current":"d6d19abd-1e58-4ada-ae00-0a68ac4419cd","setup":{}},{"path":"TestControl","current":"ec08b3f2-0efb-4f6d-bc15-9ba8cb95f179","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"673ea29c-0dfc-4bc8-b1c7-99506d787f41","setup":{}}],"wires":["a9893d7e-45f6-47a4-99ab-2c6f9568e143.f799627d-ab5b-4083-a5ac-f35e1e181c0d","2f3f89db-1f62-4742-b237-d1c86d86dea0.70de2890-d5b6-4e60-a278-cd0a8c07a256"]}'
 --- !u!54 &744063203
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1217,11 +1217,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1726747916}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 760d1e223aeb42049b4782fb230b0beb, type: 3}
+  m_Script: {fileID: 11500000, guid: c8bbc1703a49fd747918341a0b3ff943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: e696dac0-58e6-490b-ac20-27278c195315
-  mountingType: TestThurster
+  guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+  mountingType: 
   thurstPerFuel:
     serializedVersion: 2
     m_Curve:
@@ -1272,12 +1272,12 @@ MonoBehaviour:
     m_RotationOrder: 4
   maximalThurst: 55000
   throttle:
-    guid: a833fa68-a742-4aa6-8d41-f5d6acca9e7a
+    guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
     hash: 0
     wire:
       value: 0
   fuel:
-    guid: 63ebaf23-2005-4c00-a3c8-7da767283267
+    guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
     hash: 0
     wire:
       value: 0
