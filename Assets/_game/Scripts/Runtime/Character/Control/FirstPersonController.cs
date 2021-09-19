@@ -1,14 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
 using Cinemachine;
+using Core.Character;
+using Core.Structure;
+using Core.Structure.Rigging;
 using DG.Tweening;
-using Management;
 using Sirenix.OdinInspector;
-using Structure;
-using Structure.Rigging;
 using UnityEngine;
 
-namespace Character.Control
+namespace Runtime.Character.Control
 {
     [RequireComponent(typeof(CharacterMotor))]
     public class FirstPersonController : MonoBehaviour, ICharacterController

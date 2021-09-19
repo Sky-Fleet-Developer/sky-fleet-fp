@@ -1,30 +1,32 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemPointer : MonoBehaviour
+namespace Core.Utilities
 {
-    [SerializeField] private Component[] _pointers;
-
-    [NonSerialized] public Dictionary<string, Component> pointers;
-
-    public void Awake()
+    public class ItemPointer : MonoBehaviour
     {
-        pointers = new Dictionary<string, Component>();
-        foreach (var hit in _pointers)
-        {
-            pointers.Add(hit.name.Replace("(Clone)", "") + hit.GetType().Name, hit);
-        }
-    }
+        [SerializeField] private Component[] _pointers;
 
-    public T GetPointer<T>(string name) where T : Component
-    {
-        if(pointers.ContainsKey(name + typeof(T).Name) == false)
+        [NonSerialized] public Dictionary<string, Component> pointers;
+
+        public void Awake()
         {
-            Debug.LogError("Has no pointer with name " + name + " in item " + gameObject.name);
-            return null;
+            pointers = new Dictionary<string, Component>();
+            foreach (var hit in _pointers)
+            {
+                pointers.Add(hit.name.Replace("(Clone)", "") + hit.GetType().Name, hit);
+            }
         }
-        return pointers[name + typeof(T).Name] as T;
+
+        public T GetPointer<T>(string name) where T : Component
+        {
+            if(pointers.ContainsKey(name + typeof(T).Name) == false)
+            {
+                Debug.LogError("Has no pointer with name " + name + " in item " + gameObject.name);
+                return null;
+            }
+            return pointers[name + typeof(T).Name] as T;
+        }
     }
 }

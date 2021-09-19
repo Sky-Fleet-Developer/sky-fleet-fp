@@ -1,6 +1,7 @@
+using Core.Structure;
 using UnityEngine;
 
-namespace Structure.Ship
+namespace Runtime.Structure.Ship
 {
     [RequireComponent(typeof(Rigidbody))]
     public class ShipTest : BaseStructure, IDynamicStructure

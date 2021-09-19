@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace UnityAsyncAwaitUtil
+namespace Core.Utilities.AsyncAwaitUtil.Tests.Util
 {
     public class TestButtonHandler
     {

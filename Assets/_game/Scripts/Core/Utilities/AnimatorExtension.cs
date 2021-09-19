@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public static class AnimatorExtention
+namespace Core.Utilities
 {
-    public static AnimationClip GetClip(this Animator animator, string name)
+    public static class AnimatorExtention
     {
-        var clips = animator.runtimeAnimatorController.animationClips;
-        for (int i = 0; i < clips.Length; i++)
+        public static AnimationClip GetClip(this Animator animator, string name)
         {
-            if (clips[i].name == name)
-                return clips[i];
-        }
+            var clips = animator.runtimeAnimatorController.animationClips;
+            for (int i = 0; i < clips.Length; i++)
+            {
+                if (clips[i].name == name)
+                    return clips[i];
+            }
 
-        return null;
+            return null;
+        }
     }
 }

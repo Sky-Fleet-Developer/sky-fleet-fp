@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Core.Structure;
+using Core.Structure.Rigging;
 using Newtonsoft.Json;
-using Structure.Rigging;
-using Structure.Wires;
 using UnityEngine;
 using UnityEditor;
 

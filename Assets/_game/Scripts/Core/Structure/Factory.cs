@@ -1,19 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Core.Structure.Rigging;
+using Core.Utilities;
+using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.Utilities;
-using Structure.Rigging;
-using Structure.Rigging.Control;
-using Structure.Wires;
 using UnityEngine;
 using  Object = UnityEngine.Object;
 
-namespace Structure
+namespace Core.Structure
 {
     public static class Factory
     {

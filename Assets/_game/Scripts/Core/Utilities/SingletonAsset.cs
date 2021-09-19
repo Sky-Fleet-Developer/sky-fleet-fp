@@ -1,69 +1,72 @@
-﻿using UnityEngine;
+﻿using System.Linq;
 using UnityEditor;
-using System.Linq;
+using UnityEngine;
 
-public class AssetPath : System.Attribute
+namespace Core.Utilities
 {
-    public string Path = string.Empty;
-}
-public class SingletonAsset<T> : ScriptableObject where T : ScriptableObject
-{
-    private static T _instance;
-    private static Object _lock = new Object();
-
-    public static T Instance
+    public class AssetPath : System.Attribute
     {
-        get
+        public string Path = string.Empty;
+    }
+    public class SingletonAsset<T> : ScriptableObject where T : ScriptableObject
+    {
+        private static T _instance;
+        private static Object _lock = new Object();
+
+        public static T Instance
         {
-            lock (_lock)
+            get
             {
-                CheckInstance();
-                return _instance;
+                lock (_lock)
+                {
+                    CheckInstance();
+                    return _instance;
+                }
             }
         }
-    }
 
-    protected static T Instantiate()
-    {
-        var attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is AssetPath) as AssetPath;
-        string searchPath = "";
-        if (attribute != null)
-            searchPath += attribute.Path;
-
-        _instance = Resources.Load<T>(searchPath + typeof(T).Name);
-
-        if (_instance == null)
+        protected static T Instantiate()
         {
-            _instance = CreateInstance<T>();
-#if UNITY_EDITOR
-            string Path = "Assets/Resources/";
-
+            var attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is AssetPath) as AssetPath;
+            string searchPath = "";
             if (attribute != null)
-                Path += attribute.Path;
+                searchPath += attribute.Path;
 
-            string folderPath = Path[Path.Length - 1] == '/' ? Path.Remove(Path.Length - 1) : Path;
+            _instance = Resources.Load<T>(searchPath + typeof(T).Name);
 
-            int folderIndex = folderPath.LastIndexOf('/');
+            if (_instance == null)
+            {
+                _instance = CreateInstance<T>();
+#if UNITY_EDITOR
+                string Path = "Assets/Resources/";
 
-            string folderName = folderPath.Remove(0, folderIndex + 1);
+                if (attribute != null)
+                    Path += attribute.Path;
 
-            string parentFolder = folderPath.Remove(folderIndex);
+                string folderPath = Path[Path.Length - 1] == '/' ? Path.Remove(Path.Length - 1) : Path;
 
-            if (AssetDatabase.IsValidFolder(folderPath) == false)
-                AssetDatabase.CreateFolder(parentFolder, folderName);
+                int folderIndex = folderPath.LastIndexOf('/');
 
-            AssetDatabase.CreateAsset(_instance, Path + typeof(T).Name + ".asset");
+                string folderName = folderPath.Remove(0, folderIndex + 1);
+
+                string parentFolder = folderPath.Remove(folderIndex);
+
+                if (AssetDatabase.IsValidFolder(folderPath) == false)
+                    AssetDatabase.CreateFolder(parentFolder, folderName);
+
+                AssetDatabase.CreateAsset(_instance, Path + typeof(T).Name + ".asset");
 #endif
-            _instance.name = typeof(T).Name;
+                _instance.name = typeof(T).Name;
+            }
+            return _instance;
         }
-        return _instance;
-    }
     
-    public static void CheckInstance()
-    {
-        if (_instance == null)
+        public static void CheckInstance()
         {
-            Instantiate();
+            if (_instance == null)
+            {
+                Instantiate();
+            }
         }
     }
 }

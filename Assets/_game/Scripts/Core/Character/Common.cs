@@ -1,9 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
-using Structure.Rigging;
-using UnityEngine;
+using Core.Structure.Rigging;
 
-namespace Character.Control
+namespace Core.Character
 {
     public interface ICharacterController
     {

@@ -1,10 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Structure.Rigging;
-using UnityEngine;
+using Core.Structure.Rigging;
+using Core.Utilities;
 
-namespace Structure
+namespace Core.Structure
 {
     public class StructureManager : Singleton<StructureManager>
     {

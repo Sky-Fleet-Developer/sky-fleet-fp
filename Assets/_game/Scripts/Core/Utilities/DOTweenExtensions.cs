@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-namespace Scripts.Utility
+namespace Core.Utilities
 {
 	[System.Serializable]
 	public class DOTweenTransition

@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using UnityEngine;
 
-public class WaitForBackgroundThread
+namespace Core.Utilities.AsyncAwaitUtil.Source
 {
-    public ConfiguredTaskAwaitable.ConfiguredTaskAwaiter GetAwaiter()
+    public class WaitForBackgroundThread
     {
-        return Task.Run(() => {}).ConfigureAwait(false).GetAwaiter();
+        public ConfiguredTaskAwaitable.ConfiguredTaskAwaiter GetAwaiter()
+        {
+            return Task.Run(() => {}).ConfigureAwait(false).GetAwaiter();
+        }
     }
 }

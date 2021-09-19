@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
-using Structure.Wires;
 using UnityEngine;
 
-namespace Structure.Rigging.Control.Attributes
+namespace Core.Structure.Rigging.Control.Attributes
 {
     public abstract class DeviceBase<T> : MonoBehaviour, IDevice
     {

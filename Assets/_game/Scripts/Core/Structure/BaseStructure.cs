@@ -1,14 +1,12 @@
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Structure.Rigging;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
-using Structure.Rigging;
-using Structure.Wires;
+using UnityEngine;
 
-
-namespace Structure
+namespace Core.Structure
 {
     public abstract class BaseStructure : MonoBehaviour, IStructure
     {

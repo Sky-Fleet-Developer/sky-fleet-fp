@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using Structure;
-using Structure.Rigging;
-using Structure.Wires;
+using Core.Structure;
+using Core.Structure.Rigging;
 using UnityEngine;
 
-namespace Structure.Power
+namespace Runtime.Structure.Rigging.Power
 {
     public class HydrogenStorageTest : Block, IHydrogenStorage
     {

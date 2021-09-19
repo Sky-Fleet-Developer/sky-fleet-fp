@@ -1,101 +1,102 @@
-﻿using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using Waiters;
 
-public class DynamicPool : Singleton<DynamicPool>
+namespace Core.Utilities
 {
-    private List<(GameObject, Component)> pool;
-    private List<(GameObject, Component)> free;
-    private List<(GameObject, Component)> all;
-
-    protected override void Setup()
+    public class DynamicPool : Singleton<DynamicPool>
     {
-        free = new List<(GameObject, Component)>();
-        pool = new List<(GameObject, Component)>();
-        all = new List<(GameObject, Component)>();
-    }
+        private List<(GameObject, Component)> pool;
+        private List<(GameObject, Component)> free;
+        private List<(GameObject, Component)> all;
 
-    public (GameObject, Component) Find(GameObject prefab, bool remuve = false)
-    {
-        var inst = Instance;
-        for (int i = 0; i < pool.Count; i++)
+        protected override void Setup()
         {
-            if (pool[i].Item1 == prefab)
+            free = new List<(GameObject, Component)>();
+            pool = new List<(GameObject, Component)>();
+            all = new List<(GameObject, Component)>();
+        }
+
+        public (GameObject, Component) Find(GameObject prefab, bool remuve = false)
+        {
+            var inst = Instance;
+            for (int i = 0; i < pool.Count; i++)
             {
-                if (remuve)
+                if (pool[i].Item1 == prefab)
                 {
-                    var value = pool[i];
-                    pool.RemoveRange(i, 1);
-                    return value;
+                    if (remuve)
+                    {
+                        var value = pool[i];
+                        pool.RemoveRange(i, 1);
+                        return value;
+                    }
+                    return pool[i];
                 }
-                return pool[i];
             }
+            return (null, null);
         }
-        return (null, null);
-    }
 
-    public T Get<T>(T source, Transform parent) where T : Component
-    {
-        var t = Get<T>(source.gameObject);
-        t.transform.SetParent(parent);
-        t.transform.localPosition = Vector3.zero;
-        t.transform.localRotation =Quaternion.identity;
-        t.transform.localScale = Vector3.one;
-        return t;
-    }
-
-    public T Get<T>(T source) where T : Component
-    {
-        return Get<T>(source.gameObject);
-    }
-
-    public T Get<T>(GameObject prefab) where T : Component
-    {
-        var target = Find(prefab, true);
-        if (target.Item1 == null)
+        public T Get<T>(T source, Transform parent) where T : Component
         {
-            var instance = Instantiate(prefab);
-            instance.name = prefab.name + $"({all.Count(x => x.Item1 == prefab)})";
-            target = (prefab, instance.GetComponent<T>());
-            all.Add(target);
+            var t = Get<T>(source.gameObject);
+            t.transform.SetParent(parent);
+            t.transform.localPosition = Vector3.zero;
+            t.transform.localRotation =Quaternion.identity;
+            t.transform.localScale = Vector3.one;
+            return t;
         }
-        free.Add(target);
-        target.Item2.gameObject.SetActive(true);
-        target.Item2.transform.SetParent(null);
-        return target.Item2 as T;
-    }
 
-    public void Return(Component component, float delay)
-    {
-        this.Wait(delay, () => Return(component));
-    }
-
-    public void Return(Component component)
-    {
-        for (int i = 0; i < free.Count; i++)
+        public T Get<T>(T source) where T : Component
         {
-            if (free[i].Item2 == component)
+            return Get<T>(source.gameObject);
+        }
+
+        public T Get<T>(GameObject prefab) where T : Component
+        {
+            var target = Find(prefab, true);
+            if (target.Item1 == null)
             {
-                if (!component) return;
-                component.transform.SetParent(Instance.transform);
-                component.gameObject.SetActive(false);
-                pool.Add(free[i]);
-                free.RemoveRange(i, 1);
-                return;
+                var instance = Instantiate(prefab);
+                instance.name = prefab.name + $"({all.Count(x => x.Item1 == prefab)})";
+                target = (prefab, instance.GetComponent<T>());
+                all.Add(target);
             }
+            free.Add(target);
+            target.Item2.gameObject.SetActive(true);
+            target.Item2.transform.SetParent(null);
+            return target.Item2 as T;
         }
 
-        if (Application.isPlaying)
+        public void Return(Component component, float delay)
         {
-            Destroy(component.gameObject);
-        }
-        else
-        {
-            DestroyImmediate(component.gameObject);
+            this.Wait(delay, () => Return(component));
         }
 
-        Debug.LogError($"Has no component {component} in pool!");
+        public void Return(Component component)
+        {
+            for (int i = 0; i < free.Count; i++)
+            {
+                if (free[i].Item2 == component)
+                {
+                    if (!component) return;
+                    component.transform.SetParent(Instance.transform);
+                    component.gameObject.SetActive(false);
+                    pool.Add(free[i]);
+                    free.RemoveRange(i, 1);
+                    return;
+                }
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(component.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(component.gameObject);
+            }
+
+            Debug.LogError($"Has no component {component} in pool!");
+        }
     }
 }

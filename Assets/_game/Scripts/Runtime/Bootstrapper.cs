@@ -1,14 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Management;
-using Structure;
-using UnityEngine;
 using System.Reflection;
+using Core.Structure;
+using UnityEngine;
 
-namespace Game
+namespace Runtime
 {
     public class Bootstrapper : MonoBehaviour
     {

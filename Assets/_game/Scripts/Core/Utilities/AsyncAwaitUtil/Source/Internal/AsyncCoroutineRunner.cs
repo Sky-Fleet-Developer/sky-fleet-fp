@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace UnityAsyncAwaitUtil
+namespace Core.Utilities.AsyncAwaitUtil.Source.Internal
 {
     public class AsyncCoroutineRunner : UnityEngine.MonoBehaviour
     {

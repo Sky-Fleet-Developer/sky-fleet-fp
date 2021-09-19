@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using Core.Structure;
+using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
-using Structure.Rigging;
-using Structure.Wires;
 using UnityEngine;
 
-namespace Structure.Movement
+namespace Runtime.Structure.Rigging.Movement
 {
     public class ThursterTest : Block, IJetBlock
     {

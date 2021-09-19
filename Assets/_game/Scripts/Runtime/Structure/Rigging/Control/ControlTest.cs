@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Character.Control;
-using Management;
+using Core.Character;
+using Core.Structure;
+using Core.Structure.Rigging;
+using Core.Structure.Rigging.Control;
 using Sirenix.OdinInspector;
-using Structure.Wires;
 using UnityEngine;
 
-namespace Structure.Rigging.Control
+namespace Runtime.Structure.Rigging.Control
 {
     public class ControlTest : Block, IControl
     {

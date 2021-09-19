@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using Core.Structure.Rigging.Control.Attributes;
 using UnityEngine;
 
-namespace Structure.Rigging.Control.Attributes
+namespace Runtime.Structure.Rigging.Control.Attributes
 {
     public class HelmDevice : DeviceBase<float>, IArrowDevice
     {

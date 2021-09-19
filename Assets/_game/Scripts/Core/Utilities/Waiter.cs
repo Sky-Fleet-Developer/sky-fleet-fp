@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Waiters
+namespace Core.Utilities
 {
     public delegate T Getter<out T>();
     public enum UpdateModes

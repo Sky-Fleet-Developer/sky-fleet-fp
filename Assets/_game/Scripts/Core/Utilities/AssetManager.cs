@@ -1,23 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Text;
+using System.Threading.Tasks;
+using Sirenix.OdinInspector;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using Sirenix.OdinInspector;
-using System.Threading.Tasks;
-using System.Text;
 
-[DontDestroyOnLoad]
-public class AssetManager : Singleton<AssetManager>
+namespace Core.Utilities
 {
-    [ShowInInspector, ReadOnly] private Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)> loaded;
-    [ShowInInspector, ReadOnly] private Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)> loading;
+    [DontDestroyOnLoad]
+    public class AssetManager : Singleton<AssetManager>
+    {
+        [ShowInInspector, ReadOnly] private Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)> loaded;
+        [ShowInInspector, ReadOnly] private Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)> loading;
     
-    protected static Dictionary<string, Sprite> sprites;
-    //protected static Dictionary<string, SpriteHandler> sprites_loading;
+        protected static Dictionary<string, Sprite> sprites;
+        //protected static Dictionary<string, SpriteHandler> sprites_loading;
     
-    /*protected class SpriteHandler
+        /*protected class SpriteHandler
     {
         public Task<Sprite> loading;
 
@@ -43,195 +45,195 @@ public class AssetManager : Singleton<AssetManager>
     }*/
 
 #if UNITY_EDITOR
-    [CustomValueDrawer("DrawProgress")]
-    public string progress;
+        [CustomValueDrawer("DrawProgress")]
+        public string progress;
 
-    private string DrawProgress(string value, GUIContent label)
-    {
-        StringBuilder str = new StringBuilder();
-        EditorGUILayout.BeginVertical();
-        EditorGUILayout.LabelField("Loading: " + loading.Count);
-        foreach (var hit in loading)
+        private string DrawProgress(string value, GUIContent label)
         {
-            str.Append("|->");
-            for (int i = 0; i < 20; i++)
+            StringBuilder str = new StringBuilder();
+            EditorGUILayout.BeginVertical();
+            EditorGUILayout.LabelField("Loading: " + loading.Count);
+            foreach (var hit in loading)
             {
-                if (i < hit.Value.handle.PercentComplete * 20)
+                str.Append("|->");
+                for (int i = 0; i < 20; i++)
                 {
-                    str.Append("*");
+                    if (i < hit.Value.handle.PercentComplete * 20)
+                    {
+                        str.Append("*");
+                    }
+                    else
+                    {
+                        str.Append("-");
+                    }
                 }
-                else
-                {
-                    str.Append("-");
-                }
+                str.Append("| ");
+                str.Append(hit.Value.handle.PercentComplete);
+                str.Append(" - ");
+                str.Append(hit.Key.editorAsset.name);
+                value = str.ToString();
+                EditorGUILayout.LabelField(value);
             }
-            str.Append("| ");
-            str.Append(hit.Value.handle.PercentComplete);
-            str.Append(" - ");
-            str.Append(hit.Key.editorAsset.name);
-            value = str.ToString();
-            EditorGUILayout.LabelField(value);
+            EditorGUILayout.EndVertical();
+            return value;
         }
-        EditorGUILayout.EndVertical();
-        return value;
-    }
 #endif
 
-    public void GetPercentComplete(ref float[] values)
-    {
-        if(values == null || values.Length != loading.Count)
+        public void GetPercentComplete(ref float[] values)
         {
-            values = new float[loading.Count];
-        }
-
-        int i = 0;
-        foreach (var hit in loading)
-        {
-            values[i++] = hit.Value.handle.PercentComplete;
-        }
-    }
-
-
-    protected override void Setup()
-    {
-        loaded = new Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)>();
-        loading = new Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)>();
-    }
-
-    /// <summary>
-    /// Load adressable asset or get alredy loaded
-    /// </summary>
-    /// <param name="asset">asset to load</param>
-    /// <param name="tag">tag of asset to group them</param>
-    /// <returns>callback when asset was loaded</returns>
-    public LoadHandle<T> LoadAsset<T>(AssetReference asset, object tag)
-    {
-        
-        LoadHandle<T> handle = new LoadHandle<T>();
-
-        if (loading.ContainsKey(asset)) //subscribe on callback if the asset is loading
-        {
-            loading[asset].handle.Completed += v =>
+            if(values == null || values.Length != loading.Count)
             {
-                handle.Invoke((T)v.Result);
-            };
+                values = new float[loading.Count];
+            }
+
+            int i = 0;
+            foreach (var hit in loading)
+            {
+                values[i++] = hit.Value.handle.PercentComplete;
+            }
+        }
+
+
+        protected override void Setup()
+        {
+            loaded = new Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)>();
+            loading = new Dictionary<AssetReference, (AsyncOperationHandle handle, object tag)>();
+        }
+
+        /// <summary>
+        /// Load adressable asset or get alredy loaded
+        /// </summary>
+        /// <param name="asset">asset to load</param>
+        /// <param name="tag">tag of asset to group them</param>
+        /// <returns>callback when asset was loaded</returns>
+        public LoadHandle<T> LoadAsset<T>(AssetReference asset, object tag)
+        {
+        
+            LoadHandle<T> handle = new LoadHandle<T>();
+
+            if (loading.ContainsKey(asset)) //subscribe on callback if the asset is loading
+            {
+                loading[asset].handle.Completed += v =>
+                {
+                    handle.Invoke((T)v.Result);
+                };
+                return handle;
+            }
+
+            Instance.StartCoroutine(LoadAsset<T>(asset, handle, tag)); //begin asset loading
             return handle;
         }
 
-        Instance.StartCoroutine(LoadAsset<T>(asset, handle, tag)); //begin asset loading
-        return handle;
-    }
-
-    public void Unload(object tag)
-    {
-        List<AssetReference> toRemove = new List<AssetReference>();
-        foreach (var hit in loaded)
+        public void Unload(object tag)
         {
-            if (hit.Value.tag == tag)
+            List<AssetReference> toRemove = new List<AssetReference>();
+            foreach (var hit in loaded)
             {
-                Addressables.Release(hit.Value.handle);
-                toRemove.Add(hit.Key);
+                if (hit.Value.tag == tag)
+                {
+                    Addressables.Release(hit.Value.handle);
+                    toRemove.Add(hit.Key);
+                }
+            }
+            foreach (var hit in toRemove)
+            {
+                loaded.Remove(hit);
             }
         }
-        foreach (var hit in toRemove)
-        {
-            loaded.Remove(hit);
-        }
-    }
 
-    public void Unload(object tag, System.Predicate<AssetReference> predication)
-    {
-        List<AssetReference> toRemove = new List<AssetReference>();
-        foreach (var hit in loaded)
+        public void Unload(object tag, System.Predicate<AssetReference> predication)
         {
-            if (hit.Value.tag == tag && predication.Invoke(hit.Key))
+            List<AssetReference> toRemove = new List<AssetReference>();
+            foreach (var hit in loaded)
             {
-                Addressables.Release(hit.Value.handle);
-                toRemove.Add(hit.Key);
+                if (hit.Value.tag == tag && predication.Invoke(hit.Key))
+                {
+                    Addressables.Release(hit.Value.handle);
+                    toRemove.Add(hit.Key);
+                }
+            }
+            foreach (var hit in toRemove)
+            {
+                loaded.Remove(hit);
             }
         }
-        foreach (var hit in toRemove)
-        {
-            loaded.Remove(hit);
-        }
-    }
 
-    public void UnloadObject(object thing)
-    {
-        List<AssetReference> toRemove = new List<AssetReference>();
-        foreach (var hit in loaded)
+        public void UnloadObject(object thing)
         {
-            if (hit.Value.handle.Result == thing)
+            List<AssetReference> toRemove = new List<AssetReference>();
+            foreach (var hit in loaded)
             {
-                Addressables.Release(hit.Value.handle);
-                toRemove.Add(hit.Key);
+                if (hit.Value.handle.Result == thing)
+                {
+                    Addressables.Release(hit.Value.handle);
+                    toRemove.Add(hit.Key);
+                }
+            }
+            foreach (var hit in toRemove)
+            {
+                loaded.Remove(hit);
             }
         }
-        foreach (var hit in toRemove)
-        {
-            loaded.Remove(hit);
-        }
-    }
 
-    public class LoadHandle<T>
-    {
-        public System.Action<T> onComplete;
-
-        public void Invoke(T value)
+        public class LoadHandle<T>
         {
-            onComplete?.Invoke(value);
-        }
-    }
+            public System.Action<T> onComplete;
 
-    IEnumerator LoadAsset<T>(AssetReference asset, LoadHandle<T> handle, object tag)
-    {
-        if (loaded.ContainsKey(asset)) //wait one frame to subscribe on action and return result if the asset is already loaded
-        {
-            yield return null;
-            handle.Invoke((T)loaded[asset].handle.Result);
-            yield break;
+            public void Invoke(T value)
+            {
+                onComplete?.Invoke(value);
+            }
         }
 
-        var _loading = asset.LoadAssetAsync<T>();
-
-        loading.Add(asset, (_loading, tag));
-
-        yield return _loading;
-
-        loading.Remove(asset);
-
-        loaded.Add(asset, (_loading, tag));
-
-        handle?.Invoke((T)_loading.Result);
-    }
-
-    public async Task<T> LoadAssetTask<T>(AssetReference asset, object tag)
-    {
-        if (loaded.ContainsKey(asset)) //return result if the asset is already loaded
+        IEnumerator LoadAsset<T>(AssetReference asset, LoadHandle<T> handle, object tag)
         {
-            return (T)loaded[asset].handle.Result;
-        }
+            if (loaded.ContainsKey(asset)) //wait one frame to subscribe on action and return result if the asset is already loaded
+            {
+                yield return null;
+                handle.Invoke((T)loaded[asset].handle.Result);
+                yield break;
+            }
 
-        AsyncOperationHandle _loading;
+            var _loading = asset.LoadAssetAsync<T>();
 
-        if (loading.ContainsKey(asset)) //wait and return result if asset is loading
-        {
-            _loading = loading[asset].handle;
-            await _loading.Task;
-        }
-        else //load asset and return result
-        {
-            _loading = asset.LoadAssetAsync<T>();
             loading.Add(asset, (_loading, tag));
-            await _loading.Task;
+
+            yield return _loading;
+
             loading.Remove(asset);
+
             loaded.Add(asset, (_loading, tag));
+
+            handle?.Invoke((T)_loading.Result);
         }
 
-        return (T)_loading.Result;
-    }
+        public async Task<T> LoadAssetTask<T>(AssetReference asset, object tag)
+        {
+            if (loaded.ContainsKey(asset)) //return result if the asset is already loaded
+            {
+                return (T)loaded[asset].handle.Result;
+            }
+
+            AsyncOperationHandle _loading;
+
+            if (loading.ContainsKey(asset)) //wait and return result if asset is loading
+            {
+                _loading = loading[asset].handle;
+                await _loading.Task;
+            }
+            else //load asset and return result
+            {
+                _loading = asset.LoadAssetAsync<T>();
+                loading.Add(asset, (_loading, tag));
+                await _loading.Task;
+                loading.Remove(asset);
+                loaded.Add(asset, (_loading, tag));
+            }
+
+            return (T)_loading.Result;
+        }
     
-    /*public async Task<Sprite> LoadIcon(string url)
+        /*public async Task<Sprite> LoadIcon(string url)
     {
         
         Debug.Log($"Load icon from url: {url}");
@@ -271,6 +273,7 @@ public class AssetManager : Singleton<AssetManager>
             }
         }
     }*/
+    }
 }
 
 /*#if UNITY_EDITOR

@@ -1,8 +1,7 @@
-using Management;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Character
+namespace Runtime.Character
 {
     public class CharacterMotor : MonoBehaviour
     {

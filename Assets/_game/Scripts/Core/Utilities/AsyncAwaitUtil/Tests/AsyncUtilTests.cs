@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Utilities.AsyncAwaitUtil.Source;
+using Core.Utilities.AsyncAwaitUtil.Tests.Util;
 using UnityEngine;
 using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
-namespace UnityAsyncAwaitUtil
+namespace Core.Utilities.AsyncAwaitUtil.Tests
 {
     public class AsyncUtilTests : UnityEngine.MonoBehaviour
     {

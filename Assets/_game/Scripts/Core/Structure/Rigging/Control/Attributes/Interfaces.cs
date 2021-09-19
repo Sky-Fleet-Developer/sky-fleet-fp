@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace Structure.Rigging.Control.Attributes
+namespace Core.Structure.Rigging.Control.Attributes
 {
 
     public interface IDevice

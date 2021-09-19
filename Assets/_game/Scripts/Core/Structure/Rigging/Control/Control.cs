@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using Structure.Rigging.Control.Attributes;
-using Structure.Wires;
+using Core.Structure.Rigging.Control.Attributes;
 using UnityEngine;
 
-namespace Structure.Rigging.Control
+namespace Core.Structure.Rigging.Control
 {
     [System.Serializable]
     public class ControlAxe

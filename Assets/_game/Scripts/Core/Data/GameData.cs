@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Management
+namespace Runtime
 {
     [CreateAssetMenu(menuName = "Management/GameData")]
     public class GameData : SingletonAsset<GameData>

@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using Structure.Rigging;
-using Structure.Wires;
+using Core.Structure.Rigging;
 using UnityEngine;
 
-namespace Structure
+namespace Core.Structure
 {
     public interface IStructure
     {

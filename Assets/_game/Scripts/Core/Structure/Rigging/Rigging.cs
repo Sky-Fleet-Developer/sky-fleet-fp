@@ -1,12 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-using Character.Control;
-using Scripts.Utility;
-using Structure.Rigging.Control;
-using Structure.Wires;
+using Core.Character;
+using Core.Structure.Rigging.Control;
+using Core.Utilities;
 using UnityEngine;
 
-namespace Structure.Rigging
+namespace Core.Structure.Rigging
 {
     public interface IBlock
     {

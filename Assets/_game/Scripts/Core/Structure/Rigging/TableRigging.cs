@@ -1,12 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Structure.Rigging
+namespace Core.Structure.Rigging
 {
     [CreateAssetMenu(menuName = "Tables/Rigging table")]
     public class TableRigging : SingletonAsset<TableRigging>

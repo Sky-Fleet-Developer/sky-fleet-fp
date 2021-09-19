@@ -1,12 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Sirenix.OdinInspector;
-using UnityEditor;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
 
-
-namespace Structure.Wires
+namespace Core.Structure
 {
     [System.Serializable]
     public abstract class Port

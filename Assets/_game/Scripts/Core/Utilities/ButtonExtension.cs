@@ -1,11 +1,10 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEngine;
+using System.Threading.Tasks;
 using UnityEngine.UI;
 
-
-namespace System.Threading.Tasks
+namespace Core.Utilities
 {
     public static class ButonExtension
     {
