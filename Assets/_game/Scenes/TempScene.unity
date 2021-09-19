@@ -390,7 +390,7 @@ MonoBehaviour:
   Radius: 0.3
   wheelMass: 500
   SuspensionDisnatce: 1
-  SuspensionDumping: {x: 1, y: 1}
+  SuspensionDumping: {x: 0.8, y: 0.8}
   Spring: 60000
   Dumper: 20000
   StaticFriction: 30000
@@ -922,7 +922,7 @@ MonoBehaviour:
   Radius: 0.3
   wheelMass: 500
   SuspensionDisnatce: 1
-  SuspensionDumping: {x: 1, y: 1}
+  SuspensionDumping: {x: 0.8, y: 0.8}
   Spring: 60000
   Dumper: 20000
   StaticFriction: 30000
@@ -981,7 +981,7 @@ MonoBehaviour:
   Radius: 0.3
   wheelMass: 500
   SuspensionDisnatce: 1
-  SuspensionDumping: {x: 1, y: 1}
+  SuspensionDumping: {x: 0.8, y: 0.8}
   Spring: 60000
   Dumper: 20000
   StaticFriction: 30000
@@ -1088,7 +1088,7 @@ MonoBehaviour:
   Radius: 0.3
   wheelMass: 500
   SuspensionDisnatce: 1
-  SuspensionDumping: {x: 1, y: 1}
+  SuspensionDumping: {x: 0.8, y: 0.8}
   Spring: 60000
   Dumper: 20000
   StaticFriction: 30000
@@ -1220,7 +1220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8bbc1703a49fd747918341a0b3ff943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+  guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
   mountingType: 
   thurstPerFuel:
     serializedVersion: 2
@@ -1802,10 +1802,6 @@ PrefabInstance:
     - target: {fileID: 4007178922747367424, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: m_Name
       value: TestControl
-      objectReference: {fileID: 0}
-    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
-      propertyPath: m_Enabled
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4007178922747367427, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: m_RootOrder

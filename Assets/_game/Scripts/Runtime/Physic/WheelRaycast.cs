@@ -1,17 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Cinemachine.Utility;
-using Runtime;
 using UnityEngine;
 
-namespace Physic
+namespace Runtime.Physic
 {
     public class WheelRaycast : MonoBehaviour
     {
         [Header("Общее")] 
         public float Radius;
-        public float CircleLength => Radius * Mathf.PI * 2;
+
         [Min(0.01f)] public float wheelMass = 20;
         [Header("Подвеска")] 
         public float SuspensionDisnatce = 1;
@@ -41,6 +36,8 @@ namespace Physic
         public Vector3 localPosition { get; private set; }
         public Quaternion localRotation { get; private set; }
 
+        
+        private float CircleLength => Radius * Mathf.PI * 2;
         private bool sliding;
         private RaycastHit groundHit;
         private float suspension_distance;
@@ -75,7 +72,7 @@ namespace Physic
 
         private void GroundCast(Vector3 position)
         {
-            grounded = Physics.Raycast(position, -transform.up, out groundHit, SuspensionDisnatce,
+            grounded = UnityEngine.Physics.Raycast(position, -transform.up, out groundHit, SuspensionDisnatce,
                 GameData.Data.groundLayer);
             Debug.DrawLine(position, position - transform.up * (grounded ? groundHit.distance : SuspensionDisnatce));
         }
