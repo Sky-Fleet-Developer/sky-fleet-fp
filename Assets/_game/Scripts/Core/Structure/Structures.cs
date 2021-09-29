@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Core.Structure.Rigging;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.Structure

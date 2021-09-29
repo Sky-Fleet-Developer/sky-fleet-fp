@@ -7,4 +7,4 @@ System.IO.DirectoryNotFoundException: Could not find a part of the path 'G:\Proj
   at System.IO.Directory.InternalGetFileDirectoryNames (System.String path, System.String userPathOriginal, System.String searchPattern, System.Boolean includeFiles, System.Boolean includeDirs, System.IO.SearchOption searchOption, System.Boolean checkHost) [0x00000] in <eae584ce26bc40229c1b1aa476bfa589>:0 
   at System.IO.Directory.InternalGetFiles (System.String path, System.String searchPattern, System.IO.SearchOption searchOption) [0x00000] in <eae584ce26bc40229c1b1aa476bfa589>:0 
   at System.IO.Directory.GetFiles (System.String path, System.String searchPattern, System.IO.SearchOption searchOption) [0x00038] in <eae584ce26bc40229c1b1aa476bfa589>:0 
-  at Runtime.Bootstrapper.Awake () [0x0002a] in G:\Projects\scy-fleet-fp\Assets\_game\Scripts\Runtime\Bootstrapper.cs:25 
+  at Runtime.Bootstrapper.Awake () [0x0002f] in G:\Projects\scy-fleet-fp\Assets\_game\Scripts\Runtime\Bootstrapper.cs:25 

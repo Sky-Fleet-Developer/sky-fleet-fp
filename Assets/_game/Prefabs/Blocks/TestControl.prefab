@@ -355,7 +355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6245316add7da44db194bf20a50f12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: ec08b3f2-0efb-4f6d-bc15-9ba8cb95f179
+  guid: 40222abb-51cd-4887-8afb-92518f93a6cd
   mountingType: 
   axes:
   - keyPositive: Vertical

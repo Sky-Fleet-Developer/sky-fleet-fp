@@ -1803,6 +1803,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestControl
       objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: guid
+      value: 10143652-5e24-402f-a055-f02a5f8de2d8
+      objectReference: {fileID: 0}
     - target: {fileID: 4007178922747367427, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: m_RootOrder
       value: 5

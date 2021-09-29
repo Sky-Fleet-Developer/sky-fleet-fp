@@ -32,7 +32,7 @@ namespace Runtime
 
                     if (assemblyFileName.Contains(".dll"))
                     {
-                        Assembly asm = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
+                        Assembly asm = AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(assemblyFileName));
 
                         if (asm != null)
                         {
