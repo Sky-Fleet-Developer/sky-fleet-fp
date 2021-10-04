@@ -1,0 +1,807 @@
+{
+    "prefabsHash": [
+        {
+            "name": "ModControl",
+            "Tree": {
+                "16044": {
+                    "name": "ModControl",
+                    "layer": 0,
+                    "parent": -1,
+                    "components": [
+                        "Transform.16044",
+                        "ModCockpit.-1248",
+                        "LODGroup.-1250"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"ModControl\"",
+                        "ModCockpit.axes": "2",
+                        "ModCockpit.axes[0].keyPositive": "\"Vertical\"",
+                        "ModCockpit.axes[0].keyNegative": "\"\"",
+                        "ModCockpit.axes[0].computerInput": "\"\"",
+                        "ModCockpit.axes[0].value": "0.0",
+                        "ModCockpit.axes[0].multiply": "1.0",
+                        "ModCockpit.axes[0].trim": "0.0",
+                        "ModCockpit.axes[0].port.hash": "0.0",
+                        "ModCockpit.axes[0].port.wire.value": "0.0",
+                        "ModCockpit.axes[0].port.Value": "0.0",
+                        "ModCockpit.axes[0].device": "-1294",
+                        "ModCockpit.axes[1].keyPositive": "\"Horizontal\"",
+                        "ModCockpit.axes[1].keyNegative": "\"\"",
+                        "ModCockpit.axes[1].computerInput": "\"\"",
+                        "ModCockpit.axes[1].value": "0.0",
+                        "ModCockpit.axes[1].multiply": "1.0",
+                        "ModCockpit.axes[1].trim": "0.0",
+                        "ModCockpit.axes[1].port.hash": "0.0",
+                        "ModCockpit.axes[1].port.wire.value": "0.0",
+                        "ModCockpit.axes[1].port.Value": "0.0",
+                        "ModCockpit.axes[1].device": "-1320",
+                        "ModCockpit.attachData.anchor": "-1260",
+                        "ModCockpit.attachData.attachAndLock": "true",
+                        "ModCockpit.attachData.transition.duration": "0.1",
+                        "ModCockpit.attachData.transition.delay": "0.0",
+                        "ModCockpit.attachData.transition.ease": "1",
+                        "ModCockpit.attachData.transition.easeCurve": "{\"keys\":[{\"time\":0.0,\"value\":0.0,\"inTangent\":0.0,\"outTangent\":1.0,\"inWeight\":0.0,\"outWeight\":0.0,\"weightedMode\":0,\"tangentMode\":0},{\"time\":1.0,\"value\":1.0,\"inTangent\":1.0,\"outTangent\":0.0,\"inWeight\":0.0,\"outWeight\":0.0,\"weightedMode\":0,\"tangentMode\":0}],\"length\":2,\"preWrapMode\":8,\"postWrapMode\":8}",
+                        "ModCockpit.detachData.anchor": "-1264",
+                        "ModCockpit.detachData.transition.duration": "0.5",
+                        "ModCockpit.detachData.transition.delay": "0.0",
+                        "ModCockpit.detachData.transition.ease": "1",
+                        "ModCockpit.detachData.transition.easeCurve": "{\"keys\":[{\"time\":0.0,\"value\":0.0,\"inTangent\":0.0,\"outTangent\":1.0,\"inWeight\":0.0,\"outWeight\":0.0,\"weightedMode\":0,\"tangentMode\":0},{\"time\":1.0,\"value\":1.0,\"inTangent\":1.0,\"outTangent\":0.0,\"inWeight\":0.0,\"outWeight\":0.0,\"weightedMode\":0,\"tangentMode\":0}],\"length\":2,\"preWrapMode\":8,\"postWrapMode\":8}",
+                        "ModCockpit.SomeProperty": "1.0",
+                        "ModCockpit.Guid": "\"11ca6280-7107-4b45-b879-84f6e89294e5\"",
+                        "ModCockpit.MountingType": "\"\"",
+                        "ModCockpit.useGUILayout": "true",
+                        "ModCockpit.runInEditMode": "false",
+                        "ModCockpit.enabled": "true",
+                        "ModCockpit.tag": "\"Untagged\"",
+                        "ModCockpit.name": "\"ModControl\"",
+                        "LODGroup.localReferencePoint": "{\"x\":0.0,\"y\":0.7850001,\"z\":1.75}",
+                        "LODGroup.size": "1.0",
+                        "LODGroup.animateCrossFading": "false",
+                        "LODGroup.enabled": "true",
+                        "LODGroup.crossFadeAnimationDuration": "0.5",
+                        "LODGroup.tag": "\"Untagged\"",
+                        "LODGroup.name": "\"ModControl\""
+                    }
+                },
+                "-1254": {
+                    "name": "InteractiveCollider",
+                    "layer": 6,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1254",
+                        "BoxCollider.-1256"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":0.785000145,\"z\":1.75}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.785000145,\"z\":1.75}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"InteractiveCollider\"",
+                        "BoxCollider.center": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "BoxCollider.size": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "BoxCollider.extents": "{\"x\":0.5,\"y\":0.5,\"z\":0.5}",
+                        "BoxCollider.enabled": "true",
+                        "BoxCollider.isTrigger": "false",
+                        "BoxCollider.contactOffset": "0.01",
+                        "BoxCollider.tag": "\"Untagged\"",
+                        "BoxCollider.name": "\"InteractiveCollider\""
+                    }
+                },
+                "-1260": {
+                    "name": "AttachAnchor",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1260"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.2,\"z\":0.7}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":1.2,\"z\":0.7}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"AttachAnchor\""
+                    }
+                },
+                "-1264": {
+                    "name": "DetachAnchor",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1264"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.2,\"z\":0.26}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":1.2,\"z\":0.26}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"DetachAnchor\""
+                    }
+                },
+                "-1268": {
+                    "name": "Body_LOD0",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1268",
+                        "MeshFilter.-1270",
+                        "MeshRenderer.-1272"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":0.785,\"z\":1.75}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.785,\"z\":1.75}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Body_LOD0\"",
+                        "MeshFilter": "530",
+                        "MeshRenderer": "{\"materials\":[16132],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "-1276": {
+                    "name": "Body_LOD1",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1276",
+                        "MeshFilter.-1278",
+                        "MeshRenderer.-1280"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":0.785,\"z\":1.75}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.785,\"z\":1.75}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Body_LOD1\"",
+                        "MeshFilter": "530",
+                        "MeshRenderer": "{\"materials\":[16134],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "-1284": {
+                    "name": "Body_LOD2",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1284",
+                        "MeshFilter.-1286",
+                        "MeshRenderer.-1288"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":0.785,\"z\":1.75}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.785,\"z\":1.75}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Body_LOD2\"",
+                        "MeshFilter": "530",
+                        "MeshRenderer": "{\"materials\":[16120,16120],\"shadowCastingMode\":0,\"receiveShadows\":false,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "-1292": {
+                    "name": "ThurstLever",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1292",
+                        "HelmDevice.-1294"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.278,\"z\":1.876}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":1.278,\"z\":1.876}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"ThurstLever\"",
+                        "HelmDevice.handle": "-1298",
+                        "HelmDevice.mul": "30.0",
+                        "HelmDevice.trim": "0.0",
+                        "HelmDevice.eulerStart": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "HelmDevice.axe": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "HelmDevice.Port": "\"\"",
+                        "HelmDevice.useGUILayout": "true",
+                        "HelmDevice.runInEditMode": "false",
+                        "HelmDevice.enabled": "true",
+                        "HelmDevice.tag": "\"Untagged\"",
+                        "HelmDevice.name": "\"ThurstLever\""
+                    }
+                },
+                "-1298": {
+                    "name": "Lever",
+                    "layer": 0,
+                    "parent": -1292,
+                    "components": [
+                        "Transform.-1298"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.278,\"z\":1.876}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Lever\""
+                    }
+                },
+                "-1302": {
+                    "name": "Cube",
+                    "layer": 0,
+                    "parent": -1298,
+                    "components": [
+                        "Transform.-1302",
+                        "MeshFilter.-1304",
+                        "MeshRenderer.-1306"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.447,\"z\":1.876}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.169,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":0.05,\"y\":0.3,\"z\":0.05}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Cube\"",
+                        "MeshFilter": "530",
+                        "MeshRenderer": "{\"materials\":[678],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "-1310": {
+                    "name": "Cylinder",
+                    "layer": 0,
+                    "parent": -1292,
+                    "components": [
+                        "Transform.-1310",
+                        "MeshFilter.-1312",
+                        "MeshRenderer.-1314"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.278,\"z\":1.876}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":90.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":90.0}",
+                        "Transform.right": "{\"x\":-1.1920929E-07,\"y\":1.00000012,\"z\":0.0}",
+                        "Transform.up": "{\"x\":-1.00000012,\"y\":-1.1920929E-07,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":0.0,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":0.7071068,\"x\":0.0,\"y\":0.0,\"z\":0.7071068,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":90.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071068,\"x\":0.0,\"y\":0.0,\"z\":0.7071068,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":90.0}}",
+                        "Transform.localScale": "{\"x\":0.2,\"y\":0.05,\"z\":0.2}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Cylinder\"",
+                        "MeshFilter": "532",
+                        "MeshRenderer": "{\"materials\":[678],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "-1318": {
+                    "name": "ThurstLever (1)",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.-1318",
+                        "HelmDevice.-1320"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.278,\"z\":1.545}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":1.278,\"z\":1.545}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":270.000061,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":270.000061,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.07288361E-06,\"y\":0.0,\"z\":1.00000012}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":-1.00000012,\"y\":0.0,\"z\":1.07288361E-06}",
+                        "Transform.rotation": "{\"w\":0.707107246,\"x\":0.0,\"y\":-0.7071064,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":270.000061,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.707107246,\"x\":0.0,\"y\":-0.7071064,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":270.000061,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"ThurstLever (1)\"",
+                        "HelmDevice.handle": "-1324",
+                        "HelmDevice.mul": "30.0",
+                        "HelmDevice.trim": "0.0",
+                        "HelmDevice.eulerStart": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "HelmDevice.axe": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "HelmDevice.Port": "\"\"",
+                        "HelmDevice.useGUILayout": "true",
+                        "HelmDevice.runInEditMode": "false",
+                        "HelmDevice.enabled": "true",
+                        "HelmDevice.tag": "\"Untagged\"",
+                        "HelmDevice.name": "\"ThurstLever (1)\""
+                    }
+                },
+                "-1324": {
+                    "name": "Lever",
+                    "layer": 0,
+                    "parent": -1318,
+                    "components": [
+                        "Transform.-1324"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.278,\"z\":1.545}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":270.000061,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.07288361E-06,\"y\":0.0,\"z\":1.00000012}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":-1.00000012,\"y\":0.0,\"z\":1.07288361E-06}",
+                        "Transform.rotation": "{\"w\":0.707107246,\"x\":0.0,\"y\":-0.7071064,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":270.000061,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Lever\""
+                    }
+                },
+                "-1328": {
+                    "name": "Cube",
+                    "layer": 0,
+                    "parent": -1324,
+                    "components": [
+                        "Transform.-1328",
+                        "MeshFilter.-1330",
+                        "MeshRenderer.-1332"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.447,\"z\":1.545}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.169,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":270.000061,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.07288361E-06,\"y\":0.0,\"z\":1.00000012}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":0.0}",
+                        "Transform.forward": "{\"x\":-1.00000012,\"y\":0.0,\"z\":1.07288361E-06}",
+                        "Transform.rotation": "{\"w\":0.707107246,\"x\":0.0,\"y\":-0.7071064,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":270.000061,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":0.0,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":0.05,\"y\":0.3,\"z\":0.05}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Cube\"",
+                        "MeshFilter": "530",
+                        "MeshRenderer": "{\"materials\":[678],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "-1336": {
+                    "name": "Cylinder",
+                    "layer": 0,
+                    "parent": -1318,
+                    "components": [
+                        "Transform.-1336",
+                        "MeshFilter.-1338",
+                        "MeshRenderer.-1340"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.0,\"y\":1.278,\"z\":1.545}",
+                        "Transform.localPosition": "{\"x\":0.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.eulerAngles": "{\"x\":0.0,\"y\":270.000061,\"z\":90.0}",
+                        "Transform.localEulerAngles": "{\"x\":0.0,\"y\":0.0,\"z\":90.0}",
+                        "Transform.right": "{\"x\":-2.38418579E-07,\"y\":1.00000024,\"z\":0.0}",
+                        "Transform.up": "{\"x\":-1.1920929E-06,\"y\":-2.38418579E-07,\"z\":-1.00000024}",
+                        "Transform.forward": "{\"x\":-1.00000024,\"y\":0.0,\"z\":9.536743E-07}",
+                        "Transform.rotation": "{\"w\":0.500000358,\"x\":-0.499999762,\"y\":-0.499999762,\"z\":0.500000358,\"eulerAngles\":{\"x\":0.0,\"y\":270.000061,\"z\":90.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071068,\"x\":0.0,\"y\":0.0,\"z\":0.7071068,\"eulerAngles\":{\"x\":0.0,\"y\":0.0,\"z\":90.0}}",
+                        "Transform.localScale": "{\"x\":0.2,\"y\":0.05,\"z\":0.2}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Cylinder\"",
+                        "MeshFilter": "532",
+                        "MeshRenderer": "{\"materials\":[678],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16090": {
+                    "name": "Attributes",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16090",
+                        "MeshFilter.16066",
+                        "MeshRenderer.16112"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.9770003,\"y\":1.39613247,\"z\":1.74399817}",
+                        "Transform.localPosition": "{\"x\":0.9770003,\"y\":1.39613247,\"z\":1.74399817}",
+                        "Transform.eulerAngles": "{\"x\":-6.83245332E-07,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":-6.83245332E-07,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":1.0,\"z\":-1.19248806E-08}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":1.19248806E-08,\"z\":1.0}",
+                        "Transform.rotation": "{\"w\":1.0,\"x\":-5.96244032E-09,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":-6.83245332E-07,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":1.0,\"x\":-5.96244032E-09,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":-6.83245332E-07,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Attributes\"",
+                        "MeshFilter": "16140",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16098": {
+                    "name": "Bearing",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16098",
+                        "MeshFilter.16062",
+                        "MeshRenderer.16088"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.9748132,\"y\":1.360218,\"z\":1.74400008}",
+                        "Transform.localPosition": "{\"x\":0.9748132,\"y\":1.360218,\"z\":1.74400008}",
+                        "Transform.eulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":-1.1920929E-07,\"z\":0.99999994}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":-0.99999994,\"z\":-1.1920929E-07}",
+                        "Transform.rotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Bearing\"",
+                        "MeshFilter": "16144",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16110": {
+                    "name": "Enjeen",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16110",
+                        "MeshFilter.16100",
+                        "MeshRenderer.16106"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.977,\"y\":1.39594936,\"z\":1.74400008}",
+                        "Transform.localPosition": "{\"x\":0.977,\"y\":1.39594936,\"z\":1.74400008}",
+                        "Transform.eulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":-1.1920929E-07,\"z\":0.99999994}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":-0.99999994,\"z\":-1.1920929E-07}",
+                        "Transform.rotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Enjeen\"",
+                        "MeshFilter": "16146",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16094": {
+                    "name": "MainShaft",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16094",
+                        "MeshFilter.16072",
+                        "MeshRenderer.16078"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.977,\"y\":0.35,\"z\":1.744}",
+                        "Transform.localPosition": "{\"x\":0.977,\"y\":0.35,\"z\":1.744}",
+                        "Transform.eulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":-1.1920929E-07,\"z\":0.99999994}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":-0.99999994,\"z\":-1.1920929E-07}",
+                        "Transform.rotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"MainShaft\"",
+                        "MeshFilter": "16148",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16074": {
+                    "name": "OreBox",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16074",
+                        "MeshFilter.16080",
+                        "MeshRenderer.16082"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.976999938,\"y\":0.8865762,\"z\":1.74400008}",
+                        "Transform.localPosition": "{\"x\":0.976999938,\"y\":0.8865762,\"z\":1.74400008}",
+                        "Transform.eulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":-1.1920929E-07,\"z\":0.99999994}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":-0.99999994,\"z\":-1.1920929E-07}",
+                        "Transform.rotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"OreBox\"",
+                        "MeshFilter": "16150",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16102": {
+                    "name": "Radiator",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16102",
+                        "MeshFilter.16114",
+                        "MeshRenderer.16108"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.9748132,\"y\":0.3499999,\"z\":1.74400008}",
+                        "Transform.localPosition": "{\"x\":0.9748132,\"y\":0.3499999,\"z\":1.74400008}",
+                        "Transform.eulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":-1.1920929E-07,\"z\":0.99999994}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":-0.99999994,\"z\":-1.1920929E-07}",
+                        "Transform.rotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Radiator\"",
+                        "MeshFilter": "16152",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                },
+                "16068": {
+                    "name": "Reductor",
+                    "layer": 0,
+                    "parent": 16044,
+                    "components": [
+                        "Transform.16068",
+                        "MeshFilter.16092",
+                        "MeshRenderer.16070"
+                    ],
+                    "Hash": {
+                        "Transform.position": "{\"x\":0.976999938,\"y\":0.8863325,\"z\":1.74400008}",
+                        "Transform.localPosition": "{\"x\":0.976999938,\"y\":0.8863325,\"z\":1.74400008}",
+                        "Transform.eulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.localEulerAngles": "{\"x\":89.98022,\"y\":0.0,\"z\":0.0}",
+                        "Transform.right": "{\"x\":1.0,\"y\":0.0,\"z\":0.0}",
+                        "Transform.up": "{\"x\":0.0,\"y\":-1.1920929E-07,\"z\":0.99999994}",
+                        "Transform.forward": "{\"x\":0.0,\"y\":-0.99999994,\"z\":-1.1920929E-07}",
+                        "Transform.rotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localRotation": "{\"w\":0.7071067,\"x\":0.7071068,\"y\":0.0,\"z\":0.0,\"eulerAngles\":{\"x\":89.98022,\"y\":0.0,\"z\":0.0}}",
+                        "Transform.localScale": "{\"x\":1.0,\"y\":1.0,\"z\":1.0}",
+                        "Transform.hasChanged": "true",
+                        "Transform.hierarchyCapacity": "22",
+                        "Transform.tag": "\"Untagged\"",
+                        "Transform.name": "\"Reductor\"",
+                        "MeshFilter": "16154",
+                        "MeshRenderer": "{\"materials\":[16142],\"shadowCastingMode\":1,\"receiveShadows\":true,\"lightProbeUsage\":1,\"reflectionProbeUsage\":1}"
+                    }
+                }
+            }
+        }
+    ],
+    "assetsHash": [
+        {
+            "name": "Mesh",
+            "id": 530,
+            "Hash": {
+                "Mesh": "530",
+                "Mesh_1": "Cube_530"
+            }
+        },
+        {
+            "name": "Material",
+            "id": 16132,
+            "Hash": {
+                "Material": "{\"properties\":[{\"type\":0,\"name\":\"_Color\",\"colorValue\":{\"a\":1.0,\"r\":0.422638535,\"g\":0.8584906,\"b\":0.149830848},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MainTex\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_Cutoff\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Glossiness\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_GlossMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SmoothnessTextureChannel\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Metallic\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MetallicGlossMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_SpecularHighlights\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_GlossyReflections\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_BumpScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_BumpMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_Parallax\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.02,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_ParallaxMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_OcclusionStrength\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_OcclusionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":0,\"name\":\"_EmissionColor\",\"colorValue\":{\"a\":1.0,\"r\":1.0,\"g\":1.0,\"b\":1.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_EmissionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailMask\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailAlbedoMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_DetailNormalMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_DetailNormalMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_UVSec\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_Mode\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SrcBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_DstBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_ZWrite\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0}]}",
+                "Material_1": "Standard"
+            }
+        },
+        {
+            "name": "Material",
+            "id": 16134,
+            "Hash": {
+                "Material": "{\"properties\":[{\"type\":0,\"name\":\"_Color\",\"colorValue\":{\"a\":1.0,\"r\":0.858823538,\"g\":0.8039757,\"b\":0.149019539},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MainTex\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_Cutoff\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Glossiness\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_GlossMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SmoothnessTextureChannel\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Metallic\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MetallicGlossMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_SpecularHighlights\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_GlossyReflections\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_BumpScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_BumpMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_Parallax\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.02,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_ParallaxMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_OcclusionStrength\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_OcclusionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":0,\"name\":\"_EmissionColor\",\"colorValue\":{\"a\":1.0,\"r\":1.0,\"g\":1.0,\"b\":1.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_EmissionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailMask\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailAlbedoMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_DetailNormalMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_DetailNormalMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_UVSec\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_Mode\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SrcBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_DstBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_ZWrite\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0}]}",
+                "Material_1": "Standard"
+            }
+        },
+        {
+            "name": "Material",
+            "id": 16120,
+            "Hash": {
+                "Material": "{\"properties\":[{\"type\":0,\"name\":\"_Color\",\"colorValue\":{\"a\":1.0,\"r\":0.858823538,\"g\":0.326601326,\"b\":0.149019539},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MainTex\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_Cutoff\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Glossiness\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_GlossMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SmoothnessTextureChannel\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Metallic\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MetallicGlossMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_SpecularHighlights\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_GlossyReflections\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_BumpScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_BumpMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_Parallax\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.02,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_ParallaxMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_OcclusionStrength\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_OcclusionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":0,\"name\":\"_EmissionColor\",\"colorValue\":{\"a\":1.0,\"r\":1.0,\"g\":1.0,\"b\":1.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_EmissionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailMask\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailAlbedoMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_DetailNormalMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_DetailNormalMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_UVSec\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_Mode\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SrcBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_DstBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_ZWrite\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0}]}",
+                "Material_1": "Standard"
+            }
+        },
+        {
+            "name": "Material",
+            "id": 678,
+            "Hash": {
+                "Material": "{\"properties\":[{\"type\":0,\"name\":\"_Color\",\"colorValue\":{\"a\":0.5,\"r\":1.0,\"g\":1.0,\"b\":1.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MainTex\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1}]}",
+                "Material_1": "Legacy Shaders/Diffuse"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 532,
+            "Hash": {
+                "Mesh": "532",
+                "Mesh_1": "Cylinder_532"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16140,
+            "Hash": {
+                "Mesh": "16140",
+                "Mesh_1": "Attributes_16140"
+            }
+        },
+        {
+            "name": "Material",
+            "id": 16142,
+            "Hash": {
+                "Material": "{\"properties\":[{\"type\":0,\"name\":\"_Color\",\"colorValue\":{\"a\":1.0,\"r\":1.0,\"g\":1.0,\"b\":1.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MainTex\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":16156},{\"type\":3,\"name\":\"_Cutoff\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Glossiness\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.5,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_GlossMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SmoothnessTextureChannel\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":3,\"name\":\"_Metallic\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_MetallicGlossMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_SpecularHighlights\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_GlossyReflections\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_BumpScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_BumpMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":16158},{\"type\":3,\"name\":\"_Parallax\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.02,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_ParallaxMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":3,\"name\":\"_OcclusionStrength\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_OcclusionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":0,\"name\":\"_EmissionColor\",\"colorValue\":{\"a\":1.0,\"r\":1.0,\"g\":1.0,\"b\":1.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_EmissionMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailMask\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":4,\"name\":\"_DetailAlbedoMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_DetailNormalMapScale\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":4,\"name\":\"_DetailNormalMap\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":-1},{\"type\":2,\"name\":\"_UVSec\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_Mode\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_SrcBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_DstBlend\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":0.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0},{\"type\":2,\"name\":\"_ZWrite\",\"colorValue\":{\"a\":0.0,\"r\":0.0,\"g\":0.0,\"b\":0.0},\"floatValue\":1.0,\"vectorValue\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":0.0},\"texValue\":0}]}",
+                "Material_1": "Standard"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16144,
+            "Hash": {
+                "Mesh": "16144",
+                "Mesh_1": "Bearing_16144"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16146,
+            "Hash": {
+                "Mesh": "16146",
+                "Mesh_1": "Enjeen_16146"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16148,
+            "Hash": {
+                "Mesh": "16148",
+                "Mesh_1": "MainShaft_16148"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16150,
+            "Hash": {
+                "Mesh": "16150",
+                "Mesh_1": "OreBox_16150"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16152,
+            "Hash": {
+                "Mesh": "16152",
+                "Mesh_1": "Radiator_16152"
+            }
+        },
+        {
+            "name": "Mesh",
+            "id": 16154,
+            "Hash": {
+                "Mesh": "16154",
+                "Mesh_1": "Reductor_16154"
+            }
+        },
+        {
+            "name": "Texture2D",
+            "id": 16156,
+            "Hash": {
+                "Texture2D": "16156",
+                "Texture2D_1": "Tex_OreMachine_BaseColor_16156",
+                "Texture2D_2": "RGBA_DXT1_SRGB"
+            }
+        },
+        {
+            "name": "Texture2D",
+            "id": 16158,
+            "Hash": {
+                "Texture2D": "16158",
+                "Texture2D_1": "Tex_OreMachine_Normal_16158",
+                "Texture2D_2": "RGBA_DXT5_UNorm"
+            }
+        }
+    ]
+}
