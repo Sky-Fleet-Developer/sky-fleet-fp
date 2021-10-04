@@ -126,7 +126,8 @@ namespace Core.Structure
 
                 if (block.Guid != blockConfig.current)
                 {
-                    awaiters.Add(ReplaceBlock(structure, i, blockConfig.current));
+                    var task = ReplaceBlock(structure, i, blockConfig.current);
+                    awaiters.Add(task);
                 }
             }
 
