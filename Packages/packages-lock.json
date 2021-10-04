@@ -88,11 +88,10 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "2.0.0-preview",
-      "depth": 3,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
+      "version": "file:../com.unity.nuget.newtonsoft-json@2.0.0-preview",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
     },
     "com.unity.render-pipelines.core": {
       "version": "10.3.2",
