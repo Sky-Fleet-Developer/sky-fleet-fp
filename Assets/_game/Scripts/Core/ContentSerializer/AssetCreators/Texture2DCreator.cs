@@ -16,8 +16,8 @@ namespace ContentSerializer
         public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> hash, ISerializationContext context)
         {
             string name = hash[prefix + "_1"];
-            Debug.Log("Search texture in path: " + Application.dataPath + "/Mod/" + name + ".png");
-            return await CreateInstance(Application.dataPath + "/Mod/" + name + ".png");
+            Debug.Log($"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+            return await CreateInstance($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
         }
 
 

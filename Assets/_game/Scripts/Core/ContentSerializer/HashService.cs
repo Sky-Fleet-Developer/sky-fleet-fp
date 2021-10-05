@@ -251,28 +251,16 @@ namespace ContentSerializer
                 (typeof(Vector2), "normalized"),
                 (typeof(Quaternion), "normalized"),
             };
-
-        public static Type GetTypeByName(string name)
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            foreach (var assembly in assemblies)
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (type.Name == name) return type;
-                }
-            }
-
-            return null;
-        }
     }
 
     public interface ISerializationContext
     {
         Action<UnityEngine.Object> DetectedObjectReport { get; }
         Func<int, UnityEngine.Object> GetObject { get; }
-        public SerializerBehaviour Behaviour { get; }
+        Assembly[] AvailableAssemblies { get; }
+        Type GetTypeByName(string name);
+        SerializerBehaviour Behaviour { get; }
+        string ModFolderPath { get; }
     }
     
     public interface ICustomSerializer

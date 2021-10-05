@@ -28,16 +28,9 @@ static void GetCurrentSelectionJson()
             return new Serializer(new PrefabBehaviour());
         }
         
-        public static Deserializer GetDeserializer()
+        public static Deserializer GetDeserializer(string modFolderName, Assembly[] availableAssemblies)
         {
-            return new Deserializer(new PrefabBehaviour());
-        }
-
-        public static Transform Build(string json)
-        {
-            var deserializer = new Deserializer(new PrefabBehaviour());
-            var bundle = JsonConvert.DeserializeObject<PrefabBundle>(json);
-            return bundle.ConstructTree(null, deserializer);
+            return new Deserializer(new PrefabBehaviour(), modFolderName, availableAssemblies);
         }
 
         public class PrefabBehaviour : SerializerBehaviour

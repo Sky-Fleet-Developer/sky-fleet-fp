@@ -58,7 +58,7 @@ namespace ContentSerializer
 
             foreach (var obj in Tree)
             {
-                obj.Value.ReconstructTypes(transforms[obj.Key], ref reconstruction);
+                obj.Value.ReconstructTypes(transforms[obj.Key], ref reconstruction, context);
             }
 
             foreach (var obj in Tree)
@@ -104,13 +104,13 @@ namespace ContentSerializer
 
         private List<int> reconstructedTypes;
 
-        public void ReconstructTypes(Transform transform, ref Dictionary<int, Component> reconstruction)
+        public void ReconstructTypes(Transform transform, ref Dictionary<int, Component> reconstruction, ISerializationContext context)
         {
             reconstructedTypes = new List<int>();
             foreach (var componentName in components)
             {
                 var split = componentName.Split(new[] {'.'});
-                var type = HashService.GetTypeByName(split[0]);
+                var type = context.GetTypeByName(split[0]);
                 if (!transform.gameObject.TryGetComponent(type, out Component component))
                     component = transform.gameObject.AddComponent(type);
 

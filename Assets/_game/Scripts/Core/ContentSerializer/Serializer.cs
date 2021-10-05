@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Object = UnityEngine.Object;
@@ -10,7 +11,15 @@ namespace ContentSerializer
     {
         public System.Action<UnityEngine.Object> DetectedObjectReport { get; set; }
         public System.Func<int, Object> GetObject => throw new System.NotImplementedException();
+        public Assembly[] AvailableAssemblies => throw new System.NotImplementedException();
+        public System.Type GetTypeByName(string name)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public SerializerBehaviour Behaviour { get; }
+        public string ModFolderPath => throw new System.NotImplementedException();
+        
 
         public Serializer(SerializerBehaviour behaviour)
         {

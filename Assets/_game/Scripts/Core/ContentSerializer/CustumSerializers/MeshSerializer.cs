@@ -95,7 +95,7 @@ namespace ContentSerializer
                     memoryStream.Write(BitConverter.GetBytes(bones.Length), 0, sizeof(int));
                     memoryStream.Write(bones.ToArray(), 0, bones.Length);
 
-                    FileStream file = File.Open(Application.dataPath + PathStorage.BASE_PATH_MODELS + "/" + mesh.name + "_" + mesh.GetInstanceID(), FileMode.OpenOrCreate);
+                    FileStream file = File.Open(Application.dataPath + PathStorage.BASE_PATH_MODELS + "/" + mesh.name + "_" + mesh.GetInstanceID() + ".mesh", FileMode.OpenOrCreate);
                     memoryStream.Seek(0, SeekOrigin.Begin);
                     memoryStream.CopyTo(file);
                     file.Close();
@@ -245,7 +245,7 @@ namespace ContentSerializer
         public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
         {
             //JsonConvert.PopulateObject(hash[prefix], source);
-            FileStream file = File.Open(Application.dataPath + PathStorage.BASE_PATH_MODELS +"/" + hash[prefix + "_1"], FileMode.Open);
+            FileStream file = File.Open($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_MODELS}/{hash[prefix + "_1"]}", FileMode.Open);
             if (file == null)
             {
                 throw new NullReferenceException();

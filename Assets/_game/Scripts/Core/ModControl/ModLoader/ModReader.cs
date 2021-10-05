@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -18,21 +21,36 @@ namespace Core.Mods
         public Mod Read(string path)
         {
             string fileDefineMod = File.ReadAllText(path + "/" + PathStorage.BASE_MOD_FILE_DEFINE);
-            SerializationModule modul = (SerializationModule)JsonConvert.DeserializeObject(fileDefineMod);
+            SerializationModule modul = JsonConvert.DeserializeObject<SerializationModule>(fileDefineMod);
+            modul.ModFolderPath = path;
+            
+            // дальше идёт то, чего тут быть не должно, это чисто для теста, но алгоритм верный.
+            Assembly assembly = ReadAssembly(path + "/" + PathStorage.ASSEMBLY_FILE_DEFINE);
+            List<Assembly> assemblies = System.AppDomain.CurrentDomain.GetAssemblies().ToList();
+            assemblies.Add(assembly);
+
+            _ = modul.DeserializeAll(assemblies.ToArray());
+            
             return null;
         }
 
         private Mesh ReadMesh(string pathMesh)
         {
-            FileStream meshFile = File.Open(pathMesh, FileMode.Open);
-            if(meshFile != null)
+            try
             {
+                FileStream meshFile = File.Open(pathMesh, FileMode.Open);
+
                 Mesh mesh = new Mesh();
                 _ = MeshSerializer.Deserialize(meshFile, mesh);
                 meshFile.Close();
                 return mesh;
             }
-            return null;
+            catch (Exception e)
+            {
+                Debug.LogError("Cant find mesh at path" + pathMesh);
+                Debug.LogError(e);
+                return null;
+            }
         }
 
         private Texture2D ReadTexture(string pathTexture)
@@ -40,6 +58,29 @@ namespace Core.Mods
             Task<Texture2D> task = Texture2DCreator.CreateInstance(pathTexture);
             Task.WaitAll(task);
             return task.Result;
+        }
+
+        
+        private Assembly ReadAssembly(string path)
+        {
+            return System.AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path));
+            /*
+            if (asm != null)
+            {
+                //loadedLog.Add($"Found assamble {asm.GetName().Name}:");
+
+                Type[] types = asm.GetTypes();
+
+                foreach (Type type in types)
+                {
+                    //loadedLog.Add(type.FullName);
+                }
+            }
+            else
+            {
+                //loadedLog.Add($"Assamble is null - {asm.GetName().Name}:");
+            }
+            */
         }
     }
 }

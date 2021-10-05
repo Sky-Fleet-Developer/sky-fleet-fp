@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.IO;
+using Object = UnityEngine.Object;
 
 namespace ContentSerializer
 {
@@ -28,6 +30,8 @@ namespace ContentSerializer
 
         [JsonIgnore]
         [ShowInInspector] public Dictionary<int, Object> assets;
+        
+        public string ModFolderPath { get; set; }
 
         [Button]
         public void SerializeAll()
@@ -79,19 +83,25 @@ namespace ContentSerializer
         }
 
         [Button]
-        public async void DeserializeAll()
+        public Task DeserializeAll()
         {
-            assets = await DeserializeAssets();
-            prefabs = DeserializePrefabs();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            return DeserializeAll(assemblies);
+        }
+        
+        public async Task DeserializeAll(System.Reflection.Assembly[] availableAssemblies)
+        {
+            assets = await DeserializeAssets(availableAssemblies);
+            prefabs = DeserializePrefabs(availableAssemblies);
         }
 
-        public async Task<Dictionary<int, Object>> DeserializeAssets()
+        public async Task<Dictionary<int, Object>> DeserializeAssets(System.Reflection.Assembly[] availableAssemblies)
         {
-            var deserializer = PrefabProvider.GetDeserializer();
+            var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
             Dictionary<int, Object> result = new Dictionary<int, Object>(assetsHash.Count);
             for (var i = 0; i < assetsHash.Count; i++)
             {
-                var type = HashService.GetTypeByName(assetsHash[i].name);
+                var type = deserializer.GetTypeByName(assetsHash[i].name);
                 if (HashService.AssetCreators.TryGetValue(type, out var creator))
                 {
                     var instance = await creator.CreateInstance(assetsHash[i].name, assetsHash[i].Hash, deserializer);
@@ -114,9 +124,9 @@ namespace ContentSerializer
             return result;
         }
 
-        public List<Transform> DeserializePrefabs()
+        public List<Transform> DeserializePrefabs(System.Reflection.Assembly[] availableAssemblies)
         {
-            var deserializer = PrefabProvider.GetDeserializer();
+            var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
             List<Transform> result = new List<Transform>(assetsHash.Count);
             deserializer.GetObject = v => assets[v];
 
