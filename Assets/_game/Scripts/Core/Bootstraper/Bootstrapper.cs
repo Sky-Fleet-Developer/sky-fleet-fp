@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.Menu
+namespace Core.Boot_strapper
 {
     public class Bootstrapper : MonoBehaviour
     {

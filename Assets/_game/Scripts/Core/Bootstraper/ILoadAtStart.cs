@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-namespace Core.Menu
+namespace Core.Boot_strapper
 {
     public interface ILoadAtStart
     {

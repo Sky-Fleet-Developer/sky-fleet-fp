@@ -151,7 +151,7 @@ namespace ContentSerializer
         {
             string path = Application.dataPath + PathStorage.BASE_PATH + "/";
             string jsonS = JsonConvert.SerializeObject(this);
-            File.WriteAllText(path + "modDefine.json", jsonS);
+            File.WriteAllText(path + PathStorage.BASE_MOD_FILE_DEFINE, jsonS);
 
 #if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();

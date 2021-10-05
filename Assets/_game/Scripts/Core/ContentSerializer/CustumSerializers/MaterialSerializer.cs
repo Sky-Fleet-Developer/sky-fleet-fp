@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
@@ -22,13 +23,14 @@ namespace ContentSerializer
 
         public int GetStringsCount() => 2;
 
-        public void Deserialize(string prefix, ref object source, Dictionary<string, string> hash, ISerializationContext context)
+        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
         {
             Material mr = (Material) source;
             var hashValue = hash[prefix];
             var serializedSource = JsonConvert.DeserializeObject<SerializedMaterial>(hashValue);
             
             serializedSource.ApplyToMaterial(mr, context);
+            return Task.CompletedTask;
         }
 
         [System.Serializable]

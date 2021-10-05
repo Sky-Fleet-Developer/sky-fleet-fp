@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 using UnityEditor;
@@ -104,15 +105,8 @@ namespace ContentSerializer
 
         public int GetStringsCount() => 2;
 
-        public void Deserialize(string prefix, ref object source, Dictionary<string, string> hash, ISerializationContext context)
+        public async static Task Deserialize(FileStream file, Mesh mesh)
         {
-            //JsonConvert.PopulateObject(hash[prefix], source);
-            FileStream file = File.Open(Application.dataPath + PathStorage.BASE_PATH_MODELS +"/" + hash[prefix + "_1"], FileMode.Open);
-            if (file == null)
-            {
-                throw new NullReferenceException();
-            }
-            Mesh mesh = (Mesh)source;
             FactoryArrayDeconvert deconvert = new FactoryArrayDeconvert();
 
             //
@@ -134,6 +128,8 @@ namespace ContentSerializer
             List<Vector3> listVertexes = new List<Vector3>();
             listVertexes.AddRange((Vector3[])deconvert.Generate(new TypeDeconvert(typeof(Vector3[]), vertexBuf)));
 
+            await Task.Delay(100);
+
             file.Read(bufferInt, 0, sizeof(int)); //Get normals
             count = BitConverter.ToInt32(bufferInt, 0);
             byte[] normalsBuf = new byte[count];
@@ -152,6 +148,8 @@ namespace ContentSerializer
                 triangles.Add((int[])deconvert.Generate(new TypeDeconvert(typeof(int[]), tr)));
             }
 
+            await Task.Delay(100);
+
             //Get subMesh
             file.Read(bufferInt, 0, sizeof(int));
             count = BitConverter.ToInt32(bufferInt, 0);
@@ -169,6 +167,8 @@ namespace ContentSerializer
                 topology = BitConverter.ToInt32(bufferInt, 0);
                 subMeshs.Add(new UnityEngine.Rendering.SubMeshDescriptor(indexStart, indexCount, (MeshTopology)topology));
             }
+
+            await Task.Delay(100);
 
             //Get uvs
             file.Read(bufferInt, 0, sizeof(int));
@@ -192,6 +192,8 @@ namespace ContentSerializer
             List<Vector2> listUV3 = new List<Vector2>();
             listUV3.AddRange((Vector2[])deconvert.Generate(new TypeDeconvert(typeof(Vector2[]), uv3Buf)));
 
+            await Task.Delay(100);
+
             //Get weight animation
             byte[] bufferFloat = new byte[sizeof(float)];
             file.Read(bufferInt, 0, sizeof(int));
@@ -212,7 +214,7 @@ namespace ContentSerializer
             file.Read(bufferInt, 0, sizeof(int));
             count = BitConverter.ToInt32(bufferInt, 0);
             byte[] bones = new byte[count];
-       
+
             ///
             mesh.name = nameMesh;
             mesh.indexFormat = (UnityEngine.Rendering.IndexFormat)formatBuffer[0];
@@ -238,7 +240,17 @@ namespace ContentSerializer
 
             mesh.RecalculateBounds();
             mesh.RecalculateTangents();
+        }
 
+        public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        {
+            //JsonConvert.PopulateObject(hash[prefix], source);
+            FileStream file = File.Open(Application.dataPath + PathStorage.BASE_PATH_MODELS +"/" + hash[prefix + "_1"], FileMode.Open);
+            if (file == null)
+            {
+                throw new NullReferenceException();
+            }
+            await Deserialize(file, (Mesh)source);
             file.Close();
         }
     }

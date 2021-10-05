@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -23,7 +24,7 @@ namespace ContentSerializer
         
         public int GetStringsCount() => 1;
 
-        public void Deserialize(string prefix, ref object source, Dictionary<string, string> hash, ISerializationContext context)
+        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
         {
             MeshRenderer mr = (MeshRenderer) source;
             var hashValue = hash[prefix];
@@ -38,6 +39,7 @@ namespace ContentSerializer
             mr.receiveShadows = serializedSource.receiveShadows;
             mr.lightProbeUsage = serializedSource.lightProbeUsage;
             mr.reflectionProbeUsage = serializedSource.reflectionProbeUsage;
+            return Task.CompletedTask;
         }
         
         [System.Serializable]

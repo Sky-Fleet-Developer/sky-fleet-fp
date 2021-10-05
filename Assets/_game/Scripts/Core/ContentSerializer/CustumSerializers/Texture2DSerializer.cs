@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using ContentSerializer;
 using UnityEngine;
 
@@ -48,9 +49,9 @@ namespace ContentSerializer
         
         public int GetStringsCount() => 3;
 
-        public void Deserialize(string prefix, ref object source, Dictionary<string, string> hash, ISerializationContext context)
+        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
         {
-            
+            return Task.CompletedTask;
         }
     }
 }

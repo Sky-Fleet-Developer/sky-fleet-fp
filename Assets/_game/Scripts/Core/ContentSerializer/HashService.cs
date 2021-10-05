@@ -21,7 +21,7 @@ namespace ContentSerializer
             
             if (CustomSerializer.TryGetValue(type, out var serializer))
             {
-                serializer.Deserialize(prefix, ref source, hash, context);
+                serializer.Deserialize(prefix, source, hash, context);
                 return;
             }
             
@@ -279,7 +279,7 @@ namespace ContentSerializer
     {
         string Serialize(object source, ISerializationContext context, int idx);
         int GetStringsCount();
-        void Deserialize(string prefix, ref object source, Dictionary<string, string> hash, ISerializationContext context);
+        Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context);
     }
 
     public interface IAssetCreator
