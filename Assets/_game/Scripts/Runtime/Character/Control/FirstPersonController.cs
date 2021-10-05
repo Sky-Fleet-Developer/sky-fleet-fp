@@ -135,7 +135,7 @@ namespace Runtime.Character.Control
         {
             motor.InputAxis = new Vector2(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal"));
             motor.InputSprint = Input.GetButton("Sprint");
-
+            
             if (Input.GetButtonDown("Jump"))
             {
                 motor.InputJump();

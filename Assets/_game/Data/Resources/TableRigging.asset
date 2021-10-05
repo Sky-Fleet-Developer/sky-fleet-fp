@@ -17,17 +17,17 @@ MonoBehaviour:
       m_AssetGUID: b249800ad0fa4ac49b0be7281b7690ff
       m_SubObjectName: 
       m_SubObjectType: 
-    guid: c4678263-64da-4de3-83d9-99e320860bdf
-    mounting: TestControl
+    guid: 40222abb-51cd-4887-8afb-92518f93a6cd
+    mounting: 
   - reference:
       m_AssetGUID: 48a371fc77a91fe4098ec1d5f2fcd654
       m_SubObjectName: 
       m_SubObjectType: 
-    guid: f12b80ab-0f69-4f89-bdea-b4e6a4a4d379
-    mounting: TestHydrogenStorage
+    guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
+    mounting: 
   - reference:
       m_AssetGUID: d4ac0d39cf8e4a147a90d726ceb2f314
       m_SubObjectName: 
       m_SubObjectType: 
-    guid: 8bbb1157-4b70-4e09-bf1c-c32b29f31e4a
-    mounting: TestThurster
+    guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+    mounting: 

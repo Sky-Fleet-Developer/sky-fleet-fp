@@ -53,12 +53,12 @@ namespace Runtime.Character
         private Transform platform;
         
         private Vector2 targetSpeed;
-        private bool jump;
+        [ShowInInspector, ReadOnly] private bool jump;
         private bool canJump = true;
         
         
-        public bool InputSprint { get; set; }
-        public Vector2 InputAxis { get; set; }
+        [ShowInInspector, ReadOnly] public bool InputSprint { get; set; }
+        [ShowInInspector, ReadOnly]  public Vector2 InputAxis { get; set; }
 
         public void InputJump()
         {

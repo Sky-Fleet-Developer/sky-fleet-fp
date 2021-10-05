@@ -837,7 +837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentsObjects: []
-  configuration: '{"blocks":[{"path":"TestJet","current":"d6d19abd-1e58-4ada-ae00-0a68ac4419cd","setup":{}},{"path":"TestControl","current":"ec08b3f2-0efb-4f6d-bc15-9ba8cb95f179","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"673ea29c-0dfc-4bc8-b1c7-99506d787f41","setup":{}}],"wires":["a9893d7e-45f6-47a4-99ab-2c6f9568e143.f799627d-ab5b-4083-a5ac-f35e1e181c0d","2f3f89db-1f62-4742-b237-d1c86d86dea0.70de2890-d5b6-4e60-a278-cd0a8c07a256"]}'
+  configuration: '{"blocks":[{"path":"TestJet","current":"3636a306-24bb-4c6a-a7c4-646571f2a3be","setup":{}},{"path":"TestControl","current":"40222abb-51cd-4887-8afb-92518f93a6cd","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"673ea29c-0dfc-4bc8-b1c7-99506d787f41","setup":{}}],"wires":["f799627d-ab5b-4083-a5ac-f35e1e181c0d.a9893d7e-45f6-47a4-99ab-2c6f9568e143","2f3f89db-1f62-4742-b237-d1c86d86dea0.70de2890-d5b6-4e60-a278-cd0a8c07a256"]}'
 --- !u!54 &744063203
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1805,7 +1805,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: guid
-      value: 10143652-5e24-402f-a055-f02a5f8de2d8
+      value: 40222abb-51cd-4887-8afb-92518f93a6cd
       objectReference: {fileID: 0}
     - target: {fileID: 4007178922747367427, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: m_RootOrder

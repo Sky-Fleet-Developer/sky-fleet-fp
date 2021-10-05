@@ -64,13 +64,13 @@ namespace Core.Utilities
             _instance = FindObjectOfType<T>();
             if (_instance != null)
             {
-                Debug.Log($"Find instance for {typeof(T)}");
+                Debug.Log($"Find instance for {typeof(T).Name}");
                 _instance.Setup();
             }
             else
             {
-                Debug.Log($"Create instance for {typeof(T)}");
-                var go = new GameObject($"[{typeof(T)}]");
+                Debug.Log($"Create instance for {typeof(T).Name}");
+                var go = new GameObject($"[{typeof(T).Name}]");
                 _instance = go.AddComponent<T>();
                 if(Application.isPlaying == false) _instance.Setup();
             }
