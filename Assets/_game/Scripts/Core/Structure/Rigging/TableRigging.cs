@@ -22,6 +22,11 @@ namespace Core.Structure.Rigging
 
             return items.FirstOrDefault(x => x.guid == guid);
         }
+
+        void ParceModItem()
+        {
+
+        }
     }
 
     [System.Serializable]

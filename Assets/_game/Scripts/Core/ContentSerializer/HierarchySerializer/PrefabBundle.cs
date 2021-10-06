@@ -10,6 +10,7 @@ namespace ContentSerializer
     public class PrefabBundle
     {
         public string name;
+        public string[] tags;
         [ShowInInspector] public Dictionary<int, PrefabBundleObject> Tree;
 
         public PrefabBundle()

@@ -13,16 +13,19 @@ namespace Runtime.Explorer.ModContent
     {
         [Header("StaticHierarchy")]
         public RectTransform selectionScrollRoot;
-        
+
         [FoldoutGroup("Sources")]
         public ItemPointer selectModButton;
 
+        [SerializeField] private ModeWriteInfo modeWriteInfo;
 
-        private List<ItemPointer> buttons = new List<ItemPointer>();
+        private LinkedList<ItemPointer> buttons = new LinkedList<ItemPointer>();
+
+
         protected override void Awake()
         {
             base.Awake();
-            
+
             ModReader.OnModsLoaded(OnModsInit);
         }
 
@@ -38,6 +41,12 @@ namespace Runtime.Explorer.ModContent
         private void ShowMod(Mod mod)
         {
             Debug.Log($"Select mod {mod.name}");
+            modeWriteInfo.WriteInfoMod(mod);
+        }
+
+        private void SelectMode()
+        {
+
         }
 
         private void InitButtons(List<Mod> mods)
@@ -50,19 +59,17 @@ namespace Runtime.Explorer.ModContent
                 var button = item.GetPointer<Button>("this");
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => ShowMod(mod));
+                buttons.AddLast(item);
             }
         }
 
         private void ClearButtons()
         {
-            if (buttons.Count > 0)
+            foreach (var itemPointer in buttons)
             {
-                foreach (var itemPointer in buttons)
-                {
-                    DynamicPool.Instance.Return(itemPointer);
-                }
-                buttons = new List<ItemPointer>();
+                DynamicPool.Instance.Return(itemPointer);
             }
+            buttons.Clear();
         }
     }
 }

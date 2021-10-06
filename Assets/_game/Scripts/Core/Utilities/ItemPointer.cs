@@ -10,6 +10,8 @@ namespace Core.Utilities
 
         [NonSerialized] public Dictionary<string, Component> pointers;
 
+        [NonSerialized] protected Dictionary<string, Action<object>> properties = new Dictionary<string, Action<object>>();
+
         public void Awake()
         {
             pointers = new Dictionary<string, Component>();
@@ -31,6 +33,12 @@ namespace Core.Utilities
             }
 
             return pointers[name + typeof(T).Name] as T;
+        }
+        
+        public void SetPropery(object value, string name)
+        {
+            Action<object> act = properties[name];
+            act?.Invoke(value);
         }
     }
 }
