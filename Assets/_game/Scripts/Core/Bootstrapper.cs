@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
+using Core.Boot_strapper;
 using UnityEngine;
 
-namespace Core.Boot_strapper
+namespace Core
 {
     public class Bootstrapper : MonoBehaviour
     {
-        
         private async void Awake()
         {
             foreach(ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>())
@@ -14,7 +12,5 @@ namespace Core.Boot_strapper
                 await load.Load();
             }
         }
-
     }
-
 }

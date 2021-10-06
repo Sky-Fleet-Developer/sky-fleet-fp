@@ -15,17 +15,21 @@ namespace Core.Utilities
             pointers = new Dictionary<string, Component>();
             foreach (var hit in _pointers)
             {
-                pointers.Add(hit.name.Replace("(Clone)", "") + hit.GetType().Name, hit);
+                string key;
+                if (hit.transform == transform) key = "this";
+                else key = hit.name.Replace("(Clone)", "");
+                pointers.Add(key + hit.GetType().Name, hit);
             }
         }
 
         public T GetPointer<T>(string name) where T : Component
         {
-            if(pointers.ContainsKey(name + typeof(T).Name) == false)
+            if (pointers.ContainsKey(name + typeof(T).Name) == false)
             {
                 Debug.LogError("Has no pointer with name " + name + " in item " + gameObject.name);
                 return null;
             }
+
             return pointers[name + typeof(T).Name] as T;
         }
     }
