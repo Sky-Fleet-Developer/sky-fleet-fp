@@ -6,6 +6,7 @@ using Core.Explorer.Content;
 using Core.Structure.Rigging;
 using Core.UiStructure;
 using Core.Utilities;
+using Core.Utilities.UI;
 using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,44 +20,44 @@ namespace Runtime.Explorer.ModContent
 
         [SerializeField] private Transform contentInfo;
 
-        [SerializeField] private ItemModPropertyUI prefabCategory;
+        [SerializeField] private StringItemPointer prefabCategory;
 
-        private LinkedList<ItemModPropertyUI> itemsMod = new LinkedList<ItemModPropertyUI>();
+        private LinkedList<StringItemPointer> itemsMod = new LinkedList<StringItemPointer>();
 
         public void ApplyInfo(Mod mod)
         {
             nameMod.text = mod.name;
             ClearListProperty();
 
-            CreateItemPropetry("Classes: ", ItemModPropertyUI.PropertyType.Header);
+            CreateItemPropetry("Classes: ", StringItemPointer.PropertyType.Header);
             foreach (Type classT in mod.GetClasses())
             {
                 string className = classT.Name;
                 if (classT.InheritsFrom(typeof(IBlock))) className = $"(Block)\n{className}";
-                CreateItemPropetry(className, ItemModPropertyUI.PropertyType.Item);
+                CreateItemPropetry(className, StringItemPointer.PropertyType.Item);
             }
-            CreateItemPropetry("Assets: ", ItemModPropertyUI.PropertyType.Header);
+            CreateItemPropetry("Assets: ", StringItemPointer.PropertyType.Header);
             foreach (AssetBundle asset in mod.module.assetsCache)
             {
                 var typePath = asset.type.Split(new[] {'.'});
                 string assetName = $"({typePath[typePath.Length - 1]})\n{asset.name}";
-                CreateItemPropetry(assetName, ItemModPropertyUI.PropertyType.Item);
+                CreateItemPropetry(assetName, StringItemPointer.PropertyType.Item);
             }
-            CreateItemPropetry("Prefabs: ", ItemModPropertyUI.PropertyType.Header);
+            CreateItemPropetry("Prefabs: ", StringItemPointer.PropertyType.Header);
             foreach (PrefabBundle prefab in mod.module.prefabsCache)
             {
                 string prefabName = prefab.name;
                 if (prefab.tags.Contains("Block")) prefabName = $"(Block)\n{prefabName}";
-                CreateItemPropetry(prefabName, ItemModPropertyUI.PropertyType.Item);
+                CreateItemPropetry(prefabName, StringItemPointer.PropertyType.Item);
             }
             
         }
 
-        private void CreateItemPropetry(string name, ItemModPropertyUI.PropertyType type)
+        private void CreateItemPropetry(string name, StringItemPointer.PropertyType type)
         {
-            ItemModPropertyUI pointer = DynamicPool.Instance.Get(prefabCategory, contentInfo);
+            StringItemPointer pointer = DynamicPool.Instance.Get(prefabCategory, contentInfo);
             pointer.GetPointer<Text>("Text").text = name;
-            pointer.SetPropery(type, "TypeProperty");
+            pointer.SetVisual(type);
             itemsMod.AddLast(pointer);
         }
 

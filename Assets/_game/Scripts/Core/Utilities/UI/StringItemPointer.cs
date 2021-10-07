@@ -1,27 +1,19 @@
-using Core.Utilities;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Runtime.Explorer.ModContent
+namespace Core.Utilities.UI
 {
-    public class ItemModPropertyUI : ItemPointer
+    public class StringItemPointer : ItemPointer
     {
         public enum PropertyType{
             Header = 0,
             Item = 1,
         }
-
-        public ItemModPropertyUI()
-        {
-            properties.Add("TypeProperty", SetPropertyType);
-        }
-
-        private void SetPropertyType(object value)
+        
+        public override void SetVisual(params object[] args)
         {
             Text text = GetPointer<Text>("Text");
-            PropertyType type = (PropertyType)value;
+            PropertyType type = (PropertyType)args[0];
             if(type == PropertyType.Header)
             {
                 text.alignment = TextAnchor.MiddleLeft;
