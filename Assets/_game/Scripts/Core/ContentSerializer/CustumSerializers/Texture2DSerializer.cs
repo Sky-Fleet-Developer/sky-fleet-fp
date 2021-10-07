@@ -1,13 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using ContentSerializer;
 using UnityEngine;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.CustumSerializers
 {
     public class Texture2DSerializer : ICustomSerializer
     {
@@ -31,7 +28,9 @@ namespace ContentSerializer
                     var name = $"Tex_{tex.name}_{tex.GetInstanceID()}";
                     try
                     {
-                        File.Copy(filePath, Application.dataPath + PathStorage.BASE_PATH_TEXTURES + "/" + $"{name}.png");
+                        string path = $"{Application.dataPath}/{PathStorage.BASE_PATH_TEXTURES}";
+                        Directory.CreateDirectory(path);
+                        File.Copy(filePath, $"{path}/{name}.png");
                     }
                     catch (Exception e)
                     {

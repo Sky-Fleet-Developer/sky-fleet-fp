@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Sirenix.Utilities;
 using UnityEngine;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.HierarchySerializer
 {
     public static class PrefabProvider
     {
@@ -35,64 +33,64 @@ static void GetCurrentSelectionJson()
 
         public class PrefabBehaviour : SerializerBehaviour
         {
-            public override void GetHash(string prefix, object source, Dictionary<string, string> hash)
+            public override void GetCache(string prefix, object source, Dictionary<string, string> hash)
             {
                 var type = source.GetType();
 
                 if (type.IsArray)
                 {
-                    HashService.GetArrayHash(prefix, source, hash, Context);
+                    CacheService.GetArrayCache(prefix, source, hash, Context);
                     return;
                 }
 
                 if (type.InheritsFrom(typeof(IList)))
                 {
-                    HashService.GetListHash(prefix, source, hash, Context);
+                    CacheService.GetListCache(prefix, source, hash, Context);
                     return;
                 }
 
-                if (type.IsEnum || HashService.SimpleTypes.Contains(type))
+                if (type.IsEnum || CacheService.SimpleTypes.Contains(type))
                 {
-                    hash.Add(prefix, HashService.Serialize(source));
+                    hash.Add(prefix, CacheService.Serialize(source));
                 }
                 else
                 {
                     switch (source)
                     {
                         case Component component:
-                            hash.Add(prefix, HashService.Serialize(component.GetInstanceID()));
+                            hash.Add(prefix, CacheService.Serialize(component.GetInstanceID()));
                             break;
                         case UnityEngine.Object obj:
-                            hash.Add(prefix, HashService.Serialize(obj.GetInstanceID()));
+                            hash.Add(prefix, CacheService.Serialize(obj.GetInstanceID()));
                             Context.DetectedObjectReport?.Invoke(obj);
                             break;
                         default:
-                            HashService.GetNestedHash(prefix, source, hash, Context);
+                            CacheService.GetNestedCache(prefix, source, hash, Context);
                             break;
                     }
                 }
             }
 
-            public override void SetHash(string prefix, Type type, Action<object> setter, ref object source,
+            public override void SetCache(string prefix, Type type, Action<object> setter, ref object source,
                 Dictionary<string, string> hash, Dictionary<int, Component> components)
             {
                 if (type.IsArray)
                 {
-                    HashService.SetArrayHash(prefix, type, setter, hash, components, Context);
+                    CacheService.SetArrayCache(prefix, type, setter, hash, components, Context);
                     return;
                 }
 
                 if (type.InheritsFrom(typeof(IList)))
                 {
-                    HashService.SetListHash(prefix, type, setter, hash, components, Context);
+                    CacheService.SetListCache(prefix, type, setter, hash, components, Context);
                     return;
                 }
 
-                if (type.IsEnum || HashService.SimpleTypes.Contains(type))
+                if (type.IsEnum || CacheService.SimpleTypes.Contains(type))
                 {
                     if (hash.TryGetValue(prefix, out string value))
                     {
-                        setter?.Invoke(HashService.Deserialize(value, type));
+                        setter?.Invoke(CacheService.Deserialize(value, type));
                     }
                     else
                     {
@@ -103,7 +101,7 @@ static void GetCurrentSelectionJson()
                 {
                     if (hash.TryGetValue(prefix, out string value))
                     {
-                        var id = (int) HashService.Deserialize(value, typeof(int));
+                        var id = (int) CacheService.Deserialize(value, typeof(int));
                         if (components.TryGetValue(id, out Component component))
                         {
                             setter?.Invoke(component);
@@ -122,7 +120,7 @@ static void GetCurrentSelectionJson()
                 {
                     if (hash.TryGetValue(prefix, out string value))
                     {
-                        var id = (int) HashService.Deserialize(value, typeof(int));
+                        var id = (int) CacheService.Deserialize(value, typeof(int));
                         var obj = Context.GetObject(id);
                         if (obj != null)
                         {
@@ -141,7 +139,7 @@ static void GetCurrentSelectionJson()
                 else
                 {
                     var obj = Activator.CreateInstance(type);
-                    HashService.SetNestedHash(prefix, ref obj, hash, components, Context);
+                    CacheService.SetNestedCache(prefix, ref obj, hash, components, Context);
                     setter?.Invoke(obj);
                 }
             }

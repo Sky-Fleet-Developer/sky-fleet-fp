@@ -1,19 +1,18 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.ResourceSerializer
 {
     [Serializable]
     public class AssetBundle
     {
         public string name;
+        public string type;
         public int id;
         [NonSerialized] public ISerializationContext context;
-        [ShowInInspector] public Dictionary<string, string> Hash;
+        [ShowInInspector] public Dictionary<string, string> Cache;
 
         public AssetBundle()
         {
@@ -21,11 +20,12 @@ namespace ContentSerializer
         
         public AssetBundle(Object asset, ISerializationContext context)
         {
-            name = asset.GetType().Name;
+            name = asset.name;
+            type = asset.GetType().FullName;
             id = asset.GetInstanceID();
             this.context = context;
-            Hash = new Dictionary<string, string>();
-            HashService.GetNestedHash(asset.GetType().Name, asset, Hash, context);
+            Cache = new Dictionary<string, string>();
+            CacheService.GetNestedCache(type, asset, Cache, context);
         }
     }
 }

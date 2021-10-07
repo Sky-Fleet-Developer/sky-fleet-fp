@@ -1,15 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Core.ContentSerializer.HierarchySerializer;
 using UnityEngine;
-using Sirenix.OdinInspector;
+using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
 using Object = UnityEngine.Object;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer
 {
     public class Serializer : ISerializationContext
     {
-        public System.Action<UnityEngine.Object> DetectedObjectReport { get; set; }
+        public System.Action<Object> DetectedObjectReport { get; set; }
+        public System.Action<string> AddTag { get; set; }
         public System.Func<int, Object> GetObject => throw new System.NotImplementedException();
         public Assembly[] AvailableAssemblies => throw new System.NotImplementedException();
         public System.Type GetTypeByName(string name)
@@ -19,7 +21,8 @@ namespace ContentSerializer
 
         public SerializerBehaviour Behaviour { get; }
         public string ModFolderPath => throw new System.NotImplementedException();
-        
+        public bool IsCurrentlyBuilded { get; set; }
+
 
         public Serializer(SerializerBehaviour behaviour)
         {
@@ -34,7 +37,7 @@ namespace ContentSerializer
         
         public List<AssetBundle> GetBundlesFor(Object[] prefabs)
         {
-            return prefabs.Select(x => new AssetBundle(x, this)).ToList();
+            return prefabs.Where(x => x != null).Select(x => new AssetBundle(x, this)).ToList();
         }
     }
 }

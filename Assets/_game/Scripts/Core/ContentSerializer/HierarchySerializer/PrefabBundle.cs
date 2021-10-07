@@ -1,17 +1,18 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using UnityEngine;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.HierarchySerializer
 {
     [Serializable]
     public class PrefabBundle
     {
         public string name;
-        public string[] tags;
-        [ShowInInspector] public Dictionary<int, PrefabBundleObject> Tree;
+        public List<string> tags = new List<string>();
+        [ShowInInspector] public Dictionary<int, PrefabBundleObject> Tree = new Dictionary<int, PrefabBundleObject>();
 
         public PrefabBundle()
         {
@@ -20,7 +21,10 @@ namespace ContentSerializer
         public PrefabBundle(GameObject root, ISerializationContext context)
         {
             name = root.name;
-            Tree = new Dictionary<int, PrefabBundleObject>();
+            context.AddTag = v =>
+            {
+                if (!tags.Contains(v)) tags.Add(v);
+            };
             GetTree(root.transform, context);
         }
 
@@ -64,7 +68,7 @@ namespace ContentSerializer
 
             foreach (var obj in Tree)
             {
-                obj.Value.ReconstructHash(transforms[obj.Key], ref reconstruction, context);
+                obj.Value.ReconstructCache(transforms[obj.Key], ref reconstruction, context);
             }
 
             return root;
@@ -78,7 +82,7 @@ namespace ContentSerializer
         public int layer;
         public int parent = -1;
         public List<string> components;
-        [ShowInInspector] public Dictionary<string, string> Hash;
+        [ShowInInspector] public Dictionary<string, string> Cache;
 
         public PrefabBundleObject()
         {
@@ -94,12 +98,17 @@ namespace ContentSerializer
                 parent = p.GetInstanceID();
             }
 
-            Hash = new Dictionary<string, string>();
+            Cache = new Dictionary<string, string>();
             components = new List<string>();
             foreach (var component in source.GetComponents<Component>())
             {
-                components.Add(component.GetType().Name + "." + component.GetInstanceID());
-                HashService.GetNestedHash(component.GetType().Name, component, Hash, context);
+                var type = component.GetType();
+                if (type.InheritsFrom(typeof(IBlock)))
+                {
+                    context.AddTag("Block");
+                }
+                components.Add(type.FullName + "|" + component.GetInstanceID());
+                CacheService.GetNestedCache(type.FullName, component, Cache, context);
             }
         }
 
@@ -110,7 +119,7 @@ namespace ContentSerializer
             reconstructedTypes = new List<int>();
             foreach (var componentName in components)
             {
-                var split = componentName.Split(new[] {'.'});
+                var split = componentName.Split(new[] {'|'});
                 var type = context.GetTypeByName(split[0]);
                 if (!transform.gameObject.TryGetComponent(type, out Component component))
                     component = transform.gameObject.AddComponent(type);
@@ -121,14 +130,14 @@ namespace ContentSerializer
             }
         }
 
-        public void ReconstructHash(Transform transform, ref Dictionary<int, Component> reconstruction, ISerializationContext context)
+        public void ReconstructCache(Transform transform, ref Dictionary<int, Component> reconstruction, ISerializationContext context)
         {
             foreach (var component in reconstruction)
             {
                 if (reconstructedTypes.Contains(component.Key))
                 {
                     object val = component.Value;
-                    HashService.SetNestedHash(component.Value.GetType().Name, ref val, Hash, reconstruction, context);
+                    CacheService.SetNestedCache(component.Value.GetType().FullName, ref val, Cache, reconstruction, context);
                 }
             }
         }

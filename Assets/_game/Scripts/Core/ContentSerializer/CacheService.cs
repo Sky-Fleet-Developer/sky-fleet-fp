@@ -1,20 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Core.ContentSerializer.AssetCreators;
+using Core.ContentSerializer.CustumSerializers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Sirenix.Utilities;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer
 {
-    public static class HashService
+    public static class CacheService
     {
-        public static void SetNestedHash(string prefix, ref object source, Dictionary<string, string> hash,
+        public static void SetNestedCache(string prefix, ref object source, Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
             var type = source.GetType();
@@ -34,7 +35,7 @@ namespace ContentSerializer
                     fieldInfo.IsNotSerialized) continue;
 
                 var value = fieldInfo.GetValue(source);
-                context.Behaviour.SetHash(prefix + "." + fieldInfo.Name, fieldInfo.FieldType, o =>
+                context.Behaviour.SetCache(prefix + "." + fieldInfo.Name, fieldInfo.FieldType, o =>
                         fieldInfo.SetValue(obj, o),
                     ref value, hash, components);
                 source = obj;
@@ -44,17 +45,17 @@ namespace ContentSerializer
             for (var index = 0; index < properties.Length; index++)
             {
                 var propertyInfo = properties[index];
-                if (HashService.CanSerializeProperty(type, propertyInfo))
+                if (CacheService.CanSerializeProperty(type, propertyInfo))
                 {
                     var value = propertyInfo.GetValue(source);
-                    context.Behaviour.SetHash(prefix + "." + propertyInfo.Name, propertyInfo.PropertyType,
+                    context.Behaviour.SetCache(prefix + "." + propertyInfo.Name, propertyInfo.PropertyType,
                         o => propertyInfo.SetValue(obj, o), ref value, hash, components);
                     source = obj;
                 }
             }
         }
 
-        public static void SetArrayHash(string prefix, Type type, Action<object> setter,
+        public static void SetArrayCache(string prefix, Type type, Action<object> setter,
             Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
@@ -66,14 +67,14 @@ namespace ContentSerializer
             for (int i = 0; i < count; i++)
             {
                 var v = array[i];
-                context.Behaviour.SetHash($"{prefix}[{i}]", elementType, o => v = o, ref obj, hash, components);
+                context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => v = o, ref obj, hash, components);
                 array[i] = v;
             }
 
             setter?.Invoke(array);
         }
 
-        public static void SetListHash(string prefix, Type type, Action<object> setter,
+        public static void SetListCache(string prefix, Type type, Action<object> setter,
             Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
@@ -84,13 +85,13 @@ namespace ContentSerializer
 
             for (int i = 0; i < count; i++)
             {
-                context.Behaviour.SetHash($"{prefix}[{i}]", elementType, o => list.Add(o), ref obj, hash, components);
+                context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => list.Add(o), ref obj, hash, components);
             }
 
             setter?.Invoke(list);
         }
 
-        public static void GetNestedHash(string prefix, object source, Dictionary<string, string> hash,
+        public static void GetNestedCache(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)
         {
             var type = source.GetType();
@@ -113,7 +114,7 @@ namespace ContentSerializer
                     fieldInfo.IsNotSerialized) continue;
                 var value = fieldInfo.GetValue(source);
                 if (value == null) continue;
-                context.Behaviour.GetHash(prefix + "." + fieldInfo.Name, value, hash);
+                context.Behaviour.GetCache(prefix + "." + fieldInfo.Name, value, hash);
             }
 
             var properties = type.GetProperties();
@@ -126,7 +127,7 @@ namespace ContentSerializer
                     {
                         var value = propertyInfo.GetValue(source);
                         if (value == null) continue;
-                        context.Behaviour.GetHash(prefix + "." + propertyInfo.Name, value, hash);
+                        context.Behaviour.GetCache(prefix + "." + propertyInfo.Name, value, hash);
                     }
                     catch (Exception e)
                     {
@@ -136,25 +137,25 @@ namespace ContentSerializer
             }
         }
 
-        public static void GetArrayHash(string prefix, object source, Dictionary<string, string> hash,
+        public static void GetArrayCache(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)
         {
             if (!(source is System.Array arr)) return;
             hash.Add(prefix, arr.Length.ToString());
             for (int i = 0; i < arr.Length; i++)
             {
-                context.Behaviour.GetHash($"{prefix}[{i}]", arr.GetValue(i), hash);
+                context.Behaviour.GetCache($"{prefix}[{i}]", arr.GetValue(i), hash);
             }
         }
 
-        public static void GetListHash(string prefix, object source, Dictionary<string, string> hash,
+        public static void GetListCache(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)
         {
             var list = source as IList;
             hash.Add(prefix, list.Count.ToString());
             for (int i = 0; i < list.Count; i++)
             {
-                context.Behaviour.GetHash($"{prefix}[{i}]", list[i], hash);
+                context.Behaviour.GetCache($"{prefix}[{i}]", list[i], hash);
             }
         }
 
@@ -256,11 +257,13 @@ namespace ContentSerializer
     public interface ISerializationContext
     {
         Action<UnityEngine.Object> DetectedObjectReport { get; }
+        Action<string> AddTag { get; set; }
         Func<int, UnityEngine.Object> GetObject { get; }
         Assembly[] AvailableAssemblies { get; }
         Type GetTypeByName(string name);
         SerializerBehaviour Behaviour { get; }
         string ModFolderPath { get; }
+        bool IsCurrentlyBuilded { get; }
     }
     
     public interface ICustomSerializer
@@ -279,9 +282,9 @@ namespace ContentSerializer
     public abstract class SerializerBehaviour
     {
         public ISerializationContext Context;
-        public abstract void GetHash(string prefix, object source, Dictionary<string, string> hash);
+        public abstract void GetCache(string prefix, object source, Dictionary<string, string> hash);
 
-        public abstract void SetHash(string prefix, Type type, Action<object> setter, ref object source,
+        public abstract void SetCache(string prefix, Type type, Action<object> setter, ref object source,
             Dictionary<string, string> hash, Dictionary<int, Component> components);
     }
 

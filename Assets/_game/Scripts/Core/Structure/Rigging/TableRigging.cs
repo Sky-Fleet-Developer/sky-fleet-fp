@@ -12,13 +12,13 @@ namespace Core.Structure.Rigging
     public class TableRigging : SingletonAsset<TableRigging>
     {
         public List<RiggingItem> items;
-        private Dictionary<string, RiggingItem> itemsHash;
+        private Dictionary<string, RiggingItem> itemsCache;
         
         public RiggingItem GetItem(string guid)
         {
-            /*itemsHash ??= items.ToDictionary(item => item.guid);
+            /*itemsCache ??= items.ToDictionary(item => item.guid);
 
-            return itemsHash[guid];*/
+            return itemsCache[guid];*/
 
             return items.FirstOrDefault(x => x.guid == guid);
         }
@@ -44,34 +44,34 @@ namespace Core.Structure.Rigging
         }
 
 #if  UNITY_EDITOR
-        public IBlock blockHash;
+        public IBlock blockCache;
         [ShowInInspector] public string refresher
         {
             get
             {
                 if (reference != null && reference.editorAsset != null)
                 {
-                    if (blockHash == null || reference.editorAsset as GameObject != blockHash.transform.gameObject)
+                    if (blockCache == null || reference.editorAsset as GameObject != blockCache.transform.gameObject)
                     {
                         if((reference.editorAsset as GameObject).TryGetComponent(out IBlock block))
                         {
-                            blockHash = block;
+                            blockCache = block;
                         }
                         else
                         {
-                            blockHash = null;
+                            blockCache = null;
                         }
                     }
                     else
                     {
-                        blockHash = null;
+                        blockCache = null;
                     }
                 }
 
-                if (blockHash != null)
+                if (blockCache != null)
                 {
-                    guid = blockHash.Guid;
-                    mounting = blockHash.MountingType;
+                    guid = blockCache.Guid;
+                    mounting = blockCache.MountingType;
                 }
 
                 string val = "--";

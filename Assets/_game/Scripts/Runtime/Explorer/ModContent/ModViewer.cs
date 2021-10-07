@@ -14,10 +14,8 @@ namespace Runtime.Explorer.ModContent
         [Header("StaticHierarchy")]
         public RectTransform selectionScrollRoot;
 
-        [FoldoutGroup("Sources")]
-        public ItemPointer selectModButton;
-
-        [SerializeField] private ModeWriteInfo modeWriteInfo;
+        [SerializeField, FoldoutGroup("Sources")] public ItemPointer selectModButton;
+        [SerializeField, FoldoutGroup("Sources")] private ModInfoViewer modInfoViewer;
 
         private LinkedList<ItemPointer> buttons = new LinkedList<ItemPointer>();
 
@@ -40,13 +38,7 @@ namespace Runtime.Explorer.ModContent
         /// </summary>
         private void ShowMod(Mod mod)
         {
-            Debug.Log($"Select mod {mod.name}");
-            modeWriteInfo.WriteInfoMod(mod);
-        }
-
-        private void SelectMode()
-        {
-
+            modInfoViewer.ApplyInfo(mod);
         }
 
         private void InitButtons(List<Mod> mods)

@@ -1,9 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.AssetCreators
 {
     public class MaterialCreator : IAssetCreator
     {

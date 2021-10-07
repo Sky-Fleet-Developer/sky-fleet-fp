@@ -1,16 +1,11 @@
 using System;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.Serialization.Formatters.Binary;
-using Newtonsoft.Json;
-using UnityEditor;
 using UnityEngine;
 
-
-namespace ContentSerializer
+namespace Core.ContentSerializer.CustumSerializers
 {
     public class MeshSerializer : ICustomSerializer
     {
@@ -95,7 +90,10 @@ namespace ContentSerializer
                     memoryStream.Write(BitConverter.GetBytes(bones.Length), 0, sizeof(int));
                     memoryStream.Write(bones.ToArray(), 0, bones.Length);
 
-                    FileStream file = File.Open(Application.dataPath + PathStorage.BASE_PATH_MODELS + "/" + mesh.name + "_" + mesh.GetInstanceID() + ".mesh", FileMode.OpenOrCreate);
+
+                    string path = $"{Application.dataPath}{PathStorage.BASE_PATH_MODELS}";
+                    Directory.CreateDirectory(path);
+                    FileStream file = File.Open($"{path}/{mesh.name}_{mesh.GetInstanceID()}.mesh", FileMode.OpenOrCreate);
                     memoryStream.Seek(0, SeekOrigin.Begin);
                     memoryStream.CopyTo(file);
                     file.Close();
@@ -244,8 +242,19 @@ namespace ContentSerializer
 
         public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
         {
-            //JsonConvert.PopulateObject(hash[prefix], source);
-            FileStream file = File.Open($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_MODELS}/{hash[prefix + "_1"]}", FileMode.Open);
+            string path;
+            if (context.IsCurrentlyBuilded)
+            {
+                path = $"{Application.dataPath}{PathStorage.BASE_PATH_MODELS}";
+            }
+            else
+            {
+                path = $"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_MODELS}";
+            }
+
+            Debug.Log($"Search mesh in path: {path}/{hash[prefix + "_1"]}.mesh");
+
+            FileStream file = File.Open($"{path}/{hash[prefix + "_1"]}.mesh", FileMode.Open);
             if (file == null)
             {
                 throw new NullReferenceException();

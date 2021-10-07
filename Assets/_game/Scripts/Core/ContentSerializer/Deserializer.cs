@@ -2,14 +2,21 @@ using System;
 using System.Reflection;
 using Object = UnityEngine.Object;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer
 {
     public class Deserializer : ISerializationContext
     {
         public Action<Object> DetectedObjectReport => throw new NotImplementedException();
+        public Action<string> AddTag
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
         public Func<int, Object> GetObject { get; set; }
         public SerializerBehaviour Behaviour { get; }
         public string ModFolderPath { get; }
+        public bool IsCurrentlyBuilded { get; set; }
 
         public Assembly[] AvailableAssemblies { get; }
 
@@ -19,7 +26,7 @@ namespace ContentSerializer
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (type.Name == name) return type;
+                    if (type.FullName == name) return type;
                 }
             }
 

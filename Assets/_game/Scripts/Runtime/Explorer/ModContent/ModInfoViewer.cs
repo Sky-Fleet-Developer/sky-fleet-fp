@@ -1,15 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.ContentSerializer.HierarchySerializer;
 using Core.Explorer.Content;
 using Core.UiStructure;
 using Core.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
+using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
 
 namespace Runtime.Explorer.ModContent
 {
-    public class ModeWriteInfo : MonoBehaviour
+    public class ModInfoViewer : MonoBehaviour
     {
         [SerializeField] private Text nameMod;
 
@@ -19,7 +21,7 @@ namespace Runtime.Explorer.ModContent
 
         private LinkedList<ItemModPropertyUI> itemsMod = new LinkedList<ItemModPropertyUI>();
 
-        public void WriteInfoMod(Mod mod)
+        public void ApplyInfo(Mod mod)
         {
             nameMod.text = mod.name;
             ClearListProperty();
@@ -30,14 +32,18 @@ namespace Runtime.Explorer.ModContent
                 CreateItemPropetry(classT.Name, ItemModPropertyUI.PropertyType.Item);
             }
             CreateItemPropetry("Assets: ", ItemModPropertyUI.PropertyType.Header);
-            foreach (string name in mod.GetAssetsNames())
+            foreach (AssetBundle asset in mod.module.assetsCache)
             {
-                CreateItemPropetry(name, ItemModPropertyUI.PropertyType.Item);
+                var typePath = asset.type.Split(new[] {'.'});
+                string assetName = $"({typePath[typePath.Length - 1]}) {asset.name}";
+                CreateItemPropetry(assetName, ItemModPropertyUI.PropertyType.Item);
             }
             CreateItemPropetry("Prefabs: ", ItemModPropertyUI.PropertyType.Header);
-            foreach (string name in mod.GetPrefabsNames())
+            foreach (PrefabBundle prefab in mod.module.prefabsCache)
             {
-                CreateItemPropetry(name, ItemModPropertyUI.PropertyType.Item);
+                string prefabName = prefab.name;
+                if (prefab.tags.Contains("Block")) prefabName = $"(Block){prefabName}";
+                CreateItemPropetry(prefabName, ItemModPropertyUI.PropertyType.Item);
             }
             
         }

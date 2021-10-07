@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -6,7 +5,7 @@ using Newtonsoft.Json.Converters;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.CustumSerializers
 {
     public class MaterialSerializer : ICustomSerializer
     {

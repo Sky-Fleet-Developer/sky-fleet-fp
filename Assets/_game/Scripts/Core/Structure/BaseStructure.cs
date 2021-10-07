@@ -104,7 +104,7 @@ namespace Core.Structure
         [Button]
         public void RefreshBlocks()
         {
-            blocksHash = null;
+            blocksCache = null;
             blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
@@ -123,13 +123,13 @@ namespace Core.Structure
             }
         }
 
-        private Dictionary<System.Type, object> blocksHash;
+        private Dictionary<System.Type, object> blocksCache;
 
         public List<T> GetBlocksByType<T>()
         {
-            if (blocksHash == null) blocksHash = new Dictionary<System.Type, object>();
+            if (blocksCache == null) blocksCache = new Dictionary<System.Type, object>();
             var type = typeof(T);
-            if (blocksHash.TryGetValue(type, out object val)) return val as List<T>;
+            if (blocksCache.TryGetValue(type, out object val)) return val as List<T>;
 
             List<T> selection = new List<T>();
             for (int i = 0; i < blocks.Count; i++)
@@ -140,7 +140,7 @@ namespace Core.Structure
                 }
             }
 
-            blocksHash.Add(type, selection);
+            blocksCache.Add(type, selection);
             return selection;
         }
 
@@ -157,16 +157,16 @@ namespace Core.Structure
             return null;
         }
 
-        private Dictionary<string, Port> portsHash;
+        private Dictionary<string, Port> portsCache;
 
         public Port GetPort(string guid)
         {
-            if (portsHash == null) portsHash = new Dictionary<string, Port>();
-            if (portsHash.TryGetValue(guid, out Port port)) return port;
+            if (portsCache == null) portsCache = new Dictionary<string, Port>();
+            if (portsCache.TryGetValue(guid, out Port port)) return port;
 
             var ports = Factory.GetAllPorts(this);
             port = ports.FirstOrDefault(x => x.Guid == guid);
-            portsHash.Add(guid, port);
+            portsCache.Add(guid, port);
             return port;
         }
 

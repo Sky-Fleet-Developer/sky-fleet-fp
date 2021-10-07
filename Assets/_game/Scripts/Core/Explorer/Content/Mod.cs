@@ -2,14 +2,16 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using ContentSerializer;
+using Core.ContentSerializer;
+using Core.ContentSerializer.HierarchySerializer;
 using UnityEngine;
+using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
 
 namespace Core.Explorer.Content
 {
     public class Mod
     {
-        private SerializationModule module;
+        public SerializationModule module;
         private Assembly assembly;
         public string name;
 
@@ -33,15 +35,15 @@ namespace Core.Explorer.Content
                 if(classT.IsClass && classT.IsPublic && classT.IsSubclassOf(typeof(MonoBehaviour)))
                     classes.AddLast(classT);
             }
-            foreach (PrefabBundle prefab in module.prefabsHash)
+            foreach (PrefabBundle prefab in module.prefabsCache)
             {
                 prefabsNames.AddLast(prefab.name);
             }
-            foreach (ContentSerializer.AssetBundle assetsN in module.assetsHash)
+            foreach (AssetBundle assetsN in module.assetsCache)
             {
                 assetsNames.AddLast(assetsN.name);
             }
-            //DeserializeAll(); //проверка работоспособности
+            DeserializeAll(); //проверка работоспособности
         }
 
         public LinkedList<Type> GetClasses()

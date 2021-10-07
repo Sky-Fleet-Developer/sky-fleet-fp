@@ -1,23 +1,31 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ContentSerializer;
 using Core.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.AssetCreators
 {
     public class Texture2DCreator : IAssetCreator
     {
         [ItemCanBeNull]
-        public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> hash, ISerializationContext context)
+        public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> hash,
+            ISerializationContext context)
         {
             string name = hash[prefix + "_1"];
-            Debug.Log($"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
-            return await CreateInstance($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+            if (context.IsCurrentlyBuilded)
+            {
+                Debug.Log($"Search texture in path: {Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");
+                return await CreateInstance($"{Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");
+            }
+            else
+            {
+                Debug.Log(
+                    $"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+                return await CreateInstance(
+                    $"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+            }
         }
 
 

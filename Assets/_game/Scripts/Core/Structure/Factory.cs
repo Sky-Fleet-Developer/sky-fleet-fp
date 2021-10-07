@@ -346,13 +346,13 @@ namespace Core.Structure
         public List<BlockConfiguration> blocks = new List<BlockConfiguration>();
         public List<string> wires = new List<string>();
         
-        private Dictionary<string, BlockConfiguration> blocksHash;
+        private Dictionary<string, BlockConfiguration> blocksCache;
         
         public BlockConfiguration GetBlock(string path)
         {
-            blocksHash ??= blocks.ToDictionary(block => block.path);
+            blocksCache ??= blocks.ToDictionary(block => block.path);
 
-            return blocksHash[path];
+            return blocksCache[path];
         }
     }
 }

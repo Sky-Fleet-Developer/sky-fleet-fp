@@ -1,17 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.ContentSerializer.HierarchySerializer;
 using Core.Utilities;
-using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Newtonsoft.Json;
-using System.IO;
 using Object = UnityEngine.Object;
+using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer
 {
     [System.Serializable]
     public class SerializationModule
@@ -22,8 +22,8 @@ namespace ContentSerializer
         [JsonIgnore]
         public List<Object> AssetsToSerialize;
 
-        public List<PrefabBundle> prefabsHash;
-        public List<AssetBundle> assetsHash;
+        public List<PrefabBundle> prefabsCache;
+        public List<AssetBundle> assetsCache;
 
         [JsonIgnore]
         public List<Transform> prefabs;
@@ -32,14 +32,17 @@ namespace ContentSerializer
         [ShowInInspector] public Dictionary<int, Object> assets;
         
         public string ModFolderPath { get; set; }
-
+        private bool isCurrentlyBuilded = false;
+        
         [Button]
         public void SerializeAll()
         {
             AssetsToSerialize = new List<Object>();
 
-            prefabsHash = SerializePrefabs();
-            assetsHash = SerializeAssets();
+            isCurrentlyBuilded = true;
+            
+            prefabsCache = SerializePrefabs();
+            assetsCache = SerializeAssets();
 
             WriteClass();
         }
@@ -93,32 +96,34 @@ namespace ContentSerializer
         {
             assets = await DeserializeAssets(availableAssemblies);
             prefabs = DeserializePrefabs(availableAssemblies);
+            isCurrentlyBuilded = false;
         }
 
         public async Task<Dictionary<int, Object>> DeserializeAssets(System.Reflection.Assembly[] availableAssemblies)
         {
             var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
-            Dictionary<int, Object> result = new Dictionary<int, Object>(assetsHash.Count);
-            for (var i = 0; i < assetsHash.Count; i++)
+            deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
+            Dictionary<int, Object> result = new Dictionary<int, Object>(assetsCache.Count);
+            for (var i = 0; i < assetsCache.Count; i++)
             {
-                var type = deserializer.GetTypeByName(assetsHash[i].name);
-                if (HashService.AssetCreators.TryGetValue(type, out var creator))
+                var type = deserializer.GetTypeByName(assetsCache[i].type);
+                if (CacheService.AssetCreators.TryGetValue(type, out var creator))
                 {
-                    var instance = await creator.CreateInstance(assetsHash[i].name, assetsHash[i].Hash, deserializer);
-                    result.Add(assetsHash[i].id, instance);
+                    var instance = await creator.CreateInstance(assetsCache[i].type, assetsCache[i].Cache, deserializer);
+                    result.Add(assetsCache[i].id, instance);
                 }
                 else
                 {
-                    result.Add(assetsHash[i].id, (Object)System.Activator.CreateInstance(type));
+                    result.Add(assetsCache[i].id, (Object)System.Activator.CreateInstance(type));
                 }
             }
             deserializer.GetObject = v => result[v];
 
-            foreach (var hash in assetsHash)
+            foreach (var cache in assetsCache)
             {
-                object source = result[hash.id];
-                HashService.SetNestedHash(hash.name, ref source, hash.Hash, null, deserializer);
-                result[hash.id] = (Object)source;
+                object source = result[cache.id];
+                CacheService.SetNestedCache(cache.type, ref source, cache.Cache, null, deserializer);
+                result[cache.id] = (Object)source;
             }
 
             return result;
@@ -127,10 +132,11 @@ namespace ContentSerializer
         public List<Transform> DeserializePrefabs(System.Reflection.Assembly[] availableAssemblies)
         {
             var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
-            List<Transform> result = new List<Transform>(assetsHash.Count);
+            deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
+            List<Transform> result = new List<Transform>(assetsCache.Count);
             deserializer.GetObject = v => assets[v];
 
-            foreach (var prefabBundle in prefabsHash)
+            foreach (var prefabBundle in prefabsCache)
             {
                 var pr = prefabBundle.ConstructTree(null, deserializer);
                 result.Add(pr);

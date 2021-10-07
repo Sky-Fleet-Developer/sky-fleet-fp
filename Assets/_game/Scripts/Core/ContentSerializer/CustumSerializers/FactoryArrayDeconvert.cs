@@ -1,11 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using Paterns.AbstractFactory;
 using UnityEngine;
 
-using Paterns.AbstractFactory; 
-
-namespace ContentSerializer
+namespace Core.ContentSerializer.CustumSerializers
 {
     public struct TypeDeconvert
     {
