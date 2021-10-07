@@ -21,10 +21,8 @@ namespace Core.ContentSerializer.AssetCreators
             }
             else
             {
-                Debug.Log(
-                    $"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
-                return await CreateInstance(
-                    $"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+                Debug.Log($"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+                return await CreateInstance($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
             }
         }
 

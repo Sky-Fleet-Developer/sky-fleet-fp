@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.ContentSerializer.HierarchySerializer;
 using Core.Explorer.Content;
+using Core.Structure.Rigging;
 using Core.UiStructure;
 using Core.Utilities;
+using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
@@ -29,20 +31,22 @@ namespace Runtime.Explorer.ModContent
             CreateItemPropetry("Classes: ", ItemModPropertyUI.PropertyType.Header);
             foreach (Type classT in mod.GetClasses())
             {
-                CreateItemPropetry(classT.Name, ItemModPropertyUI.PropertyType.Item);
+                string className = classT.Name;
+                if (classT.InheritsFrom(typeof(IBlock))) className = $"(Block)\n{className}";
+                CreateItemPropetry(className, ItemModPropertyUI.PropertyType.Item);
             }
             CreateItemPropetry("Assets: ", ItemModPropertyUI.PropertyType.Header);
             foreach (AssetBundle asset in mod.module.assetsCache)
             {
                 var typePath = asset.type.Split(new[] {'.'});
-                string assetName = $"({typePath[typePath.Length - 1]}) {asset.name}";
+                string assetName = $"({typePath[typePath.Length - 1]})\n{asset.name}";
                 CreateItemPropetry(assetName, ItemModPropertyUI.PropertyType.Item);
             }
             CreateItemPropetry("Prefabs: ", ItemModPropertyUI.PropertyType.Header);
             foreach (PrefabBundle prefab in mod.module.prefabsCache)
             {
                 string prefabName = prefab.name;
-                if (prefab.tags.Contains("Block")) prefabName = $"(Block){prefabName}";
+                if (prefab.tags.Contains("Block")) prefabName = $"(Block)\n{prefabName}";
                 CreateItemPropetry(prefabName, ItemModPropertyUI.PropertyType.Item);
             }
             
