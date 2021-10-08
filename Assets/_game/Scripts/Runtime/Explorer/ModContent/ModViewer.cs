@@ -20,11 +20,14 @@ namespace Runtime.Explorer.ModContent
 
         private LinkedList<ItemPointer> buttons = new LinkedList<ItemPointer>();
 
+        private Mod selected;
+
+        public Mod GetCurrentMod => selected;
 
         protected override void Awake()
         {
             base.Awake();
-
+            selected = null;
             ModReader.OnModsLoaded(OnModsInit);
         }
 
@@ -40,6 +43,7 @@ namespace Runtime.Explorer.ModContent
         private void ShowMod(Mod mod)
         {
             modInfoViewer.ApplyInfo(mod);
+            selected = mod;
         }
 
         private void InitButtons(List<Mod> mods)
