@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Core.ContentSerializer
 {
     [System.Serializable]
-    public abstract class Bundle
+    public class Bundle
     {
         public string name;
         public int id;

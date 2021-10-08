@@ -1399,7 +1399,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameMod: {fileID: 3322352340298102036}
   contentInfo: {fileID: 3322352338964608049}
-  prefabCategory: {fileID: 1724707858224977586, guid: bd1ea9b8bfa8acc4c8485937b1a7beb7, type: 3}
+  stringItemPrefab: {fileID: 1724707858224977586, guid: bd1ea9b8bfa8acc4c8485937b1a7beb7, type: 3}
+  buttonItemPrefab: {fileID: 8277825217598807859, guid: 840f6e8b35023c1418424d821f686ac1, type: 3}
 --- !u!1 &3322352340950899044
 GameObject:
   m_ObjectHideFlags: 0

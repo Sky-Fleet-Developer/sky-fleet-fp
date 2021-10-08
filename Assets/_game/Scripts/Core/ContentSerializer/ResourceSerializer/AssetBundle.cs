@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using Object = UnityEngine.Object;
 
@@ -9,7 +10,7 @@ namespace Core.ContentSerializer.ResourceSerializer
     public class AssetBundle : Bundle
     {
         public string type;
-        [NonSerialized] public ISerializationContext context;
+        [JsonIgnore, NonSerialized] public ISerializationContext context;
         [ShowInInspector] public Dictionary<string, string> Cache;
 
         public AssetBundle()

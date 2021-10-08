@@ -22,7 +22,7 @@ namespace Runtime.Explorer.ModContent
 
         private Mod selected;
 
-        public Mod GetCurrentMod => selected;
+        public Mod CurrentMod => selected;
 
         protected override void Awake()
         {

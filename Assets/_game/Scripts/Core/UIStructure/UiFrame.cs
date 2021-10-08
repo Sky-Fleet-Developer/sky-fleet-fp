@@ -50,9 +50,6 @@ namespace Core.UIStructure
             rectTransform.sizeDelta = target.RectTransform.sizeDelta;
             target.RectTransform.SetParent(rectTransform);*/
 
-            if (blocks != null)
-                throw new NotImplementedException();
-
             if (layout != null)
             {
                 Destroy(layout);

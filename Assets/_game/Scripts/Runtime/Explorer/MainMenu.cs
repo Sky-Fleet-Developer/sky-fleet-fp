@@ -40,7 +40,10 @@ public class MainMenu : UiBlockBase, ILoadAtStart
         foreach (var buttonItemPointer in buttons)
         {
             buttonItemPointer.ResetVisual();
-            DynamicPool.Instance.Return(buttonItemPointer);
+            if (DynamicPool.hasInstance)
+            {
+                DynamicPool.Instance.Return(buttonItemPointer);
+            }
         }
     }
 

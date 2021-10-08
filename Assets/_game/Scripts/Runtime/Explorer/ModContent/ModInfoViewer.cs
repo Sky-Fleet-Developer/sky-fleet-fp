@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Core.ContentSerializer;
@@ -21,23 +20,28 @@ namespace Runtime.Explorer.ModContent
 
         [SerializeField] private Transform contentInfo;
 
-        [SerializeField] private StringItemPointer prefabCategory;
+        [SerializeField] private StringItemPointer stringItemPrefab;
+        [SerializeField] private ButtonItemPointer buttonItemPrefab;
 
-        private LinkedList<StringItemPointer> itemsMod = new LinkedList<StringItemPointer>();
+        private LinkedList<StringItemPointer> stringPointers = new LinkedList<StringItemPointer>();
+        private LinkedList<ButtonItemPointer> buttonPointers = new LinkedList<ButtonItemPointer>();
 
+        private Mod mod;
+        
         public void ApplyInfo(Mod mod)
         {
+            this.mod = mod;
             nameMod.text = mod.name;
             ClearListProperty();
 
-            CreateItemPropetry("Classes: ", StringItemPointer.PropertyType.Header);
-            foreach (Type classT in mod.GetClasses())
+            CreateItemProperty("Classes: ", StringItemPointer.PropertyType.Header);
+            foreach (System.Type classT in mod.GetClasses())
             {
                 string className = classT.Name;
                 if (classT.InheritsFrom(typeof(IBlock))) className = $"(Block)\n{className}";
-                CreateItemPropetry(className, StringItemPointer.PropertyType.Item);
+                CreateItemProperty(className, StringItemPointer.PropertyType.Item);
             }
-            CreateItemPropetry("Assets: ", StringItemPointer.PropertyType.Header);
+            CreateItemProperty("Assets: ", StringItemPointer.PropertyType.Header);
 
             LinkedList<PrefabBundle> prefabs = new LinkedList<PrefabBundle>();
             LinkedList<AssetBundle> assets = new LinkedList<AssetBundle>();
@@ -60,33 +64,51 @@ namespace Runtime.Explorer.ModContent
             {
                 var typePath = asset.type.Split(new[] {'.'});
                 string assetName = $"({typePath[typePath.Length - 1]})\n{asset.name}";
-                CreateItemPropetry(assetName, StringItemPointer.PropertyType.Item);
+                CreateItemProperty(assetName, StringItemPointer.PropertyType.Item);
             }
-            CreateItemPropetry("Prefabs: ", StringItemPointer.PropertyType.Header);
+            CreateItemProperty("Prefabs: ", StringItemPointer.PropertyType.Header);
             foreach (PrefabBundle prefab in prefabs)
             {
                 string prefabName = prefab.name;
                 if (prefab.tags.Contains("Block")) prefabName = $"(Block)\n{prefabName}";
-                CreateItemPropetry(prefabName, StringItemPointer.PropertyType.Item);
+                //CreateItemProperty(prefabName, StringItemPointer.PropertyType.Item);
+                var pointer = DynamicPool.Instance.Get(buttonItemPrefab, contentInfo);
+                pointer.SetVisual(prefabName, (System.Action)(() => ShowPrefab(prefab)), TextAnchor.MiddleRight, 20, FontStyle.Bold);
+                buttonPointers.AddLast(pointer);
             }
             
         }
 
-        private void CreateItemPropetry(string name, StringItemPointer.PropertyType type)
+        private GameObject previewInstance;
+        private async void ShowPrefab(PrefabBundle bundle)
         {
-            StringItemPointer pointer = DynamicPool.Instance.Get(prefabCategory, contentInfo);
+            if(previewInstance) Destroy(previewInstance);
+            var obj = await mod.module.GetAsset(bundle, mod.assemblies);
+            var prefab = (GameObject) obj;
+            previewInstance = Instantiate(prefab);
+            previewInstance.gameObject.SetActive(true);
+        }
+
+        private void CreateItemProperty(string name, StringItemPointer.PropertyType type)
+        {
+            StringItemPointer pointer = DynamicPool.Instance.Get(stringItemPrefab, contentInfo);
             pointer.GetPointer<Text>("Text").text = name;
             pointer.SetVisual(type);
-            itemsMod.AddLast(pointer);
+            stringPointers.AddLast(pointer);
         }
 
         private void ClearListProperty()
         {
-            foreach (var itemPointer in itemsMod)
+            foreach (var itemPointer in stringPointers)
             {
                 DynamicPool.Instance.Return(itemPointer);
             }
-            itemsMod.Clear();
+            stringPointers.Clear();
+            foreach (var itemPointer in buttonPointers)
+            {
+                DynamicPool.Instance.Return(itemPointer);
+            }
+            buttonPointers.Clear();
         }
 
 

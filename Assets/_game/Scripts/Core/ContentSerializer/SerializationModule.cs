@@ -148,6 +148,7 @@ namespace Core.ContentSerializer
 
             deserializationTasks.Add(bundle.id, task);
             await task;
+            deserializedAssets.Add(bundle.id, task.Result);
             deserializationTasks.Remove(bundle.id);
             return task.Result;
         }

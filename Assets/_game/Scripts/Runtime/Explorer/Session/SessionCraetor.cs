@@ -53,7 +53,7 @@ namespace Runtime.Explorer.ModContent
             }
             else
             {
-                throw new System.Exception("пизда!");
+                throw new System.Exception("РїРёР·РґР°!");
             }
         }
 
@@ -65,7 +65,7 @@ namespace Runtime.Explorer.ModContent
 
         void TakeOneMod()
         {
-            Mod select = modViewer.GetCurrentMod;
+            Mod select = modViewer.CurrentMod;
             if(select != null)
             {
                 LinkedListNode<Mod> index = mods.Find(select);
