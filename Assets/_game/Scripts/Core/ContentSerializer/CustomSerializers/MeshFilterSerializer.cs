@@ -18,14 +18,13 @@ namespace Core.ContentSerializer.CustumSerializers
 
         public int GetStringsCount() => 1;
 
-        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash,
+        public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)
         {
             var id = JsonConvert.DeserializeObject<int>(hash[prefix]);
-            var obj = context.GetObject(id);
+            var obj = await context.GetObject(id);
             var mf = (MeshFilter) source;
             mf.sharedMesh = (Mesh) obj;
-            return Task.CompletedTask;
         }
     }
 }

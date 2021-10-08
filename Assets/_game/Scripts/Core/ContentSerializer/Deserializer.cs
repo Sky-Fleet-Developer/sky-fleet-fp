@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Object = UnityEngine.Object;
 
 namespace Core.ContentSerializer
@@ -13,7 +14,7 @@ namespace Core.ContentSerializer
             set => throw new NotImplementedException();
         }
 
-        public Func<int, Object> GetObject { get; set; }
+        public Func<int, Task<Object>> GetObject { get; set; }
         public SerializerBehaviour Behaviour { get; }
         public string ModFolderPath { get; }
         public bool IsCurrentlyBuilded { get; set; }

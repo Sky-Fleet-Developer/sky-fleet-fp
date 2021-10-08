@@ -22,14 +22,13 @@ namespace Core.ContentSerializer.CustumSerializers
 
         public int GetStringsCount() => 2;
 
-        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
         {
             Material mr = (Material) source;
             var hashValue = hash[prefix];
             var serializedSource = JsonConvert.DeserializeObject<SerializedMaterial>(hashValue);
             
-            serializedSource.ApplyToMaterial(mr, context);
-            return Task.CompletedTask;
+            await serializedSource.ApplyToMaterial(mr, context);
         }
 
         [System.Serializable]
@@ -78,7 +77,7 @@ namespace Core.ContentSerializer.CustumSerializers
                 }
             }
 
-            public void ApplyToMaterial(Material material, ISerializationContext context)
+            public async Task ApplyToMaterial(Material material, ISerializationContext context)
             {
                 for (int i = 0; i < properties.Length; i++)
                 {
@@ -99,7 +98,7 @@ namespace Core.ContentSerializer.CustumSerializers
                             break;
                         case ShaderPropertyType.Texture:
                             if(property.texValue == -1) break;
-                            Texture tex = (Texture) context.GetObject(property.texValue);
+                            Texture tex = (Texture)await context.GetObject(property.texValue);
                             if (tex != null)
                             {
                                 material.SetTexture(property.name, tex);

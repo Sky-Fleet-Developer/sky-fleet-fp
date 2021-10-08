@@ -20,6 +20,11 @@ namespace Core.Structure
         public abstract void SetWire(Wire wire);
         public abstract Wire CreateWire();
         public abstract Wire GetWire();
+
+        public void SetGUID(string guid)
+        {
+            this.guid = guid;
+        }
     }
 
     [System.Serializable, InlineProperty(LabelWidth = 150)]

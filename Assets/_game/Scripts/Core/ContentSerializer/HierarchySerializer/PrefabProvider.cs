@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Sirenix.Utilities;
 using UnityEngine;
 
@@ -71,18 +72,18 @@ static void GetCurrentSelectionJson()
                 }
             }
 
-            public override void SetCache(string prefix, Type type, Action<object> setter, ref object source,
+            public override async Task SetCache(string prefix, Type type, Action<object> setter, object source,
                 Dictionary<string, string> hash, Dictionary<int, Component> components)
             {
                 if (type.IsArray)
                 {
-                    CacheService.SetArrayCache(prefix, type, setter, hash, components, Context);
+                    await CacheService.SetArrayCache(prefix, type, setter, hash, components, Context);
                     return;
                 }
 
                 if (type.InheritsFrom(typeof(IList)))
                 {
-                    CacheService.SetListCache(prefix, type, setter, hash, components, Context);
+                    await CacheService.SetListCache(prefix, type, setter, hash, components, Context);
                     return;
                 }
 
@@ -139,7 +140,7 @@ static void GetCurrentSelectionJson()
                 else
                 {
                     var obj = Activator.CreateInstance(type);
-                    CacheService.SetNestedCache(prefix, ref obj, hash, components, Context);
+                    CacheService.SetNestedCache(prefix, obj, hash, components, Context);
                     setter?.Invoke(obj);
                 }
             }

@@ -16,21 +16,38 @@ namespace Core.ContentSerializer
     [System.Serializable]
     public class SerializationModule
     {
-        [JsonIgnore]
-        public GameObject[] PrefabsToSerialize;
+        [JsonIgnore, ShowInInspector]
+        private GameObject[] PrefabsToSerialize = new GameObject[0];
 
-        [JsonIgnore]
-        public List<Object> AssetsToSerialize;
+        [JsonIgnore, ShowInInspector]
+        private List<Object> AssetsToSerialize =  new List<Object>();
 
-        public List<PrefabBundle> prefabsCache;
-        public List<AssetBundle> assetsCache;
-
-        [JsonIgnore]
-        public List<Transform> prefabs;
-
-        [JsonIgnore]
-        [ShowInInspector] public Dictionary<int, Object> assets;
+        [JsonIgnore, HideInInspector]
+        public List<Bundle> Cache
+        {
+            get
+            {
+                if (cache != null) return cache;
+                cache = new List<Bundle>(prefabsCache.Count + assetsCache.Count);
+                cache.AddRange(prefabsCache);
+                cache.AddRange(assetsCache);
+                return cache;
+            }
+            set => cache = value;
+        }
+        [JsonIgnore, NonSerialized]
+        public List<Bundle> cache;
         
+        [JsonRequired, ShowInInspector]
+        private List<PrefabBundle> prefabsCache = new List<PrefabBundle>();
+        [JsonRequired, ShowInInspector]
+        private List<AssetBundle> assetsCache = new List<AssetBundle>();
+
+        [JsonIgnore, ShowInInspector]
+        private Dictionary<int, Object> deserializedAssets = new Dictionary<int, Object>();
+        [JsonIgnore, ShowInInspector]
+        private Dictionary<int, Task<Object>> deserializationTasks = new Dictionary<int, Task<Object>>();
+
         public string ModFolderPath { get; set; }
         private bool isCurrentlyBuilded = false;
         
@@ -40,10 +57,22 @@ namespace Core.ContentSerializer
             AssetsToSerialize = new List<Object>();
 
             isCurrentlyBuilded = true;
-            
-            prefabsCache = SerializePrefabs();
-            assetsCache = SerializeAssets();
 
+            Cache = new List<Bundle>();
+            prefabsCache = new List<PrefabBundle>();
+            assetsCache = new List<AssetBundle>();
+            
+            foreach (var serializePrefab in SerializePrefabs())
+            {
+                Cache.Add(serializePrefab);
+                prefabsCache.Add(serializePrefab);
+            }
+            foreach (var serializeAsset in SerializeAssets())
+            {
+                Cache.Add(serializeAsset);
+                assetsCache.Add(serializeAsset);
+            }
+            
             WriteClass();
         }
 
@@ -88,18 +117,82 @@ namespace Core.ContentSerializer
         [Button]
         public Task DeserializeAll()
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
             return DeserializeAll(assemblies);
         }
         
         public async Task DeserializeAll(System.Reflection.Assembly[] availableAssemblies)
         {
-            assets = await DeserializeAssets(availableAssemblies);
-            prefabs = DeserializePrefabs(availableAssemblies);
-            isCurrentlyBuilded = false;
+            /*deserializedAssets = await DeserializeAssets(availableAssemblies);
+            deserializedPrefabs = await DeserializePrefabs(availableAssemblies);
+            isCurrentlyBuilded = false;*/
         }
 
-        public async Task<Dictionary<int, Object>> DeserializeAssets(System.Reflection.Assembly[] availableAssemblies)
+        public async Task<Object> GetAsset(Bundle bundle, System.Reflection.Assembly[] availableAssemblies)
+        {
+            if (deserializedAssets.TryGetValue(bundle.id, out var value)) return value;
+            if (deserializationTasks.TryGetValue(bundle.id, out var currentTask)) return await currentTask;
+
+            Task<Object> task = null;
+            if (bundle is AssetBundle asset)
+            {
+                task = DeserializeAsset(asset, availableAssemblies);
+            }
+
+            if (bundle is PrefabBundle prefab)
+            {
+                task = DeserializePrefab(prefab, availableAssemblies);
+            }
+
+            if (task == null) throw new System.Exception("Unexpected bundle type!");
+
+            deserializationTasks.Add(bundle.id, task);
+            await task;
+            deserializationTasks.Remove(bundle.id);
+            return task.Result;
+        }
+        
+        private async Task<Object> DeserializeAsset(AssetBundle bundle, System.Reflection.Assembly[] availableAssemblies)
+        {
+            var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
+            deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
+            
+            var type = deserializer.GetTypeByName(bundle.type);
+            Object instance;
+            if (CacheService.AssetCreators.TryGetValue(type, out var creator))
+            {
+                instance = await creator.CreateInstance(bundle.type, bundle.Cache, deserializer);
+            }
+            else
+            {
+                instance = (Object) System.Activator.CreateInstance(type);
+            }
+            
+            deserializer.GetObject = v => GetObject(v, availableAssemblies);
+
+            await CacheService.SetNestedCache(bundle.type, instance, bundle.Cache, null, deserializer);
+
+            return instance;
+        }
+
+        public async Task<Object> DeserializePrefab(PrefabBundle bundle, System.Reflection.Assembly[] availableAssemblies)
+        {
+            var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
+            deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
+            
+            deserializer.GetObject = v => GetObject(v, availableAssemblies);
+
+            var instance = await bundle.ConstructTree(null, deserializer);
+
+            return instance.gameObject;
+        }
+        
+        private Task<Object> GetObject(int id, System.Reflection.Assembly[] availableAssemblies)
+        {
+            return GetAsset(Cache.FirstOrDefault(x => x.id == id), availableAssemblies);
+        }
+
+       /* public async Task<Dictionary<int, Object>> DeserializeAssets(System.Reflection.Assembly[] availableAssemblies)
         {
             var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
             deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
@@ -117,33 +210,43 @@ namespace Core.ContentSerializer
                     result.Add(assetsCache[i].id, (Object)System.Activator.CreateInstance(type));
                 }
             }
-            deserializer.GetObject = v => result[v];
+
+            deserializer.GetObject = GetObject;
 
             foreach (var cache in assetsCache)
             {
                 object source = result[cache.id];
-                CacheService.SetNestedCache(cache.type, ref source, cache.Cache, null, deserializer);
+                CacheService.SetNestedCache(cache.type, source, cache.Cache, null, deserializer);
                 result[cache.id] = (Object)source;
             }
 
             return result;
-        }
 
-        public List<Transform> DeserializePrefabs(System.Reflection.Assembly[] availableAssemblies)
+            async Task<Object> GetObject(int id)
+            {
+                return result[id];
+            }
+        }*/
+
+        /*public async Task<Dictionary<int, Transform>> DeserializePrefabs(System.Reflection.Assembly[] availableAssemblies)
         {
             var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
             deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
-            List<Transform> result = new List<Transform>(assetsCache.Count);
-            deserializer.GetObject = v => assets[v];
+            Dictionary<int, Transform> result = new Dictionary<int, Transform>(assetsCache.Count);
+            deserializer.GetObject = GetObject;
 
             foreach (var prefabBundle in prefabsCache)
             {
-                var pr = prefabBundle.ConstructTree(null, deserializer);
-                result.Add(pr);
+                var pr = await prefabBundle.ConstructTree(null, deserializer);
+                result.Add(prefabBundle.id, pr);
             }
 
             return result;
-        }
+            async Task<Object> GetObject(int id)
+            {
+                return deserializedAssets[id];
+            }
+        }*/
 
         [Button]
         private void ClearDirectoryClass()

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Core.ContentSerializer.HierarchySerializer;
 using UnityEngine;
 using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
@@ -12,7 +13,7 @@ namespace Core.ContentSerializer
     {
         public System.Action<Object> DetectedObjectReport { get; set; }
         public System.Action<string> AddTag { get; set; }
-        public System.Func<int, Object> GetObject => throw new System.NotImplementedException();
+        public System.Func<int, Task<Object>> GetObject => throw new System.NotImplementedException();
         public Assembly[] AvailableAssemblies => throw new System.NotImplementedException();
         public System.Type GetTypeByName(string name)
         {

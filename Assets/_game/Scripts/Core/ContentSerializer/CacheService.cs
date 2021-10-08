@@ -5,9 +5,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.AssetCreators;
+using Core.ContentSerializer.CustomSerializers;
 using Core.ContentSerializer.CustumSerializers;
+using Core.Structure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Sirenix.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,15 +18,14 @@ namespace Core.ContentSerializer
 {
     public static class CacheService
     {
-        public static void SetNestedCache(string prefix, ref object source, Dictionary<string, string> hash,
+        public static async Task SetNestedCache(string prefix, object source, Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
             var type = source.GetType();
             
             if (CustomSerializer.TryGetValue(type, out var serializer))
             {
-                serializer.Deserialize(prefix, source, hash, context);
-                return;
+                await serializer.Deserialize(prefix, source, hash, context);
             }
             
             var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -35,9 +37,9 @@ namespace Core.ContentSerializer
                     fieldInfo.IsNotSerialized) continue;
 
                 var value = fieldInfo.GetValue(source);
-                context.Behaviour.SetCache(prefix + "." + fieldInfo.Name, fieldInfo.FieldType, o =>
+                await context.Behaviour.SetCache(prefix + "." + fieldInfo.Name, fieldInfo.FieldType, o =>
                         fieldInfo.SetValue(obj, o),
-                    ref value, hash, components);
+                    value, hash, components);
                 source = obj;
             }
 
@@ -48,14 +50,14 @@ namespace Core.ContentSerializer
                 if (CacheService.CanSerializeProperty(type, propertyInfo))
                 {
                     var value = propertyInfo.GetValue(source);
-                    context.Behaviour.SetCache(prefix + "." + propertyInfo.Name, propertyInfo.PropertyType,
-                        o => propertyInfo.SetValue(obj, o), ref value, hash, components);
+                    await context.Behaviour.SetCache(prefix + "." + propertyInfo.Name, propertyInfo.PropertyType,
+                        o => propertyInfo.SetValue(obj, o), value, hash, components);
                     source = obj;
                 }
             }
         }
 
-        public static void SetArrayCache(string prefix, Type type, Action<object> setter,
+        public static async Task SetArrayCache(string prefix, Type type, Action<object> setter,
             Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
@@ -67,14 +69,14 @@ namespace Core.ContentSerializer
             for (int i = 0; i < count; i++)
             {
                 var v = array[i];
-                context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => v = o, ref obj, hash, components);
+                await context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => v = o, obj, hash, components);
                 array[i] = v;
             }
 
             setter?.Invoke(array);
         }
 
-        public static void SetListCache(string prefix, Type type, Action<object> setter,
+        public static async Task SetListCache(string prefix, Type type, Action<object> setter,
             Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
@@ -85,7 +87,7 @@ namespace Core.ContentSerializer
 
             for (int i = 0; i < count; i++)
             {
-                context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => list.Add(o), ref obj, hash, components);
+                await context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => list.Add(o), obj, hash, components);
             }
 
             setter?.Invoke(list);
@@ -96,7 +98,7 @@ namespace Core.ContentSerializer
         {
             var type = source.GetType();
             
-            if (CustomSerializer.TryGetValue(type, out var serializer))
+            if (FindCustomSerializer(type, out var serializer))
             {
                 for (int i = 0; i < serializer.GetStringsCount(); i++)
                 {
@@ -220,6 +222,27 @@ namespace Core.ContentSerializer
             typeof(AnimationCurve),
         };
 
+        public static bool FindCustomSerializer(Type t, out ICustomSerializer value)
+        {
+            if (CustomSerializer.TryGetValue(t, out var val))
+            {
+                value = val;
+                return true;
+            }
+            
+            foreach (var serializer in CustomSerializer)
+            {
+                if (t.InheritsFrom(serializer.Key))
+                {
+                    value = serializer.Value;
+                    return true;
+                }
+            }
+
+            value = null;
+            return false;
+        }
+
         public static readonly Dictionary<Type, ICustomSerializer> CustomSerializer =
             new Dictionary<Type, ICustomSerializer>
             {
@@ -228,6 +251,7 @@ namespace Core.ContentSerializer
                 {typeof(MeshRenderer), new MeshRendererSerializer()},
                 {typeof(Material), new MaterialSerializer()},
                 {typeof(Texture2D), new Texture2DSerializer()},
+                {typeof(Port), new PortSerializer()},
             };
 
         public static readonly Dictionary<Type, IAssetCreator> AssetCreators =
@@ -258,7 +282,7 @@ namespace Core.ContentSerializer
     {
         Action<UnityEngine.Object> DetectedObjectReport { get; }
         Action<string> AddTag { get; set; }
-        Func<int, UnityEngine.Object> GetObject { get; }
+        Func<int, Task<Object>> GetObject { get; }
         Assembly[] AvailableAssemblies { get; }
         Type GetTypeByName(string name);
         SerializerBehaviour Behaviour { get; }
@@ -284,7 +308,7 @@ namespace Core.ContentSerializer
         public ISerializationContext Context;
         public abstract void GetCache(string prefix, object source, Dictionary<string, string> hash);
 
-        public abstract void SetCache(string prefix, Type type, Action<object> setter, ref object source,
+        public abstract Task SetCache(string prefix, Type type, Action<object> setter, object source,
             Dictionary<string, string> hash, Dictionary<int, Component> components);
     }
 

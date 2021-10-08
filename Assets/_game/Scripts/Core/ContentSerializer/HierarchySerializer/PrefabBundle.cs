@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
@@ -8,19 +9,19 @@ using UnityEngine;
 namespace Core.ContentSerializer.HierarchySerializer
 {
     [Serializable]
-    public class PrefabBundle
+    public class PrefabBundle : Bundle
     {
-        public string name;
-        public List<string> tags = new List<string>();
         [ShowInInspector] public Dictionary<int, PrefabBundleObject> Tree = new Dictionary<int, PrefabBundleObject>();
 
         public PrefabBundle()
         {
+            
         }
         
         public PrefabBundle(GameObject root, ISerializationContext context)
         {
             name = root.name;
+            id = root.GetInstanceID();
             context.AddTag = v =>
             {
                 if (!tags.Contains(v)) tags.Add(v);
@@ -37,7 +38,7 @@ namespace Core.ContentSerializer.HierarchySerializer
             }
         }
 
-        public Transform ConstructTree(Transform parent, ISerializationContext context)
+        public async Task<Transform> ConstructTree(Transform parent, ISerializationContext context)
         {
             Transform root = null;
             Dictionary<int, Transform> transforms = new Dictionary<int, Transform>(Tree.Count);
@@ -59,6 +60,8 @@ namespace Core.ContentSerializer.HierarchySerializer
                 obj.Value.parent = transforms[Tree[obj.Key].parent];
             }
 
+            if(!context.IsCurrentlyBuilded) root.gameObject.SetActive(false);
+
             Dictionary<int, Component> reconstruction = new Dictionary<int, Component>();
 
             foreach (var obj in Tree)
@@ -68,7 +71,7 @@ namespace Core.ContentSerializer.HierarchySerializer
 
             foreach (var obj in Tree)
             {
-                obj.Value.ReconstructCache(transforms[obj.Key], ref reconstruction, context);
+                await obj.Value.ReconstructCache(reconstruction, context);
             }
 
             return root;
@@ -106,6 +109,9 @@ namespace Core.ContentSerializer.HierarchySerializer
                 if (type.InheritsFrom(typeof(IBlock)))
                 {
                     context.AddTag("Block");
+                    var block = component as IBlock;
+                    context.AddTag(block.Guid);
+                    context.AddTag(block.MountingType);
                 }
                 components.Add(type.FullName + "|" + component.GetInstanceID());
                 CacheService.GetNestedCache(type.FullName, component, Cache, context);
@@ -130,14 +136,14 @@ namespace Core.ContentSerializer.HierarchySerializer
             }
         }
 
-        public void ReconstructCache(Transform transform, ref Dictionary<int, Component> reconstruction, ISerializationContext context)
+        public async Task ReconstructCache(Dictionary<int, Component> reconstruction, ISerializationContext context)
         {
             foreach (var component in reconstruction)
             {
                 if (reconstructedTypes.Contains(component.Key))
                 {
                     object val = component.Value;
-                    CacheService.SetNestedCache(component.Value.GetType().FullName, ref val, Cache, reconstruction, context);
+                    await CacheService.SetNestedCache(component.Value.GetType().FullName, val, Cache, reconstruction, context);
                 }
             }
         }

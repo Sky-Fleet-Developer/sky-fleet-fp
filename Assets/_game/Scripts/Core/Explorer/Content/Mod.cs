@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,17 +8,20 @@ using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
 
 namespace Core.Explorer.Content
 {
+    [System.Serializable]
     public class Mod
     {
         public SerializationModule module;
         private Assembly assembly;
         public string name;
 
-        private LinkedList<Type> classes = new LinkedList<Type>();
+        private LinkedList<System.Type> classes = new LinkedList<System.Type>();
 
         private LinkedList<string> prefabsNames = new LinkedList<string>();
 
         private LinkedList<string> assetsNames = new LinkedList<string>();
+
+        public Assembly[] assemblies;
 
         public Mod(string modFolderPath, SerializationModule module, Assembly assembly)
         {
@@ -29,24 +31,30 @@ namespace Core.Explorer.Content
             var pathSplit = modFolderPath.Split(new[] {'/', '\\'});
             name = pathSplit[pathSplit.Length - 1];
 
-
-            foreach (Type classT in assembly.GetTypes())
+            var assembliesList = System.AppDomain.CurrentDomain.GetAssemblies().ToList();
+            assembliesList.Add(assembly);
+            assemblies = assembliesList.ToArray();
+            
+            foreach (System.Type classT in assembly.GetTypes())
             {
                 if(classT.IsClass && classT.IsPublic && classT.IsSubclassOf(typeof(MonoBehaviour)))
                     classes.AddLast(classT);
             }
-            foreach (PrefabBundle prefab in module.prefabsCache)
+            foreach (Bundle bundle in module.Cache)
             {
-                prefabsNames.AddLast(prefab.name);
+                switch (bundle)
+                {
+                    case PrefabBundle prefab:
+                        prefabsNames.AddLast(prefab.name);
+                        break;
+                    case AssetBundle asset:
+                        assetsNames.AddLast(asset.name);
+                        break;
+                }
             }
-            foreach (AssetBundle assetsN in module.assetsCache)
-            {
-                assetsNames.AddLast(assetsN.name);
-            }
-            DeserializeAll(); //проверка работоспособности
         }
 
-        public LinkedList<Type> GetClasses()
+        public LinkedList<System.Type> GetClasses()
         {
             return classes;
         }
@@ -59,13 +67,6 @@ namespace Core.Explorer.Content
         public LinkedList<string> GetAssetsNames()
         {
             return assetsNames;
-        }
-
-        public async void DeserializeAll()
-        {
-            List<Assembly> assemblies = System.AppDomain.CurrentDomain.GetAssemblies().ToList();
-            assemblies.Add(assembly);
-            await module.DeserializeAll(assemblies.ToArray());
         }
     }
 }

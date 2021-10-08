@@ -6,16 +6,15 @@ using Object = UnityEngine.Object;
 namespace Core.ContentSerializer.ResourceSerializer
 {
     [Serializable]
-    public class AssetBundle
+    public class AssetBundle : Bundle
     {
-        public string name;
         public string type;
-        public int id;
         [NonSerialized] public ISerializationContext context;
         [ShowInInspector] public Dictionary<string, string> Cache;
 
         public AssetBundle()
         {
+            
         }
         
         public AssetBundle(Object asset, ISerializationContext context)

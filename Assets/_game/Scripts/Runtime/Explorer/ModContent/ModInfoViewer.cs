@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.ContentSerializer;
 using Core.ContentSerializer.HierarchySerializer;
 using Core.Explorer.Content;
 using Core.Structure.Rigging;
@@ -37,14 +38,32 @@ namespace Runtime.Explorer.ModContent
                 CreateItemPropetry(className, StringItemPointer.PropertyType.Item);
             }
             CreateItemPropetry("Assets: ", StringItemPointer.PropertyType.Header);
-            foreach (AssetBundle asset in mod.module.assetsCache)
+
+            LinkedList<PrefabBundle> prefabs = new LinkedList<PrefabBundle>();
+            LinkedList<AssetBundle> assets = new LinkedList<AssetBundle>();
+            
+            foreach (Bundle bundle in mod.module.Cache)
+            {
+                switch (bundle)
+                {
+                    case PrefabBundle prefab:
+                        prefabs.AddLast(prefab);
+                        break;
+                    
+                    case AssetBundle asset:
+                        assets.AddLast(asset);
+                        break;
+                }
+            }
+            
+            foreach (AssetBundle asset in assets)
             {
                 var typePath = asset.type.Split(new[] {'.'});
                 string assetName = $"({typePath[typePath.Length - 1]})\n{asset.name}";
                 CreateItemPropetry(assetName, StringItemPointer.PropertyType.Item);
             }
             CreateItemPropetry("Prefabs: ", StringItemPointer.PropertyType.Header);
-            foreach (PrefabBundle prefab in mod.module.prefabsCache)
+            foreach (PrefabBundle prefab in prefabs)
             {
                 string prefabName = prefab.name;
                 if (prefab.tags.Contains("Block")) prefabName = $"(Block)\n{prefabName}";

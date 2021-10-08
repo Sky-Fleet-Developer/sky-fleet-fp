@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.ContentSerializer;
+using Core.ContentSerializer.HierarchySerializer;
+using Core.Explorer.Content;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -16,35 +19,60 @@ namespace Core.Structure.Rigging
         
         public RiggingItem GetItem(string guid)
         {
-            /*itemsCache ??= items.ToDictionary(item => item.guid);
+            itemsCache ??= items.ToDictionary(item => item.guid);
 
-            return itemsCache[guid];*/
-
-            return items.FirstOrDefault(x => x.guid == guid);
+            return itemsCache[guid];
         }
 
-        void ParceModItem()
+        public void GetBlocksFromMod(Mod mod)
         {
-
+            foreach (var prefab in mod.module.Cache)
+            {
+                if (prefab.tags.Contains("Block"))
+                {
+                    int idx = prefab.tags.IndexOf("Block");
+                    var newItem = new RiggingItem(idx, (PrefabBundle)prefab, mod);
+                    itemsCache.Add(newItem.guid, newItem);
+                }
+            }
         }
     }
 
     [System.Serializable]
     public class RiggingItem
     {
-        public AssetReference reference;
+        [SerializeField] private AssetReference reference;
+        private PrefabBundle bundleReference = null;
+        private Mod mod;
         public string guid;
         public string mounting;
         [System.NonSerialized] public GameObject loaded;
+        
+        public RiggingItem(int tagIdx, PrefabBundle prefab, Mod mod)
+        {
+            this.mod = mod;
+            bundleReference = prefab;
+            guid = prefab.tags[tagIdx + 1];
+            mounting = prefab.tags[tagIdx + 2];
+        }
 
         public async Task<GameObject> GetBlock()
         {
-            if (!loaded) loaded = await AssetManager.Instance.LoadAssetTask<GameObject>(reference, "Block");
+            if (reference != null)
+            {
+                if (!loaded) loaded = await AssetManager.Instance.LoadAssetTask<GameObject>(reference, "Block");
+            }
+            else if (bundleReference != null)
+            {
+                loaded = (GameObject)await mod.module.GetAsset(bundleReference, mod.assemblies);
+            }
+
             return loaded;
         }
 
 #if  UNITY_EDITOR
         public IBlock blockCache;
+
         [ShowInInspector] public string refresher
         {
             get
