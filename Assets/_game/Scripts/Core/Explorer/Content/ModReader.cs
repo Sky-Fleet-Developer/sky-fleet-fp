@@ -23,7 +23,7 @@ namespace Core.Explorer.Content
         public async Task Load()
         {
             LinkedList<string> modsD = GetListMods(GetPathDirectoryMods());
-            foreach(string name in modsD)
+            foreach (string name in modsD)
             {
                 Debug.Log("Find mod: " + name);
             }
@@ -36,7 +36,7 @@ namespace Core.Explorer.Content
             onModsLoaded = null;
         }
 
-        
+
         /// <summary>
         /// call action immediately if mods already loaded. Write callback to action "onModsLoaded" if mods not loaded yet
         /// </summary>
@@ -53,10 +53,19 @@ namespace Core.Explorer.Content
             return mods[index];
         }
 
+        public List<Mod> GetMods()
+        {
+            if (isModsLoaded)
+            {
+                return mods;
+            }
+            return null;
+        }
+
         private List<Task> GenerateMods(LinkedList<string> directorys, ModLoader loader)
         {
             var tasks = new List<Task>();
-            foreach(string directory in directorys)
+            foreach (string directory in directorys)
             {
                 var task = LoadMod(directory, loader);
                 tasks.Add(task);
@@ -68,7 +77,7 @@ namespace Core.Explorer.Content
         private async Task LoadMod(string modDirectory, ModLoader loader)
         {
             Mod mod = await loader.Read(modDirectory);
-            if(mod != null)
+            if (mod != null)
             {
                 mods.Add(mod);
             }
@@ -85,7 +94,7 @@ namespace Core.Explorer.Content
         {
             LinkedList<string> list = new LinkedList<string>();
             string[] directoryMods = Directory.GetDirectories(pathToMods);
-            for(int i = 0; i < directoryMods.Length; i++)
+            for (int i = 0; i < directoryMods.Length; i++)
             {
                 if (File.Exists(directoryMods[i] + "/modDefine.json"))
                 {

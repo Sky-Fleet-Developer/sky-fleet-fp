@@ -95,7 +95,7 @@ static void GetCurrentSelectionJson()
                     }
                     else
                     {
-                        Debug.LogError("Has no hash \"" + prefix + "\"");
+                        Debug.LogWarning("Has no hash \"" + prefix + "\"");
                     }
                 }
                 else if (type.InheritsFrom(typeof(Component)))
@@ -109,12 +109,12 @@ static void GetCurrentSelectionJson()
                         }
                         else
                         {
-                            Debug.LogError("Has no component with id \"" + id + "\"");
+                            Debug.LogWarning("Has no component with id \"" + id + "\"");
                         }
                     }
                     else
                     {
-                        Debug.LogError("Has no hash \"" + prefix + "\"");
+                        Debug.LogWarning("Has no hash \"" + prefix + "\"");
                     }
                 }
                 else if (type.InheritsFrom(typeof(UnityEngine.Object)))
@@ -129,12 +129,12 @@ static void GetCurrentSelectionJson()
                         }
                         else
                         {
-                            Debug.LogError("Has no component with id \"" + id + "\"");
+                            Debug.LogWarning("Has no component with id \"" + id + "\"");
                         }
                     }
                     else
                     {
-                        Debug.LogError("Has no hash \"" + prefix + "\"");
+                        Debug.LogWarning("Has no hash \"" + prefix + "\"");
                     }
                 }
                 else

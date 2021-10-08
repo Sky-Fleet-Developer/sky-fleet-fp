@@ -40,6 +40,12 @@ namespace Core.UIStructure
             return block != null;
         }
 
+        public bool GetBlock<T>(out T block, System.Type type) where T : IUiBlock
+        {
+            block = (T)blocks.FirstOrDefault(x => x.GetType() == type);
+            return block != null;
+        }
+
         public void Insert<T>(T instance) where T : MonoBehaviour, IUiBlock
         {
             blocks.Add(instance);
@@ -47,6 +53,7 @@ namespace Core.UIStructure
         public T Instantiate<T>(T prefab, BlockSequenceSettings settings = null) where T : MonoBehaviour, IUiBlock
         {
             var block = UiBlockBase.Show(prefab, this, settings);
+            block.Structure = this;
             blocks.Add(block);
             return block;
         }
@@ -54,5 +61,7 @@ namespace Core.UIStructure
         {
             blocks.Remove(block);
         }
+
+
     }
 }

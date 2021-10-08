@@ -54,24 +54,24 @@ public class MainMenu : UiBlockBase, ILoadAtStart
         }
     }
 
-    private void OnBlockWasOpened(UiBlockBase block)
+    private void OnBlockWasOpened(UiBlockBase[] blocksBase)
     {
         //StartCoroutine(Hide());
-        var frame = DynamicPool.Instance.Get(framePrefab);
-        frame.Apply(block);
+        UiFrame frame = Structure.Instantiate(framePrefab);
+        frame.Apply(UiFrame.TypeLayout.Horizontal, blocksBase);
     }
     
     [System.Serializable]
     public class UIBlockButton
     {
-        public UiBlockBase block;
+        public UiBlockBase[] blocks;
         public string description;
         public FontStyle style;
         public TextAnchor alignment;
 
-        private System.Action<UiBlockBase> onBlockWasOpen;
+        private System.Action<UiBlockBase[]> onBlockWasOpen;
 
-        public void Apply(ButtonItemPointer button, IUiStructure structure, System.Action<UiBlockBase> onBlockWasOpen)
+        public void Apply(ButtonItemPointer button, IUiStructure structure, System.Action<UiBlockBase[]> onBlockWasOpen)
         {
             this.onBlockWasOpen = onBlockWasOpen;
             var action = (System.Action)(() => OpenBlock(structure));
@@ -80,8 +80,12 @@ public class MainMenu : UiBlockBase, ILoadAtStart
 
         private void OpenBlock(IUiStructure structure)
         {
-            var instance = structure.Instantiate(block);
-            onBlockWasOpen?.Invoke(instance);
+            UiBlockBase[] blocksBase = new UiBlockBase[blocks.Length];
+            for(int i = 0; i < blocks.Length; i++)
+            {
+                blocksBase[i] = structure.Instantiate(blocks[i]);
+            }
+            onBlockWasOpen?.Invoke(blocksBase);
         }
     }
 }

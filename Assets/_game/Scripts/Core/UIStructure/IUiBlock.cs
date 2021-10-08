@@ -6,12 +6,12 @@ using Core.Utilities;
 using DG.Tweening;
 using UnityEngine;
 
-namespace  Core.UiStructure
+namespace Core.UiStructure
 {
     public interface IUiBlock
     {
         UiFrame Frame { get; set; }
-        IUiStructure Structure { get; }
+        IUiStructure Structure { get; set; }
         RectTransform RectTransform { get; }
         IEnumerator Show(BlockSequenceSettings settings = null);
         IEnumerator Hide(BlockSequenceSettings settings = null);
@@ -26,11 +26,11 @@ namespace  Core.UiStructure
 
         public static void FocusOn(IUiBlock block)
         {
-            if(FocusBlock == block) return;
+            if (FocusBlock == block) return;
             OnBlockWasFocused?.Invoke(block);
             FocusBlock = block;
         }
-        
+
         public RectTransform RectTransform => rectTransform;
         private RectTransform rectTransform;
 
@@ -56,37 +56,34 @@ namespace  Core.UiStructure
 
         protected virtual void OnBlockFocusChanged(IUiBlock block)
         {
-            if(block == null) return;
+            if (block == null) return;
             if (gameObject.activeSelf && setAsFocusedOnShow && block != this)
             {
                 StartCoroutine(Hide());
             }
         }
 
-        public IEnumerator Show(BlockSequenceSettings settings = null)
+        public virtual IEnumerator Show(BlockSequenceSettings settings = null)
         {
-            bool hasFrame = Frame != null;
-            var rtr = hasFrame ? Frame.rectTransform : rectTransform;
 
             if (setAsFocusedOnShow) FocusOn(this);
-            if(settings == null) yield return showTransition.Setup(Vector3.one, rtr.DOScale).WaitForCompletion();
+            if (settings == null) yield return showTransition.Setup(Vector3.one, rectTransform.DOScale).WaitForCompletion();
             else yield return settings.ApplySequenceSettings(this);
         }
 
-        public IEnumerator Hide(BlockSequenceSettings settings = null)
+        public virtual IEnumerator Hide(BlockSequenceSettings settings = null)
         {
-            bool hasFrame = Frame != null;
-            var rtr = hasFrame ? Frame.rectTransform : rectTransform;
-            if(settings == null) yield return hideTransition.Setup(Vector3.zero, rtr.DOScale).WaitForCompletion();
+
+            if (settings == null) yield return hideTransition.Setup(Vector3.zero, rectTransform.DOScale).WaitForCompletion();
             else yield return settings.ApplySequenceSettings(this);
             gameObject.SetActive(false);
-            if(FocusBlock == this) FocusOn(null);
+            if (FocusBlock == this) FocusOn(null);
         }
 
         public static T Show<T>(T prefab, IUiStructure structure, BlockSequenceSettings settings = null) where T : MonoBehaviour, IUiBlock
         {
             T instance;
-            if (structure.GetBlock<T>(out T block))
+            if (structure.GetBlock<T>(out T block, prefab.GetType()))
             {
                 instance = block;
             }
@@ -103,6 +100,6 @@ namespace  Core.UiStructure
 
     public abstract class BlockSequenceSettings
     {
-        public abstract IEnumerator ApplySequenceSettings(IUiBlock block);
+        public abstract IEnumerator ApplySequenceSettings(UiBlockBase block);
     }
 }
