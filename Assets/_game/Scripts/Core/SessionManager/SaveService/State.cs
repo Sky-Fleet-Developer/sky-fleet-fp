@@ -9,10 +9,17 @@ namespace Core.SessionManager.SaveService
     {
         public List<StructureBundle> structuresCache;
         //TODO: characters
+        //TODO: session settings
 
+        public State()
+        {
+            
+        }
+        
         public State(List<StructureBundle> structuresCache)
         {
             this.structuresCache = structuresCache;
+            //TODO копировать настройки сессии и сохранить список модов (путей к модам)
         }
     }
     //public Dictionary<int, ModPointer> remap;

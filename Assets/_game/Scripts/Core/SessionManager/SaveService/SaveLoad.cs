@@ -33,12 +33,15 @@ namespace Core.SessionManager.SaveService
             var state = new State(bundles);
 
             SaveToFile(state);
+            Debug.Log("Session was saved successfully!");
         }
         
         public async Task Load(string fileName)
         {
             var state = LoadAtPath(fileName);
 
+            //TODO: подождать пока загрузится сцена меню, если мы ещё не в ней
+            
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var mods = Session.Instance.Settings.mods;
             if (mods != null)
@@ -70,6 +73,9 @@ namespace Core.SessionManager.SaveService
             try
             {
                 var state = JsonConvert.DeserializeObject<State>(json);
+                
+                // TODO: если Application.isPlaying, загрузить список модов из ModLoader
+                
                 return state;
             }
             catch (Exception e)
