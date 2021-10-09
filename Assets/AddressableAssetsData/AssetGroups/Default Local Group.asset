@@ -47,6 +47,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
+  - m_GUID: d0eb4b66315acbb4c8659a43f7ffe54c
+    m_Address: Assets/_game/Prefabs/Structures/TestShip.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6089aed05677e8245b41cfd7d4a2ffce, type: 2}
   m_SchemaSet:

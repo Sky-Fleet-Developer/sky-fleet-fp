@@ -13,7 +13,7 @@ namespace Runtime
     {
         public Task Load()
         {
-            StructureManager.CheckInstance();
+            StructureUpdateModule.CheckInstance();
             GameData.CheckInstance();
             GameData.Instance.OnEnable();
             return Task.CompletedTask;

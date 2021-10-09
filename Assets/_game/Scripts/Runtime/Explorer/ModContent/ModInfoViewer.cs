@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Core.ContentSerializer;
-using Core.ContentSerializer.HierarchySerializer;
+using Core.ContentSerializer.Bundles;
 using Core.Explorer.Content;
 using Core.Structure.Rigging;
 using Core.UiStructure;
@@ -10,7 +10,7 @@ using Core.Utilities.UI;
 using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
-using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
+using AssetBundle = Core.ContentSerializer.Bundles.AssetBundle;
 
 namespace Runtime.Explorer.ModContent
 {

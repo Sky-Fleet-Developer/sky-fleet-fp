@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Core.ContentSerializer.CustumSerializers
+namespace Core.ContentSerializer.CustomSerializers
 {
     public class MeshSerializer : ICustomSerializer
     {
@@ -240,7 +240,7 @@ namespace Core.ContentSerializer.CustumSerializers
             mesh.RecalculateTangents();
         }
 
-        public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             string path;
             if (context.IsCurrentlyBuilded)
@@ -252,9 +252,9 @@ namespace Core.ContentSerializer.CustumSerializers
                 path = $"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_MODELS}";
             }
 
-            Debug.Log($"Search mesh in path: {path}/{hash[prefix + "_1"]}.mesh");
+            Debug.Log($"Search mesh in path: {path}/{cache[prefix + "_1"]}.mesh");
 
-            FileStream file = File.Open($"{path}/{hash[prefix + "_1"]}.mesh", FileMode.Open);
+            FileStream file = File.Open($"{path}/{cache[prefix + "_1"]}.mesh", FileMode.Open);
             if (file == null)
             {
                 throw new NullReferenceException();

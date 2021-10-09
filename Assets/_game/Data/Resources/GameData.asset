@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8d5e4b56217ffb4f863a3855d8a656c, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  serializedData:
+  serializedSharedData:
     interactiveLayer:
       serializedVersion: 2
       m_Bits: 64
@@ -21,3 +21,7 @@ MonoBehaviour:
     groundLayer:
       serializedVersion: 2
       m_Bits: 1
+  serializedPrivateData:
+    remotePrefabsTags:
+    - Structure
+    - Block

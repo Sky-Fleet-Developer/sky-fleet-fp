@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Core.SessionManager;
 using Core.UiStructure;
-using Core.Session;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,12 +26,12 @@ namespace Core.UIStructure
             graphicRaycaster = GetComponent<GraphicRaycaster>();
             RefreshBlocks();
 
-            SelectorScenes.StartChangeScene += BlockInterfaceControl;
+            SceneLoader.StartChangeScene += BlockInterfaceControl;
         }
 
         private void OnDestroy()
         {
-            SelectorScenes.StartChangeScene -= BlockInterfaceControl;
+            SceneLoader.StartChangeScene -= BlockInterfaceControl;
         }
 
         public void RefreshBlocks()

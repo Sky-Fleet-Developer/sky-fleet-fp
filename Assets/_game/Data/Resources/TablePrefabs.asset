@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b4e31263ade4064a9558bd30a92a864, type: 3}
+  m_Name: TablePrefabs
+  m_EditorClassIdentifier: 
+  items:
+  - reference:
+      m_AssetGUID: b249800ad0fa4ac49b0be7281b7690ff
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 40222abb-51cd-4887-8afb-92518f93a6cd
+    tags: []
+  - reference:
+      m_AssetGUID: 48a371fc77a91fe4098ec1d5f2fcd654
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
+    tags: []
+  - reference:
+      m_AssetGUID: d4ac0d39cf8e4a147a90d726ceb2f314
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+    tags: []
+  - reference:
+      m_AssetGUID: f241b618a0db84543894629afe816ce2
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+    tags: []
+  - reference:
+      m_AssetGUID: 72a701bdd11c43343a4c894c98cf6f97
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+    tags: []
+  - reference:
+      m_AssetGUID: d0eb4b66315acbb4c8659a43f7ffe54c
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 93cbead4-d7c3-47fb-b271-510007e82fb3
+    tags: []

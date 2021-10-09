@@ -16,10 +16,10 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public int GetStringsCount() => 1;
 
-        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             var port = (Port) source;
-            port.SetGUID(hash[prefix]);
+            port.SetGUID(cache[prefix]);
             return Task.CompletedTask;
         }
     }

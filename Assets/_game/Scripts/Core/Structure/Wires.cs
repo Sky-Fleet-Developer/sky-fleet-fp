@@ -25,7 +25,7 @@ namespace Core.Structure
                 return guid;
             }
         }
-
+        
         [SerializeField, HideInInspector] private string guid;
 
         public PortType ValueType;

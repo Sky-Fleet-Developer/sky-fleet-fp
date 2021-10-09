@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Core.ContentSerializer.CustumSerializers
+namespace Core.ContentSerializer.CustomSerializers
 {
     public class Texture2DSerializer : ICustomSerializer
     {
@@ -48,7 +48,7 @@ namespace Core.ContentSerializer.CustumSerializers
         
         public int GetStringsCount() => 3;
 
-        public Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             return Task.CompletedTask;
         }

@@ -2,9 +2,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using Core.ContentSerializer;
-using Core.ContentSerializer.HierarchySerializer;
+using Core.ContentSerializer.Bundles;
 using UnityEngine;
-using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
+using AssetBundle = Core.ContentSerializer.Bundles.AssetBundle;
 
 namespace Core.Explorer.Content
 {
@@ -12,7 +12,7 @@ namespace Core.Explorer.Content
     public class Mod
     {
         public SerializationModule module;
-        private Assembly assembly;
+        public Assembly assembly;
         public string name;
 
         private LinkedList<System.Type> classes = new LinkedList<System.Type>();

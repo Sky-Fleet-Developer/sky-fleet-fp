@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Newtonsoft.Json;
@@ -91,7 +92,7 @@ namespace Structure.Editor
 
         private void CreateConfiguration()
         {
-            if (selectedStructure.Blocks == null) selectedStructure.RefreshParents();
+            if (selectedStructure.Blocks == null) selectedStructure.RefreshBlocksAndParents();
             portsList = new List<(IBlock block, List<Port> ports, FieldInfo[] infos, List<Port> specialPorts)>(selectedStructure.Blocks.Count);
 
             configuration = new StructureConfiguration

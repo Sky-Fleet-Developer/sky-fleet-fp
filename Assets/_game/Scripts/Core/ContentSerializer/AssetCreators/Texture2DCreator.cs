@@ -10,10 +10,10 @@ namespace Core.ContentSerializer.AssetCreators
     public class Texture2DCreator : IAssetCreator
     {
         [ItemCanBeNull]
-        public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> hash,
+        public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> cache,
             ISerializationContext context)
         {
-            string name = hash[prefix + "_1"];
+            string name = cache[prefix + "_1"];
             if (context.IsCurrentlyBuilded)
             {
                 Debug.Log($"Search texture in path: {Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");

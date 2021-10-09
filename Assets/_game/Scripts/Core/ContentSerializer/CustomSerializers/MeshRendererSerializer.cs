@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Core.ContentSerializer.CustumSerializers
+namespace Core.ContentSerializer.CustomSerializers
 {
     public class MeshRendererSerializer : ICustomSerializer
     {
@@ -23,10 +23,10 @@ namespace Core.ContentSerializer.CustumSerializers
         
         public int GetStringsCount() => 1;
 
-        public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             MeshRenderer mr = (MeshRenderer) source;
-            var hashValue = hash[prefix];
+            var hashValue = cache[prefix];
             var serializedSource = JsonConvert.DeserializeObject<SerializedMeshRenderer>(hashValue);
             var mats = new Material[serializedSource.materials.Length];
             for (var i = 0; i < mats.Length; i++)

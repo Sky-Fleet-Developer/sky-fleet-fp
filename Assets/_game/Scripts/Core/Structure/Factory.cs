@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
@@ -112,7 +113,7 @@ namespace Core.Structure
                 return;
             }
 
-            structure.RefreshParents();
+            structure.RefreshBlocksAndParents();
 
             List<Task> awaiters = new List<Task>();
 
@@ -134,7 +135,7 @@ namespace Core.Structure
             await Task.WhenAll(awaiters);
             await new WaitForEndOfFrame();
             
-            structure.RefreshParents();
+            structure.RefreshBlocksAndParents();
 
             foreach (var block in structure.Blocks)
             {
@@ -157,8 +158,8 @@ namespace Core.Structure
         {
             var block = structure.Blocks[blockIdx];
 
-            var wantedBlock = TableRigging.Instance.GetItem(guid);
-            var blockSource = await wantedBlock.GetBlock();
+            var wantedBlock = TablePrefabs.Instance.GetItem(guid);
+            var blockSource = await wantedBlock.LoadPrefab();
             Transform instance;
 
             if (Application.isPlaying)
@@ -326,33 +327,6 @@ namespace Core.Structure
             }
 
             return result.ToString();
-        }
-    }
-    
-    [AttributeUsage(AttributeTargets.Property)]
-    public class PlayerPropertyAttribute : Attribute { }
-
-    [Serializable]
-    public class BlockConfiguration
-    {
-        public string path;
-        public string current;
-        public Dictionary<string, string> setup;
-    }
-
-    [Serializable]
-    public class StructureConfiguration
-    {
-        public List<BlockConfiguration> blocks = new List<BlockConfiguration>();
-        public List<string> wires = new List<string>();
-        
-        private Dictionary<string, BlockConfiguration> blocksCache;
-        
-        public BlockConfiguration GetBlock(string path)
-        {
-            blocksCache ??= blocks.ToDictionary(block => block.path);
-
-            return blocksCache[path];
         }
     }
 }

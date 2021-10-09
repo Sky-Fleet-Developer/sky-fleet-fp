@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
@@ -10,6 +11,19 @@ namespace Core.Structure
 {
     public abstract class BaseStructure : MonoBehaviour, IStructure
     {
+        [ShowInInspector]
+        public string Guid
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(guid)) guid = System.Guid.NewGuid().ToString();
+                return guid;
+            }
+            set => guid = value;
+        }
+
+        public List<string> Tags => tags;
+        [SerializeField] private List<string> tags;
         public Vector3 position => transform.position;
         public Quaternion rotation => transform.rotation;
         List<IBlock> IStructure.Blocks => blocks;
@@ -36,6 +50,8 @@ namespace Core.Structure
             get => configuration;
             set => configuration = value;
         }
+        
+        [SerializeField, HideInInspector] private string guid;
 
         [ShowInInspector] protected List<IBlock> blocks;
 
@@ -44,8 +60,20 @@ namespace Core.Structure
         [SerializeField] protected string configuration;
         protected StructureConfiguration currentConfiguration;
         [ShowInInspector] protected List<Wire> wires;
+        
+        private bool initialized = false;
 
         protected virtual void Awake()
+        {
+            initialized = false;
+        }
+        
+        protected virtual void Start()
+        {
+            if (!initialized) Init();
+        }
+
+        public void Init()
         {
             if (!string.IsNullOrEmpty(configuration))
             {
@@ -57,24 +85,22 @@ namespace Core.Structure
                 InitParents();
                 InitBlocks();
                 OnInitComplete();
-                StructureManager.RegisterStructure(this);
+                StructureUpdateModule.RegisterStructure(this);
             }
-        }
-        
-        private void Start()
-        {
+
+            initialized = true;
         }
 
         private async Task ApplyConfigurationAndRegister()
         {
             currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
             await Factory.ApplyConfiguration(this, currentConfiguration);
-            StructureManager.RegisterStructure(this);
+            StructureUpdateModule.RegisterStructure(this);
         }
 
         protected void OnDestroy()
         {
-            StructureManager.DestroyStructure(this);
+            StructureUpdateModule.DestroyStructure(this);
         }
 
         [Button]
@@ -95,7 +121,7 @@ namespace Core.Structure
         }
         
         [Button]
-        public void RefreshParents()
+        public void RefreshBlocksAndParents()
         {
             RefreshBlocks();
             InitParents();

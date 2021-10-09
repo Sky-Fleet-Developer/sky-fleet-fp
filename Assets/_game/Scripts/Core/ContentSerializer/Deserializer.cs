@@ -39,7 +39,7 @@ namespace Core.ContentSerializer
             AvailableAssemblies = availableAssemblies;
             ModFolderPath = modFolderPath;
             Behaviour = behaviour;
-            Behaviour.Context = this;
+            Behaviour.context = this;
         }
     }
 }

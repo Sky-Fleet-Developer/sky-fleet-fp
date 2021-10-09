@@ -6,21 +6,22 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging
 {
-    public interface IBlock
+    public interface IBlock : ITablePrefab
     {
-        Transform transform { get; }
         // ReSharper disable once InconsistentNaming
         Vector3 localPosition { get; }
         Parent Parent { get; }
         IStructure Structure { get; }
-        string Guid { get; }
         string MountingType { get; }
 
         void InitBlock(IStructure structure, Parent parent);
         void OnInitComplete();
+
+        string Save();
+        void Load(string value);
     }
 
-    public interface IDamagemleBlock : IBlock
+    public interface IDamagebleBlock : IBlock
     {
         float Durability { get; }
         ArmorData Armor { get; }

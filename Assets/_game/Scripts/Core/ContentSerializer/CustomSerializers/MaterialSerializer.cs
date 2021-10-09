@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Core.ContentSerializer.CustumSerializers
+namespace Core.ContentSerializer.CustomSerializers
 {
     public class MaterialSerializer : ICustomSerializer
     {
@@ -22,10 +22,10 @@ namespace Core.ContentSerializer.CustumSerializers
 
         public int GetStringsCount() => 2;
 
-        public async Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
+        public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             Material mr = (Material) source;
-            var hashValue = hash[prefix];
+            var hashValue = cache[prefix];
             var serializedSource = JsonConvert.DeserializeObject<SerializedMaterial>(hashValue);
             
             await serializedSource.ApplyToMaterial(mr, context);

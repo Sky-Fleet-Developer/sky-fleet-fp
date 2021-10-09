@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.AssetCreators;
 using Core.ContentSerializer.CustomSerializers;
-using Core.ContentSerializer.CustumSerializers;
 using Core.Structure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -18,44 +17,118 @@ namespace Core.ContentSerializer
 {
     public static class CacheService
     {
-        public static async Task SetNestedCache(string prefix, object source, Dictionary<string, string> hash,
-            Dictionary<int, Component> components, ISerializationContext context)
-        {
-            var type = source.GetType();
-            
-            if (CustomSerializer.TryGetValue(type, out var serializer))
+        public static void GetCache(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
             {
-                await serializer.Deserialize(prefix, source, hash, context);
-            }
-            
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            var obj = source;
-            for (var index = 0; index < fields.Length; index++)
-            {
-                var fieldInfo = fields[index];
-                if (!fieldInfo.IsPublic && fieldInfo.GetCustomAttribute<SerializeField>() == null ||
-                    fieldInfo.IsNotSerialized) continue;
+                var type = source.GetType();
 
-                var value = fieldInfo.GetValue(source);
-                await context.Behaviour.SetCache(prefix + "." + fieldInfo.Name, fieldInfo.FieldType, o =>
-                        fieldInfo.SetValue(obj, o),
-                    value, hash, components);
-                source = obj;
-            }
-
-            var properties = type.GetProperties();
-            for (var index = 0; index < properties.Length; index++)
-            {
-                var propertyInfo = properties[index];
-                if (CacheService.CanSerializeProperty(type, propertyInfo))
+                if (type.IsArray)
                 {
-                    var value = propertyInfo.GetValue(source);
-                    await context.Behaviour.SetCache(prefix + "." + propertyInfo.Name, propertyInfo.PropertyType,
-                        o => propertyInfo.SetValue(obj, o), value, hash, components);
-                    source = obj;
+                    CacheService.GetArrayCache(prefix, source, hash, context);
+                    return;
+                }
+
+                if (type.InheritsFrom(typeof(IList)))
+                {
+                    CacheService.GetListCache(prefix, source, hash, context);
+                    return;
+                }
+
+                if (type.IsEnum || CacheService.SimpleTypes.Contains(type))
+                {
+                    hash.Add(prefix, CacheService.Serialize(source));
+                }
+                else
+                {
+                    switch (source)
+                    {
+                        case Component component:
+                            hash.Add(prefix, CacheService.Serialize(component.GetInstanceID()));
+                            break;
+                        case UnityEngine.Object obj:
+                            hash.Add(prefix, CacheService.Serialize(obj.GetInstanceID()));
+                            context.DetectedObjectReport?.Invoke(obj);
+                            break;
+                        default:
+                            context.Behaviour.GetNestedCache(prefix, source, hash);
+                            break;
+                    }
                 }
             }
-        }
+
+        public static async Task SetCache(string prefix, Type type, Action<object> setter, object source,
+                Dictionary<string, string> hash, Dictionary<int, Component> components, ISerializationContext context)
+            {
+                if (type.IsArray)
+                {
+                    await CacheService.SetArrayCache(prefix, type, setter, hash, components, context);
+                    return;
+                }
+
+                if (type.InheritsFrom(typeof(IList)))
+                {
+                    await CacheService.SetListCache(prefix, type, setter, hash, components, context);
+                    return;
+                }
+
+                if (type.IsEnum || CacheService.SimpleTypes.Contains(type))
+                {
+                    if (hash.TryGetValue(prefix, out string value))
+                    {
+                        setter?.Invoke(CacheService.Deserialize(value, type));
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Has no hash \"" + prefix + "\"");
+                    }
+                }
+                else if (type.InheritsFrom(typeof(Component)))
+                {
+                    if (hash.TryGetValue(prefix, out string value))
+                    {
+                        var id = (int) CacheService.Deserialize(value, typeof(int));
+                        if (components.TryGetValue(id, out Component component))
+                        {
+                            setter?.Invoke(component);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Has no component with id \"" + id + "\"");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Has no hash \"" + prefix + "\"");
+                    }
+                }
+                else if (type.InheritsFrom(typeof(UnityEngine.Object)))
+                {
+                    if (hash.TryGetValue(prefix, out string value))
+                    {
+                        var id = (int) CacheService.Deserialize(value, typeof(int));
+                        var obj = context.GetObject(id);
+                        if (obj != null)
+                        {
+                            setter?.Invoke(obj);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Has no component with id \"" + id + "\"");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Has no hash \"" + prefix + "\"");
+                    }
+                }
+                else
+                {
+                    var obj = Activator.CreateInstance(type);
+                    await context.Behaviour.SetNestedCache(prefix, obj, hash, components);
+                    setter?.Invoke(obj);
+                }
+            }
+        
+        
 
         public static async Task SetArrayCache(string prefix, Type type, Action<object> setter,
             Dictionary<string, string> hash,
@@ -69,7 +142,7 @@ namespace Core.ContentSerializer
             for (int i = 0; i < count; i++)
             {
                 var v = array[i];
-                await context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => v = o, obj, hash, components);
+                await SetCache($"{prefix}[{i}]", elementType, o => v = o, obj, hash, components, context);
                 array[i] = v;
             }
 
@@ -87,57 +160,12 @@ namespace Core.ContentSerializer
 
             for (int i = 0; i < count; i++)
             {
-                await context.Behaviour.SetCache($"{prefix}[{i}]", elementType, o => list.Add(o), obj, hash, components);
+                await SetCache($"{prefix}[{i}]", elementType, o => list.Add(o), obj, hash, components, context);
             }
 
             setter?.Invoke(list);
         }
-
-        public static void GetNestedCache(string prefix, object source, Dictionary<string, string> hash,
-            ISerializationContext context)
-        {
-            var type = source.GetType();
-            
-            if (FindCustomSerializer(type, out var serializer))
-            {
-                for (int i = 0; i < serializer.GetStringsCount(); i++)
-                {
-                    string postfix = i == 0 ? string.Empty : $"_{i}";
-                    hash.Add(prefix + postfix, serializer.Serialize(source, context, i));
-                }
-                return;
-            }
-            
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            for (var index = 0; index < fields.Length; index++)
-            {
-                var fieldInfo = fields[index];
-                if (!fieldInfo.IsPublic && fieldInfo.GetCustomAttribute<SerializeField>() == null ||
-                    fieldInfo.IsNotSerialized) continue;
-                var value = fieldInfo.GetValue(source);
-                if (value == null) continue;
-                context.Behaviour.GetCache(prefix + "." + fieldInfo.Name, value, hash);
-            }
-
-            var properties = type.GetProperties();
-            for (var index = 0; index < properties.Length; index++)
-            {
-                var propertyInfo = properties[index];
-                if (CanSerializeProperty(type, propertyInfo))
-                {
-                    try
-                    {
-                        var value = propertyInfo.GetValue(source);
-                        if (value == null) continue;
-                        context.Behaviour.GetCache(prefix + "." + propertyInfo.Name, value, hash);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
-            }
-        }
+        
 
         public static void GetArrayCache(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)
@@ -146,7 +174,7 @@ namespace Core.ContentSerializer
             hash.Add(prefix, arr.Length.ToString());
             for (int i = 0; i < arr.Length; i++)
             {
-                context.Behaviour.GetCache($"{prefix}[{i}]", arr.GetValue(i), hash);
+                GetCache($"{prefix}[{i}]", arr.GetValue(i), hash, context);
             }
         }
 
@@ -157,7 +185,7 @@ namespace Core.ContentSerializer
             hash.Add(prefix, list.Count.ToString());
             for (int i = 0; i < list.Count; i++)
             {
-                context.Behaviour.GetCache($"{prefix}[{i}]", list[i], hash);
+                GetCache($"{prefix}[{i}]", list[i], hash, context);
             }
         }
 
@@ -252,6 +280,7 @@ namespace Core.ContentSerializer
                 {typeof(Material), new MaterialSerializer()},
                 {typeof(Texture2D), new Texture2DSerializer()},
                 {typeof(Port), new PortSerializer()},
+                {typeof(Transform), new TransformSerializer()}
             };
 
         public static readonly Dictionary<Type, IAssetCreator> AssetCreators =
@@ -294,22 +323,23 @@ namespace Core.ContentSerializer
     {
         string Serialize(object source, ISerializationContext context, int idx);
         int GetStringsCount();
-        Task Deserialize(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context);
+        Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context);
     }
 
     public interface IAssetCreator
     {
-        Task<Object> CreateInstance(string prefix, Dictionary<string, string> hash,
+        Task<Object> CreateInstance(string prefix, Dictionary<string, string> cache,
             ISerializationContext context);
     }
 
     public abstract class SerializerBehaviour
     {
-        public ISerializationContext Context;
-        public abstract void GetCache(string prefix, object source, Dictionary<string, string> hash);
+        public ISerializationContext context;
 
-        public abstract Task SetCache(string prefix, Type type, Action<object> setter, object source,
-            Dictionary<string, string> hash, Dictionary<int, Component> components);
+        public abstract void GetNestedCache(string prefix, object source, Dictionary<string, string> cache);
+
+        public abstract Task SetNestedCache(string prefix, object source, Dictionary<string, string> cache,
+            Dictionary<int, Component> components);
     }
 
    

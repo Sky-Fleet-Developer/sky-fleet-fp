@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Core.ContentSerializer.HierarchySerializer;
+using Core.ContentSerializer.Bundles;
+using Core.Structure;
 using UnityEngine;
-using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
+using AssetBundle = Core.ContentSerializer.Bundles.AssetBundle;
 using Object = UnityEngine.Object;
 
 namespace Core.ContentSerializer
@@ -28,7 +29,7 @@ namespace Core.ContentSerializer
         public Serializer(SerializerBehaviour behaviour)
         {
             Behaviour = behaviour;
-            Behaviour.Context = this;
+            Behaviour.context = this;
         }
 
         public List<PrefabBundle> GetBundlesFor(GameObject[] prefabs)
@@ -39,6 +40,11 @@ namespace Core.ContentSerializer
         public List<AssetBundle> GetBundlesFor(Object[] prefabs)
         {
             return prefabs.Where(x => x != null).Select(x => new AssetBundle(x, this)).ToList();
+        }
+
+        public List<StructureBundle> GetBundlesFor(IEnumerable<IStructure> structures)
+        {
+            return structures.Select(x => new StructureBundle(x, this)).ToList();
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
+using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;

@@ -2,7 +2,7 @@ using System;
 using Paterns.AbstractFactory;
 using UnityEngine;
 
-namespace Core.ContentSerializer.CustumSerializers
+namespace Core.ContentSerializer.CustomSerializers
 {
     public class FactoryArrayConventer : AbstractFactory<Array, byte[]>
     {

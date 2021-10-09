@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.ContentSerializer.HierarchySerializer;
+using Core.ContentSerializer.Bundles;
+using Core.ContentSerializer.Providers;
 using Core.Utilities;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using AssetBundle = Core.ContentSerializer.ResourceSerializer.AssetBundle;
+using AssetBundle = Core.ContentSerializer.Bundles.AssetBundle;
 
 namespace Core.ContentSerializer
 {
@@ -78,7 +79,7 @@ namespace Core.ContentSerializer
 
         public List<PrefabBundle> SerializePrefabs()
         {
-            var serializer = PrefabProvider.GetSerializer();
+            var serializer = ModProvider.GetSerializer();
             serializer.DetectedObjectReport = v =>
             {
                 var id = v.GetInstanceID();
@@ -91,7 +92,7 @@ namespace Core.ContentSerializer
 
         public List<AssetBundle> SerializeAssets()
         {
-            var serializer = PrefabProvider.GetSerializer();
+            var serializer = ModProvider.GetSerializer();
             var collector = AssetsToSerialize.Clone();
             var result = new List<AssetBundle>();
 
@@ -155,7 +156,7 @@ namespace Core.ContentSerializer
         
         private async Task<Object> DeserializeAsset(AssetBundle bundle, System.Reflection.Assembly[] availableAssemblies)
         {
-            var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
+            var deserializer = ModProvider.GetDeserializer(ModFolderPath, availableAssemblies);
             deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
             
             var type = deserializer.GetTypeByName(bundle.type);
@@ -171,14 +172,14 @@ namespace Core.ContentSerializer
             
             deserializer.GetObject = v => GetObject(v, availableAssemblies);
 
-            await CacheService.SetNestedCache(bundle.type, instance, bundle.Cache, null, deserializer);
+            await deserializer.Behaviour.SetNestedCache(bundle.type, instance, bundle.Cache, null);
 
             return instance;
         }
 
         public async Task<Object> DeserializePrefab(PrefabBundle bundle, System.Reflection.Assembly[] availableAssemblies)
         {
-            var deserializer = PrefabProvider.GetDeserializer(ModFolderPath, availableAssemblies);
+            var deserializer = ModProvider.GetDeserializer(ModFolderPath, availableAssemblies);
             deserializer.IsCurrentlyBuilded = isCurrentlyBuilded;
             
             deserializer.GetObject = v => GetObject(v, availableAssemblies);
@@ -252,7 +253,7 @@ namespace Core.ContentSerializer
         [Button]
         private void ClearDirectoryClass()
         {
-            string path = Application.dataPath + PathStorage.BASE_PATH;
+            string path = Application.dataPath + PathStorage.BASE_MODS_PATH;
             Debug.Log(path);
             if (Directory.Exists(path))
             {        
@@ -269,7 +270,7 @@ namespace Core.ContentSerializer
 
         private void WriteClass()
         {
-            string path = Application.dataPath + PathStorage.BASE_PATH + "/";
+            string path = Application.dataPath + PathStorage.BASE_MODS_PATH + "/";
             string jsonS = JsonConvert.SerializeObject(this);
             File.WriteAllText(path + PathStorage.BASE_MOD_FILE_DEFINE, jsonS);
 

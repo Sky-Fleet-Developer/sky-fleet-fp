@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -19,7 +20,9 @@ namespace Core.Structure.Rigging
             set => guid = value;
         }
         [SerializeField, HideInInspector] private string guid;
-
+        public List<string> Tags => tags;
+        [SerializeField] private List<string> tags;
+        
         [ShowInInspector]
         public string MountingType
         {
@@ -35,6 +38,14 @@ namespace Core.Structure.Rigging
         }
 
         public virtual void OnInitComplete() { }
+        public string Save()
+        {
+            return string.Empty;
+        }
+
+        public void Load(string value)
+        {
+        }
 
         private void Start()
         {
