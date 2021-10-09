@@ -193,17 +193,17 @@ namespace Structure.Editor
             string nameButton;
             if (info != null)
             {
-                nameButton = info.Name + ": " + port.TypeValue.ToString();
+                nameButton = info.Name + ": " + port.ValueType.ToString();
             }
             else
             {
-                nameButton = port.TypeValue.ToString();
+                nameButton = port.ValueType.ToString();
             }
             if (GUILayout.Button(nameButton))
             {
                 if (takePorts.Find(item => item.port == port) == null)
                 {
-                    if (takePorts.Count > 0 && takePorts[0].port.TypeValue == port.TypeValue)
+                    if (takePorts.Count > 0 && takePorts[0].port.ValueType == port.ValueType)
                     {
                         takePorts.Add(new TakePort(port, nameButton));
                     }

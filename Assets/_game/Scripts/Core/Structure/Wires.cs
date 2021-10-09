@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿using System;
+
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.Structure
@@ -14,7 +16,8 @@ namespace Core.Structure
     [System.Serializable]
     public abstract class Port
     {
-        [ShowInInspector] public string Guid
+        [ShowInInspector]
+        public string Guid
         {
             get
             {
@@ -25,7 +28,7 @@ namespace Core.Structure
 
         [SerializeField, HideInInspector] private string guid;
 
-        public PortType TypeValue;
+        public PortType ValueType;
 
         public abstract void SetWire(Wire wire);
         public abstract Wire CreateWire();
@@ -43,6 +46,15 @@ namespace Core.Structure
         public T hash;
 
         public Wire<T> wire;
+
+        public Port()
+        {
+        }
+
+        public Port(PortType type)
+        {
+            ValueType = type;
+        }
 
         public T Value
         {
@@ -90,9 +102,9 @@ namespace Core.Structure
     [System.Serializable]
     public class Wire
     {
-        
+
     }
-    
+
     [System.Serializable]
     public class Wire<T> : Wire
     {

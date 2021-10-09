@@ -31,3 +31,15 @@ MonoBehaviour:
       m_SubObjectType: 
     guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
     mounting: 
+  - reference:
+      m_AssetGUID: f241b618a0db84543894629afe816ce2
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+    mounting: 
+  - reference:
+      m_AssetGUID: 72a701bdd11c43343a4c894c98cf6f97
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+    mounting: 
