@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -13,7 +14,7 @@ namespace Structure.Editor
     public class WiresEditor : EditorWindow
     {
         public static WiresEditor current;
-        
+
         [MenuItem("Factory/Wires Editor")]
         public static void OpenWindow()
         {
@@ -23,10 +24,21 @@ namespace Structure.Editor
         [SerializeField] private IStructure selectedStructure;
         [SerializeField] private StructureConfiguration configuration = null;
         [SerializeField] private List<(IBlock block, List<Port> ports, FieldInfo[] infos, List<Port> specialPorts)> portsList;
-        private List<string> createWireList;
+        private List<TakePort> takePorts = new List<TakePort>();
         private string json;
         private bool configDirty = true;
-        
+
+        private class TakePort
+        {
+            public Port port;
+            public string name;
+            public TakePort(Port port, string name)
+            {
+                this.port = port;
+                this.name = name;
+            }
+        }
+
         public void OnEnable()
         {
             Selection.selectionChanged += GetFomSelection;
@@ -48,8 +60,8 @@ namespace Structure.Editor
 
         private void OnGUI()
         {
-            if(selectedStructure == null) return;
-            
+            if (selectedStructure == null) return;
+
             switch (Event.current.type)
             {
                 default://case EventType.Repaint:
@@ -79,7 +91,7 @@ namespace Structure.Editor
 
         private void CreateConfiguration()
         {
-            if(selectedStructure.Blocks == null) selectedStructure.RefreshParents();
+            if (selectedStructure.Blocks == null) selectedStructure.RefreshParents();
             portsList = new List<(IBlock block, List<Port> ports, FieldInfo[] infos, List<Port> specialPorts)>(selectedStructure.Blocks.Count);
 
             configuration = new StructureConfiguration
@@ -88,18 +100,18 @@ namespace Structure.Editor
                 wires = new List<string>()
             };
 
-            for(int i = 0; i < selectedStructure.Blocks.Count; i++)
+            for (int i = 0; i < selectedStructure.Blocks.Count; i++)
             {
                 var block = selectedStructure.Blocks[i];
-                
+
                 var ports = new List<Port>();
                 Factory.GetPorts(block, ref ports);
-                
+
                 var specialPorts = new List<Port>();
                 Factory.GetSpecialPorts(block, ref specialPorts);
 
                 var infos = Factory.GetPortsInfo(block);
-                
+
                 portsList.Add((block, ports, infos, specialPorts));
 
                 configuration.blocks.Add(Factory.GetConfiguration(block));
@@ -130,22 +142,18 @@ namespace Structure.Editor
 
         private void CreateWireMenu()
         {
-            if (createWireList == null) createWireList = new List<string>();
-
-            for (int i = 0; i < createWireList.Count; i++)
+            for (int i = 0; i < takePorts.Count; i++)
             {
-                createWireList[i] = GUILayout.TextField(createWireList[i]);
-            }
-            string newWire = GUILayout.TextField(string.Empty);
-            if (newWire.Length > 0)
-            {
-                createWireList.Add(newWire);
+                if(GUILayout.Button(takePorts[i].name))
+                {
+                    takePorts.Remove(takePorts[i]);
+                }
             }
 
             if (GUILayout.Button("Create wire"))
             {
-                configuration.wires.Add(Factory.GetWireString(createWireList));
-                createWireList = new List<string>();
+                configuration.wires.Add(Factory.GetWireString(takePorts.Select(x => { return x.port.Guid; }).ToList()));
+                takePorts.Clear(); 
                 configDirty = true;
             }
         }
@@ -182,10 +190,33 @@ namespace Structure.Editor
             {
                 GUILayout.Space(60);
             }
-            GUILayout.TextField(port.Guid);
+            string nameButton;
+            if (info != null)
+            {
+                nameButton = info.Name + ": " + port.TypeValue.ToString();
+            }
+            else
+            {
+                nameButton = port.TypeValue.ToString();
+            }
+            if (GUILayout.Button(nameButton))
+            {
+                if (takePorts.Find(item => item.port == port) == null)
+                {
+                    if (takePorts.Count > 0 && takePorts[0].port.TypeValue == port.TypeValue)
+                    {
+                        takePorts.Add(new TakePort(port, nameButton));
+                    }
+                    else if (takePorts.Count == 0)
+                    {
+                        takePorts.Add(new TakePort(port, nameButton));
+                    }
+                }
+            }
 
             GUILayout.EndHorizontal();
 
         }
+
     }
 }

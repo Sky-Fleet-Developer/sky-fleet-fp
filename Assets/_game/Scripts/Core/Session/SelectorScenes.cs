@@ -8,6 +8,12 @@ namespace Core.Session
 {
     public static class SelectorScenes
     {
+        public enum TypeScene
+        {
+            Menu = 0,
+            Session = 1
+        }
+
         private static AsyncOperation operationLoad;
 
         public static event Action StartChangeScene;

@@ -24,7 +24,7 @@ namespace Core.Structure.Rigging
             return itemsCache[guid];
         }
 
-        public void GetBlocksFromMod(Mod mod)
+        public void ExtractBlocksFromMod(Mod mod)
         {
             foreach (var prefab in mod.module.Cache)
             {

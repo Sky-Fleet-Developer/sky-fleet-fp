@@ -3,6 +3,14 @@ using UnityEngine;
 
 namespace Core.Structure
 {
+    public enum PortType
+    {
+        Thurst,
+        BigThurst,
+        Fuel,
+        Power,
+    }
+
     [System.Serializable]
     public abstract class Port
     {
@@ -16,6 +24,8 @@ namespace Core.Structure
         }
 
         [SerializeField, HideInInspector] private string guid;
+
+        public PortType TypeValue;
 
         public abstract void SetWire(Wire wire);
         public abstract Wire CreateWire();

@@ -86,6 +86,11 @@ namespace Core.Structure.Rigging
         void ApplyForce();
     }
 
+    public interface IFuelPowerGenerator : IBlock, IFuelUser, IPowerUser
+    {
+
+    }
+
     public interface IJetBlock : IFuelUser, IForceUser
     {
         float MaximalThurst { get; }

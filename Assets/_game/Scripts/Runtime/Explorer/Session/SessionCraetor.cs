@@ -61,6 +61,9 @@ namespace Runtime.Explorer.ModContent
 
         void CallStartSession()
         {
+            SessionProperty.Instance.BeginInitSessionProperty();
+            SessionProperty.Instance.SetModsForSession(mods);
+            SessionProperty.Instance.EndInitSessionProperty();
             SelectorScenes.StartLoadSession();
         }
 
