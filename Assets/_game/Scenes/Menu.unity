@@ -704,11 +704,39 @@ PrefabInstance:
     m_TransformParent: {fileID: 1367637904}
     m_Modifications:
     - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.data[1].style
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.data[1].alignment
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.data[1].description
+      value: Session create
+      objectReference: {fileID: 0}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
       propertyPath: menus.Array.data[0].blocks.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.data[1].blocks.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
       propertyPath: menus.Array.data[0].blocks.Array.data[0]
+      value: 
+      objectReference: {fileID: 3322352339464336548, guid: 51a6994caaf36b546b138d58459a291d, type: 3}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.data[1].blocks.Array.data[0]
+      value: 
+      objectReference: {fileID: 1218950300239512291, guid: 548ee015773b72d47883c9ba77789f7f, type: 3}
+    - target: {fileID: 4554228636090424267, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: menus.Array.data[1].blocks.Array.data[1]
       value: 
       objectReference: {fileID: 3322352339464336548, guid: 51a6994caaf36b546b138d58459a291d, type: 3}
     - target: {fileID: 8926916954448897412, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}

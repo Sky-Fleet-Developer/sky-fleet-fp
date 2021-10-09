@@ -10,7 +10,7 @@ namespace Core.Utilities
 
         [NonSerialized] public Dictionary<string, Component> pointers;
 
-        public void Awake()
+        protected virtual void Awake()
         {
             pointers = new Dictionary<string, Component>();
             foreach (var hit in _pointers)

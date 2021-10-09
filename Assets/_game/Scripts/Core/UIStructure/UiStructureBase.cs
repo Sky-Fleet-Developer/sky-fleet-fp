@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.UiStructure;
+using Core.Session;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,13 +16,22 @@ namespace Core.UIStructure
 
         private Canvas canvas;
         private CanvasScaler scaler;
+        private GraphicRaycaster graphicRaycaster;
         [ShowInInspector, ReadOnly] private List<IUiBlock> blocks;
 
         private void Awake()
         {
             canvas = GetComponent<Canvas>();
             scaler = GetComponent<CanvasScaler>();
+            graphicRaycaster = GetComponent<GraphicRaycaster>();
             RefreshBlocks();
+
+            SelectorScenes.StartChangeScene += BlockInterfaceControl;
+        }
+
+        private void OnDestroy()
+        {
+            SelectorScenes.StartChangeScene -= BlockInterfaceControl;
         }
 
         public void RefreshBlocks()
@@ -62,6 +72,9 @@ namespace Core.UIStructure
             blocks.Remove(block);
         }
 
-
+        private void BlockInterfaceControl()
+        {
+            graphicRaycaster.enabled = false;
+        }
     }
 }

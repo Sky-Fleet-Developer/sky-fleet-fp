@@ -458,6 +458,9 @@ GameObject:
   - component: {fileID: 3322352339464336550}
   - component: {fileID: 3322352339464336553}
   - component: {fileID: 3045773151684834}
+  - component: {fileID: 1218950300239512291}
+  - component: {fileID: 35993906268649298}
+  - component: {fileID: 997558299638425405}
   m_Layer: 5
   m_Name: SesionCreator
   m_TagString: Untagged
@@ -484,7 +487,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 27.0858, y: 3.49}
-  m_SizeDelta: {x: 774.1716, y: 793.02}
+  m_SizeDelta: {x: 720, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3322352339464336550
 CanvasRenderer:
@@ -550,6 +553,116 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1218950300239512291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322352339464336555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e8a428d5d45fac4085c9c9d08b2d08e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  setAsFocusedOnShow: 0
+  showTransition:
+    duration: 0.5
+    delay: 0
+    ease: 1
+    easeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  hideTransition:
+    duration: 0.5
+    delay: 0
+    ease: 1
+    easeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  takeModAll: {fileID: 752048660004715876}
+  putModAll: {fileID: 5820711078518547105}
+  takeModOne: {fileID: 3239737757860381202}
+  putModOne: {fileID: 5974661884324330163}
+  nameSessionField: {fileID: 2191872372226171493}
+  startSession: {fileID: 3516149875889197220}
+  sessionModInfo: {fileID: 35993906268649298}
+--- !u!114 &35993906268649298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322352339464336555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce1c3b605d65924a8052d4f2fc929b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonItemPrefab: {fileID: 5235951519822700180, guid: a884329d59284d04988f09ab201955dc, type: 3}
+  content: {fileID: 3322352340058929135}
+--- !u!114 &997558299638425405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322352339464336555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: 720
+  m_MinHeight: 800
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &3322352339694061281
 GameObject:
   m_ObjectHideFlags: 0

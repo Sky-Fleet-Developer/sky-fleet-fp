@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Core.Explorer.Content;
+using Core.Session;
 
 namespace Runtime.Explorer.ModContent
 {
@@ -21,20 +22,16 @@ namespace Runtime.Explorer.ModContent
         
         [SerializeField] private Button startSession;
 
-        [SerializeField]  private ModInfoViewer SessionModInfo;
-
         [Space(10)]
         [SerializeField] private SessionModInfo sessionModInfo;
 
         private ModViewer modViewer;
 
-        private LinkedList<Mod> mods;
+        private LinkedList<Mod> mods = new LinkedList<Mod>();
 
-        public event Action<LinkedList<Mod>> UpdateModsList;
 
-        protected override void Awake()
+        private void Start()
         {
-            base.Awake();
             modViewer = GetModViewer();
             startSession.onClick.AddListener(CallStartSession);
 
@@ -42,6 +39,11 @@ namespace Runtime.Explorer.ModContent
             putModAll.onClick.AddListener(PutAllMods);
             takeModOne.onClick.AddListener(TakeOneMod);
             putModOne.onClick.AddListener(PutOneMod);
+        }
+
+        protected override void Awake()
+        {
+            base.Awake(); 
         }
 
         ModViewer GetModViewer()
@@ -59,7 +61,7 @@ namespace Runtime.Explorer.ModContent
 
         void CallStartSession()
         {
-
+            SelectorScenes.StartLoadSession();
         }
 
 
@@ -72,7 +74,7 @@ namespace Runtime.Explorer.ModContent
                 if(index == null)
                 {
                     mods.AddLast(select);
-                    UpdateModsList(mods);
+                    sessionModInfo.AddModToList(select);
                 }
             }
         }
@@ -80,7 +82,7 @@ namespace Runtime.Explorer.ModContent
         void PutOneMod()
         {
             mods.Remove(sessionModInfo.GetSelectMod);
-            UpdateModsList(mods);
+            sessionModInfo.RemoveModFromList(sessionModInfo.GetSelectMod);
         }
 
         void TakeAllMods()
@@ -88,13 +90,13 @@ namespace Runtime.Explorer.ModContent
             mods.Clear();
             foreach (Mod mod in ModReader.Instance.GetMods())
                 mods.AddLast(mod);
-            UpdateModsList(mods);
+            sessionModInfo.UpdateListMods(mods);
         }
 
         void PutAllMods()
         {
             mods.Clear();
-            UpdateModsList(mods);
+            sessionModInfo.UpdateListMods(mods);
         }
     }
 }

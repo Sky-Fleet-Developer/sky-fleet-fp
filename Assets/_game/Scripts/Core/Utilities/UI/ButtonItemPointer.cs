@@ -13,7 +13,7 @@ namespace Core.Utilities.UI
         private Action _callback;
         private object[] defaultArguments = new object[6];
 
-        private void Awake()
+        protected override void Awake()
         {
             defaultArguments[0] = description.text;
             defaultArguments[1] = description.fontSize;
@@ -21,6 +21,7 @@ namespace Core.Utilities.UI
             defaultArguments[3] = description.alignment;
             defaultArguments[4] = background.sprite;
             defaultArguments[5] = (background.color, description.color);
+            base.Awake();
         }
 
         public override void SetVisual(params object[] args)
