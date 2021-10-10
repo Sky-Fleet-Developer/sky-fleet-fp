@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Core.SessionManager
 {
     [System.Serializable]
-    public struct SessionSettings
+    public class SessionSettings
     {
         public string name;
         public LinkedList<Mod> mods;

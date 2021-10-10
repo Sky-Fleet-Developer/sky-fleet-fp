@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;
+using Core.Explorer.Content;
 using Core.Structure;
 using Core.Utilities;
 using Newtonsoft.Json;
@@ -36,6 +38,11 @@ namespace Core.SessionManager.SaveService
             Debug.Log("Session was saved successfully!");
         }
         
+        public SessionSettings LoadBaseInfoSession(string path)
+        {
+            return null;
+        }
+
         public async Task Load(string fileName)
         {
             var state = LoadAtPath(fileName);
@@ -87,12 +94,29 @@ namespace Core.SessionManager.SaveService
         
         private void SaveToFile(State state)
         {
-            var sessionSettings = Session.Instance.Settings;
+            
+            SessionSettings sessionSettings = Session.Instance.Settings;
+
+
             string saveName = sessionSettings.name;
             if (string.IsNullOrEmpty(saveName)) saveName = $"Unknown session {Random.Range(0, 1000):0000}";
+            MemoryStream memoryBaseInfo = new MemoryStream();
+
+            byte[] nameB = Encoding.ASCII.GetBytes(saveName);
+            memoryBaseInfo.Write(BitConverter.GetBytes(nameB.Length), 0, sizeof(int));
+            memoryBaseInfo.Write(nameB, 0, nameB.Length);
+            memoryBaseInfo.Write(BitConverter.GetBytes(sessionSettings.mods.Count), 0, sizeof(int));
+            foreach(Mod mod in sessionSettings.mods)
+            {
+                nameB = Encoding.ASCII.GetBytes(mod.name);
+                memoryBaseInfo.Write(BitConverter.GetBytes(nameB.Length), 0, sizeof(int));
+                memoryBaseInfo.Write(nameB, 0, nameB.Length);
+            }
 
             string json = JsonConvert.SerializeObject(state);
             
+
+
             DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
             string dataExportPath = $"{infoPath.FullName}/{PathStorage.BASE_DATA_PATH}";
 
