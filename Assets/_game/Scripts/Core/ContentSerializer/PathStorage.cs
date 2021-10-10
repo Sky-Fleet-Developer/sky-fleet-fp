@@ -13,6 +13,7 @@ namespace Core.ContentSerializer
         
         public static readonly string BASE_DATA_PATH = "Data";
         public static readonly string DATA_SESSION_PRESETS = "SessionPresets";
+        public static readonly string SESSION_TYPE_FILE = "save";
 
     }
 }

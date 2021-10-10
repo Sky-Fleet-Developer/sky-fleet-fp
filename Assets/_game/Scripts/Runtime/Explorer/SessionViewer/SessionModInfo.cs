@@ -18,6 +18,23 @@ namespace Runtime.Explorer.SessionViewer
 
         public Mod GetSelectMod => currectTakeItem?.KeepMod;
 
+        private bool isSelectedMod = true;
+        public bool IsSelectedMod
+        {
+            get
+            {
+                return isSelectedMod;
+            }
+            set
+            {
+                isSelectedMod = value;
+                if(value && currectTakeItem != null)
+                {
+                    currectTakeItem.UIPointer.IsSelected = false;
+                    currectTakeItem = null;
+                }
+            }
+        }
 
         private class ItemMod
         {
@@ -40,7 +57,7 @@ namespace Runtime.Explorer.SessionViewer
         {
             ClearList();
             currectTakeItem = null;
-            foreach(Mod mod in mods)
+            foreach (Mod mod in mods)
             {
                 CreateItemMod(mod, itemMods);
             }
@@ -48,12 +65,12 @@ namespace Runtime.Explorer.SessionViewer
 
         public void RemoveModFromList(Mod mod)
         {
-            ItemMod item = itemMods.Where((x) => x.KeepMod == mod ).FirstOrDefault();
-            if(item != null)
+            ItemMod item = itemMods.Where((x) => x.KeepMod == mod).FirstOrDefault();
+            if (item != null)
             {
                 DynamicPool.Instance.Return(item.UIPointer);
                 item.UIPointer.IsSelected = false;
-                if(item == currectTakeItem)
+                if (item == currectTakeItem)
                 {
                     currectTakeItem = null;
                 }
@@ -71,13 +88,14 @@ namespace Runtime.Explorer.SessionViewer
         {
             ButtonItemSelectablePointer keepMod = DynamicPool.Instance.Get(buttonItemPrefab, content);
             ItemMod item = new ItemMod(keepMod, mod);
-            keepMod.SetVisual( mod.name, (System.Action)(() => CallSelectMod(item)));
+            if (IsSelectedMod)
+                keepMod.SetVisual(mod.name, (System.Action)(() => CallSelectMod(item)));
             putOnList.AddLast(item);
         }
 
         private void CallSelectMod(ItemMod item)
         {
-            if(currectTakeItem != null)
+            if (currectTakeItem != null)
             {
                 currectTakeItem.UIPointer.IsSelected = false;
             }
@@ -88,7 +106,7 @@ namespace Runtime.Explorer.SessionViewer
 
         private void ClearList()
         {
-            foreach(ItemMod item in itemMods)
+            foreach (ItemMod item in itemMods)
             {
                 DynamicPool.Instance.Return(item.UIPointer);
                 item.UIPointer.IsSelected = false;

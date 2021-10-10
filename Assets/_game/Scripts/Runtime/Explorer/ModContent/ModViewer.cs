@@ -60,6 +60,7 @@ namespace Runtime.Explorer.ModContent
         {
             foreach (var itemPointer in buttons)
             {
+                itemPointer.SetVisual((System.Action)(() => { }));
                 DynamicPool.Instance.Return(itemPointer);
             }
             buttons.Clear();
