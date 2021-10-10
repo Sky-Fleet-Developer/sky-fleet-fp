@@ -61,7 +61,8 @@ public class MainMenu : UiBlockBase, ILoadAtStart
     {
         //StartCoroutine(Hide());
         UiFrame frame = Structure.Instantiate(framePrefab);
-        frame.Apply(UiFrame.TypeLayout.Horizontal, blocksBase);
+        frame.Apply(UiFrame.LayoutType.Horizontal, blocksBase);
+        FocusOn(frame);
     }
     
     [System.Serializable]

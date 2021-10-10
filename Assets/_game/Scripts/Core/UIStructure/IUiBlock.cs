@@ -83,7 +83,7 @@ namespace Core.UiStructure
         public static T Show<T>(T prefab, IUiStructure structure, BlockSequenceSettings settings = null) where T : MonoBehaviour, IUiBlock
         {
             T instance;
-            if (structure.GetBlock<T>(out T block, prefab.GetType()))
+            if (prefab is UiFrame == false && structure.GetBlock<T>(out T block, prefab.GetType()))
             {
                 instance = block;
             }
@@ -93,7 +93,7 @@ namespace Core.UiStructure
             }
             instance.gameObject.SetActive(true);
             instance.transform.localPosition = Vector3.zero;
-            instance.StartCoroutine(instance.Show(settings));
+            structure.StartCoroutine(instance.Show(settings));
             return instance;
         }
     }

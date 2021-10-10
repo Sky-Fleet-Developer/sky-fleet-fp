@@ -270,9 +270,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91106cab4e640a04988b8ce97498d712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  setAsFocusedOnShow: 1
+  setAsFocusedOnShow: 0
   showTransition:
-    duration: 0.1
+    duration: 0.2
     delay: 0
     ease: 1
     easeCurve:
@@ -300,7 +300,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   hideTransition:
-    duration: 0.1
+    duration: 0.2
     delay: 0
     ease: 1
     easeCurve:

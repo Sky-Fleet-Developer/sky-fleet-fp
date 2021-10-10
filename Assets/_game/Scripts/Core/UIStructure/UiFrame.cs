@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using Core.UiStructure;
+using Core.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,7 @@ namespace Core.UIStructure
         private IUiBlock[] blocks;
 
         private LayoutGroup layout;
+        private LayoutType currentLayout = LayoutType.None;
 
         protected override void Awake()
         {
@@ -29,48 +31,47 @@ namespace Core.UIStructure
             public IUiBlock target;
         }*/
 
-        public enum TypeLayout
+        public enum LayoutType
         {
+            None = -1,
             Horizontal = 0,
             Vertical = 1,
         }
 
-        public void Apply(TypeLayout type, params IUiBlock[] blocksForFrame)
+        public void Apply(LayoutType layoutType, params IUiBlock[] blocksForFrame)
         {
-            /*block = target;
-
-            target.Frame = this;
-            target.RectTransform.localScale = Vector3.one;
-
-            rectTransform.SetParent(target.RectTransform.parent);
-
-            rectTransform.anchorMax = target.RectTransform.anchorMax;
-            rectTransform.anchorMin = target.RectTransform.anchorMin;
-            rectTransform.anchoredPosition = target.RectTransform.anchoredPosition;
-            rectTransform.sizeDelta = target.RectTransform.sizeDelta;
-            target.RectTransform.SetParent(rectTransform);*/
-
-            if (layout != null)
-            {
-                Destroy(layout);
-            }
-            if (type == TypeLayout.Horizontal)
-            {
-                layout = content.gameObject.AddComponent<HorizontalLayoutGroup>();
-            }
-            else if (type == TypeLayout.Vertical)
-            {
-                layout = content.gameObject.AddComponent<VerticalLayoutGroup>();
-            }
-            SetBlocks(blocksForFrame, layout, type);
+            SetLayout(layoutType);
+            SetBlocks(blocksForFrame, layout, layoutType);
         }
 
-        private void SetBlocks(IUiBlock[] blocksForFrame, LayoutGroup layoutT, TypeLayout type)
+        private void SetLayout(LayoutType layoutType)
+        {
+            if (layoutType != currentLayout)
+            {
+                Destroy(layout);
+                switch (layoutType)
+                {
+                    case LayoutType.Horizontal:
+                        layout = content.gameObject.AddComponent<HorizontalLayoutGroup>();
+                        break;
+                    case LayoutType.Vertical:
+                        layout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+                        break;
+                }
+            }
+            else
+            {
+                layout.enabled = true;
+            }
+            currentLayout = layoutType;
+        }
+
+        private void SetBlocks(IUiBlock[] blocksForFrame, LayoutGroup layoutT, LayoutType layoutType)
         {
             blocks = blocksForFrame;
             float height = 0;
             float width = 0;
-            if (type == TypeLayout.Horizontal)
+            if (layoutType == LayoutType.Horizontal)
             {
                 foreach (IUiBlock block in blocksForFrame)
                 {
@@ -111,35 +112,46 @@ namespace Core.UIStructure
 
         private void OnClickExit()
         {
-            StartCoroutine(Hide());
+            Structure.StartCoroutine(Hide());
         }
 
         public override IEnumerator Show(BlockSequenceSettings settings = null)
         {
-            if (blocks == null) return base.Show(settings);
+            if (blocks == null) yield return base.Show(settings);
+            yield return base.Show(settings);
             foreach (IUiBlock block in blocks)
             {
                 Structure.StartCoroutine(block.Show(new EmptySettingsShow()));
             }
-            return base.Show(settings);
         }
 
         public override IEnumerator Hide(BlockSequenceSettings settings = null)
         {
-            if (blocks == null) return base.Hide(settings);
-
-            foreach (IUiBlock block in blocks)
+            if (layout) layout.enabled = false;
+            if (blocks == null)
             {
-                Structure.StartCoroutine(block.Hide(new EmptySettingsHide()));
+                yield return base.Hide(settings);
             }
-            return base.Hide(settings);
+            else
+            {
+                yield return base.Hide(settings);
+                foreach (IUiBlock block in blocks)
+                {
+                    Structure.StartCoroutine(block.Hide(new EmptySettingsHide()));
+                }
+                foreach (var uiBlock in blocks)
+                {
+                    uiBlock.RectTransform.SetParent(transform.parent);   
+                }
+            }
+            DynamicPool.Instance.Return(this);
         }
 
         private class EmptySettingsShow : BlockSequenceSettings
         {
             public override IEnumerator ApplySequenceSettings(UiBlockBase block)
             {
-                yield return new WaitForSecondsRealtime(block.showTransition.length);
+                yield break;
             }
         }
 
@@ -147,7 +159,7 @@ namespace Core.UIStructure
         {
             public override IEnumerator ApplySequenceSettings(UiBlockBase block)
             {
-                yield return new WaitForSecondsRealtime(block.hideTransition.length);
+                yield break;
             }
         }
     }
