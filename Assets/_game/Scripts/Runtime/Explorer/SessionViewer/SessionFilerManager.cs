@@ -194,7 +194,7 @@ namespace Runtime.Explorer.SessionViewer
                     return cashStartPath;
                 string pathU = Application.dataPath;
                 DirectoryInfo infoPath = Directory.GetParent(pathU);
-                cashStartPath = infoPath.FullName + "\\" + PathStorage.DATA_SESSION_PRESETS;
+                cashStartPath = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS ;
                 return cashStartPath;
             }
 

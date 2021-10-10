@@ -15,7 +15,7 @@ namespace Core.SessionManager
         
         private bool isInitialized = false;
 
-        [ShowInInspector] private SessionSettings settings;
+        [ShowInInspector] private SessionSettings settings = new SessionSettings();
 
         [ShowInInspector] private SaveLoad saveLoad = new SaveLoad();
 
@@ -43,7 +43,7 @@ namespace Core.SessionManager
 
         public void SetSettings(SessionSettings newSettings)
         {
-            if(SceneManager.sceneCountInBuildSettings == (int)SceneLoader.TypeScene.Menu)
+            if(SceneManager.GetActiveScene().buildIndex == (int)SceneLoader.TypeScene.Menu)
             {
                 settings = newSettings;
             }

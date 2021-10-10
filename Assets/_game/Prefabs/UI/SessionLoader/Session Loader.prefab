@@ -329,8 +329,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 103.383, y: -30.5081}
-  m_SizeDelta: {x: 720, y: 800}
+  m_AnchoredPosition: {x: -12.074, y: 39.307083}
+  m_SizeDelta: {x: 837.9918, y: 660.3696}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3322352339464336550
 CanvasRenderer:
@@ -459,9 +459,10 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  sessionModInfo: {fileID: 0}
   sessionFilerManager: {fileID: 9062639974011191046}
   startButton: {fileID: 3516149875889197220}
+  prefabItem: {fileID: 8277825217598807859, guid: 840f6e8b35023c1418424d821f686ac1, type: 3}
+  content: {fileID: 3322352340058929135}
 --- !u!114 &9062639974011191046
 MonoBehaviour:
   m_ObjectHideFlags: 0

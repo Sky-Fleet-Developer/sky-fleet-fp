@@ -66,6 +66,7 @@ namespace Runtime.Explorer.SessionViewer
                 mods = mods
             });
             Session.Instance.EndInit();
+            Debug.Log(Session.Instance.Settings.name);
             SceneLoader.LoadGameScene();
         }
 
