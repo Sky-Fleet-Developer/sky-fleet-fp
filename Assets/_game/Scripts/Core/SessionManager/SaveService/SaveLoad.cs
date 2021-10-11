@@ -22,10 +22,15 @@ namespace Core.SessionManager.SaveService
     [System.Serializable]
     public class SaveLoad
     {
+        public class LoadSettingSession : SessionSettings
+        {
+            public LinkedList<string> NoHaveMods; 
+        }
+
         public void Save()
         {
             Debug.Log("Begin to save the session...");
-            
+
             IEnumerable<IStructure> structures = CollectStructures();
 
             Serializer serializer = StructureProvider.GetSerializer();
@@ -37,23 +42,73 @@ namespace Core.SessionManager.SaveService
             SaveToFile(state);
             Debug.Log("Session was saved successfully!");
         }
-        
-        public SessionSettings LoadBaseInfoSession(string path)
+
+        public LoadSettingSession LoadBaseInfoSession(string path)
         {
-            return null;
+            LoadSettingSession sessionSettings = new LoadSettingSession();
+            sessionSettings.NoHaveMods = new LinkedList<string>();
+            sessionSettings.mods = new LinkedList<Mod>();
+
+            FileStream file = File.Open(path, FileMode.Open);
+
+            BaseInfoSession(file, sessionSettings);
+
+            file.Close();
+            return sessionSettings;
+        }
+
+        private LoadSettingSession BaseInfoSession(FileStream file, LoadSettingSession sessionSettings)
+        {
+            List<Mod> mods = ModReader.Instance.GetMods();
+            if (mods == null)
+            {
+                ModReader.Instance.Load().Wait();
+            }
+            mods = ModReader.Instance.GetMods();
+
+            byte[] intBuf = new byte[sizeof(int)];
+            int count = 0;
+
+            file.Read(intBuf, 0, sizeof(int));
+            count = BitConverter.ToInt32(intBuf, 0);
+            byte[] nameSave = new byte[count];
+            file.Read(nameSave, 0, count);
+            sessionSettings.name = Encoding.ASCII.GetString(nameSave);
+
+            file.Read(intBuf, 0, sizeof(int));
+            int countMods = BitConverter.ToInt32(intBuf, 0);
+
+            for (int i = 0; i < countMods; i++)
+            {
+                file.Read(intBuf, 0, sizeof(int));
+                count = BitConverter.ToInt32(intBuf, 0);
+                byte[] nameModB = new byte[count];
+                file.Read(nameModB, 0, count);
+                string nameMod = Encoding.ASCII.GetString(nameModB);
+                Mod mod = mods.Where(x => { return x.name == nameMod; }).FirstOrDefault();
+                if (mod == null || mod == default)
+                {
+                    sessionSettings.NoHaveMods.AddLast(nameMod);
+                }
+                else
+                {
+                    sessionSettings.mods.AddLast(mod);
+                }
+            }
+            return sessionSettings;
         }
 
         public async Task Load(string fileName)
         {
-            var state = LoadAtPath(fileName);
+            State state = LoadAtPath(fileName);
 
             //TODO: подождать пока загрузится сцена меню, если мы ещё не в ней
-            
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-            var mods = Session.Instance.Settings.mods;
+
+            List<System.Reflection.Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            LinkedList<Mod> mods = Session.Instance.Settings.mods;
             if (mods != null)
             {
-                foreach (var mod in mods)
+                foreach (Mod mod in mods)
                 {
                     assemblies.Add(mod.assembly);
                 }
@@ -61,10 +116,10 @@ namespace Core.SessionManager.SaveService
 
             Deserializer deserializer = StructureProvider.GetDeserializer(assemblies.ToArray());
 
-            var awaiters = new List<Task>();
-            foreach (var structureBundle in state.structuresCache)
+            List<Task> awaiters = new List<Task>();
+            foreach (StructureBundle structureBundle in state.structuresCache)
             {
-                var task = structureBundle.ConstructStructure(deserializer);
+                Task<IStructure> task = structureBundle.ConstructStructure(deserializer);
                 awaiters.Add(task);
             }
 
@@ -76,13 +131,13 @@ namespace Core.SessionManager.SaveService
             DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
             string dataExportPath = $"{infoPath.FullName}/{PathStorage.BASE_DATA_PATH}";
             string path = $"{dataExportPath}/{PathStorage.DATA_SESSION_PRESETS}/";
-            var json = File.ReadAllText($"{path}{fileName}");
+            string json = File.ReadAllText($"{path}{fileName}");
             try
             {
-                var state = JsonConvert.DeserializeObject<State>(json);
-                
+                State state = JsonConvert.DeserializeObject<State>(json);
+
                 // TODO: если Application.isPlaying, загрузить список модов из ModLoader
-                
+
                 return state;
             }
             catch (Exception e)
@@ -91,10 +146,10 @@ namespace Core.SessionManager.SaveService
                 throw;
             }
         }
-        
+
         private void SaveToFile(State state)
         {
-            
+
             SessionSettings sessionSettings = Session.Instance.Settings;
 
 
@@ -106,7 +161,7 @@ namespace Core.SessionManager.SaveService
             memoryBaseInfo.Write(BitConverter.GetBytes(nameB.Length), 0, sizeof(int));
             memoryBaseInfo.Write(nameB, 0, nameB.Length);
             memoryBaseInfo.Write(BitConverter.GetBytes(sessionSettings.mods.Count), 0, sizeof(int));
-            foreach(Mod mod in sessionSettings.mods)
+            foreach (Mod mod in sessionSettings.mods)
             {
                 nameB = Encoding.ASCII.GetBytes(mod.name);
                 memoryBaseInfo.Write(BitConverter.GetBytes(nameB.Length), 0, sizeof(int));
@@ -114,16 +169,17 @@ namespace Core.SessionManager.SaveService
             }
 
             string json = JsonConvert.SerializeObject(state);
-            
-
+            byte[] jsonBytes = Encoding.ASCII.GetBytes(json);
+            memoryBaseInfo.Write(BitConverter.GetBytes(jsonBytes.Length), 0, sizeof(int));
+            memoryBaseInfo.Write(jsonBytes, 0, jsonBytes.Length);
 
             DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
             string dataExportPath = $"{infoPath.FullName}/{PathStorage.BASE_DATA_PATH}";
-
             string path = $"{dataExportPath}/{PathStorage.DATA_SESSION_PRESETS}/";
-            Directory.CreateDirectory(path);
-            
-            File.WriteAllText($"{path}{saveName}.save", json);
+            FileStream file = File.Open($"{path}{saveName}." + PathStorage.SESSION_TYPE_FILE, FileMode.OpenOrCreate);
+            memoryBaseInfo.Seek(0, SeekOrigin.Begin);
+            memoryBaseInfo.CopyTo(file);
+            file.Close();
         }
 
         private IEnumerable<IStructure> CollectStructures()
@@ -135,14 +191,14 @@ namespace Core.SessionManager.SaveService
         {
             return StructureUpdateModule.Structures.Clone();
         }
-        
+
         private IEnumerable<IStructure> CollectInEditor()
         {
             List<IStructure> result = new List<IStructure>();
 
             foreach (var monobeh in Object.FindObjectsOfType<MonoBehaviour>())
             {
-                if(monobeh is IStructure structure) result.Add(structure);
+                if (monobeh is IStructure structure) result.Add(structure);
             }
 
             return result;
