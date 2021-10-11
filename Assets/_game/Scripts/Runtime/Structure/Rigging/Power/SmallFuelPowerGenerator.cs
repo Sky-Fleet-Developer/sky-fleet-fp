@@ -2,21 +2,28 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using System.Collections;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Power
 {
     public class SmallFuelPowerGenerator : Block, IFuelPowerGenerator
     {
+        public float MaximalOutput => maximalOutput;
+        public float FuelConsumption => fuelPerSec;
+
+        [Tooltip("Must be from zero to one")]
         public AnimationCurve powerPerFuel;
-        public float powerMultiplier = 1;
+        [SerializeField] private float maximalOutput = 1;
 
         public float fuelUsage = 1;
 
         public Port<float> fuel = new Port<float>(PortType.Fuel);
-        public Port<float> output = new Port<float>(PortType.Power);
+        public PowerPort output = new PowerPort();
 
         private float fuelPerSec;
+        private float currentOutput;
+        [ShowInInspector, ReadOnly] private int powerUsage;
 
         public void FuelTick()
         {
@@ -25,9 +32,15 @@ namespace Runtime.Structure.Rigging.Power
             fuel.Value -= amount * Time.deltaTime;
         }
 
+        public void ConsumptionTick()
+        {
+            currentOutput = powerPerFuel.Evaluate(fuelPerSec) * maximalOutput;
+            output.charge = currentOutput;
+            output.maxOutput = Time.deltaTime;
+        }
         public void PowerTick()
         {
-            output.Value = powerPerFuel.Evaluate(fuelPerSec) * powerMultiplier;
+            powerUsage = (int)((1 - (output.charge / currentOutput)) * 100f);
         }
     }
 }

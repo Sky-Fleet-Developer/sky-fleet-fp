@@ -1254,13 +1254,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestShip
       objectReference: {fileID: 0}
-    - target: {fileID: 4479284407669075301, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
-      propertyPath: m_IsActive
-      value: 1
+    - target: {fileID: 4479284407669075302, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: configuration
+      value: '{"blocks":[{"path":"TestJet","current":"3636a306-24bb-4c6a-a7c4-646571f2a3be","setup":{}},{"path":"TestControl","current":"40222abb-51cd-4887-8afb-92518f93a6cd","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"673ea29c-0dfc-4bc8-b1c7-99506d787f41","setup":{}},{"path":"SmallBattery","current":"55a0a8fb-b7c6-43ce-879e-5221e8b7880a","setup":{}},{"path":"SmallFuelPowerGenerator","current":"3745a5db-16a8-42eb-9586-ebf071e75ffa","setup":{}}],"wires":["f799627d-ab5b-4083-a5ac-f35e1e181c0d.a9893d7e-45f6-47a4-99ab-2c6f9568e143.7ac4983b-32a1-4013-8093-698fc6cd7744","2f3f89db-1f62-4742-b237-d1c86d86dea0.70de2890-d5b6-4e60-a278-cd0a8c07a256","0f711e28-beef-42a4-8731-4c344abeeef2.fd689e1e-5084-4dca-be25-aeef478e5acc"]}'
       objectReference: {fileID: 0}
-    - target: {fileID: 4479284407669075303, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
-      propertyPath: m_Constraints
+    - target: {fileID: 4479284407754725120, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: maximalOutput
+      value: 110
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284407754725120, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: output.maxInput
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284407754725120, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: output.maxOutput
+      value: 0.016
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}

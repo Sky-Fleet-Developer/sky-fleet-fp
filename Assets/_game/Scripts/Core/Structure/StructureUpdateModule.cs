@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Core.Structure.Rigging;
 using Core.Utilities;
@@ -12,6 +13,16 @@ namespace Core.Structure
         public static List<IPowerUser> PowerUsers = new List<IPowerUser>();
         public static List<IFuelUser> FuelUsers = new List<IFuelUser>();
         public static List<IForceUser> ForceUsers = new List<IForceUser>();
+
+        public static bool isConsumptionTick = false;
+        public static event Action onConsumptionTickEnd;
+        public static event Action onBeginConsumptionTick;
+
+        protected override void Setup()
+        {
+            onConsumptionTickEnd = null;
+            onBeginConsumptionTick = null;
+        }
         
         public static void RegisterStructure(IStructure structure)
         {
@@ -52,6 +63,18 @@ namespace Core.Structure
                     t.UpdateBlock();
                 }
             }
+            isConsumptionTick = true;
+            onBeginConsumptionTick?.Invoke();
+            foreach (var t in PowerUsers)
+            {
+                var str = t.Structure;
+                if (str.Active && str.enabled)
+                {
+                    t.ConsumptionTick();
+                }
+            }
+            onConsumptionTickEnd?.Invoke();
+            isConsumptionTick = false;
             foreach (var t in PowerUsers)
             {
                 var str = t.Structure;

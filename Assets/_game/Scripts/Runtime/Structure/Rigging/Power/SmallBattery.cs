@@ -3,22 +3,33 @@ using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Runtime.Structure.Rigging.Movement
+namespace Runtime.Structure.Rigging.Power
 {
     public class SmallBattery : Block, IPowerUser
     {
-        public float maxInput;
-        public float maxOutput;
+        public float maxInput = 1;
+        public float maxOutput = 1;
 
-        public Port<float> storage = new Port<float>(PortType.Power);
+        public PowerPort storage = new PowerPort();
 
-        private float storagePower;
+        [SerializeField] private float storedPower;
+        [SerializeField] private float maxStoredPower = 100;
+        [ShowInInspector, ReadOnly] private int powerUsage;
 
+        public void ConsumptionTick()
+        {
+            storage.maxOutput = Mathf.Max(Mathf.Min(maxOutput, storedPower), 0) * Time.deltaTime;
+            storage.maxInput =  Mathf.Max(Mathf.Min(maxStoredPower - storedPower, maxInput * Time.deltaTime), 0);
+            storage.charge = storedPower;
+        }
+        
         public void PowerTick()
         {
-            float delta = Mathf.Clamp(maxOutput - storage.Value, maxOutput, maxInput);
-            storagePower += delta;
-            storage.Value -= delta;
+            storedPower = storage.charge;
+            /*float delta = storage.GetDelta();
+            storedPower += Mathf.Min(delta, possableInput);
+            if (currentOutput == 0) powerUsage = 0;
+            else powerUsage = (int)(-delta / currentOutput * 100f);*/
         }
     }
 }

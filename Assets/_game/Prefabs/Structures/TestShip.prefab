@@ -695,13 +695,13 @@ MonoBehaviour:
   throttle:
     guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
     ValueType: 0
-    hash: 0
+    cache: 0
     wire:
       value: 0
   fuel:
     guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
-    ValueType: 0
-    hash: 0
+    ValueType: 2
+    cache: 0
     wire:
       value: 0
 --- !u!1001 &699683640077356689
@@ -944,6 +944,10 @@ PrefabInstance:
     - target: {fileID: 6373830337964779242, guid: 48a371fc77a91fe4098ec1d5f2fcd654, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6373830337964779243, guid: 48a371fc77a91fe4098ec1d5f2fcd654, type: 3}
+      propertyPath: output.ValueType
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6373830337964779245, guid: 48a371fc77a91fe4098ec1d5f2fcd654, type: 3}
       propertyPath: m_Name

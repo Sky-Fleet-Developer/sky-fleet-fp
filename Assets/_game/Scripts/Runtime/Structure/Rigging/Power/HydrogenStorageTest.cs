@@ -13,7 +13,7 @@ namespace Runtime.Structure.Rigging.Power
         [SerializeField] private float currentVolume;
         public float maximumOutput;
 
-        public Port<float> output;
+        public Port<float> output = new Port<float>(PortType.Fuel);
 
         public void FuelTick()
         {

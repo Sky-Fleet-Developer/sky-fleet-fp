@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -43,7 +43,7 @@ namespace Core.Structure
     [System.Serializable, InlineProperty(LabelWidth = 150)]
     public class Port<T> : Port
     {
-        public T hash;
+        public T cache;
 
         public Wire<T> wire;
 
@@ -66,9 +66,9 @@ namespace Core.Structure
         {
             if (wire != null)
             {
-                hash = wire.value;
+                cache = wire.value;
             }
-            return hash;
+            return cache;
         }
 
         public void SetValue(T value)
@@ -77,7 +77,7 @@ namespace Core.Structure
             {
                 wire.value = value;
             }
-            hash = value;
+            cache = value;
         }
 
         public override void SetWire(Wire wire)
@@ -98,11 +98,61 @@ namespace Core.Structure
             return wire;
         }
     }
+    [System.Serializable, InlineProperty(LabelWidth = 150)]
+    public class PowerPort : Port
+    {
+        public PowerWire wire;
+
+        public float charge;
+        public float maxInput = 1;
+        public float maxOutput = 1;
+        [ReadOnly] public float delta = 0;
+
+        public PowerPort()
+        {
+            ValueType = PortType.Power;
+        }
+        
+
+        public float GetPushValue()
+        {
+            float clamp = Mathf.Clamp(delta, -maxOutput, maxInput);
+            return clamp - delta;
+        }
+
+        public float GetSpaceToUpLimit()
+        {
+            return Mathf.Max(maxInput - delta, 0f);
+        }
+        public float GetSpaceToDownLimit()
+        {
+            return Mathf.Min(-maxOutput - delta, 0f);
+        }
+        
+        public override void SetWire(Wire wire)
+        {
+            if (wire is PowerWire wireT)
+            {
+                this.wire = wireT;
+                wireT.ports.Add(this);
+            }
+        }
+
+        public override Wire CreateWire()
+        {
+            return new PowerWire();
+        }
+
+        public override Wire GetWire()
+        {
+            return wire;
+        }
+    }
 
     [System.Serializable]
-    public class Wire
+    public class Wire : IDisposable
     {
-
+        public virtual void Dispose() { }
     }
 
     [System.Serializable]
@@ -110,4 +160,106 @@ namespace Core.Structure
     {
         public T value;
     }
+    [System.Serializable]
+    public class PowerWire : Wire
+    {
+        public List<PowerPort> ports = new List<PowerPort>();
+
+
+        public PowerWire()
+        {
+            StructureUpdateModule.onConsumptionTickEnd += ConsumptionTickEnd;
+            StructureUpdateModule.onBeginConsumptionTick += BeginConsumptionTick;
+        }
+        private void ConsumptionTickEnd()
+        {
+            for (var i = 0; i < ports.Count; i++)
+            {
+                float opposit = 0;
+                for (var i1 = 0; i1 < ports.Count; i1++)
+                {
+                    if (i != i1)
+                    {
+                        opposit += ports[i1].charge;
+                    }
+                }
+                ports[i].delta = Mathf.Clamp(opposit - ports[i].charge, -ports[i].maxOutput, ports[i].maxInput);
+            }
+
+            float othersCountInv = 1f / (ports.Count - 1);
+            float[] cache = new float[ports.Count];
+
+            for (var i = 0; i < ports.Count; i++)
+            {
+                float deltaFromOthers = 0;
+                for (var i1 = 0; i1 < ports.Count; i1++)
+                {
+                    if (i != i1)
+                    {
+                        deltaFromOthers += ports[i1].delta * othersCountInv;
+                    }
+                }
+                cache[i] = ports[i].delta - deltaFromOthers;
+            }
+
+            for (var i = 0; i < ports.Count; i++)
+            {
+                ports[i].delta = cache[i];
+            }
+            
+            for (var i1 = 0; i1 < cache.Length; i1++)
+            {
+                cache[i1] = 0;
+            }
+            
+            for (var i = 0; i < ports.Count; i++)
+            {
+                float wantsToPush = ports[i].GetPushValue();
+                bool pushPositive = wantsToPush > 0;
+                float pushSpace = 0;
+                if (wantsToPush != 0)
+                {
+                    for (var i1 = 0; i1 < ports.Count; i1++)
+                    {
+                        if (i != i1)
+                        {
+                            cache[i1] = pushPositive ? ports[i1].GetSpaceToDownLimit() : ports[i1].GetSpaceToUpLimit();
+                            pushSpace += cache[i1];
+                        }
+                    }
+
+                    if(pushSpace == 0) continue;
+                    float mul = wantsToPush / pushSpace;
+                    for (var i1 = 0; i1 < cache.Length; i1++)
+                    {
+                        ports[i1].delta -= cache[i1] * mul;
+                    }
+
+                    ports[i].delta += wantsToPush;
+                    
+                    for (var i1 = 0; i1 < cache.Length; i1++)
+                    {
+                        cache[i1] = 0;
+                    }
+                }
+            }
+
+            for (var i = 0; i < ports.Count; i++)
+            {
+                ports[i].charge += ports[i].delta;
+            }
+        }
+        
+        private void BeginConsumptionTick()
+        {
+        }
+
+        public override void Dispose()
+        {
+            StructureUpdateModule.onConsumptionTickEnd -= ConsumptionTickEnd;
+            StructureUpdateModule.onBeginConsumptionTick -= BeginConsumptionTick;
+        }
+
+    }
+
 }

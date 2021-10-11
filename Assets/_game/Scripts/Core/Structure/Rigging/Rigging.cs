@@ -20,6 +20,23 @@ namespace Core.Structure.Rigging
         string Save();
         void Load(string value);
     }
+    
+    public interface IPowerUser : IBlock
+    {
+        void ConsumptionTick();
+        void PowerTick();
+
+    }
+    
+    public interface IFuelUser : IBlock
+    {
+        void FuelTick();
+    }
+    
+    public interface IForceUser : IBlock
+    {
+        void ApplyForce();
+    }
 
     public interface IDamagebleBlock : IBlock
     {
@@ -52,6 +69,28 @@ namespace Core.Structure.Rigging
         void LeaveControl(ICharacterController controller);
     }
 
+    public interface IHydrogenStorage : IFuelUser
+    {
+        float MaximalVolume { get; }
+        float CurrentVolume { get; }
+    }
+    
+    public interface IFuelPowerGenerator : IBlock, IFuelUser, IPowerUser
+    {
+        float MaximalOutput { get; }
+        float FuelConsumption { get; }
+    }
+
+    public interface IJet : IFuelUser, IForceUser
+    {
+        float MaximalThurst { get; }
+    }
+
+    public interface ISupport : IPowerUser, IForceUser
+    {
+        
+    }
+    
     [System.Serializable]
     public struct CharacterAttachData
     {
@@ -65,37 +104,10 @@ namespace Core.Structure.Rigging
         public Transform anchor;
         public DOTweenTransition transition;
     }
-
-    public interface IPowerUser : IBlock
-    {
-        void PowerTick();
-    }
     
-    public interface IFuelUser : IBlock
-    {
-        void FuelTick();
-    }
 
-    public interface IHydrogenStorage : IFuelUser
-    {
-        float MaximalVolume { get; }
-        float CurrentVolume { get; }
-    }
 
-    public interface IForceUser : IBlock
-    {
-        void ApplyForce();
-    }
 
-    public interface IFuelPowerGenerator : IBlock, IFuelUser, IPowerUser
-    {
-
-    }
-
-    public interface IJetBlock : IFuelUser, IForceUser
-    {
-        float MaximalThurst { get; }
-    }
 
     [System.Serializable]
     public struct ArmorData

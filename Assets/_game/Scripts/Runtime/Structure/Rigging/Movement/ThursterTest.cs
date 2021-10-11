@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Movement
 {
-    public class ThursterTest : Block, IJetBlock
+    public class ThursterTest : Block, IJet
     {
         public AnimationCurve thurstPerFuel;
         public AnimationCurve fuelPerThrottle;
@@ -16,8 +16,8 @@ namespace Runtime.Structure.Rigging.Movement
 
         private IDynamicStructure root;
 
-        public Port<float> throttle;
-        public Port<float> fuel;
+        public Port<float> throttle = new Port<float>(PortType.Thurst);
+        public Port<float> fuel = new Port<float>(PortType.Fuel);
 
         private float fuelPerSec;
         [ShowInInspector, ReadOnly] private float currentThurst;
