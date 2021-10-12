@@ -135,6 +135,7 @@ namespace Runtime.Physic
 
                 //transforms
 
+                float lastRpm = RPM;
                 RPM += addRPM * deltaTime;
                 addRPM = 0;
 
@@ -154,6 +155,12 @@ namespace Runtime.Physic
                 
                 RPM -= (forwardVelocity * FrictionDrag + forwardDelta * StaticFriction) /
                     CircleLength * 60 / wheelMass * deltaTime;
+
+                if (RPM > 0 != lastRpm > 0)
+                {
+                    float deltaRpm = RPM - lastRpm;
+                    RPM = lastRpm + deltaRpm * 0.3f;
+                }
 
                 if (float.IsNaN(RPM)) RPM = 0;
 

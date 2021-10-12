@@ -15,32 +15,36 @@ namespace Runtime.Structure.Rigging.Power
         [Tooltip("Must be from zero to one")]
         public AnimationCurve powerPerFuel;
         [SerializeField] private float maximalOutput = 1;
+        [SerializeField] private float charge = 500;
 
         public float fuelUsage = 1;
+        public float minFuelUsage = 1;
 
         public Port<float> fuel = new Port<float>(PortType.Fuel);
         public PowerPort output = new PowerPort();
 
         private float fuelPerSec;
         private float currentOutput;
-        [ShowInInspector, ReadOnly] private int powerUsage;
+        [ShowInInspector, ReadOnly] private float powerUsage;
+        [ShowInInspector, ReadOnly] private float autoThrottle;
 
         public void FuelTick()
         {
-            float amount = Mathf.Clamp(fuelUsage, 0f, fuel.Value);
-            fuelPerSec = amount;
-            fuel.Value -= amount * Time.deltaTime;
+            autoThrottle = Mathf.MoveTowards(autoThrottle, powerUsage, Time.deltaTime);
+            fuelPerSec = Mathf.Clamp(fuelUsage * autoThrottle, minFuelUsage, fuel.Value);;
+            fuel.Value -= fuelPerSec * Time.deltaTime;
         }
 
         public void ConsumptionTick()
         {
-            currentOutput = powerPerFuel.Evaluate(fuelPerSec) * maximalOutput;
-            output.charge = currentOutput;
-            output.maxOutput = Time.deltaTime;
+            currentOutput = powerPerFuel.Evaluate(fuelPerSec) * maximalOutput *  Time.deltaTime;
+            output.charge = charge;
+            output.maxOutput = currentOutput;
         }
         public void PowerTick()
         {
-            powerUsage = (int)((1 - (output.charge / currentOutput)) * 100f);
+            if (currentOutput == 0) powerUsage = 0;
+            else powerUsage = (charge - output.charge) / currentOutput;
         }
     }
 }

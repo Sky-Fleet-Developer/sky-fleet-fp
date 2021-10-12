@@ -24,16 +24,16 @@ namespace Structure.Editor
 
         [SerializeField] private IStructure selectedStructure;
         [SerializeField] private StructureConfiguration configuration = null;
-        [SerializeField] private List<(IBlock block, List<Port> ports, FieldInfo[] infos, List<Port> specialPorts)> portsList;
+        [SerializeField] private List<(IBlock block, List<PortPointer> ports, FieldInfo[] infos, List<PortPointer> specialPorts)> portsList;
         private List<TakePort> takePorts = new List<TakePort>();
         private string json;
         private bool configDirty = true;
 
         private class TakePort
         {
-            public Port port;
+            public PortPointer port;
             public string name;
-            public TakePort(Port port, string name)
+            public TakePort(PortPointer port, string name)
             {
                 this.port = port;
                 this.name = name;
@@ -93,7 +93,7 @@ namespace Structure.Editor
         private void CreateConfiguration()
         {
             if (selectedStructure.Blocks == null) selectedStructure.RefreshBlocksAndParents();
-            portsList = new List<(IBlock block, List<Port> ports, FieldInfo[] infos, List<Port> specialPorts)>(selectedStructure.Blocks.Count);
+            portsList = new List<(IBlock block, List<PortPointer> ports, FieldInfo[] infos, List<PortPointer> specialPorts)>(selectedStructure.Blocks.Count);
 
             configuration = new StructureConfiguration
             {
@@ -105,10 +105,10 @@ namespace Structure.Editor
             {
                 var block = selectedStructure.Blocks[i];
 
-                var ports = new List<Port>();
+                var ports = new List<PortPointer>();
                 Factory.GetPorts(block, ref ports);
 
-                var specialPorts = new List<Port>();
+                var specialPorts = new List<PortPointer>();
                 Factory.GetSpecialPorts(block, ref specialPorts);
 
                 var infos = Factory.GetPortsInfo(block);
@@ -153,13 +153,13 @@ namespace Structure.Editor
 
             if (GUILayout.Button("Create wire"))
             {
-                configuration.wires.Add(Factory.GetWireString(takePorts.Select(x => { return x.port.Guid; }).ToList()));
+                configuration.wires.Add(Factory.GetWireString(takePorts.Select(x => { return x.port.Id; }).ToList()));
                 takePorts.Clear(); 
                 configDirty = true;
             }
         }
 
-        private void DisplayBlockPorts(IBlock block, List<Port> ports, FieldInfo[] infos, List<Port> specialPorts)
+        private void DisplayBlockPorts(IBlock block, List<PortPointer> ports, FieldInfo[] infos, List<PortPointer> specialPorts)
         {
             GUILayout.Label(block.transform.name);
             for (int i = 0; i < ports.Count; i++)
@@ -178,7 +178,7 @@ namespace Structure.Editor
 
         }
 
-        private void DisplayPort(Port port, FieldInfo info)
+        private void DisplayPort(PortPointer port, FieldInfo info)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
@@ -194,17 +194,17 @@ namespace Structure.Editor
             string nameButton;
             if (info != null)
             {
-                nameButton = info.Name + ": " + port.ValueType.ToString();
+                nameButton = info.Name + ": " + port.Port.ValueType.ToString();
             }
             else
             {
-                nameButton = port.ValueType.ToString();
+                nameButton = port.Port.ValueType.ToString();
             }
             if (GUILayout.Button(nameButton))
             {
-                if (takePorts.Find(item => item.port == port) == null)
+                if (takePorts.Find(item => item.port.Equals(port)) == null)
                 {
-                    if (takePorts.Count > 0 && takePorts[0].port.ValueType == port.ValueType)
+                    if (takePorts.Count > 0 && takePorts[0].port.Port.ValueType == port.Port.ValueType)
                     {
                         takePorts.Add(new TakePort(port, nameButton));
                     }

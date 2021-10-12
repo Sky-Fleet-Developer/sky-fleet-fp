@@ -278,9 +278,9 @@ namespace Core.Structure
             return fields.ToArray();
         }
         
-        public static List<Port> GetAllPorts(IStructure structure)
+        public static List<PortPointer> GetAllPorts(IStructure structure)
         {
-            List<Port> result = new List<Port>();
+            List<PortPointer> result = new List<PortPointer>();
             foreach (var structureBlock in structure.Blocks)
             {
                 GetAllPorts(structureBlock, ref result);
@@ -289,22 +289,22 @@ namespace Core.Structure
             return result;
         }
         
-        public static void GetAllPorts(IBlock block, ref List<Port> result)
+        public static void GetAllPorts(IBlock block, ref List<PortPointer> result)
         {
             GetPorts(block, ref result);
             GetSpecialPorts(block, ref result);
         }
         
-        public static void GetPorts(IBlock block, ref List<Port> result)
+        public static void GetPorts(IBlock block, ref List<PortPointer> result)
         {
             var properties = GetPortsInfo(block);
             foreach (var property in properties)
             {
-                result.Add(property.GetValue(block) as Port);
+                result.Add(new PortPointer(block, property.GetValue(block) as Port));
             }
         }
         
-        public static void GetSpecialPorts(IBlock block, ref List<Port> result)
+        public static void GetSpecialPorts(IBlock block, ref List<PortPointer> result)
         {
             if(block is ISpecialPorts specialPortsBlock)
             {

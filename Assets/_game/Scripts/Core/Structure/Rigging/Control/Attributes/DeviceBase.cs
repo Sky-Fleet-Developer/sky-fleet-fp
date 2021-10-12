@@ -20,7 +20,7 @@ namespace Core.Structure.Rigging.Control.Attributes
             this.block = block;
             this.Port = port;
 
-            var p = Factory.GetAllPorts(structure).FirstOrDefault(x => x.Guid == port);
+            var p = structure.GetPort(port);
             if(p == null) return;
             SetWire(p);
         }

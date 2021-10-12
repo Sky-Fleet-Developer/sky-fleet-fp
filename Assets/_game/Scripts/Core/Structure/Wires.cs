@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -11,6 +12,46 @@ namespace Core.Structure
         BigThurst,
         Fuel,
         Power,
+    }
+
+    public struct PortPointer : IEquatable<PortPointer>, IEquatable<string>
+    {
+        public readonly IBlock Block;
+        public readonly  Port Port;
+
+        public readonly string Id;
+        
+        public PortPointer(IBlock block, Port port)
+        {
+            Block = block;
+            Port = port;
+            Id = Block.transform.name + Port.Guid;
+        }
+
+        public override string ToString()
+        {
+            return Id;
+        }
+
+        public bool Equals(PortPointer other)
+        {
+            return Id == other.Id;
+        }
+
+        public bool Equals(string other)
+        {
+            return Id.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PortPointer other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 
     [System.Serializable]

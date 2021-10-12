@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+  tags: []
   mountingType: 
   powerPerFuel:
     serializedVersion: 2
@@ -165,17 +166,22 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  powerMultiplier: 1
+  maximalOutput: 15
+  charge: 500
   fuelUsage: 1
+  minFuelUsage: 0.1
   fuel:
     guid: 7ac4983b-32a1-4013-8093-698fc6cd7744
     ValueType: 2
-    hash: 0
+    cache: 0
     wire:
       value: 0
   output:
     guid: fd689e1e-5084-4dca-be25-aeef478e5acc
     ValueType: 3
-    hash: 0
     wire:
-      value: 0
+      ports: []
+    charge: 0
+    maxInput: 1
+    maxOutput: 1
+    delta: 0

@@ -26,6 +26,8 @@ namespace Core.Structure
         List<IBlock> Blocks { get; }
         List<Wire> Wires { get; }
         List<T> GetBlocksByType<T>();
+        Port GetPort(string id);
+
         
         string Configuration { get; set; }
         //TODO: Navigation

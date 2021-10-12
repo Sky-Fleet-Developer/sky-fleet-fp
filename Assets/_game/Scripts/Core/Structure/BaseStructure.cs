@@ -62,6 +62,11 @@ namespace Core.Structure
         [ShowInInspector] protected List<Wire> wires;
         
         private bool initialized = false;
+        
+        private Dictionary<string, Port> portsCache;
+        private List<PortPointer> portsPointersCache;
+        private Dictionary<System.Type, object> blocksCache;
+        
 
         protected virtual void Awake()
         {
@@ -120,17 +125,24 @@ namespace Core.Structure
             }
         }
         
+        private void ClearBlocksCache()
+        {
+            portsPointersCache = null;
+            portsCache = null;
+            blocksCache = null;
+        }
+        
         [Button]
         public void RefreshBlocksAndParents()
         {
             RefreshBlocks();
             InitParents();
         }
-
+        
         [Button]
         public void RefreshBlocks()
         {
-            blocksCache = null;
+            ClearBlocksCache();
             blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
@@ -149,7 +161,6 @@ namespace Core.Structure
             }
         }
 
-        private Dictionary<System.Type, object> blocksCache;
 
         public List<T> GetBlocksByType<T>()
         {
@@ -183,16 +194,17 @@ namespace Core.Structure
             return null;
         }
 
-        private Dictionary<string, Port> portsCache;
 
-        public Port GetPort(string guid)
+        
+        public Port GetPort(string id)
         {
             if (portsCache == null) portsCache = new Dictionary<string, Port>();
-            if (portsCache.TryGetValue(guid, out Port port)) return port;
+            if (portsCache.TryGetValue(id, out Port port)) return port;
 
-            var ports = Factory.GetAllPorts(this);
-            port = ports.FirstOrDefault(x => x.Guid == guid);
-            portsCache.Add(guid, port);
+            if(portsPointersCache == null) portsPointersCache = Factory.GetAllPorts(this);
+            
+            port = portsPointersCache.FirstOrDefault(x => x.Equals(id)).Port;
+            portsCache.Add(id, port);
             return port;
         }
 

@@ -57,7 +57,7 @@ namespace Core.Structure.Rigging
 
     public interface ISpecialPorts
     {
-        IEnumerable<Port> GetPorts();
+        IEnumerable<PortPointer> GetPorts();
     }
     
     public interface IControl : IInteractiveBlock, IUpdatableBlock, ISpecialPorts
