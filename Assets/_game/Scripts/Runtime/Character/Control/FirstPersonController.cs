@@ -30,7 +30,7 @@ namespace Runtime.Character.Control
                 {
                     if (cameraRoot == null)
                     {
-                        var cam = GetComponentInChildren<CinemachineVirtualCamera>();
+                        CinemachineVirtualCamera cam = GetComponentInChildren<CinemachineVirtualCamera>();
                         if (cam) cameraRoot = cam.transform;
                     }
 
@@ -105,9 +105,9 @@ namespace Runtime.Character.Control
             {
                 Move();
                 
-                if (Interaction.Cast(cameraRoot, out var block))
+                if (Interaction.Cast(cameraRoot, out IInteractiveBlock block))
                 {
-                    var request = block.RequestInteractive(this);
+                    (bool canInteractive, string data) request = block.RequestInteractive(this);
                     if (request.canInteractive)
                     {
                         //TODO: write text to HUD
@@ -149,7 +149,7 @@ namespace Runtime.Character.Control
 
         public IEnumerator AttachToControl(IControl control)
         {
-            var attachData = control.GetAttachData();
+            CharacterAttachData attachData = control.GetAttachData();
             
             if (attachData.attachAndLock)
             {

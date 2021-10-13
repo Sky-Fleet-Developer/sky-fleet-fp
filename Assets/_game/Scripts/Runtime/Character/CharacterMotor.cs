@@ -180,7 +180,7 @@ namespace Runtime.Character
                 }
 
                 rigidbody.AddForceAtPosition(force * deltaTime, groundHit.point);
-                var otherRb = groundHit.rigidbody;
+                Rigidbody otherRb = groundHit.rigidbody;
                 if (otherRb != null)
                 {
                     otherRb.AddForceAtPosition(-force * deltaTime, groundHit.point);

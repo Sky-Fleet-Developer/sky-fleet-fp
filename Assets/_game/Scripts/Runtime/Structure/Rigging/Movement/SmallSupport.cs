@@ -106,7 +106,7 @@ namespace Runtime.Structure.Rigging.Movement
                 disruption = false;
             }
 
-            var position = transform.position;
+            Vector3 position = transform.position;
             p = variator_i * (p - position);
             p = new Vector3(p.x * (xIsFree ? 0f : 1f), p.y * (yIsFree ? 0f : 1f), p.z * (zIsFree ? 0f : 1f));
             p = (variator * p) + position;
@@ -142,7 +142,7 @@ namespace Runtime.Structure.Rigging.Movement
         private void OnDrawGizmosSelected()
         {
             if (!variatorTransform) return;
-            var localToWorldMatrix = variatorTransform.localToWorldMatrix;
+            Matrix4x4 localToWorldMatrix = variatorTransform.localToWorldMatrix;
             Handles.matrix = localToWorldMatrix;
             int freedom = 0;
             if (xIsFree) freedom++;

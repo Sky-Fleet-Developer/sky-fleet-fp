@@ -62,7 +62,7 @@ namespace Runtime.Explorer.ModContent
             
             foreach (AssetBundle asset in assets)
             {
-                var typePath = asset.type.Split(new[] {'.'});
+                string[] typePath = asset.type.Split(new[] {'.'});
                 string assetName = $"({typePath[typePath.Length - 1]})\n{asset.name}";
                 CreateItemProperty(assetName, StringItemPointer.PropertyType.Item);
             }
@@ -72,7 +72,7 @@ namespace Runtime.Explorer.ModContent
                 string prefabName = prefab.name;
                 if (prefab.tags.Contains("Block")) prefabName = $"(Block)\n{prefabName}";
                 //CreateItemProperty(prefabName, StringItemPointer.PropertyType.Item);
-                var pointer = DynamicPool.Instance.Get(buttonItemPrefab, contentInfo);
+                ButtonItemPointer pointer = DynamicPool.Instance.Get(buttonItemPrefab, contentInfo);
                 pointer.SetVisual(prefabName, (System.Action)(() => ShowPrefab(prefab)), TextAnchor.MiddleRight, 20, FontStyle.Bold);
                 buttonPointers.AddLast(pointer);
             }
@@ -83,8 +83,8 @@ namespace Runtime.Explorer.ModContent
         private async void ShowPrefab(PrefabBundle bundle)
         {
             if(previewInstance) Destroy(previewInstance);
-            var obj = await mod.module.GetAsset(bundle, mod.assemblies);
-            var prefab = (GameObject) obj;
+            Object obj = await mod.module.GetAsset(bundle, mod.assemblies);
+            GameObject prefab = (GameObject) obj;
             previewInstance = Instantiate(prefab);
             previewInstance.gameObject.SetActive(true);
         }
@@ -99,12 +99,12 @@ namespace Runtime.Explorer.ModContent
 
         private void ClearListProperty()
         {
-            foreach (var itemPointer in stringPointers)
+            foreach (StringItemPointer itemPointer in stringPointers)
             {
                 DynamicPool.Instance.Return(itemPointer);
             }
             stringPointers.Clear();
-            foreach (var itemPointer in buttonPointers)
+            foreach (ButtonItemPointer itemPointer in buttonPointers)
             {
                 DynamicPool.Instance.Return(itemPointer);
             }

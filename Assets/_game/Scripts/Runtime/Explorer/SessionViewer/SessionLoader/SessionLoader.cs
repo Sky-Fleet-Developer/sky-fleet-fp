@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Core.Explorer.Content;
 using Core.SessionManager;
 using Core.SessionManager.SaveService;
@@ -37,13 +38,14 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
         {
             SaveLoad saveLoad = new SaveLoad();
             currentSessionPath = path;
-            currentSessionSettings = saveLoad.ReadHeader(path);
+            StateHeader header = saveLoad.ReadHeader(path);
+            currentSessionSettings = GetSettingsFromHeader(header, out List<string> missingMods);
             ClearList();
-            foreach(string modN in currentSessionSettings.missingMods)
+            foreach(string missingMod in missingMods)
             {
                 ButtonItemPointer item = DynamicPool.Instance.Get(prefabItem, content);
                 items.AddLast(item);
-                item.SetVisual($"<color=red>{modN}</color> - missing");
+                item.SetVisual($"<color=red>{missingMod}</color> - missing");
             }
             foreach (Mod mod in currentSessionSettings.mods)
             {
@@ -51,6 +53,29 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
                 items.AddLast(item);
                 item.SetVisual(mod.name);
             }
+        }
+
+        private SessionSettings GetSettingsFromHeader(StateHeader header, out List<string> missingMods)
+        {
+            SessionSettings settings = new SessionSettings();
+            settings.name = header.name;
+            
+            missingMods = new List<string>();
+            List<Mod> existingMods = ModReader.Instance.GetMods();
+            foreach (string modName in header.mods)
+            {
+                Mod mod = existingMods.FirstOrDefault(x => x.name == modName);
+                if (mod != null)
+                {
+                    settings.mods.AddLast(mod);
+                }
+                else
+                {
+                    missingMods.Add(modName);
+                }
+            }
+
+            return settings;
         }
 
         private void ClearList()

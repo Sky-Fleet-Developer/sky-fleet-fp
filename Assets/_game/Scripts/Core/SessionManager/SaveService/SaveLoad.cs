@@ -9,6 +9,7 @@ using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;
 using Core.Explorer.Content;
 using Core.Structure;
+using Core.Structure.Rigging;
 using Core.Utilities;
 using Newtonsoft.Json;
 using Runtime;
@@ -53,6 +54,7 @@ namespace Core.SessionManager.SaveService
             {
                 foreach (Mod mod in mods)
                 {
+                    TablePrefabs.Instance.ExtractBlocksFromMod(mod);
                     assemblies.Add(mod.assembly);
                 }
             }
@@ -99,38 +101,19 @@ namespace Core.SessionManager.SaveService
             return state;
         }
 
-        public SessionSettings ReadHeader(string fileName)
+        public StateHeader ReadHeader(string fileName)
         {
             FileStream stream = new FileStream(fileName, FileMode.Open);
-            SessionSettings header = null;
+            StateHeader header = null;
             try
             {
                 ReadHeader(stream, out string stateName, out string version, out List<string> modsNames);
-
-
-                header = new SessionSettings()
-                    {name = stateName, serializationVersion = version, modsNames = modsNames};
-
-                List<Mod> existingMods = ModReader.Instance.GetMods();
-
-                foreach (string modName in modsNames)
-                {
-                    Mod mod = existingMods.FirstOrDefault(x => x.name == modName);
-                    if (mod != null)
-                    {
-                        header.mods.AddLast(mod);
-                    }
-                    else
-                    {
-                        header.missingMods.Add(modName);
-                    }
-                }
-
+                
+                header = new StateHeader{ name =  stateName, serializationVersion = version, mods =  modsNames};
             }
             catch (Exception e)
             {
                 Debug.LogError(e);
-
             }
 
             stream.Close();
@@ -279,5 +262,12 @@ namespace Core.SessionManager.SaveService
 
             return result;
         }
+    }
+
+    public class StateHeader
+    {
+        public string name;
+        public string serializationVersion = "0.0.1";
+        public List<string> mods;
     }
 }

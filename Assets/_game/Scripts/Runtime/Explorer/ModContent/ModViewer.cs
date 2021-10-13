@@ -48,9 +48,9 @@ namespace Runtime.Explorer.ModContent
 
         private void InitButtons(List<Mod> mods)
         {
-            foreach (var mod in mods)
+            foreach (Mod mod in mods)
             {
-                var item = DynamicPool.Instance.Get(selectModButton, selectionScrollRoot);
+                ButtonItemPointer item = DynamicPool.Instance.Get(selectModButton, selectionScrollRoot);
                 item.SetVisual(mod.name, (System.Action)(() => ShowMod(mod)), FontStyle.Bold, 18);
                 buttons.AddLast(item);
             }
@@ -58,7 +58,7 @@ namespace Runtime.Explorer.ModContent
 
         private void ClearButtons()
         {
-            foreach (var itemPointer in buttons)
+            foreach (ItemPointer itemPointer in buttons)
             {
                 itemPointer.SetVisual((System.Action)(() => { }));
                 DynamicPool.Instance.Return(itemPointer);

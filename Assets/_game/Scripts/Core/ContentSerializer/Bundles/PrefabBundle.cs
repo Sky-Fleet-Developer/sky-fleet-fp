@@ -5,6 +5,7 @@ using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Core.ContentSerializer.Bundles
 {
@@ -60,7 +61,11 @@ namespace Core.ContentSerializer.Bundles
                 obj.Value.parent = transforms[Tree[obj.Key].parent];
             }
 
-            if(!context.IsCurrentlyBuilded) root.gameObject.SetActive(false);
+            if (!context.IsCurrentlyBuilded)
+            {
+                root.gameObject.SetActive(false);
+                Object.DontDestroyOnLoad(root.gameObject);
+            }
 
             Dictionary<int, Component> reconstruction = new Dictionary<int, Component>();
 

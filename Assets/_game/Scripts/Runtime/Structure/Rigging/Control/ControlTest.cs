@@ -36,7 +36,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public override void OnInitComplete()
         {
-            foreach (var controlAxe in axes)
+            foreach (ControlAxe controlAxe in axes)
             {
                 if (controlAxe.device != null)
                 {
@@ -47,7 +47,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public void ReadInput()
         {
-            foreach (var axe in axes)
+            foreach (ControlAxe axe in axes)
             {
                 axe.Tick();
             }
@@ -102,7 +102,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public void UpdateBlock()
         {
-            foreach (var controlAxe in axes)
+            foreach (ControlAxe controlAxe in axes)
             {
                 if (controlAxe.device != null)
                 {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -14,7 +13,7 @@ namespace Core.Structure
         Power,
     }
 
-    public struct PortPointer : IEquatable<PortPointer>, IEquatable<string>
+    public struct PortPointer : System.IEquatable<PortPointer>, System.IEquatable<string>
     {
         public readonly IBlock Block;
         public readonly  Port Port;
@@ -190,21 +189,21 @@ namespace Core.Structure
         }
     }
 
-    [System.Serializable]
-    public class Wire : IDisposable
+    [ShowInInspector]
+    public class Wire : System.IDisposable
     {
         public virtual void Dispose() { }
     }
 
-    [System.Serializable]
+    [ShowInInspector]
     public class Wire<T> : Wire
     {
         public T value;
     }
-    [System.Serializable]
+    [ShowInInspector]
     public class PowerWire : Wire
     {
-        public List<PowerPort> ports = new List<PowerPort>();
+        [System.NonSerialized, ShowInInspector, ReadOnly] public List<PowerPort> ports = new List<PowerPort>();
 
 
         public PowerWire()

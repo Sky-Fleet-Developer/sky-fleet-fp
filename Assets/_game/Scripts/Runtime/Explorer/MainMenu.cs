@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,9 +25,9 @@ public class MainMenu : UiBlockBase, ILoadAtStart
     public Task Load()
     {
         _structure = GetComponentInParent<IUiStructure>();
-        foreach (var uiBlockButton in menus)
+        foreach (UIBlockButton uiBlockButton in menus)
         {
-            var buttonInstance = DynamicPool.Instance.Get(buttonSource, transform);
+            ButtonItemPointer buttonInstance = DynamicPool.Instance.Get(buttonSource, transform);
             uiBlockButton.Apply(buttonInstance, _structure, OnBlockWasOpened);
             buttonInstance.SetVisual(fontSize);
             buttons.Add(buttonInstance);
@@ -37,7 +38,7 @@ public class MainMenu : UiBlockBase, ILoadAtStart
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        foreach (var buttonItemPointer in buttons)
+        foreach (ButtonItemPointer buttonItemPointer in buttons)
         {
             buttonItemPointer.ResetVisual();
             if (DynamicPool.hasInstance)
@@ -78,7 +79,7 @@ public class MainMenu : UiBlockBase, ILoadAtStart
         public void Apply(ButtonItemPointer button, IUiStructure structure, System.Action<UiBlockBase[]> onBlockWasOpen)
         {
             this.onBlockWasOpen = onBlockWasOpen;
-            var action = (System.Action)(() => OpenBlock(structure));
+            Action action = (System.Action)(() => OpenBlock(structure));
             button.SetVisual(description, style, alignment, action);
         }
 
