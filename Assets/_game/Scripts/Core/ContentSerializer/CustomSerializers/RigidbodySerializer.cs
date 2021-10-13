@@ -10,7 +10,7 @@ namespace Core.ContentSerializer.CustomSerializers
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
-            var rb = (Rigidbody) source;
+            Rigidbody rb = (Rigidbody) source;
             switch (idx)
             {
                 default:
@@ -30,7 +30,7 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
-            var rb = (Rigidbody) source;
+            Rigidbody rb = (Rigidbody) source;
             rb.velocity = JsonConvert.DeserializeObject<Vector3>(cache[prefix]);
             rb.angularVelocity = JsonConvert.DeserializeObject<Vector3>(cache[prefix + "_1"]);
             rb.mass = JsonConvert.DeserializeObject<float>(cache[prefix + "_2"]);

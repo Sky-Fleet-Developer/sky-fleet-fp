@@ -13,7 +13,7 @@ namespace Core.Utilities
         protected virtual void Awake()
         {
             pointers = new Dictionary<string, Component>();
-            foreach (var hit in _pointers)
+            foreach (Component hit in _pointers)
             {
                 string key;
                 if (hit.transform == transform) key = "this";

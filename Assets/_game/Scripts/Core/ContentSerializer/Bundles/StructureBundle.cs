@@ -11,9 +11,9 @@ namespace Core.ContentSerializer.Bundles
     [System.Serializable]
     public class StructureBundle : Bundle
     {
-        [JsonRequired] private readonly Dictionary<string, string> blocksCache = new Dictionary<string, string>();
-        [JsonRequired] private readonly Dictionary<string, string> parentsCache = new Dictionary<string, string>();
-        [JsonRequired] private readonly Dictionary<string, string> dynamicsCache = new Dictionary<string, string>();
+        [JsonRequired] private Dictionary<string, string> blocksCache = new Dictionary<string, string>();
+        [JsonRequired] private Dictionary<string, string> parentsCache = new Dictionary<string, string>();
+        [JsonRequired] private Dictionary<string, string> dynamicsCache = new Dictionary<string, string>();
         [JsonRequired] private string configuration;
         [JsonRequired] private string guid;
         
@@ -28,21 +28,22 @@ namespace Core.ContentSerializer.Bundles
 
             configuration = structure.Configuration;
             guid = structure.Guid;
+            name = structure.transform.name;
 
-            var tr = structure.transform;
+            Transform tr = structure.transform;
             
-            foreach (var block in structure.Blocks)
+            foreach (IBlock block in structure.Blocks)
             {
-                context.Behaviour.GetNestedCache(block.Guid, block, blocksCache);
+                context.Behaviour.GetNestedCache(block.Guid + block.transform.name, block, blocksCache);
             }
             
             context.Behaviour.GetNestedCache("this", tr, parentsCache);
-            foreach (var parent in structure.Parents)
+            foreach (Parent parent in structure.Parents)
             {
                 context.Behaviour.GetNestedCache(parent.Transform.name, parent.Transform, parentsCache);
             }
 
-            foreach (var rigidbody in tr.GetComponentsInChildren<Rigidbody>())
+            foreach (Rigidbody rigidbody in tr.GetComponentsInChildren<Rigidbody>())
             {
                 string prefix = rigidbody.transform == tr ? "this" : rigidbody.name;
                 context.Behaviour.GetNestedCache(prefix, rigidbody, dynamicsCache);
@@ -51,11 +52,12 @@ namespace Core.ContentSerializer.Bundles
 
         public async Task<IStructure> ConstructStructure(ISerializationContext context)
         {
-            var item = TablePrefabs.Instance.GetItem(guid);
-            var prefab = await item.LoadPrefab();
+            RemotePrefabItem item = TablePrefabs.Instance.GetItem(guid);
+            GameObject prefab = await item.LoadPrefab();
             if (prefab == null) return null;
 
-            var instance = Object.Instantiate(prefab).GetComponent<IStructure>();
+            IStructure instance = Object.Instantiate(prefab).GetComponent<IStructure>();
+            instance.transform.name = name;
             instance.Configuration = configuration;
             if (Application.isPlaying)
             {
@@ -64,28 +66,29 @@ namespace Core.ContentSerializer.Bundles
             else
             {
                 instance.RefreshBlocksAndParents();
+                //TODO: instantiate blocks from configuration
             }
 
-            var tr = instance.transform;
+            Transform tr = instance.transform;
 
             List<Task> awaiters = new List<Task>();
             Task tempTask;
-            foreach (var block in instance.Blocks)
+            foreach (IBlock block in instance.Blocks)
             {
-                tempTask = context.Behaviour.SetNestedCache(block.Guid, block, blocksCache, null);
+                tempTask = context.Behaviour.SetNestedCache(block.Guid + block.transform.name, block, blocksCache, null);
                 awaiters.Add(tempTask);
             }
             
             tempTask = context.Behaviour.SetNestedCache("this", tr, parentsCache, null);
             awaiters.Add(tempTask);
             
-            foreach (var parent in instance.Parents)
+            foreach (Parent parent in instance.Parents)
             {
                 tempTask = context.Behaviour.SetNestedCache(parent.Transform.name, parent.Transform, parentsCache, null);
                 awaiters.Add(tempTask);
             }
             
-            foreach (var rigidbody in tr.GetComponentsInChildren<Rigidbody>())
+            foreach (Rigidbody rigidbody in tr.GetComponentsInChildren<Rigidbody>())
             {
                 string prefix = rigidbody.transform == tr ? "this" : rigidbody.name;
                 tempTask = context.Behaviour.SetNestedCache(prefix, rigidbody, dynamicsCache, null);
@@ -93,6 +96,8 @@ namespace Core.ContentSerializer.Bundles
             }
 
             await Task.WhenAll(awaiters);
+            
+            Debug.Log($"Structure {instance.transform.name} successfully loaded!");
             return instance;
         }
     }

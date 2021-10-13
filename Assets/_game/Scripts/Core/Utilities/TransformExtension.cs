@@ -7,8 +7,8 @@ namespace Core.Utilities
         public static Bounds GetBounds(this Transform root)
         {
             var renderers = root.GetComponentsInChildren<MeshRenderer>(true);
-            var bound = renderers[0].bounds;
-            foreach (var hit in renderers)
+            Bounds bound = renderers[0].bounds;
+            foreach (MeshRenderer hit in renderers)
             {
                 bound.Encapsulate(hit.bounds);
             }

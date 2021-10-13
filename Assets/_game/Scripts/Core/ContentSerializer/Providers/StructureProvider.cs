@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.CustomSerializers;
 using Core.Structure.Rigging;
 using Sirenix.Utilities;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Core.ContentSerializer.Providers
@@ -26,9 +26,9 @@ namespace Core.ContentSerializer.Providers
             public override async Task SetNestedCache(string prefix, object source, Dictionary<string, string> cache,
                 Dictionary<int, Component> components)
             {
-                var type = source.GetType();
+                Type type = source.GetType();
 
-                if (FindCustomSerializer(type, out var serializer))
+                if (FindCustomSerializer(type, out ICustomSerializer serializer))
                 {
                     await serializer.Deserialize(prefix, source, cache, context);
                 }
@@ -36,9 +36,9 @@ namespace Core.ContentSerializer.Providers
 
             public override void GetNestedCache(string prefix, object source, Dictionary<string, string> cache)
             {
-                var type = source.GetType();
+                Type type = source.GetType();
 
-                if (FindCustomSerializer(type, out var serializer))
+                if (FindCustomSerializer(type, out ICustomSerializer serializer))
                 {
                     for (int i = 0; i < serializer.GetStringsCount(); i++)
                     {
@@ -51,7 +51,7 @@ namespace Core.ContentSerializer.Providers
         
         private static bool FindCustomSerializer(System.Type t, out ICustomSerializer value)
         {
-            if (CustomSerializer.TryGetValue(t, out var val))
+            if (CustomSerializer.TryGetValue(t, out ICustomSerializer val))
             {
                 value = val;
                 return true;

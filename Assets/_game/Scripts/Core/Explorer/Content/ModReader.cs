@@ -67,7 +67,7 @@ namespace Core.Explorer.Content
             var tasks = new List<Task>();
             foreach (string directory in directorys)
             {
-                var task = LoadMod(directory, loader);
+                Task task = LoadMod(directory, loader);
                 tasks.Add(task);
             }
 

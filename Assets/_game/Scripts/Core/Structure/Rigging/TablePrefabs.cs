@@ -28,7 +28,7 @@ namespace Core.Structure.Rigging
         public void ExtractBlocksFromMod(Mod mod)
         {
             var tags = GameData.PrivateData.remotePrefabsTags;
-            foreach (var prefab in mod.module.Cache)
+            foreach (Bundle prefab in mod.module.Cache)
             {
                 string remotePrefabTag = string.Empty;
                 foreach (string tag in tags)
@@ -39,7 +39,7 @@ namespace Core.Structure.Rigging
                 if (remotePrefabTag == string.Empty) continue;
 
                 int idx = prefab.tags.IndexOf(remotePrefabTag);
-                var newItem = new RemotePrefabItem(idx, (PrefabBundle) prefab, mod);
+                RemotePrefabItem newItem = new RemotePrefabItem(idx, (PrefabBundle) prefab, mod);
                 itemsCache.Add(newItem.guid, newItem);
             }
         }

@@ -1,22 +1,14 @@
-using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-
+using Core.Explorer.Content;
+using Core.SessionManager;
+using Core.SessionManager.SaveService;
+using Core.UiStructure;
+using Core.Utilities;
+using Core.Utilities.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
-using Core.Utilities;
-using Core.Utilities.UI;
-using Core.Explorer.Content;
-using Core.SessionManager;
-using Core.UiStructure;
-using Core.SessionManager.SaveService;
-
-using Runtime.Explorer.ModContent;
-
-
-namespace Runtime.Explorer.SessionViewer
+namespace Runtime.Explorer.SessionViewer.SessionLoader
 {
     public class SessionLoader : UiBlockBase
     {
@@ -32,7 +24,8 @@ namespace Runtime.Explorer.SessionViewer
 
         private LinkedList<ButtonItemPointer> items = new LinkedList<ButtonItemPointer>();
 
-        private SaveLoad.LoadSettingSession takeSessionSave;
+        private SessionSettings currentSessionSettings;
+        private string currentSessionPath;
 
         private void Start()
         {
@@ -43,15 +36,16 @@ namespace Runtime.Explorer.SessionViewer
         private void TakeSession(string path)
         {
             SaveLoad saveLoad = new SaveLoad();
-            takeSessionSave = saveLoad.LoadBaseInfoSession(path);
+            currentSessionPath = path;
+            currentSessionSettings = saveLoad.ReadHeader(path);
             ClearList();
-            foreach(string modN in takeSessionSave.NoHaveMods)
+            foreach(string modN in currentSessionSettings.missingMods)
             {
                 ButtonItemPointer item = DynamicPool.Instance.Get(prefabItem, content);
                 items.AddLast(item);
-                item.SetVisual("! - " + modN);
+                item.SetVisual($"<color=red>{modN}</color> - missing");
             }
-            foreach (Mod mod in takeSessionSave.mods)
+            foreach (Mod mod in currentSessionSettings.mods)
             {
                 ButtonItemPointer item = DynamicPool.Instance.Get(prefabItem, content);
                 items.AddLast(item);
@@ -70,12 +64,12 @@ namespace Runtime.Explorer.SessionViewer
 
         private void StartSession()
         {
-            if (takeSessionSave == null)
+            if (currentSessionSettings == null)
                 return;
             Session.Instance.BeginInit();
-            Session.Instance.SetSettings(takeSessionSave);
-            Session.Instance.EndInit();
             SceneLoader.LoadGameScene();
+            Session.Instance.SetSettings(currentSessionSettings);
+            Session.Instance.Load(currentSessionPath, Session.Instance.EndInit);
         }
 
 

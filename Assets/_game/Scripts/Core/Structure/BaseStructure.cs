@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -111,7 +112,7 @@ namespace Core.Structure
         [Button]
         public void InitBlocks()
         {
-            foreach (var block in blocks)
+            foreach (IBlock block in blocks)
             {
                 block.InitBlock(this, GetParentFor(block));
             }
@@ -119,7 +120,7 @@ namespace Core.Structure
 
         public void OnInitComplete()
         {
-            foreach (var block in blocks)
+            foreach (IBlock block in blocks)
             {
                 block.OnInitComplete();
             }
@@ -152,7 +153,7 @@ namespace Core.Structure
             if (parentsObjects != null)
             {
                 parents = new List<Parent>(parentsObjects.Length + 1);
-                foreach (var parentsObject in parentsObjects)
+                foreach (Transform parentsObject in parentsObjects)
                 {
                     parents.Add(new Parent(parentsObject, this));
                 }
@@ -165,7 +166,7 @@ namespace Core.Structure
         public List<T> GetBlocksByType<T>()
         {
             if (blocksCache == null) blocksCache = new Dictionary<System.Type, object>();
-            var type = typeof(T);
+            Type type = typeof(T);
             if (blocksCache.TryGetValue(type, out object val)) return val as List<T>;
 
             List<T> selection = new List<T>();
@@ -212,13 +213,13 @@ namespace Core.Structure
         public void InitWires()
         {
             if (wires == null) wires = new List<Wire>();
-            foreach (var wireString in currentConfiguration.wires)
+            foreach (string wireString in currentConfiguration.wires)
             {
-                var guids = wireString.Split(new[] {'.'}, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] guids = wireString.Split(new[] {'.'}, System.StringSplitOptions.RemoveEmptyEntries);
 
-                var port = GetPort(guids[0]);
+                Port port = GetPort(guids[0]);
 
-                var newWire = port.CreateWire();
+                Wire newWire = port.CreateWire();
                 wires.Add(newWire);
 
                 port.SetWire(newWire);

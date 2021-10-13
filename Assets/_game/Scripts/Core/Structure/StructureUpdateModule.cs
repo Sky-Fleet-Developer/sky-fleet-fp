@@ -47,17 +47,17 @@ namespace Core.Structure
 
         private void Update()
         {
-            foreach (var t in Controls)
+            foreach (IControl t in Controls)
             {
-                var str = t.Structure;
+                IStructure str = t.Structure;
                 if (str.Active && str.enabled && t.IsUnderControl)
                 {
                     t.ReadInput();
                 }
             }
-            foreach (var t in Updatables)
+            foreach (IUpdatableBlock t in Updatables)
             {
-                var str = t.Structure;
+                IStructure str = t.Structure;
                 if (str.Active && str.enabled)
                 {
                     t.UpdateBlock();
@@ -65,9 +65,9 @@ namespace Core.Structure
             }
             isConsumptionTick = true;
             onBeginConsumptionTick?.Invoke();
-            foreach (var t in PowerUsers)
+            foreach (IPowerUser t in PowerUsers)
             {
-                var str = t.Structure;
+                IStructure str = t.Structure;
                 if (str.Active && str.enabled)
                 {
                     t.ConsumptionTick();
@@ -75,17 +75,17 @@ namespace Core.Structure
             }
             onConsumptionTickEnd?.Invoke();
             isConsumptionTick = false;
-            foreach (var t in PowerUsers)
+            foreach (IPowerUser t in PowerUsers)
             {
-                var str = t.Structure;
+                IStructure str = t.Structure;
                 if (str.Active && str.enabled)
                 {
                     t.PowerTick();
                 }
             }
-            foreach (var t in FuelUsers)
+            foreach (IFuelUser t in FuelUsers)
             {
-                var str = t.Structure;
+                IStructure str = t.Structure;
                 if (str.Active && str.enabled)
                 {
                     t.FuelTick();
@@ -98,7 +98,7 @@ namespace Core.Structure
         {
             for (int i = 0; i < ForceUsers.Count; i++)
             {
-                var str = ForceUsers[i].Structure;
+                IStructure str = ForceUsers[i].Structure;
                 if (str.Active && str.enabled)
                 {
                     ForceUsers[i].ApplyForce();

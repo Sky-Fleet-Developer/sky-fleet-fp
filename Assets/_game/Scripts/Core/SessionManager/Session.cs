@@ -4,6 +4,7 @@ using Core.Explorer.Content;
 using Core.SessionManager.SaveService;
 using Core.Utilities;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Core.SessionManager
@@ -24,11 +25,22 @@ namespace Core.SessionManager
         {
             saveLoad.Save();
         }
+
+        public void Load(string filePath, System.Action onComplete)
+        {
+            var task = LoadAndComplete(filePath, onComplete);
+        }
+
+        private async Task LoadAndComplete(string filePath, System.Action onComplete)
+        {
+            await Load(filePath);
+            onComplete?.Invoke();
+        }
         
         [Button]
-        public Task Load(string fileName)
+        public Task Load(string filePath)
         {
-            return saveLoad.Load(fileName);
+            return saveLoad.Load(filePath);
         }
         
         public bool IsInitialized()
@@ -52,11 +64,13 @@ namespace Core.SessionManager
         public void BeginInit()
         {
             Clear();
+            Time.timeScale = 0;
         }
 
         public void EndInit()
         {
             isInitialized = true;
+            Time.timeScale = 1;
         }
         
         public void Clear()

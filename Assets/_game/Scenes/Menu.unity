@@ -705,7 +705,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1763909230583632504, guid: d654e41f73a101e429bf6d8f4b29de4b, type: 3}
       propertyPath: m_Name
-      value: SessionProperty
+      value: '[Session]'
       objectReference: {fileID: 0}
     - target: {fileID: 1763909230583632506, guid: d654e41f73a101e429bf6d8f4b29de4b, type: 3}
       propertyPath: m_RootOrder

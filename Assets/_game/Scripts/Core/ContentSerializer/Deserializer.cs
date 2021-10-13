@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Core.ContentSerializer
@@ -23,12 +24,19 @@ namespace Core.ContentSerializer
 
         public Type GetTypeByName(string name)
         {
-            foreach (var assembly in AvailableAssemblies)
+            try
             {
-                foreach (var type in assembly.GetTypes())
+                foreach (Assembly assembly in AvailableAssemblies)
                 {
-                    if (type.FullName == name) return type;
+                    foreach (Type type in assembly.GetTypes())
+                    {
+                        if (type.FullName == name) return type;
+                    }
                 }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e);
             }
 
             return null;

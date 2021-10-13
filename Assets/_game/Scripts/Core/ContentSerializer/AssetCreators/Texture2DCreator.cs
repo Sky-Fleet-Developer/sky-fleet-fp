@@ -38,10 +38,10 @@ namespace Core.ContentSerializer.AssetCreators
                 }
                 else
                 {
-                    var tex = DownloadHandlerTexture.GetContent(request);
+                    Texture2D tex = DownloadHandlerTexture.GetContent(request);
                     if(path.Contains("Normal"))
                     {
-                        var tex2 = new Texture2D(tex.width, tex.height, tex.format, true, true);
+                        Texture2D tex2 = new Texture2D(tex.width, tex.height, tex.format, true, true);
                         tex2.SetPixels(tex.GetPixels());
                         tex2.Apply();
                         return tex2;

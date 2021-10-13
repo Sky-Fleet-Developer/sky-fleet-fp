@@ -28,7 +28,7 @@ namespace Core.Explorer.Content
             this.module = module;
             this.assembly = assembly;
             module.ModFolderPath = modFolderPath;
-            var pathSplit = modFolderPath.Split(new[] {'/', '\\'});
+            string[] pathSplit = modFolderPath.Split(new[] {'/', '\\'});
             name = pathSplit[pathSplit.Length - 1];
 
             var assembliesList = System.AppDomain.CurrentDomain.GetAssemblies().ToList();

@@ -22,6 +22,8 @@ namespace Runtime
     [System.Serializable]
     public class SharedGameData
     {
+        [Header("Management")] 
+        public string serializationVersion = "0.0.1";
         [Header("Character")]
         public LayerMask interactiveLayer;
         public float interactionDistance = 1f;

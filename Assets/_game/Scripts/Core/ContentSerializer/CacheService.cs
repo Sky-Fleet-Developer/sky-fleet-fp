@@ -19,7 +19,7 @@ namespace Core.ContentSerializer
     {
         public static void GetCache(string prefix, object source, Dictionary<string, string> hash, ISerializationContext context)
             {
-                var type = source.GetType();
+                Type type = source.GetType();
 
                 if (type.IsArray)
                 {
@@ -85,7 +85,7 @@ namespace Core.ContentSerializer
                 {
                     if (hash.TryGetValue(prefix, out string value))
                     {
-                        var id = (int) CacheService.Deserialize(value, typeof(int));
+                        int id = (int) CacheService.Deserialize(value, typeof(int));
                         if (components.TryGetValue(id, out Component component))
                         {
                             setter?.Invoke(component);
@@ -104,7 +104,7 @@ namespace Core.ContentSerializer
                 {
                     if (hash.TryGetValue(prefix, out string value))
                     {
-                        var id = (int) CacheService.Deserialize(value, typeof(int));
+                        int id = (int) CacheService.Deserialize(value, typeof(int));
                         var obj = context.GetObject(id);
                         if (obj != null)
                         {
@@ -122,7 +122,7 @@ namespace Core.ContentSerializer
                 }
                 else
                 {
-                    var obj = Activator.CreateInstance(type);
+                    object obj = Activator.CreateInstance(type);
                     await context.Behaviour.SetNestedCache(prefix, obj, hash, components);
                     setter?.Invoke(obj);
                 }
@@ -135,13 +135,13 @@ namespace Core.ContentSerializer
             Dictionary<int, Component> components, ISerializationContext context)
         {
             int count = int.Parse(hash[prefix]);
-            var array = Activator.CreateInstance(type, count) as object[];
-            var elementType = type.GetElementType();
+            object[] array = Activator.CreateInstance(type, count) as object[];
+            Type elementType = type.GetElementType();
             object obj = array;
 
             for (int i = 0; i < count; i++)
             {
-                var v = array[i];
+                object v = array[i];
                 await SetCache($"{prefix}[{i}]", elementType, o => v = o, obj, hash, components, context);
                 array[i] = v;
             }
@@ -154,8 +154,8 @@ namespace Core.ContentSerializer
             Dictionary<int, Component> components, ISerializationContext context)
         {
             int count = int.Parse(hash[prefix]);
-            var list = Activator.CreateInstance(type) as IList;
-            var elementType = type.GetGenericArguments().Single();
+            IList list = Activator.CreateInstance(type) as IList;
+            Type elementType = type.GetGenericArguments().Single();
             object obj = list;
 
             for (int i = 0; i < count; i++)
@@ -181,7 +181,7 @@ namespace Core.ContentSerializer
         public static void GetListCache(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)
         {
-            var list = source as IList;
+            IList list = source as IList;
             hash.Add(prefix, list.Count.ToString());
             for (int i = 0; i < list.Count; i++)
             {
@@ -221,7 +221,7 @@ namespace Core.ContentSerializer
                 return false;
             }
 
-            foreach (var (type, property) in forbiddenProperties)
+            foreach ((Type type, string property) in forbiddenProperties)
             {
                 if (type == sourceType && propertyInfo.Name == property)
                 {
@@ -252,7 +252,7 @@ namespace Core.ContentSerializer
 
         public static bool FindCustomSerializer(Type t, out ICustomSerializer value)
         {
-            if (CustomSerializer.TryGetValue(t, out var val))
+            if (CustomSerializer.TryGetValue(t, out ICustomSerializer val))
             {
                 value = val;
                 return true;

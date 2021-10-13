@@ -62,7 +62,7 @@ namespace Core.UIStructure
         }
         public T Instantiate<T>(T prefab, BlockSequenceSettings settings = null) where T : MonoBehaviour, IUiBlock
         {
-            var block = UiBlockBase.Show(prefab, this, settings);
+            T block = UiBlockBase.Show(prefab, this, settings);
             block.Structure = this;
             blocks.Add(block);
             return block;

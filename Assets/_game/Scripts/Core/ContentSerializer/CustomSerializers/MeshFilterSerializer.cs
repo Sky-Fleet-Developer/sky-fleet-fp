@@ -9,7 +9,7 @@ namespace Core.ContentSerializer.CustomSerializers
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
-            var mf = (MeshFilter) source;
+            MeshFilter mf = (MeshFilter) source;
 
             context.DetectedObjectReport(mf.sharedMesh);
 
@@ -21,9 +21,9 @@ namespace Core.ContentSerializer.CustomSerializers
         public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache,
             ISerializationContext context)
         {
-            var id = JsonConvert.DeserializeObject<int>(cache[prefix]);
-            var obj = await context.GetObject(id);
-            var mf = (MeshFilter) source;
+            int id = JsonConvert.DeserializeObject<int>(cache[prefix]);
+            Object obj = await context.GetObject(id);
+            MeshFilter mf = (MeshFilter) source;
             mf.sharedMesh = (Mesh) obj;
         }
     }

@@ -17,7 +17,7 @@ namespace Core.ContentSerializer.CustomSerializers
                 context.DetectedObjectReport(mr.sharedMaterials[i]);
             }
 
-            var serializedSource = new SerializedMeshRenderer(mr);
+            SerializedMeshRenderer serializedSource = new SerializedMeshRenderer(mr);
             return JsonConvert.SerializeObject(serializedSource);
         }
         
@@ -26,10 +26,10 @@ namespace Core.ContentSerializer.CustomSerializers
         public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             MeshRenderer mr = (MeshRenderer) source;
-            var hashValue = cache[prefix];
-            var serializedSource = JsonConvert.DeserializeObject<SerializedMeshRenderer>(hashValue);
+            string hashValue = cache[prefix];
+            SerializedMeshRenderer serializedSource = JsonConvert.DeserializeObject<SerializedMeshRenderer>(hashValue);
             var mats = new Material[serializedSource.materials.Length];
-            for (var i = 0; i < mats.Length; i++)
+            for (int i = 0; i < mats.Length; i++)
             {
                 mats[i] = (Material) await context.GetObject(serializedSource.materials[i]);
             }
@@ -52,7 +52,7 @@ namespace Core.ContentSerializer.CustomSerializers
             public SerializedMeshRenderer(MeshRenderer source)
             {
                 materials = new int[source.sharedMaterials.Length];
-                for (var i = 0; i < source.sharedMaterials.Length; i++)
+                for (int i = 0; i < source.sharedMaterials.Length; i++)
                 {
                     materials[i] = source.sharedMaterials[i].GetInstanceID();
                 }

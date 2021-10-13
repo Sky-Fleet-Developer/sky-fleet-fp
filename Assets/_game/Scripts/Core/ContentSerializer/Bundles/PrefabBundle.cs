@@ -44,7 +44,7 @@ namespace Core.ContentSerializer.Bundles
             Dictionary<int, Transform> transforms = new Dictionary<int, Transform>(Tree.Count);
             foreach (var obj in Tree)
             {
-                var go = new GameObject(obj.Value.name);
+                GameObject go = new GameObject(obj.Value.name);
                 if (obj.Value.parent == -1)
                 {
                     go.transform.SetParent(parent);
@@ -95,7 +95,7 @@ namespace Core.ContentSerializer.Bundles
         {
             name = source.name;
             layer = source.layer;
-            var p = source.transform.parent;
+            Transform p = source.transform.parent;
             if (p)
             {
                 parent = p.GetInstanceID();
@@ -103,13 +103,13 @@ namespace Core.ContentSerializer.Bundles
 
             Cache = new Dictionary<string, string>();
             components = new List<string>();
-            foreach (var component in source.GetComponents<Component>())
+            foreach (Component component in source.GetComponents<Component>())
             {
-                var type = component.GetType();
+                Type type = component.GetType();
                 if (type.InheritsFrom(typeof(IBlock)))
                 {
                     context.AddTag("Block");
-                    var block = component as IBlock;
+                    IBlock block = component as IBlock;
                     context.AddTag(block.Guid);
                     context.AddTag(block.MountingType);
                 }
@@ -123,14 +123,14 @@ namespace Core.ContentSerializer.Bundles
         public void ReconstructTypes(Transform transform, ref Dictionary<int, Component> reconstruction, ISerializationContext context)
         {
             reconstructedTypes = new List<int>();
-            foreach (var componentName in components)
+            foreach (string componentName in components)
             {
-                var split = componentName.Split(new[] {'|'});
-                var type = context.GetTypeByName(split[0]);
+                string[] split = componentName.Split(new[] {'|'});
+                Type type = context.GetTypeByName(split[0]);
                 if (!transform.gameObject.TryGetComponent(type, out Component component))
                     component = transform.gameObject.AddComponent(type);
 
-                var id = int.Parse(split[1]);
+                int id = int.Parse(split[1]);
                 reconstruction.Add(id, component);
                 reconstructedTypes.Add(id);
             }

@@ -29,7 +29,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Tests.Util
                 _buttonVCount = 0;
             }
 
-            var result = GUI.Button(
+            bool result = GUI.Button(
                 new Rect(
                     _settings.HorizontalMargin + _buttonHCount * (_settings.ButtonWidth + _settings.HorizontalSpacing),
                     _settings.VerticalMargin + _buttonVCount * (_settings.ButtonHeight + _settings.VerticalSpacing),

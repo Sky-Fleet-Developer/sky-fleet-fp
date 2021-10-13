@@ -10,7 +10,7 @@ namespace Core.ContentSerializer.CustomSerializers
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
-            var tr = (Transform) source;
+            Transform tr = (Transform) source;
             switch (idx)
             {
                 default:
@@ -26,7 +26,7 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
-            var tr = (Transform) source;
+            Transform tr = (Transform) source;
             tr.localPosition = JsonConvert.DeserializeObject<Vector3>(cache[prefix]);
             tr.localEulerAngles = JsonConvert.DeserializeObject<Vector3>(cache[prefix + "_1"]);
             tr.localScale = JsonConvert.DeserializeObject<Vector3>(cache[prefix + "_2"]);

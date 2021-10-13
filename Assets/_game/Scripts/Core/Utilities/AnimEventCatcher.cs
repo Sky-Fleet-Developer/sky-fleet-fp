@@ -17,7 +17,7 @@ namespace Core.Utilities
 
         public void AnimAction(string argument)
         {
-            foreach(var hit in actions.Where(x => x.name == argument)) hit.action?.Invoke();
+            foreach(AnimEvent hit in actions.Where(x => x.name == argument)) hit.action?.Invoke();
         }
     }
 }

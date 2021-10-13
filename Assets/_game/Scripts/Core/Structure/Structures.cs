@@ -74,7 +74,7 @@ namespace Core.Structure
         {
             Transform = transform;
             Blocks = new List<IBlock>();
-            foreach (var block in structure.Blocks)
+            foreach (IBlock block in structure.Blocks)
             {
                 if(block.transform.parent == transform) Blocks.Add(block);
             }

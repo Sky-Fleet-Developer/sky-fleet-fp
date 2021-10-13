@@ -11,7 +11,7 @@ namespace Core.ContentSerializer.CustomSerializers
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
-            var block = (IBlock) source;
+            IBlock block = (IBlock) source;
             return block.Save();
         }
 
@@ -19,7 +19,7 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
-            var block = (IBlock) source;
+            IBlock block = (IBlock) source;
             block.Load(cache[prefix]);
             return Task.CompletedTask;
         }

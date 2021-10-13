@@ -11,12 +11,12 @@ namespace Core.ContentSerializer.CustomSerializers
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
-            var mat = (Material) source;
+            Material mat = (Material) source;
             if (idx == 1)
             {
                 return mat.shader.name;
             }
-            var serializedSource = new SerializedMaterial(mat, context);
+            SerializedMaterial serializedSource = new SerializedMaterial(mat, context);
             return JsonConvert.SerializeObject(serializedSource, new ColorConverter(), new VectorConverter());
         }
 
@@ -25,8 +25,8 @@ namespace Core.ContentSerializer.CustomSerializers
         public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             Material mr = (Material) source;
-            var hashValue = cache[prefix];
-            var serializedSource = JsonConvert.DeserializeObject<SerializedMaterial>(hashValue);
+            string hashValue = cache[prefix];
+            SerializedMaterial serializedSource = JsonConvert.DeserializeObject<SerializedMaterial>(hashValue);
             
             await serializedSource.ApplyToMaterial(mr, context);
         }
@@ -81,7 +81,7 @@ namespace Core.ContentSerializer.CustomSerializers
             {
                 for (int i = 0; i < properties.Length; i++)
                 {
-                    var property = properties[i];
+                    ShaderProperty property = properties[i];
                     switch (property.type)
                     {
                         case ShaderPropertyType.Color:

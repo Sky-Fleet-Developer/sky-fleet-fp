@@ -70,7 +70,7 @@ namespace Core.Utilities
             else
             {
                 Debug.Log($"Create instance for {typeof(T).Name}");
-                var go = new GameObject($"[{typeof(T).Name}]");
+                GameObject go = new GameObject($"[{typeof(T).Name}]");
                 _instance = go.AddComponent<T>();
                 if(Application.isPlaying == false) _instance.Setup();
             }
@@ -82,8 +82,8 @@ namespace Core.Utilities
 
         protected static void AddToDontDestroy()
         {
-            var attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is DontDestroyOnLoad);
-            if (attribute != null)
+            object attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is DontDestroyOnLoad);
+            if (attribute != null && Application.isPlaying)
             {
                 DontDestroyOnLoad(_instance);
             }

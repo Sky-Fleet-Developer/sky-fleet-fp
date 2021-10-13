@@ -214,10 +214,10 @@ namespace Core.Structure
         }
         private void ConsumptionTickEnd()
         {
-            for (var i = 0; i < ports.Count; i++)
+            for (int i = 0; i < ports.Count; i++)
             {
                 float opposit = 0;
-                for (var i1 = 0; i1 < ports.Count; i1++)
+                for (int i1 = 0; i1 < ports.Count; i1++)
                 {
                     if (i != i1)
                     {
@@ -230,10 +230,10 @@ namespace Core.Structure
             float othersCountInv = 1f / (ports.Count - 1);
             float[] cache = new float[ports.Count];
 
-            for (var i = 0; i < ports.Count; i++)
+            for (int i = 0; i < ports.Count; i++)
             {
                 float deltaFromOthers = 0;
-                for (var i1 = 0; i1 < ports.Count; i1++)
+                for (int i1 = 0; i1 < ports.Count; i1++)
                 {
                     if (i != i1)
                     {
@@ -243,24 +243,24 @@ namespace Core.Structure
                 cache[i] = ports[i].delta - deltaFromOthers;
             }
 
-            for (var i = 0; i < ports.Count; i++)
+            for (int i = 0; i < ports.Count; i++)
             {
                 ports[i].delta = cache[i];
             }
             
-            for (var i1 = 0; i1 < cache.Length; i1++)
+            for (int i1 = 0; i1 < cache.Length; i1++)
             {
                 cache[i1] = 0;
             }
             
-            for (var i = 0; i < ports.Count; i++)
+            for (int i = 0; i < ports.Count; i++)
             {
                 float wantsToPush = ports[i].GetPushValue();
                 bool pushPositive = wantsToPush > 0;
                 float pushSpace = 0;
                 if (wantsToPush != 0)
                 {
-                    for (var i1 = 0; i1 < ports.Count; i1++)
+                    for (int i1 = 0; i1 < ports.Count; i1++)
                     {
                         if (i != i1)
                         {
@@ -271,21 +271,21 @@ namespace Core.Structure
 
                     if(pushSpace == 0) continue;
                     float mul = wantsToPush / pushSpace;
-                    for (var i1 = 0; i1 < cache.Length; i1++)
+                    for (int i1 = 0; i1 < cache.Length; i1++)
                     {
                         ports[i1].delta -= cache[i1] * mul;
                     }
 
                     ports[i].delta += wantsToPush;
                     
-                    for (var i1 = 0; i1 < cache.Length; i1++)
+                    for (int i1 = 0; i1 < cache.Length; i1++)
                     {
                         cache[i1] = 0;
                     }
                 }
             }
 
-            for (var i = 0; i < ports.Count; i++)
+            for (int i = 0; i < ports.Count; i++)
             {
                 ports[i].charge += ports[i].delta;
             }

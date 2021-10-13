@@ -57,7 +57,7 @@ namespace Core.UiStructure
         protected virtual void OnBlockFocusChanged(IUiBlock block)
         {
             if (block == null) return;
-            if (gameObject.activeSelf && setAsFocusedOnShow && block != this)
+            if (gameObject.activeSelf && setAsFocusedOnShow && (UiBlockBase) block != this)
             {
                 StartCoroutine(Hide());
             }
@@ -77,7 +77,7 @@ namespace Core.UiStructure
             if (settings == null) yield return hideTransition.Setup(Vector3.zero, rectTransform.DOScale).WaitForCompletion();
             else yield return settings.ApplySequenceSettings(this);
             gameObject.SetActive(false);
-            if (FocusBlock == this) FocusOn(null);
+            if ((UiBlockBase) FocusBlock == this) FocusOn(null);
         }
 
         public static T Show<T>(T prefab, IUiStructure structure, BlockSequenceSettings settings = null) where T : MonoBehaviour, IUiBlock

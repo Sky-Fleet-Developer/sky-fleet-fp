@@ -10,7 +10,7 @@ namespace Core.ContentSerializer.CustomSerializers
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
-            var port = (Port) source;
+            Port port = (Port) source;
             return port.Guid;
         }
 
@@ -18,7 +18,7 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
-            var port = (Port) source;
+            Port port = (Port) source;
             port.SetGUID(cache[prefix]);
             return Task.CompletedTask;
         }

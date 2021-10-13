@@ -23,9 +23,9 @@ namespace Core.ContentSerializer.CustomSerializers
 #if UNITY_EDITOR
                 default:
 
-                    var filePath = UnityEditor.AssetDatabase.GetAssetPath(tex);
+                    string filePath = UnityEditor.AssetDatabase.GetAssetPath(tex);
 
-                    var name = $"Tex_{tex.name}_{tex.GetInstanceID()}";
+                    string name = $"Tex_{tex.name}_{tex.GetInstanceID()}";
                     try
                     {
                         string path = $"{Application.dataPath}/{PathStorage.BASE_PATH_TEXTURES}";

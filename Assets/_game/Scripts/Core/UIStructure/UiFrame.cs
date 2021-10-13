@@ -139,7 +139,7 @@ namespace Core.UIStructure
                 {
                     Structure.StartCoroutine(block.Hide(new EmptySettingsHide()));
                 }
-                foreach (var uiBlock in blocks)
+                foreach (IUiBlock uiBlock in blocks)
                 {
                     uiBlock.RectTransform.SetParent(transform.parent);   
                 }
