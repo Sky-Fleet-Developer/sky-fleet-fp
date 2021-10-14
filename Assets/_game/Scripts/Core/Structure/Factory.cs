@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
@@ -19,7 +20,7 @@ namespace Core.Structure
 
         public static PropertyInfo[] GetBlockProperties(IBlock block)
         {
-            var blockType = block.GetType();
+            Type blockType = block.GetType();
             if (blocksProperties == null) blocksProperties = new Dictionary<Type, PropertyInfo[]>();
             if (blocksProperties.ContainsKey(blockType)) return blocksProperties[blockType];
 
@@ -32,11 +33,11 @@ namespace Core.Structure
         {
             List<PropertyInfo> properties = new List<PropertyInfo>();
 
-            var attribute = typeof(PlayerPropertyAttribute);
+            Type attribute = typeof(PlayerPropertyAttribute);
 
             string log = $"Properties for type {type.Name}:\n";
             
-            foreach (var property in type.GetProperties())
+            foreach (PropertyInfo property in type.GetProperties())
             {
                 if (property.GetCustomAttributes().FirstOrDefault(x => x.GetType() == attribute) != null)
                 {
@@ -52,7 +53,7 @@ namespace Core.Structure
         
         private static void ApplyProperty(IBlock instance, PropertyInfo propery, string value)
         {
-            var type = propery.PropertyType;
+            Type type = propery.PropertyType;
             if (type == typeof(string))
             {
                 propery.SetValue(instance, value);
@@ -112,21 +113,21 @@ namespace Core.Structure
                 return;
             }
 
-            structure.RefreshParents();
+            structure.RefreshBlocksAndParents();
 
             List<Task> awaiters = new List<Task>();
 
             for (int i = 0; i < structure.Blocks.Count; i++)
             {
-                var block = structure.Blocks[i];
-                var path = GetPath(block);
-                var blockConfig = configuration.GetBlock(path);
+                IBlock block = structure.Blocks[i];
+                string path = GetPath(block);
+                BlockConfiguration blockConfig = configuration.GetBlock(path);
 
                 if (blockConfig == null) continue;
 
                 if (block.Guid != blockConfig.current)
                 {
-                    var task = ReplaceBlock(structure, i, blockConfig.current);
+                    Task task = ReplaceBlock(structure, i, blockConfig.current);
                     awaiters.Add(task);
                 }
             }
@@ -134,12 +135,12 @@ namespace Core.Structure
             await Task.WhenAll(awaiters);
             await new WaitForEndOfFrame();
             
-            structure.RefreshParents();
+            structure.RefreshBlocksAndParents();
 
-            foreach (var block in structure.Blocks)
+            foreach (IBlock block in structure.Blocks)
             {
-                var path = GetPath(block);
-                var blockConfig = configuration.GetBlock(path);
+                string path = GetPath(block);
+                BlockConfiguration blockConfig = configuration.GetBlock(path);
 
                 if (blockConfig == null) continue;
 
@@ -155,10 +156,10 @@ namespace Core.Structure
 
         public static async Task ReplaceBlock(IStructure structure, int blockIdx, string guid)
         {
-            var block = structure.Blocks[blockIdx];
+            IBlock block = structure.Blocks[blockIdx];
 
-            var wantedBlock = TableRigging.Instance.GetItem(guid);
-            var blockSource = await wantedBlock.GetBlock();
+            RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(guid);
+            GameObject blockSource = await wantedBlock.LoadPrefab();
             Transform instance;
 
             if (Application.isPlaying)
@@ -204,7 +205,7 @@ namespace Core.Structure
         public static string GetPath(IBlock block)
         {
             string result = block.transform.name;
-            var tr = block.transform.parent;
+            Transform tr = block.transform.parent;
             while (tr.GetComponent<IStructure>() == null)
             {
                 tr = tr.parent;
@@ -216,8 +217,8 @@ namespace Core.Structure
 
         public static (Transform parent, string name) GetParent(IStructure structure, string path)
         {
-            var pathStrings = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
-            var tr = structure.transform;
+            string[] pathStrings = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+            Transform tr = structure.transform;
             for (int i = 0; i < pathStrings.Length - 1; i++)
             {
                 tr = tr.Find(pathStrings[i]);
@@ -235,7 +236,7 @@ namespace Core.Structure
                 oldConfig = JsonConvert.DeserializeObject<StructureConfiguration>(structure.Configuration);
             }*/
             
-            var configuration = new StructureConfiguration
+            StructureConfiguration configuration = new StructureConfiguration
             {
                 blocks = new List<BlockConfiguration>(structure.Blocks.Count),
                 wires = new List<string>()
@@ -243,7 +244,7 @@ namespace Core.Structure
 
             for(int i = 0; i < structure.Blocks.Count; i++)
             {
-                var block = structure.Blocks[i];
+                IBlock block = structure.Blocks[i];
                 
                 configuration.blocks.Add(GetConfiguration(block));
             }
@@ -258,12 +259,12 @@ namespace Core.Structure
         {
             List<FieldInfo> fields = new List<FieldInfo>();
 
-            var blockType = block.GetType();
-            var type = typeof(Port);
+            Type blockType = block.GetType();
+            Type type = typeof(Port);
 
             string log = $"Ports for type {blockType.Name}:\n";
             
-            foreach (var property in blockType.GetFields())
+            foreach (FieldInfo property in blockType.GetFields())
             {
                 if (property.FieldType == type || property.FieldType.InheritsFrom(type))
                 {
@@ -277,10 +278,10 @@ namespace Core.Structure
             return fields.ToArray();
         }
         
-        public static List<Port> GetAllPorts(IStructure structure)
+        public static List<PortPointer> GetAllPorts(IStructure structure)
         {
-            List<Port> result = new List<Port>();
-            foreach (var structureBlock in structure.Blocks)
+            List<PortPointer> result = new List<PortPointer>();
+            foreach (IBlock structureBlock in structure.Blocks)
             {
                 GetAllPorts(structureBlock, ref result);
             }
@@ -288,22 +289,22 @@ namespace Core.Structure
             return result;
         }
         
-        public static void GetAllPorts(IBlock block, ref List<Port> result)
+        public static void GetAllPorts(IBlock block, ref List<PortPointer> result)
         {
             GetPorts(block, ref result);
             GetSpecialPorts(block, ref result);
         }
         
-        public static void GetPorts(IBlock block, ref List<Port> result)
+        public static void GetPorts(IBlock block, ref List<PortPointer> result)
         {
             var properties = GetPortsInfo(block);
-            foreach (var property in properties)
+            foreach (FieldInfo property in properties)
             {
-                result.Add(property.GetValue(block) as Port);
+                result.Add(new PortPointer(block, property.GetValue(block) as Port));
             }
         }
         
-        public static void GetSpecialPorts(IBlock block, ref List<Port> result)
+        public static void GetSpecialPorts(IBlock block, ref List<PortPointer> result)
         {
             if(block is ISpecialPorts specialPortsBlock)
             {
@@ -326,33 +327,6 @@ namespace Core.Structure
             }
 
             return result.ToString();
-        }
-    }
-    
-    [AttributeUsage(AttributeTargets.Property)]
-    public class PlayerPropertyAttribute : Attribute { }
-
-    [Serializable]
-    public class BlockConfiguration
-    {
-        public string path;
-        public string current;
-        public Dictionary<string, string> setup;
-    }
-
-    [Serializable]
-    public class StructureConfiguration
-    {
-        public List<BlockConfiguration> blocks = new List<BlockConfiguration>();
-        public List<string> wires = new List<string>();
-        
-        private Dictionary<string, BlockConfiguration> blocksHash;
-        
-        public BlockConfiguration GetBlock(string path)
-        {
-            blocksHash ??= blocks.ToDictionary(block => block.path);
-
-            return blocksHash[path];
         }
     }
 }

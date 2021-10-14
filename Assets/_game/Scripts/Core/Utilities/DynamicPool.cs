@@ -19,14 +19,14 @@ namespace Core.Utilities
 
         public (GameObject, Component) Find(GameObject prefab, bool remuve = false)
         {
-            var inst = Instance;
+            DynamicPool inst = Instance;
             for (int i = 0; i < pool.Count; i++)
             {
                 if (pool[i].Item1 == prefab)
                 {
                     if (remuve)
                     {
-                        var value = pool[i];
+                        (GameObject, Component) value = pool[i];
                         pool.RemoveRange(i, 1);
                         return value;
                     }
@@ -38,7 +38,7 @@ namespace Core.Utilities
 
         public T Get<T>(T source, Transform parent) where T : Component
         {
-            var t = Get<T>(source.gameObject);
+            T t = Get<T>(source.gameObject);
             t.transform.SetParent(parent);
             t.transform.localPosition = Vector3.zero;
             t.transform.localRotation =Quaternion.identity;
@@ -53,10 +53,10 @@ namespace Core.Utilities
 
         public T Get<T>(GameObject prefab) where T : Component
         {
-            var target = Find(prefab, true);
+            (GameObject, Component) target = Find(prefab, true);
             if (target.Item1 == null)
             {
-                var instance = Instantiate(prefab);
+                GameObject instance = Instantiate(prefab);
                 instance.name = prefab.name + $"({all.Count(x => x.Item1 == prefab)})";
                 target = (prefab, instance.GetComponent<T>());
                 all.Add(target);

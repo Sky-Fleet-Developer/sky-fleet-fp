@@ -1,4 +1,5 @@
 using Core.Structure.Rigging.Control.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.Structure.Rigging.Control
@@ -21,8 +22,8 @@ namespace Core.Structure.Rigging.Control
         //[SerializeField] private int frames;
         //[SerializeField] private int min;
         //[SerializeField] private int max;
-        
-        public float Value => value;
+
+        public float GetValue() => value;
 
         public Port<float> port;
         public DeviceBase device;

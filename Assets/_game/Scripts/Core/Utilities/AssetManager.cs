@@ -135,7 +135,7 @@ namespace Core.Utilities
                     toRemove.Add(hit.Key);
                 }
             }
-            foreach (var hit in toRemove)
+            foreach (AssetReference hit in toRemove)
             {
                 loaded.Remove(hit);
             }
@@ -152,7 +152,7 @@ namespace Core.Utilities
                     toRemove.Add(hit.Key);
                 }
             }
-            foreach (var hit in toRemove)
+            foreach (AssetReference hit in toRemove)
             {
                 loaded.Remove(hit);
             }
@@ -169,7 +169,7 @@ namespace Core.Utilities
                     toRemove.Add(hit.Key);
                 }
             }
-            foreach (var hit in toRemove)
+            foreach (AssetReference hit in toRemove)
             {
                 loaded.Remove(hit);
             }
@@ -206,7 +206,7 @@ namespace Core.Utilities
 
             handle?.Invoke((T)_loading.Result);
         }
-
+        
         public async Task<T> LoadAssetTask<T>(AssetReference asset, object tag)
         {
             if (loaded.ContainsKey(asset)) //return result if the asset is already loaded

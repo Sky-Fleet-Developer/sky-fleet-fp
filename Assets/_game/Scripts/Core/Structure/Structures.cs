@@ -5,9 +5,15 @@ using UnityEngine;
 
 namespace Core.Structure
 {
-    public interface IStructure
+    public interface ITablePrefab
     {
         Transform transform { get; }
+        string Guid { get; }
+        List<string> Tags { get; }
+    }
+    
+    public interface IStructure : ITablePrefab
+    {
         bool enabled { get; }
         bool Active { get; }
         // ReSharper disable once InconsistentNaming
@@ -20,13 +26,31 @@ namespace Core.Structure
         List<IBlock> Blocks { get; }
         List<Wire> Wires { get; }
         List<T> GetBlocksByType<T>();
+        Port GetPort(string id);
+
         
         string Configuration { get; set; }
         //TODO: Navigation
 
+        /// <summary>
+        /// make structure ready to work in runtime
+        /// </summary>
+        void Init();
+        /// <summary>
+        /// init current blocks from current structure
+        /// </summary>
         void InitBlocks();
+        /// <summary>
+        /// call this after all blocks was initialized to setup blocks interaction
+        /// </summary>
         void OnInitComplete();
-        void RefreshParents();
+        /// <summary>
+        /// check new blocks and parents in hierarchy and remove deleted items
+        /// </summary>
+        void RefreshBlocksAndParents();
+        /// <summary>
+        /// initialize all wires from current configuration
+        /// </summary>
         void InitWires();
     }
 
@@ -50,7 +74,7 @@ namespace Core.Structure
         {
             Transform = transform;
             Blocks = new List<IBlock>();
-            foreach (var block in structure.Blocks)
+            foreach (IBlock block in structure.Blocks)
             {
                 if(block.transform.parent == transform) Blocks.Add(block);
             }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
+using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
@@ -35,26 +36,26 @@ namespace Runtime.Structure.Rigging.Control
 
         public override void OnInitComplete()
         {
-            foreach (var controlAxe in axes)
+            foreach (ControlAxe controlAxe in axes)
             {
                 if (controlAxe.device != null)
                 {
-                    controlAxe.device.Init(Structure, this, controlAxe.port.Guid);
+                    controlAxe.device.Init(Structure, this,  name + controlAxe.port.Guid);
                 }
             }
         }
 
         public void ReadInput()
         {
-            foreach (var axe in axes)
+            foreach (ControlAxe axe in axes)
             {
                 axe.Tick();
             }
         }
 
-        public IEnumerable<Port> GetPorts()
+        public IEnumerable<PortPointer> GetPorts()
         {
-            return axes.Select(x => x.port);
+            return axes.Select(x => new PortPointer(this, x.port));
         }
 
         public (bool canInteractive, string data) RequestInteractive(ICharacterController character)
@@ -101,7 +102,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public void UpdateBlock()
         {
-            foreach (var controlAxe in axes)
+            foreach (ControlAxe controlAxe in axes)
             {
                 if (controlAxe.device != null)
                 {

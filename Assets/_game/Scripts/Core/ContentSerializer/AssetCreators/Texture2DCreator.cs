@@ -1,28 +1,35 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ContentSerializer;
 using Core.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
 
-namespace ContentSerializer
+namespace Core.ContentSerializer.AssetCreators
 {
     public class Texture2DCreator : IAssetCreator
     {
         [ItemCanBeNull]
-        public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> hash, ISerializationContext context)
+        public async Task<Object> CreateInstance(string prefix, Dictionary<string, string> cache,
+            ISerializationContext context)
         {
-            /*var format = (GraphicsFormat) int.Parse(hash[prefix + "_1"]);
-            var width = int.Parse(hash[prefix + "_2"]);
-            var height = int.Parse(hash[prefix + "_3"]);
-            var mipCount = int.Parse(hash[prefix + "_4"]);
-            var tex = new Texture2D(width, height, format, mipCount > 0 ? TextureCreationFlags.MipChain : TextureCreationFlags.None);*/
-            string name = hash[prefix + "_1"];
-            Debug.Log("Search texture in path: " + Application.dataPath + "/Mod/" + name + ".png");
-            using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(Application.dataPath + "/Mod/" + name + ".png"))
+            string name = cache[prefix + "_1"];
+            if (context.IsCurrentlyBuilded)
+            {
+                Debug.Log($"Search texture in path: {Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");
+                return await CreateInstance($"{Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");
+            }
+            else
+            {
+                Debug.Log($"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+                return await CreateInstance($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+            }
+        }
+
+
+        public static async Task<Texture2D> CreateInstance(string path)
+        {
+            using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
             {
                 await request.SendWebRequest();
                 if (request.error != null)
@@ -31,18 +38,20 @@ namespace ContentSerializer
                 }
                 else
                 {
-                    GraphicsFormat format = (GraphicsFormat)System.Enum.Parse(typeof(GraphicsFormat), hash[prefix + "_2"]);
-                    var tex = DownloadHandlerTexture.GetContent(request);
-                    if (format == GraphicsFormat.RGBA_DXT1_SRGB)
+                    Texture2D tex = DownloadHandlerTexture.GetContent(request);
+                    if(path.Contains("Normal"))
+                    {
+                        Texture2D tex2 = new Texture2D(tex.width, tex.height, tex.format, true, true);
+                        tex2.SetPixels(tex.GetPixels());
+                        tex2.Apply();
+                        return tex2;
+                    }
+                    else
                     {
                         tex.Apply();
                         return tex;
                     }
                     
-                    var tex2 = new Texture2D(tex.width, tex.height, tex.format, true, format != GraphicsFormat.RGBA_DXT1_SRGB);
-                    tex2.SetPixels(tex.GetPixels());
-                    tex2.Apply();
-                    return tex2;
                 }
             }
             return null;

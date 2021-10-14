@@ -6,21 +6,39 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging
 {
-    public interface IBlock
+    public interface IBlock : ITablePrefab
     {
-        Transform transform { get; }
         // ReSharper disable once InconsistentNaming
         Vector3 localPosition { get; }
         Parent Parent { get; }
         IStructure Structure { get; }
-        string Guid { get; }
         string MountingType { get; }
 
         void InitBlock(IStructure structure, Parent parent);
         void OnInitComplete();
+
+        string Save();
+        void Load(string value);
+    }
+    
+    public interface IPowerUser : IBlock
+    {
+        void ConsumptionTick();
+        void PowerTick();
+
+    }
+    
+    public interface IFuelUser : IBlock
+    {
+        void FuelTick();
+    }
+    
+    public interface IForceUser : IBlock
+    {
+        void ApplyForce();
     }
 
-    public interface IDamagemleBlock : IBlock
+    public interface IDamagebleBlock : IBlock
     {
         float Durability { get; }
         ArmorData Armor { get; }
@@ -39,7 +57,7 @@ namespace Core.Structure.Rigging
 
     public interface ISpecialPorts
     {
-        IEnumerable<Port> GetPorts();
+        IEnumerable<PortPointer> GetPorts();
     }
     
     public interface IControl : IInteractiveBlock, IUpdatableBlock, ISpecialPorts
@@ -51,6 +69,39 @@ namespace Core.Structure.Rigging
         void LeaveControl(ICharacterController controller);
     }
 
+    public interface IHydrogenStorage : IFuelUser
+    {
+        float MaximalVolume { get; }
+        float CurrentVolume { get; }
+    }
+    
+    public interface IFuelPowerGenerator : IBlock, IFuelUser, IPowerUser
+    {
+        float MaximalOutput { get; }
+        float FuelConsumption { get; }
+    }
+
+    public interface IJet : IFuelUser, IForceUser
+    {
+        float MaximalThurst { get; }
+    }
+
+    public interface ISupport : IPowerUser, IForceUser
+    {
+        
+    }
+
+    public interface ILiquidTank : IFuelUser
+    {
+        LiquidType CurrentType { get; }
+    }
+
+    public enum LiquidType
+    {
+        Water = 0
+    }
+
+    
     [System.Serializable]
     public struct CharacterAttachData
     {
@@ -64,32 +115,10 @@ namespace Core.Structure.Rigging
         public Transform anchor;
         public DOTweenTransition transition;
     }
-
-    public interface IPowerUser : IBlock
-    {
-        void PowerTick();
-    }
     
-    public interface IFuelUser : IBlock
-    {
-        void FuelTick();
-    }
 
-    public interface IHydrogenStorage : IFuelUser
-    {
-        float MaximalVolume { get; }
-        float CurrentVolume { get; }
-    }
 
-    public interface IForceUser : IBlock
-    {
-        void ApplyForce();
-    }
 
-    public interface IJetBlock : IFuelUser, IForceUser
-    {
-        float MaximalThurst { get; }
-    }
 
     [System.Serializable]
     public struct ArmorData

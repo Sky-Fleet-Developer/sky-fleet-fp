@@ -27,7 +27,7 @@ namespace Core.Utilities
 
         protected static T Instantiate()
         {
-            var attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is AssetPath) as AssetPath;
+            AssetPath attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is AssetPath) as AssetPath;
             string searchPath = "";
             if (attribute != null)
                 searchPath += attribute.Path;

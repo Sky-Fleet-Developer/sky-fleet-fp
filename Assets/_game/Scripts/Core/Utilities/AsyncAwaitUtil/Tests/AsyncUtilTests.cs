@@ -149,7 +149,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Tests
         async Task RunWwwAsync()
         {
             Debug.Log("Downloading asset bundle using WWW");
-            var bytes = (await new UnityWebRequest(AssetBundleSampleUrl)).downloadedBytes;
+            ulong bytes = (await new UnityWebRequest(AssetBundleSampleUrl)).downloadedBytes;
             Debug.Log("Downloaded " + (bytes / 1024) + " kb");
         }
 
@@ -199,10 +199,10 @@ namespace Core.Utilities.AsyncAwaitUtil.Tests
         {
             // We could use WWW here too which might be easier
             Debug.Log("Downloading asset bundle data...");
-            var assetBundle = await AssetBundle.LoadFromMemoryAsync(
+            AssetBundle assetBundle = await AssetBundle.LoadFromMemoryAsync(
                 await DownloadRawDataAsync(abUrl));
 
-            var prefab = (GameObject)(await assetBundle.LoadAssetAsync<GameObject>(assetName));
+            GameObject prefab = (GameObject)(await assetBundle.LoadAssetAsync<GameObject>(assetName));
 
             GameObject.Instantiate(prefab);
             assetBundle.Unload(false);
@@ -211,7 +211,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Tests
 
         async Task<byte[]> DownloadRawDataAsync(string url)
         {
-            var request = UnityWebRequest.Get(url);
+            UnityWebRequest request = UnityWebRequest.Get(url);
             await request.SendWebRequest();
             return request.downloadHandler.data;
         }
@@ -267,7 +267,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Tests
 
         IEnumerator<string> WaitForString()
         {
-            var startTime = Time.realtimeSinceStartup;
+            float startTime = Time.realtimeSinceStartup;
             while (Time.realtimeSinceStartup - startTime < 2)
             {
                 yield return null;
@@ -289,7 +289,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Tests
         async Task RunReturnValueTestAsync()
         {
             Debug.Log("Waiting to get value...");
-            var result = await GetValueExampleAsync();
+            string result = await GetValueExampleAsync();
             Debug.Log("Got value: " + result);
         }
 

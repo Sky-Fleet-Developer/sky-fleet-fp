@@ -14,7 +14,7 @@ namespace Core.Utilities
 
 		public Tweener Setup<T>(T value, System.Func<T, float, bool, Tweener> method, bool snapping = false)
 		{
-			var tweener = method?.Invoke(value, duration, snapping).SetDelay(delay);
+			Tweener tweener = method?.Invoke(value, duration, snapping).SetDelay(delay);
 			if (ease == Ease.Unset)
 			{
 				tweener.SetEase(easeCurve);
@@ -28,7 +28,7 @@ namespace Core.Utilities
 
 		public Tweener Setup<T>(T value, System.Func<T, float, Tweener> method)
 		{
-			var tweener = method?.Invoke(value, duration).SetDelay(delay);
+			Tweener tweener = method?.Invoke(value, duration).SetDelay(delay);
 			if (ease == Ease.Unset)
 			{
 				tweener.SetEase(easeCurve);

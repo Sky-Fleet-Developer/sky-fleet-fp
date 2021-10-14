@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
@@ -10,6 +12,19 @@ namespace Core.Structure
 {
     public abstract class BaseStructure : MonoBehaviour, IStructure
     {
+        [ShowInInspector]
+        public string Guid
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(guid)) guid = System.Guid.NewGuid().ToString();
+                return guid;
+            }
+            set => guid = value;
+        }
+
+        public List<string> Tags => tags;
+        [SerializeField] private List<string> tags;
         public Vector3 position => transform.position;
         public Quaternion rotation => transform.rotation;
         List<IBlock> IStructure.Blocks => blocks;
@@ -36,6 +51,8 @@ namespace Core.Structure
             get => configuration;
             set => configuration = value;
         }
+        
+        [SerializeField, HideInInspector] private string guid;
 
         [ShowInInspector] protected List<IBlock> blocks;
 
@@ -44,8 +61,25 @@ namespace Core.Structure
         [SerializeField] protected string configuration;
         protected StructureConfiguration currentConfiguration;
         [ShowInInspector] protected List<Wire> wires;
+        
+        private bool initialized = false;
+        
+        private Dictionary<string, Port> portsCache;
+        private List<PortPointer> portsPointersCache;
+        private Dictionary<System.Type, object> blocksCache;
+        
 
         protected virtual void Awake()
+        {
+            initialized = false;
+        }
+        
+        protected virtual void Start()
+        {
+            if (!initialized) Init();
+        }
+
+        public void Init()
         {
             if (!string.IsNullOrEmpty(configuration))
             {
@@ -57,30 +91,28 @@ namespace Core.Structure
                 InitParents();
                 InitBlocks();
                 OnInitComplete();
-                StructureManager.RegisterStructure(this);
+                StructureUpdateModule.RegisterStructure(this);
             }
-        }
-        
-        private void Start()
-        {
+
+            initialized = true;
         }
 
         private async Task ApplyConfigurationAndRegister()
         {
             currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
             await Factory.ApplyConfiguration(this, currentConfiguration);
-            StructureManager.RegisterStructure(this);
+            StructureUpdateModule.RegisterStructure(this);
         }
 
         protected void OnDestroy()
         {
-            StructureManager.DestroyStructure(this);
+            StructureUpdateModule.DestroyStructure(this);
         }
 
         [Button]
         public void InitBlocks()
         {
-            foreach (var block in blocks)
+            foreach (IBlock block in blocks)
             {
                 block.InitBlock(this, GetParentFor(block));
             }
@@ -88,23 +120,30 @@ namespace Core.Structure
 
         public void OnInitComplete()
         {
-            foreach (var block in blocks)
+            foreach (IBlock block in blocks)
             {
                 block.OnInitComplete();
             }
         }
         
+        private void ClearBlocksCache()
+        {
+            portsPointersCache = null;
+            portsCache = null;
+            blocksCache = null;
+        }
+        
         [Button]
-        public void RefreshParents()
+        public void RefreshBlocksAndParents()
         {
             RefreshBlocks();
             InitParents();
         }
-
+        
         [Button]
         public void RefreshBlocks()
         {
-            blocksHash = null;
+            ClearBlocksCache();
             blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
@@ -114,7 +153,7 @@ namespace Core.Structure
             if (parentsObjects != null)
             {
                 parents = new List<Parent>(parentsObjects.Length + 1);
-                foreach (var parentsObject in parentsObjects)
+                foreach (Transform parentsObject in parentsObjects)
                 {
                     parents.Add(new Parent(parentsObject, this));
                 }
@@ -123,13 +162,12 @@ namespace Core.Structure
             }
         }
 
-        private Dictionary<System.Type, object> blocksHash;
 
         public List<T> GetBlocksByType<T>()
         {
-            if (blocksHash == null) blocksHash = new Dictionary<System.Type, object>();
-            var type = typeof(T);
-            if (blocksHash.TryGetValue(type, out object val)) return val as List<T>;
+            if (blocksCache == null) blocksCache = new Dictionary<System.Type, object>();
+            Type type = typeof(T);
+            if (blocksCache.TryGetValue(type, out object val)) return val as List<T>;
 
             List<T> selection = new List<T>();
             for (int i = 0; i < blocks.Count; i++)
@@ -140,7 +178,7 @@ namespace Core.Structure
                 }
             }
 
-            blocksHash.Add(type, selection);
+            blocksCache.Add(type, selection);
             return selection;
         }
 
@@ -157,16 +195,17 @@ namespace Core.Structure
             return null;
         }
 
-        private Dictionary<string, Port> portsHash;
 
-        public Port GetPort(string guid)
+        
+        public Port GetPort(string id)
         {
-            if (portsHash == null) portsHash = new Dictionary<string, Port>();
-            if (portsHash.TryGetValue(guid, out Port port)) return port;
+            if (portsCache == null) portsCache = new Dictionary<string, Port>();
+            if (portsCache.TryGetValue(id, out Port port)) return port;
 
-            var ports = Factory.GetAllPorts(this);
-            port = ports.FirstOrDefault(x => x.Guid == guid);
-            portsHash.Add(guid, port);
+            if(portsPointersCache == null) portsPointersCache = Factory.GetAllPorts(this);
+            
+            port = portsPointersCache.FirstOrDefault(x => x.Equals(id)).Port;
+            portsCache.Add(id, port);
             return port;
         }
 
@@ -174,13 +213,13 @@ namespace Core.Structure
         public void InitWires()
         {
             if (wires == null) wires = new List<Wire>();
-            foreach (var wireString in currentConfiguration.wires)
+            foreach (string wireString in currentConfiguration.wires)
             {
-                var guids = wireString.Split(new[] {'.'}, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] guids = wireString.Split(new[] {'.'}, System.StringSplitOptions.RemoveEmptyEntries);
 
-                var port = GetPort(guids[0]);
+                Port port = GetPort(guids[0]);
 
-                var newWire = port.CreateWire();
+                Wire newWire = port.CreateWire();
                 wires.Add(newWire);
 
                 port.SetWire(newWire);

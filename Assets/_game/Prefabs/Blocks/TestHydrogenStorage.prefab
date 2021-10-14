@@ -44,12 +44,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
+  tags: []
   mountingType: 
-  maximalVolume: 100
-  currentVolume: 100
+  maximalVolume: 1000
+  currentVolume: 1000
   maximumOutput: 1
   output:
     guid: a9893d7e-45f6-47a4-99ab-2c6f9568e143
-    hash: 0
+    ValueType: 2
+    cache: 0
     wire:
       value: 0

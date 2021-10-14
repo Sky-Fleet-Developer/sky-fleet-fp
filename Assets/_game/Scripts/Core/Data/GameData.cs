@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -7,22 +8,33 @@ namespace Runtime
     [CreateAssetMenu(menuName = "Management/GameData")]
     public class GameData : SingletonAsset<GameData>
     {
-        [InlineProperty(LabelWidth = 160), SerializeField] private StaticGameData serializedData;
-        public static StaticGameData Data;
+        [InlineProperty(LabelWidth = 160), SerializeField] private SharedGameData serializedSharedData;
+        [InlineProperty(LabelWidth = 160), SerializeField] private PrivateGameData serializedPrivateData;
+        public static SharedGameData Data;
+        internal static PrivateGameData PrivateData; 
         public void OnEnable()
         {
-            Data = serializedData;
+            Data = serializedSharedData;
+            PrivateData = serializedPrivateData;
         }
     }
     
     [System.Serializable]
-    public class StaticGameData
+    public class SharedGameData
     {
+        [Header("Management")] 
+        public string serializationVersion = "0.0.1";
         [Header("Character")]
         public LayerMask interactiveLayer;
         public float interactionDistance = 1f;
         public string controlFailText = "Control is alredy used";
         [Header("Physics")]
         public LayerMask groundLayer;
+    }
+
+    [System.Serializable]
+    public class PrivateGameData
+    {
+        [Header("Bundles")] public List<string> remotePrefabsTags;
     }
 }

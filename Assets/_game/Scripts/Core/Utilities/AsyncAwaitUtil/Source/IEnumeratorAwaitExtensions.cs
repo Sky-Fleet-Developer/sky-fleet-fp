@@ -105,7 +105,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         static SimpleCoroutineAwaiter GetAwaiterReturnVoid(object instruction)
         {
-            var awaiter = new SimpleCoroutineAwaiter();
+            SimpleCoroutineAwaiter awaiter = new SimpleCoroutineAwaiter();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 InstructionWrappers.ReturnVoid(awaiter, instruction)));
             return awaiter;
@@ -250,7 +250,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
             {
                 while (true)
                 {
-                    var topWorker = _processStack.Peek();
+                    IEnumerator topWorker = _processStack.Peek();
 
                     bool isDone;
 
@@ -309,9 +309,9 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
             string GenerateObjectTraceMessage(List<Type> objTrace)
             {
-                var result = new StringBuilder();
+                StringBuilder result = new StringBuilder();
 
-                foreach (var objType in objTrace)
+                foreach (Type objType in objTrace)
                 {
                     if (result.Length != 0)
                     {
@@ -329,25 +329,25 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
             {
                 var objTrace = new List<Type>();
 
-                foreach (var enumerator in enumerators)
+                foreach (IEnumerator enumerator in enumerators)
                 {
                     // NOTE: This only works with scripting engine 4.6
                     // And could easily stop working with unity updates
-                    var field = enumerator.GetType().GetField("$this", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                    FieldInfo field = enumerator.GetType().GetField("$this", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
                     if (field == null)
                     {
                         continue;
                     }
 
-                    var obj = field.GetValue(enumerator);
+                    object obj = field.GetValue(enumerator);
 
                     if (obj == null)
                     {
                         continue;
                     }
 
-                    var objType = obj.GetType();
+                    Type objType = obj.GetType();
 
                     if (!objTrace.Any() || objType != objTrace.Last())
                     {
