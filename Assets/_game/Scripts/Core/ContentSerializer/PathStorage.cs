@@ -1,3 +1,6 @@
+using System.IO;
+using UnityEngine;
+
 namespace Core.ContentSerializer
 {
     public class PathStorage
@@ -13,7 +16,25 @@ namespace Core.ContentSerializer
         
         public static readonly string BASE_DATA_PATH = "Data";
         public static readonly string DATA_SESSION_PRESETS = "SessionPresets";
+        public static readonly string DATA_SESSION_SAVE = "SessionSave";
         public static readonly string SESSION_TYPE_FILE = "save";
 
+
+        public static string GetPathToSessionSave()
+        {
+            string pathU = Application.dataPath;
+            DirectoryInfo infoPath = Directory.GetParent(pathU);
+            pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_SAVE;
+            return pathU;
+        }
+
+
+        public static string GetPathToSessionPresets()
+        {
+            string pathU = Application.dataPath;
+            DirectoryInfo infoPath = Directory.GetParent(pathU);
+            pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS;
+            return pathU;
+        }
     }
 }

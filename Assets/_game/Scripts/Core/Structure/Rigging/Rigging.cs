@@ -90,6 +90,17 @@ namespace Core.Structure.Rigging
     {
         
     }
+
+    public interface ILiquidTank : IFuelUser
+    {
+        LiquidType CurrentType { get; }
+    }
+
+    public enum LiquidType
+    {
+        Water = 0
+    }
+
     
     [System.Serializable]
     public struct CharacterAttachData

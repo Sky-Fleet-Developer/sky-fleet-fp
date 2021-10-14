@@ -16,7 +16,7 @@ namespace Core.SessionManager
 
         public static event Action StartChangeScene;
 
-        public static void LoadGameScene()
+        public static void LoadGameScene(Action<AsyncOperation> onComplete = null)
         {
             if (operationLoad != null)
                 return;
@@ -24,6 +24,7 @@ namespace Core.SessionManager
             StartChangeScene?.Invoke();
             operationLoad = SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
             operationLoad.completed += EndLoad;
+            operationLoad.completed += onComplete;
         }
 
         private static void EndLoad(AsyncOperation asyncOpr)

@@ -11,9 +11,10 @@ using Core.Explorer.Content;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
+using Runtime.Character.Control;
 using Newtonsoft.Json;
 using Runtime;
-using Sirenix.Serialization;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -21,12 +22,14 @@ using Serializer = Core.ContentSerializer.Serializer;
 
 namespace Core.SessionManager.SaveService
 {
-    [System.Serializable]
+    [ShowInInspector]
     public class SaveLoad
     {
         public static readonly int IntSize = sizeof(int);
 
-        public void Save()
+
+
+        public void Save(string path, string name)
         {
             Debug.Log("Begin to save the session...");
 
@@ -37,8 +40,10 @@ namespace Core.SessionManager.SaveService
             List<StructureBundle> bundles = serializer.GetBundlesFor(structures);
 
             State state = new State(bundles);
+            state.playerPos = Object.FindObjectOfType<FirstPersonController>().transform.localPosition;
+            state.playerRot = Object.FindObjectOfType<FirstPersonController>().transform.localEulerAngles;
 
-            SaveToFile(state);
+            SaveToFile(state, path, name);
             Debug.Log("Session was saved successfully!");
         }
 
@@ -47,6 +52,9 @@ namespace Core.SessionManager.SaveService
             State state = LoadStateAtPath(filePath);
 
             //TODO: подождать пока загрузится сцена меню, если мы ещё не в ней
+
+            Object.FindObjectOfType<FirstPersonController>().transform.localPosition = state.playerPos;
+            Object.FindObjectOfType<FirstPersonController>().transform.localEulerAngles = state.playerRot;
 
             List<System.Reflection.Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             LinkedList<Mod> mods = Session.Instance.Settings.mods;
@@ -74,9 +82,6 @@ namespace Core.SessionManager.SaveService
 
         private State LoadStateAtPath(string filePath)
         {
-            /*DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
-            string dataExportPath = $"{infoPath.FullName}/{PathStorage.BASE_DATA_PATH}";
-            string path = $"{dataExportPath}/{PathStorage.DATA_SESSION_PRESETS}/";*/
 
             FileStream stream = new FileStream(filePath, FileMode.Open);
             State state = null;
@@ -120,21 +125,15 @@ namespace Core.SessionManager.SaveService
             return header;
         }
 
-        private void SaveToFile(State state)
+        private void SaveToFile(State state, string path, string name)
         {
             SessionSettings sessionSettings = Session.Instance.Settings;
 
-            string saveName = sessionSettings.name;
-            if (string.IsNullOrEmpty(saveName)) saveName = $"Unknown session {Random.Range(0, 1000):0000}";
-
-            DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
-            string path = $"{infoPath.FullName}/{PathStorage.BASE_DATA_PATH}/{PathStorage.DATA_SESSION_PRESETS}/";
-            FileStream stream = new FileStream($"{path}{saveName}." + PathStorage.SESSION_TYPE_FILE,
-                FileMode.OpenOrCreate);
+            FileStream stream = new FileStream(path, FileMode.OpenOrCreate);
 
             try
             {
-                WriteHeader(saveName, stream, sessionSettings.mods);
+                WriteHeader(name, stream, sessionSettings.mods);
                 WriteStateJson(state, stream);
             }
             catch (Exception e)

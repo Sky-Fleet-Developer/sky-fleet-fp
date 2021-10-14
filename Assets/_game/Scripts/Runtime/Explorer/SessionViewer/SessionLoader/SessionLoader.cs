@@ -6,6 +6,8 @@ using Core.SessionManager.SaveService;
 using Core.UiStructure;
 using Core.Utilities;
 using Core.Utilities.UI;
+using Core.ContentSerializer;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +32,8 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
 
         private void Start()
         {
+            sessionFilerManager.SetStartPath(PathStorage.GetPathToSessionSave());
+            sessionFilerManager.UpdateFileMandager();
             sessionFilerManager.SelectFile += TakeSession;
             startButton.onClick.AddListener(StartSession);
         }
@@ -41,7 +45,7 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
             StateHeader header = saveLoad.ReadHeader(path);
             currentSessionSettings = GetSettingsFromHeader(header, out List<string> missingMods);
             ClearList();
-            foreach(string missingMod in missingMods)
+            foreach (string missingMod in missingMods)
             {
                 ButtonItemPointer item = DynamicPool.Instance.Get(prefabItem, content);
                 items.AddLast(item);
@@ -59,7 +63,7 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
         {
             SessionSettings settings = new SessionSettings();
             settings.name = header.name;
-            
+
             missingMods = new List<string>();
             List<Mod> existingMods = ModReader.Instance.GetMods();
             foreach (string modName in header.mods)
@@ -80,7 +84,7 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
 
         private void ClearList()
         {
-            foreach(ButtonItemPointer item in items)
+            foreach (ButtonItemPointer item in items)
             {
                 DynamicPool.Instance.Return(item);
             }
@@ -92,11 +96,12 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
             if (currentSessionSettings == null)
                 return;
             Session.Instance.BeginInit();
-            SceneLoader.LoadGameScene();
             Session.Instance.SetSettings(currentSessionSettings);
-            Session.Instance.Load(currentSessionPath, Session.Instance.EndInit);
+            SceneLoader.LoadGameScene(delegate
+            {
+                Session.Instance.Load(currentSessionPath, Session.Instance.EndInit);
+            });
         }
-
 
     }
 }

@@ -20,10 +20,12 @@ namespace Core.SessionManager
 
         [ShowInInspector] private SaveLoad saveLoad = new SaveLoad();
 
+        [ShowInInspector] private SaveLoadUtility saveLoadUtility = new SaveLoadUtility();
+
         [Button]
-        public void Save()
+        public void SaveWithName(string name)
         {
-            saveLoad.Save();
+            saveLoadUtility.SaveWithName(name);
         }
 
         public void Load(string filePath, System.Action onComplete)

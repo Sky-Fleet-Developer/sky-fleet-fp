@@ -23,8 +23,12 @@ namespace Runtime.Explorer.SessionViewer
         [SerializeField] private ButtonItemPointer prefabDirectoryButton;
         [SerializeField] private ButtonItemPointer prefabFileButton;
 
+        [Space(10)]
+        [Header("Elements for creating directorys.")]
         [SerializeField] private Button newDirectoryButton;
         [SerializeField] private InputField nameDirectory;
+
+        [Space(10)]
         [SerializeField] private Transform content;
 
 
@@ -60,16 +64,35 @@ namespace Runtime.Explorer.SessionViewer
             }
         }
 
-        private void Awake()
+        private void InitFileManager()
         {
             items = new LinkedList<ItemPath>();
-            newDirectoryButton.onClick.AddListener(CreateNewDirectory);
-
             fileManager = new FileManager();
+        }
+
+        private void Awake()
+        {
+            InitFileManager();
+            if (newDirectoryButton != null && nameDirectory != null)
+                newDirectoryButton.onClick.AddListener(CreateNewDirectory);
+
+        }
+
+        public void SetStartPath(string path)
+        {
+            currentPath = path;
+            fileManager.SetStartPath(path);
             fileManager.UpdateDirectory();
-            currentPath = fileManager.GetStartPath();
+        }
+
+
+
+        public void UpdateFileMandager()
+        {
+            ClearItemsPaths();
             GenerateFromPath(fileManager.GetPaths(currentPath));
         }
+
 
         private void CallDirectoryBack()
         {
@@ -84,7 +107,7 @@ namespace Runtime.Explorer.SessionViewer
             ClearItemsPaths();
             currentPath = item.path.path;
             GenerateFromPath(fileManager.GetPaths(item.path.path));
-            
+
         }
 
         private void CallFileOpen(ItemPath item)
@@ -121,7 +144,7 @@ namespace Runtime.Explorer.SessionViewer
                     (System.Action)(() => { CallDirectoryBack(); })
                     ));
             }
-            foreach(PathWrite path in paths)
+            foreach (PathWrite path in paths)
             {
                 if (path.type == PathType.Directory)
                 {
@@ -134,7 +157,7 @@ namespace Runtime.Explorer.SessionViewer
                 }
                 else if (path.type == PathType.File)
                 {
-                    
+
                     ItemPath item = CreateItem(
                     path,
                     (System.Action)(() => { })
@@ -188,14 +211,17 @@ namespace Runtime.Explorer.SessionViewer
                 }
             }
 
+            public void SetStartPath(string path)
+            {
+                cashStartPath = path;
+            }
+
             public string GetStartPath()
             {
                 if (cashStartPath != "")
                     return cashStartPath;
-                string pathU = Application.dataPath;
-                DirectoryInfo infoPath = Directory.GetParent(pathU);
-                cashStartPath = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS ;
-                return cashStartPath;
+                else
+                    throw new NullReferenceException();
             }
 
             public LinkedList<PathWrite> GetBackPaths(string toPath)
@@ -204,7 +230,7 @@ namespace Runtime.Explorer.SessionViewer
             }
 
             public LinkedList<PathWrite> GetPaths(string currentPath)
-            { 
+            {
                 LinkedList<PathWrite> paths = new LinkedList<PathWrite>();
                 string[] directories = Directory.GetDirectories(currentPath);
                 for (int i = 0; i < directories.Length; i++)

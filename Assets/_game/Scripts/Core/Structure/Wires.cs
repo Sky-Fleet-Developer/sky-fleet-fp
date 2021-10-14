@@ -85,6 +85,7 @@ namespace Core.Structure
     {
         public T cache;
 
+        [ShowInInspector]
         public Wire<T> wire;
 
         public Port()
