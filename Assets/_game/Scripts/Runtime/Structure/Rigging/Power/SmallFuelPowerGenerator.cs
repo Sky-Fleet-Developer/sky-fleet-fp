@@ -41,7 +41,7 @@ namespace Runtime.Structure.Rigging.Power
                 return;
             }
             autoThrottle = Mathf.MoveTowards(autoThrottle, powerUsage, Time.deltaTime);
-            fuelPerSec = Mathf.Clamp(maxFuelConsumption * autoThrottle, minFuelUsage, fuel.Value);;
+            fuelPerSec = Mathf.Clamp(maxFuelConsumption * autoThrottle, minFuelUsage, fuel.Value);
             fuel.Value -= fuelPerSec * Time.deltaTime;
         }
 
