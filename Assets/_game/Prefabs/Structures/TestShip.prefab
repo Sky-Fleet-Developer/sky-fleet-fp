@@ -443,7 +443,7 @@ MonoBehaviour:
   tags: []
   guid: 93cbead4-d7c3-47fb-b271-510007e82fb3
   parentsObjects: []
-  configuration: '{"blocks":[{"path":"TestJet","current":"3636a306-24bb-4c6a-a7c4-646571f2a3be","setup":{}},{"path":"TestControl","current":"40222abb-51cd-4887-8afb-92518f93a6cd","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"673ea29c-0dfc-4bc8-b1c7-99506d787f41","setup":{}},{"path":"SmallBattery","current":"55a0a8fb-b7c6-43ce-879e-5221e8b7880a","setup":{}},{"path":"SmallFuelPowerGenerator","current":"3745a5db-16a8-42eb-9586-ebf071e75ffa","setup":{}},{"path":"Support_R","current":"ad236af6-3feb-466c-8ce1-4cc6a8dad25a","setup":{}},{"path":"Support_L","current":"ad236af6-3feb-466c-8ce1-4cc6a8dad25a","setup":{}},{"path":"Support_B","current":"ad236af6-3feb-466c-8ce1-4cc6a8dad25a","setup":{}}],"wires":["TestJet2f3f89db-1f62-4742-b237-d1c86d86dea0.TestControl70de2890-d5b6-4e60-a278-cd0a8c07a256","TestJetf799627d-ab5b-4083-a5ac-f35e1e181c0d.TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143.SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744","SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2.SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc.Support_R65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_L65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_B65c57623-8fb0-4aaf-a0d5-fe3dc729732f"]}'
+  configuration: '{"blocks":[{"path":"TestJet","current":"3636a306-24bb-4c6a-a7c4-646571f2a3be","setup":{}},{"path":"TestControl","current":"40222abb-51cd-4887-8afb-92518f93a6cd","setup":{"SomeProperty":"1"}},{"path":"TestHydrogenStorage","current":"673ea29c-0dfc-4bc8-b1c7-99506d787f41","setup":{"Mode":"Auto"}},{"path":"SmallBattery","current":"55a0a8fb-b7c6-43ce-879e-5221e8b7880a","setup":{}},{"path":"SmallFuelPowerGenerator","current":"3745a5db-16a8-42eb-9586-ebf071e75ffa","setup":{}},{"path":"Support_R","current":"ad236af6-3feb-466c-8ce1-4cc6a8dad25a","setup":{}},{"path":"Support_L","current":"ad236af6-3feb-466c-8ce1-4cc6a8dad25a","setup":{}},{"path":"Support_B","current":"ad236af6-3feb-466c-8ce1-4cc6a8dad25a","setup":{}}],"wires":["TestJet2f3f89db-1f62-4742-b237-d1c86d86dea0.TestControl70de2890-d5b6-4e60-a278-cd0a8c07a256","TestJetf799627d-ab5b-4083-a5ac-f35e1e181c0d.TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143.SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744","SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2.SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc.Support_R65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_L65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_B65c57623-8fb0-4aaf-a0d5-fe3dc729732f"]}'
 --- !u!1 &4479284407765901574
 GameObject:
   m_ObjectHideFlags: 0
@@ -646,27 +646,9 @@ MonoBehaviour:
   guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
   tags: []
   mountingType: 
-  thurstPerFuel:
+  thrustPerFuel:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+    m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -694,19 +676,13 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalThurst: 55000
+  maximalThrust: 0
   throttle:
     guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
-    ValueType: 0
     cache: 0
-    wire:
-      value: 0
   fuel:
     guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
-    ValueType: 2
-    cache: 0
-    wire:
-      value: 0
+    serializedType: Core.Structure.Rigging.Storage.HydrogenItem
 --- !u!1001 &699683640077356689
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -37,14 +37,14 @@ namespace Core.Structure.Rigging
             storage.PushToPort(delta);
         }
 
-        private static List<string> _possibleTypes;
+        private static List<Type> _possibleTypes;
 
-        public static IEnumerable<string> GetPossibleTypes()
+        public static IEnumerable<Type> GetPossibleTypes()
         {
             if (_possibleTypes == null)
             {
-                _possibleTypes = new List<string>();
-                _possibleTypes.Add("Null");
+                _possibleTypes = new List<Type>();
+                _possibleTypes.Add(null);
                 var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
                 foreach (System.Reflection.Assembly assembly in assemblies)
                 {
@@ -52,7 +52,7 @@ namespace Core.Structure.Rigging
                     {
                         if (type.IsSubclassOf(typeof(StorageItem)))
                         {
-                            _possibleTypes.Add(type.Name);
+                            _possibleTypes.Add(type);
                         }
                     }
                 }

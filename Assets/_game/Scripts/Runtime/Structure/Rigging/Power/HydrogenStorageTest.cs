@@ -17,7 +17,7 @@ namespace Runtime.Structure.Rigging.Power
         public void PushToPort(float amount)
         {
             float amountToPull = -amount;
-            float clamp = Mathf.Min(Mathf.Max(amountToPull, -maxOutput * DeltaTime, -currentAmount), maxInput * DeltaTime, currentAmount);
+            float clamp = Mathf.Min(Mathf.Max(amountToPull, -maxOutput * DeltaTime, -currentAmount), maxInput * DeltaTime, currentAmount, output.Value);
             currentAmount += clamp;
             output.Value -= clamp;
         }
@@ -34,6 +34,7 @@ namespace Runtime.Structure.Rigging.Power
 
         public void FuelTick()
         {
+            if(output.Wire == null) return;
             Utilities.CalculateFuelTick(this);
         }
     }

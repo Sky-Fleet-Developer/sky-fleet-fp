@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Core.Utilities;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -25,11 +28,16 @@ namespace Core.Structure.Rigging.Storage
     public class StorageWire : Wire
     {
         public StorageItem Item;
+
+        public StorageWire(StorageItem item)
+        {
+            Item = item;
+        }
         public override bool CanConnect(Port port)
         {
             if (port is StoragePort portT)
             {
-                return portT.ItemType == Item.GetType().Name;
+                return portT.serializedType == Item.GetType().Name;
             }
             return false;
         }
@@ -39,9 +47,22 @@ namespace Core.Structure.Rigging.Storage
     public class StoragePort : Port
     {
         [ShowInInspector, ValueDropdown("GetPossibleTypes")]
-        public string ItemType;
+        public System.Type ItemType
+        {
+            get
+            {
+                return serializedType == "Null" ? null : GetPossibleTypes().FirstOrDefault(x => x != null && x.FullName == serializedType);
+            }
+            set
+            {
+                itemType = value;
+                serializedType = value == null ? "Null" : value.FullName;
+            }
+        }
+        private System.Type itemType = null;
+        [ReadOnly] public string serializedType;
 
-        private IEnumerable<string> GetPossibleTypes() => Utilities.GetPossibleTypes();
+        private IEnumerable<System.Type> GetPossibleTypes() => Utilities.GetPossibleTypes();
 
         [ShowInInspector]
         public float Value
@@ -54,33 +75,36 @@ namespace Core.Structure.Rigging.Storage
             }
         }
 
+        [ShowInInspector]
         public StorageWire Wire;
         
         public StoragePort()
         {
-            ItemType = "Null";
+            serializedType = "Null";
         }
         
         public StoragePort(System.Type itemType)
         {
-            ItemType = itemType.Name;
+            serializedType = itemType.Name;
         }
         
         public override void SetWire(Wire wire)
         {
-            if (wire is StorageWire wireT) wire = wireT;
+            if (wire is StorageWire wireT) Wire = wireT;
         }
         
         public override Wire CreateWire()
         {
-            return new StorageWire();
+            Type type = TypeExtensions.GetTypeByName(serializedType);
+            StorageItem itemInstance = (StorageItem) System.Activator.CreateInstance(type);
+            return new StorageWire(itemInstance);
         }
 
         public override bool CanConnect(Port port)
         {
             if (port is StoragePort portT)
             {
-                return portT.ItemType == ItemType;
+                return portT.serializedType == serializedType;
             }
 
             return false;
@@ -88,7 +112,7 @@ namespace Core.Structure.Rigging.Storage
 
         public override string ToString()
         {
-            return ItemType;
+            return serializedType;
         }
     }
 }

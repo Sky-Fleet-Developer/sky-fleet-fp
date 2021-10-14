@@ -33,6 +33,7 @@ namespace Runtime.Structure.Rigging.Storage
 
         public void FuelTick()
         {
+            if(output.Wire == null) return;
             Utilities.CalculateFuelTick(this);
         }
     }

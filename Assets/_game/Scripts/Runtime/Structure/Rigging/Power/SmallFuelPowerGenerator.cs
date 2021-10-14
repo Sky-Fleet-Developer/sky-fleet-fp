@@ -34,6 +34,12 @@ namespace Runtime.Structure.Rigging.Power
 
         public void FuelTick()
         {
+            if (fuel.Wire == null)
+            {
+                autoThrottle = 0;
+                fuelPerSec = 0;
+                return;
+            }
             autoThrottle = Mathf.MoveTowards(autoThrottle, powerUsage, Time.deltaTime);
             fuelPerSec = Mathf.Clamp(maxFuelConsumption * autoThrottle, minFuelUsage, fuel.Value);;
             fuel.Value -= fuelPerSec * Time.deltaTime;

@@ -99,12 +99,10 @@ MonoBehaviour:
   maximalThrust: 5500
   throttle:
     guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
-    ValueType: 0
     cache: 0
   fuel:
     guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
-    ValueType: 2
-    cache: 0
+    serializedType: Core.Structure.Rigging.Storage.HydrogenItem
 --- !u!1 &1915622220985529166
 GameObject:
   m_ObjectHideFlags: 0

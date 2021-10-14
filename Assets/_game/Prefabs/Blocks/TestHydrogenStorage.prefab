@@ -53,4 +53,4 @@ MonoBehaviour:
   currentAmount: 500
   output:
     guid: a9893d7e-45f6-47a4-99ab-2c6f9568e143
-    ItemType: HydrogenItem
+    serializedType: Core.Structure.Rigging.Storage.HydrogenItem

@@ -30,7 +30,7 @@ namespace Core.SessionManager
 
         public void Load(string filePath, System.Action onComplete)
         {
-            var task = LoadAndComplete(filePath, onComplete);
+            Task task = LoadAndComplete(filePath, onComplete);
         }
 
         private async Task LoadAndComplete(string filePath, System.Action onComplete)
