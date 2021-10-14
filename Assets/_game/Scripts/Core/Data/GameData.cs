@@ -30,6 +30,8 @@ namespace Runtime
         public string controlFailText = "Control is alredy used";
         [Header("Physics")]
         public LayerMask groundLayer;
+        [Header("Logistics")] 
+        public float fuelTransitionAmount = 5;
     }
 
     [System.Serializable]

@@ -2,6 +2,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Structure.Rigging.Storage;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -11,16 +12,19 @@ namespace Runtime.Structure.Rigging.Power
     {
         public float MaximalOutput => maximalOutput;
         public float FuelConsumption => fuelPerSec;
+        public float MaxFuelConsumption => maxFuelConsumption;
+        public float CurrentFuelConsumption => autoThrottle * maxFuelConsumption;
+        public float CurrentPowerUsage => powerUsage;
 
         [Tooltip("Must be from zero to one")]
         public AnimationCurve powerPerFuel;
         [SerializeField] private float maximalOutput = 1;
         [SerializeField] private float charge = 500;
 
-        public float fuelUsage = 1;
+        public float maxFuelConsumption = 1;
         public float minFuelUsage = 1;
 
-        public Port<float> fuel = new Port<float>(PortType.Fuel);
+        public StoragePort fuel = new StoragePort(typeof(HydrogenItem));
         public PowerPort output = new PowerPort();
 
         private float fuelPerSec;
@@ -31,7 +35,7 @@ namespace Runtime.Structure.Rigging.Power
         public void FuelTick()
         {
             autoThrottle = Mathf.MoveTowards(autoThrottle, powerUsage, Time.deltaTime);
-            fuelPerSec = Mathf.Clamp(fuelUsage * autoThrottle, minFuelUsage, fuel.Value);;
+            fuelPerSec = Mathf.Clamp(maxFuelConsumption * autoThrottle, minFuelUsage, fuel.Value);;
             fuel.Value -= fuelPerSec * Time.deltaTime;
         }
 

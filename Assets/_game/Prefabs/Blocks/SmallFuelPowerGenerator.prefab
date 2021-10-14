@@ -168,19 +168,13 @@ MonoBehaviour:
     m_RotationOrder: 4
   maximalOutput: 15
   charge: 500
-  fuelUsage: 1
+  maxFuelConsumption: 1
   minFuelUsage: 0.1
   fuel:
     guid: 7ac4983b-32a1-4013-8093-698fc6cd7744
-    ValueType: 2
-    cache: 0
-    wire:
-      value: 0
+    ItemType: HydrogenItem
   output:
     guid: fd689e1e-5084-4dca-be25-aeef478e5acc
-    ValueType: 3
-    wire:
-      ports: []
     charge: 0
     maxInput: 1
     maxOutput: 1

@@ -37,7 +37,7 @@ namespace Core.Structure.Rigging.Control.Attributes
         {
             if (p is Port<T> pT)
             {
-                wire = pT.wire;
+                wire = pT.Wire;
             }
         }
     }

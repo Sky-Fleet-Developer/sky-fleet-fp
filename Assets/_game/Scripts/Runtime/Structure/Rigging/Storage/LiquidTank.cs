@@ -1,34 +1,39 @@
-using Core.Structure;
+using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
+using Core.Structure.Rigging.Storage;
 using UnityEngine;
-
+using static Core.Structure.StructureUpdateModule;
 
 namespace Runtime.Structure.Rigging.Storage
 {
-    public class LiquidTank : Block, ILiquidTank
+    public class Tank : Block, ITank
     {
-        public LiquidType CurrentType => type;
+        public float CurrentAmount => currentAmount;
+        public float MaximalAmount => maximalAmount;
+        public float MaxInput => maxInput;
+        public float MaxOutput => maxOutput;
+        public float AmountInPort => output.Value;
+        [PlayerProperty] public StorageMode Mode { get => mode; set => mode = value; }
+        public void PushToPort(float amount)
+        {
+            float amountToPull = -amount;
+            float clamp = Mathf.Min(Mathf.Max(amountToPull, -maxOutput * DeltaTime, -currentAmount), maxInput * DeltaTime, currentAmount);
+            currentAmount += clamp;
+            output.Value -= clamp;
+        }
+        
+        [SerializeField] private StorageMode mode;
 
-        public Port<float> storage = new Port<float>(PortType.Fuel);
+        [SerializeField] private float maxInput;
+        [SerializeField] private float maxOutput;
+        [SerializeField] private float maximalAmount;
+        [SerializeField] private float currentAmount;
 
-        public float amount;
-        public float maximal;
-
-        [SerializeField] private LiquidType type;
-
-
+        public StoragePort output = new StoragePort();
 
         public void FuelTick()
         {
-            float delta = 1 - storage.Value;
-            if (delta != 0)
-            {
-                float newAmount = Mathf.Clamp(amount + delta, 0, maximal);
-
-                float deltaAmount = newAmount - amount;
-                amount += deltaAmount;
-                storage.Value -= deltaAmount;
-            }
+            Utilities.CalculateFuelTick(this);
         }
     }
 }

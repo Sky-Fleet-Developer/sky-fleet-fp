@@ -1,26 +1,27 @@
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Rigging.Storage;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Movement
 {
-    public class ThursterTest : Block, IJet
+    public class ThrusterTest : Block, IJet
     {
-        public AnimationCurve thurstPerFuel;
+        public AnimationCurve thrustPerFuel;
         public AnimationCurve fuelPerThrottle;
-        
-        public float MaximalThurst => maximalThurst;
+        public float MaximalThrust => maximalThrust;
+        public float CurrentThrust => currentThrust; 
 
-        [SerializeField] private float maximalThurst;
+        [SerializeField] private float maximalThrust;
 
         private IDynamicStructure root;
 
-        public Port<float> throttle = new Port<float>(PortType.Thurst);
-        public Port<float> fuel = new Port<float>(PortType.Fuel);
+        public Port<float> throttle = new Port<float>(PortType.Thrust);
+        public StoragePort fuel = new StoragePort(typeof(HydrogenItem));
 
         private float fuelPerSec;
-        [ShowInInspector, ReadOnly] private float currentThurst;
+        [ShowInInspector, ReadOnly] private float currentThrust;
 
         public override void InitBlock(IStructure structure, Parent parent)
         {
@@ -37,8 +38,8 @@ namespace Runtime.Structure.Rigging.Movement
         
         public void ApplyForce()
         {
-            currentThurst = maximalThurst * thurstPerFuel.Evaluate(fuelPerSec);
-            root.AddForce(transform.forward * (currentThurst * Time.deltaTime), transform.position);
+            currentThrust = maximalThrust * thrustPerFuel.Evaluate(fuelPerSec);
+            root.AddForce(transform.forward * (currentThrust * Time.deltaTime), transform.position);
         }
     }
 }

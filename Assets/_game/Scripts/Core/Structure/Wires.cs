@@ -7,10 +7,8 @@ namespace Core.Structure
 {
     public enum PortType
     {
-        Thurst,
-        BigThurst,
-        Fuel,
-        Power,
+        Thrust,
+        BigThrust,
     }
 
     public struct PortPointer : System.IEquatable<PortPointer>, System.IEquatable<string>
@@ -67,17 +65,18 @@ namespace Core.Structure
         }
         
         [SerializeField, HideInInspector] private string guid;
-
-        public PortType ValueType;
-
+        
         public abstract void SetWire(Wire wire);
         public abstract Wire CreateWire();
-        public abstract Wire GetWire();
 
-        public void SetGUID(string guid)
+        public void SetGuid(string guid)
         {
             this.guid = guid;
         }
+
+        public virtual bool CanConnect(Wire wire) => wire.CanConnect(this);
+        public abstract bool CanConnect(Port port);
+        public abstract string ToString();
     }
 
     [System.Serializable, InlineProperty(LabelWidth = 150)]
@@ -86,15 +85,18 @@ namespace Core.Structure
         public T cache;
 
         [ShowInInspector]
-        public Wire<T> wire;
+        public Wire<T> Wire;
 
+        public PortType ValueType => valueType;
+        private PortType valueType;
+        
         public Port()
         {
         }
 
         public Port(PortType type)
         {
-            ValueType = type;
+            valueType = type;
         }
 
         public T Value
@@ -105,18 +107,18 @@ namespace Core.Structure
 
         public T GetValue()
         {
-            if (wire != null)
+            if (Wire != null)
             {
-                cache = wire.value;
+                cache = Wire.value;
             }
             return cache;
         }
 
         public void SetValue(T value)
         {
-            if (wire != null)
+            if (Wire != null)
             {
-                wire.value = value;
+                Wire.value = value;
             }
             cache = value;
         }
@@ -125,35 +127,35 @@ namespace Core.Structure
         {
             if (wire is Wire<T> wireT)
             {
-                this.wire = wireT;
+                this.Wire = wireT;
             }
         }
 
         public override Wire CreateWire()
         {
-            return new Wire<T>();
+            return new Wire<T>(valueType);
         }
 
-        public override Wire GetWire()
+        public override bool CanConnect(Port port)
         {
-            return wire;
+            if (port is Port<T> portT) return portT.valueType == valueType;
+            return false;
+        }
+
+        public override string ToString()
+        {
+            return valueType.ToString();
         }
     }
     [System.Serializable, InlineProperty(LabelWidth = 150)]
     public class PowerPort : Port
     {
-        public PowerWire wire;
+        public PowerWire Wire;
 
         public float charge;
         public float maxInput = 1;
         public float maxOutput = 1;
         [ReadOnly] public float delta = 0;
-
-        public PowerPort()
-        {
-            ValueType = PortType.Power;
-        }
-        
 
         public float GetPushValue()
         {
@@ -174,7 +176,7 @@ namespace Core.Structure
         {
             if (wire is PowerWire wireT)
             {
-                this.wire = wireT;
+                this.Wire = wireT;
                 wireT.ports.Add(this);
             }
         }
@@ -183,23 +185,44 @@ namespace Core.Structure
         {
             return new PowerWire();
         }
-
-        public override Wire GetWire()
+        
+        public override bool CanConnect(Port port)
         {
-            return wire;
+            return port is PowerPort portT;
+        }
+        
+        public override string ToString()
+        {
+            return "Power";
         }
     }
 
     [ShowInInspector]
-    public class Wire : System.IDisposable
+    public abstract class Wire : System.IDisposable
     {
         public virtual void Dispose() { }
+
+        public abstract bool CanConnect(Port port);
     }
 
     [ShowInInspector]
     public class Wire<T> : Wire
     {
         public T value;
+        
+        public PortType ValueType => valueType;
+        protected PortType valueType;
+
+        public Wire(PortType type)
+        {
+            valueType = type;
+        }
+
+        public override bool CanConnect(Port port)
+        {
+            if (port is Port<T> portT) return portT.ValueType == valueType;
+            return false;
+        }
     }
     [ShowInInspector]
     public class PowerWire : Wire
@@ -301,6 +324,10 @@ namespace Core.Structure
             StructureUpdateModule.onBeginConsumptionTick -= BeginConsumptionTick;
         }
 
+        public override bool CanConnect(Port port)
+        {
+            return port is PowerPort;
+        }
     }
 
 }

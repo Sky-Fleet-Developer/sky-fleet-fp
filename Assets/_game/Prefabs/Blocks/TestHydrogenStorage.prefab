@@ -46,12 +46,11 @@ MonoBehaviour:
   guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
   tags: []
   mountingType: 
-  maximalVolume: 1000
-  currentVolume: 1000
-  maximumOutput: 1
+  mode: 0
+  maxInput: 1
+  maxOutput: 1
+  maximalAmount: 500
+  currentAmount: 500
   output:
     guid: a9893d7e-45f6-47a4-99ab-2c6f9568e143
-    ValueType: 2
-    cache: 0
-    wire:
-      value: 0
+    ItemType: HydrogenItem

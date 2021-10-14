@@ -39,12 +39,12 @@ namespace Runtime.Structure.Rigging.Movement
         [Space(20), Header("Power")] [SerializeField]
         private float consumption;
 
-        public Port<float> powerHandle = new Port<float>(PortType.Thurst);
+        public Port<float> powerHandle = new Port<float>(PortType.Thrust);
         public AnimationCurve powerPerHandle;
         public PowerPort powerInput = new PowerPort();
 
-        public Port<float> pitch = new Port<float>(PortType.Thurst);
-        public Port<float> roll = new Port<float>(PortType.Thurst);
+        public Port<float> pitch = new Port<float>(PortType.Thrust);
+        public Port<float> roll = new Port<float>(PortType.Thrust);
         
         [ShowInInspector, ReadOnly] private float power;
         [ShowInInspector, ReadOnly] private Vector3 p;

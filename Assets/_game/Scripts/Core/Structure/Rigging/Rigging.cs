@@ -55,6 +55,17 @@ namespace Core.Structure.Rigging
         void Interaction(ICharacterController character);
     }
 
+    public interface IStorage
+    {
+        float CurrentAmount { get; }
+        float MaximalAmount { get; }
+        float MaxInput { get; }
+        float MaxOutput { get; }
+        float AmountInPort { get; }
+        StorageMode Mode { get; set; }
+        void PushToPort(float amount);
+    }
+    
     public interface ISpecialPorts
     {
         IEnumerable<PortPointer> GetPorts();
@@ -68,22 +79,20 @@ namespace Core.Structure.Rigging
         void ReadInput();
         void LeaveControl(ICharacterController controller);
     }
-
-    public interface IHydrogenStorage : IFuelUser
-    {
-        float MaximalVolume { get; }
-        float CurrentVolume { get; }
-    }
     
-    public interface IFuelPowerGenerator : IBlock, IFuelUser, IPowerUser
+    public interface IFuelPowerGenerator : IFuelUser, IPowerUser
     {
         float MaximalOutput { get; }
         float FuelConsumption { get; }
+        float MaxFuelConsumption { get; }
+        float CurrentFuelConsumption { get; }
+        float CurrentPowerUsage { get; }
     }
 
     public interface IJet : IFuelUser, IForceUser
     {
-        float MaximalThurst { get; }
+        float MaximalThrust { get; }
+        float CurrentThrust { get; }
     }
 
     public interface ISupport : IPowerUser, IForceUser
@@ -91,17 +100,18 @@ namespace Core.Structure.Rigging
         
     }
 
-    public interface ILiquidTank : IFuelUser
+    public interface ITank : IStorage, IFuelUser
     {
-        LiquidType CurrentType { get; }
     }
 
-    public enum LiquidType
+    public enum StorageMode
     {
-        Water = 0
+        Auto = 0,
+        Pull = 1,
+        Push = 2
     }
 
-    
+
     [System.Serializable]
     public struct CharacterAttachData
     {

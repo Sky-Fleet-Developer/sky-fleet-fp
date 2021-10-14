@@ -142,10 +142,12 @@ MonoBehaviour:
   guid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
   tags: []
   mountingType: 
-  storage:
-    guid: 02186f28-6aba-478b-adb3-5d54a7cc42b3
-    ValueType: 2
-    cache: 0
-  amount: 0
-  maximal: 100
   type: 0
+  mode: 0
+  maxInput: 1
+  maxOutput: 1
+  maximalAmount: 100
+  currentAmount: 100
+  output:
+    guid: cd8dd722-8d69-4c68-8c8b-fcda981ce18b
+    ItemType: Null

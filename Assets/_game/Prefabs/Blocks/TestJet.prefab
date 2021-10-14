@@ -46,8 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+  tags: []
   mountingType: 
-  thurstPerFuel:
+  thrustPerFuel:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -95,17 +96,15 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalThurst: 55000
+  maximalThrust: 5500
   throttle:
     guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
-    hash: 0
-    wire:
-      value: 0
+    ValueType: 0
+    cache: 0
   fuel:
     guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
-    hash: 0
-    wire:
-      value: 0
+    ValueType: 2
+    cache: 0
 --- !u!1 &1915622220985529166
 GameObject:
   m_ObjectHideFlags: 0

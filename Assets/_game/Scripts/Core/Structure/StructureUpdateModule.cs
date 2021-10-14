@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Core.Structure.Rigging;
 using Core.Utilities;
+using UnityEngine;
 
 namespace Core.Structure
 {
@@ -18,6 +19,8 @@ namespace Core.Structure
         public static event Action onConsumptionTickEnd;
         public static event Action onBeginConsumptionTick;
 
+        public static float DeltaTime;
+        
         protected override void Setup()
         {
             onConsumptionTickEnd = null;
@@ -47,6 +50,7 @@ namespace Core.Structure
 
         private void Update()
         {
+            DeltaTime = Time.deltaTime;
             foreach (IControl t in Controls)
             {
                 IStructure str = t.Structure;
@@ -96,6 +100,7 @@ namespace Core.Structure
 
         private void FixedUpdate()
         {
+            DeltaTime = Time.deltaTime;
             for (int i = 0; i < ForceUsers.Count; i++)
             {
                 IStructure str = ForceUsers[i].Structure;

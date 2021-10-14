@@ -19,7 +19,7 @@ namespace Core.ContentSerializer.CustomSerializers
         public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             Port port = (Port) source;
-            port.SetGUID(cache[prefix]);
+            port.SetGuid(cache[prefix]);
             return Task.CompletedTask;
         }
     }
