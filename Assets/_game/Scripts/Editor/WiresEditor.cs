@@ -29,6 +29,8 @@ namespace Structure.Editor
         private string json;
         private bool configDirty = true;
 
+        private Vector2 cashScrollPosition;
+
         private class TakePort
         {
             public PortPointer port;
@@ -63,6 +65,7 @@ namespace Structure.Editor
         {
             if (selectedStructure == null) return;
 
+            cashScrollPosition = GUILayout.BeginScrollView(cashScrollPosition);
             switch (Event.current.type)
             {
                 default://case EventType.Repaint:
@@ -77,6 +80,7 @@ namespace Structure.Editor
 
                     break;
             }
+            GUILayout.EndScrollView();
         }
 
         private void CreateButton()

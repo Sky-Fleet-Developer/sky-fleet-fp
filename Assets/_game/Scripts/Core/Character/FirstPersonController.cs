@@ -96,10 +96,10 @@ namespace Runtime.Character.Control
                     attachedControl.LeaveControl(this);
                 }
 
-                if (Input.GetButton("Fire1"))
+                /*if (Input.GetButton("Fire1"))
                 {
                     //Interaction.CastControl(cameraRoot, attachedControl);
-                }
+                }*/
             }
             else if (CanMove)
             {

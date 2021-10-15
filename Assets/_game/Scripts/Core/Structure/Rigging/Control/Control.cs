@@ -1,6 +1,7 @@
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using static Core.Structure.StructureUpdateModule;
 
 namespace Core.Structure.Rigging.Control
 {
@@ -30,8 +31,8 @@ namespace Core.Structure.Rigging.Control
 
         public float GetValue()
         {
-            float val = Input.GetAxisRaw(nameAxe);
-            if(val < 0 && side == SideAxe.Positive)
+            float val = Input.GetAxisRaw(nameAxe);   
+            if (val < 0 && side == SideAxe.Positive)
             {
                 val = 0;
             }
@@ -39,7 +40,7 @@ namespace Core.Structure.Rigging.Control
             {
                 val = 0;
             }
-            return val;
+            return Mathf.Abs(val);
         }
     }
 
@@ -74,6 +75,13 @@ namespace Core.Structure.Rigging.Control
         public int GetMouseButton() => mouseButton;
 
         public string GetOtherButton() => otherButton;
+
+        [Button]
+        public void Clear()
+        {
+            keyCode = KeyCode.None;
+            _controlType = ButtonControlType.None;
+        }
 
         [Button]
         public void SetBaseKey(KeyCode code)
@@ -194,48 +202,95 @@ namespace Core.Structure.Rigging.Control
     {
         [SerializeField] protected ControlInputSetting keyPositive;
         [SerializeField] protected ControlInputSetting keyNegative;
+        [SerializeField] protected ButtonOption keyActiveAxis;
         [Space]
         public string computerInput;
         [Space]
         [SerializeField] protected float value;
+
+
         [SerializeField] protected float multiply;
+        [SerializeField] protected float power = 1;
+        [SerializeField] protected float speedChange = 0.01f;
+        [SerializeField] protected float step;
         [SerializeField] protected float trim;
         [SerializeField] protected float deadZone;
         [SerializeField] protected bool inverseAxe;
-        [SerializeField] protected bool storeNonAxeValue;
+        [SerializeField] protected bool saveValue;
+
+        private float cashVal;
 
         public float GetValue() => value;
 
         [ShowInInspector]
         public Port<float> Port;
 
-        [ShowInInspector]
-        public DeviceBase Device { get; set; }
 
-        private float oldVBut = 0;
+        [ShowInInspector]
+        public DeviceBase Device { get => _device; set => _device = value; }
+
+        [SerializeField, HideInInspector]
+        private DeviceBase _device;
 
         public void Tick()
         {
+            if(keyActiveAxis.ControlType != ButtonOption.ButtonControlType.None && !keyActiveAxis.GetButton())
+            {
+                if(!saveValue)
+                {
+                    cashVal = trim;
+                    value = trim;
+                    Port.Value = value;
+                }
+                return;
+            }
             float vBut = (keyPositive.GetValue() - keyNegative.GetValue());
-            float v = vBut * multiply + trim;
-            if (Mathf.Abs(v) <= deadZone)
+
+            bool isAllButton = keyPositive.GetControlType() == ControlInputSetting.ControlType.Button && keyNegative.GetControlType() == ControlInputSetting.ControlType.Button;
+
+
+            if (isAllButton)
             {
-                v = 0;
-            }
-            if(inverseAxe)
-            {
-                v = -v;
-            }
-            if((vBut == oldVBut || vBut == 0) && storeNonAxeValue)
-            {
-                v = value;
+                float v = Mathf.Pow(multiply * speedChange * DeltaTime, power);
+                if (inverseAxe)
+                    v = -v;
+                if (vBut != 0)
+                {                
+                    v *= vBut;
+                    cashVal += v;
+                }
+                else
+                {
+                    float r = Mathf.Sign(cashVal) * v;
+                    if (Mathf.Abs(r) > Mathf.Abs(cashVal))
+                    {
+                        cashVal = 0;
+                    }
+                    else
+                    {
+                        cashVal -= r;
+                    }
+                }
             }
             else
             {
-                oldVBut = vBut;
+                float v = vBut * Mathf.Pow(multiply, power);
+                if (inverseAxe)
+                    v = -v;
+                cashVal = v;
             }
-            value = v;
-            Port.Value = value;          
+            cashVal = Mathf.Clamp(cashVal, -1, 1);
+            if (Mathf.Abs(cashVal) <= deadZone)
+            {
+                value = trim;
+            }
+            else
+            {
+                value = Mathf.Clamp(cashVal + trim, -1, 1);
+            }
+            if (step > 0)
+                value = Mathf.Ceil(value * (1 / step)) * step;
+            Port.Value = value;
         }
 
     }
