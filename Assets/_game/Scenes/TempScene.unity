@@ -1206,6 +1206,42 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].Port.guid
+      value: f6fc9ad7-a6e6-4de8-8188-766298f57f1f
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].inverseAxe
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].keyNegative.type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].keyPositive.type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].storeNonAxeValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].keyNegative.button.keyCode
+      value: 115
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].keyPositive.button.keyCode
+      value: 119
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].keyNegative.button._controlType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284406950600339, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: axes.Array.data[0].keyPositive.button._controlType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4479284407669075296, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
       propertyPath: m_RootOrder
       value: 5
@@ -1253,6 +1289,10 @@ PrefabInstance:
     - target: {fileID: 4479284407669075301, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
       propertyPath: m_Name
       value: TestShip
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479284407669075302, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}
+      propertyPath: configuration
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d0eb4b66315acbb4c8659a43f7ffe54c, type: 3}

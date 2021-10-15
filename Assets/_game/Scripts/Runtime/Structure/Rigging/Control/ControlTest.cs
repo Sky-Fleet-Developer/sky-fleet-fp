@@ -38,9 +38,9 @@ namespace Runtime.Structure.Rigging.Control
         {
             foreach (ControlAxe controlAxe in axes)
             {
-                if (controlAxe.device != null)
+                if (controlAxe.Device != null)
                 {
-                    controlAxe.device.Init(Structure, this,  name + controlAxe.port.Guid);
+                    controlAxe.Device.Init(Structure, this,  name + controlAxe.Port.Guid);
                 }
             }
         }
@@ -55,7 +55,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public IEnumerable<PortPointer> GetPorts()
         {
-            return axes.Select(x => new PortPointer(this, x.port));
+            return axes.Select(x => new PortPointer(this, x.Port));
         }
 
         public (bool canInteractive, string data) RequestInteractive(ICharacterController character)
@@ -104,9 +104,9 @@ namespace Runtime.Structure.Rigging.Control
         {
             foreach (ControlAxe controlAxe in axes)
             {
-                if (controlAxe.device != null)
+                if (controlAxe.Device != null)
                 {
-                    controlAxe.device.UpdateDevice();
+                    controlAxe.Device.UpdateDevice();
                 }
             }
         }
