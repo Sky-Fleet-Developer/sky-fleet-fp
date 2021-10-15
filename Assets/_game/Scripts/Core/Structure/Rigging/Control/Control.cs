@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -5,47 +7,203 @@ using static Core.Structure.StructureUpdateModule;
 
 namespace Core.Structure.Rigging.Control
 {
+   
+    
+    
+
     [System.Serializable]
-    public class AxisOption
+    public class ControlAxe : IVisibleControlElement
     {
-        public enum SideAxe
+        [SerializeField] protected KeyInput keyPositive;
+        [SerializeField] protected KeyInput keyNegative;
+        [SerializeField] protected AxeInput axe;
+        [SerializeField] protected KeyInput keyActiveAxis;
+        [Space]
+        public string computerInput;
+        [Space]
+        [SerializeField, Range(-1, 1)] protected float inputValue;
+        [SerializeField, Range(-1, 1)] protected float realValue;
+        [SerializeField, Range(-1, 1)] protected float logicValue;
+
+        [SerializeField, Range(0.1f, 4f)] protected float multiply = 1;
+        [SerializeField, Range(0, 5)] protected float sensitivity = 1;
+        [SerializeField, Range(0, 5)] protected float gravity = 1;
+        [SerializeField, Range(0.5f, 4f)] protected float power = 1;
+        [SerializeField, Range(0f, 1f)] protected float dead;
+        [SerializeField] protected float trim;
+        [SerializeField, Range(0f, 1f)] protected float step;
+        [SerializeField] protected bool inverse;
+        [SerializeField] protected bool saveInactive;
+        [SerializeField] protected AxeType axeType;
+        [SerializeField] protected bool fromZeroToOne;
+        
+
+        [ShowInInspector]
+        public Port<float> Port;
+
+
+        [ShowInInspector]
+        public DeviceBase Device { get => _device; set => _device = value; }
+
+        [SerializeField, HideInInspector]
+        private DeviceBase _device;
+
+        private float GetLogicValue()
         {
-            Positive = 0,
-            Negative = 1,
+            float sign = Mathf.Sign(realValue);
+            float val =  Clamp(Mathf.Pow(realValue * sign, power) * sign * multiply + trim);
+            float result = Mathf.Abs(val) >= dead ? val : 0;
+
+            if (axeType == AxeType.Relative && step > 0f)
+            {
+                result = Mathf.Ceil(result / step - 0.5f) * step;
+            }
+
+            if (inverse) result = -result;
+            return result;
         }
 
-        [SerializeField, HideInInspector]
-        private string nameAxe;
+        private float Clamp(float value)
+        {
+            return Mathf.Clamp(value, fromZeroToOne ? 0f : -1f, 1);
+        }
 
-        [SerializeField, HideInInspector]
-        private SideAxe side;
+        private void ReadInputValue()
+        {
+            inputValue = (keyPositive.GetButton() ? 1 : 0) + (keyNegative.GetButton() ? -1 : 0);
+            if (axe.IsNone()) return;
+            float joy = axe.GetValue();
+            inputValue = Mathf.Abs(joy) > Mathf.Abs(inputValue) ? joy : inputValue;
+        }
+
+        private bool axeDown;
+        private int ReadAxeStep()
+        {
+            if (axe.IsNone()) return 0;
+            float axeVal = axe.GetValue();
+            if (axeDown)
+            {
+                if (Mathf.Abs(axeVal) < 0.5f)
+                {
+                    axeDown = false;
+                }
+            }
+            else
+            {
+                if (Mathf.Abs(axeVal) > 0.75f)
+                {
+                    axeDown = true;
+                    return (int)Mathf.Sign(axeVal);
+                }
+            }
+
+            return 0;
+        }
+
+        private void Dumping()
+        {
+            switch (axeType)
+            {
+                case AxeType.Absolute:
+                case AxeType.Relative:
+                    float delta = inputValue - realValue;
+                    float dumping = Mathf.Abs(inputValue) > dead ? sensitivity : gravity;
+
+                    if (dumping == 0)
+                    {
+                        realValue = inputValue;
+                    }
+                    else
+                    {
+                        float dd = dumping * DeltaTime;
+                        realValue += Mathf.Clamp(delta, -dd, dd);
+                    }
+                    break;
+                case AxeType.Steps:
+                    if (sensitivity == 0)
+                    {
+                        realValue = inputValue;
+                    }
+                    else
+                    {
+                        realValue = Mathf.MoveTowards(realValue, inputValue, sensitivity * DeltaTime);
+                    }
+                    break;
+            }
+            
+        }
+        
+        public void Tick()
+        {
+            if(!keyActiveAxis.IsNone() && !keyActiveAxis.GetButton())
+            {
+                if (saveInactive) return;
+                inputValue = 0;
+                realValue = 0;
+                logicValue = 0;
+                Port.Value = logicValue;
+                return;
+            }
+            
+            switch (axeType)
+            {
+                case AxeType.Absolute:
+                    ReadInputValue();
+                    Dumping();
+                    realValue = Clamp(realValue);
+                    break;
+                case AxeType.Relative:
+                    ReadInputValue();
+                    realValue = Clamp(realValue + inputValue * DeltaTime);
+                    break;
+                case AxeType.Steps:
+                    int val = ReadAxeStep();
+                    int keysValue = val + (keyPositive.GetButtonDown() ? 1 : 0) + (keyNegative.GetButtonDown() ? -1 : 0);
+                    inputValue = Clamp(inputValue + step * keysValue);
+                    Dumping();
+                    break;
+            }
+
+            logicValue = GetLogicValue();
+            Port.Value = logicValue;
+        }
+
+    }
+    
+     [System.Serializable]
+    public class AxeInput
+    {
+        [SerializeField]
+        private string nameAxe;
 
         public string GetNameAxe() => nameAxe;
 
         [Button]
-        public void SetAxe(string name, SideAxe side)
+        public void SetAxe(string name)
         {
             nameAxe = name;
-            this.side = side;
         }
 
         public float GetValue()
         {
-            float val = Input.GetAxisRaw(nameAxe);   
-            if (val < 0 && side == SideAxe.Positive)
-            {
-                val = 0;
-            }
-            else if (val > 0 && side == SideAxe.Negative)
-            {
-                val = 0;
-            }
-            return Mathf.Abs(val);
+            return Input.GetAxisRaw(nameAxe);   
+        }
+        
+        public bool IsNone()
+        {
+            return string.IsNullOrEmpty(nameAxe);
         }
     }
 
+    public enum AxeType
+    {
+        Absolute = 0,
+        Relative = 1,
+        Steps = 2
+    }
+
     [System.Serializable]
-    public class ButtonOption
+    public class KeyInput
     {
         public enum ButtonControlType
         {
@@ -104,6 +262,11 @@ namespace Core.Structure.Rigging.Control
             _controlType = ButtonControlType.OtherButton;
         }
 
+        public bool IsNone()
+        {
+            return ControlType.Equals(ButtonControlType.None);
+        }
+        
         public bool GetButtonDown()
         {
             switch (ControlType)
@@ -146,152 +309,5 @@ namespace Core.Structure.Rigging.Control
                     return false;
             }
         }
-    }
-
-    [System.Serializable]
-    public class ControlInputSetting
-    {
-        public enum ControlType
-        {
-            None = 0,
-            Button = 1,
-            Axis = 2,
-        }
-
-        [SerializeField, ShowInInspector]
-        private ControlType type;
-
-        [SerializeField, ShowInInspector]
-        private AxisOption axis;
-
-        [SerializeField, ShowInInspector]
-        private ButtonOption button;
-
-        public ControlType GetControlType() => type;
-
-        [Button]
-        public void SetAxis(AxisOption axis)
-        {
-            this.axis = axis;
-            type = ControlType.Axis;
-        }
-
-        [Button]
-        public void SetButton(ButtonOption button)
-        {
-            this.button = button;
-            type = ControlType.Button;
-        }
-
-        public float GetValue()
-        {
-            switch (type)
-            {
-                case ControlType.Axis:
-                    return axis.GetValue();
-                case ControlType.Button:
-                    return button.GetButton() ? 1 : 0;
-                default:
-                    return 0;
-            }
-        }
-    }
-
-    [System.Serializable]
-    public class ControlAxe : IVisibleControlElement
-    {
-        [SerializeField] protected ControlInputSetting keyPositive;
-        [SerializeField] protected ControlInputSetting keyNegative;
-        [SerializeField] protected ButtonOption keyActiveAxis;
-        [Space]
-        public string computerInput;
-        [Space]
-        [SerializeField] protected float value;
-
-
-        [SerializeField] protected float multiply;
-        [SerializeField] protected float power = 1;
-        [SerializeField] protected float speedChange = 0.01f;
-        [SerializeField] protected float step;
-        [SerializeField] protected float trim;
-        [SerializeField] protected float deadZone;
-        [SerializeField] protected bool inverseAxe;
-        [SerializeField] protected bool saveValue;
-
-        private float cashVal;
-
-        public float GetValue() => value;
-
-        [ShowInInspector]
-        public Port<float> Port;
-
-
-        [ShowInInspector]
-        public DeviceBase Device { get => _device; set => _device = value; }
-
-        [SerializeField, HideInInspector]
-        private DeviceBase _device;
-
-        public void Tick()
-        {
-            if(keyActiveAxis.ControlType != ButtonOption.ButtonControlType.None && !keyActiveAxis.GetButton())
-            {
-                if(!saveValue)
-                {
-                    cashVal = trim;
-                    value = trim;
-                    Port.Value = value;
-                }
-                return;
-            }
-            float vBut = (keyPositive.GetValue() - keyNegative.GetValue());
-
-            bool isAllButton = keyPositive.GetControlType() == ControlInputSetting.ControlType.Button && keyNegative.GetControlType() == ControlInputSetting.ControlType.Button;
-
-
-            if (isAllButton)
-            {
-                float v = Mathf.Pow(multiply * speedChange * DeltaTime, power);
-                if (inverseAxe)
-                    v = -v;
-                if (vBut != 0)
-                {                
-                    v *= vBut;
-                    cashVal += v;
-                }
-                else
-                {
-                    float r = Mathf.Sign(cashVal) * v;
-                    if (Mathf.Abs(r) > Mathf.Abs(cashVal))
-                    {
-                        cashVal = 0;
-                    }
-                    else
-                    {
-                        cashVal -= r;
-                    }
-                }
-            }
-            else
-            {
-                float v = vBut * Mathf.Pow(multiply, power);
-                if (inverseAxe)
-                    v = -v;
-                cashVal = v;
-            }
-            cashVal = Mathf.Clamp(cashVal, -1, 1);
-            if (Mathf.Abs(cashVal) <= deadZone)
-            {
-                value = trim;
-            }
-            else
-            {
-                value = Mathf.Clamp(cashVal + trim, -1, 1);
-            }
-            if (step > 0)
-                value = Mathf.Ceil(value * (1 / step)) * step;
-            Port.Value = value;
-        }
-
     }
 }

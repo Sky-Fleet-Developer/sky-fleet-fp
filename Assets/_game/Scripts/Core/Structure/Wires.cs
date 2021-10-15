@@ -62,6 +62,7 @@ namespace Core.Structure
                 if (string.IsNullOrEmpty(guid)) guid = System.Guid.NewGuid().ToString();
                 return guid;
             }
+            private set => guid = value;
         }
         
         [SerializeField, HideInInspector] private string guid;

@@ -84,12 +84,13 @@ namespace Runtime.Structure.Rigging.Movement
 
         public void ApplyForce()
         {
-            variatorRotation = new Vector2(Mathf.Clamp(pitch.Value, -1, 1) * pitchAngle * Mathf.Deg2Rad,
-                Mathf.Clamp(roll.Value, -1, 1) * rollAngle * Mathf.Deg2Rad);
-            variator = transform.rotation * Quaternion.AngleAxis(variatorRotation.x, Vector3.right) *
-                       Quaternion.AngleAxis(variatorRotation.y, Vector3.forward);
-            Quaternion variator_i = Quaternion.Inverse(variator);
+            variatorRotation = new Vector2(Mathf.Clamp(pitch.Value, -1, 1) * pitchAngle,
+                Mathf.Clamp(roll.Value, -1, 1) * rollAngle);
+            variatorTransform.localRotation = Quaternion.AngleAxis(variatorRotation.x, Vector3.right) *
+                                              Quaternion.AngleAxis(variatorRotation.y, Vector3.forward);
 
+            variator = variatorTransform.rotation;
+            Quaternion variator_i = Quaternion.Inverse(variator);
 
             deltaP = variator_i * (transform.position - lastPosition);
             velocity = deltaP / Time.deltaTime;
