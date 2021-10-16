@@ -61,3 +61,9 @@ MonoBehaviour:
       m_SubObjectType: 
     guid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
     tags: []
+  - reference:
+      m_AssetGUID: f16d3e7948dbe24408d78a6e2a5855cf
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 4ea266d0-fbd5-4023-b34e-662b30e2819e
+    tags: []

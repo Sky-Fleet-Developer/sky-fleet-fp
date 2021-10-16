@@ -5,7 +5,15 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging.Control
 {
-    public interface IVisibleControlElement
+
+    public interface IControlElement
+    {
+        public Port PortAbstact { get; }
+
+        public void Tick();
+    }
+
+    public interface IVisibleControlElement : IControlElement
     {
         public DeviceBase Device { get; set; }
     }

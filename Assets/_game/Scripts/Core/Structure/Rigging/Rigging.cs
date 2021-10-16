@@ -55,6 +55,12 @@ namespace Core.Structure.Rigging
         void Interaction(ICharacterController character);
     }
 
+    public interface IControlable
+    { 
+        
+    }
+
+
     public interface IStorage
     {
         float CurrentAmount { get; }

@@ -96,10 +96,12 @@ namespace Runtime.Character.Control
                     attachedControl.LeaveControl(this);
                 }
 
-                /*if (Input.GetButton("Fire1"))
+                if (Input.GetKey(KeyCode.Mouse0))
                 {
                     //Interaction.CastControl(cameraRoot, attachedControl);
-                }*/
+                }
+                Bounds bount = new Bounds(Vector3.zero,new Vector3(2, 2, 2));
+                
             }
             else if (CanMove)
             {

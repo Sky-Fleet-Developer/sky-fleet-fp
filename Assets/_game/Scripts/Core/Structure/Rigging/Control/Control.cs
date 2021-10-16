@@ -7,13 +7,18 @@ using static Core.Structure.StructureUpdateModule;
 
 namespace Core.Structure.Rigging.Control
 {
-   
-    
-    
-
     [System.Serializable]
     public class ControlAxe : IVisibleControlElement
     {
+        [HideInInspector]
+        public Port PortAbstact { get => Port; }
+
+        [ShowInInspector]
+        public Port<float> Port;
+
+        [ShowInInspector]
+        public DeviceBase Device { get => _device; set => _device = value; }
+
         [SerializeField] protected KeyInput keyPositive;
         [SerializeField] protected KeyInput keyNegative;
         [SerializeField] protected AxeInput axe;
@@ -37,13 +42,6 @@ namespace Core.Structure.Rigging.Control
         [SerializeField] protected AxeType axeType;
         [SerializeField] protected bool fromZeroToOne;
         
-
-        [ShowInInspector]
-        public Port<float> Port;
-
-
-        [ShowInInspector]
-        public DeviceBase Device { get => _device; set => _device = value; }
 
         [SerializeField, HideInInspector]
         private DeviceBase _device;

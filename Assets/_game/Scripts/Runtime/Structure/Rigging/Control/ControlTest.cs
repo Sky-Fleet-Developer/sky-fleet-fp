@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,52 +17,77 @@ namespace Runtime.Structure.Rigging.Control
         //public float Durability => durability;
         //public ArmorData Armor => armor;
         public List<ControlAxe> Axes => axes;
+        public List<ControlButton> Buttons => buttons;
+        public List<ControlToggle> Toggles => toggles;
+        public List<ControlTrackball> Trackballs => trackballs;
+
         public bool IsUnderControl => isUnderControl;
 
         //[SerializeField] private float durability;
         //[SerializeField]  private ArmorData armor;
 
-        [PlayerProperty] public float SomeProperty
+        [PlayerProperty]
+        public float SomeProperty
         {
             get => 1f;
             set => Debug.Log("Set property: " + value);
         }
-        
+
         [ReadOnly, ShowInInspector] private bool isUnderControl;
         [SerializeField] private List<ControlAxe> axes;
+        [SerializeField] private List<ControlButton> buttons;
+        [SerializeField] private List<ControlToggle> toggles;
+        [SerializeField] private List<ControlTrackball> trackballs;
 
         public CharacterAttachData attachData;
         public CharacterDetachhData detachData;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
 
+
+        IVisibleControlElement[] controlElementsCache;
+        private IVisibleControlElement[] GetVisibleControlElement()
+        {
+            IVisibleControlElement[] ar = new IVisibleControlElement[axes.Count + buttons.Count + toggles.Count + trackballs.Count];
+            Array.Copy(axes.ToArray(), ar, axes.Count);
+            Array.Copy(buttons.ToArray(), 0, ar, axes.Count, buttons.Count);
+            Array.Copy(toggles.ToArray(), 0, ar, axes.Count + buttons.Count, toggles.Count);
+            Array.Copy(trackballs.ToArray(), 0, ar, axes.Count + buttons.Count + toggles.Count, trackballs.Count);
+            return ar;
+        }
+
         public override void OnInitComplete()
         {
-            foreach (ControlAxe controlAxe in axes)
+            controlElementsCache = GetVisibleControlElement();
+            Array.ForEach(controlElementsCache, x =>
             {
-                if (controlAxe.Device != null)
+                if (x.Device != null)
                 {
-                    controlAxe.Device.Init(Structure, this,  name + controlAxe.Port.Guid);
+                    x.Device.Init(Structure, this, name + x.PortAbstact.Guid);
                 }
-            }
+            });
         }
 
         public void ReadInput()
         {
-            foreach (ControlAxe axe in axes)
+            Array.ForEach(controlElementsCache, x =>
             {
-                axe.Tick();
-            }
+                x.Tick();
+            });
         }
 
         public IEnumerable<PortPointer> GetPorts()
         {
-            return axes.Select(x => new PortPointer(this, x.Port));
+            if(controlElementsCache == null)
+            {
+                controlElementsCache = GetVisibleControlElement();
+            }
+            return controlElementsCache.Select(x => new PortPointer(this, x.PortAbstact));
         }
 
         public (bool canInteractive, string data) RequestInteractive(ICharacterController character)
         {
             if (isUnderControl) return (false, GameData.Data.controlFailText);
-            
+
             return (true, string.Empty);
         }
 
@@ -79,7 +105,7 @@ namespace Runtime.Structure.Rigging.Control
             isUnderControl = true;
             controller = character;
         }
-        
+
         public void LeaveControl(ICharacterController character)
         {
             if (isUnderControl && character == controller)
@@ -94,7 +120,7 @@ namespace Runtime.Structure.Rigging.Control
             isUnderControl = false;
             controller = null;
         }
-        
+
         public CharacterAttachData GetAttachData()
         {
             return attachData;
@@ -102,13 +128,13 @@ namespace Runtime.Structure.Rigging.Control
 
         public void UpdateBlock()
         {
-            foreach (ControlAxe controlAxe in axes)
+            Array.ForEach(controlElementsCache, x =>
             {
-                if (controlAxe.Device != null)
+                if (x.Device != null)
                 {
-                    controlAxe.Device.UpdateDevice();
+                    x.Device.UpdateDevice();
                 }
-            }
+            });
         }
     }
 }
