@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace Core.Structure.Rigging
         public Vector3 localPosition => transform.position;
         public Parent Parent { get; private set; }
         public IStructure Structure { get; private set; }
+
+        private Bounds boundsCash;
 
         [ShowInInspector] public string Guid
         {
@@ -42,6 +45,7 @@ namespace Core.Structure.Rigging
         {
             Parent = parent;
             Structure = structure;
+            boundsCash = transform.GetBounds();
         }
 
         public virtual void OnInitComplete() { }
@@ -56,6 +60,11 @@ namespace Core.Structure.Rigging
 
         private void Start()
         {
+        }
+
+        public Bounds GetBounds()
+        {
+            return boundsCash;
         }
     }
 }

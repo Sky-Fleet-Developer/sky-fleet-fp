@@ -126,7 +126,7 @@ namespace Runtime.Structure.Rigging.Control
             return attachData;
         }
 
-        public void UpdateBlock()
+        public void UpdateBlock(int lod)
         {
             Array.ForEach(controlElementsCache, x =>
             {

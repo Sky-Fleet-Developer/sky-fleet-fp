@@ -40,8 +40,8 @@ namespace Core.SessionManager.SaveService
             List<StructureBundle> bundles = serializer.GetBundlesFor(structures);
 
             State state = new State(bundles);
-            state.playerPos = Object.FindObjectOfType<FirstPersonController>().transform.localPosition;
-            state.playerRot = Object.FindObjectOfType<FirstPersonController>().transform.localEulerAngles;
+            state.playerPos = Session.Instance.Player.transform.localPosition;
+            state.playerRot = Session.Instance.Player.transform.localEulerAngles;
 
             SaveToFile(state, path, name);
             Debug.Log("Session was saved successfully!");
@@ -53,8 +53,8 @@ namespace Core.SessionManager.SaveService
 
             //TODO: подождать пока загрузится сцена меню, если мы ещё не в ней
 
-            Object.FindObjectOfType<FirstPersonController>().transform.localPosition = state.playerPos;
-            Object.FindObjectOfType<FirstPersonController>().transform.localEulerAngles = state.playerRot;
+            Session.Instance.Player.transform.localPosition = state.playerPos;
+            Session.Instance.Player.transform.localEulerAngles = state.playerRot;
 
             List<System.Reflection.Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             LinkedList<Mod> mods = Session.Instance.Settings.mods;

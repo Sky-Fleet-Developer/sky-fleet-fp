@@ -21,13 +21,13 @@ namespace Core.Structure
         // ReSharper disable once InconsistentNaming
         Quaternion rotation { get; }
         Bounds Bounds { get; }
+        float Radius { get; }
         //TODO: Visibility
         List<Parent> Parents { get; }
         List<IBlock> Blocks { get; }
         List<Wire> Wires { get; }
         List<T> GetBlocksByType<T>();
         Port GetPort(string id);
-
         
         string Configuration { get; set; }
         //TODO: Navigation
@@ -52,6 +52,10 @@ namespace Core.Structure
         /// initialize all wires from current configuration
         /// </summary>
         void InitWires();
+
+        void UpdateStructureLod(int lod, Vector3 cameraPos);
+
+        void CalculateStructureRadius();
     }
 
     public interface IDynamicStructure : IStructure, IMass

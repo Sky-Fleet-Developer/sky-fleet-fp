@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Core.Character;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using UnityEngine;
+using Runtime.Character.Control;
+using Core.SessionManager;
+using Runtime;
 
 namespace Core.Structure
 {
@@ -20,13 +24,13 @@ namespace Core.Structure
         public static event Action onBeginConsumptionTick;
 
         public static float DeltaTime;
-        
+
         protected override void Setup()
         {
             onConsumptionTickEnd = null;
             onBeginConsumptionTick = null;
         }
-        
+
         public static void RegisterStructure(IStructure structure)
         {
             Structures.Add(structure);
@@ -51,20 +55,29 @@ namespace Core.Structure
         private void Update()
         {
             DeltaTime = Time.deltaTime;
+            FirstPersonController player = Session.Instance.Player;
+            foreach (IStructure str in Structures)
+            {
+                float radius = str.Radius;
+                float distToPlayer = (player.transform.position - str.position).sqrMagnitude;
+                distToPlayer -= radius;
+                float[] distances = GameData.Data.sqrLodDistances;
+                for (int i = 0; i < distances.Length; i++)
+                {
+                    if (distToPlayer <= distances[i])
+                    {
+                        str.UpdateStructureLod(i, player.transform.position);
+                        break;
+                    }
+                }
+
+            }
             foreach (IControl t in Controls)
             {
                 IStructure str = t.Structure;
                 if (str.Active && str.enabled && t.IsUnderControl)
                 {
                     t.ReadInput();
-                }
-            }
-            foreach (IUpdatableBlock t in Updatables)
-            {
-                IStructure str = t.Structure;
-                if (str.Active && str.enabled)
-                {
-                    t.UpdateBlock();
                 }
             }
             isConsumptionTick = true;

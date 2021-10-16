@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Core.Explorer.Content;
 using Core.SessionManager.SaveService;
 using Core.Utilities;
+using Runtime.Character.Control;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,7 +14,9 @@ namespace Core.SessionManager
     public class Session : Singleton<Session>
     {
         public SessionSettings Settings => settings;
-        
+
+        public FirstPersonController Player { get; private set; }
+
         private bool isInitialized = false;
 
         [ShowInInspector] private SessionSettings settings = new SessionSettings();
@@ -21,6 +24,14 @@ namespace Core.SessionManager
         [ShowInInspector] private SaveLoad saveLoad = new SaveLoad();
 
         [ShowInInspector] private SaveLoadUtility saveLoadUtility = new SaveLoadUtility();
+
+        private void OnLevelWasLoaded(int level)
+        {
+            if(level != 0)
+            {
+                Player = FindObjectOfType<FirstPersonController>();
+            }
+        }
 
         [Button]
         public void SaveWithName(string name)

@@ -51,7 +51,9 @@ namespace Core.Structure
             get => configuration;
             set => configuration = value;
         }
-        
+
+        public float Radius { get; private set; }
+
         [SerializeField, HideInInspector] private string guid;
 
         [ShowInInspector] protected List<IBlock> blocks;
@@ -67,7 +69,7 @@ namespace Core.Structure
         private Dictionary<string, Port> portsCache;
         private List<PortPointer> portsPointersCache;
         private Dictionary<System.Type, object> blocksCache;
-        
+       
 
         protected virtual void Awake()
         {
@@ -92,9 +94,15 @@ namespace Core.Structure
                 InitBlocks();
                 OnInitComplete();
                 StructureUpdateModule.RegisterStructure(this);
+                OnFinishInit();
             }
 
             initialized = true;
+        }
+
+        protected virtual void OnFinishInit()
+        {
+            CalculateStructureRadius();
         }
 
         private async Task ApplyConfigurationAndRegister()
@@ -102,6 +110,7 @@ namespace Core.Structure
             currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
             await Factory.ApplyConfiguration(this, currentConfiguration);
             StructureUpdateModule.RegisterStructure(this);
+            OnFinishInit();
         }
 
         protected void OnDestroy()
@@ -230,6 +239,24 @@ namespace Core.Structure
                     port.SetWire(newWire);
                 }
             }
+        }
+
+        public virtual void UpdateStructureLod(int lod, Vector3 cameraPos)
+        {
+            foreach(IUpdatableBlock block in GetBlocksByType<IUpdatableBlock>())
+            {
+                block.UpdateBlock(lod);
+            }
+        }
+
+        public void CalculateStructureRadius()
+        {
+            Bounds allB = new Bounds(transform.position, Vector3.zero);
+            foreach (IBlock block in GetBlocksByType<IUpdatableBlock>())
+            {
+                allB.Encapsulate(block.GetBounds());
+            }
+            Radius = allB.extents.sqrMagnitude;
         }
     }
 }

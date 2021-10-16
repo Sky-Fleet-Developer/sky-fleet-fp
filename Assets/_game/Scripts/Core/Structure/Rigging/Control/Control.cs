@@ -30,7 +30,7 @@ namespace Core.Structure.Rigging.Control
         [SerializeField, Range(-1, 1)] protected float realValue;
         [SerializeField, Range(-1, 1)] protected float logicValue;
 
-        [SerializeField, Range(0.1f, 4f)] protected float multiply = 1;
+        [SerializeField, Range(0.1f, 15f)] protected float multiply = 1;
         [SerializeField, Range(0, 5)] protected float sensitivity = 1;
         [SerializeField, Range(0, 5)] protected float gravity = 1;
         [SerializeField, Range(0.5f, 4f)] protected float power = 1;

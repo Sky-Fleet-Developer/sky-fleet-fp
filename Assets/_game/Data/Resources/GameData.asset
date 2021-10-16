@@ -23,6 +23,16 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 1
     fuelTransitionAmount: 5
+    lodDistances:
+    - 50
+    - 100
+    - 400
+    - 1000
+    sqrLodDistances:
+    - 2500
+    - 10000
+    - 160000
+    - 1000000
   serializedPrivateData:
     remotePrefabsTags:
     - Structure

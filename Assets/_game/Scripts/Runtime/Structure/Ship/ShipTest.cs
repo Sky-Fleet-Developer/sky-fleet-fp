@@ -1,4 +1,5 @@
 using Core.Structure;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Ship
@@ -10,8 +11,10 @@ namespace Runtime.Structure.Ship
         
         public Vector3 Velocity => rigidbody.velocity;
 
+        [ShowInInspector]
         public float TotalWeight { get; private set; }
 
+        [ShowInInspector]
         public Vector3 LocalCenterOfMass { get; private set; }
 
         private Rigidbody rigidbody;
@@ -22,6 +25,11 @@ namespace Runtime.Structure.Ship
             base.Awake();
             
             rigidbody = GetComponent<Rigidbody>();
+        }
+
+        protected override void OnFinishInit()
+        {
+            RecalculateMass();
         }
 
         public Vector3 GetVelocityForPoint(Vector3 worldPoint)
@@ -45,6 +53,8 @@ namespace Runtime.Structure.Ship
             });
             TotalWeight = mass + Mass;
             LocalCenterOfMass = pos / (mass + Mass);
+            rigidbody.mass = TotalWeight;
+            rigidbody.centerOfMass = LocalCenterOfMass;
         }
     }
 }

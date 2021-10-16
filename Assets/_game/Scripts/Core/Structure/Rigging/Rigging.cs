@@ -21,7 +21,7 @@ namespace Core.Structure.Rigging
 
         void InitBlock(IStructure structure, Parent parent);
         void OnInitComplete();
-
+        Bounds GetBounds();
         string Save();
         void Load(string value);
     }
@@ -51,7 +51,7 @@ namespace Core.Structure.Rigging
 
     public interface IUpdatableBlock : IBlock
     {
-        void UpdateBlock();
+        void UpdateBlock(int lod);
     }
 
     public interface IInteractiveBlock : IBlock

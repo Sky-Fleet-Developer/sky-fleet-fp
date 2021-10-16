@@ -16,6 +16,20 @@ namespace Runtime
         {
             Data = serializedSharedData;
             PrivateData = serializedPrivateData;
+            SetSqrLodDistances();
+        }
+
+        private void SetSqrLodDistances()
+        {
+            Data.sqrLodDistances = new float[Data.lodDistances.Length];
+            for(int i = 0; i < Data.sqrLodDistances.Length; i++)
+            {
+                Data.sqrLodDistances[i] = Data.lodDistances[i] * Data.lodDistances[i];
+            }
+        }
+        private void OnValidate()
+        {
+            SetSqrLodDistances();
         }
     }
     
@@ -32,6 +46,10 @@ namespace Runtime
         public LayerMask groundLayer;
         [Header("Logistics")] 
         public float fuelTransitionAmount = 5;
+        [Header("Lod")]
+        public float[] lodDistances;
+        [HideInInspector]
+        public float[] sqrLodDistances;
     }
 
     [System.Serializable]
@@ -39,4 +57,6 @@ namespace Runtime
     {
         [Header("Bundles")] public List<string> remotePrefabsTags;
     }
+
+
 }

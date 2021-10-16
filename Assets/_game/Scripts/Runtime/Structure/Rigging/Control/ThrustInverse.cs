@@ -19,7 +19,7 @@ namespace Runtime.Structure.Rigging.Control
 
         [SerializeField] private float trimer = 0;
 
-        public void UpdateBlock()
+        public void UpdateBlock(int lod)
         {
             outputPort.Value = -inputPort.Value + trimer;            
         }
