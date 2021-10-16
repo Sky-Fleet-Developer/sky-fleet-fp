@@ -828,6 +828,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 40222abb-51cd-4887-8afb-92518f93a6cd
   tags: []
+  mass: 25
   mountingType: 
   axes:
   - Port:
@@ -940,6 +941,7 @@ MonoBehaviour:
     _device: {fileID: 3156467125343095600}
   buttons: []
   toggles: []
+  trackballs: []
   attachData:
     anchor: {fileID: 6229396294549091251}
     attachAndLock: 1

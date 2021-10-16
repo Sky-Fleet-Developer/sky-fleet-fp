@@ -141,6 +141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
   tags: []
+  mass: 30
   mountingType: 
   powerPerFuel:
     serializedVersion: 2

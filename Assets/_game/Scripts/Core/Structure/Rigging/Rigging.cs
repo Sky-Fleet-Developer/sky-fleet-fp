@@ -6,7 +6,12 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging
 {
-    public interface IBlock : ITablePrefab
+    public interface IMass
+    {
+        float Mass { get; }
+    }
+
+    public interface IBlock : ITablePrefab, IMass
     {
         // ReSharper disable once InconsistentNaming
         Vector3 localPosition { get; }

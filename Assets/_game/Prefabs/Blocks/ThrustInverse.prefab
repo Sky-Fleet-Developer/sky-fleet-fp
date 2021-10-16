@@ -141,6 +141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 4ea266d0-fbd5-4023-b34e-662b30e2819e
   tags: []
+  mass: 5
   mountingType: 
   inputPort:
     guid: a13f2824-084d-48ae-91c9-fdeb578ce81b

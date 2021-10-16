@@ -45,15 +45,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+  tags: []
+  mass: 30
   mountingType: 
   maxInput: 1
   maxOutput: 1
   storage:
     guid: 0f711e28-beef-42a4-8731-4c344abeeef2
-    ValueType: 3
-    hash: 0
-    wire:
-      value: 0
+    charge: 0
+    maxInput: 1
+    maxOutput: 1
+    delta: 0
+  storedPower: 0
+  maxStoredPower: 100
 --- !u!1 &7707411366141556360
 GameObject:
   m_ObjectHideFlags: 0

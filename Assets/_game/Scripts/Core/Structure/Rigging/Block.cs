@@ -10,6 +10,7 @@ namespace Core.Structure.Rigging
         public Vector3 localPosition => transform.position;
         public Parent Parent { get; private set; }
         public IStructure Structure { get; private set; }
+
         [ShowInInspector] public string Guid
         {
             get
@@ -29,6 +30,12 @@ namespace Core.Structure.Rigging
             get => mountingType;
             set => mountingType = value;
         }
+
+        public float Mass { get => mass; }
+
+        [SerializeField]
+        private float mass = 10;
+
         [SerializeField, HideInInspector] private string mountingType;
 
         public virtual void InitBlock(IStructure structure, Parent parent)

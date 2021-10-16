@@ -45,6 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
   tags: []
+  mass: 50
   mountingType: 
   mode: 0
   maxInput: 1

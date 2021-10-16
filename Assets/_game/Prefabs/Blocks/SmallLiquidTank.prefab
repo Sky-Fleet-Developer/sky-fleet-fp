@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 2875250180455809628}
   - component: {fileID: 144708545352314639}
   m_Layer: 0
-  m_Name: LiquidTank
+  m_Name: SmallLiquidTank
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -141,8 +141,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
   tags: []
+  mass: 30
   mountingType: 
-  type: 0
   mode: 0
   maxInput: 1
   maxOutput: 1
@@ -150,4 +150,4 @@ MonoBehaviour:
   currentAmount: 100
   output:
     guid: cd8dd722-8d69-4c68-8c8b-fcda981ce18b
-    ItemType: Null
+    serializedType: Null
