@@ -37,6 +37,13 @@ namespace Core.Structure.Rigging.Control.Attributes
         {
             if (p is Port<T> pT)
             {
+                Wire w = pT.Wire;
+                if (w == null)
+                {
+                    w = pT.CreateWire();
+                    structure.Wires.Add(w);
+                    pT.SetWire(w);
+                }
                 wire = pT.Wire;
             }
         }
