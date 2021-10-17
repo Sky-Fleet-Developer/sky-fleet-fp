@@ -105,7 +105,7 @@ namespace Core.ContentSerializer
                     if (hash.TryGetValue(prefix, out string value))
                     {
                         int id = (int) CacheService.Deserialize(value, typeof(int));
-                        var obj = context.GetObject(id);
+                        Task<Object> obj = context.GetObject(id);
                         if (obj != null)
                         {
                             setter?.Invoke(obj);
@@ -258,7 +258,7 @@ namespace Core.ContentSerializer
                 return true;
             }
             
-            foreach (var serializer in CustomSerializer)
+            foreach (KeyValuePair<Type, ICustomSerializer> serializer in CustomSerializer)
             {
                 if (t.InheritsFrom(serializer.Key))
                 {

@@ -28,7 +28,7 @@ namespace Core.Explorer.Content
                 Debug.Log("Find mod: " + name);
             }
             
-            var loadTasks = GenerateMods(modsD, new ModLoader());
+            List<Task> loadTasks = GenerateMods(modsD, new ModLoader());
 
             await Task.WhenAll(loadTasks);
             onModsLoaded?.Invoke(mods);
@@ -64,7 +64,7 @@ namespace Core.Explorer.Content
 
         private List<Task> GenerateMods(LinkedList<string> directorys, ModLoader loader)
         {
-            var tasks = new List<Task>();
+            List<Task> tasks = new List<Task>();
             foreach (string directory in directorys)
             {
                 Task task = LoadMod(directory, loader);

@@ -28,7 +28,7 @@ namespace Core.ContentSerializer.CustomSerializers
             MeshRenderer mr = (MeshRenderer) source;
             string hashValue = cache[prefix];
             SerializedMeshRenderer serializedSource = JsonConvert.DeserializeObject<SerializedMeshRenderer>(hashValue);
-            var mats = new Material[serializedSource.materials.Length];
+            Material[] mats = new Material[serializedSource.materials.Length];
             for (int i = 0; i < mats.Length; i++)
             {
                 mats[i] = (Material) await context.GetObject(serializedSource.materials[i]);

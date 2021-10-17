@@ -53,7 +53,7 @@ namespace Core.Utilities
             StringBuilder str = new StringBuilder();
             EditorGUILayout.BeginVertical();
             EditorGUILayout.LabelField("Loading: " + loading.Count);
-            foreach (var hit in loading)
+            foreach (KeyValuePair<AssetReference, (AsyncOperationHandle handle, object tag)> hit in loading)
             {
                 str.Append("|->");
                 for (int i = 0; i < 20; i++)
@@ -87,7 +87,7 @@ namespace Core.Utilities
             }
 
             int i = 0;
-            foreach (var hit in loading)
+            foreach (KeyValuePair<AssetReference, (AsyncOperationHandle handle, object tag)> hit in loading)
             {
                 values[i++] = hit.Value.handle.PercentComplete;
             }
@@ -127,7 +127,7 @@ namespace Core.Utilities
         public void Unload(object tag)
         {
             List<AssetReference> toRemove = new List<AssetReference>();
-            foreach (var hit in loaded)
+            foreach (KeyValuePair<AssetReference, (AsyncOperationHandle handle, object tag)> hit in loaded)
             {
                 if (hit.Value.tag == tag)
                 {
@@ -144,7 +144,7 @@ namespace Core.Utilities
         public void Unload(object tag, System.Predicate<AssetReference> predication)
         {
             List<AssetReference> toRemove = new List<AssetReference>();
-            foreach (var hit in loaded)
+            foreach (KeyValuePair<AssetReference, (AsyncOperationHandle handle, object tag)> hit in loaded)
             {
                 if (hit.Value.tag == tag && predication.Invoke(hit.Key))
                 {
@@ -161,7 +161,7 @@ namespace Core.Utilities
         public void UnloadObject(object thing)
         {
             List<AssetReference> toRemove = new List<AssetReference>();
-            foreach (var hit in loaded)
+            foreach (KeyValuePair<AssetReference, (AsyncOperationHandle handle, object tag)> hit in loaded)
             {
                 if (hit.Value.handle.Result == thing)
                 {
@@ -194,7 +194,7 @@ namespace Core.Utilities
                 yield break;
             }
 
-            var _loading = asset.LoadAssetAsync<T>();
+            AsyncOperationHandle<T> _loading = asset.LoadAssetAsync<T>();
 
             loading.Add(asset, (_loading, tag));
 

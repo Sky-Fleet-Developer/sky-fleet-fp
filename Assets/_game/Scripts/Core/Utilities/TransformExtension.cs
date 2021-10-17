@@ -6,7 +6,7 @@ namespace Core.Utilities
     {
         public static Bounds GetBounds(this Transform root)
         {
-            var renderers = root.GetComponentsInChildren<MeshRenderer>(true);
+            MeshRenderer[] renderers = root.GetComponentsInChildren<MeshRenderer>(true);
             if (renderers.Length == 0)
             {
                 return new Bounds(root.transform.position, Vector3.zero);
@@ -16,10 +16,10 @@ namespace Core.Utilities
             {
                 bound.Encapsulate(hit.bounds);
             }
-            Debug.DrawLine(bound.min, bound.max, Color.red, 10);
+            /*Debug.DrawLine(bound.min, bound.max, Color.red, 10);
             Debug.DrawLine(bound.min + Vector3.up * bound.size.y, bound.max - Vector3.up * bound.size.y, Color.red, 10);
             Debug.DrawLine(bound.min + Vector3.right * bound.size.x, bound.max - Vector3.right * bound.size.x, Color.red, 10);
-            Debug.DrawLine(bound.min + Vector3.forward * bound.size.z, bound.max - Vector3.forward * bound.size.z, Color.red, 10);
+            Debug.DrawLine(bound.min + Vector3.forward * bound.size.z, bound.max - Vector3.forward * bound.size.z, Color.red, 10);*/
 
             return bound;
         }

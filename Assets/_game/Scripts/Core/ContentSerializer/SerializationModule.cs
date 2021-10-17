@@ -93,8 +93,8 @@ namespace Core.ContentSerializer
         public List<AssetBundle> SerializeAssets()
         {
             Serializer serializer = ModProvider.GetSerializer();
-            var collector = AssetsToSerialize.Clone();
-            var result = new List<AssetBundle>();
+            List<Object> collector = AssetsToSerialize.Clone();
+            List<AssetBundle> result = new List<AssetBundle>();
 
             serializer.DetectedObjectReport = v =>
             {
@@ -107,7 +107,7 @@ namespace Core.ContentSerializer
 
             while (collector.Count > 0)
             {
-                var array = collector.ToArray();
+                Object[] array = collector.ToArray();
                 collector = new List<Object>();
                 result.AddRange(serializer.GetBundlesFor(array));
             }
@@ -118,7 +118,7 @@ namespace Core.ContentSerializer
         public async Task<Object> GetAsset(Bundle bundle, System.Reflection.Assembly[] availableAssemblies)
         {
             if (deserializedAssets.TryGetValue(bundle.id, out Object value)) return value;
-            if (deserializationTasks.TryGetValue(bundle.id, out var currentTask)) return await currentTask;
+            if (deserializationTasks.TryGetValue(bundle.id, out Task<Object> currentTask)) return await currentTask;
 
             Task<Object> task = null;
             if (bundle is AssetBundle asset)

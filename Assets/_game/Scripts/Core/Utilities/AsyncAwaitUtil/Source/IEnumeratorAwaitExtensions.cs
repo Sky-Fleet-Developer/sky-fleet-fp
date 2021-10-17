@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using Core.Utilities.AsyncAwaitUtil.Source.Internal;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 // We could just add a generic GetAwaiter to YieldInstruction and CustomYieldInstruction
 // but instead we add specific methods to each derived class to allow for return values
@@ -59,7 +60,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         public static SimpleCoroutineAwaiter<UnityEngine.Object> GetAwaiter(this ResourceRequest instruction)
         {
-            var awaiter = new SimpleCoroutineAwaiter<UnityEngine.Object>();
+            SimpleCoroutineAwaiter<Object> awaiter = new SimpleCoroutineAwaiter<UnityEngine.Object>();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 InstructionWrappers.ResourceRequest(awaiter, instruction)));
             return awaiter;
@@ -73,7 +74,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         public static SimpleCoroutineAwaiter<AssetBundle> GetAwaiter(this AssetBundleCreateRequest instruction)
         {
-            var awaiter = new SimpleCoroutineAwaiter<AssetBundle>();
+            SimpleCoroutineAwaiter<AssetBundle> awaiter = new SimpleCoroutineAwaiter<AssetBundle>();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 InstructionWrappers.AssetBundleCreateRequest(awaiter, instruction)));
             return awaiter;
@@ -81,7 +82,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         public static SimpleCoroutineAwaiter<UnityEngine.Object> GetAwaiter(this AssetBundleRequest instruction)
         {
-            var awaiter = new SimpleCoroutineAwaiter<UnityEngine.Object>();
+            SimpleCoroutineAwaiter<Object> awaiter = new SimpleCoroutineAwaiter<UnityEngine.Object>();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 InstructionWrappers.AssetBundleRequest(awaiter, instruction)));
             return awaiter;
@@ -89,7 +90,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         public static SimpleCoroutineAwaiter<T> GetAwaiter<T>(this IEnumerator<T> coroutine)
         {
-            var awaiter = new SimpleCoroutineAwaiter<T>();
+            SimpleCoroutineAwaiter<T> awaiter = new SimpleCoroutineAwaiter<T>();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 new CoroutineWrapper<T>(coroutine, awaiter).Run()));
             return awaiter;
@@ -97,7 +98,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         public static SimpleCoroutineAwaiter<object> GetAwaiter(this IEnumerator coroutine)
         {
-            var awaiter = new SimpleCoroutineAwaiter<object>();
+            SimpleCoroutineAwaiter<object> awaiter = new SimpleCoroutineAwaiter<object>();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 new CoroutineWrapper<object>(coroutine, awaiter).Run()));
             return awaiter;
@@ -113,7 +114,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
         static SimpleCoroutineAwaiter<T> GetAwaiterReturnSelf<T>(T instruction)
         {
-            var awaiter = new SimpleCoroutineAwaiter<T>();
+            SimpleCoroutineAwaiter<T> awaiter = new SimpleCoroutineAwaiter<T>();
             RunOnUnityScheduler(() => AsyncCoroutineRunner.Instance.StartCoroutine(
                 InstructionWrappers.ReturnSelf(awaiter, instruction)));
             return awaiter;
@@ -264,7 +265,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
                         // actual names of the coroutine methods but it does tell us the objects
                         // that the IEnumerators are associated with, so we can at least try
                         // adding that to the exception output
-                        var objectTrace = GenerateObjectTrace(_processStack);
+                        List<Type> objectTrace = GenerateObjectTrace(_processStack);
 
                         if (objectTrace.Any())
                         {
@@ -327,7 +328,7 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 
             static List<Type> GenerateObjectTrace(IEnumerable<IEnumerator> enumerators)
             {
-                var objTrace = new List<Type>();
+                List<Type> objTrace = new List<Type>();
 
                 foreach (IEnumerator enumerator in enumerators)
                 {

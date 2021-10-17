@@ -57,7 +57,7 @@ namespace Core.ContentSerializer.Providers
                 return true;
             }
             
-            foreach (var serializer in CustomSerializer)
+            foreach (KeyValuePair<Type, ICustomSerializer> serializer in CustomSerializer)
             {
                 if (t.InheritsFrom(serializer.Key))
                 {

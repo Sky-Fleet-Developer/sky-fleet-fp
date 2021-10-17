@@ -30,7 +30,7 @@ namespace Core.ContentSerializer.Providers
                     await serializer.Deserialize(prefix, source, cache, context);
                 }
 
-                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 object obj = source;
                 for (int index = 0; index < fields.Length; index++)
                 {
@@ -45,7 +45,7 @@ namespace Core.ContentSerializer.Providers
                     source = obj;
                 }
 
-                var properties = type.GetProperties();
+                PropertyInfo[] properties = type.GetProperties();
                 for (int index = 0; index < properties.Length; index++)
                 {
                     PropertyInfo propertyInfo = properties[index];
@@ -74,7 +74,7 @@ namespace Core.ContentSerializer.Providers
                     return;
                 }
 
-                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 for (int index = 0; index < fields.Length; index++)
                 {
                     FieldInfo fieldInfo = fields[index];
@@ -85,7 +85,7 @@ namespace Core.ContentSerializer.Providers
                     CacheService.GetCache(prefix + "." + fieldInfo.Name, value, cache, context);
                 }
 
-                var properties = type.GetProperties();
+                PropertyInfo[] properties = type.GetProperties();
                 for (int index = 0; index < properties.Length; index++)
                 {
                     PropertyInfo propertyInfo = properties[index];

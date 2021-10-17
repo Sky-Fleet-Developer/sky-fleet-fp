@@ -31,7 +31,7 @@ namespace Core.Explorer.Content
             string[] pathSplit = modFolderPath.Split(new[] {'/', '\\'});
             name = pathSplit[pathSplit.Length - 1];
 
-            var assembliesList = System.AppDomain.CurrentDomain.GetAssemblies().ToList();
+            List<Assembly> assembliesList = System.AppDomain.CurrentDomain.GetAssemblies().ToList();
             assembliesList.Add(assembly);
             assemblies = assembliesList.ToArray();
             

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Core.Structure.Rigging.Storage;
 using Runtime;
 using UnityEngine;
@@ -45,7 +46,7 @@ namespace Core.Structure.Rigging
             {
                 _possibleTypes = new List<Type>();
                 _possibleTypes.Add(null);
-                var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
+                Assembly[] assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
                 foreach (System.Reflection.Assembly assembly in assemblies)
                 {
                     foreach (System.Type type in assembly.GetTypes())

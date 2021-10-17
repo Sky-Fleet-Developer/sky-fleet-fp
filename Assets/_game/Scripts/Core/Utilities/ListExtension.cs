@@ -8,7 +8,7 @@ namespace Core.Utilities
 
         public static List<T> Clone<T>(this List<T> value)
         {
-            var ret = new List<T>(value.Count);
+            List<T> ret = new List<T>(value.Count);
             for (int i = 0; i < value.Count; i++)
             {
                 ret.Add(value[i]);

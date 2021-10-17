@@ -1,0 +1,16 @@
+﻿#pragma kernel CSMain
+
+Texture2D<float4> source;
+RWStructuredBuffer<float> result;
+uint resx;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    /*float sum = source[uint2(id.x, id.y)].b;
+    sum += source[uint2(id.x + 1, id.y)].b;
+    sum += source[uint2(id.x, id.y + 1)].b;
+    sum += source[uint2(id.x + 1, id.y + 1)].b;*/
+
+    result[id.x + id.y * resx] = source[uint2(id.x, id.y)].b;
+}

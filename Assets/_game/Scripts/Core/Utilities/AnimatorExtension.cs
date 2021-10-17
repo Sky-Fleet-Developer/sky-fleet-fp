@@ -6,7 +6,7 @@ namespace Core.Utilities
     {
         public static AnimationClip GetClip(this Animator animator, string name)
         {
-            var clips = animator.runtimeAnimatorController.animationClips;
+            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
             for (int i = 0; i < clips.Length; i++)
             {
                 if (clips[i].name == name)

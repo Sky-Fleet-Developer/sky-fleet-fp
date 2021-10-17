@@ -43,7 +43,7 @@ namespace Core.ContentSerializer.Bundles
         {
             Transform root = null;
             Dictionary<int, Transform> transforms = new Dictionary<int, Transform>(Tree.Count);
-            foreach (var obj in Tree)
+            foreach (KeyValuePair<int, PrefabBundleObject> obj in Tree)
             {
                 GameObject go = new GameObject(obj.Value.name);
                 if (obj.Value.parent == -1)
@@ -55,7 +55,7 @@ namespace Core.ContentSerializer.Bundles
                 transforms.Add(obj.Key, go.transform);
             }
 
-            foreach (var obj in transforms)
+            foreach (KeyValuePair<int, Transform> obj in transforms)
             {
                 if (Tree[obj.Key].parent == -1) continue;
                 obj.Value.parent = transforms[Tree[obj.Key].parent];
@@ -69,12 +69,12 @@ namespace Core.ContentSerializer.Bundles
 
             Dictionary<int, Component> reconstruction = new Dictionary<int, Component>();
 
-            foreach (var obj in Tree)
+            foreach (KeyValuePair<int, PrefabBundleObject> obj in Tree)
             {
                 obj.Value.ReconstructTypes(transforms[obj.Key], ref reconstruction, context);
             }
 
-            foreach (var obj in Tree)
+            foreach (KeyValuePair<int, PrefabBundleObject> obj in Tree)
             {
                 await obj.Value.ReconstructCache(reconstruction, context);
             }
@@ -143,7 +143,7 @@ namespace Core.ContentSerializer.Bundles
 
         public async Task ReconstructCache(Dictionary<int, Component> reconstruction, ISerializationContext context)
         {
-            foreach (var component in reconstruction)
+            foreach (KeyValuePair<int, Component> component in reconstruction)
             {
                 if (reconstructedTypes.Contains(component.Key))
                 {

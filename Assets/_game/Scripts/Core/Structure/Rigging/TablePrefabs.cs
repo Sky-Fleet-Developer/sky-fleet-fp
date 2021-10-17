@@ -27,7 +27,7 @@ namespace Core.Structure.Rigging
 
         public void ExtractBlocksFromMod(Mod mod)
         {
-            var tags = GameData.PrivateData.remotePrefabsTags;
+            List<string> tags = GameData.PrivateData.remotePrefabsTags;
             foreach (Bundle prefab in mod.module.Cache)
             {
                 string remotePrefabTag = string.Empty;

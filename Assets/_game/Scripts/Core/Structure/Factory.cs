@@ -24,7 +24,7 @@ namespace Core.Structure
             if (blocksProperties == null) blocksProperties = new Dictionary<Type, PropertyInfo[]>();
             if (blocksProperties.ContainsKey(blockType)) return blocksProperties[blockType];
 
-            var properties = GetBlockProperties(blockType);
+            PropertyInfo[] properties = GetBlockProperties(blockType);
             blocksProperties.Add(blockType, properties);
             return properties;
         }
@@ -95,7 +95,7 @@ namespace Core.Structure
 
         public static void ApplySetup(IBlock block, Dictionary<string, string> setup)
         {
-            var properties = GetBlockProperties(block);
+            PropertyInfo[] properties = GetBlockProperties(block);
             for (int i = 0; i < properties.Length; i++)
             {
                 if (setup.TryGetValue(properties[i].Name, out string value))
@@ -194,7 +194,7 @@ namespace Core.Structure
 
         public static BlockConfiguration GetConfiguration(IBlock block)
         {
-            var properties = GetBlockProperties(block);
+            PropertyInfo[] properties = GetBlockProperties(block);
 
             Dictionary<string, string> setup = new Dictionary<string, string>(); 
             
@@ -302,7 +302,7 @@ namespace Core.Structure
         
         public static void GetPorts(IBlock block, ref List<PortPointer> result)
         {
-            var properties = GetPortsInfo(block);
+            FieldInfo[] properties = GetPortsInfo(block);
             foreach (FieldInfo property in properties)
             {
                 result.Add(new PortPointer(block, property.GetValue(block) as Port));
@@ -313,7 +313,7 @@ namespace Core.Structure
         {
             if(block is ISpecialPorts specialPortsBlock)
             {
-                var specialPorts = specialPortsBlock.GetPorts();
+                IEnumerable<PortPointer> specialPorts = specialPortsBlock.GetPorts();
                 Debug.Log($"+ {specialPorts.Count()} special ports");
                 result.AddRange(specialPorts);
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Core.ContentSerializer.CustomSerializers
@@ -78,7 +79,7 @@ namespace Core.ContentSerializer.CustomSerializers
                     memoryStream.Write(uvBuf, 0, uvBuf.Length);
 
                     //weight animation
-                    var bonesW = mesh.GetAllBoneWeights();                   
+                    NativeArray<BoneWeight1> bonesW = mesh.GetAllBoneWeights();                   
                     memoryStream.Write(BitConverter.GetBytes(bonesW.Length), 0, sizeof(int));
                     for (int i = 0; i < bonesW.Length; i++)
                     {
@@ -86,7 +87,7 @@ namespace Core.ContentSerializer.CustomSerializers
                         memoryStream.Write(BitConverter.GetBytes(bonesW[i].weight), 0, sizeof(float));
                     }
 
-                    var bones = mesh.GetBonesPerVertex();
+                    NativeArray<byte> bones = mesh.GetBonesPerVertex();
                     memoryStream.Write(BitConverter.GetBytes(bones.Length), 0, sizeof(int));
                     memoryStream.Write(bones.ToArray(), 0, bones.Length);
 

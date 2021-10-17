@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Core.Utilities
 {
@@ -14,7 +15,7 @@ namespace Core.Utilities
             if (TypesCache == null)
             {
                 TypesCache = new Dictionary<string, Type>();
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 foreach (System.Reflection.Assembly assembly in assemblies)
                 {
                     foreach (Type type in assembly.GetTypes())
