@@ -3,22 +3,22 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class HelmDevice : EasyDevice<float>, IArrowDevice
+    public class HelmDevice : DeviceBase<float>, IArrowDevice
     {
+        public Transform Arrow => lever;
+        [SerializeField] private Transform lever;
+        
         public float mul = 30;
         public float trim;
 
         public Vector3 eulerStart;
         public Vector3 axe = Vector3.right;
-        
+
         public override void UpdateDevice(int lod)
         {
             base.UpdateDevice(lod);
-            if (IsMinLod)
-            {
-                visualTransfrom.localRotation =
-                    Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(wire.value * mul + trim, axe);
-            }
+            if (lod > 0) return;
+            lever.localRotation = Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(wire.value * mul + trim, axe);
         }
     }
 }

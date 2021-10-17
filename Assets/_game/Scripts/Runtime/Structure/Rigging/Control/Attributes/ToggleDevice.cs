@@ -7,28 +7,22 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class ToggleDevice : EasyDevice<bool>
+    public class ToggleDevice : DeviceBase<bool>
     {
-
+        [SerializeField] private Transform ball;
         [SerializeField, Range(0, 2.0f)] private float minPos;
-
-        public override void Init(IStructure structure, IBlock block, string port)
-        {
-            base.Init(structure, block, port);
-        }
 
         public override void UpdateDevice(int lod)
         {
             base.UpdateDevice(lod);
-            if (IsMinLod)
-                if (wire.value)
-                {
-                    visualTransfrom.localPosition = new Vector3(0, -minPos, 0);
-                }
-                else
-                {
-                    visualTransfrom.localPosition = Vector3.zero;
-                }
+            if (lod == 0 && wire.value)
+            {
+                ball.localPosition = new Vector3(0, -minPos, 0);
+            }
+            else
+            {
+                ball.localPosition = Vector3.zero;
+            }
         }
     }
 }

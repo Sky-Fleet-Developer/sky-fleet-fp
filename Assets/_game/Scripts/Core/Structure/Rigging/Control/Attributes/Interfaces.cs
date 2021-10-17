@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Core.Structure.Rigging.Control.Attributes
 {
 
@@ -7,11 +9,11 @@ namespace Core.Structure.Rigging.Control.Attributes
         IBlock Block { get; }
         string Port { get; set; }
         void Init(IStructure structure, IBlock block, string port);
-        void UpdateDevice(int load);
+        void UpdateDevice(int lod);
     }
 
     public interface IArrowDevice : IDevice
     {
-        
+        Transform Arrow { get; }
     }
 }

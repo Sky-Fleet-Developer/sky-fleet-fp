@@ -7,8 +7,9 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class ButtonDevice : EasyDevice<Action<object>>
+    public class ButtonDevice : DeviceBase<Action<object>>
     {
+        [SerializeField] private Transform button;
         [SerializeField, Range(0, 2.0f)] private float minPos;
         [SerializeField, Range(0, 1.0f)] private float waitButton;
 
@@ -16,9 +17,9 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         private void OnClick(object sender)
         {
-            if(animClick == null && IsMinLod)
+            if(animClick == null && currentLod == 0)
             {
-                animClick = StartCoroutine(AnimButtonClick());
+                animClick = structure.StartCoroutine(AnimButtonClick());
             }
         }
 
@@ -28,18 +29,12 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             wire.value += OnClick;
         }
 
-        public override void UpdateDevice(int lod)
+        private IEnumerator AnimButtonClick()
         {
-            base.UpdateDevice(lod);
-        }
-
-        IEnumerator AnimButtonClick()
-        {
-            visualTransfrom.localPosition = new Vector3(0, -minPos, 0);
+            button.localPosition = new Vector3(0, -minPos, 0);
             yield return new WaitForSeconds(waitButton);
-            visualTransfrom.localPosition = Vector3.zero;
+            button.localPosition = Vector3.zero;
             animClick = null;
-            yield break;
         }
     }
 }

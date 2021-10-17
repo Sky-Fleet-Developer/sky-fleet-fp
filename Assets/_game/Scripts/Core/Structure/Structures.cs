@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
@@ -28,6 +29,7 @@ namespace Core.Structure
         List<Wire> Wires { get; }
         List<T> GetBlocksByType<T>();
         Port GetPort(string id);
+        Coroutine StartCoroutine(IEnumerator routine);
         
         string Configuration { get; set; }
         //TODO: Navigation
