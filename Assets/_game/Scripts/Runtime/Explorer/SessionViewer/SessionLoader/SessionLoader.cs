@@ -6,7 +6,7 @@ using Core.SessionManager.SaveService;
 using Core.UiStructure;
 using Core.Utilities;
 using Core.Utilities.UI;
-using Core.ContentSerializer;
+using Core;
 
 using UnityEngine;
 using UnityEngine.UI;

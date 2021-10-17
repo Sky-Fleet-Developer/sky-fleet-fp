@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -8,11 +7,7 @@ using UnityEngine.UI;
 
 using Core.Utilities;
 using Core.Utilities.UI;
-using Core.Explorer.Content;
-using Core.SessionManager;
-using Core.UiStructure;
-using Core.ContentSerializer;
-using Runtime.Explorer.ModContent;
+using Core;
 
 namespace Runtime.Explorer.SessionViewer
 {

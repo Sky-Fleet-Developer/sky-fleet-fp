@@ -48,6 +48,7 @@ namespace Core.SessionManager.SaveService
 
         public void SaveSession(string path, string name)
         {
+            path = path + "\\" + name + "." + PathStorage.SESSION_TYPE_FILE;
             saveLoad.Save(path, name);
         }
 
@@ -58,7 +59,7 @@ namespace Core.SessionManager.SaveService
             if (Directory.Exists(pathBase + "\\" + name))
             {
                 string[] listD = GetDirectoryWithName(name, pathBase);
-                if(listD.Length == 0)
+                if (listD.Length == 0)
                 {
                     retName = name + "_1";
                 }
@@ -71,10 +72,23 @@ namespace Core.SessionManager.SaveService
             return retName;
         }
 
+        public bool CheckIsCanSave(string name, string path)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+            else
+            {
+                return Directory.Exists(path);
+            }
+        }
+
         private string[] GetDirectoryWithName(string name, string path)
         {
             string[] directores = Directory.GetDirectories(path, name + "_*");
             return directores;
         }
+
     }
 }

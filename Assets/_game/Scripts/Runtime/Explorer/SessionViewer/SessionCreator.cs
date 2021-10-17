@@ -4,7 +4,7 @@ using System.IO;
 using Core.Explorer.Content;
 using Core.SessionManager;
 using Core.UiStructure;
-using Core.ContentSerializer;
+using Core;
 using Core.SessionManager.SaveService;
 
 using Runtime.Explorer.ModContent;

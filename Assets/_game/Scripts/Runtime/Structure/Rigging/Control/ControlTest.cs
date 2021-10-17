@@ -77,7 +77,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public IEnumerable<PortPointer> GetPorts()
         {
-            if(controlElementsCache == null)
+            if (controlElementsCache == null)
             {
                 controlElementsCache = GetVisibleControlElement();
             }
@@ -128,11 +128,13 @@ namespace Runtime.Structure.Rigging.Control
 
         public void UpdateBlock(int lod)
         {
+            if (lod != 0) return;
+
             Array.ForEach(controlElementsCache, x =>
             {
                 if (x.Device != null)
                 {
-                    x.Device.UpdateDevice(lod);
+                    x.Device.UpdateDevice();
                 }
             });
         }

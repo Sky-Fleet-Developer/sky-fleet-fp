@@ -17,7 +17,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         private void OnClick(object sender)
         {
-            if(animClick == null && currentLod == 0)
+            if(animClick == null)
             {
                 animClick = structure.StartCoroutine(AnimButtonClick());
             }

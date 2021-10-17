@@ -9,7 +9,7 @@ namespace Core.Structure.Rigging.Control.Attributes
         IBlock Block { get; }
         string Port { get; set; }
         void Init(IStructure structure, IBlock block, string port);
-        void UpdateDevice(int lod);
+        void UpdateDevice();
     }
 
     public interface IArrowDevice : IDevice

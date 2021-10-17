@@ -1,7 +1,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace Core.ContentSerializer
+namespace Core
 {
     public class PathStorage
     {
@@ -15,6 +15,7 @@ namespace Core.ContentSerializer
         
         
         public static readonly string BASE_DATA_PATH = "Data";
+        public static readonly string BASE_LOGS_PATH = "CustomLogs";
         public static readonly string DATA_SESSION_PRESETS = "SessionPresets";
         public static readonly string DATA_SESSION_SAVE = "SessionSave";
         public static readonly string SESSION_TYPE_FILE = "save";
@@ -34,6 +35,14 @@ namespace Core.ContentSerializer
             string pathU = Application.dataPath;
             DirectoryInfo infoPath = Directory.GetParent(pathU);
             pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS;
+            return pathU;
+        }
+
+        public static string GetPathToLogs()
+        {
+            string pathU = Application.dataPath;
+            DirectoryInfo infoPath = Directory.GetParent(pathU);
+            pathU = infoPath.FullName + "\\" + PathStorage.BASE_LOGS_PATH;
             return pathU;
         }
     }

@@ -6,7 +6,7 @@ using Core.SessionManager.SaveService;
 using Core.UiStructure;
 using Core.Utilities;
 using Core.Utilities.UI;
-using Core.ContentSerializer;
+using Core;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +34,7 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
             if (string.IsNullOrEmpty(nameSession.text))
             { return; }
             SaveLoadUtility saveLoad = new SaveLoadUtility();
+            Session.Instance.Settings.name = nameSession.text;
             saveLoad.SaveSession(sessionFilerManager.GetCurrentPath(), nameSession.text);
         }
     }

@@ -14,10 +14,8 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         public Vector3 eulerStart;
         public Vector3 axe = Vector3.right;
 
-        public override void UpdateDevice(int lod)
+        public override void UpdateDevice()
         {
-            base.UpdateDevice(lod);
-            if (lod > 0) return;
             lever.localRotation = Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(wire.value * mul + trim, axe);
         }
     }

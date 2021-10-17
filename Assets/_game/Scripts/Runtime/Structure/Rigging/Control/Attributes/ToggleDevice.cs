@@ -12,10 +12,9 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         [SerializeField] private Transform ball;
         [SerializeField, Range(0, 2.0f)] private float minPos;
 
-        public override void UpdateDevice(int lod)
+        public override void UpdateDevice()
         {
-            base.UpdateDevice(lod);
-            if (lod == 0 && wire.value)
+            if (wire.value)
             {
                 ball.localPosition = new Vector3(0, -minPos, 0);
             }

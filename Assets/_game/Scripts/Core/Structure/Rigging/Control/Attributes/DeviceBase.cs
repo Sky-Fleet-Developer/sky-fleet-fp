@@ -14,8 +14,6 @@ namespace Core.Structure.Rigging.Control.Attributes
         protected IStructure structure;
         protected IBlock block;
 
-        protected int currentLod;
-        
         public virtual void Init(IStructure structure, IBlock block, string port)
         {
             this.structure = structure;
@@ -29,9 +27,8 @@ namespace Core.Structure.Rigging.Control.Attributes
 
         protected abstract void SetWire(Port p);
 
-        public virtual void UpdateDevice(int lod)
+        public virtual void UpdateDevice()
         {
-            currentLod = lod;
         }
     }
 

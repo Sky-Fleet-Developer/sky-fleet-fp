@@ -13,10 +13,9 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         public float mul = 30;
         public Vector2 trim;
 
-        public override void UpdateDevice(int lod)
+        public override void UpdateDevice()
         {
-            base.UpdateDevice(lod);
-            if (lod == 0) ball.localRotation = Quaternion.Euler(wire.value.x * mul + trim.x, 0, wire.value.y * mul + trim.y);
+            ball.localRotation = Quaternion.Euler(wire.value.x * mul + trim.x, 0, wire.value.y * mul + trim.y);
         }
     }
 }

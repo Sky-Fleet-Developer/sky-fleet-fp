@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2782148939981810494}
   - component: {fileID: 1724707858224977586}
   m_Layer: 5
-  m_Name: ItemPropertyMod
+  m_Name: Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
