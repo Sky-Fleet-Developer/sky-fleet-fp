@@ -46,6 +46,11 @@ namespace Core.SessionManager.SaveService
             saveLoad.Save(path, nameSave);
         }
 
+        public void SaveSession(string path, string name)
+        {
+            saveLoad.Save(path, name);
+        }
+
         public string CreateDirectorySession(string name)
         {
             string pathBase = PathStorage.GetPathToSessionSave();

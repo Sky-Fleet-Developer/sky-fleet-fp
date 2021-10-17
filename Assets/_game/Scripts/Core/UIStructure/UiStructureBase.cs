@@ -16,10 +16,10 @@ namespace Core.UIStructure
 
         private Canvas canvas;
         private CanvasScaler scaler;
-        private GraphicRaycaster graphicRaycaster;
-        [ShowInInspector, ReadOnly] private List<IUiBlock> blocks;
+        protected GraphicRaycaster graphicRaycaster;
+        [ShowInInspector, ReadOnly] protected List<IUiBlock> blocks;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             canvas = GetComponent<Canvas>();
             scaler = GetComponent<CanvasScaler>();
@@ -29,7 +29,7 @@ namespace Core.UIStructure
             SceneLoader.StartChangeScene += BlockInterfaceControl;
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             SceneLoader.StartChangeScene -= BlockInterfaceControl;
         }

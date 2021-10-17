@@ -306,7 +306,7 @@ GameObject:
   - component: {fileID: 9062639974011191046}
   - component: {fileID: 5524189645105270536}
   m_Layer: 5
-  m_Name: Session Saver
+  m_Name: Session Loader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -29,6 +29,7 @@ namespace Runtime
         }
         private void OnValidate()
         {
+            Data = serializedSharedData;
             SetSqrLodDistances();
         }
     }

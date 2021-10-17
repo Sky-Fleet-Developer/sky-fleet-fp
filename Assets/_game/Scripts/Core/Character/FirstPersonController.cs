@@ -3,9 +3,11 @@ using Cinemachine;
 using Core.Character;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.SessionManager.GameProcess;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
+
 
 namespace Runtime.Character.Control
 {
@@ -16,11 +18,11 @@ namespace Runtime.Character.Control
         public Transform cameraRoot;
         [FoldoutGroup("Links")]
         public CharacterMotor motor;
-        [FoldoutGroup("Links")] 
+        [FoldoutGroup("Links")]
         public Rigidbody rigidbody;
-        [FoldoutGroup("Links")] 
+        [FoldoutGroup("Links")]
         public Collider collider;
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [ShowInInspector, FoldoutGroup("Links")]
         public string refresher
         {
@@ -49,13 +51,13 @@ namespace Runtime.Character.Control
                         collider = GetComponent<Collider>();
                     }
                 }
-                
+
                 string val = "--";
                 val = val.Insert(Time.frameCount % 3, "*");
                 return val;
             }
         }
-        #endif
+#endif
         [FoldoutGroup("Input")] public float verticalSpeed;
         [FoldoutGroup("Input")] public float horizontalSpeed;
         [FoldoutGroup("View")] public float horizontalBorders;
@@ -64,11 +66,11 @@ namespace Runtime.Character.Control
         public IControl AttachedControl => attachedControl;
         private IControl attachedControl;
 
-        
+
         //public Quaternion globalView;
 
         public readonly InteractionRaycast Interaction = new InteractionRaycast();
-        
+
         private float vertical;
 
         private bool CanMove
@@ -84,46 +86,52 @@ namespace Runtime.Character.Control
 
         private void LateUpdate()
         {
-            RotateHead();
+            if (!PauseGame.Instance.IsPause)
+            {
+                RotateHead();
+            }
         }
 
         private void Update()
         {
             if (attachedControl != null)
             {
-                if (Input.GetButtonDown("Interaction"))
+                if (!PauseGame.Instance.IsPause)
                 {
-                    attachedControl.LeaveControl(this);
-                }
-
-                if (Input.GetKey(KeyCode.Mouse0))
-                {
-                    //Interaction.CastControl(cameraRoot, attachedControl);
-                }
-                Bounds bount = new Bounds(Vector3.zero,new Vector3(2, 2, 2));
-                
-            }
-            else if (CanMove)
-            {
-                Move();
-                
-                if (Interaction.Cast(cameraRoot, out IInteractiveBlock block))
-                {
-                    (bool canInteractive, string data) request = block.RequestInteractive(this);
-                    if (request.canInteractive)
+                    if (Input.GetButtonDown("Interaction"))
                     {
-                        //TODO: write text to HUD
-                        if (Input.GetButtonDown("Interaction"))
-                        {
-                            block.Interaction(this);
-                        }
+                        attachedControl.LeaveControl(this);
+                    }
+
+                    if (Input.GetKey(KeyCode.Mouse0))
+                    {
+                        //Interaction.CastControl(cameraRoot, attachedControl);
                     }
                 }
             }
+            else if (CanMove)
+            {
+                if (!PauseGame.Instance.IsPause)
+                {
+                    Move();
 
+                    if (Interaction.Cast(cameraRoot, out IInteractiveBlock block))
+                    {
+                        (bool canInteractive, string data) request = block.RequestInteractive(this);
+                        if (request.canInteractive)
+                        {
+                            //TODO: write text to HUD
+                            if (Input.GetButtonDown("Interaction"))
+                            {
+                                block.Interaction(this);
+                            }
+                        }
+                    }
+                }
 
+            }
         }
-        
+
 
         private void RotateHead()
         {
@@ -137,7 +145,7 @@ namespace Runtime.Character.Control
         {
             motor.InputAxis = new Vector2(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal"));
             motor.InputSprint = Input.GetButton("Sprint");
-            
+
             if (Input.GetButtonDown("Jump"))
             {
                 motor.InputJump();
@@ -152,7 +160,7 @@ namespace Runtime.Character.Control
         public IEnumerator AttachToControl(IControl control)
         {
             CharacterAttachData attachData = control.GetAttachData();
-            
+
             if (attachData.attachAndLock)
             {
                 CanMove = false;
@@ -204,7 +212,7 @@ namespace Runtime.Character.Control
             }
         }
     }
-    
+
     public class InteractionRaycast
     {
         public RaycastHit Hit;

@@ -173,7 +173,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   menus:
-  - block: {fileID: 3322352339464336548, guid: 51a6994caaf36b546b138d58459a291d, type: 3}
+  - blocks: []
     description: Mod viewer
     style: 1
     alignment: 5
@@ -232,7 +232,7 @@ Canvas:
   m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
-  m_PixelPerfect: 0
+  m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0

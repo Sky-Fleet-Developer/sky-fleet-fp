@@ -131,10 +131,8 @@ namespace Core.Structure
                     awaiters.Add(task);
                 }
             }
-
             await Task.WhenAll(awaiters);
             await new WaitForEndOfFrame();
-            
             structure.RefreshBlocksAndParents();
 
             foreach (IBlock block in structure.Blocks)

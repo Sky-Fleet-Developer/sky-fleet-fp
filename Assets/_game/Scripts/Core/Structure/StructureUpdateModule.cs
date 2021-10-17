@@ -59,6 +59,7 @@ namespace Core.Structure
             foreach (IStructure str in Structures)
             {
                 float radius = str.Radius;
+                
                 float distToPlayer = (player.transform.position - str.position).sqrMagnitude;
                 distToPlayer -= radius;
                 float[] distances = GameData.Data.sqrLodDistances;

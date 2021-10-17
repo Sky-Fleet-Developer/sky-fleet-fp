@@ -26,7 +26,7 @@ namespace Core.Structure.Rigging.Control.Attributes
         }
 
         protected abstract void SetWire(Port p);
-        public abstract void UpdateDevice();
+        public abstract void UpdateDevice(int load);
     }
 
     public abstract class DeviceBase<T> : DeviceBase

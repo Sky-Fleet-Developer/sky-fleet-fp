@@ -27,11 +27,22 @@ namespace Core.SessionManager
             operationLoad.completed += onComplete;
         }
 
+        public static void LoadMenuScene(Action<AsyncOperation> onComplete = null)
+        {
+            if (operationLoad != null)
+                return;
+
+            StartChangeScene?.Invoke();
+            operationLoad = SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
+            operationLoad.completed += EndLoad;
+            operationLoad.completed += onComplete;
+        }
+
         private static void EndLoad(AsyncOperation asyncOpr)
         {
             operationLoad.completed -= EndLoad;
             operationLoad = null;
-            if (asyncOpr.isDone)
+            if (asyncOpr.isDone && SceneManager.GetActiveScene().buildIndex > 0)
             {
                 Debug.Log("Session scene loaded.");
             }

@@ -40,6 +40,7 @@ namespace Core.SessionManager.SaveService
             List<StructureBundle> bundles = serializer.GetBundlesFor(structures);
 
             State state = new State(bundles);
+            Debug.Log(Session.Instance.Player);
             state.playerPos = Session.Instance.Player.transform.localPosition;
             state.playerRot = Session.Instance.Player.transform.localEulerAngles;
 

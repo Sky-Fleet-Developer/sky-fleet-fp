@@ -132,7 +132,7 @@ namespace Runtime.Structure.Rigging.Control
             {
                 if (x.Device != null)
                 {
-                    x.Device.UpdateDevice();
+                    x.Device.UpdateDevice(lod);
                 }
             });
         }

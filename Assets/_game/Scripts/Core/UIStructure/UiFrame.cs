@@ -112,6 +112,11 @@ namespace Core.UIStructure
 
         private void OnClickExit()
         {
+            Close();
+        }
+
+        public void Close()
+        {
             Structure.StartCoroutine(Hide());
         }
 

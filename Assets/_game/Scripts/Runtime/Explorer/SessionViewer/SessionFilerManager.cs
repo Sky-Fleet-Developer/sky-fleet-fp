@@ -125,12 +125,12 @@ namespace Runtime.Explorer.SessionViewer
             nameDirectory.text = "";
         }
 
-        private string GetCurrentPath()
+        public string GetCurrentPath()
         {
             return currentPath;
         }
 
-        private string GetCurrentPathFile()
+        public string GetCurrentPathFile()
         {
             return selectFile.path.path;
         }
