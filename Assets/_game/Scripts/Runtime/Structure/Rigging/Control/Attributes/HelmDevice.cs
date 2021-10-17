@@ -15,7 +15,10 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         {
             base.UpdateDevice(lod);
             if (IsMinLod)
-                visualTransfrom.localRotation = Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(wire.value * mul + trim, axe);
+            {
+                visualTransfrom.localRotation =
+                    Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(wire.value * mul + trim, axe);
+            }
         }
     }
 }

@@ -92,8 +92,6 @@ GameObject:
   - component: {fileID: 5772559994663384592}
   - component: {fileID: 5239703658532426512}
   - component: {fileID: 7856628330679851088}
-  - component: {fileID: 6909135060026838532}
-  - component: {fileID: 3598915900568667975}
   m_Layer: 0
   m_Name: buttonDvice
   m_TagString: Untagged
@@ -110,7 +108,7 @@ Transform:
   m_GameObject: {fileID: 561583309266187090}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.070911, y: 0.070911, z: 0.070911}
   m_Children: []
   m_Father: {fileID: 1676299258341366804}
   m_RootOrder: 0
@@ -164,34 +162,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6909135060026838532
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 561583309266187090}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3598915900568667975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 561583309266187090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36be9fd06c5508e40b558b409b0f2d39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visualTransfrom: {fileID: 0}
-  minPos: 0
-  waitButton: 0
 --- !u!1 &961185931185359267
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,7 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handle: {fileID: 7449303962376428840}
+  visualTransfrom: {fileID: 7449303962376428840}
   mul: 30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -845,7 +815,7 @@ MonoBehaviour:
       mouseButton: 0
       otherButton: 
     axe:
-      nameAxe: Joy axe 1
+      nameAxe: 
     keyActiveAxis:
       _controlType: 0
       keyCode: 0
@@ -857,7 +827,7 @@ MonoBehaviour:
     logicValue: 0
     multiply: 1
     sensitivity: 2.5
-    gravity: 0.35
+    gravity: 2.5
     power: 1.5
     dead: 0
     trim: 0
@@ -881,7 +851,7 @@ MonoBehaviour:
       mouseButton: 0
       otherButton: 
     axe:
-      nameAxe: Joy axe 1
+      nameAxe: 
     keyActiveAxis:
       _controlType: 0
       keyCode: 0
@@ -893,12 +863,12 @@ MonoBehaviour:
     logicValue: 0
     multiply: 1
     sensitivity: 2.5
-    gravity: 0.35
+    gravity: 2.5
     power: 1.5
     dead: 0
     trim: 0
     step: 0
-    inverse: 0
+    inverse: 1
     saveInactive: 0
     axeType: 0
     fromZeroToOne: 0
@@ -927,21 +897,48 @@ MonoBehaviour:
     inputValue: 0
     realValue: 0
     logicValue: 0
-    multiply: 1
+    multiply: 15
     sensitivity: 1
     gravity: 1
-    power: 1
+    power: 0.75
     dead: 0
-    trim: 1
-    step: 0.25
+    trim: 0
+    step: 0
     inverse: 0
     saveInactive: 0
     axeType: 1
     fromZeroToOne: 1
     _device: {fileID: 3156467125343095600}
-  buttons: []
-  toggles: []
-  trackballs: []
+  buttons:
+  - Port:
+      guid: 5e076202-4b5d-4dba-8cca-80c3176cc61f
+    _device: {fileID: 3809098984217395702}
+    keyDetected:
+      _controlType: 1
+      keyCode: 104
+      mouseButton: 0
+      otherButton: 
+  toggles:
+  - Port:
+      guid: 45b80196-9e19-40eb-9f3a-fb70868fdb52
+      cache: 0
+    _device: {fileID: 8555079850700183309}
+    keyDetected:
+      _controlType: 1
+      keyCode: 106
+      mouseButton: 0
+      otherButton: 
+  trackballs:
+  - Port:
+      guid: 25562a5e-23fb-4bbe-a62f-d107b7e9007b
+      cache: {x: 0, y: 0}
+    axeX:
+      nameAxe: Mouse Y
+    axeY:
+      nameAxe: Mouse X
+    typeLimit: 0
+    multiply: 0.4
+    _device: {fileID: 8709533074721656710}
   attachData:
     anchor: {fileID: 6229396294549091251}
     attachAndLock: 1
@@ -1115,6 +1112,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1676299258341366804}
+  - component: {fileID: 499492200}
+  - component: {fileID: 3809098984217395702}
   m_Layer: 0
   m_Name: ButtonDevice
   m_TagString: Untagged
@@ -1130,13 +1129,43 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4999166295463343983}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.69000006, y: 1.3140001, z: 1.36}
-  m_LocalScale: {x: 0.10748549, y: 0.10748549, z: 0.10748549}
+  m_LocalPosition: {x: 0.368, y: 1.3140001, z: 1.41}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5772559994663384592}
   m_Father: {fileID: 4007178922747367427}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &499492200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4999166295463343983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36be9fd06c5508e40b558b409b0f2d39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualTransfrom: {fileID: 5772559994663384592}
+  minPos: 0.06
+  waitButton: 0.222
+--- !u!114 &3809098984217395702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4999166295463343983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36be9fd06c5508e40b558b409b0f2d39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualTransfrom: {fileID: 5772559994663384592}
+  minPos: 0.06
+  waitButton: 0.222
 --- !u!1 &5491989621257766014
 GameObject:
   m_ObjectHideFlags: 0
@@ -1468,7 +1497,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9a4bddd10db4e419a5c8c187a4b2ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visualTransfrom: {fileID: 0}
+  visualTransfrom: {fileID: 6868589276516753986}
   mul: 30
   trim: {x: 0, y: 0}
 --- !u!1 &6830383605120646314
@@ -1500,7 +1529,7 @@ Transform:
   m_GameObject: {fileID: 6830383605120646314}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.06892423, y: 0.06892423, z: 0.06892423}
   m_Children: []
   m_Father: {fileID: 2134117929970880763}
   m_RootOrder: 0
@@ -1722,7 +1751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handle: {fileID: 6650955081788456794}
+  visualTransfrom: {fileID: 6650955081788456794}
   mul: 30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -1772,7 +1801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handle: {fileID: 6624175600165822729}
+  visualTransfrom: {fileID: 6624175600165822729}
   mul: 30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -1867,6 +1896,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2134117929970880763}
+  - component: {fileID: 1678119842}
+  - component: {fileID: 8555079850700183309}
   m_Layer: 0
   m_Name: ToggleDevice
   m_TagString: Untagged
@@ -1882,10 +1913,38 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9037845976371660534}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.69000006, y: 1.3140001, z: 1.36}
-  m_LocalScale: {x: 0.10748549, y: 0.10748549, z: 0.10748549}
+  m_LocalPosition: {x: 0.2, y: 1.316, z: 1.454}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6698704164394349471}
   m_Father: {fileID: 4007178922747367427}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1678119842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9037845976371660534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23376903dc839f54abc0071ed6103461, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualTransfrom: {fileID: 6698704164394349471}
+  minPos: 0.06
+--- !u!114 &8555079850700183309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9037845976371660534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23376903dc839f54abc0071ed6103461, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualTransfrom: {fileID: 6698704164394349471}
+  minPos: 0.06

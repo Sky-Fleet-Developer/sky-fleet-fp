@@ -7,6 +7,10 @@ namespace Core.Utilities
         public static Bounds GetBounds(this Transform root)
         {
             var renderers = root.GetComponentsInChildren<MeshRenderer>(true);
+            if (renderers.Length == 0)
+            {
+                return new Bounds(root.transform.position, Vector3.zero);
+            }
             Bounds bound = renderers[0].bounds;
             foreach (MeshRenderer hit in renderers)
             {

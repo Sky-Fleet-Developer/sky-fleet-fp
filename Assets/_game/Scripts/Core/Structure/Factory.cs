@@ -145,9 +145,16 @@ namespace Core.Structure
                 ApplySetup(block, blockConfig.setup);
             }
 
-            structure.InitBlocks();
-            structure.InitWires();
-            structure.OnInitComplete();
+            try
+            {
+                structure.InitBlocks();
+                structure.InitWires();
+                structure.OnInitComplete();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
 
             Debug.Log($"{structure.transform.name} configuration success!");
         }

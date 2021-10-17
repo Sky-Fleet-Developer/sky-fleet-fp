@@ -25,12 +25,22 @@ namespace Core.SessionManager
 
         [ShowInInspector] private SaveLoadUtility saveLoadUtility = new SaveLoadUtility();
 
+        protected override void Setup()
+        {
+            InitPlayer();
+        }
+
         private void OnLevelWasLoaded(int level)
         {
-            if(level != 0)
+            if (level != 0)
             {
-                Player = FindObjectOfType<FirstPersonController>();
+                InitPlayer();
             }
+        }
+
+        private void InitPlayer()
+        {
+            if (Player == null) Player = FindObjectOfType<FirstPersonController>();
         }
 
         [Button]

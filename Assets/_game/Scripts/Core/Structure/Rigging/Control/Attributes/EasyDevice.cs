@@ -13,26 +13,18 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         
         protected bool IsMinLod { get; private set; }
 
-        int oldLod;
+        int oldLod = -1;
 
         protected const int maxLod = 0;
 
         public override void UpdateDevice(int lod)
         {
-            if (oldLod != lod)
-            {
-                oldLod = lod;
-                if (oldLod > maxLod)
-                {
-                    visualTransfrom.gameObject.SetActive(false);
-                    IsMinLod = false;
-                }
-                else
-                {
-                    visualTransfrom.gameObject.SetActive(true);
-                    IsMinLod = true;
-                }
-            }
+            if (oldLod == lod) return; 
+            
+            oldLod = lod;
+            bool enable = lod <= maxLod;
+            visualTransfrom.gameObject.SetActive(enable);
+            IsMinLod = enable;
         }
     }
 }

@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
   tags: []
+  mass: 10
   mountingType: 
   thrustPerFuel:
     serializedVersion: 2
@@ -96,7 +97,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalThrust: 5500
+  maximalThrust: 55000
   throttle:
     guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
     cache: 0

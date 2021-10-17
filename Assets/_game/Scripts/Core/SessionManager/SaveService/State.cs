@@ -56,7 +56,9 @@ namespace Core.SessionManager.SaveService
         {
             blocksCache ??= blocks.ToDictionary(block => block.path);
 
-            return blocksCache[path];
+            blocksCache.TryGetValue(path, out BlockConfiguration value);
+            
+            return value;
         }
     }
 }
