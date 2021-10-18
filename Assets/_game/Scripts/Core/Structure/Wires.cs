@@ -145,7 +145,7 @@ namespace Core.Structure
 
         public override string ToString()
         {
-            return valueType.ToString();
+            return valueType.ToString() + " Wire type: " + typeof(T).Name;
         }
     }
     [System.Serializable, InlineProperty(LabelWidth = 150)]
