@@ -38,6 +38,7 @@ namespace Core.ContentSerializer.CustomSerializers
             mr.receiveShadows = serializedSource.receiveShadows;
             mr.lightProbeUsage = serializedSource.lightProbeUsage;
             mr.reflectionProbeUsage = serializedSource.reflectionProbeUsage;
+            
         }
         
         [System.Serializable]

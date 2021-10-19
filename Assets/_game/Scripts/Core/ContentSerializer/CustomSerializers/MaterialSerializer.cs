@@ -103,7 +103,6 @@ namespace Core.ContentSerializer.CustomSerializers
                             {
                                 material.SetTexture(property.name, tex);
                             }
-
                             break;
                         default:
                             throw new System.ArgumentOutOfRangeException();

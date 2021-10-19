@@ -19,6 +19,7 @@ namespace Runtime.Explorer.SessionViewer
         public Mod GetSelectMod => currectTakeItem?.KeepMod;
 
         private bool isSelectedMod = true;
+
         public bool IsSelectedMod
         {
             get
@@ -84,6 +85,7 @@ namespace Runtime.Explorer.SessionViewer
             CreateItemMod(mod, itemMods);
         }
 
+       
         private void CreateItemMod(Mod mod, LinkedList<ItemMod> putOnList)
         {
             ButtonItemSelectablePointer keepMod = DynamicPool.Instance.Get(buttonItemPrefab, content);

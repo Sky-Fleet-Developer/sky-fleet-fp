@@ -24,12 +24,58 @@ namespace Runtime.Explorer.ModContent
 
         public Mod CurrentMod => selected;
 
+        private LinkedList<Mod> maskMods;
+
         protected override void Awake()
         {
             base.Awake();
             selected = null;
             ModReader.OnModsLoaded(OnModsInit);
         }
+
+        public void SetMaskMod(LinkedList<Mod> mods)
+        {
+            maskMods = mods;
+            UpdateMask();
+        }
+
+        public void ClearMask()
+        {
+            maskMods = null;
+            UpdateMask();
+        }
+
+        private void UpdateMask()
+        {
+            if (maskMods == null || maskMods.Count == 0)
+            {
+                foreach (ItemPointer item in buttons)
+                {
+                    item.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                foreach (ItemPointer item in buttons)
+                {
+                    bool isNo = true;
+                    foreach (Mod mod in maskMods)
+                    {
+                        if (item.name == mod.name)
+                        {
+                            item.gameObject.SetActive(false);
+                            isNo = false;
+                            break;
+                        }
+                    }
+                    if(isNo)
+                    {
+                        item.gameObject.SetActive(true);
+                    }
+                }
+            }
+        }
+
 
         private void OnModsInit(List<Mod> mods)
         {
@@ -52,6 +98,7 @@ namespace Runtime.Explorer.ModContent
             {
                 ButtonItemPointer item = DynamicPool.Instance.Get(selectModButton, selectionScrollRoot);
                 item.SetVisual(mod.name, (System.Action)(() => ShowMod(mod)), FontStyle.Bold, 18);
+                item.name = mod.name;
                 buttons.AddLast(item);
             }
         }

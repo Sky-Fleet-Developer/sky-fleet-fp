@@ -125,9 +125,9 @@ namespace Core.Structure
 
                 if (blockConfig == null) continue;
 
-                if (block.Guid != blockConfig.current)
+                if (block.Guid != blockConfig.currentGuid)
                 {
-                    Task task = ReplaceBlock(structure, i, blockConfig.current);
+                    Task task = ReplaceBlock(structure, i, blockConfig.currentGuid);
                     awaiters.Add(task);
                 }
             }
@@ -204,7 +204,7 @@ namespace Core.Structure
                 setup.Add(properties[i].Name, value);
             }
 
-            return new BlockConfiguration {setup = setup, path = GetPath(block), current = block.Guid };
+            return new BlockConfiguration {setup = setup, path = GetPath(block), currentGuid = block.Guid };
         }
 
         public static string GetPath(IBlock block)

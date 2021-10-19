@@ -16,9 +16,9 @@ namespace Core.ContentSerializer.Bundles
 
         public PrefabBundle()
         {
-            
+
         }
-        
+
         public PrefabBundle(GameObject root, ISerializationContext context)
         {
             name = root.name;
@@ -130,7 +130,7 @@ namespace Core.ContentSerializer.Bundles
             reconstructedTypes = new List<int>();
             foreach (string componentName in components)
             {
-                string[] split = componentName.Split(new[] {'|'});
+                string[] split = componentName.Split(new[] { '|' });
                 Type type = context.GetTypeByName(split[0]);
                 if (!transform.gameObject.TryGetComponent(type, out Component component))
                     component = transform.gameObject.AddComponent(type);
@@ -148,7 +148,8 @@ namespace Core.ContentSerializer.Bundles
                 if (reconstructedTypes.Contains(component.Key))
                 {
                     object val = component.Value;
-                    await context.Behaviour.SetNestedCache(component.Value.GetType().FullName, val, Cache, reconstruction);
+                    if (val != null)
+                        await context.Behaviour.SetNestedCache(component.Value.GetType().FullName, val, Cache, reconstruction);
                 }
             }
         }

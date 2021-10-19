@@ -117,12 +117,14 @@ namespace Runtime.Explorer.SessionViewer
                     sessionModInfo.AddModToList(select);
                 }
             }
+            modViewer.SetMaskMod(mods);
         }
 
         void PutOneMod()
         {
             mods.Remove(sessionModInfo.GetSelectMod);
             sessionModInfo.RemoveModFromList(sessionModInfo.GetSelectMod);
+            modViewer.SetMaskMod(mods);
         }
 
         void TakeAllMods()
@@ -131,12 +133,14 @@ namespace Runtime.Explorer.SessionViewer
             foreach (Mod mod in ModReader.Instance.GetMods())
                 mods.AddLast(mod);
             sessionModInfo.UpdateListMods(mods);
+            modViewer.SetMaskMod(mods);
         }
 
         void PutAllMods()
         {
             mods.Clear();
             sessionModInfo.UpdateListMods(mods);
+            modViewer.SetMaskMod(mods);
         }
     }
 }
