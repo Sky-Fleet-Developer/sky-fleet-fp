@@ -12,6 +12,9 @@ namespace Core.Structure
 {
     public class StructureUpdateModule : Singleton<StructureUpdateModule>
     {
+        public static event Action<IStructure> OnStructureInitialized;
+        public static event Action<IStructure> OnStructureDestroy;
+        
         public static List<IStructure> Structures = new List<IStructure>();
         public static List<IControl> Controls = new List<IControl>();
         public static List<IUpdatableBlock> Updatables = new List<IUpdatableBlock>();
@@ -20,15 +23,16 @@ namespace Core.Structure
         public static List<IForceUser> ForceUsers = new List<IForceUser>();
 
         public static bool isConsumptionTick = false;
-        public static event Action onConsumptionTickEnd;
-        public static event Action onBeginConsumptionTick;
+        public static event Action OnConsumptionTickEnd;
+        public static event Action OnBeginConsumptionTick;
+        public static event Action OnEndPhysicsTick;
 
         public static float DeltaTime;
 
         protected override void Setup()
         {
-            onConsumptionTickEnd = null;
-            onBeginConsumptionTick = null;
+            OnConsumptionTickEnd = null;
+            OnBeginConsumptionTick = null;
         }
 
         public static void RegisterStructure(IStructure structure)
@@ -39,10 +43,12 @@ namespace Core.Structure
             PowerUsers.AddRange(structure.GetBlocksByType<IPowerUser>());
             FuelUsers.AddRange(structure.GetBlocksByType<IFuelUser>());
             ForceUsers.AddRange(structure.GetBlocksByType<IForceUser>());
+            OnStructureInitialized?.Invoke(structure);
         }
 
         public static void DestroyStructure(IStructure structure)
         {
+            OnStructureDestroy?.Invoke(structure);
             Structures.Remove(structure);
             Controls.RemoveAll(x => structure.GetBlocksByType<IControl>().Contains(x));
             Updatables.RemoveAll(x => structure.GetBlocksByType<IUpdatableBlock>().Contains(x));
@@ -82,7 +88,7 @@ namespace Core.Structure
                 }
             }
             isConsumptionTick = true;
-            onBeginConsumptionTick?.Invoke();
+            OnBeginConsumptionTick?.Invoke();
             foreach (IPowerUser t in PowerUsers)
             {
                 IStructure str = t.Structure;
@@ -91,7 +97,7 @@ namespace Core.Structure
                     t.ConsumptionTick();
                 }
             }
-            onConsumptionTickEnd?.Invoke();
+            OnConsumptionTickEnd?.Invoke();
             isConsumptionTick = false;
             foreach (IPowerUser t in PowerUsers)
             {
@@ -123,6 +129,7 @@ namespace Core.Structure
                     ForceUsers[i].ApplyForce();
                 }
             }
+            OnEndPhysicsTick?.Invoke();
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,11 +14,11 @@ namespace Core.Structure.Rigging.Storage
         public float amount;
     }
     [System.Serializable]
-    public class WaterItem : StorageItem
+    public class Water : StorageItem
     {
     }
     [System.Serializable]
-    public class HydrogenItem : StorageItem
+    public class Hydrogen : StorageItem
     {
     }
     
@@ -56,11 +55,21 @@ namespace Core.Structure.Rigging.Storage
             set
             {
                 itemType = value;
-                serializedType = value == null ? "Null" : value.FullName;
+                if (value == null || value == typeof(StorageItem))
+                {
+                    serializedType = "Null";
+                    serializedTypeShort = "Store";
+                }
+                else
+                {
+                    serializedType = value.FullName;
+                    serializedTypeShort = value.Name;
+                }
             }
         }
         private System.Type itemType = null;
         [ReadOnly] public string serializedType;
+        [ReadOnly] public string serializedTypeShort;
 
         private IEnumerable<System.Type> GetPossibleTypes() => Utilities.GetPossibleTypes();
 
@@ -95,7 +104,7 @@ namespace Core.Structure.Rigging.Storage
         
         public override Wire CreateWire()
         {
-            Type type = TypeExtensions.GetTypeByName(serializedType);
+            System.Type type = TypeExtensions.GetTypeByName(serializedType);
             StorageItem itemInstance = (StorageItem) System.Activator.CreateInstance(type);
             return new StorageWire(itemInstance);
         }
@@ -112,7 +121,7 @@ namespace Core.Structure.Rigging.Storage
 
         public override string ToString()
         {
-            return serializedType;
+            return serializedTypeShort;
         }
     }
 }

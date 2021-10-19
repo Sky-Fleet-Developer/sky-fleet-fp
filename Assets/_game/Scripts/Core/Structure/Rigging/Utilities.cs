@@ -45,7 +45,6 @@ namespace Core.Structure.Rigging
             if (_possibleTypes == null)
             {
                 _possibleTypes = new List<Type>();
-                _possibleTypes.Add(null);
                 Assembly[] assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
                 foreach (System.Reflection.Assembly assembly in assemblies)
                 {
@@ -57,6 +56,7 @@ namespace Core.Structure.Rigging
                         }
                     }
                 }
+                _possibleTypes.Add(typeof(StorageItem));
             }
 
             return _possibleTypes;

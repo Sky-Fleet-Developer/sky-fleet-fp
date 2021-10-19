@@ -18,7 +18,7 @@ namespace Runtime.Structure.Rigging.Movement
         private IDynamicStructure root;
 
         public Port<float> throttle = new Port<float>(PortType.Thrust);
-        public StoragePort fuel = new StoragePort(typeof(HydrogenItem));
+        public StoragePort fuel = new StoragePort(typeof(Hydrogen));
 
         private float fuelPerSec;
         [ShowInInspector, ReadOnly] private float currentThrust;

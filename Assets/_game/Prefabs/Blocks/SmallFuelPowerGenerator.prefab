@@ -141,7 +141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
   tags: []
-  mass: 30
+  mass: 15
   mountingType: 
   powerPerFuel:
     serializedVersion: 2
@@ -173,7 +173,8 @@ MonoBehaviour:
   minFuelUsage: 0.1
   fuel:
     guid: 7ac4983b-32a1-4013-8093-698fc6cd7744
-    serializedType: Core.Structure.Rigging.Storage.HydrogenItem
+    serializedType: Core.Structure.Rigging.Storage.Hydrogen
+    serializedTypeShort: Hydrogen
   output:
     guid: fd689e1e-5084-4dca-be25-aeef478e5acc
     charge: 0

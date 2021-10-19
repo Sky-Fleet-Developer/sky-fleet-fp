@@ -233,8 +233,8 @@ namespace Core.Structure
 
         public PowerWire()
         {
-            StructureUpdateModule.onConsumptionTickEnd += ConsumptionTickEnd;
-            StructureUpdateModule.onBeginConsumptionTick += BeginConsumptionTick;
+            StructureUpdateModule.OnConsumptionTickEnd += ConsumptionTickEnd;
+            StructureUpdateModule.OnBeginConsumptionTick += BeginConsumptionTick;
         }
         private void ConsumptionTickEnd()
         {
@@ -321,8 +321,8 @@ namespace Core.Structure
 
         public override void Dispose()
         {
-            StructureUpdateModule.onConsumptionTickEnd -= ConsumptionTickEnd;
-            StructureUpdateModule.onBeginConsumptionTick -= BeginConsumptionTick;
+            StructureUpdateModule.OnConsumptionTickEnd -= ConsumptionTickEnd;
+            StructureUpdateModule.OnBeginConsumptionTick -= BeginConsumptionTick;
         }
 
         public override bool CanConnect(Port port)

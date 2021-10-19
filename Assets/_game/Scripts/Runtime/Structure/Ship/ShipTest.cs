@@ -7,7 +7,7 @@ namespace Runtime.Structure.Ship
     [RequireComponent(typeof(Rigidbody))]
     public class ShipTest : BaseStructure, IDynamicStructure
     {
-        public float Mass => rigidbody.mass; //TODO: calculate mass from blocks count and self body mass
+        public float Mass => rigidbody.mass;
         
         public Vector3 Velocity => rigidbody.velocity;
 

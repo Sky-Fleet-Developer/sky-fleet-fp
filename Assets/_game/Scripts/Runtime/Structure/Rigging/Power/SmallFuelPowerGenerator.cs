@@ -24,7 +24,7 @@ namespace Runtime.Structure.Rigging.Power
         public float maxFuelConsumption = 1;
         public float minFuelUsage = 1;
 
-        public StoragePort fuel = new StoragePort(typeof(HydrogenItem));
+        public StoragePort fuel = new StoragePort(typeof(Hydrogen));
         public PowerPort output = new PowerPort();
 
         private float fuelPerSec;

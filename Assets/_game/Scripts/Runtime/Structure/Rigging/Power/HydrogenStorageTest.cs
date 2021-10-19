@@ -30,7 +30,7 @@ namespace Runtime.Structure.Rigging.Power
         [SerializeField] private float maximalAmount;
         [SerializeField] private float currentAmount;
 
-        public StoragePort output = new StoragePort(typeof(HydrogenItem));
+        public StoragePort output = new StoragePort(typeof(Hydrogen));
 
         public void FuelTick()
         {
