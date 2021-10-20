@@ -10,12 +10,22 @@ namespace Runtime.Environment.AirDrag
 {
     public class AirDragCalculator
     {
+        private Vector3[] shootDirections = new Vector3[]
+        {
+            Vector3.forward,
+            Vector3.right,
+            Vector3.back,
+            Vector3.left,
+            Vector3.up,
+            Vector3.down
+        };
+        
         private Transform current;
         private float radius;
         private Vector3 center;
         private AirDragBehaviour data;
-        
-        public List<ShootLayerResult> CalculateAirDrag(Transform target, AirDragBehaviour data)
+
+        public ShootLayerResult CalculateAirDrag(Transform target, AirDragBehaviour data)
         {
             this.data = data;
             current = target;
@@ -25,26 +35,20 @@ namespace Runtime.Environment.AirDrag
 
             data.Cam.orthographicSize = radius;
             data.Cam.farClipPlane = radius * 2;
-            
-            List<ShootLayerResult> result = new List<ShootLayerResult>(data.layers.Count);
-            
-            for (int i = 0; i < data.layers.Count; i++)
+
+            ShootLayerResult resultLayer = new ShootLayerResult();
+            foreach (Vector3 direction in shootDirections)
             {
-                ShootLayerSettings layer =  data.layers[i];
-                ShootLayerResult resultLayer = new ShootLayerResult(layer.altitude);
-                layer.Reset();
-                foreach (Vector3 direction in layer)
-                {
-                    var d = current.TransformDirection(direction);
-                    TakeSnapshot(center - d * radius, d, layer, resultLayer);
-                }
-                result.Add(resultLayer);
+                var d = current.TransformDirection(direction);
+                TakeSnapshot(center - d * radius, d, resultLayer);
             }
-            
-            return result;
+
+            resultLayer.Initialize();
+
+            return resultLayer;
         }
 
-        private void TakeSnapshot(Vector3 origin, Vector3 direction, ShootLayerSettings settings, ShootLayerResult result)
+        private void TakeSnapshot(Vector3 origin, Vector3 direction, ShootLayerResult result)
         {
             data.Cam.transform.position = origin;
             Vector3 up;
@@ -125,66 +129,23 @@ namespace Runtime.Environment.AirDrag
             return offset;
         }
     }
-
-    [System.Serializable]
-    public class ShootLayerSettings : IEnumerator<Vector3>, IEnumerable
-    {
-        [SerializeField] private int roundShoots = 1;
-        [SerializeField, Range(-1, 1)] public float altitude = 0;
-        
-        private int pointer = 0;
-
-        public bool MoveNext()
-        {
-            return ++pointer < roundShoots;
-        }
-
-        public void Reset()
-        {
-            pointer = -1;
-        }
-
-        public Vector3 Current
-        {
-            get
-            {
-                if (Mathf.Abs(Mathf.Abs(altitude) - 1) < 0.001f) return Vector3.up * altitude;
-                float azimuth = (pointer * Mathf.PI * 2f) / roundShoots;
-                float mul = Mathf.Sqrt(1 - altitude * altitude);
-                Vector3 res = new Vector3(Mathf.Sin(azimuth) * mul, altitude, Mathf.Cos(azimuth) * mul);
-                return res;
-            }
-        }
-
-        object IEnumerator.Current => Current;
-
-        public void Dispose()
-        {
-            pointer = -1;
-        }
-
-        public IEnumerator GetEnumerator()
-        {
-            return this;
-        }
-    }
+    
 [ShowInInspector]
     public class AirDragProfile
     {
-        [ShowInInspector] private List<ShootLayerResult> layers;
+        [ShowInInspector] private ShootLayerResult layerResult;
         private AirDragBehaviour behaviour;
 
-        public AirDragProfile(List<ShootLayerResult> layers, AirDragBehaviour behaviour)
+        public AirDragProfile(ShootLayerResult layerResult, AirDragBehaviour behaviour)
         {
-            this.layers = layers;
+            this.layerResult = layerResult;
             this.behaviour = behaviour;
-            layers.Sort((a, b) => a.altitude.CompareTo(b.altitude));
         }
 
-        public (Vector3 drag, Vector3 position) CalculateForce(Vector3 localWindForce)
+        public (Vector3 drag, Vector3 normal, Vector3 position) CalculateForce(Vector3 localWindForce)
         {
             float windSpeed = localWindForce.magnitude;
-            if (windSpeed == 0) return (Vector3.zero, Vector3.zero);
+            if (windSpeed == 0) return (Vector3.zero, Vector3.zero, Vector3.zero);
             
             Vector3 windDirection = -localWindForce / windSpeed;
             
@@ -193,40 +154,18 @@ namespace Runtime.Environment.AirDrag
             float dot = Vector3.Dot(localWindForce, normal.normalized);
             Vector3 drag = -windDirection * (normal.magnitude * behaviour.turbulenceImpact * windSpeed);
             Vector3 normalForce = normal * (dot * behaviour.normalForceImpact);
-            return ((drag + normalForce) * windSpeed, position);
+            return ((drag + normalForce) * windSpeed, normal, position);
         }
         
         private (Vector3 normal, Vector3 position) CalculateDrag(Vector3 direction)
         {
-            float altitude = Mathf.Clamp(direction.y, layers[0].altitude, layers[layers.Count - 1].altitude);
-
             float azimuth = Mathf.Atan2(direction.x, direction.z);
             if (azimuth < 0) azimuth += Mathf.PI * 2;
-
-            int alt = 0;
+            float sign = Mathf.Sign(direction.y);
+            float sqrt = Mathf.Sqrt(Mathf.Abs(direction.y));
+            float altitude = sqrt * sign;
             
-            for (int i = 0; i < layers.Count - 1; i++)
-            {
-                if (altitude <= layers[i + 1].altitude)
-                {
-                    alt = i;
-                    break;
-                }
-            }
-
-            ShootLayerResult min = layers[alt];
-            ShootLayerResult max = layers[alt + 1];
-
-            if (altitude == min.altitude) return min.CalculateForce(azimuth);
-            if (altitude == max.altitude) return max.CalculateForce(azimuth);
-
-            (Vector3 normal, Vector3 position) minForce = min.CalculateForce(azimuth);
-            (Vector3 normal, Vector3 position) maxForce = max.CalculateForce(azimuth);
-
-            float lerp = (altitude - min.altitude) / (max.altitude - min.altitude);
-            
-            Vector3 normal = Vector3.Lerp(minForce.normal, maxForce.normal, lerp);
-            Vector3 position = Vector3.Lerp(minForce.position, maxForce.position, lerp);
+            (Vector3 normal, Vector3 position) = layerResult.CalculateForce(azimuth, altitude);
             
             return (normal, position);
         }
@@ -237,42 +176,69 @@ namespace Runtime.Environment.AirDrag
         [ShowInInspector]
         private List<DirectionSnapshot> snapShots = new List<DirectionSnapshot>();
 
-        public float altitude;
-
-        public ShootLayerResult(float altitude)
+        private readonly float[] azimuthEdges =
         {
-            this.altitude = altitude;
-        }
-
+            0f,
+            Mathf.PI / 2f,
+            Mathf.PI,
+            Mathf.PI / 2f * 3f,
+            Mathf.PI * 2,
+        };
+        
         public void WriteResult(float space, Vector3 normal, Vector3 centerOffset)
         {
             snapShots.Add(new DirectionSnapshot(space, normal, centerOffset));
         }
 
-        public (Vector3 normal, Vector3 position) CalculateForce(float azimuth)
+        public void Initialize()
         {
-            for (int i = 0; i < snapShots.Count; i++)
-            {
-                float lastAzimuth = GetAzimuth(i);
-                float nextAzimuth = GetAzimuth(i + 1);
-
-                if (!(azimuth > lastAzimuth) || !(azimuth <= nextAzimuth)) continue;
-                
-                DirectionSnapshot last = snapShots[i];
-                DirectionSnapshot next = snapShots[(i + 1) % snapShots.Count];
-
-                float lerp = (azimuth - lastAzimuth) / (nextAzimuth - lastAzimuth);
-
-                return (Vector3.Lerp(last.bakedSpace * last.bakedNormal, next.bakedSpace * next.bakedNormal, lerp),
-                    Vector3.Lerp(last.centerOffset, next.centerOffset, lerp));
-            }
-
-            return (Vector3.zero, Vector3.zero);
+            float centerX = (snapShots[4].centerOffset.x + snapShots[5].centerOffset.x) * 0.5f;
+            snapShots[1].centerOffset.x = centerX;
+            snapShots[3].centerOffset.x = centerX;
+            
+            float centerY = (snapShots[0].centerOffset.y + snapShots[2].centerOffset.y) * 0.5f;
+            snapShots[4].centerOffset.y = centerY;
+            snapShots[5].centerOffset.y = centerY;
+            
+            float centerZ = (snapShots[4].centerOffset.z + snapShots[5].centerOffset.z) * 0.5f;
+            snapShots[0].centerOffset.z = centerZ;
+            snapShots[2].centerOffset.z = centerZ;
         }
 
-        private float GetAzimuth(int idx)
+        public (Vector3 normal, Vector3 position) CalculateForce(float azimuth, float altitude)
         {
-            return idx * Mathf.PI * 2f / snapShots.Count;
+            int i;
+            for (i = 0; i < azimuthEdges.Length - 1; i++)
+            {
+                if (azimuth > azimuthEdges[i] && azimuth <= azimuthEdges[i + 1]) break;
+            }
+            
+            float lastAzimuth = azimuthEdges[i];
+            float nextAzimuth = azimuthEdges[(i + 1) % 5];
+                
+            DirectionSnapshot last = snapShots[i];
+            DirectionSnapshot next = snapShots[(i + 1) % 4];
+
+            float lerp = (azimuth - lastAzimuth) / (nextAzimuth - lastAzimuth);
+
+            Vector3 normal = Vector3.Lerp(last.bakedSpace * last.bakedNormal, next.bakedSpace * next.bakedNormal, lerp);
+            Vector3 position = Vector3.Lerp(last.centerOffset, next.centerOffset, lerp);
+
+            DirectionSnapshot yComponent;
+            if (altitude > 0)
+            {
+                yComponent = snapShots[4];
+            }
+            else
+            {
+                altitude = -altitude;
+                yComponent = snapShots[5];
+            }
+            
+            normal = Vector3.Lerp(normal, yComponent.bakedNormal * yComponent.bakedSpace, altitude);
+            position = Vector3.Lerp(position, yComponent.centerOffset, altitude);
+            
+            return (normal, position);
         }
     }
     [ShowInInspector]

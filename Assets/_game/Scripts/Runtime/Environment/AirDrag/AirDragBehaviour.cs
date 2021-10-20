@@ -15,7 +15,6 @@ namespace Runtime.Environment.AirDrag
     [CreateAssetMenu(menuName = "Data/AirDrag")]
     public class AirDragBehaviour : ScriptableObject
     {
-        public List<ShootLayerSettings> layers;
         public Material material;
         public ComputeShader pixelsToNormalsShader;
         public int resolution = 256;
@@ -64,11 +63,13 @@ namespace Runtime.Environment.AirDrag
         private void ApplyWind(IDynamicStructure structure, AirDragProfile profile)
         {
             Vector3 windVelocity = -structure.Velocity;
-            (Vector3 drag, Vector3 position) = profile.CalculateForce(structure.transform.InverseTransformDirection(windVelocity));
+            (Vector3 drag, Vector3 normal, Vector3 position) = profile.CalculateForce(structure.transform.InverseTransformDirection(windVelocity));
 
             drag = structure.transform.TransformDirection(drag);
             position = structure.transform.TransformPoint(position);
+            normal = structure.transform.TransformDirection(normal);
             
+            Debug.DrawRay(position, normal.normalized * 2, Color.blue);
             Debug.DrawRay(position, drag * 0.001f, Color.red);
             
             structure.AddForce(drag * DeltaTime, position);

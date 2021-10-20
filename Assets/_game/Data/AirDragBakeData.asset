@@ -12,18 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47714f36c0333bf4a8891358f05c6159, type: 3}
   m_Name: AirDragBakeData
   m_EditorClassIdentifier: 
-  layers:
-  - roundShoots: 4
-    altitude: 0.9
-  - roundShoots: 4
-    altitude: 0
-  - roundShoots: 4
-    altitude: -0.9
   material: {fileID: 2100000, guid: 2295622ad19dd674d88604459e44f4c4, type: 2}
   pixelsToNormalsShader: {fileID: 7200000, guid: 7026c6f87744a7048b130e50fe6e8c73, type: 3}
   resolution: 256
-  turbulenceImpact: 0
-  normalForceImpact: 2
+  turbulenceImpact: 1
+  normalForceImpact: 6
   mask:
     serializedVersion: 2
     m_Bits: 2048
