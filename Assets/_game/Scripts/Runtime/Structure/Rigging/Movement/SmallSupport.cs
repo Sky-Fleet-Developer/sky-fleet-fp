@@ -1,5 +1,6 @@
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;

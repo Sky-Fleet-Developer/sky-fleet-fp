@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Core.Structure.Rigging;
-using Sirenix.OdinInspector;
+using Core.Structure.Wires;
 using UnityEngine;
 
 namespace Core.Structure
@@ -12,8 +12,15 @@ namespace Core.Structure
         string Guid { get; }
         List<string> Tags { get; }
     }
+
+    public interface IWiresMaster
+    {
+        List<Wire> Wires { get; }
+        Port GetPort(string id);
+        void ConnectPorts(params Port[] ports);
+    }
     
-    public interface IStructure : ITablePrefab
+    public interface IStructure : ITablePrefab, IWiresMaster
     {
         bool enabled { get; }
         bool Active { get; }
@@ -26,11 +33,8 @@ namespace Core.Structure
         //TODO: Visibility
         List<Parent> Parents { get; }
         List<IBlock> Blocks { get; }
-        List<Wire> Wires { get; }
         List<T> GetBlocksByType<T>();
-        Port GetPort(string id);
         Coroutine StartCoroutine(IEnumerator routine);
-        
         string Configuration { get; set; }
         //TODO: Navigation
 

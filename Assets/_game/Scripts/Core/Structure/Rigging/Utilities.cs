@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using Core.Structure.Rigging.Storage;
 using Runtime;
-using UnityEngine;
 
 namespace Core.Structure.Rigging
 {
@@ -36,30 +33,6 @@ namespace Core.Structure.Rigging
             float delta = (GameData.Data.fuelTransitionAmount + storage.MaxOutput) - storage.AmountInPort;
             if (delta.Equals(0f)) return;
             storage.PushToPort(delta);
-        }
-
-        private static List<Type> _possibleTypes;
-
-        public static IEnumerable<Type> GetPossibleTypes()
-        {
-            if (_possibleTypes == null)
-            {
-                _possibleTypes = new List<Type>();
-                Assembly[] assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
-                foreach (System.Reflection.Assembly assembly in assemblies)
-                {
-                    foreach (System.Type type in assembly.GetTypes())
-                    {
-                        if (type.IsSubclassOf(typeof(StorageItem)))
-                        {
-                            _possibleTypes.Add(type);
-                        }
-                    }
-                }
-                _possibleTypes.Add(typeof(StorageItem));
-            }
-
-            return _possibleTypes;
         }
     }
 }

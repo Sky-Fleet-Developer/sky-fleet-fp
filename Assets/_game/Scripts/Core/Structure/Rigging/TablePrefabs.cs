@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.Explorer.Content;
 using Core.Utilities;

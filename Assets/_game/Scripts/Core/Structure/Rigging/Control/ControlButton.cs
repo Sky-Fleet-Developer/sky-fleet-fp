@@ -1,28 +1,39 @@
 using System;
-using System.Collections.Generic;
 using Core.Structure.Rigging.Control.Attributes;
+using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using static Core.Structure.StructureUpdateModule;
 
 
 namespace Core.Structure.Rigging.Control
 {
 
     [Serializable]
-    public class ControlButton : IVisibleControlElement
+    public class ControlButton : IControlElement
     {
-        [HideInInspector]
-        public Port PortAbstact { get => Port; }
+        public string GetPortDescription()
+        {
+            return keyDetected.IsNone() ? computerInput : $"{computerInput} ({keyDetected.GetKeyCode()})";
+        }
+        
+        public Port GetPort() => port;
 
-        [ShowInInspector]
-        public Port<Action<object>> Port;
+        [SerializeField, ShowInInspector]
+        private Port<Action<object>> port = new Port<Action<object>>(PortType.Button);
 
+        public string computerInput;
+        
         [ShowInInspector]
-        public DeviceBase Device { get => _device; set => _device = value; }
+        public IDevice Device { get => _device; set => _device = (DeviceBase<Action<object>>)value; }
+
+        public void Init(IStructure structure, IControl block)
+        {
+            structure.ConnectPorts(port, _device.port);
+        }
+
 
         [SerializeField, HideInInspector]
-        private DeviceBase _device;
+        private DeviceBase<Action<object>> _device;
 
         [SerializeField] protected KeyInput keyDetected;
 
@@ -30,7 +41,7 @@ namespace Core.Structure.Rigging.Control
         {
             if(keyDetected.GetButtonDown())
             {
-                Port.Value(this);
+                port.Value(this);
             }
         }
     }

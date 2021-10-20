@@ -1,12 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Core.Utilities;
-using JetBrains.Annotations;
 using Sirenix.OdinInspector;
-using UnityEngine;
 
-namespace Core.Structure.Rigging.Storage
+namespace Core.Structure.Wires
 {
     [System.Serializable]
     public abstract class StorageItem
@@ -71,7 +68,7 @@ namespace Core.Structure.Rigging.Storage
         [ReadOnly] public string serializedType;
         [ReadOnly] public string serializedTypeShort;
 
-        private IEnumerable<System.Type> GetPossibleTypes() => Utilities.GetPossibleTypes();
+        private IEnumerable<System.Type> GetPossibleTypes() => Utilities.GetStorageItemTypes();
 
         [ShowInInspector]
         public float Value

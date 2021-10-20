@@ -1,23 +1,5 @@
 using System;
-using System.Runtime;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.ContentSerializer;
-using Core.ContentSerializer.Bundles;
-using Core.ContentSerializer.Providers;
-using Core.Explorer.Content;
-using Core.Structure;
-using Core.Structure.Rigging;
-using Core.Utilities;
-using Newtonsoft.Json;
-using Runtime;
-using Sirenix.OdinInspector;
-using UnityEngine;
-using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 
 namespace Core.SessionManager.SaveService

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.AssetCreators;
 using Core.ContentSerializer.CustomSerializers;
-using Core.Structure;
+using Core.Structure.Wires;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Sirenix.Utilities;

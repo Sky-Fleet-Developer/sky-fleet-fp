@@ -1,20 +1,14 @@
 using Core.Structure.Rigging.Control.Attributes;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Core.Structure.Wires;
 
 namespace Core.Structure.Rigging.Control
 {
 
-    public interface IControlElement
+    public interface IControlElement : IPortUser
     {
-        public Port PortAbstact { get; }
-
-        public void Tick();
-    }
-
-    public interface IVisibleControlElement : IControlElement
-    {
-        public DeviceBase Device { get; set; }
+        void Tick();
+        
+        IDevice Device { get; set; }
+        void Init(IStructure structure, IControl block);
     }
 }

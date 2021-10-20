@@ -15,7 +15,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         public override void UpdateDevice()
         {
-            ball.localRotation = Quaternion.Euler(wire.value.x * mul + trim.x, 0, wire.value.y * mul + trim.y);
+            ball.localRotation = Quaternion.Euler(port.Value.x * mul + trim.x, 0, port.Value.y * mul + trim.y);
         }
     }
 }

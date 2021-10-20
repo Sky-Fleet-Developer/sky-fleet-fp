@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using Core.Explorer.Content;
-using Newtonsoft.Json;
-using UnityEngine;
 
 namespace Core.SessionManager
 {

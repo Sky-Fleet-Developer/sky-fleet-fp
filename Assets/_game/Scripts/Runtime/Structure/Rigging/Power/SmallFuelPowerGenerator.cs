@@ -2,7 +2,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Structure.Rigging.Storage;
+using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
+using Core.Structure.Wires;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -28,7 +28,7 @@ namespace Core.Structure
         public Vector3 position => transform.position;
         public Quaternion rotation => transform.rotation;
         List<IBlock> IStructure.Blocks => blocks;
-        List<Wire> IStructure.Wires => wires;
+        List<Wire> IWiresMaster.Wires => wires;
         bool IStructure.Active => gameObject.activeSelf;
 
         Bounds IStructure.Bounds { get; } //TODO: constant updateing structure
@@ -175,7 +175,7 @@ namespace Core.Structure
         public List<T> GetBlocksByType<T>()
         {
             if (blocksCache == null) blocksCache = new Dictionary<System.Type, object>();
-            Type type = typeof(T);
+            System.Type type = typeof(T);
             if (blocksCache.TryGetValue(type, out object val)) return val as List<T>;
 
             List<T> selection = new List<T>();
@@ -218,6 +218,64 @@ namespace Core.Structure
             return port;
         }
 
+        public void ConnectPorts(params Port[] ports)
+        {
+            Wire existWire = null;
+            
+            foreach (Port port in ports)
+            {
+                existWire = GetWireOfPort(port);
+                if (existWire != null) break;
+            }
+
+            if (existWire == null) CreateWireForPorts(ports);
+            else
+            {
+                
+            }
+        }
+
+        private void CreateWireForPorts(params Port[] ports)
+        {
+            int canConnect = 0;
+            Port zero = ports[0];
+            for (int i = 1; i < ports.Length; i++)
+            {
+                if (zero.CanConnect(ports[i])) canConnect++;
+            }
+                
+            if(canConnect == 0) return;
+                
+            Wire newWire = zero.CreateWire();
+            AddPortsToWire(newWire, ports);
+            wires.Add(newWire);
+        }
+
+        private void AddPortsToWire(Wire wire, params Port[] ports)
+        {
+            Port zero = ports[0];
+
+            zero.SetWire(wire);
+            wire.ports.Add(zero);
+
+            for (int i = 1; i < ports.Length; i++)
+            {
+                if(ports[i].CanConnect(wire) == false) continue;
+                ports[i].SetWire(wire);
+                wire.ports.Add(ports[i]);
+            }
+        }
+
+        private Wire GetWireOfPort(Port port)
+        {
+            foreach (Wire wire in wires)
+            {
+                if (wire.ports.Contains(port)) return wire;
+            }
+
+            return null;
+        }
+
         [Button]
         public void InitWires()
         {
@@ -226,18 +284,14 @@ namespace Core.Structure
             {
                 string[] guids = wireString.Split(new[] {'.'}, System.StringSplitOptions.RemoveEmptyEntries);
 
-                Port port = GetPort(guids[0]);
-
-                Wire newWire = port.CreateWire();
-                wires.Add(newWire);
-
-                port.SetWire(newWire);
-
-                for (int i = 1; i < guids.Length; i++)
+                Port[] portsToConnect = new Port[guids.Length];
+                
+                for (var i = 0; i < guids.Length; i++)
                 {
-                    port = GetPort(guids[i]);
-                    port.SetWire(newWire);
+                    portsToConnect[i] = GetPort(guids[i]);
                 }
+
+                ConnectPorts(portsToConnect);
             }
         }
 

@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Structure;
-using UnityEngine;
+using Core.Structure.Wires;
 
 namespace Core.ContentSerializer.CustomSerializers
 {

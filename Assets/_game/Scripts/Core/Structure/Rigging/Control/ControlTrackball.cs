@@ -1,14 +1,13 @@
 using System;
-using System.Collections.Generic;
 using Core.Structure.Rigging.Control.Attributes;
+using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using static Core.Structure.StructureUpdateModule;
 
 namespace Core.Structure.Rigging.Control
 {
     [Serializable]
-    public class ControlTrackball : IVisibleControlElement
+    public class ControlTrackball : IControlElement
     {
         public enum TypeTrackballLimit
         {
@@ -16,30 +15,46 @@ namespace Core.Structure.Rigging.Control
             Round = 1,
         }
 
-        [HideInInspector]
-        public Port PortAbstact { get => Port; }
+        public string GetPortDescription()
+        {
+            string keysDescr = string.Empty;
+            if (!axisX.IsNone()) keysDescr += axisX.GetNameAxe();
+            if (!axisY.IsNone()) keysDescr += "," + axisY.GetNameAxe();
 
+            return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
+        }
+
+        
+        public Port GetPort() => port;
+
+        [SerializeField, ShowInInspector]
+        private Port<Vector2> port = new Port<Vector2>(PortType.DoubleSignal);
+
+        public string computerInput;
+        
         [ShowInInspector]
-        public Port<Vector2> Port;
+        public IDevice Device { get => _device; set => _device = (DeviceBase<Vector2>)value; }
 
-        [ShowInInspector]
-        public DeviceBase Device { get => _device; set => _device = value; }
+        public void Init(IStructure structure, IControl block)
+        {
+            structure.ConnectPorts(port, _device.port);
+        }
 
 
-        [SerializeField] protected AxeInput axeX;
-        [SerializeField] protected AxeInput axeY;
+        [SerializeField] protected AxeInput axisX;
+        [SerializeField] protected AxeInput axisY;
         [SerializeField] protected TypeTrackballLimit typeLimit;
         [SerializeField, Range(0.1f, 4f)] protected float multiply = 1;
 
         [SerializeField, HideInInspector]
-        private DeviceBase _device;
+        private DeviceBase<Vector2> _device;
 
         private Vector2 currentPos = Vector3.zero;
 
         private Vector2 GetPos()
         {
 
-            Vector2 delta = new Vector2(axeX.GetValue(), -axeY.GetValue());
+            Vector2 delta = new Vector2(axisX.GetValue(), -axisY.GetValue());
             delta.x = delta.x * multiply;
             delta.y = delta.y * multiply;
             return currentPos + delta;
@@ -58,7 +73,7 @@ namespace Core.Structure.Rigging.Control
                 pos = Vector2.ClampMagnitude(pos, 1);
             }
             currentPos = pos;
-            Port.Value = currentPos;
+            port.Value = currentPos;
 
         }
     }

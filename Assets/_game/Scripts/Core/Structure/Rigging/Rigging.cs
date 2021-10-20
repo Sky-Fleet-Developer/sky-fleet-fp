@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Core.Character;
 using Core.Structure.Rigging.Control;
+using Core.Structure.Wires;
 using Core.Utilities;
 using UnityEngine;
 
@@ -76,16 +77,11 @@ namespace Core.Structure.Rigging
         StorageMode Mode { get; set; }
         void PushToPort(float amount);
     }
-    
-    public interface ISpecialPorts
-    {
-        IEnumerable<PortPointer> GetPorts();
-    }
-    
-    public interface IControl : IInteractiveBlock, IUpdatableBlock, ISpecialPorts
+
+    public interface IControl : IInteractiveBlock, IUpdatableBlock, IMultiplePorts
     {
         bool IsUnderControl { get; }
-        List<ControlAxe> Axes { get; }
+        List<ControlAxis> Axes { get; }
         CharacterAttachData GetAttachData();
         void ReadInput();
         void LeaveControl(ICharacterController controller);

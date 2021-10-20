@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Structure.Rigging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using UnityEngine;
 
 namespace Core.ContentSerializer.CustomSerializers
 {

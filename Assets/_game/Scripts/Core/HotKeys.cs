@@ -1,7 +1,5 @@
 using System;
 using Core.Utilities;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Core.Boot_strapper;
 using System.Threading.Tasks;

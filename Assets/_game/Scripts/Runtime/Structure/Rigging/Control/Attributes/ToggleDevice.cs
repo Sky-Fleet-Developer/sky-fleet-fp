@@ -14,7 +14,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         public override void UpdateDevice()
         {
-            if (wire.value)
+            if (port.Value)
             {
                 ball.localPosition = new Vector3(0, -minPos, 0);
             }

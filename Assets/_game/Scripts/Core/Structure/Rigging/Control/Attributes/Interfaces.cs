@@ -3,17 +3,13 @@ using UnityEngine;
 namespace Core.Structure.Rigging.Control.Attributes
 {
 
-    public interface IUpdateDevice
-    {
-        void UpdateDevice();
-    }
-
-    public interface IDevice : IUpdateDevice
+    public interface IDevice
     {
         IStructure Structure { get; }
         IBlock Block { get; }
-        string Port { get; set; }
-        void Init(IStructure structure, IBlock block, string port);
+        void Init(IStructure structure, IBlock block);
+        void UpdateDevice();
+
     }
 
     public interface IArrowDevice : IDevice

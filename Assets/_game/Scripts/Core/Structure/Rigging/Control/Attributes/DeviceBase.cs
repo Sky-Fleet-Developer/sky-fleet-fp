@@ -1,5 +1,4 @@
-using System.Linq;
-using Sirenix.OdinInspector;
+using Core.Structure.Wires;
 using UnityEngine;
 
 namespace Core.Structure.Rigging.Control.Attributes
@@ -9,23 +8,15 @@ namespace Core.Structure.Rigging.Control.Attributes
     {
         public IStructure Structure => structure;
         public IBlock Block => block;
-        public string Port { get; set; }
 
         protected IStructure structure;
         protected IBlock block;
 
-        public virtual void Init(IStructure structure, IBlock block, string port)
+        public virtual void Init(IStructure structure, IBlock block)
         {
             this.structure = structure;
             this.block = block;
-            this.Port = port;
-
-            Port p = structure.GetPort(port);
-            if(p == null) return;
-            SetWire(p);
         }
-
-        protected abstract void SetWire(Port p);
 
         public virtual void UpdateDevice()
         {
@@ -34,21 +25,6 @@ namespace Core.Structure.Rigging.Control.Attributes
 
     public abstract class DeviceBase<T> : DeviceBase
     {
-        [ShowInInspector] protected Wire<T> wire;
-
-        protected override void SetWire(Port p)
-        {
-            if (p is Port<T> pT)
-            {
-                Wire w = pT.Wire;
-                if (w == null)
-                {
-                    w = pT.CreateWire();
-                    structure.Wires.Add(w);
-                    pT.SetWire(w);
-                }
-                wire = pT.Wire;
-            }
-        }
+        public Port<T> port = new Port<T>();
     }
 }

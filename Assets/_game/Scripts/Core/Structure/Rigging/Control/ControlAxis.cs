@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using Core.Structure.Rigging.Control.Attributes;
+using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using static Core.Structure.StructureUpdateModule;
@@ -8,16 +7,30 @@ using static Core.Structure.StructureUpdateModule;
 namespace Core.Structure.Rigging.Control
 {
     [System.Serializable]
-    public class ControlAxe : IVisibleControlElement
+    public class ControlAxis : IControlElement
     {
-        [HideInInspector]
-        public Port PortAbstact { get => Port; }
+        public Port GetPort() => port;
+        public string GetPortDescription()
+        {
+            string keysDescr = string.Empty;
+            if (!keyPositive.IsNone()) keysDescr += keyPositive.GetKeyCode();
+            if (!keyNegative.IsNone()) keysDescr += "," + keyNegative.GetKeyCode();
+            if (!axe.IsNone()) keysDescr += "," + axe.GetNameAxe();
+
+            return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
+        }
+
+
+        [SerializeField, ShowInInspector]
+        private Port<float> port = new Port<float>(PortType.Thrust);
 
         [ShowInInspector]
-        public Port<float> Port;
+        public IDevice Device { get => _device; set => _device = (DeviceBase<float>)value; }
 
-        [ShowInInspector]
-        public DeviceBase Device { get => _device; set => _device = value; }
+        public void Init(IStructure structure, IControl block)
+        {
+            structure.ConnectPorts(port, _device.port);
+        }
 
         [SerializeField] protected KeyInput keyPositive;
         [SerializeField] protected KeyInput keyNegative;
@@ -44,7 +57,7 @@ namespace Core.Structure.Rigging.Control
         
 
         [SerializeField, HideInInspector]
-        private DeviceBase _device;
+        private DeviceBase<float> _device;
 
         private float GetLogicValue()
         {
@@ -139,7 +152,7 @@ namespace Core.Structure.Rigging.Control
                 inputValue = 0;
                 realValue = 0;
                 logicValue = 0;
-                Port.Value = logicValue;
+                port.Value = logicValue;
                 return;
             }
             
@@ -163,7 +176,7 @@ namespace Core.Structure.Rigging.Control
             }
 
             logicValue = GetLogicValue();
-            Port.Value = logicValue;
+            port.Value = logicValue;
         }
 
     }

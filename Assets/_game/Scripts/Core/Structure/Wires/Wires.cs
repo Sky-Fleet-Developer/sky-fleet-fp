@@ -3,14 +3,28 @@ using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Core.Structure
+namespace Core.Structure.Wires
 {
     public enum PortType
     {
         Thrust,
         BigThrust,
+        Button,
+        Toggle,
+        DoubleSignal
     }
 
+    public interface IMultiplePorts
+    {
+        IEnumerable<PortPointer> GetPorts();
+    }
+
+    public interface IPortUser
+    {
+        public Port GetPort();
+        public string GetPortDescription();
+    }
+    
     public struct PortPointer : System.IEquatable<PortPointer>, System.IEquatable<string>
     {
         public readonly IBlock Block;
@@ -89,7 +103,7 @@ namespace Core.Structure
         public Wire<T> Wire;
 
         public PortType ValueType => valueType;
-        private PortType valueType;
+        [SerializeField] private PortType valueType;
         
         public Port()
         {
@@ -201,6 +215,7 @@ namespace Core.Structure
     [ShowInInspector]
     public abstract class Wire : System.IDisposable
     {
+        public List<Port> ports = new List<Port>();
         public virtual void Dispose() { }
 
         public abstract bool CanConnect(Port port);

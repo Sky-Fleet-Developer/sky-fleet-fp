@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,10 @@ using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
+using Core.Structure.Rigging.Control.Attributes;
+using Core.Structure.Wires;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
@@ -16,7 +18,7 @@ namespace Runtime.Structure.Rigging.Control
     {
         //public float Durability => durability;
         //public ArmorData Armor => armor;
-        public List<ControlAxe> Axes => axes;
+        public List<ControlAxis> Axes => axes;
         public List<ControlButton> Buttons => buttons;
         public List<ControlToggle> Toggles => toggles;
         public List<ControlTrackball> Trackballs => trackballs;
@@ -34,54 +36,62 @@ namespace Runtime.Structure.Rigging.Control
         }
 
         [ReadOnly, ShowInInspector] private bool isUnderControl;
-        [SerializeField] private List<ControlAxe> axes;
+        [SerializeField] private List<ControlAxis> axes;
         [SerializeField] private List<ControlButton> buttons;
         [SerializeField] private List<ControlToggle> toggles;
         [SerializeField] private List<ControlTrackball> trackballs;
+        private IDevice[] devices;
 
         public CharacterAttachData attachData;
         public CharacterDetachhData detachData;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
-
-
-        IVisibleControlElement[] controlElementsCache;
-        private IVisibleControlElement[] GetVisibleControlElement()
+        
+        private List<IControlElement> controlElementsCache { get; set; }
+        
+        public override void InitBlock(IStructure structure, Parent parent)
         {
-            IVisibleControlElement[] ar = new IVisibleControlElement[axes.Count + buttons.Count + toggles.Count + trackballs.Count];
-            Array.Copy(axes.ToArray(), ar, axes.Count);
-            Array.Copy(buttons.ToArray(), 0, ar, axes.Count, buttons.Count);
-            Array.Copy(toggles.ToArray(), 0, ar, axes.Count + buttons.Count, toggles.Count);
-            Array.Copy(trackballs.ToArray(), 0, ar, axes.Count + buttons.Count + toggles.Count, trackballs.Count);
-            return ar;
+            base.InitBlock(structure, parent);
+            devices = GetComponentsInChildren<IDevice>();
         }
 
         public override void OnInitComplete()
         {
-            controlElementsCache = GetVisibleControlElement();
-            Array.ForEach(controlElementsCache, x =>
+            CollectControlElements();
+            foreach (IDevice device in devices)
             {
-                if (x.Device != null)
-                {
-                    x.Device.Init(Structure, this, name + x.PortAbstact.Guid);
-                }
-            });
+                device.Init(Structure, this);
+            }
+
+            foreach (IControlElement controlElement in controlElementsCache)
+            {
+                controlElement.Init(Structure, this);
+            }
+        }
+        
+        private void CollectControlElements()
+        {
+            controlElementsCache = new List<IControlElement>();
+            controlElementsCache.AddRange(axes);
+            controlElementsCache.AddRange(buttons);
+            controlElementsCache.AddRange(toggles);
+            controlElementsCache.AddRange(trackballs);
         }
 
         public void ReadInput()
         {
-            Array.ForEach(controlElementsCache, x =>
+            foreach (IControlElement controlElement in controlElementsCache)
             {
-                x.Tick();
-            });
+                controlElement.Tick();
+            }
         }
 
         public IEnumerable<PortPointer> GetPorts()
         {
             if (controlElementsCache == null)
             {
-                controlElementsCache = GetVisibleControlElement();
+                CollectControlElements();
             }
-            return controlElementsCache.Select(x => new PortPointer(this, x.PortAbstact));
+            return controlElementsCache.Select(x => new PortPointer(this, x.GetPort()));
         }
 
         public (bool canInteractive, string data) RequestInteractive(ICharacterController character)
@@ -130,13 +140,10 @@ namespace Runtime.Structure.Rigging.Control
         {
             if (lod != 0) return;
 
-            Array.ForEach(controlElementsCache, x =>
+            foreach (IDevice device in devices)
             {
-                if (x.Device != null)
-                {
-                    x.Device.UpdateDevice();
-                }
-            });
+                device.UpdateDevice();
+            }
         }
     }
 }

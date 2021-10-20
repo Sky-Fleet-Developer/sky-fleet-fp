@@ -16,7 +16,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         public override void UpdateDevice()
         {
-            lever.localRotation = Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(wire.value * mul + trim, axe);
+            lever.localRotation = Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(port.Value * mul + trim, axe);
         }
     }
 }

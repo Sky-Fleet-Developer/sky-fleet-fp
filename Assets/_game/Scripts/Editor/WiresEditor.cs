@@ -6,9 +6,11 @@ using System.Reflection;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Wires;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEditor;
+using Utilities = Core.Structure.Wires.Utilities;
 
 namespace Structure.Editor
 {
@@ -22,34 +24,31 @@ namespace Structure.Editor
             current = GetWindow<WiresEditor>();
         }
 
-        [SerializeField] private IStructure selectedStructure;
-        [SerializeField] private StructureConfiguration configuration = null;
-        [SerializeField] private List<(IBlock block, List<PortPointer> ports, FieldInfo[] infos, List<PortPointer> specialPorts)> portsList;
-        private List<TakePort> takePorts = new List<TakePort>();
+        private IStructure selectedStructure;
+        private IStructure currentStructure;
+        [SerializeField] private List<IBlock> blocks;
+        //[SerializeField] private StructureConfiguration configuration = null;
+        private List<IPortsContainer> ports;
+        private Dictionary<IPortsContainer, bool> expandGroups;
+        private bool GetExpand(IPortsContainer container)
+        {
+            if (expandGroups.TryGetValue(container, out bool val)) return val;
+            
+            expandGroups.Add(container,false);
+            return false;
+        }
 
+        private void SetExpand(IPortsContainer container, bool expand)
+        {
+            expandGroups[container] = expand;
+        }
+  
 
         private string json;
         private bool configDirty = true;
 
         private Vector2 cashScrollPositionMenuPorts;
         private Vector2 cashScrollPositionCreateWire;
-
-        private bool[] dropboxesBlocks = null;
-
-        private class TakePort
-        {
-            public PortPointer port;
-            public string name;
-            public TakePort(PortPointer port, string name)
-            {
-                this.port = port;
-                this.name = name;
-            }
-        }
-
-        private class WireConteiner
-        {
-        }
 
         public void OnEnable()
         {
@@ -77,14 +76,20 @@ namespace Structure.Editor
             cashScrollPositionMenuPorts = GUILayout.BeginScrollView(cashScrollPositionMenuPorts);
             switch (Event.current.type)
             {
-                default://case EventType.Repaint:
-                    if (configuration == null)
+                case EventType.Layout:
+                case EventType.Repaint:
+                case EventType.MouseDown:
+                case EventType.MouseMove:
+                case EventType.MouseUp:
+                case EventType.KeyDown:
+                case EventType.KeyUp:
+                    if (currentStructure == null)
                     {
                         CreateButton();
                     }
                     else
                     {
-                        CreateGetPortsMenu();
+                        DrawStructureBlocks();
                     }
 
                     break;
@@ -94,7 +99,6 @@ namespace Structure.Editor
 
 
         //New
-
         private void CreateButton()
         {
             GUILayout.Space(20);
@@ -102,28 +106,111 @@ namespace Structure.Editor
 
             if (GUILayout.Button("Edit configuration", GUILayout.Width(200)))
             {
-                CreateConfiguration();
-                dropboxesBlocks = new bool[configuration.blocks.Count];
+                currentStructure = selectedStructure;
+                
+                if (currentStructure.Blocks == null) currentStructure.RefreshBlocksAndParents();
+
+                blocks = currentStructure.Blocks;
+                ports = new List<IPortsContainer>();
+                expandGroups = new Dictionary<IPortsContainer, bool>();
+                foreach (IBlock block in blocks)
+                {
+                    Utilities.GetPortsDescriptions(block, ref ports);
+                }
             }
         }
 
-        private void CreateGetPortsMenu()
+
+        
+        private float verticalOffset;
+        private int depth;
+        private void DrawStructureBlocks()
         {
-           
-            GUILayout.Label("Wires editor");
-            GUILayout.Label(selectedStructure.GetType().Name.ToString());
-            GUILayout.Space(30);
-            for (int i = 0; i <  configuration.blocks.Count; i++)
+            GUILayout.Box(currentStructure.GetType().Name);
+            GUILayout.Space(10);
+            for (int i = 0; i < ports.Count; i++)
             {
-                if(dropboxesBlocks[i] = GUILayout.Toggle(dropboxesBlocks[i], new GUIContent(configuration.blocks[i].path), GUILayout.Width(110)))
-                {
-                }
-                GUILayout.Space(10);
+                verticalOffset = 0;
+                depth = 0;
+                DrawContainer(ports[i]);
             }
+        }
+
+        private void DrawContainer(IPortsContainer container)
+        {
+            GUI.backgroundColor = container.GetColor();
+            GUI.color = Color.white;
+            if (container.HasNestedValues == false)
+            {
+                DrawPort(container);
+                return;
+            }
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(verticalOffset);
+            bool expand = GetExpand(container);
+
+            if (expand)
+            {
+                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, GUILayout.Width(18)))
+                {
+                    SetExpand(container, false);
+                    expand = false;
+                    if(Event.current.alt) SetExpandAll(false);
+                }
+            }
+            else
+            {
+                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, GUILayout.Width(18)))
+                {
+                    SetExpand(container, true);
+                    if(Event.current.alt) SetExpandAll(true);
+                }
+            }
+            GUILayout.Box(container.GetDescription());
+            GUILayout.EndHorizontal();
+            GUILayout.Space(5);
+
+            if (expand)
+            {
+                float v = verticalOffset;
+                int d = depth;
+                depth++;
+                verticalOffset += 10;
+                if (depth > 4) return;
+                foreach (IPortsContainer portsContainer in container.GetNestedValues())
+                {
+                    DrawContainer(portsContainer);
+                }
+                depth = d;
+                verticalOffset = v;
+            }
+        }
+
+        private void SetExpandAll(bool value)
+        {
+            
+        }
+
+        private void DrawPort(IPortsContainer container)
+        {
+            Port port = container.GetPort();
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(verticalOffset);
+            if (GUILayout.Button(container.GetDescription()))
+            {
+                OnPortSelected(port);
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        private void OnPortSelected(Port port)
+        {
+            
         }
 
         //Old
-        private void CreateConfiguration()
+        /*private void CreateConfiguration()
         {
             try
             {
@@ -246,18 +333,18 @@ namespace Structure.Editor
                 {
                     if (takePorts.Count > 0 && takePorts[0].port.Port.CanConnect(port.Port))
                     {
-                        takePorts.Add(new TakePort(port, nameButton));
+                        takePorts.Add(new PortInfo(port, nameButton));
                     }
                     else if (takePorts.Count == 0)
                     {
-                        takePorts.Add(new TakePort(port, nameButton));
+                        takePorts.Add(new PortInfo(port, nameButton));
                     }
                 }
             }
 
             GUILayout.EndHorizontal();
 
-        }
+        }*/
 
     }
 }

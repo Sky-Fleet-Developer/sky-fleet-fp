@@ -23,10 +23,10 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             }
         }
 
-        public override void Init(IStructure structure, IBlock block, string port)
+        public override void Init(IStructure structure, IBlock block)
         {
-            base.Init(structure, block, port);
-            wire.value += OnClick;
+            base.Init(structure, block);
+            port.Value += OnClick;
         }
 
         private IEnumerator AnimButtonClick()
