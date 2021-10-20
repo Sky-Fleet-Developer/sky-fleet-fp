@@ -5,21 +5,22 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging.Control.Attributes.Indicators
 {
-    public class Gyroscope : IndicatorBase<Vector2>
+    public class Gyroscope : IndicatorIndependent
     {
         [SerializeField] private Transform sphereBase;
+        [SerializeField] private Transform horizontBase;
 
-        public override void Init(IStructure structure, IBlock block, string port)
+        private void Update()
         {
-            base.Init(structure, block, port);
+            UpdateDevice();
         }
-
         public override void UpdateDevice()
         {
-            float pitch = wire.value.x;
-            float roll = wire.value.y;
+            float pitch = transform.eulerAngles.x;
+            float roll = -transform.eulerAngles.z;
             Quaternion localRot = Quaternion.AngleAxis(pitch, Vector3.right) * Quaternion.AngleAxis(roll, Vector3.forward);
             sphereBase.localRotation = localRot;
+            horizontBase.localEulerAngles = new Vector3(0, -transform.eulerAngles.y, 0);
         }
     }
 }

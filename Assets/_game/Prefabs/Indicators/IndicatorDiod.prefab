@@ -199,7 +199,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8040085449637010262}
-  - component: {fileID: 7621111662153911089}
+  - component: {fileID: 3790363283660480975}
   m_Layer: 0
   m_Name: IndicatorDiod
   m_TagString: Untagged
@@ -224,7 +224,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7621111662153911089
+--- !u!114 &3790363283660480975
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -233,7 +233,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6493859631235827973}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8829499ea9f83564ea5dbb4286ce87a9, type: 3}
+  m_Script: {fileID: 11500000, guid: f2d3765b06b53844c9765dfc15b0d948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   activeIndicatorObj: {fileID: 1664786722721648900}

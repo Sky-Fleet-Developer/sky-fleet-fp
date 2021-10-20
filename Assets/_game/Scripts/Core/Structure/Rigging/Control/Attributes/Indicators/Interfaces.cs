@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging.Control.Attributes.Indicators
 {
-    public interface IIndicator : IDevice
+    public interface IIndicator : IUpdateDevice
     {
         float ConvertRange(Vector2 inputRange, Vector2 outputRange, float value);
     }

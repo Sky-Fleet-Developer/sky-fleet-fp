@@ -94,7 +94,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5173579335032127167}
-  - component: {fileID: 5173579335032127160}
+  - component: {fileID: 135150401075582196}
   m_Layer: 0
   m_Name: Speedometer
   m_TagString: Untagged
@@ -118,7 +118,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5173579335032127160
+--- !u!114 &135150401075582196
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,13 +127,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5173579335032127161}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91d370cf8373f66498f878e47e3f2014, type: 3}
+  m_Script: {fileID: 11500000, guid: 44b20c8a23aec0347ab7688edfd6718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   arrows:
-  - {fileID: 6986353986514930149}
-  maxSpeed: 200
-  maxAngle: 270
+  - arrow: {fileID: 6986353986514930149}
+    minMaxAngle: {x: 0, y: 2}
+    multiple: 1
+  current: 0
 --- !u!1 &7007776026243908267
 GameObject:
   m_ObjectHideFlags: 0

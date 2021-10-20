@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Core.Structure.Rigging.Control.Attributes.Indicators
 {
-    public class IndicatorDiod : IndicatorBase<bool>
+    public class LampIndicator : IndicatorDependet<bool>
     {
         [SerializeField] private GameObject activeIndicatorObj;
         [SerializeField] private GameObject noactiveIndicatorObj;
@@ -21,10 +21,10 @@ namespace Core.Structure.Rigging.Control.Attributes.Indicators
 
         public override void UpdateDevice()
         {
-            if(oldValue != wire.value)
+            if (oldValue != wire.value)
             {
                 oldValue = wire.value;
-                if(oldValue)
+                if (oldValue)
                 {
                     activeIndicatorObj.SetActive(true);
                     noactiveIndicatorObj.SetActive(false);

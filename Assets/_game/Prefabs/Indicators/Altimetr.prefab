@@ -90,7 +90,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6920349507009072963}
-  - component: {fileID: 6920349507009072964}
+  - component: {fileID: 2130312595342188835}
   m_Layer: 0
   m_Name: Altimetr
   m_TagString: Untagged
@@ -115,7 +115,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6920349507009072964
+--- !u!114 &2130312595342188835
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,16 +124,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 6920349507009072965}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe5c28fad6529674f9d9c5b7195b7acf, type: 3}
+  m_Script: {fileID: 11500000, guid: 44b20c8a23aec0347ab7688edfd6718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   arrows:
-  - {fileID: 9175210857023492042}
-  - {fileID: 6920349507057536670}
-  maxHeightKilometers: 20
-  maxHeightMeters: 1000
-  maxAngleKilometers: 145
-  maxAngleMeters: 360
+  - arrow: {fileID: 9175210857023492042}
+    minMaxAngle: {x: 0, y: 360}
+    multiple: 0.0001
+  - arrow: {fileID: 6920349507057536670}
+    minMaxAngle: {x: 0, y: 360}
+    multiple: 0.1
+  current: 0
 --- !u!1 &6920349507057536671
 GameObject:
   m_ObjectHideFlags: 0
