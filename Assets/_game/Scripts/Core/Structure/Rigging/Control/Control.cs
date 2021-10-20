@@ -168,7 +168,7 @@ namespace Core.Structure.Rigging.Control
 
     }
     
-     [System.Serializable]
+    [System.Serializable]
     public class AxeInput
     {
         [SerializeField]
