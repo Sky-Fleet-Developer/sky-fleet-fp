@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class ControlTest : Block, IControl
+    public class SmallCockpit : Block, IControl
     {
         //public float Durability => durability;
         //public ArmorData Armor => armor;
