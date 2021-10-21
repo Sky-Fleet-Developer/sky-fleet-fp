@@ -11,6 +11,9 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         bool oldValue;
 
+        private int emissive = Shader.PropertyToID("EmissiveColor"); 
+        // Используй это кешированное значение вместо первого аргумента в SetColor. И не забудь остальные пункты по этому скрипту))
+        
         public override void Init(IStructure structure, IBlock block)
         {
             base.Init(structure, block);
