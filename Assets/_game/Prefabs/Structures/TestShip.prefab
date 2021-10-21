@@ -406,7 +406,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4479284407084663546}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: -0.1, z: 1.7}
+  m_LocalPosition: {x: -1, y: -0.7, z: 1.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4479284407669075296}
@@ -680,7 +680,7 @@ MonoBehaviour:
   tags: []
   guid: 93cbead4-d7c3-47fb-b271-510007e82fb3
   parentsObjects: []
-  configuration: "{\"blocks\":[{\"path\":\"TestJet\",\"currentGuid\":\"3636a306-24bb-4c6a-a7c4-646571f2a3be\",\"setup\":{}},{\"path\":\"TestControl\",\"currentGuid\":\"40222abb-51cd-4887-8afb-92518f93a6cd\",\"setup\":{\"SomeProperty\":\"1\"}},{\"path\":\"TestHydrogenStorage\",\"currentGuid\":\"673ea29c-0dfc-4bc8-b1c7-99506d787f41\",\"setup\":{\"Mode\":\"Auto\"}},{\"path\":\"SmallBattery\",\"currentGuid\":\"55a0a8fb-b7c6-43ce-879e-5221e8b7880a\",\"setup\":{}},{\"path\":\"SmallFuelPowerGenerator\",\"currentGuid\":\"3745a5db-16a8-42eb-9586-ebf071e75ffa\",\"setup\":{}},{\"path\":\"Support_R\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_L\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_B\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"ThrustInverse\",\"currentGuid\":\"4ea266d0-fbd5-4023-b34e-662b30e2819e\",\"setup\":{}},{\"path\":\"Support_\u0421\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}}],\"wires\":[\"TestJet2f3f89db-1f62-4742-b237-d1c86d86dea0.TestControl16c5b1ad-f096-47d4-8ce7-e4a670aac4c5\",\"TestJetf799627d-ab5b-4083-a5ac-f35e1e181c0d.TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143.SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744\",\"SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2.SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc.Support_R65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_L65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_B65c57623-8fb0-4aaf-a0d5-fe3dc729732f.Support_\u042165c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"TestControlf6fc9ad7-a6e6-4de8-8188-766298f57f1f.Support_B4476b0bd-1330-4488-b135-96678de0f76b\",\"TestControlc4b90289-d5f0-4dba-a287-41a97745cd1d.Support_R4476b0bd-1330-4488-b135-96678de0f76b.Support_L4476b0bd-1330-4488-b135-96678de0f76b\"]}"
+  configuration: "{\"blocks\":[{\"path\":\"TestJet\",\"currentGuid\":\"3636a306-24bb-4c6a-a7c4-646571f2a3be\",\"setup\":{}},{\"path\":\"TestControl\",\"currentGuid\":\"40222abb-51cd-4887-8afb-92518f93a6cd\",\"setup\":{\"SomeProperty\":\"1\"}},{\"path\":\"TestHydrogenStorage\",\"currentGuid\":\"673ea29c-0dfc-4bc8-b1c7-99506d787f41\",\"setup\":{\"Mode\":\"Auto\"}},{\"path\":\"SmallBattery\",\"currentGuid\":\"55a0a8fb-b7c6-43ce-879e-5221e8b7880a\",\"setup\":{}},{\"path\":\"SmallFuelPowerGenerator\",\"currentGuid\":\"3745a5db-16a8-42eb-9586-ebf071e75ffa\",\"setup\":{}},{\"path\":\"Support_R\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_L\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_B\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"ThrustInverse\",\"currentGuid\":\"4ea266d0-fbd5-4023-b34e-662b30e2819e\",\"setup\":{}},{\"path\":\"Support_\u0421\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}}],\"wires\":[[\"TestControlc35a2cab-5842-4f61-8ac6-e385fb19ef6b\",\"Support_R4476b0bd-1330-4488-b135-96678de0f76b\",\"Support_L4476b0bd-1330-4488-b135-96678de0f76b\"],[\"TestControlc464be03-99bf-4c54-8819-3144b21e4943\",\"Support_B4476b0bd-1330-4488-b135-96678de0f76b\"],[\"Support_R65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_L65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_B65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_\u042165c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2\",\"SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc\"],[\"TestJetf799627d-ab5b-4083-a5ac-f35e1e181c0d\",\"TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143\",\"SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744\"],[\"TestJet2f3f89db-1f62-4742-b237-d1c86d86dea0\",\"TestControlfd38eb0b-33d9-497f-9fc8-8c8f27efd26b\"]]}"
 --- !u!1 &4479284407765901574
 GameObject:
   m_ObjectHideFlags: 0
@@ -707,7 +707,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4479284407765901574}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.1, z: 1.7}
+  m_LocalPosition: {x: 1, y: -0.7, z: 1.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4479284407669075296}

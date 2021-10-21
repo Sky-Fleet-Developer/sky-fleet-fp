@@ -27,7 +27,7 @@ namespace Core.Structure.Rigging.Control
 
         public void Init(IStructure structure, IControl block)
         {
-            structure.ConnectPorts(port, _device.port);
+            //structure.ConnectPorts(port, _device.port);
         }
 
         [SerializeField, HideInInspector]
@@ -41,15 +41,9 @@ namespace Core.Structure.Rigging.Control
         {
             if (keyDetected.GetButtonDown())
             {
-                if (isOn)
-                {
-                    isOn = false;
-                }
-                else
-                {
-                    isOn = true;
-                }
+                isOn = !isOn;
                 port.Value = isOn;
+                _device.port.Value = isOn;
             }
         }
     }

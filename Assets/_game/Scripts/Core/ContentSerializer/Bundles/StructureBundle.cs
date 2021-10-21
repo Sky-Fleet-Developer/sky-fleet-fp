@@ -25,7 +25,7 @@ namespace Core.ContentSerializer.Bundles
         {
             if(structure.Blocks == null || structure.Blocks.Count == 0) structure.RefreshBlocksAndParents();
 
-            configuration = structure.Configuration;
+            configuration = JsonConvert.SerializeObject(Factory.GetConfiguration(structure));
             guid = structure.Guid;
             name = structure.transform.name;
 

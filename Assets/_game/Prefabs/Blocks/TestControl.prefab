@@ -631,7 +631,7 @@ MonoBehaviour:
       keyCode: 0
       mouseButton: 0
       otherButton: 
-    computerInput: 
+    computerInput: Pitch
     inputValue: 0
     realValue: 0
     logicValue: 0
@@ -668,7 +668,7 @@ MonoBehaviour:
       keyCode: 0
       mouseButton: 0
       otherButton: 
-    computerInput: 
+    computerInput: Roll
     inputValue: 0
     realValue: 0
     logicValue: 0
@@ -705,7 +705,7 @@ MonoBehaviour:
       keyCode: 0
       mouseButton: 0
       otherButton: 
-    computerInput: 
+    computerInput: Engine
     inputValue: 0
     realValue: 0
     logicValue: 0
@@ -721,39 +721,9 @@ MonoBehaviour:
     axeType: 1
     fromZeroToOne: 1
     _device: {fileID: 3156467125343095600}
-  buttons:
-  - port:
-      guid: 8d6d26c0-8fb6-4350-a4cd-7e27f0abbeb0
-      valueType: 2
-    _device: {fileID: 0}
-    keyDetected:
-      _controlType: 1
-      keyCode: 104
-      mouseButton: 0
-      otherButton: 
-  toggles:
-  - port:
-      guid: ad7d08b8-88ca-4252-ade4-3c7e45fb5102
-      cache: 0
-      valueType: 3
-    _device: {fileID: 0}
-    keyDetected:
-      _controlType: 1
-      keyCode: 106
-      mouseButton: 0
-      otherButton: 
-  trackballs:
-  - port:
-      guid: 62c416d9-3c1a-4985-87ac-03329b1a8b5d
-      cache: {x: 0, y: 0}
-      valueType: 4
-    axeX:
-      nameAxe: Mouse Y
-    axeY:
-      nameAxe: Mouse X
-    typeLimit: 0
-    multiply: 0.4
-    _device: {fileID: 0}
+  buttons: []
+  toggles: []
+  trackballs: []
   attachData:
     anchor: {fileID: 6229396294549091251}
     attachAndLock: 1

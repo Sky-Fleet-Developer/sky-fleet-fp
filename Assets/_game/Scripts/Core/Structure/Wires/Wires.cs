@@ -14,7 +14,7 @@ namespace Core.Structure.Wires
         DoubleSignal
     }
 
-    public interface IMultiplePorts
+    public interface IMultiplePorts : IBlock
     {
         IEnumerable<PortPointer> GetPorts();
     }
@@ -63,6 +63,8 @@ namespace Core.Structure.Wires
         {
             return Id.GetHashCode();
         }
+        
+        public bool CanConnect(Wire wire) => wire.CanConnect(this);
     }
 
     [System.Serializable]
@@ -80,8 +82,14 @@ namespace Core.Structure.Wires
         }
         
         [SerializeField, HideInInspector] private string guid;
-        
-        public abstract void SetWire(Wire wire);
+
+        protected Wire wire;
+
+        public virtual void SetWire(Wire wire)
+        {
+            this.wire = wire;
+        }
+        public Wire GetWire() => wire;
         public abstract Wire CreateWire();
 
         public void SetGuid(string guid)
@@ -89,7 +97,6 @@ namespace Core.Structure.Wires
             this.guid = guid;
         }
 
-        public virtual bool CanConnect(Wire wire) => wire.CanConnect(this);
         public abstract bool CanConnect(Port port);
         public abstract string ToString();
     }
@@ -99,8 +106,7 @@ namespace Core.Structure.Wires
     {
         public T cache;
 
-        [ShowInInspector]
-        public Wire<T> Wire;
+        [ShowInInspector] public Wire<T> Wire;
 
         public PortType ValueType => valueType;
         [SerializeField] private PortType valueType;
@@ -142,7 +148,8 @@ namespace Core.Structure.Wires
         {
             if (wire is Wire<T> wireT)
             {
-                this.Wire = wireT;
+                Wire = wireT;
+                this.wire = Wire;
             }
         }
 
@@ -165,7 +172,7 @@ namespace Core.Structure.Wires
     [System.Serializable, InlineProperty(LabelWidth = 150)]
     public class PowerPort : Port
     {
-        public PowerWire Wire;
+        [ShowInInspector] public PowerWire Wire;
 
         public float charge;
         public float maxInput = 1;
@@ -191,8 +198,9 @@ namespace Core.Structure.Wires
         {
             if (wire is PowerWire wireT)
             {
-                this.Wire = wireT;
+                Wire = wireT;
                 wireT.ports.Add(this);
+                this.wire = Wire;
             }
         }
 
@@ -215,10 +223,10 @@ namespace Core.Structure.Wires
     [ShowInInspector]
     public abstract class Wire : System.IDisposable
     {
-        public List<Port> ports = new List<Port>();
+        public List<PortPointer> ports = new List<PortPointer>();
         public virtual void Dispose() { }
 
-        public abstract bool CanConnect(Port port);
+        public abstract bool CanConnect(PortPointer port);
     }
 
     [ShowInInspector]
@@ -234,9 +242,9 @@ namespace Core.Structure.Wires
             valueType = type;
         }
 
-        public override bool CanConnect(Port port)
+        public override bool CanConnect(PortPointer port)
         {
-            if (port is Port<T> portT) return portT.ValueType == valueType;
+            if (port.Port is Port<T> portT) return portT.ValueType == valueType;
             return false;
         }
     }
@@ -340,9 +348,9 @@ namespace Core.Structure.Wires
             StructureUpdateModule.OnBeginConsumptionTick -= BeginConsumptionTick;
         }
 
-        public override bool CanConnect(Port port)
+        public override bool CanConnect(PortPointer port)
         {
-            return port is PowerPort;
+            return port.Port is PowerPort;
         }
     }
 

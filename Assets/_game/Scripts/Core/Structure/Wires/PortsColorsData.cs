@@ -30,15 +30,15 @@ namespace Core.Structure.Wires
             public Color color;
         }
         
-        public Color GetPortColor(Port port)
+        public Color GetPortColor(PortPointer port)
         {
-            if (port is Port<float> f)
+            if (port.Port is Port<float> f)
             {
                 return portTColors.FirstOrDefault(x => x.type == f.ValueType).color;
-            }if (port is PowerPort)
+            }if (port.Port is PowerPort)
             {
                 return powerPortColor;
-            }if (port is StoragePort stp)
+            }if (port.Port is StoragePort stp)
             {
                 return storagePortColors.FirstOrDefault(x => x.type == stp.serializedTypeShort).color;
             }

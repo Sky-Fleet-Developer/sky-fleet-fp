@@ -81,7 +81,9 @@ namespace Core.Structure.Wires
                     foreach (IPortUser portUser in value)
                     {
                         string description = portUser.GetPortDescription();
-                        infos.Add(new PortInfo(portUser.GetPort(), description));
+                        var port = portUser.GetPort();
+                        
+                        infos.Add(new PortInfo(new PortPointer(block, port), description));
                     }
                     groups.Add(new PortsGroupContainer(field.Name + ":", infos));
                 }
@@ -103,20 +105,46 @@ namespace Core.Structure.Wires
             }
             return string.Empty;
         }
+        
+        public static void CreateWireForPorts(IWiresMaster master, params PortPointer[] ports)
+        {
+            int canConnect = 0;
+            PortPointer zero = ports[0];
+            for (int i = 1; i < ports.Length; i++)
+            {
+                if (zero.Port.CanConnect(ports[i].Port)) canConnect++;
+            }
+                
+            if(canConnect == 0) return;
+                
+            Wire newWire = zero.Port.CreateWire();
+            AddPortsToWire(newWire, ports);
+            master.AddWire(newWire);
+        }
+
+        public static void AddPortsToWire(Wire wire, params PortPointer[] ports)
+        {
+            PortPointer zero = ports[0];
+
+            zero.Port.SetWire(wire);
+            wire.ports.Add(zero);
+
+            for (int i = 1; i < ports.Length; i++)
+            {
+                if(wire.ports.Contains(ports[i]) || ports[i].CanConnect(wire) == false) continue;
+                ports[i].Port.SetWire(wire);
+                wire.ports.Add(ports[i]);
+            }
+        }
     }
     
     public class PortInfo : IPortsContainer
     {
-        private Port port;
+        private PortPointer port;
         private string description;
         public bool HasNestedValues => false;
 
         public PortInfo(PortPointer port, string description)
-        {
-            this.port = port.Port;
-            this.description = description;
-        }
-        public PortInfo(Port port, string description)
         {
             this.port = port;
             this.description = description;
@@ -127,7 +155,7 @@ namespace Core.Structure.Wires
         public string GetDescription() => description;
 
         public Color GetColor() => PortsColorsData.Instance.GetPortColor(port);
-        public Port GetPort() => port;
+        public PortPointer GetPort() => port;
     }
         
     public class PortsGroupContainer : IPortsContainer
@@ -146,7 +174,7 @@ namespace Core.Structure.Wires
         public string GetDescription() => blockName;
 
         public Color GetColor() => Color.white;
-        public Port GetPort() => null;
+        public PortPointer GetPort() => default;
     }
         
     public interface IPortsContainer
@@ -155,6 +183,6 @@ namespace Core.Structure.Wires
         List<IPortsContainer> GetNestedValues();
         string GetDescription();
         Color GetColor();
-        Port GetPort();
+        PortPointer GetPort();
     }
 }

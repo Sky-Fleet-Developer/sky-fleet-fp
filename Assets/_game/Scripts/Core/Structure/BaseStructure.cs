@@ -28,7 +28,7 @@ namespace Core.Structure
         public Vector3 position => transform.position;
         public Quaternion rotation => transform.rotation;
         List<IBlock> IStructure.Blocks => blocks;
-        List<Wire> IWiresMaster.Wires => wires;
+        IEnumerable<Wire> IWiresMaster.Wires => wires;
         bool IStructure.Active => gameObject.activeSelf;
 
         Bounds IStructure.Bounds { get; } //TODO: constant updateing structure
@@ -66,7 +66,7 @@ namespace Core.Structure
         
         private bool initialized = false;
         
-        private Dictionary<string, Port> portsCache;
+        private Dictionary<string, PortPointer> portsCache;
         private List<PortPointer> portsPointersCache;
         private Dictionary<System.Type, object> blocksCache;
        
@@ -206,89 +206,54 @@ namespace Core.Structure
 
 
         
-        public Port GetPort(string id)
+        public PortPointer GetPort(string id)
         {
-            if (portsCache == null) portsCache = new Dictionary<string, Port>();
-            if (portsCache.TryGetValue(id, out Port port)) return port;
+            if (portsCache == null) portsCache = new Dictionary<string, PortPointer>();
+            if (portsCache.TryGetValue(id, out PortPointer port)) return port;
 
             if(portsPointersCache == null) portsPointersCache = Factory.GetAllPorts(this);
             
-            port = portsPointersCache.FirstOrDefault(x => x.Equals(id)).Port;
+            port = portsPointersCache.FirstOrDefault(x => x.Equals(id));
             portsCache.Add(id, port);
             return port;
         }
 
-        public void ConnectPorts(params Port[] ports)
+        public void ConnectPorts(params PortPointer[] ports)
         {
             Wire existWire = null;
             
-            foreach (Port port in ports)
+            foreach (PortPointer port in ports)
             {
-                existWire = GetWireOfPort(port);
+                existWire = port.Port.GetWire();
                 if (existWire != null) break;
             }
 
-            if (existWire == null) CreateWireForPorts(ports);
-            else
-            {
-                
-            }
+            if (existWire == null) Wires.Utilities.CreateWireForPorts(this, ports);
+            else Wires.Utilities.AddPortsToWire(existWire, ports);
         }
 
-        private void CreateWireForPorts(params Port[] ports)
+        void IWiresMaster.AddWire(Wire wire)
         {
-            int canConnect = 0;
-            Port zero = ports[0];
-            for (int i = 1; i < ports.Length; i++)
-            {
-                if (zero.CanConnect(ports[i])) canConnect++;
-            }
-                
-            if(canConnect == 0) return;
-                
-            Wire newWire = zero.CreateWire();
-            AddPortsToWire(newWire, ports);
-            wires.Add(newWire);
-        }
-
-        private void AddPortsToWire(Wire wire, params Port[] ports)
-        {
-            Port zero = ports[0];
-
-            zero.SetWire(wire);
-            wire.ports.Add(zero);
-
-            for (int i = 1; i < ports.Length; i++)
-            {
-                if(ports[i].CanConnect(wire) == false) continue;
-                ports[i].SetWire(wire);
-                wire.ports.Add(ports[i]);
-            }
-        }
-
-        private Wire GetWireOfPort(Port port)
-        {
-            foreach (Wire wire in wires)
-            {
-                if (wire.ports.Contains(port)) return wire;
-            }
-
-            return null;
-        }
+            wires.Add(wire);
+        } 
 
         [Button]
         public void InitWires()
         {
-            if (wires == null) wires = new List<Wire>();
-            foreach (string wireString in currentConfiguration.wires)
+            wires = new List<Wire>();
+            if (!string.IsNullOrEmpty(configuration))
             {
-                string[] guids = wireString.Split(new[] {'.'}, System.StringSplitOptions.RemoveEmptyEntries);
-
-                Port[] portsToConnect = new Port[guids.Length];
+                currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
+                if (currentConfiguration == null) return;
+            }
+            
+            foreach (List<string> wire in currentConfiguration.wires)
+            {
+                PortPointer[] portsToConnect = new PortPointer[wire.Count];
                 
-                for (var i = 0; i < guids.Length; i++)
+                for (var i = 0; i < wire.Count; i++)
                 {
-                    portsToConnect[i] = GetPort(guids[i]);
+                    portsToConnect[i] = GetPort(wire[i]);
                 }
 
                 ConnectPorts(portsToConnect);

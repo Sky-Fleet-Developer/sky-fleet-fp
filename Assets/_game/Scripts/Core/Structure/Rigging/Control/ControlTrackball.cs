@@ -37,7 +37,7 @@ namespace Core.Structure.Rigging.Control
 
         public void Init(IStructure structure, IControl block)
         {
-            structure.ConnectPorts(port, _device.port);
+            //structure.ConnectPorts(port, _device.port);
         }
 
 
@@ -74,7 +74,7 @@ namespace Core.Structure.Rigging.Control
             }
             currentPos = pos;
             port.Value = currentPos;
-
+            _device.port.Value = currentPos;
         }
     }
 }

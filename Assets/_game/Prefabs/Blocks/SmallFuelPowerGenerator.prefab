@@ -173,7 +173,7 @@ MonoBehaviour:
   minFuelUsage: 0.1
   fuel:
     guid: 7ac4983b-32a1-4013-8093-698fc6cd7744
-    serializedType: Core.Structure.Rigging.Storage.Hydrogen
+    serializedType: Core.Structure.Wires.Hydrogen
     serializedTypeShort: Hydrogen
   output:
     guid: fd689e1e-5084-4dca-be25-aeef478e5acc

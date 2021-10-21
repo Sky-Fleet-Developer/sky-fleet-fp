@@ -16,20 +16,25 @@ namespace Structure.Editor
 {
     public class WiresEditor : EditorWindow
     {
-        public static WiresEditor current;
+        public static WiresEditor CurrentEditor;
 
         [MenuItem("Factory/Wires Editor")]
         public static void OpenWindow()
         {
-            current = GetWindow<WiresEditor>();
+            CurrentEditor = GetWindow<WiresEditor>();
         }
 
         private IStructure selectedStructure;
         private IStructure currentStructure;
         [SerializeField] private List<IBlock> blocks;
         //[SerializeField] private StructureConfiguration configuration = null;
-        private List<IPortsContainer> ports;
+        private List<IPortsContainer> portsDescriptions;
+        private List<IPortsContainer> allContainers;
+        private List<IPortsContainer> containersWithPorts;
         private Dictionary<IPortsContainer, bool> expandGroups;
+        private List<IPortsContainer> selectedPorts;
+        private List<List<IPortsContainer>> wires;
+        
         private bool GetExpand(IPortsContainer container)
         {
             if (expandGroups.TryGetValue(container, out bool val)) return val;
@@ -44,16 +49,18 @@ namespace Structure.Editor
         }
   
 
-        private string json;
-        private bool configDirty = true;
+        private bool configDirty;
 
-        private Vector2 cashScrollPositionMenuPorts;
-        private Vector2 cashScrollPositionCreateWire;
+        private Vector2 portsScroll;
+        private Vector2 wireScroll;
 
+        private GUISkin MainSkin;
+        
         public void OnEnable()
         {
             Selection.selectionChanged += GetFomSelection;
             GetFomSelection();
+            MainSkin = Resources.Load<GUISkin>("WiresEditorSkin");
         }
 
         public void OnDisable()
@@ -61,6 +68,20 @@ namespace Structure.Editor
             Selection.selectionChanged -= GetFomSelection;
         }
 
+        private void OnDestroy()
+        {
+            SaveAndDestroyDialog();
+        }
+
+        private void SaveAndDestroyDialog()
+        {
+            if (currentStructure == null || !configDirty) return;
+            if (EditorUtility.DisplayDialog("", "Save wires?", "Yes", "No"))
+            {
+                WriteConfig();
+            }
+        }
+        
         private void GetFomSelection()
         {
             if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out IStructure structure))
@@ -73,30 +94,36 @@ namespace Structure.Editor
         {
             if (selectedStructure == null) return;
 
-            cashScrollPositionMenuPorts = GUILayout.BeginScrollView(cashScrollPositionMenuPorts);
-            switch (Event.current.type)
+            GUI.skin = MainSkin;
+            
+            if (currentStructure == null)
             {
-                case EventType.Layout:
-                case EventType.Repaint:
-                case EventType.MouseDown:
-                case EventType.MouseMove:
-                case EventType.MouseUp:
-                case EventType.KeyDown:
-                case EventType.KeyUp:
-                    if (currentStructure == null)
-                    {
-                        CreateButton();
-                    }
-                    else
-                    {
-                        DrawStructureBlocks();
-                    }
-
-                    break;
+                CreateButton();
             }
-            GUILayout.EndScrollView();
+            else
+            {
+                GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height * 0.7f));
+                portsScroll = GUILayout.BeginScrollView(portsScroll);
+                DrawStructureBlocks();
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
+                GUILayout.BeginArea(new Rect(0, Screen.height * 0.7f, Screen.width, Screen.height * 0.3f));
+                wireScroll = GUILayout.BeginScrollView(wireScroll);
+                DrawSelectedWire();
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
+            }
         }
 
+        private void CreateArrays()
+        {
+            containersWithPorts = new List<IPortsContainer>();
+            wires = new List<List<IPortsContainer>>();
+            portsDescriptions = new List<IPortsContainer>();
+            expandGroups = new Dictionary<IPortsContainer, bool>();
+            allContainers = new List<IPortsContainer>();
+            selectedPorts = new List<IPortsContainer>();
+        }
 
         //New
         private void CreateButton()
@@ -107,20 +134,104 @@ namespace Structure.Editor
             if (GUILayout.Button("Edit configuration", GUILayout.Width(200)))
             {
                 currentStructure = selectedStructure;
-                
-                if (currentStructure.Blocks == null) currentStructure.RefreshBlocksAndParents();
+
+                currentStructure.RefreshBlocksAndParents();
+                currentStructure.InitBlocks();
 
                 blocks = currentStructure.Blocks;
-                ports = new List<IPortsContainer>();
-                expandGroups = new Dictionary<IPortsContainer, bool>();
+
+                CreateArrays();
+                
                 foreach (IBlock block in blocks)
                 {
-                    Utilities.GetPortsDescriptions(block, ref ports);
+                    Utilities.GetPortsDescriptions(block, ref portsDescriptions);
+                }
+
+                foreach (IPortsContainer portsContainer in portsDescriptions)
+                {
+                    CollectContainers(portsContainer, allContainers);
+                }
+
+                foreach (IPortsContainer portsContainer in allContainers)
+                {
+                    if (portsContainer.HasNestedValues == false) containersWithPorts.Add(portsContainer);
+                }
+
+
+                if (!string.IsNullOrEmpty(currentStructure.Configuration))
+                {
+                    StructureConfiguration config =
+                        JsonConvert.DeserializeObject<StructureConfiguration>(currentStructure.Configuration);
+
+                    foreach (List<string> configWire in config.wires)
+                    {
+                        List<IPortsContainer> wire = new List<IPortsContainer>();
+                        foreach (string portId in configWire)
+                        {
+                            var port = currentStructure.GetPort(portId);
+                            var container = FindContainerForPort(port);
+                            wire.Add(container);
+                        }
+                        wires.Add(wire);
+                    }
+                }
+
+            }
+        }
+
+        private void CollectContainers(IPortsContainer current, List<IPortsContainer> result)
+        {
+            result.Add(current);
+
+            if (current.HasNestedValues)
+            {
+                foreach (IPortsContainer portsContainer in current.GetNestedValues())
+                {
+                    CollectContainers(portsContainer, result);
                 }
             }
         }
 
+        private void DrawSelectedWire()
+        {
+            GUI.backgroundColor = Color.gray;
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "Selected wire");
+            GUILayout.Space(25);
 
+            for (int index = 0; index < selectedPorts.Count; index++)
+            {
+                IPortsContainer portsContainer = selectedPorts[index];
+                GUI.backgroundColor = portsContainer.GetColor();
+                if (GUILayout.Button(portsContainer.GetDescription()))
+                {
+                    selectedPorts.Remove(portsContainer);
+                    index--;
+                }
+            }
+
+            GUI.backgroundColor = Color.white;
+            if (selectedPorts.Count <= 1) return;
+
+            GUILayout.Space(25);
+            GUI.backgroundColor = Color.green * 0.6f;
+            if (GUILayout.Button("Write wire"))
+            {
+                if (!selectionIsWire)
+                {
+                    wires.Add(selectedPorts);
+                }
+                selectedPorts = new List<IPortsContainer>();
+                selectionIsWire = false;
+                configDirty = true;
+            }
+            GUILayout.Space(8);
+            GUI.backgroundColor = Color.red * 0.6f;
+            if (GUILayout.Button("Clear wire"))
+            {
+                selectedPorts = new List<IPortsContainer>();
+                selectionIsWire = false;
+            }
+        }
         
         private float verticalOffset;
         private int depth;
@@ -128,12 +239,29 @@ namespace Structure.Editor
         {
             GUILayout.Box(currentStructure.GetType().Name);
             GUILayout.Space(10);
-            for (int i = 0; i < ports.Count; i++)
+            for (int i = 0; i < portsDescriptions.Count; i++)
             {
                 verticalOffset = 0;
                 depth = 0;
-                DrawContainer(ports[i]);
+                DrawContainer(portsDescriptions[i]);
             }
+            GUILayout.Space(20);
+            if (GUILayout.Button("Write configuration"))
+            {
+                WriteConfig();
+            }
+        }
+
+        private void WriteConfig()
+        {
+            var configToSave = Factory.GetConfiguration(currentStructure);
+            foreach (List<IPortsContainer> wire in wires)
+            {
+                configToSave.wires.Add(wire.Select(x => x.GetPort().Id).ToList());
+            }
+            currentStructure.Configuration = JsonConvert.SerializeObject(configToSave);
+            EditorUtility.SetDirty(currentStructure.transform);
+            configDirty = false;
         }
 
         private void DrawContainer(IPortsContainer container)
@@ -142,7 +270,7 @@ namespace Structure.Editor
             GUI.color = Color.white;
             if (container.HasNestedValues == false)
             {
-                DrawPort(container);
+                DrawPort(container, GetPortDrawOptions(container));
                 return;
             }
             
@@ -150,9 +278,11 @@ namespace Structure.Editor
             GUILayout.Space(verticalOffset);
             bool expand = GetExpand(container);
 
+            string descr = container.GetDescription();
+            
             if (expand)
             {
-                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, GUILayout.Width(18)))
+                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, MainSkin.verticalScrollbarUpButton, GUILayout.Width(18)) || GUILayout.Button(descr))
                 {
                     SetExpand(container, false);
                     expand = false;
@@ -161,13 +291,12 @@ namespace Structure.Editor
             }
             else
             {
-                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, GUILayout.Width(18)))
+                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, MainSkin.verticalScrollbarDownButton, GUILayout.Width(18)) || GUILayout.Button(descr))
                 {
                     SetExpand(container, true);
                     if(Event.current.alt) SetExpandAll(true);
                 }
             }
-            GUILayout.Box(container.GetDescription());
             GUILayout.EndHorizontal();
             GUILayout.Space(5);
 
@@ -176,7 +305,7 @@ namespace Structure.Editor
                 float v = verticalOffset;
                 int d = depth;
                 depth++;
-                verticalOffset += 10;
+                verticalOffset += 35;
                 if (depth > 4) return;
                 foreach (IPortsContainer portsContainer in container.GetNestedValues())
                 {
@@ -192,21 +321,151 @@ namespace Structure.Editor
             
         }
 
-        private void DrawPort(IPortsContainer container)
+        private void DrawPort(IPortsContainer container, PortDrawOptions options)
         {
-            Port port = container.GetPort();
             GUILayout.BeginHorizontal();
-            GUILayout.Space(verticalOffset);
+
+            float space = verticalOffset;
+
+            if (options.connected)
+            {
+                space -= 25;
+            }
+            if (options.selected)
+            {
+                space -= 25;
+            }
+            if (options.canConnect)
+            {
+                space -= 15;
+            }
+            GUILayout.Space(verticalOffset + space);
+            if (options.connected)
+            {
+                GUILayout.Label("--", GUILayout.Width(25));
+            }
+            if (options.selected)
+            {
+                GUILayout.Label("-->", GUILayout.Width(25));
+            }
+            if (options.canConnect)
+            {
+                GUILayout.Label(">", GUILayout.Width(15));
+            }
             if (GUILayout.Button(container.GetDescription()))
             {
-                OnPortSelected(port);
+                if (options.selected)
+                {
+                    selectedPorts.Remove(container);
+                }
+                else
+                {
+                    OnPortSelected(container, options);
+                }
             }
             GUILayout.EndHorizontal();
         }
-
-        private void OnPortSelected(Port port)
+        
+        private struct PortDrawOptions
         {
-            
+            public bool selected;
+            public bool canConnect;
+            public bool connected;
+            public bool isFirst;
+        }
+
+        private PortDrawOptions GetPortDrawOptions(IPortsContainer container)
+        {
+            bool connected = false;
+            foreach (List<IPortsContainer> wire in wires)
+            {
+                connected |= wire.Contains(container);
+            }
+            return new PortDrawOptions()
+            {
+                selected = selectedPorts.Contains(container),
+                connected = connected,
+                canConnect = CanConnect(container),
+                isFirst = selectedPorts.Count == 0
+            };
+        }
+
+        private bool selectionIsWire;
+        private void OnPortSelected(IPortsContainer port, PortDrawOptions options)
+        {
+            List<IPortsContainer> wire = GetWireForPort(port);
+
+            if (wire == null)
+            {
+                if (options.canConnect)
+                {
+                    configDirty = true;
+                    AddSelectedPort(port);
+                }
+            }
+            else
+            {
+                if (!wire[0].GetPort().Port.CanConnect(port.GetPort().Port)) return;
+
+                configDirty = true;
+                if (!options.isFirst)
+                {
+                    if (selectionIsWire)
+                    {
+                        wires.Remove(wire);
+                    }
+                    else
+                    {
+                        var s = selectedPorts;
+                        selectedPorts = wire;
+                        selectedPorts.AddRange(s);
+                    }
+
+                    foreach (IPortsContainer portsContainer in wire)
+                    {
+                        AddSelectedPort(portsContainer);
+                    }
+                }
+                else
+                {
+                    selectedPorts = wire;
+                }
+                selectionIsWire = true;
+            }
+        }
+
+        private void AddSelectedPort(IPortsContainer port)
+        {
+            if (selectedPorts.Contains(port)) return;
+            selectedPorts.Add(port);
+        }
+
+        private bool CanConnect(IPortsContainer port)
+        {
+            int selectedCount = selectedPorts.Count;
+            return selectedCount > 0 && selectedPorts[0].GetPort().Port.CanConnect(port.GetPort().Port) || selectedCount == 0;
+        }
+
+        private IPortsContainer FindContainerForPort(PortPointer port)
+        {
+            List<IPortsContainer> result = new List<IPortsContainer>();
+
+            foreach (IPortsContainer portsContainer in containersWithPorts)
+            {
+                if (portsContainer.GetPort().Id == port.Id) return portsContainer;
+            }
+
+            return null;
+        }
+
+        private List<IPortsContainer> GetWireForPort(IPortsContainer port)
+        {
+            foreach (List<IPortsContainer> wire in wires)
+            {
+                if (wire.Contains(port)) return wire;
+            }
+
+            return null;
         }
 
         //Old

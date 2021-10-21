@@ -29,11 +29,11 @@ namespace Core.Structure.Wires
         {
             Item = item;
         }
-        public override bool CanConnect(Port port)
+        public override bool CanConnect(PortPointer port)
         {
-            if (port is StoragePort portT)
+            if (port.Port is StoragePort portT)
             {
-                return portT.serializedType == Item.GetType().Name;
+                return portT.serializedType == Item.GetType().FullName;
             }
             return false;
         }
@@ -96,7 +96,11 @@ namespace Core.Structure.Wires
         
         public override void SetWire(Wire wire)
         {
-            if (wire is StorageWire wireT) Wire = wireT;
+            if (wire is StorageWire wireT)
+            {
+                Wire = wireT;
+                this.wire = Wire;
+            }
         }
         
         public override Wire CreateWire()

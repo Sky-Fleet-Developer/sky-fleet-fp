@@ -48,7 +48,7 @@ namespace Core.SessionManager.SaveService
     public class StructureConfiguration
     {
         public List<BlockConfiguration> blocks = new List<BlockConfiguration>();
-        public List<string> wires = new List<string>();
+        public List<List<string>> wires = new List<List<string>>();
         
         private Dictionary<string, BlockConfiguration> blocksCache;
         

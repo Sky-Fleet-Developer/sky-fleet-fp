@@ -15,9 +15,10 @@ namespace Core.Structure
 
     public interface IWiresMaster
     {
-        List<Wire> Wires { get; }
-        Port GetPort(string id);
-        void ConnectPorts(params Port[] ports);
+        IEnumerable<Wire> Wires { get; }
+        void AddWire(Wire wire);
+        PortPointer GetPort(string id);
+        void ConnectPorts(params PortPointer[] ports);
     }
     
     public interface IStructure : ITablePrefab, IWiresMaster

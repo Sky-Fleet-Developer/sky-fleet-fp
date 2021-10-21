@@ -29,7 +29,7 @@ namespace Core.Structure.Rigging.Control
 
         public void Init(IStructure structure, IControl block)
         {
-            structure.ConnectPorts(port, _device.port);
+            //structure.ConnectPorts(port, _device.port);
         }
 
         [SerializeField] protected KeyInput keyPositive;
@@ -177,6 +177,7 @@ namespace Core.Structure.Rigging.Control
 
             logicValue = GetLogicValue();
             port.Value = logicValue;
+            _device.port.Value = logicValue;
         }
 
     }

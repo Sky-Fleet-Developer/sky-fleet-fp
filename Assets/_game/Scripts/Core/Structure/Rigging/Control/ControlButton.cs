@@ -28,7 +28,8 @@ namespace Core.Structure.Rigging.Control
 
         public void Init(IStructure structure, IControl block)
         {
-            structure.ConnectPorts(port, _device.port);
+            //structure.ConnectPorts(port, _device.port);
+            _device.port.cache += port.Value;
         }
 
 

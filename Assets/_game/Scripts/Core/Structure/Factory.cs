@@ -245,7 +245,7 @@ namespace Core.Structure
             StructureConfiguration configuration = new StructureConfiguration
             {
                 blocks = new List<BlockConfiguration>(structure.Blocks.Count),
-                wires = new List<string>()
+                wires = new List<List<string>>()
             };
 
             for(int i = 0; i < structure.Blocks.Count; i++)
@@ -253,6 +253,14 @@ namespace Core.Structure
                 IBlock block = structure.Blocks[i];
                 
                 configuration.blocks.Add(GetConfiguration(block));
+            }
+
+            if (structure.Wires != null)
+            {
+                foreach (Wire structureWire in structure.Wires)
+                {
+                    configuration.wires.Add(structureWire.ports.Select(x => x.Id).ToList());
+                }
             }
 
             return configuration;
@@ -307,7 +315,7 @@ namespace Core.Structure
 
             string log = $"Ports for type {blockType.Name}:\n";
 
-            FieldInfo[] allFields = blockType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo[] allFields = blockType.GetFields(BindingFlags.Instance | BindingFlags.Public);
             
             foreach (FieldInfo field in allFields)
             {
@@ -361,23 +369,6 @@ namespace Core.Structure
                 Debug.Log($"+ {specialPorts.Count()} special ports");
                 result.AddRange(specialPorts);
             }
-        }
-
-
-
-        public static string GetWireString(List<string> guids)
-        {
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < guids.Count; i++)
-            {
-                result.Append(guids[i]);
-                if (i < guids.Count - 1)
-                {
-                    result.Append(".");
-                }
-            }
-
-            return result.ToString();
         }
     }
 }

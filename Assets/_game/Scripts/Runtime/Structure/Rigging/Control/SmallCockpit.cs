@@ -36,17 +36,16 @@ namespace Runtime.Structure.Rigging.Control
         }
 
         [ReadOnly, ShowInInspector] private bool isUnderControl;
-        [SerializeField] private List<ControlAxis> axes;
-        [SerializeField] private List<ControlButton> buttons;
-        [SerializeField] private List<ControlToggle> toggles;
-        [SerializeField] private List<ControlTrackball> trackballs;
+        public List<ControlAxis> axes;
+        public List<ControlButton> buttons;
+        public List<ControlToggle> toggles;
+        public List<ControlTrackball> trackballs;
         private IDevice[] devices;
 
         public CharacterAttachData attachData;
         public CharacterDetachhData detachData;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
-        
-        private List<IControlElement> controlElementsCache { get; set; }
+        private List<IControlElement> controlElementsCache;
         
         public override void InitBlock(IStructure structure, Parent parent)
         {
