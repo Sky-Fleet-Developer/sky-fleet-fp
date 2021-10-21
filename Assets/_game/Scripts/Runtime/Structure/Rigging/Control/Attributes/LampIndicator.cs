@@ -7,8 +7,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 {
     public class LampIndicator : DeviceBase<bool>
     {
-        [SerializeField] private GameObject activeIndicatorObj;
-        [SerializeField] private GameObject noactiveIndicatorObj;
+        [SerializeField] private MeshRenderer render;
 
         bool oldValue;
 
@@ -16,8 +15,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         {
             base.Init(structure, block);
             oldValue = false;
-            activeIndicatorObj.SetActive(false);
-            noactiveIndicatorObj.SetActive(true);
+            render.material.SetColor("EmissiveColor", Color.red);
         }
 
         public override void UpdateDevice()
@@ -27,13 +25,11 @@ namespace Runtime.Structure.Rigging.Control.Attributes
                 oldValue = port.Value;
                 if (oldValue)
                 {
-                    activeIndicatorObj.SetActive(true);
-                    noactiveIndicatorObj.SetActive(false);
+                    render.material.SetColor("EmissiveColor", Color.green);
                 }
                 else
                 {
-                    activeIndicatorObj.SetActive(false);
-                    noactiveIndicatorObj.SetActive(true);
+                    render.material.SetColor("EmissiveColor", Color.red);
                 }
             }
         }

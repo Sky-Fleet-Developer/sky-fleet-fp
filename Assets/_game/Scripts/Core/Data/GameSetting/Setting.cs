@@ -9,7 +9,7 @@ namespace Core.GameSetting
 
         public Setting()
         {
-            _control = new ControlSetting();
+            _control = ControlSetting.GetDefaultSetting();
         }
     }
 }
