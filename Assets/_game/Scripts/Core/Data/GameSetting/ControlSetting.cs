@@ -78,16 +78,18 @@ namespace Core.GameSetting
         InputAxis = 1,
     }
 
-    public class InputAbstractType
+    public class InputAbstractType : INameSetting
     {
+        public string Name { get; set; }
+
         protected TypeInput typeInput;
         public TypeInput GetTypeInput() => typeInput;
     }
 
     [System.Serializable]
-    public class InputButtons : InputAbstractType, INameSetting
+    public class InputButtons : InputAbstractType
     {
-        public string Name { get; set; }
+
 
         public List<ButtonInput[]> Keys => keys;
 
@@ -111,10 +113,8 @@ namespace Core.GameSetting
     }
 
     [System.Serializable]
-    public class InputAxis : InputAbstractType, INameSetting
+    public class InputAxis : InputAbstractType
     {
-        public string Name { get; set; }
-
         public string GetNameAxis() => nameAxis;
 
         private string nameAxis;
