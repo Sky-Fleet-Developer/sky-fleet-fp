@@ -1,5 +1,5 @@
 using System.IO;
-
+using System.Linq;
 using Paterns.AbstractFactory;
 
 using Core.ContentSerializer;
@@ -10,9 +10,19 @@ namespace Core.GameSetting
 
     public static class GameSettingFileManager
     {
+        static private void CorrectDirectory()
+        {
+            string path = PathStorage.GetPathToSettingDirectory();
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
         static public bool LoadSetting(Setting setting, string path)
         {
             FactoryOptionLoad factory = new FactoryOptionLoad();
+            CorrectDirectory();
             if (File.Exists(path))
             {
                 using (FileStream file = File.Open(path, FileMode.Open))
@@ -34,6 +44,7 @@ namespace Core.GameSetting
         static public bool SaveSetting(Setting setting, string path)
         {
             FactoryOptionSave factory = new FactoryOptionSave();
+            CorrectDirectory();
             using (FileStream file = File.Open(path, FileMode.OpenOrCreate))
             {
                 Setting res = factory.Generate(new SettingDefine() { Branch = OptionBranch.Control, SettingD = setting, StreamOpen = file });
@@ -123,17 +134,16 @@ namespace Core.GameSetting
 
             private void WriteInput(Stream streamOpen, InputAbstractType input)
             {
+                extensionStream.WriteString(input.Name, streamOpen);
                 extensionStream.WriteByte((byte)input.GetTypeInput(), streamOpen);
                 if (input.GetTypeInput() == TypeInput.InputAxis)
                 {
-                    InputAxis axis = (InputAxis)(input);
-                    extensionStream.WriteString(axis.Name, streamOpen);
+                    InputAxis axis = (InputAxis)(input);                 
                     extensionStream.WriteString(axis.GetNameAxis(), streamOpen);
                 }
                 else
                 {
                     InputButtons buttons = (InputButtons)(input);
-                    extensionStream.WriteString(buttons.Name, streamOpen);
                     extensionStream.WriteInt(buttons.Keys.Count, streamOpen);
                     for (int i = 0; i < buttons.Keys.Count; i++)
                     {
@@ -164,48 +174,71 @@ namespace Core.GameSetting
                 for (int i = 0; i < countCategory; i++)
                 {
                     string nameCategory = extensionStream.ReadString(define.StreamOpen);
-                    ControlSetting.CategoryInputs category = define.SettingD.Control.AddCategory(nameCategory);
+                    ControlSetting.CategoryInputs category = define.SettingD.Control.Categoryes.Where(x => { return (x.Name == nameCategory); }).FirstOrDefault();
                     int countInputs = extensionStream.ReadInt(define.StreamOpen);
                     for (int i2 = 0; i2 < countInputs; i2++)
-                    {
-                        InputAbstractType input = ReadInput(define.StreamOpen);
-                        category.Inputs.Add(input);
+                    {                     
+                        string nameInput = extensionStream.ReadString(define.StreamOpen);
+                        if (category != null)
+                        {
+                            ReadInput(category.Inputs.Where(x => { return (x.Name == nameInput); }).FirstOrDefault(), define.StreamOpen);
+                        }
+                        else
+                        {
+                            ReadInput(null, define.StreamOpen);
+                        }
                     }
-                    control.Categoryes.Add(category);
                 }
                 return define.SettingD;
             }
 
-            private InputAbstractType ReadInput(Stream streamOpen)
+            private void ReadInput(InputAbstractType input, Stream streamOpen)
             {
-                InputAbstractType input;
                 byte t = extensionStream.ReadByte(streamOpen);
                 if ((TypeInput)t == TypeInput.InputAxis)
                 {
-                    InputAxis axis = new InputAxis();
-                    axis.Name = extensionStream.ReadString(streamOpen);
-                    axis.SetAxis(extensionStream.ReadString(streamOpen));
-                    input = axis;
+                    InputAxis axis = (InputAxis)input;
+                    if(input != null)
+                    {
+                        axis.SetAxis(extensionStream.ReadString(streamOpen));
+                    }
+                    else
+                    {
+                        extensionStream.ReadString(streamOpen);
+                    }
                 }
                 else
                 {
-                    InputButtons buttons = new InputButtons();
-                    buttons.Name = extensionStream.ReadString(streamOpen);
-                    int countKeysCont = extensionStream.ReadInt(streamOpen);
-                    for (int i = 0; i < countKeysCont; i++)
+                    if (input != null)
                     {
-                        int countKeys = extensionStream.ReadInt(streamOpen);
-                        ButtonInput[] butts = new ButtonInput[countKeys];
-
-                        for (int i2 = 0; i2 < countKeys; i2++)
+                        InputButtons buttons = (InputButtons)input;
+                        int countKeysCont = extensionStream.ReadInt(streamOpen);
+                        for (int i = 0; i < countKeysCont; i++)
                         {
-                            butts[i2].SetKeyCode((KeyCode)extensionStream.ReadInt(streamOpen));
+                            int countKeys = extensionStream.ReadInt(streamOpen);
+                            ButtonInput[] butts = new ButtonInput[countKeys];
+
+                            for (int i2 = 0; i2 < countKeys; i2++)
+                            {
+                                butts[i2].SetKeyCode((KeyCode)extensionStream.ReadInt(streamOpen));
+                            }
+                            buttons.Keys.Add(butts);
                         }
-                        buttons.Keys.Add(butts);
                     }
-                    input = buttons;
+                    else
+                    {
+                        int countKeysCont = extensionStream.ReadInt(streamOpen);
+                        for (int i = 0; i < countKeysCont; i++)
+                        {
+                            int countKeys = extensionStream.ReadInt(streamOpen);
+
+                            for (int i2 = 0; i2 < countKeys; i2++)
+                            {
+                                extensionStream.ReadInt(streamOpen);
+                            }
+                        }
+                    }
                 }
-                return input;
             }
 
 
