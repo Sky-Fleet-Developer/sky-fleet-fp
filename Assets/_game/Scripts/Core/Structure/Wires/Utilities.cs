@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Core.Structure.Wires
 {
-    public static class Utilities
+    public static partial class Utilities
     {
         private static List<System.Type> storageItemTypes;
 
@@ -42,7 +42,7 @@ namespace Core.Structure.Wires
         {
             if (block is IMultiplePorts multiplePorts)
             {
-                GetPortsFromSpecialBlock(block.transform.name, multiplePorts, ref container);
+                Rigging.Utilities.GetPortsFromSpecialBlock(block.transform.name, multiplePorts, ref container);
             }
             else
             {
@@ -64,31 +64,6 @@ namespace Core.Structure.Wires
             }
             
             container.Add(new PortsGroupContainer(block.transform.name, infos));
-        }
-
-        private static void GetPortsFromSpecialBlock(string blockName, IMultiplePorts block, ref List<IPortsContainer> container)
-        {
-            var multiplePortsFields = Factory.GetMultiplePortsFields(block);
-
-            List<IPortsContainer> groups = new List<IPortsContainer>(multiplePortsFields.Length);
-
-            foreach (FieldInfo field in multiplePortsFields)
-            {
-                if (field.GetValue(block) is IList value)
-                {
-                    List<IPortsContainer> infos = new List<IPortsContainer>(value.Count);
-
-                    foreach (IPortUser portUser in value)
-                    {
-                        string description = portUser.GetPortDescription();
-                        var port = portUser.GetPort();
-                        
-                        infos.Add(new PortInfo(new PortPointer(block, port), description));
-                    }
-                    groups.Add(new PortsGroupContainer(field.Name + ":", infos));
-                }
-            }
-            container.Add(new PortsGroupContainer(blockName, groups));
         }
 
         private static string GetNameOf(Port port)

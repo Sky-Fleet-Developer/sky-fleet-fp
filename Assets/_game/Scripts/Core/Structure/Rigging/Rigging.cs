@@ -57,13 +57,15 @@ namespace Core.Structure.Rigging
 
     public interface IInteractiveBlock : IBlock
     {
+        IEnumerable<IInteractiveDevice> GetInteractiveDevices();
         (bool canInteractive, string data) RequestInteractive(ICharacterController character);
         void Interaction(ICharacterController character);
     }
 
-    public interface IControlable
-    { 
-        
+    public interface IInteractiveDevice
+    {
+        bool EnableInteraction { get; }
+        Transform Root { get; }
     }
 
 

@@ -93,6 +93,11 @@ namespace Runtime.Structure.Rigging.Control
             return controlElementsCache.Select(x => new PortPointer(this, x.GetPort()));
         }
 
+        public IEnumerable<IInteractiveDevice> GetInteractiveDevices()
+        {
+            return controlElementsCache;
+        }
+
         public (bool canInteractive, string data) RequestInteractive(ICharacterController character)
         {
             if (isUnderControl) return (false, GameData.Data.controlFailText);

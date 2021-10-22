@@ -4,7 +4,7 @@ using Runtime;
 
 namespace Core.Structure.Rigging
 {
-    public static class Utilities
+    public static partial class Utilities
     {
         public static void CalculateFuelTick(IStorage storage) => FuelTicks[(int)storage.Mode](storage);
 

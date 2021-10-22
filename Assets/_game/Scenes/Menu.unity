@@ -635,6 +635,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[SingletonAssetLoader]'
       objectReference: {fileID: 0}
+    - target: {fileID: 2796839682041292967, guid: 1cfb592f7d187e54fa1e35037fb7a313, type: 3}
+      propertyPath: targets.Array.size
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1cfb592f7d187e54fa1e35037fb7a313, type: 3}
 --- !u!1 &1367637902

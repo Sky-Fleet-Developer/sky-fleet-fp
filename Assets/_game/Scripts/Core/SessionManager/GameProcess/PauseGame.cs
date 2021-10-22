@@ -25,12 +25,14 @@ namespace Core.SessionManager.GameProcess
                 if (IsPause)
                 {
                     IsPause = false;
-                    PauseOff();
+                    Time.timeScale = 1;
+                    PauseOff?.Invoke();
                 }
                 else
                 {
                     IsPause = true;
-                    PauseOn();
+                    Time.timeScale = 0;
+                    PauseOn?.Invoke();
                 }
             }
         }

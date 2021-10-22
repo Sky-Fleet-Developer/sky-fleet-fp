@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Core.SessionManager
 {
-    public class SessionControlLoad : MonoBehaviour, ILoadAtStart
+    public class SessionReporting : MonoBehaviour, ILoadAtStart
     {
         public Task Load()
         {

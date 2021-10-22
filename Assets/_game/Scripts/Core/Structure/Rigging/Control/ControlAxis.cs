@@ -9,6 +9,8 @@ namespace Core.Structure.Rigging.Control
     [System.Serializable]
     public class ControlAxis : IControlElement
     {
+        public bool EnableInteraction => enableInteraction;
+        [SerializeField] private bool enableInteraction;
         public Port GetPort() => port;
         public string GetPortDescription()
         {
@@ -19,6 +21,7 @@ namespace Core.Structure.Rigging.Control
 
             return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
         }
+        public Transform Root => _device.transform;
 
 
         [SerializeField, ShowInInspector]
@@ -142,6 +145,11 @@ namespace Core.Structure.Rigging.Control
                     break;
             }
             
+        }
+
+        public void MoveMalueInteractive(float val)
+        {
+            realValue += val;
         }
         
         public void Tick()

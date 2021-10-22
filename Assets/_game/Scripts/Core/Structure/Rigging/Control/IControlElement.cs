@@ -4,7 +4,7 @@ using Core.Structure.Wires;
 namespace Core.Structure.Rigging.Control
 {
 
-    public interface IControlElement : IPortUser
+    public interface IControlElement : IPortUser, IInteractiveDevice
     {
         void Tick();
         

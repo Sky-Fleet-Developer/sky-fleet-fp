@@ -10,7 +10,10 @@ namespace Core.Structure.Rigging.Control
     [Serializable]
     public class ControlToggle : IControlElement
     {
+        public bool EnableInteraction => enableInteraction;
+        [SerializeField] private bool enableInteraction;
         public Port GetPort() => port;
+        public Transform Root => _device.transform;
 
         public string GetPortDescription()
         {

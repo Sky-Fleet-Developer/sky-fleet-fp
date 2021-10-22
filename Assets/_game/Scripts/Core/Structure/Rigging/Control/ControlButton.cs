@@ -11,11 +11,14 @@ namespace Core.Structure.Rigging.Control
     [Serializable]
     public class ControlButton : IControlElement
     {
+        public bool EnableInteraction => enableInteraction;
+        [SerializeField] private bool enableInteraction;
         public string GetPortDescription()
         {
             return keyDetected.IsNone() ? computerInput : $"{computerInput} ({keyDetected.GetKeyCode()})";
         }
-        
+        public Transform Root => _device.transform;
+
         public Port GetPort() => port;
 
         [SerializeField, ShowInInspector]

@@ -1,9 +1,13 @@
 using System.Collections;
 using Cinemachine;
 using Core.Character;
+using Core.Environment;
+using Core.Game;
+using Core.Patterns.State;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.SessionManager.GameProcess;
+using Core.Structure.Rigging.Control;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -12,7 +16,7 @@ using UnityEngine;
 namespace Runtime.Character.Control
 {
     [RequireComponent(typeof(CharacterMotor))]
-    public class FirstPersonController : MonoBehaviour, ICharacterController
+    public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster
     {
         [FoldoutGroup("Links")]
         public Transform cameraRoot;
@@ -22,39 +26,31 @@ namespace Runtime.Character.Control
         public Rigidbody rigidbody;
         [FoldoutGroup("Links")]
         public Collider collider;
+        
 #if UNITY_EDITOR
-        [ShowInInspector, FoldoutGroup("Links")]
-        public string refresher
+        private void OnValidate()
         {
-            get
+            if (!gameObject.activeInHierarchy) return;
+            
+            if (cameraRoot == null)
             {
-                if (gameObject.activeInHierarchy)
-                {
-                    if (cameraRoot == null)
-                    {
-                        CinemachineVirtualCamera cam = GetComponentInChildren<CinemachineVirtualCamera>();
-                        if (cam) cameraRoot = cam.transform;
-                    }
+                CinemachineVirtualCamera cam = GetComponentInChildren<CinemachineVirtualCamera>();
+                if (cam) cameraRoot = cam.transform;
+            }
 
-                    if (motor == null)
-                    {
-                        motor = GetComponent<CharacterMotor>();
-                    }
+            if (motor == null)
+            {
+                motor = GetComponent<CharacterMotor>();
+            }
 
-                    if (rigidbody == null)
-                    {
-                        rigidbody = GetComponent<Rigidbody>();
-                    }
+            if (rigidbody == null)
+            {
+                rigidbody = GetComponent<Rigidbody>();
+            }
 
-                    if (collider == null)
-                    {
-                        collider = GetComponent<Collider>();
-                    }
-                }
-
-                string val = "--";
-                val = val.Insert(Time.frameCount % 3, "*");
-                return val;
+            if (collider == null)
+            {
+                collider = GetComponent<Collider>();
             }
         }
 #endif
@@ -66,12 +62,24 @@ namespace Runtime.Character.Control
         public IControl AttachedControl => attachedControl;
         private IControl attachedControl;
 
-
+        public State CurrentState { get; set; }
         //public Quaternion globalView;
 
         public readonly InteractionRaycast Interaction = new InteractionRaycast();
 
         private float vertical;
+        
+        private bool isInitialized;
+        private void Start()
+        {
+            if (!isInitialized) Init();
+        }
+
+        public void Init()
+        {
+            CurrentState = new FreeWalkState(this);
+            isInitialized = true;
+        }
 
         private bool CanMove
         {
@@ -94,47 +102,96 @@ namespace Runtime.Character.Control
 
         private void Update()
         {
-            if (attachedControl != null)
-            {
-                if (!PauseGame.Instance.IsPause)
-                {
-                    if (Input.GetButtonDown("Interaction"))
-                    {
-                        attachedControl.LeaveControl(this);
-                    }
+            if (PauseGame.Instance.IsPause) return;
 
-                    if (Input.GetKey(KeyCode.Mouse0))
-                    {
-                        //Interaction.CastControl(cameraRoot, attachedControl);
-                    }
-                }
+            CurrentState.Update();
+        }
+        
+        private class InteractionState : State<FirstPersonController>
+        {
+            public InteractionState(FirstPersonController master) : base(master)
+            {
             }
-            else if (CanMove)
-            {
-                if (!PauseGame.Instance.IsPause)
-                {
-                    Move();
 
-                    if (Interaction.Cast(cameraRoot, out IInteractiveBlock block))
+            public override void Update()
+            {
+                Ray ray;
+                if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
+                
+                if (StructureRaycaster.Cast(ray, true,
+                    GameData.Data.interactionDistance, GameData.Data.interactiveLayer,
+                    out StructureHit hit)) //Master.Interaction.Cast(Master.cameraRoot, out IInteractiveBlock block)
+                {
+                    if(hit.InteractiveBlock == null) return;
+
+                    if (Master.attachedControl == null)
                     {
-                        (bool canInteractive, string data) request = block.RequestInteractive(this);
+                        (bool canInteractive, string data) request = hit.InteractiveBlock.RequestInteractive(Master);
                         if (request.canInteractive)
                         {
                             //TODO: write text to HUD
                             if (Input.GetButtonDown("Interaction"))
                             {
-                                block.Interaction(this);
+                                hit.InteractiveBlock.Interaction(Master);
+                            }
+                        }
+                    }
+
+                    if (!CursorBehaviour.RotationLocked) return;
+
+                    if(hit.Device == null) return;
+                    if (Input.GetKey(KeyCode.Mouse0))
+                    {
+                        if (hit.Device is ControlAxis controlAxis)
+                        {
+                            if (controlAxis.EnableInteraction)
+                            {
+                                Debug.Log(controlAxis.computerInput);
+                                controlAxis.MoveMalueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
                             }
                         }
                     }
                 }
-
+            }
+        }
+        
+        private class FreeWalkState : InteractionState
+        {
+            public FreeWalkState(FirstPersonController master) : base(master)
+            {
+            }
+            
+            public override void Update()
+            {
+                base.Update();
+                if (!Master.CanMove) return;
+                
+                Master.Move();
+            }
+        }
+        
+        private class SeatState : InteractionState
+        {
+            public SeatState(FirstPersonController master) : base(master)
+            {
+            }
+            
+            public override void Update()
+            {
+                base.Update();
+                if (Input.GetButtonDown("Interaction"))
+                {
+                    Master.attachedControl.LeaveControl(Master);
+                }
             }
         }
 
 
         private void RotateHead()
         {
+            if (CursorBehaviour.RotationLocked) return;
+            
             vertical = Mathf.Clamp(vertical - Input.GetAxis("Mouse Y") * verticalSpeed * Time.deltaTime,
                 -verticalBorders, verticalBorders);
             transform.Rotate(Vector3.up * (Input.GetAxis("Mouse X") * horizontalSpeed * Time.deltaTime));
@@ -177,6 +234,7 @@ namespace Runtime.Character.Control
 
             yield return new WaitForEndOfFrame();
             attachedControl = control;
+            CurrentState = new SeatState(this);
         }
 
         public IEnumerator LeaveControl(CharacterDetachhData detachData)
@@ -198,6 +256,7 @@ namespace Runtime.Character.Control
                 ScyncVelocity(attachedControl.Structure);
             }
             attachedControl = null;
+            CurrentState = new FreeWalkState(this);
         }
 
         private void ScyncVelocity(IStructure structure)

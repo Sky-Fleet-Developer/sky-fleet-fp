@@ -13,11 +13,7 @@ namespace Core.Structure.Wires
         Toggle,
         DoubleSignal
     }
-
-    public interface IMultiplePorts : IBlock
-    {
-        IEnumerable<PortPointer> GetPorts();
-    }
+    
 
     public interface IPortUser
     {

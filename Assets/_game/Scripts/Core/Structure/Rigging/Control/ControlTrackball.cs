@@ -9,6 +9,10 @@ namespace Core.Structure.Rigging.Control
     [Serializable]
     public class ControlTrackball : IControlElement
     {
+        public bool EnableInteraction => enableInteraction;
+        [SerializeField] private bool enableInteraction;
+        public Transform Root => _device.transform;
+
         public enum TypeTrackballLimit
         {
             Rect = 0,

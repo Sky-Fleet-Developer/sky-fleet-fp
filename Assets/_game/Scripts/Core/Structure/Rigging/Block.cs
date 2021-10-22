@@ -46,6 +46,7 @@ namespace Core.Structure.Rigging
             Parent = parent;
             Structure = structure;
             boundsCash = transform.GetBounds();
+            boundsCash.center = parent.Transform.InverseTransformPoint(boundsCash.center);
         }
 
         public virtual void OnInitComplete() { }

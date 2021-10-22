@@ -267,7 +267,6 @@ namespace Core.Structure
         }
         
 
-        public static Dictionary<Type, FieldInfo[]> MultiplePorts;
         public static Dictionary<Type, FieldInfo[]> BlocksPorts;
 
         public static FieldInfo[] GetPortsInfo(IBlock block)
@@ -301,39 +300,6 @@ namespace Core.Structure
             return infos;
         }
 
-        public static FieldInfo[] GetMultiplePortsFields(IMultiplePorts block)
-        {
-            Type blockType = block.GetType();
-            if (MultiplePorts == null) MultiplePorts = new Dictionary<Type, FieldInfo[]>();
-            
-            if (MultiplePorts.TryGetValue(blockType, out FieldInfo[] infos)) return infos;
-                
-            List<FieldInfo> fields = new List<FieldInfo>();
-
-            Type type = typeof(IList);
-            Type elementType = typeof(IPortUser);
-
-            string log = $"Ports for type {blockType.Name}:\n";
-
-            FieldInfo[] allFields = blockType.GetFields(BindingFlags.Instance | BindingFlags.Public);
-            
-            foreach (FieldInfo field in allFields)
-            {
-                if (field.FieldType.InheritsFrom(type) && field.FieldType.GetGenericArguments().FirstOrDefault(x => x.InheritsFrom(elementType)) != null)
-                {
-                    fields.Add(field);
-                    log += $"{field.Name},";
-                }
-            }
-
-            Debug.Log(log);
-
-            infos = fields.ToArray();
-            
-            MultiplePorts.Add(blockType, infos);
-
-            return infos;
-        }
         
         public static List<PortPointer> GetAllPorts(IStructure structure)
         {
