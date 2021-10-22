@@ -213,7 +213,7 @@ namespace Core.Structure
 
             if(portsPointersCache == null) portsPointersCache = Factory.GetAllPorts(this);
             
-            port = portsPointersCache.FirstOrDefault(x => x.Equals(id));
+            port = portsPointersCache.FirstOrDefault(x => x.Id.Equals(id));
             portsCache.Add(id, port);
             return port;
         }

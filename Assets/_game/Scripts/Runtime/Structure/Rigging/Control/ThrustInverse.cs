@@ -15,14 +15,16 @@ namespace Runtime.Structure.Rigging.Control
 {
     public class ThrustInverse : Block, IUpdatableBlock
     {
-        public Port<float> inputPort = new Port<float>(PortType.Thrust);
-        public Port<float> outputPort = new Port<float>(PortType.Thrust);
+        public Port<float> portA = new Port<float>(PortType.Thrust);
+        public Port<float> portB = new Port<float>(PortType.Thrust);
 
-        [SerializeField] private float trimer = 0;
+        [SerializeField] private float trim = 0;
 
         public void UpdateBlock(int lod)
         {
-            outputPort.Value = -inputPort.Value + trimer;            
+            float delta = (portA.Value + portB.Value) * 0.5f + trim;
+            portA.Value -= delta;
+            portB.Value -= delta;
         }
     }
 }
