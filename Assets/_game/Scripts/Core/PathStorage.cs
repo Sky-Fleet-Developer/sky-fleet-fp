@@ -20,6 +20,8 @@ namespace Core
         public static readonly string DATA_SESSION_SAVE = "SessionSave";
         public static readonly string SESSION_TYPE_FILE = "save";
 
+        public static readonly string SETTING_DATA_PATH = "Setting";
+        public static readonly string SETTING_DATA_FILE = "Setting.opt";
 
         public static string GetPathToSessionSave()
         {
@@ -35,6 +37,22 @@ namespace Core
             string pathU = Application.dataPath;
             DirectoryInfo infoPath = Directory.GetParent(pathU);
             pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS;
+            return pathU;
+        }
+
+        public static string GetPathToSettingFile()
+        {
+            string pathU = Application.dataPath;
+            DirectoryInfo infoPath = Directory.GetParent(pathU);
+            pathU = infoPath.FullName + "\\" + PathStorage.SETTING_DATA_PATH + "\\" + PathStorage.SETTING_DATA_FILE;
+            return pathU;
+        }
+
+        public static string GetPathToSettingDirectory()
+        {
+            string pathU = Application.dataPath;
+            DirectoryInfo infoPath = Directory.GetParent(pathU);
+            pathU = infoPath.FullName + "\\" + PathStorage.SETTING_DATA_PATH;
             return pathU;
         }
 

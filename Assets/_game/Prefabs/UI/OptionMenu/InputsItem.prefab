@@ -78,7 +78,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'W
+  m_Text: '
 
 '
 --- !u!1 &1281390318175293937
@@ -330,10 +330,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pointers:
-  - {fileID: 3102491276608393537}
-  - {fileID: 3533317919981809016}
-  - {fileID: 2574006758592620282}
-  - {fileID: 9142875716316986522}
+  - {fileID: 8288191903107804384}
+  - {fileID: 4341244345569600686}
+  - {fileID: 7702379236961805007}
+  - {fileID: 555821991157913460}
 --- !u!1 &3513911976261150831
 GameObject:
   m_ObjectHideFlags: 0

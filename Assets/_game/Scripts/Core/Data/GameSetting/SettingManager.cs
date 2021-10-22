@@ -19,8 +19,19 @@ namespace Core.GameSetting
         public Task Load()
         {
             setting = new Setting();
-
+            if(GameSettingFileManager.LoadSetting(setting, PathStorage.GetPathToSettingFile()))
+            {
+                Debug.Log("Saved settings were not loaded.");
+            }
             return Task.CompletedTask;
+        }
+
+        public void SaveSetting()
+        {
+            if (GameSettingFileManager.SaveSetting(setting, PathStorage.GetPathToSettingFile()))
+            {
+                Debug.Log("The settings were saved successfully.");
+            }
         }
     }
 }

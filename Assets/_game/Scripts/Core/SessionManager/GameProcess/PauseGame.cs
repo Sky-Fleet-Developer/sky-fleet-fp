@@ -37,5 +37,23 @@ namespace Core.SessionManager.GameProcess
             }
         }
 
+        public void SetOnPause()
+        {
+            if (IsPause)
+            {
+                IsPause = true;
+                PauseOn();
+            }
+        }
+
+        public void SetOffPause()
+        {
+            if (IsPause)
+            {
+                IsPause = false;
+                PauseOff();
+            }
+        }
+
     }
 }

@@ -97,6 +97,7 @@ namespace Core.GameSetting
 
         public InputButtons()
         {
+            keys = new List<ButtonInput[]>();
             typeInput = TypeInput.InputButtons;
         }
 
