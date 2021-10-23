@@ -11,7 +11,7 @@ namespace Runtime.Explorer
 {
     public class SettingUI : UiBlockBase
     {
-        
+
         [SerializeField] private ItemPointer prefabCategory;
         [SerializeField] private ItemPointer prefabButton;
 
@@ -43,52 +43,73 @@ namespace Runtime.Explorer
                     if (input.GetTypeInput() == TypeInput.InputAxis)
                     {
                         InputAxis axis = (InputAxis)input;
-                        inputItem.GetPointer<Text>("InputsList").text = axis.GetNameAxis();
+                        inputItem.GetPointer<Text>("InputsList").text = GetListInput(input);
+                        inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { CallAddInputAxis(axis, inputItem); });
                     }
                     else
                     {
                         InputButtons button = (InputButtons)input;
-                        StringBuilder listButtons = new StringBuilder();
-                        for(int i = 0; i < button.Keys.Count;i++)
-                        {
-                            for (int i2 = 0; i2 < button.Keys[i].Length; i2++)
-                            {
-                                listButtons.Append(button.Keys[i][i2].GetKeyCode().ToString());
-                                if(i2 != button.Keys[i].Length - 1)
-                                {
-                                    listButtons.Append("+");
-                                }
-                                listButtons.Append(" ");
-                            }
-                        }
-                        inputItem.GetPointer<Text>("InputsList").text = listButtons.ToString();
+                        inputItem.GetPointer<Text>("InputsList").text = GetListInput(input);
+                        inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { CallAddInputButton(button, inputItem); });
                     }
-                    inputItem.GetPointer<Button>("ClearButton").onClick.AddListener(delegate { CallClearInput(input); });
-                    inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { CallAddInput(input); });
+                    inputItem.GetPointer<Button>("ClearButton").onClick.AddListener(delegate { CallClearInput(input, inputItem); });
+
                 }
             }
         }
 
-        private void ClearList()
+        private string GetListInput(InputAbstractType input)
         {
-
+            if (input.GetTypeInput() == TypeInput.InputAxis)
+            {
+                return ((InputAxis)input).ToString();
+            }
+            else
+            {
+                InputButtons button = (InputButtons)input;
+                StringBuilder listButtons = new StringBuilder();
+                for (int i = 0; i < button.Keys.Count; i++)
+                {
+                    listButtons.Append(button.Keys[i].ToString());
+                    listButtons.Append(" ");
+                }
+                return listButtons.ToString();
+            }
         }
 
-        private void CallClearInput(InputAbstractType input)
+        private void CallClearInput(InputAbstractType input, ItemPointer pointerUI)
         {
-
+            input.Clear();
+            pointerUI.GetPointer<Text>("InputsList").text = GetListInput(input);
         }
 
-        private void CallAddInput(InputAbstractType input)
+        private void CallAddInputButton(InputButtons input, ItemPointer pointerUI)
         {
-            InputControl.Instance.TakeInput();
+            TakeInputUI.Instance.GetInputButtons(x => { OnAddInputButton(x, input, pointerUI); });
+            pointerUI.GetPointer<Button>("AddKey").interactable = false;
         }
 
-        private void CallUpdateInput(InputAbstractType input)
+        private void CallAddInputAxis(InputAxis input, ItemPointer pointerUI)
         {
-
+            TakeInputUI.Instance.GetInputAxis(x => { OnAddInputAxis(x, input, pointerUI); });
+            pointerUI.GetPointer<Button>("AddKey").interactable = false;
         }
 
+
+        private void OnAddInputButton(ButtonCodes buttonCode, InputButtons input, ItemPointer pointerUI)
+        {
+            input.AddKey(buttonCode);
+            pointerUI.GetPointer<Text>("InputsList").text = GetListInput(input);
+            pointerUI.GetPointer<Button>("AddKey").interactable = true;
+        }
+
+        private void OnAddInputAxis(AxisCode buttonCode, InputAxis input, ItemPointer pointerUI)
+        {
+            input.SetAxis(buttonCode);
+            pointerUI.GetPointer<Text>("InputsList").text = GetListInput(input);
+            pointerUI.GetPointer<Button>("AddKey").interactable = true;
+        }
+        //
         private void CallSaveOption()
         {
             SettingManager.Instance.SaveSetting();

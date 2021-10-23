@@ -1037,6 +1037,14 @@ PrefabInstance:
       propertyPath: menus.Array.data[3].blocks.Array.data[0]
       value: 
       objectReference: {fileID: 3322352339464336548, guid: 51a6994caaf36b546b138d58459a291d, type: 3}
+    - target: {fileID: 8113152634749577370, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8113152635656725787, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8926916952982417363, guid: 729efc3955206f44bb7edf11bf1beb3d, type: 3}
       propertyPath: m_ChildForceExpandWidth
       value: 1

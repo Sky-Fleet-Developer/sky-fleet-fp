@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Core.GameSetting
@@ -61,6 +62,7 @@ namespace Core.GameSetting
             moveCategory.AddInputButtons("Move back");
             moveCategory.AddInputButtons("Move left");
             moveCategory.AddInputButtons("Move right");
+            moveCategory.AddInputButtons("Jump");
             return control;
         }
 
@@ -84,78 +86,164 @@ namespace Core.GameSetting
 
         protected TypeInput typeInput;
         public TypeInput GetTypeInput() => typeInput;
+
+        public virtual void Clear()
+        {
+        }
+
+        public virtual bool IsNone()
+        {
+            return true;
+        }
     }
 
     [System.Serializable]
     public class InputButtons : InputAbstractType
     {
+        public List<ButtonCodes> Keys => keys;
 
-
-        public List<ButtonInput[]> Keys => keys;
-
-        private List<ButtonInput[]> keys;
+        private List<ButtonCodes> keys;
 
         public InputButtons()
         {
-            keys = new List<ButtonInput[]>();
+            keys = new List<ButtonCodes>();
             typeInput = TypeInput.InputButtons;
         }
 
-        public void AddKey(ButtonInput[] key)
+        public void AddKey(ButtonCodes key)
         {
             keys.Add(key);
         }
 
-        public void SetKey(ButtonInput[] key)
+        public void SetKey(ButtonCodes key)
         {
             keys.Clear();
             keys.Add(key);
+        }
+
+        public override void Clear()
+        {
+            keys.Clear();
+        }
+
+        public override bool IsNone()
+        {
+            return keys.Count > 0;
+        }
+    }
+
+    [System.Serializable]
+    public struct AxisCode
+    {
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
+            set
+            {
+                _name = value;
+                if (value == "Mouse X" || value == "Mouse Y" || value == "Mouse ScrollWheel")
+                {
+                    IsAbsolute = true;
+                }
+                else
+                {
+                    IsAbsolute = false;
+                }
+            }
+        }
+
+        private string _name;
+
+        public bool IsAbsolute { get; private set; }
+
+        public AxisCode(string Name)
+        {
+            _name = Name;
+            IsAbsolute = false;
+            this.Name = Name;
+            
+        }
+
+        public static AxisCode Zero()
+        {
+            return new AxisCode("");
+        }
+
+        public override string ToString()
+        {
+            return _name;
         }
     }
 
     [System.Serializable]
     public class InputAxis : InputAbstractType
     {
-        public string GetNameAxis() => nameAxis;
+        public AxisCode GetAxis() => axis;
 
-        private string nameAxis;
+        private AxisCode axis;
 
         public InputAxis()
         {
+            axis = new AxisCode();
             typeInput = TypeInput.InputAxis;
         }
 
-        public void SetAxis(string name)
+        public void SetAxis(AxisCode name)
         {
-            nameAxis = name;
+            axis = name;
         }
 
-        public bool IsNone()
+        public override bool IsNone()
         {
-            return string.IsNullOrEmpty(nameAxis);
+            return string.IsNullOrEmpty(axis.Name);
+        }
+
+        public override void Clear()
+        {
+            axis.Name = "";
         }
     }
 
     [System.Serializable]
-    public class ButtonInput
+    public struct ButtonCodes
     {
-        public KeyCode GetKeyCode() => keyCode;
+        public KeyCode[] KeyCodes { get; set; }
 
-        private KeyCode keyCode = KeyCode.None;
+        public ButtonCodes(KeyCode[] keys)
+        {
+            this.KeyCodes = keys;
+        }
 
         public void Clear()
         {
-            keyCode = KeyCode.None;
-        }
-
-        public void SetKeyCode(KeyCode key)
-        {
-            keyCode = key;
+            KeyCodes = new KeyCode[0];
         }
 
         public bool IsNone()
         {
-            return keyCode == KeyCode.None;
+            return KeyCodes.Length == 0;
+        }
+
+        public static ButtonCodes Zero()
+        {
+            return new ButtonCodes(new KeyCode[0]);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder text = new StringBuilder();
+            for(int i = 0; i < KeyCodes.Length; i++)
+            {
+                text.Append(KeyCodes[i].ToString());
+                if(i < KeyCodes.Length-1)
+                {
+                    text.Append('+');
+                }
+            }
+            return text.ToString();
         }
     }
 }

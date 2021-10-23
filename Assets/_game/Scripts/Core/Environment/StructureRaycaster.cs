@@ -53,6 +53,8 @@ namespace Core.Environment
         public static bool Cast(Ray ray, bool interactiveCast, float maxDistance, LayerMask layerMask,
             out StructureHit hit)
         {
+            hit = default;
+            return false;
             foreach (IStructure structure in Instance.Profiles.Keys)
             {
                 if (Cast(structure, ray, interactiveCast, maxDistance, layerMask, out hit))

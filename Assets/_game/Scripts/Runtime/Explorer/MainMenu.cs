@@ -18,7 +18,9 @@ public class MainMenu : UiBlockBase, ILoadAtStart
     [FoldoutGroup("Style")]
     public int fontSize = 20;
     [FoldoutGroup("Style")] public UiFrame framePrefab;
-    
+
+    [SerializeField] private Transform contentFromFrames;
+
     private IUiStructure _structure;
     private List<ButtonItemPointer> buttons = new List<ButtonItemPointer>();
 
@@ -62,6 +64,7 @@ public class MainMenu : UiBlockBase, ILoadAtStart
     {
         //StartCoroutine(Hide());
         UiFrame frame = Structure.Instantiate(framePrefab);
+        frame.transform.parent = contentFromFrames;
         frame.Apply(UiFrame.LayoutType.Horizontal, blocksBase);
         FocusOn(frame);
     }

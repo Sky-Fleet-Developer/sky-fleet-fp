@@ -8,6 +8,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.SessionManager.GameProcess;
 using Core.Structure.Rigging.Control;
+using Core.GameSetting;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -70,6 +71,13 @@ namespace Runtime.Character.Control
         private float vertical;
         
         private bool isInitialized;
+
+        private InputButtons moveForward;
+        private InputButtons moveBack;
+        private InputButtons moveLeft;
+        private InputButtons moveRight;
+        private InputButtons jump;
+
         private void Start()
         {
             if (!isInitialized) Init();
@@ -79,6 +87,11 @@ namespace Runtime.Character.Control
         {
             CurrentState = new FreeWalkState(this);
             isInitialized = true;
+            moveForward = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move forward"));
+            moveBack = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move back"));
+            moveLeft = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move left"));
+            moveRight = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move right"));
+            jump = (InputButtons)(InputControl.Instance.GetInput("Move player", "Jump"));
         }
 
         private bool CanMove
@@ -200,14 +213,15 @@ namespace Runtime.Character.Control
 
         private void Move()
         {
-            motor.InputAxis = new Vector2(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal"));
+            motor.InputAxis = new Vector2(InputControl.Instance.GetButton(moveForward) - InputControl.Instance.GetButton(moveBack),
+                InputControl.Instance.GetButton(moveRight) - InputControl.Instance.GetButton(moveLeft));
             motor.InputSprint = Input.GetButton("Sprint");
 
-            if (Input.GetButtonDown("Jump"))
+            if (InputControl.Instance.GetButtonDown(jump) > 0)
             {
                 motor.InputJump();
             }
-            else if (Input.GetButtonUp("Jump"))
+            else if (InputControl.Instance.GetButtonUp(jump) > 0)
             {
                 motor.InputCancelJump();
             }

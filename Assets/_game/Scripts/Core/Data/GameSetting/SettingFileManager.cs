@@ -31,7 +31,7 @@ namespace Core.GameSetting
                     if (res == null)
                     {
                         return false;
-                    }
+                    } 
                 }
                 return true;
             }
@@ -139,7 +139,7 @@ namespace Core.GameSetting
                 if (input.GetTypeInput() == TypeInput.InputAxis)
                 {
                     InputAxis axis = (InputAxis)(input);                 
-                    extensionStream.WriteString(axis.GetNameAxis(), streamOpen);
+                    extensionStream.WriteString(axis.GetAxis().Name, streamOpen);
                 }
                 else
                 {
@@ -147,10 +147,10 @@ namespace Core.GameSetting
                     extensionStream.WriteInt(buttons.Keys.Count, streamOpen);
                     for (int i = 0; i < buttons.Keys.Count; i++)
                     {
-                        extensionStream.WriteInt(buttons.Keys[i].Length, streamOpen);
-                        for (int i2 = 0; i2 < buttons.Keys[i].Length; i2++)
+                        extensionStream.WriteInt(buttons.Keys[i].KeyCodes.Length, streamOpen);
+                        for (int i2 = 0; i2 < buttons.Keys[i].KeyCodes.Length; i2++)
                         {
-                            extensionStream.WriteInt((int)buttons.Keys[i][i2].GetKeyCode(), streamOpen);
+                            extensionStream.WriteInt((int)buttons.Keys[i].KeyCodes[i2], streamOpen);
                         }
                     }
                 }
@@ -200,7 +200,7 @@ namespace Core.GameSetting
                     InputAxis axis = (InputAxis)input;
                     if(input != null)
                     {
-                        axis.SetAxis(extensionStream.ReadString(streamOpen));
+                        axis.SetAxis(new AxisCode(extensionStream.ReadString(streamOpen)));
                     }
                     else
                     {
@@ -216,11 +216,11 @@ namespace Core.GameSetting
                         for (int i = 0; i < countKeysCont; i++)
                         {
                             int countKeys = extensionStream.ReadInt(streamOpen);
-                            ButtonInput[] butts = new ButtonInput[countKeys];
-
+                            ButtonCodes butts = new ButtonCodes();
+                            butts.KeyCodes = new KeyCode[countKeys];
                             for (int i2 = 0; i2 < countKeys; i2++)
                             {
-                                butts[i2].SetKeyCode((KeyCode)extensionStream.ReadInt(streamOpen));
+                                butts.KeyCodes[i2] = (KeyCode)extensionStream.ReadInt(streamOpen);
                             }
                             buttons.Keys.Add(butts);
                         }
