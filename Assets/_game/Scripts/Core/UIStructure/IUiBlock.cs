@@ -64,16 +64,14 @@ namespace Core.UiStructure
 
         public virtual IEnumerator Show(BlockSequenceSettings settings = null)
         {
-
             if (setAsFocusedOnShow) FocusOn(this);
-            if (settings == null) yield return showTransition.Setup(Vector3.one, rectTransform.DOScale).WaitForCompletion();
+            if (settings == null) yield return showTransition.Setup(Vector3.one, rectTransform.DOScale).SetUpdate(UpdateType.Normal, true).WaitForCompletion();
             else yield return settings.ApplySequenceSettings(this);
         }
 
         public virtual IEnumerator Hide(BlockSequenceSettings settings = null)
         {
-
-            if (settings == null) yield return hideTransition.Setup(Vector3.zero, rectTransform.DOScale).WaitForCompletion();
+            if (settings == null) yield return hideTransition.Setup(Vector3.zero, rectTransform.DOScale).SetUpdate(UpdateType.Normal, true).WaitForCompletion();
             else yield return settings.ApplySequenceSettings(this);
             gameObject.SetActive(false);
             if ((UiBlockBase) FocusBlock == this) FocusOn(null);
