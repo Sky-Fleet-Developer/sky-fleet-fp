@@ -436,7 +436,7 @@ MonoBehaviour:
   SlidingValue: 0.3
   MaxStaticFriction: 50
   MinSlidingFriction: 30
-  BreakForce: 0
+  BreakForce: 0.08
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
@@ -509,7 +509,7 @@ MonoBehaviour:
   SlidingValue: 0.3
   MaxStaticFriction: 50
   MinSlidingFriction: 30
-  BreakForce: 0
+  BreakForce: 0.08
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
@@ -582,7 +582,7 @@ MonoBehaviour:
   SlidingValue: 0.3
   MaxStaticFriction: 50
   MinSlidingFriction: 30
-  BreakForce: 0
+  BreakForce: 0.08
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
@@ -737,7 +737,7 @@ MonoBehaviour:
   SlidingValue: 0.3
   MaxStaticFriction: 50
   MinSlidingFriction: 30
-  BreakForce: 0
+  BreakForce: 0.08
   groundLayer:
     serializedVersion: 2
     m_Bits: 1

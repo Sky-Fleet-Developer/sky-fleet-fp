@@ -21,8 +21,8 @@ MonoBehaviour:
     controlFailText: Control is alredy used
     groundLayer:
       serializedVersion: 2
-      m_Bits: 1
-    fuelTransitionAmount: 5
+      m_Bits: 65
+    fuelTransitionAmount: 2
     lodDistances:
     - 50
     - 100

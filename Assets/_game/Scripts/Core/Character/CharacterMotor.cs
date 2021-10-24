@@ -1,3 +1,4 @@
+using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -14,7 +15,6 @@ namespace Runtime.Character
         [FoldoutGroup("Character")]public float jumpImpulse;
         
         //--------locomotor properties--------//
-        [FoldoutGroup("Locomotor")] public float height = 1.8f;
         [FoldoutGroup("Locomotor")] public float skinWidth = 0.2f;
         [FoldoutGroup("Locomotor")] public float radius = 0.4f;
         [FoldoutGroup("Locomotor"),
@@ -22,12 +22,11 @@ namespace Runtime.Character
         [FoldoutGroup("Locomotor")] public float frictionDrag = 200;
         [FoldoutGroup("Locomotor"), Min(0.0001f)] public float maxFrictionOffset = 0.3f;
         [FoldoutGroup("Locomotor"), Min(0.01f)] public float slidingValue = 0.5f;
-        [FoldoutGroup("Locomotor"),
-         Header("Скольжение")] public float accelerationInclination = 0.01f;
-        [FoldoutGroup("Locomotor"),
-         Header("Скольжение")] public float inclinationMax = 1f;
-        [FoldoutGroup("Locomotor"),
-         Header("Скольжение")] public float inclinationHardness = 1f;
+        [FoldoutGroup("Locomotor"), Header("Наклоны")] public float accelerationInclination = 0.01f;
+        [FoldoutGroup("Locomotor")] public float inclinationMax = 1f;
+        [FoldoutGroup("Locomotor")] public float inclinationHardness = 1f;
+        [FoldoutGroup("Locomotor"), Header("Препятствия")] public float rayPerInputOffset = 0.1f;
+        [FoldoutGroup("Locomotor")] public float yDragMul = 2f;
 
         [Header("Сила срыва"), FoldoutGroup("Locomotor")] 
         public float maxStaticFriction;
@@ -42,10 +41,11 @@ namespace Runtime.Character
         private float suspensionDelta;
         private bool grounded;
         private Rigidbody rigidbody;
+        private Vector3 lastGroundPoint;
         private Vector3 platformPoint;
         private Vector3 worldVelocity;
         private Vector3 normalAcceleration;
-        private Vector3 lastVelocity;
+        private Vector3 lastPlatformVelocity;
         private float forwardDelta;
         private float forwardVelocity;
         private float sideDelta;
@@ -53,12 +53,14 @@ namespace Runtime.Character
         private Transform platform;
         
         private Vector2 targetSpeed;
-        [ShowInInspector, ReadOnly] private bool jump;
-        private bool canJump = true;
-        
+        [ShowInInspector] private bool jump;
+        [ShowInInspector, ReadOnly] private bool canJump = true;
+        private bool jumpTickNow;
+
         
         [ShowInInspector, ReadOnly] public bool InputSprint { get; set; }
         [ShowInInspector, ReadOnly]  public Vector2 InputAxis { get; set; }
+        private Vector2 input;
 
         public void InputJump()
         {
@@ -92,18 +94,30 @@ namespace Runtime.Character
 
         private void ReadInput()
         {
-            float along = Mathf.Clamp(InputAxis.x, -1f, 1f) * (InputAxis.x > 0 ? (InputSprint ? sprintSpeed : forwardSpeed) : backSpeed);
-            targetSpeed = new Vector2(along, sideSpeed * Mathf.Clamp(InputAxis.y, -1f, 1f));
+            input.x = Mathf.Clamp(InputAxis.x, -1f, 1f);
+            input.y = Mathf.Clamp(InputAxis.y, -1f, 1f);
             
+            float along = input.x * (input.x > 0 ? (InputSprint ? sprintSpeed : forwardSpeed) : backSpeed);
+            targetSpeed = new Vector2(along, sideSpeed * Mathf.Clamp(input.y, -1f, 1f));
         }
 
         private void GroundCast(Vector3 position)
         {
-            grounded = Physics.SphereCast(position, radius, -transform.up, out groundHit, height + skinWidth - radius,
+            lastGroundPoint = groundHit.point;
+
+            Vector3 offset = transform.forward * input.x + transform.right * input.y;
+
+            position = position + transform.up * (radius + skinWidth) + offset * rayPerInputOffset;
+            
+            grounded = Physics.SphereCast(position, radius, -transform.up, out groundHit, skinWidth * 2,
                 GameData.Data.groundLayer);
-            Debug.DrawLine(position, position - transform.up * (grounded ? groundHit.distance : height + skinWidth));
+            
+            //Debug.DrawLine(position, transform.position, Color.cyan);
+            Debug.DrawRay(position, -transform.up * groundHit.distance, Color.cyan);
+            
+            //Debug.DrawLine(position, position - transform.up * (grounded ? groundHit.distance : height + skinWidth));
         }
-        
+
         private void DoFriction(float deltaTime)
         {
             if (grounded)
@@ -122,16 +136,28 @@ namespace Runtime.Character
                     platformPoint = platform.InverseTransformDirection(groundHit.point - platform.position);
                     return;
                 }
-                
+
+                Vector3 transposedPlatformPoint =
+                    platform.InverseTransformDirection(lastGroundPoint - platform.position);
                 platformPoint = platform.InverseTransformDirection(groundHit.point - platform.position);
-                
+
+
+                //acceleration
+
+                Vector3 platformVelocity = (lastPlatformPoint - transposedPlatformPoint) * idt;
+                Vector3 platformAcceleration = (lastPlatformVelocity - platformVelocity) * idt;
+                lastPlatformVelocity = platformVelocity;
+                normalAcceleration = Vector3.ProjectOnPlane(platformAcceleration, groundHit.normal);
+
                 //to world
 
                 worldVelocity = platform.rotation * (platformPoint - lastPlatformPoint) * idt;
+                Vector3 selfVelocity = rigidbody.velocity - platformVelocity;
 
                 //to local
 
                 Vector3 localVelocity = fwdInv * worldVelocity;
+                Vector3 localSelfVelocity = fwdInv * (selfVelocity);
 
                 //transforms
 
@@ -142,44 +168,60 @@ namespace Runtime.Character
                 sideVelocity = localVelocity.x + targetSpeed.y;
                 sideDelta = Mathf.Clamp(sideDelta + sideVelocity * deltaTime, -maxFrictionOffset, maxFrictionOffset);
 
+                jumpTickNow = false;
+                if (jump && canJump)
+                {
+                    canJump = false;
+                    this.Wait(0.5f, () => canJump = true);
+                    jump = false;
+                    jumpTickNow = true;
+                }
+
+                //apply skin width
+                float yDelta = 0;
+                float yVel = 0;
+                if (canJump)
+                {
+                    yDelta = Mathf.Clamp(groundHit.distance - skinWidth * 1.5f, -skinWidth * 0.5f, skinWidth);
+                    yVel = Mathf.Max(localSelfVelocity.y, -1) * rigidbody.mass;
+                   // transform.position -= transform.up * yDelta;
+                }
                 //to world
 
                 Vector3 worldDelta = fwdDir *
-                                     (Vector3.right * sideDelta + Vector3.forward * forwardDelta); //world space
+                                     new Vector3(sideDelta, yDelta * rigidbody.mass * 0.2f, forwardDelta); //world space
                 worldVelocity = fwdDir *
-                                (Vector3.right * sideVelocity + Vector3.forward * forwardVelocity);
-                
-                
+                                new Vector3(sideVelocity, yVel * yDragMul, forwardVelocity);
+
+
                 Vector3 force = (-worldVelocity * frictionDrag - worldDelta * staticFriction);
-                
-                
-                //acceleration
-                Vector3 acceleration = (lastVelocity - rigidbody.velocity) * idt;
-                lastVelocity = rigidbody.velocity;
-                normalAcceleration = Vector3.ProjectOnPlane(acceleration, groundHit.normal);
-                
-                float forceMagniture = force.magnitude;
+
+                float forceMagnitude = force.magnitude;
 
                 if (sliding)
                 {
-                    if (forceMagniture < minSlidingFriction)
+                    if (forceMagnitude < minSlidingFriction)
                         sliding = false;
                     force *= slidingValue;
                 }
                 else
                 {
-                    if (forceMagniture > maxStaticFriction)
+                    if (forceMagnitude > maxStaticFriction)
                         sliding = true;
                 }
 
-                if (jump && canJump)
+                if (jumpTickNow)
                 {
-                    canJump = false;
-                    jump = false;
-                    rigidbody.velocity += groundHit.normal * jumpImpulse;
+                    selfVelocity = Vector3.ProjectOnPlane(selfVelocity, groundHit.normal) +
+                                   groundHit.normal * jumpImpulse;
+                    rigidbody.velocity = selfVelocity;
                 }
 
                 rigidbody.AddForceAtPosition(force * deltaTime, groundHit.point);
+
+                Debug.DrawRay(groundHit.point, force * 0.0001f, Color.red);
+                //Debug.DrawRay(groundHit.point, groundHit.normal * 0.2f, Color.green);
+
                 Rigidbody otherRb = groundHit.rigidbody;
                 if (otherRb != null)
                 {
