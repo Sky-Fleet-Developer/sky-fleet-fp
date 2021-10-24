@@ -94,8 +94,8 @@ namespace Runtime.Character
 
         private void ReadInput()
         {
-            input.x = Mathf.Clamp(InputAxis.x, -1f, 1f);
-            input.y = Mathf.Clamp(InputAxis.y, -1f, 1f);
+            input.x = Mathf.Lerp(input.x, Mathf.Clamp(InputAxis.x, -1f, 1f), Time.deltaTime * 2.5f);
+            input.y = Mathf.Lerp(input.y, Mathf.Clamp(InputAxis.y, -1f, 1f), Time.deltaTime * 2.5f);
             
             float along = input.x * (input.x > 0 ? (InputSprint ? sprintSpeed : forwardSpeed) : backSpeed);
             targetSpeed = new Vector2(along, sideSpeed * Mathf.Clamp(input.y, -1f, 1f));
@@ -189,7 +189,7 @@ namespace Runtime.Character
                 //to world
 
                 Vector3 worldDelta = fwdDir *
-                                     new Vector3(sideDelta, yDelta * rigidbody.mass * 0.2f, forwardDelta); //world space
+                                     new Vector3(sideDelta, yDelta * rigidbody.mass * 0.05f, forwardDelta); //world space
                 worldVelocity = fwdDir *
                                 new Vector3(sideVelocity, yVel * yDragMul, forwardVelocity);
 

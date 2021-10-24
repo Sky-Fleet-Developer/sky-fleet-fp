@@ -54,7 +54,6 @@ namespace Core.Environment
             out StructureHit hit)
         {
             hit = default;
-            return false;
             foreach (IStructure structure in Instance.Profiles.Keys)
             {
                 if (Cast(structure, ray, interactiveCast, maxDistance, layerMask, out hit))

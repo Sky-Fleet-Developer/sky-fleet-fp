@@ -37,7 +37,12 @@ namespace Core.Game
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-        
+
+        private void OnDestroy()
+        {
+            UnlockCursor();
+        }
+
 
         public class FreeCursorState : State<CursorBehaviour>
         {
