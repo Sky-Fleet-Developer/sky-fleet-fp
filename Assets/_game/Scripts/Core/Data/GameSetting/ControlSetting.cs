@@ -80,6 +80,13 @@ namespace Core.GameSetting
             moveCategory.AddToggle("Use axles for move player?");
             moveCategory.AddAxisInput("Axis forward/back");
             moveCategory.AddAxisInput("Axis left/right");
+            CategoryInputs cameraCategory = control.AddCategory("Camera");
+            cameraCategory.AddAxisInput("Axis up/down");
+            cameraCategory.AddAxisInput("Axis left/right");
+
+            CategoryInputs generalCategory = control.AddCategory("General");
+            generalCategory.AddInputButtons("Fast save");
+            generalCategory.AddInputButtons("Set pause");
             return control;
         }
 
@@ -186,12 +193,17 @@ namespace Core.GameSetting
 
         public bool IsAbsolute { get; private set; }
 
+        public bool Inverse;
+
+        public float Multiply;
+
         public AxisCode(string Name)
         {
             _name = Name;
             IsAbsolute = false;
+            Inverse = false;
+            Multiply = 1;
             this.Name = Name;
-            
         }
 
         public static AxisCode Zero()
@@ -215,12 +227,23 @@ namespace Core.GameSetting
         public InputAxis()
         {
             axis = new AxisCode();
+            axis.Multiply = 1;
             typeInput = TypeInput.InputAxis;
         }
 
         public void SetAxis(AxisCode name)
         {
             axis = name;
+        }
+
+        public void SetMultiply(float val)
+        {
+            axis.Multiply = val;
+        }
+
+        public void SetInverse(bool val)
+        {
+            axis.Inverse = val;
         }
 
         public override bool IsNone()

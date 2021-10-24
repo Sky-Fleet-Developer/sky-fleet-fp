@@ -89,5 +89,20 @@ namespace Core.ContentSerializer
             stream.Read(byteBuffer, 0, 1);
             return byteBuffer[0];
         }
+
+        public void WriteBool(bool value, Stream stream)
+        {
+            if (value)
+                byteBuffer[0] = 255;
+            else
+                byteBuffer[0] = 0;
+            stream.Write(byteBuffer, 0, 1);
+        }
+
+        public bool ReadBool(Stream stream)
+        {
+            stream.Read(byteBuffer, 0, 1);
+            return byteBuffer[0] > 0;
+        }
     }
 }
