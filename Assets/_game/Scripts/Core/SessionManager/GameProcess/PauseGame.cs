@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Core.GameSetting;
 using Core.Boot_strapper;
 using Core.Utilities;
 using UnityEngine;
@@ -15,31 +16,28 @@ namespace Core.SessionManager.GameProcess
 
         public Task Load()
         {
+            HotKeys.Instance.SetPause += UpdatePause;
             return Task.CompletedTask;
         }
 
-        private void Update()
+
+        private void UpdatePause()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (!IsPause)
             {
-                if (IsPause)
-                {
-                    IsPause = false;
-                    Time.timeScale = 1;
-                    PauseOff?.Invoke();
-                }
-                else
-                {
-                    IsPause = true;
-                    Time.timeScale = 0;
-                    PauseOn?.Invoke();
-                }
+                IsPause = true;
+                PauseOn();
+            }
+            else
+            {
+                IsPause = false;
+                PauseOff();
             }
         }
 
         public void SetOnPause()
         {
-            if (IsPause)
+            if (!IsPause)
             {
                 IsPause = true;
                 PauseOn();

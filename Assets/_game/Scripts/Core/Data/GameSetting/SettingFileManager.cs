@@ -237,6 +237,8 @@ namespace Core.GameSetting
                 extension.WriteString(define.Element.Name, define.StreamOpen);
                 InputAxis inputAxis = (InputAxis)define.Element;
                 extension.WriteString(inputAxis.GetAxis().Name, define.StreamOpen);
+                extension.WriteBool(inputAxis.GetAxis().Inverse, define.StreamOpen);
+                extension.WriteFloat(inputAxis.GetAxis().Multiply, define.StreamOpen);
                 return define.Element;
             }
         }
@@ -310,7 +312,11 @@ namespace Core.GameSetting
                 InputAxis inputAxis = new InputAxis();
                 ExtensionStream extension = new ExtensionStream();
                 inputAxis.Name = extension.ReadString(define.StreamOpen);
-                inputAxis.SetAxis(new AxisCode(extension.ReadString(define.StreamOpen)));
+                AxisCode code = new AxisCode(extension.ReadString(define.StreamOpen));
+                code.Inverse = extension.ReadBool(define.StreamOpen);
+                code.Multiply = extension.ReadFloat(define.StreamOpen);
+                inputAxis.SetAxis(code);
+                
                 return inputAxis;
             }
         }

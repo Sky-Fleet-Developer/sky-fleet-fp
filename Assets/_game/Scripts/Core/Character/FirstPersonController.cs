@@ -79,8 +79,11 @@ namespace Runtime.Character.Control
         private InputButtons jump;
 
         private ToggleSetting isAxisMove;
+        private InputControl.CorrectInputAxis forwardAxis;
+        private InputControl.CorrectInputAxis sideAxis;
 
-
+        private InputControl.CorrectInputAxis cameraY;
+        private InputControl.CorrectInputAxis cameraX;
 
         private void Start()
         {
@@ -91,11 +94,22 @@ namespace Runtime.Character.Control
         {
             CurrentState = new FreeWalkState(this);
             isInitialized = true;
-            moveForward = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move forward"));
-            moveBack = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move back"));
-            moveLeft = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move left"));
-            moveRight = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move right"));
-            jump = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Jump"));
+            moveForward = InputControl.Instance.GetInput<InputButtons>("Move player", "Move forward");
+            moveBack = InputControl.Instance.GetInput<InputButtons>("Move player", "Move back");
+            moveLeft = InputControl.Instance.GetInput<InputButtons>("Move player", "Move left");
+            moveRight = InputControl.Instance.GetInput<InputButtons>("Move player", "Move right");
+            jump = InputControl.Instance.GetInput<InputButtons>("Move player", "Jump");
+
+            isAxisMove = InputControl.Instance.GetInput<ToggleSetting>("Move player", "Use axles for move player?");
+            forwardAxis = new InputControl.CorrectInputAxis();
+            forwardAxis.SetAxis(InputControl.Instance.GetInput<InputAxis>("Move player", "Axis forward/back").GetAxis());
+            sideAxis = new InputControl.CorrectInputAxis();
+            sideAxis.SetAxis(InputControl.Instance.GetInput<InputAxis>("Move player", "Axis left/right").GetAxis());
+
+            cameraY = new InputControl.CorrectInputAxis();
+            cameraY.SetAxis(InputControl.Instance.GetInput<InputAxis>("Camera", "Axis up/down").GetAxis());
+            cameraX = new InputControl.CorrectInputAxis();
+            cameraX.SetAxis(InputControl.Instance.GetInput<InputAxis>("Camera", "Axis left/right").GetAxis());
         }
 
         private bool CanMove
@@ -207,17 +221,43 @@ namespace Runtime.Character.Control
         private void RotateHead()
         {
             if (CursorBehaviour.RotationLocked) return;
-            
-            vertical = Mathf.Clamp(vertical - Input.GetAxis("Mouse Y") * verticalSpeed * Time.deltaTime,
+
+            float y;
+            if(cameraY.IsAbsolute())
+            {
+                y = cameraY.GetInputAbsolute();
+            }
+            else
+            {
+                y = cameraY.GetInputSum();
+            }
+            float x;
+            if (cameraX.IsAbsolute())
+            {
+                x = cameraX.GetInputAbsolute();
+            }
+            else
+            {
+                x = cameraX.GetInputSum();
+            }
+            vertical = Mathf.Clamp(vertical - y * verticalSpeed * Time.deltaTime,
                 -verticalBorders, verticalBorders);
-            transform.Rotate(Vector3.up * (Input.GetAxis("Mouse X") * horizontalSpeed * Time.deltaTime));
+            transform.Rotate(Vector3.up * (x * horizontalSpeed * Time.deltaTime));
             cameraRoot.localEulerAngles = Vector3.right * vertical;
         }
 
         private void Move()
         {
-            motor.InputAxis = new Vector2(InputControl.Instance.GetButton(moveForward) - InputControl.Instance.GetButton(moveBack),
-                InputControl.Instance.GetButton(moveRight) - InputControl.Instance.GetButton(moveLeft));
+            if (!isAxisMove.IsOn)
+            {
+                motor.InputAxis = new Vector2(InputControl.Instance.GetButton(moveForward) - InputControl.Instance.GetButton(moveBack),
+                    InputControl.Instance.GetButton(moveRight) - InputControl.Instance.GetButton(moveLeft));
+            }
+            else
+            {
+                motor.InputAxis = new Vector2(forwardAxis.GetInputSum(), sideAxis.GetInputSum());
+            }
+
             motor.InputSprint = Input.GetButton("Sprint");
 
             if (InputControl.Instance.GetButtonDown(jump) > 0)

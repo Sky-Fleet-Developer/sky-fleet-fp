@@ -1,6 +1,7 @@
 using Core.GameSetting;
 using Core.UiStructure;
 using Core.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +17,7 @@ namespace Runtime.Explorer
 
         [SerializeField] private ItemPointer prefabCategory;
         [SerializeField] private ItemPointer prefabButton;
+        [SerializeField] private ItemPointer prefabAxis;
         [SerializeField] private ItemPointer prefabToggle;
 
         [SerializeField] private Button saveButton;
@@ -48,7 +50,7 @@ namespace Runtime.Explorer
                 }
             }
         }
-        
+
         //Abstract factory/
         private struct ElementDefine
         {
@@ -72,7 +74,7 @@ namespace Runtime.Explorer
                 RegisterNewType(new InputAxisGenerator());
                 RegisterNewType(new ToggleGenerator());
             }
-                
+
 
             protected override ItemPointer GetDefault()
             {
@@ -100,10 +102,23 @@ namespace Runtime.Explorer
             public override ItemPointer Generate(ElementDefine define)
             {
                 InputAxis axis = (InputAxis)define.SettingElement;
-                ItemPointer inputItem = DynamicPool.Instance.Get(define.Basic.prefabButton, define.Basic.content);
+                ItemPointer inputItem = DynamicPool.Instance.Get(define.Basic.prefabAxis, define.Basic.content);
                 inputItem.GetPointer<Text>("InputsList").text = define.Basic.GetListInput(axis);
+                inputItem.GetPointer<Toggle>("Inversion").isOn = axis.GetAxis().Inverse;
+                inputItem.GetPointer<InputField>("Multiply").SetTextWithoutNotify(axis.GetAxis().Multiply.ToString());
                 inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { define.Basic.CallAddInputAxis(axis, inputItem); });
                 inputItem.GetPointer<Button>("ClearButton").onClick.AddListener(delegate { define.Basic.CallClearInput(axis, inputItem); });
+                inputItem.GetPointer<Toggle>("Inversion").onValueChanged.AddListener(x => { axis.SetInverse(x); });
+                inputItem.GetPointer<InputField>("Multiply").onValueChanged.AddListener(x =>
+                {
+                    try
+                    {
+                        float f = Convert.ToSingle(x);
+                        axis.SetMultiply(f);
+                    }
+                    catch { };
+
+                });
                 return inputItem;
             }
         }
@@ -115,7 +130,7 @@ namespace Runtime.Explorer
                 ToggleSetting toggle = (ToggleSetting)define.SettingElement;
                 ItemPointer inputItem = DynamicPool.Instance.Get(define.Basic.prefabToggle, define.Basic.content);
                 inputItem.GetPointer<Toggle>("Toggle").isOn = toggle.IsOn;
-                inputItem.GetPointer<Toggle>("Toggle").onValueChanged.AddListener( x => { toggle.IsOn = x; });
+                inputItem.GetPointer<Toggle>("Toggle").onValueChanged.AddListener(x => { toggle.IsOn = x; });
                 return inputItem;
             }
         }

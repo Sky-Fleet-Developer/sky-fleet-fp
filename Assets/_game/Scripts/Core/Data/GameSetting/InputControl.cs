@@ -18,6 +18,8 @@ namespace Core.GameSetting
 
         public event Action OnEndTakeInput;
 
+        public bool IsTakeInput { get => busyCoroutine != null; }
+
         private Coroutine busyCoroutine;
 
         public Task Load()
@@ -25,7 +27,7 @@ namespace Core.GameSetting
             return Task.CompletedTask;
         }
 
-        public InputAbstractType GetInput<T>(string categoryName, string inputName) where T : InputAbstractType
+        public T GetInput<T>(string categoryName, string inputName) where T : ElementControlSetting
         {
             ControlSetting control = SettingManager.Instance.GetControlSetting();
             ControlSetting.CategoryInputs category = control.Categoryes.Where(x => { return x.Name == categoryName; }).FirstOrDefault();
@@ -36,63 +38,6 @@ namespace Core.GameSetting
             return null;
         }
 
-        
-        public class CorrectInputAxis
-        {
-            public float Multiply { get; set; }
-
-            private AxisCode axisCode;
-
-            private float oldValue;
-
-            private float sum;
-
-            private float absolute;
-
-            private Vector2 limitSum = new Vector2(-1, 1);
-
-            public void SetAxis(AxisCode axis)
-            {
-                axisCode = axis;
-                oldValue = 0;
-                sum = 0;
-                absolute = 0;
-            }
-
-            private void GetVal()
-            {
-                float val = Input.GetAxisRaw(axisCode.Name);
-                if(axisCode.IsAbsolute)
-                {
-                    sum += val;
-                    absolute = val;                   
-                }
-                else
-                {
-                    absolute = val - oldValue;
-                    sum = val;
-                }
-                sum = Mathf.Clamp(sum, limitSum.x, limitSum.y);
-                oldValue = val;
-            }
-
-            public bool IsAbsolute()
-            {
-                return axisCode.IsAbsolute;
-            }
-
-            public float GetInputSum()
-            {
-                GetVal();
-                return sum;
-            }
-
-            public float GetInputAbsolute()
-            {
-                GetVal();
-                return absolute;
-            }
-        }
 
         public float GetButton(InputButtons buttons)
         {
@@ -158,6 +103,68 @@ namespace Core.GameSetting
                 }
             }
             return 0;
+        }
+
+
+
+        public class CorrectInputAxis
+        {
+            private AxisCode axisCode;
+
+            private float oldValue;
+
+            private float sum;
+
+            private float absolute;
+
+            private Vector2 limitSum = new Vector2(-1, 1);
+
+
+            public void SetAxis(AxisCode axis)
+            {
+                axisCode = axis;
+                oldValue = 0;
+                sum = 0;
+                absolute = 0;
+            }
+
+            private void GetVal()
+            {
+                float val = Input.GetAxisRaw(axisCode.Name) * axisCode.Multiply;
+                if (axisCode.Inverse)
+                {
+                    val *= -1;
+                }
+                if (axisCode.IsAbsolute)
+                {
+                    sum += val;
+                    absolute = val;
+                }
+                else
+                {
+                    absolute = val - oldValue;
+                    sum = val;
+                }
+                sum = Mathf.Clamp(sum, limitSum.x, limitSum.y);
+                oldValue = val;
+            }
+
+            public bool IsAbsolute()
+            {
+                return axisCode.IsAbsolute;
+            }
+
+            public float GetInputSum()
+            {
+                GetVal();
+                return sum;
+            }
+
+            public float GetInputAbsolute()
+            {
+                GetVal();
+                return absolute;
+            }
         }
 
         #region TakeInput
