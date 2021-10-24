@@ -216,7 +216,7 @@ namespace Core.Environment
                     }
                 }
 
-                hitInfo.Device = selectedDevice.InteractiveDevice;
+                hitInfo.Device = selectedDevice?.InteractiveDevice;
                 return true;
             }
         }

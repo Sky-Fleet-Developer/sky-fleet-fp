@@ -164,7 +164,6 @@ namespace Runtime.Character.Control
                         {
                             if (controlAxis.EnableInteraction)
                             {
-                                Debug.Log(controlAxis.computerInput);
                                 controlAxis.MoveMalueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
                             }
                         }
