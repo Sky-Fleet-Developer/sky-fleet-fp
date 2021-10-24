@@ -10,6 +10,7 @@ namespace Core.ContentSerializer
     public class ExtensionStream
     {
         private byte[] intBuffer = new byte[sizeof(int)];
+        private byte[] shortBuffer = new byte[sizeof(short)];
         private byte[] floatBuffer = new byte[sizeof(float)];
         private byte[] charBuffer = new byte[sizeof(char)];
         private byte[] byteBuffer = new byte[sizeof(byte)];
@@ -24,6 +25,18 @@ namespace Core.ContentSerializer
         {
             stream.Read(intBuffer, 0, sizeof(int));
             return BitConverter.ToInt32(intBuffer, 0);
+        }
+
+        public void WriteShort(short value, Stream stream)
+        {
+            shortBuffer = BitConverter.GetBytes(value);
+            stream.Write(shortBuffer, 0, sizeof(short));
+        }
+
+        public int ReadShort(Stream stream)
+        {
+            stream.Read(shortBuffer, 0, sizeof(short));
+            return BitConverter.ToInt16(shortBuffer, 0);
         }
 
         public void WriteFloat(float value, Stream stream)

@@ -791,6 +791,7 @@ MonoBehaviour:
       m_RotationOrder: 4
   prefabCategory: {fileID: 8503781103093699222, guid: 1439adfb73817d941907b98d159718b6, type: 3}
   prefabButton: {fileID: 8899174588472038256, guid: 8665c96d7ffa6a64db6845f0084161bd, type: 3}
+  prefabToggle: {fileID: 3098824180618139777, guid: 71a1c6dc99d881647999d2ca53b6184d, type: 3}
   saveButton: {fileID: 7400978898047062848}
   content: {fileID: 7123405720393262340}
 --- !u!114 &5270293998488657368

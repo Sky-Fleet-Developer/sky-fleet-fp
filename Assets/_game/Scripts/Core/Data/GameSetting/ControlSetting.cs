@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -13,18 +14,18 @@ namespace Core.GameSetting
         {
             public string Name { get; set; }
 
-            public List<InputAbstractType> Inputs { get; private set; }
+            public List<ElementControlSetting> Elements { get; private set; }
 
             public CategoryInputs()
             {
-                Inputs = new List<InputAbstractType>();
+                Elements = new List<ElementControlSetting>();
             }
 
             public InputAxis AddAxisInput(string name)
             {
                 InputAxis axis = new InputAxis();
                 axis.Name = name;
-                Inputs.Add(axis);
+                Elements.Add(axis);
                 return axis;
             }
 
@@ -32,8 +33,21 @@ namespace Core.GameSetting
             {
                 InputButtons buttons = new InputButtons();
                 buttons.Name = name;
-                Inputs.Add(buttons);
+                Elements.Add(buttons);
                 return buttons;
+            }
+
+            public ToggleSetting AddToggle(string name)
+            {
+                ToggleSetting toggle = new ToggleSetting();
+                toggle.Name = name;
+                Elements.Add(toggle);
+                return toggle;
+            }
+
+            public T FindElement<T>(string name) where T : ElementControlSetting
+            {
+                return (T)Elements.Where(x => { return x.Name == name && x.GetType() == typeof(T); }).FirstOrDefault();
             }
         }
 
@@ -63,6 +77,9 @@ namespace Core.GameSetting
             moveCategory.AddInputButtons("Move left");
             moveCategory.AddInputButtons("Move right");
             moveCategory.AddInputButtons("Jump");
+            moveCategory.AddToggle("Use axles for move player?");
+            moveCategory.AddAxisInput("Axis forward/back");
+            moveCategory.AddAxisInput("Axis left/right");
             return control;
         }
 
@@ -72,7 +89,19 @@ namespace Core.GameSetting
     {
         string Name { get; set; }
     }
+    
 
+    public abstract class ElementControlSetting : INameSetting
+    {
+        public string Name { get; set; }
+    }
+
+    public class ToggleSetting : ElementControlSetting
+    {
+        public bool IsOn { get; set; }
+    }
+
+    //Input Types
 
     public enum TypeInput
     {
@@ -80,10 +109,8 @@ namespace Core.GameSetting
         InputAxis = 1,
     }
 
-    public class InputAbstractType : INameSetting
+    public abstract class InputAbstractType : ElementControlSetting
     {
-        public string Name { get; set; }
-
         protected TypeInput typeInput;
         public TypeInput GetTypeInput() => typeInput;
 

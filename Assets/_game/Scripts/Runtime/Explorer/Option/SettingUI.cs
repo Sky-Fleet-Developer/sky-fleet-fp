@@ -7,6 +7,8 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+using Paterns.AbstractFactory;
+
 namespace Runtime.Explorer
 {
     public class SettingUI : UiBlockBase
@@ -14,6 +16,7 @@ namespace Runtime.Explorer
 
         [SerializeField] private ItemPointer prefabCategory;
         [SerializeField] private ItemPointer prefabButton;
+        [SerializeField] private ItemPointer prefabToggle;
 
         [SerializeField] private Button saveButton;
 
@@ -31,30 +34,89 @@ namespace Runtime.Explorer
         private void FillList()
         {
             ControlSetting control = SettingManager.Instance.GetControlSetting();
+            FactoryUIElement factory = new FactoryUIElement();
             foreach (ControlSetting.CategoryInputs category in control.Categoryes)
             {
                 ItemPointer categoryItem = DynamicPool.Instance.Get(prefabCategory, content);
                 categoryItem.GetPointer<Text>("Text").text = category.Name;
                 items.AddLast(categoryItem);
-                foreach (InputAbstractType input in category.Inputs)
+                foreach (ElementControlSetting input in category.Elements)
                 {
-                    ItemPointer inputItem = DynamicPool.Instance.Get(prefabButton, content);
-                    inputItem.GetPointer<Text>("Name").text = input.Name;
-                    if (input.GetTypeInput() == TypeInput.InputAxis)
-                    {
-                        InputAxis axis = (InputAxis)input;
-                        inputItem.GetPointer<Text>("InputsList").text = GetListInput(input);
-                        inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { CallAddInputAxis(axis, inputItem); });
-                    }
-                    else
-                    {
-                        InputButtons button = (InputButtons)input;
-                        inputItem.GetPointer<Text>("InputsList").text = GetListInput(input);
-                        inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { CallAddInputButton(button, inputItem); });
-                    }
-                    inputItem.GetPointer<Button>("ClearButton").onClick.AddListener(delegate { CallClearInput(input, inputItem); });
-
+                    ItemPointer item = factory.Generate(new ElementDefine() { SettingElement = input, Basic = this });
+                    item.GetPointer<Text>("Name").text = input.Name;
+                    items.AddLast(item);
                 }
+            }
+        }
+        
+        //Abstract factory/
+        private struct ElementDefine
+        {
+            public ElementControlSetting SettingElement;
+            public SettingUI Basic;
+        }
+
+        private abstract class GeneratorUIElement<T> : Generator<ElementDefine, ItemPointer>
+        {
+            public override bool CheckDefine(ElementDefine define)
+            {
+                return define.SettingElement.GetType() == typeof(T);
+            }
+        }
+
+        private class FactoryUIElement : AbstractFactory<ElementDefine, ItemPointer>
+        {
+            public FactoryUIElement()
+            {
+                RegisterNewType(new InputButtonGenerator());
+                RegisterNewType(new InputAxisGenerator());
+                RegisterNewType(new ToggleGenerator());
+            }
+                
+
+            protected override ItemPointer GetDefault()
+            {
+                return null;
+            }
+        }
+        //Abstract factory\
+
+        private class InputButtonGenerator : GeneratorUIElement<InputButtons>
+        {
+            public override ItemPointer Generate(ElementDefine define)
+            {
+                InputButtons button = (InputButtons)define.SettingElement;
+                ItemPointer inputItem = DynamicPool.Instance.Get(define.Basic.prefabButton, define.Basic.content);
+                inputItem.GetPointer<Text>("InputsList").text = define.Basic.GetListInput(button);
+                inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { define.Basic.CallAddInputButton(button, inputItem); });
+                inputItem.GetPointer<Button>("ClearButton").onClick.AddListener(delegate { define.Basic.CallClearInput(button, inputItem); });
+
+                return inputItem;
+            }
+        }
+
+        private class InputAxisGenerator : GeneratorUIElement<InputAxis>
+        {
+            public override ItemPointer Generate(ElementDefine define)
+            {
+                InputAxis axis = (InputAxis)define.SettingElement;
+                ItemPointer inputItem = DynamicPool.Instance.Get(define.Basic.prefabButton, define.Basic.content);
+                inputItem.GetPointer<Text>("InputsList").text = define.Basic.GetListInput(axis);
+                inputItem.GetPointer<Button>("AddKey").onClick.AddListener(delegate { define.Basic.CallAddInputAxis(axis, inputItem); });
+                inputItem.GetPointer<Button>("ClearButton").onClick.AddListener(delegate { define.Basic.CallClearInput(axis, inputItem); });
+                return inputItem;
+            }
+        }
+
+        private class ToggleGenerator : GeneratorUIElement<ToggleSetting>
+        {
+            public override ItemPointer Generate(ElementDefine define)
+            {
+                ToggleSetting toggle = (ToggleSetting)define.SettingElement;
+                ItemPointer inputItem = DynamicPool.Instance.Get(define.Basic.prefabToggle, define.Basic.content);
+                inputItem.GetPointer<Toggle>("Toggle").isOn = toggle.IsOn;
+                inputItem.GetPointer<Toggle>("Toggle").onValueChanged.AddListener( x => { toggle.IsOn = x; });
+                return inputItem;
             }
         }
 
@@ -62,7 +124,7 @@ namespace Runtime.Explorer
         {
             if (input.GetTypeInput() == TypeInput.InputAxis)
             {
-                return ((InputAxis)input).ToString();
+                return ((InputAxis)input).GetAxis().ToString();
             }
             else
             {
@@ -77,6 +139,7 @@ namespace Runtime.Explorer
             }
         }
 
+        //Other input settings functions
         private void CallClearInput(InputAbstractType input, ItemPointer pointerUI)
         {
             input.Clear();

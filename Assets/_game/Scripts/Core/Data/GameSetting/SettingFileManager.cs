@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using Paterns.AbstractFactory;
 
 using Core.ContentSerializer;
@@ -21,17 +22,19 @@ namespace Core.GameSetting
 
         static public bool LoadSetting(Setting setting, string path)
         {
-            FactoryOptionLoad factory = new FactoryOptionLoad();
             CorrectDirectory();
             if (File.Exists(path))
             {
                 using (FileStream file = File.Open(path, FileMode.Open))
                 {
-                    Setting res = factory.Generate(new SettingDefine() { Branch = OptionBranch.Control, SettingD = setting, StreamOpen = file });
-                    if (res == null)
+                    FactoryOptionLoad factory = new FactoryOptionLoad();
+                    ExtensionStream extension = new ExtensionStream();
+                    int count = extension.ReadInt(file);
+                    for(int i = 0; i < count; i++)
                     {
-                        return false;
-                    } 
+                        ControlSetting.CategoryInputs category = ReadCategory(file);
+                        SetCategoryToControlSetting(setting.Control, category);
+                    }
                 }
                 return true;
             }
@@ -41,208 +44,275 @@ namespace Core.GameSetting
             }
         }
 
+        static private void SetCategoryToControlSetting(ControlSetting control, ControlSetting.CategoryInputs category)
+        {
+            ControlSetting.CategoryInputs originalCategory = control.Categoryes.Where(x => { return x.Name == category.Name; }).FirstOrDefault();
+            if(originalCategory != null)
+            {
+                for(int i = 0; i < category.Elements.Count; i++)
+                {
+                    int index = -1;
+                    for(int i2 = 0; i2 < originalCategory.Elements.Count; i2++)
+                    {
+                        if(originalCategory.Elements[i2].Name == category.Elements[i].Name)
+                        {
+                            index = i2;
+                            break;
+                        }
+                    }
+
+                    if(index != -1)
+                    {
+                        originalCategory.Elements[index] = category.Elements[i];
+                    }
+                }
+            }
+        }
+
         static public bool SaveSetting(Setting setting, string path)
         {
-            FactoryOptionSave factory = new FactoryOptionSave();
             CorrectDirectory();
             using (FileStream file = File.Open(path, FileMode.OpenOrCreate))
             {
-                Setting res = factory.Generate(new SettingDefine() { Branch = OptionBranch.Control, SettingD = setting, StreamOpen = file });
-                if (res == null)
+                ControlSetting control = setting.Control;
+                ExtensionStream extension = new ExtensionStream();
+                extension.WriteInt(control.Categoryes.Count, file);
+                for (int i = 0; i < control.Categoryes.Count; i++)
                 {
-                    return false;
+                    WriteCaterogry(file, control.Categoryes[i]);
                 }
             }
             return true;
         }
 
-        private enum OptionBranch : byte
+        private static void WriteCaterogry(Stream streamOpen, ControlSetting.CategoryInputs category)
         {
-            Control = 0
+            ExtensionStream extension = new ExtensionStream();
+            extension.WriteString(category.Name, streamOpen);
+            extension.WriteInt(category.Elements.Count, streamOpen);
+            FactoryOptionSave factory = new FactoryOptionSave();
+            for (int i = 0; i < category.Elements.Count; i++)
+            {
+                factory.Generate(new SettingDefine() { Element = category.Elements[i], StreamOpen = streamOpen });
+            }
+        }
+
+        private static ControlSetting.CategoryInputs ReadCategory(Stream streamOpen)
+        {
+            ControlSetting.CategoryInputs category = new ControlSetting.CategoryInputs();
+            ExtensionStream extension = new ExtensionStream();
+            FactoryOptionLoad factory = new FactoryOptionLoad();
+            category.Name = extension.ReadString(streamOpen);
+            int countInput = extension.ReadInt(streamOpen);
+            for (int i = 0; i < countInput; i++)
+            {
+                TypeSettingElement type = (TypeSettingElement)extension.ReadByte(streamOpen);
+                ElementControlSetting element = factory.Generate(new SettingDefine() { TypeElement = type, StreamOpen = streamOpen});
+                category.Elements.Add(element);
+            }
+
+            return category;
+        }
+
+        private enum TypeSettingElement : byte
+        {
+            InputButtons = 0,
+            InputAxis = 1,
+            Toogle = 2,
         }
 
         private struct SettingDefine
         {
-            public OptionBranch Branch;
-            public Setting SettingD;
+            public TypeSettingElement TypeElement;
+            public ElementControlSetting Element;
             public Stream StreamOpen;
         }
 
-        private abstract class GeneratorOption : Generator<SettingDefine, Setting>
+        private abstract class GeneratorSettingElement : Generator<SettingDefine, ElementControlSetting>
         {
-            protected OptionBranch typeWork;
+            protected TypeSettingElement typeElement;
 
             public override bool CheckDefine(SettingDefine define)
             {
-                return typeWork == define.Branch;
+                return typeElement == define.TypeElement;
             }
         }
 
-        private class FactoryOptionSave : AbstractFactory<SettingDefine, Setting>
+        private class FactoryOptionSave : AbstractFactory<SettingDefine, ElementControlSetting>
         {
-
             public FactoryOptionSave()
             {
-                RegisterNewType(new SaveSettingControl());
+                RegisterNewType(new SaveToggleSetting());
+                RegisterNewType(new SaveInputButtonsSetting());
+                RegisterNewType(new SaveInputAxisSetting());
             }
 
-            protected override Setting GetDefault()
+            protected override ElementControlSetting GetDefault()
             {
                 return null;
             }
         }
 
-        private class FactoryOptionLoad : AbstractFactory<SettingDefine, Setting>
+        private class FactoryOptionLoad : AbstractFactory<SettingDefine, ElementControlSetting>
         {
 
             public FactoryOptionLoad()
             {
-                RegisterNewType(new LoadSettingControl());
+                RegisterNewType(new LoadToggleSetting());
+                RegisterNewType(new LoadInputButtonsSetting());
+                RegisterNewType(new LoadInputAxisSetting());
             }
 
-            protected override Setting GetDefault()
+            protected override ElementControlSetting GetDefault()
             {
                 return null;
             }
         }
 
-        private class SaveSettingControl : GeneratorOption
+        //Save
+        private class SaveToggleSetting : GeneratorSettingElement
         {
-            ExtensionStream extensionStream = new ExtensionStream();
-
-            public SaveSettingControl()
+            public override bool CheckDefine(SettingDefine define)
             {
-                typeWork = OptionBranch.Control;
+                return define.Element.GetType() == typeof(ToggleSetting);
             }
 
-            public override Setting Generate(SettingDefine define)
+            public override ElementControlSetting Generate(SettingDefine define)
             {
-                ControlSetting control = define.SettingD.Control;
-                extensionStream.WriteInt(control.Categoryes.Count, define.StreamOpen);
-                for (int i = 0; i < control.Categoryes.Count; i++)
+                ExtensionStream extension = new ExtensionStream();
+                extension.WriteByte((byte)TypeSettingElement.Toogle, define.StreamOpen);
+                extension.WriteString(define.Element.Name, define.StreamOpen);
+                ToggleSetting toggle = (ToggleSetting)define.Element;
+                if (toggle.IsOn)
                 {
-                    ControlSetting.CategoryInputs category = control.Categoryes[i];
-                    extensionStream.WriteString(category.Name, define.StreamOpen);
-                    extensionStream.WriteInt(category.Inputs.Count, define.StreamOpen);
-                    for (int i2 = 0; i2 < category.Inputs.Count; i2++)
-                    {
-                        WriteInput(define.StreamOpen, category.Inputs[i2]);
-                    }
-                }
-                return define.SettingD;
-            }
-
-            private void WriteInput(Stream streamOpen, InputAbstractType input)
-            {
-                extensionStream.WriteString(input.Name, streamOpen);
-                extensionStream.WriteByte((byte)input.GetTypeInput(), streamOpen);
-                if (input.GetTypeInput() == TypeInput.InputAxis)
-                {
-                    InputAxis axis = (InputAxis)(input);                 
-                    extensionStream.WriteString(axis.GetAxis().Name, streamOpen);
+                    extension.WriteByte(255, define.StreamOpen);
                 }
                 else
                 {
-                    InputButtons buttons = (InputButtons)(input);
-                    extensionStream.WriteInt(buttons.Keys.Count, streamOpen);
-                    for (int i = 0; i < buttons.Keys.Count; i++)
+                    extension.WriteByte(0, define.StreamOpen);
+                }
+                return define.Element;
+            }
+        }
+
+        private class SaveInputButtonsSetting : GeneratorSettingElement
+        {
+
+            public override bool CheckDefine(SettingDefine define)
+            {
+                return define.Element.GetType() == typeof(InputButtons);
+            }
+
+            public override ElementControlSetting Generate(SettingDefine define)
+            {
+                ExtensionStream extension = new ExtensionStream();
+                extension.WriteByte((byte)TypeSettingElement.InputButtons, define.StreamOpen);
+                extension.WriteString(define.Element.Name, define.StreamOpen);
+                InputButtons inputButtons = (InputButtons)define.Element;
+                extension.WriteByte((byte)inputButtons.Keys.Count, define.StreamOpen);
+                for (int i = 0; i < inputButtons.Keys.Count; i++)
+                {
+                    extension.WriteByte((byte)inputButtons.Keys[i].KeyCodes.Length, define.StreamOpen);
+                    for (int i2 = 0; i2 < inputButtons.Keys[i].KeyCodes.Length; i2++)
                     {
-                        extensionStream.WriteInt(buttons.Keys[i].KeyCodes.Length, streamOpen);
-                        for (int i2 = 0; i2 < buttons.Keys[i].KeyCodes.Length; i2++)
-                        {
-                            extensionStream.WriteInt((int)buttons.Keys[i].KeyCodes[i2], streamOpen);
-                        }
+                        extension.WriteShort((short)inputButtons.Keys[i].KeyCodes[i2], define.StreamOpen);
                     }
                 }
+                return define.Element;
+            }
+        }
+
+        private class SaveInputAxisSetting : GeneratorSettingElement
+        {
+
+            public override bool CheckDefine(SettingDefine define)
+            {
+                return define.Element.GetType() == typeof(InputAxis);
+            }
+
+            public override ElementControlSetting Generate(SettingDefine define)
+            {
+                ExtensionStream extension = new ExtensionStream();
+                extension.WriteByte((byte)TypeSettingElement.InputAxis, define.StreamOpen);
+                extension.WriteString(define.Element.Name, define.StreamOpen);
+                InputAxis inputAxis = (InputAxis)define.Element;
+                extension.WriteString(inputAxis.GetAxis().Name, define.StreamOpen);
+                return define.Element;
             }
         }
 
 
-        private class LoadSettingControl : GeneratorOption
+        //Load
+        private class LoadToggleSetting : GeneratorSettingElement
         {
-            ExtensionStream extensionStream = new ExtensionStream();
-
-            public LoadSettingControl()
+            public LoadToggleSetting()
             {
-                typeWork = OptionBranch.Control;
+                typeElement = TypeSettingElement.Toogle;
             }
 
-            public override Setting Generate(SettingDefine define)
+            public override ElementControlSetting Generate(SettingDefine define)
             {
-                ControlSetting control = define.SettingD.Control;
-                int countCategory = extensionStream.ReadInt(define.StreamOpen);
-                for (int i = 0; i < countCategory; i++)
+                ToggleSetting toggle = new ToggleSetting();
+                ExtensionStream extension = new ExtensionStream();
+                toggle.Name = extension.ReadString(define.StreamOpen);
+                byte isOn = extension.ReadByte(define.StreamOpen);
+                if (isOn > 0)
                 {
-                    string nameCategory = extensionStream.ReadString(define.StreamOpen);
-                    ControlSetting.CategoryInputs category = define.SettingD.Control.Categoryes.Where(x => { return (x.Name == nameCategory); }).FirstOrDefault();
-                    int countInputs = extensionStream.ReadInt(define.StreamOpen);
-                    for (int i2 = 0; i2 < countInputs; i2++)
-                    {                     
-                        string nameInput = extensionStream.ReadString(define.StreamOpen);
-                        if (category != null)
-                        {
-                            ReadInput(category.Inputs.Where(x => { return (x.Name == nameInput); }).FirstOrDefault(), define.StreamOpen);
-                        }
-                        else
-                        {
-                            ReadInput(null, define.StreamOpen);
-                        }
-                    }
-                }
-                return define.SettingD;
-            }
-
-            private void ReadInput(InputAbstractType input, Stream streamOpen)
-            {
-                byte t = extensionStream.ReadByte(streamOpen);
-                if ((TypeInput)t == TypeInput.InputAxis)
-                {
-                    InputAxis axis = (InputAxis)input;
-                    if(input != null)
-                    {
-                        axis.SetAxis(new AxisCode(extensionStream.ReadString(streamOpen)));
-                    }
-                    else
-                    {
-                        extensionStream.ReadString(streamOpen);
-                    }
+                    toggle.IsOn = true;
                 }
                 else
                 {
-                    if (input != null)
-                    {
-                        InputButtons buttons = (InputButtons)input;
-                        int countKeysCont = extensionStream.ReadInt(streamOpen);
-                        for (int i = 0; i < countKeysCont; i++)
-                        {
-                            int countKeys = extensionStream.ReadInt(streamOpen);
-                            ButtonCodes butts = new ButtonCodes();
-                            butts.KeyCodes = new KeyCode[countKeys];
-                            for (int i2 = 0; i2 < countKeys; i2++)
-                            {
-                                butts.KeyCodes[i2] = (KeyCode)extensionStream.ReadInt(streamOpen);
-                            }
-                            buttons.Keys.Add(butts);
-                        }
-                    }
-                    else
-                    {
-                        int countKeysCont = extensionStream.ReadInt(streamOpen);
-                        for (int i = 0; i < countKeysCont; i++)
-                        {
-                            int countKeys = extensionStream.ReadInt(streamOpen);
-
-                            for (int i2 = 0; i2 < countKeys; i2++)
-                            {
-                                extensionStream.ReadInt(streamOpen);
-                            }
-                        }
-                    }
+                    toggle.IsOn = false;
                 }
+
+                return toggle;
+            }
+        }
+
+        private class LoadInputButtonsSetting : GeneratorSettingElement
+        {
+            public LoadInputButtonsSetting()
+            {
+                typeElement = TypeSettingElement.InputButtons;
             }
 
+            public override ElementControlSetting Generate(SettingDefine define)
+            {
+                InputButtons inputButtons = new InputButtons();
+                ExtensionStream extension = new ExtensionStream();
+                inputButtons.Name = extension.ReadString(define.StreamOpen);
+                byte countInput = extension.ReadByte(define.StreamOpen);
+                for (int i = 0; i < countInput; i++)
+                {
+                    ButtonCodes buttons = new ButtonCodes();
+                    byte countButtons = extension.ReadByte(define.StreamOpen);
+                    buttons.KeyCodes = new KeyCode[countButtons];
+                    for (int i2 = 0; i2 < countButtons; i2++)
+                    {
+                        buttons.KeyCodes[i2] = (KeyCode)extension.ReadShort(define.StreamOpen);
+                    }
+                    inputButtons.AddKey(buttons);
 
+                }
+                return inputButtons;
+            }
+        }
+
+        private class LoadInputAxisSetting : GeneratorSettingElement
+        {
+            public LoadInputAxisSetting()
+            {
+                typeElement = TypeSettingElement.InputAxis;
+            }
+
+            public override ElementControlSetting Generate(SettingDefine define)
+            {
+                InputAxis inputAxis = new InputAxis();
+                ExtensionStream extension = new ExtensionStream();
+                inputAxis.Name = extension.ReadString(define.StreamOpen);
+                inputAxis.SetAxis(new AxisCode(extension.ReadString(define.StreamOpen)));
+                return inputAxis;
+            }
         }
     }
-
 }

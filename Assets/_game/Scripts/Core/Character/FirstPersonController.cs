@@ -78,6 +78,10 @@ namespace Runtime.Character.Control
         private InputButtons moveRight;
         private InputButtons jump;
 
+        private ToggleSetting isAxisMove;
+
+
+
         private void Start()
         {
             if (!isInitialized) Init();
@@ -87,11 +91,11 @@ namespace Runtime.Character.Control
         {
             CurrentState = new FreeWalkState(this);
             isInitialized = true;
-            moveForward = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move forward"));
-            moveBack = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move back"));
-            moveLeft = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move left"));
-            moveRight = (InputButtons)(InputControl.Instance.GetInput("Move player", "Move right"));
-            jump = (InputButtons)(InputControl.Instance.GetInput("Move player", "Jump"));
+            moveForward = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move forward"));
+            moveBack = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move back"));
+            moveLeft = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move left"));
+            moveRight = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Move right"));
+            jump = (InputButtons)(InputControl.Instance.GetInput<InputButtons>("Move player", "Jump"));
         }
 
         private bool CanMove

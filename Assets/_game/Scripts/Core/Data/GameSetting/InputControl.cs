@@ -25,20 +25,73 @@ namespace Core.GameSetting
             return Task.CompletedTask;
         }
 
-        public InputAbstractType GetInput(string categoryName, string inputName)
+        public InputAbstractType GetInput<T>(string categoryName, string inputName) where T : InputAbstractType
         {
             ControlSetting control = SettingManager.Instance.GetControlSetting();
             ControlSetting.CategoryInputs category = control.Categoryes.Where(x => { return x.Name == categoryName; }).FirstOrDefault();
             if (category != null)
             {
-                return category.Inputs.Where(x => { return x.Name == inputName; }).FirstOrDefault();
+                return category.FindElement<T>(inputName);
             }
             return null;
         }
 
-        public float GetAxis(InputAxis axis)
+        
+        public class CorrectInputAxis
         {
-            return Input.GetAxisRaw(axis.GetAxis().Name);
+            public float Multiply { get; set; }
+
+            private AxisCode axisCode;
+
+            private float oldValue;
+
+            private float sum;
+
+            private float absolute;
+
+            private Vector2 limitSum = new Vector2(-1, 1);
+
+            public void SetAxis(AxisCode axis)
+            {
+                axisCode = axis;
+                oldValue = 0;
+                sum = 0;
+                absolute = 0;
+            }
+
+            private void GetVal()
+            {
+                float val = Input.GetAxisRaw(axisCode.Name);
+                if(axisCode.IsAbsolute)
+                {
+                    sum += val;
+                    absolute = val;                   
+                }
+                else
+                {
+                    absolute = val - oldValue;
+                    sum = val;
+                }
+                sum = Mathf.Clamp(sum, limitSum.x, limitSum.y);
+                oldValue = val;
+            }
+
+            public bool IsAbsolute()
+            {
+                return axisCode.IsAbsolute;
+            }
+
+            public float GetInputSum()
+            {
+                GetVal();
+                return sum;
+            }
+
+            public float GetInputAbsolute()
+            {
+                GetVal();
+                return absolute;
+            }
         }
 
         public float GetButton(InputButtons buttons)
