@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5455604132729539380}
   - component: {fileID: 397633525903073619}
   m_Layer: 0
-  m_Name: Gyroscop
+  m_Name: Gyroscope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +48,45 @@ MonoBehaviour:
   tags: []
   mass: 10
   mountingType: 
-  outputs: []
+  localSpeedX:
+    guid: 5707a392-e776-43c8-bc51-075a1e3da72b
+    cache: 0
+    valueType: 0
+  localSpeedY:
+    guid: e0039055-f505-4550-bae4-533368989e86
+    cache: 0
+    valueType: 0
+  localSpeedZ:
+    guid: 6a67878f-ab20-4739-b766-fbb45d0d4328
+    cache: 0
+    valueType: 0
+  localAngularSpeedX:
+    guid: ef106aa0-a4db-4a2e-bd61-1807fb0d67c7
+    cache: 0
+    valueType: 0
+  localAngularSpeedY:
+    guid: a4307b92-6a20-4d70-b3d9-123f8b7f20a3
+    cache: 0
+    valueType: 0
+  localAngularSpeedZ:
+    guid: 3386eb0a-30e8-41ac-bff3-4e4bbeee9dee
+    cache: 0
+    valueType: 0
+  pitch:
+    guid: b7ffdab2-6843-4f68-8327-2f9fb50dc8d9
+    cache: 0
+    valueType: 0
+  roll:
+    guid: 29368a28-ccb5-41ea-8bce-67b23dc14f73
+    cache: 0
+    valueType: 0
+  maxConsumption: 0.5
+  power:
+    guid: 35a665c6-e760-4efc-8a08-665f7a8d412b
+    charge: 0
+    maxInput: 0
+    maxOutput: 0
+    delta: 0
 --- !u!1 &5336281395956682255
 GameObject:
   m_ObjectHideFlags: 0

@@ -167,7 +167,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalOutput: 15
+  maximalOutput: 30
   charge: 500
   maxFuelConsumption: 1
   minFuelUsage: 0.1

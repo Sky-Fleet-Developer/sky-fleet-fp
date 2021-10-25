@@ -1,18 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Core.Character;
-using Core.SessionManager.SaveService;
-using Core.Structure;
-using Core.Structure.Rigging;
-using Core.Structure.Rigging.Control;
-using Core.Structure.Rigging.Control.Attributes;
 using Core.Structure.Wires;
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using UnityEngine;
 
-namespace Runtime.Structure.Rigging.Control
+namespace Core.Structure.Rigging.Control
 {
     public abstract class Computer : Block, IComputer
     {
@@ -20,8 +10,10 @@ namespace Runtime.Structure.Rigging.Control
         public PowerPort power = new PowerPort();
 
         public bool IsWork { get; private set; }
+        public float Consumption => maxConsumption;
+        public PowerPort Power => power;
 
-        public int CountUpdate = 1;
+        public int updateFrequency = 1;
 
         [SerializeField] private float maxConsumption;
 
@@ -30,24 +22,14 @@ namespace Runtime.Structure.Rigging.Control
 
         private int countUpdatePassed = 0;
 
-        private const float deltaConsumption = 0.02f;
-
-        public override void InitBlock(IStructure structure, Parent parent)
-        {
-            base.InitBlock(structure, parent);
-        }
-
         public void ConsumptionTick()
         {
-            power.charge = 0;
-            power.maxInput = maxConsumption;
-            power.maxOutput = 0;
+            Utilities.CalculateConsumerTickA(this);
         }
 
         public void PowerTick()
         {
-            float consumption = power.charge;
-            IsWork = deltaConsumption * maxConsumption > Mathf.Abs(consumption - maxConsumption);
+            IsWork = Utilities.CalculateConsumerTickB(this);
         }
 
         public IEnumerable<PortPointer> GetPorts()
@@ -67,7 +49,7 @@ namespace Runtime.Structure.Rigging.Control
             if (!IsWork) return;
 
             countUpdatePassed++;
-            if(countUpdatePassed >= CountUpdate)
+            if(countUpdatePassed >= updateFrequency)
             {
                 UpdateComputer();
                 countUpdatePassed = 0;

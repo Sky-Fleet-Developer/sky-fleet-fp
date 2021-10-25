@@ -31,7 +31,13 @@ namespace Core.Structure.Rigging
     {
         void ConsumptionTick();
         void PowerTick();
+    }
 
+    public interface IConsumer : IPowerUser
+    {
+        bool IsWork { get; }
+        float Consumption { get; }
+        PowerPort Power { get; }
     }
     
     public interface IFuelUser : IBlock
@@ -89,9 +95,14 @@ namespace Core.Structure.Rigging
         void LeaveControl(ICharacterController controller);
     }
     
-    public interface IComputer : IMultiplePorts, IUpdatableBlock, IPowerUser
+    public interface IComputer : IMultiplePorts, IUpdatableBlock, IConsumer
     {
 
+    }
+
+    public interface IGyroscope : IUpdatableBlock, IConsumer
+    {
+        
     }
 
     public interface IFuelPowerGenerator : IFuelUser, IPowerUser

@@ -259,8 +259,10 @@ namespace Structure.Editor
             {
                 configToSave.wires.Add(wire.Select(x => x.GetPort().Id).ToList());
             }
+            MonoBehaviour monobeh = currentStructure.transform.gameObject.GetComponent<IStructure>() as MonoBehaviour;
+            Undo.RecordObject(monobeh, "Config");
             currentStructure.Configuration = JsonConvert.SerializeObject(configToSave);
-            EditorUtility.SetDirty(currentStructure.transform);
+            EditorUtility.SetDirty(monobeh);
             configDirty = false;
         }
 
