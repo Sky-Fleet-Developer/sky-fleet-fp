@@ -17,8 +17,10 @@ namespace Runtime.Structure.Ship
         [ShowInInspector]
         public Vector3 LocalCenterOfMass { get; private set; }
 
+        public Rigidbody Physics => rigidbody;
+
         private Rigidbody rigidbody;
-       
+        
 
         protected override void Awake()
         {

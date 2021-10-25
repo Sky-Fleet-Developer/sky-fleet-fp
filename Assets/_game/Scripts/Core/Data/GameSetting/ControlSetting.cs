@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 namespace Core.GameSetting
 {
@@ -136,7 +137,7 @@ namespace Core.GameSetting
     {
         public List<ButtonCodes> Keys => keys;
 
-        private List<ButtonCodes> keys;
+        [SerializeField] private List<ButtonCodes> keys;
 
         public InputButtons()
         {
@@ -162,13 +163,14 @@ namespace Core.GameSetting
 
         public override bool IsNone()
         {
-            return keys.Count > 0;
+            return keys.Count == 0;
         }
     }
 
     [System.Serializable]
     public struct AxisCode
     {
+        [ShowInInspector]
         public string Name
         {
             get
@@ -189,6 +191,7 @@ namespace Core.GameSetting
             }
         }
 
+        [SerializeField, HideInInspector]
         private string _name;
 
         public bool IsAbsolute { get; private set; }
@@ -260,7 +263,7 @@ namespace Core.GameSetting
     [System.Serializable]
     public struct ButtonCodes
     {
-        public KeyCode[] KeyCodes { get; set; }
+        public KeyCode[] KeyCodes;
 
         public ButtonCodes(KeyCode[] keys)
         {

@@ -1,4 +1,5 @@
 using System;
+using Core.GameSetting;
 using Core.Structure.Rigging.Control.Attributes;
 using Core.Structure.Wires;
 using Sirenix.OdinInspector;
@@ -17,7 +18,20 @@ namespace Core.Structure.Rigging.Control
 
         public string GetPortDescription()
         {
-            return keyDetected.IsNone() ? computerInput : $"{computerInput} ({keyDetected.GetKeyCode()})";
+            if (keyDetected.IsNone())
+            {
+                return computerInput;
+            }
+            else
+            {
+                string res = computerInput;
+                for (int i = 0; i < keyDetected.Keys.Count; i++)
+                {
+                    res += " ";
+                    res += keyDetected.Keys[i].ToString();
+                }
+                return res;
+            }
         }
         
         [SerializeField, ShowInInspector]
@@ -36,13 +50,13 @@ namespace Core.Structure.Rigging.Control
         [SerializeField, HideInInspector]
         private DeviceBase<bool> _device;
 
-        [SerializeField] protected KeyInput keyDetected;
+        [SerializeField] protected InputButtons keyDetected;
 
         private bool isOn;
 
         public void Tick()
         {
-            if (keyDetected.GetButtonDown())
+            if (InputControl.Instance.GetButtonDown(keyDetected) > 0)
             {
                 isOn = !isOn;
                 port.Value = isOn;

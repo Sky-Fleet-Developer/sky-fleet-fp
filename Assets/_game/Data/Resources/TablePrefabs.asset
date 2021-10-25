@@ -29,7 +29,7 @@ MonoBehaviour:
       m_AssetGUID: d4ac0d39cf8e4a147a90d726ceb2f314
       m_SubObjectName: 
       m_SubObjectType: 
-    guid: d6d19abd-1e58-4ada-ae00-0a68ac4419cd
+    guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
     tags: []
   - reference:
       m_AssetGUID: f241b618a0db84543894629afe816ce2
@@ -66,4 +66,10 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
     guid: 4ea266d0-fbd5-4023-b34e-662b30e2819e
+    tags: []
+  - reference:
+      m_AssetGUID: aa1b82e31421c4341a0a61590069ff38
+      m_SubObjectName: 
+      m_SubObjectType: 
+    guid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
     tags: []

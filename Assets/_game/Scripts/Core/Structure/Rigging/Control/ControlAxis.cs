@@ -1,5 +1,7 @@
 using Core.Structure.Rigging.Control.Attributes;
 using Core.Structure.Wires;
+using Core.GameSetting;
+
 using Sirenix.OdinInspector;
 using UnityEngine;
 using static Core.Structure.StructureUpdateModule;
@@ -15,9 +17,22 @@ namespace Core.Structure.Rigging.Control
         public string GetPortDescription()
         {
             string keysDescr = string.Empty;
-            if (!keyPositive.IsNone()) keysDescr += keyPositive.GetKeyCode();
-            if (!keyNegative.IsNone()) keysDescr += "," + keyNegative.GetKeyCode();
-            if (!axe.IsNone()) keysDescr += "," + axe.GetNameAxe();
+            if (!keyPositive.IsNone())
+            {
+                for (int i = 0; i < keyPositive.Keys.Count; i++)
+                {
+                    keysDescr += keyPositive.Keys[i].ToString() + " ";
+                }
+            }
+            if (!keyNegative.IsNone())
+            {
+                keysDescr += ",";
+                for (int i = 0; i < keyNegative.Keys.Count; i++)
+                {
+                    keysDescr += keyNegative.Keys[i].ToString() + " ";
+                }
+            }
+            if (!axe.IsNone()) keysDescr += "," + axe.Axis.ToString();
 
             return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
         }
@@ -35,10 +50,10 @@ namespace Core.Structure.Rigging.Control
             //structure.ConnectPorts(port, _device.port);
         }
 
-        [SerializeField] protected KeyInput keyPositive;
-        [SerializeField] protected KeyInput keyNegative;
-        [SerializeField] protected AxeInput axe;
-        [SerializeField] protected KeyInput keyActiveAxis;
+        [SerializeField] protected InputButtons keyPositive;
+        [SerializeField] protected InputButtons keyNegative;
+        [SerializeField] protected InputControl.CorrectInputAxis axe;
+        [SerializeField] protected InputButtons keyActiveAxis;
         [Space]
         public string computerInput;
         [Space]
@@ -57,7 +72,7 @@ namespace Core.Structure.Rigging.Control
         [SerializeField] protected bool saveInactive;
         [SerializeField] protected AxeType axeType;
         [SerializeField] protected bool fromZeroToOne;
-        
+
 
         [SerializeField, HideInInspector]
         private DeviceBase<float> _device;
@@ -65,7 +80,7 @@ namespace Core.Structure.Rigging.Control
         private float GetLogicValue()
         {
             float sign = Mathf.Sign(realValue);
-            float val =  Clamp(Mathf.Pow(realValue * sign, power) * sign * multiply + trim);
+            float val = Clamp(Mathf.Pow(realValue * sign, power) * sign * multiply + trim);
             float result = Mathf.Abs(val) >= dead ? val : 0;
 
             if (axeType == AxeType.Relative && step > 0f)
@@ -84,9 +99,9 @@ namespace Core.Structure.Rigging.Control
 
         private void ReadInputValue()
         {
-            inputValue = (keyPositive.GetButton() ? 1 : 0) + (keyNegative.GetButton() ? -1 : 0);
+            inputValue = InputControl.Instance.GetButton(keyPositive) - InputControl.Instance.GetButton(keyNegative);
             if (axe.IsNone()) return;
-            float joy = axe.GetValue();
+            float joy = axe.GetInputSum();
             inputValue = Mathf.Abs(joy) > Mathf.Abs(inputValue) ? joy : inputValue;
         }
 
@@ -94,7 +109,8 @@ namespace Core.Structure.Rigging.Control
         private int ReadAxeStep()
         {
             if (axe.IsNone()) return 0;
-            float axeVal = axe.GetValue();
+            float axeVal = axe.GetInputSum();
+            
             if (axeDown)
             {
                 if (Mathf.Abs(axeVal) < 0.5f)
@@ -144,17 +160,17 @@ namespace Core.Structure.Rigging.Control
                     }
                     break;
             }
-            
+
         }
 
         public void MoveMalueInteractive(float val)
         {
             realValue += val;
         }
-        
+
         public void Tick()
         {
-            if(!keyActiveAxis.IsNone() && !keyActiveAxis.GetButton())
+            if (!keyActiveAxis.IsNone() && InputControl.Instance.GetButton(keyActiveAxis) == 0)
             {
                 if (saveInactive) return;
                 inputValue = 0;
@@ -163,7 +179,7 @@ namespace Core.Structure.Rigging.Control
                 port.Value = logicValue;
                 return;
             }
-            
+
             switch (axeType)
             {
                 case AxeType.Absolute:
@@ -177,7 +193,7 @@ namespace Core.Structure.Rigging.Control
                     break;
                 case AxeType.Steps:
                     int val = ReadAxeStep();
-                    int keysValue = val + (keyPositive.GetButtonDown() ? 1 : 0) + (keyNegative.GetButtonDown() ? -1 : 0);
+                    int keysValue = val + (int)InputControl.Instance.GetButtonDown(keyPositive) - (int)InputControl.Instance.GetButton(keyNegative);
                     inputValue = Clamp(inputValue + step * keysValue);
                     Dumping();
                     break;
@@ -189,7 +205,7 @@ namespace Core.Structure.Rigging.Control
         }
 
     }
-    
+
     [System.Serializable]
     public class AxeInput
     {
@@ -206,9 +222,9 @@ namespace Core.Structure.Rigging.Control
 
         public float GetValue()
         {
-            return Input.GetAxisRaw(nameAxe);   
+            return Input.GetAxisRaw(nameAxe);
         }
-        
+
         public bool IsNone()
         {
             return string.IsNullOrEmpty(nameAxe);
@@ -286,7 +302,7 @@ namespace Core.Structure.Rigging.Control
         {
             return ControlType.Equals(ButtonControlType.None);
         }
-        
+
         public bool GetButtonDown()
         {
             switch (ControlType)

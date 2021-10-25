@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Core.SessionManager.GameProcess;
 using static Core.Structure.StructureUpdateModule;
+using Sirenix.OdinInspector;
 
 namespace Core.GameSetting
 {
@@ -106,10 +107,10 @@ namespace Core.GameSetting
         }
 
 
-
+        [System.Serializable]
         public class CorrectInputAxis
         {
-            private AxisCode axisCode;
+            public AxisCode Axis;
 
             private float oldValue;
 
@@ -119,10 +120,10 @@ namespace Core.GameSetting
 
             private Vector2 limitSum = new Vector2(-1, 1);
 
-
+            [Button]
             public void SetAxis(AxisCode axis)
             {
-                axisCode = axis;
+                Axis = axis;
                 oldValue = 0;
                 sum = 0;
                 absolute = 0;
@@ -130,12 +131,12 @@ namespace Core.GameSetting
 
             private void GetVal()
             {
-                float val = Input.GetAxisRaw(axisCode.Name) * axisCode.Multiply;
-                if (axisCode.Inverse)
+                float val = Input.GetAxisRaw(Axis.Name) * Axis.Multiply;
+                if (Axis.Inverse)
                 {
                     val *= -1;
                 }
-                if (axisCode.IsAbsolute)
+                if (Axis.IsAbsolute)
                 {
                     sum += val;
                     absolute = val;
@@ -149,9 +150,14 @@ namespace Core.GameSetting
                 oldValue = val;
             }
 
+            public bool IsNone()
+            {
+                return string.IsNullOrEmpty(Axis.Name);
+            }
+
             public bool IsAbsolute()
             {
-                return axisCode.IsAbsolute;
+                return Axis.IsAbsolute;
             }
 
             public float GetInputSum()

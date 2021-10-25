@@ -69,7 +69,7 @@ namespace Core.Structure
         private Dictionary<string, PortPointer> portsCache;
         private List<PortPointer> portsPointersCache;
         private Dictionary<System.Type, object> blocksCache;
-       
+
 
         protected virtual void Awake()
         {
@@ -203,9 +203,6 @@ namespace Core.Structure
 
             return null;
         }
-
-
-        
         public PortPointer GetPort(string id)
         {
             if (portsCache == null) portsCache = new Dictionary<string, PortPointer>();
