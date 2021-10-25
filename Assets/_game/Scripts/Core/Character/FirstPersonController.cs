@@ -66,8 +66,6 @@ namespace Runtime.Character.Control
         public State CurrentState { get; set; }
         //public Quaternion globalView;
 
-        public readonly InteractionRaycast Interaction = new InteractionRaycast();
-
         private float vertical;
         
         private bool isInitialized;
@@ -152,7 +150,7 @@ namespace Runtime.Character.Control
                 
                 if (StructureRaycaster.Cast(ray, true,
                     GameData.Data.interactionDistance, GameData.Data.interactiveLayer,
-                    out StructureHit hit)) //Master.Interaction.Cast(Master.cameraRoot, out IInteractiveBlock block)
+                    out StructureHit hit))
                 {
                     if(hit.InteractiveBlock == null) return;
 
@@ -174,14 +172,43 @@ namespace Runtime.Character.Control
                     if(hit.Device == null) return;
                     if (Input.GetKey(KeyCode.Mouse0))
                     {
-                        if (hit.Device is ControlAxis controlAxis)
+                        if (hit.Device.EnableInteraction)
                         {
-                            if (controlAxis.EnableInteraction)
-                            {
-                                controlAxis.MoveMalueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
-                            }
+                            SwitchToDevice(hit.Device);
                         }
                     }
+                }
+            }
+
+            private void SwitchToDevice(IInteractiveDevice device)
+            {
+                switch (device)
+                {
+                    case ControlAxis axis:
+                        Debug.Log("Select device " + axis.computerInput);
+                        Master.CurrentState = new ControlAxisState(Master, axis, this);                        
+                        break;
+                }
+            }
+        }
+        
+        private class ControlAxisState : State<FirstPersonController>
+        {
+            private ControlAxis axis;
+            private InteractionState lastState;
+            public ControlAxisState(FirstPersonController master, ControlAxis axis, InteractionState lastState) : base(master)
+            {
+                this.axis = axis;
+                this.lastState = lastState;
+            }
+
+            public override void Update()
+            {
+                axis.MoveValueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
+
+                if (!Input.GetKey(KeyCode.Mouse0))
+                {
+                    Master.CurrentState = lastState;
                 }
             }
         }
@@ -326,29 +353,6 @@ namespace Runtime.Character.Control
             {
                 rigidbody.velocity = Vector3.zero;
             }
-        }
-    }
-
-    public class InteractionRaycast
-    {
-        public RaycastHit Hit;
-
-        public bool Cast(Transform origin, out IInteractiveBlock block)
-        {
-            if (Physics.Raycast(origin.position, origin.forward, out Hit, GameData.Data.interactionDistance,
-                GameData.Data.interactiveLayer))
-            {
-                block = Hit.collider.transform.GetComponentInParent<IInteractiveBlock>();
-                return true;
-            }
-
-            block = null;
-            return false;
-        }
-
-        public void CastControl(Transform cameraRoot, IControl attachedControl)
-        {
-            //attachedControl.CastControl()
         }
     }
 }

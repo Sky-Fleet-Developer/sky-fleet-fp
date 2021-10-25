@@ -203,7 +203,7 @@ namespace Core.Environment
                 
                 if (!hitInfo.HitInBlockBounds) return false;
 
-                float angle = 0;
+                float angle = 20f;
                 DeviceRayCastingProfile selectedDevice = null;
                 foreach (DeviceRayCastingProfile device in devices)
                 {
@@ -239,8 +239,7 @@ namespace Core.Environment
             {
                 Vector3 globalCenter = transform.TransformPoint(localCenter);
                 Vector3 delta = globalCenter - _globalRay.origin;
-                float dot = Vector3.Dot(delta.normalized, _globalRay.direction);
-                return Vector3.SqrMagnitude(delta) < maxDistance * maxDistance ? -dot : 1;
+                return Vector3.SqrMagnitude(delta) < maxDistance * maxDistance ? Vector3.Angle(delta, _globalRay.direction) : 100;
             }
         }
     }

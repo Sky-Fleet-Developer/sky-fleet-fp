@@ -113,7 +113,7 @@ namespace Runtime.Character
                 GameData.Data.groundLayer);
             
             //Debug.DrawLine(position, transform.position, Color.cyan);
-            Debug.DrawRay(position, -transform.up * groundHit.distance, Color.cyan);
+            //Debug.DrawRay(position, -transform.up * groundHit.distance, Color.cyan);
             
             //Debug.DrawLine(position, position - transform.up * (grounded ? groundHit.distance : height + skinWidth));
         }

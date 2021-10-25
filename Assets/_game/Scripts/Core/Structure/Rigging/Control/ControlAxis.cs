@@ -61,8 +61,8 @@ namespace Core.Structure.Rigging.Control
         [SerializeField, Range(-1, 1)] protected float realValue;
         [SerializeField, Range(-1, 1)] protected float logicValue;
 
-        [SerializeField, Range(0.1f, 15f)] protected float multiply = 1;
-        [SerializeField, Range(0, 5)] protected float sensitivity = 1;
+        [SerializeField, Range(0.1f, 4f)] protected float multiply = 1;
+        [SerializeField, Range(0, 20)] protected float sensitivity = 1;
         [SerializeField, Range(0, 5)] protected float gravity = 1;
         [SerializeField, Range(0.5f, 4f)] protected float power = 1;
         [SerializeField, Range(0f, 1f)] protected float dead;
@@ -163,9 +163,10 @@ namespace Core.Structure.Rigging.Control
 
         }
 
-        public void MoveMalueInteractive(float val)
+        public void MoveValueInteractive(float val)
         {
-            realValue += val;
+            realValue += val * sensitivity;
+            AxeTick();
         }
 
         public void Tick()
@@ -179,7 +180,7 @@ namespace Core.Structure.Rigging.Control
                 port.Value = logicValue;
                 return;
             }
-
+            
             switch (axeType)
             {
                 case AxeType.Absolute:
@@ -189,7 +190,7 @@ namespace Core.Structure.Rigging.Control
                     break;
                 case AxeType.Relative:
                     ReadInputValue();
-                    realValue = Clamp(realValue + inputValue * DeltaTime);
+                    realValue = Clamp(realValue + inputValue * sensitivity * DeltaTime);
                     break;
                 case AxeType.Steps:
                     int val = ReadAxeStep();
@@ -199,11 +200,15 @@ namespace Core.Structure.Rigging.Control
                     break;
             }
 
+            AxeTick();
+        }
+
+        private void AxeTick()
+        {
             logicValue = GetLogicValue();
             port.Value = logicValue;
             _device.port.Value = logicValue;
         }
-
     }
 
     [System.Serializable]

@@ -680,7 +680,7 @@ MonoBehaviour:
   tags: []
   guid: 93cbead4-d7c3-47fb-b271-510007e82fb3
   parentsObjects: []
-  configuration: "{\"blocks\":[{\"path\":\"TestJet\",\"currentGuid\":\"3636a306-24bb-4c6a-a7c4-646571f2a3be\",\"setup\":{}},{\"path\":\"TestControl\",\"currentGuid\":\"40222abb-51cd-4887-8afb-92518f93a6cd\",\"setup\":{\"SomeProperty\":\"1\"}},{\"path\":\"TestHydrogenStorage\",\"currentGuid\":\"673ea29c-0dfc-4bc8-b1c7-99506d787f41\",\"setup\":{\"Mode\":\"Auto\"}},{\"path\":\"SmallBattery\",\"currentGuid\":\"55a0a8fb-b7c6-43ce-879e-5221e8b7880a\",\"setup\":{}},{\"path\":\"SmallFuelPowerGenerator\",\"currentGuid\":\"3745a5db-16a8-42eb-9586-ebf071e75ffa\",\"setup\":{}},{\"path\":\"Support_R\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_L\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_B\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"ThrustInverse\",\"currentGuid\":\"4ea266d0-fbd5-4023-b34e-662b30e2819e\",\"setup\":{}},{\"path\":\"Support_\u0421\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}}],\"wires\":[[\"TestControlc35a2cab-5842-4f61-8ac6-e385fb19ef6b\",\"Support_R4476b0bd-1330-4488-b135-96678de0f76b\",\"ThrustInverse16fb3ff0-c2bf-4172-a89f-73b8554f0c28\"],[\"TestControlc464be03-99bf-4c54-8819-3144b21e4943\",\"Support_B4476b0bd-1330-4488-b135-96678de0f76b\"],[\"Support_R65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_L65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_B65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_\u042165c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2\",\"SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc\"],[\"TestJetf799627d-ab5b-4083-a5ac-f35e1e181c0d\",\"TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143\",\"SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744\"],[\"TestJet2f3f89db-1f62-4742-b237-d1c86d86dea0\",\"TestControlfd38eb0b-33d9-497f-9fc8-8c8f27efd26b\"],[\"Support_L4476b0bd-1330-4488-b135-96678de0f76b\",\"ThrustInversed95c5826-b255-4a45-a53c-12046f4cfc8b\"]]}"
+  configuration: "{\"blocks\":[{\"path\":\"TestJet\",\"currentGuid\":\"3636a306-24bb-4c6a-a7c4-646571f2a3be\",\"setup\":{}},{\"path\":\"TestControl\",\"currentGuid\":\"40222abb-51cd-4887-8afb-92518f93a6cd\",\"setup\":{\"SomeProperty\":\"1\"}},{\"path\":\"TestHydrogenStorage\",\"currentGuid\":\"673ea29c-0dfc-4bc8-b1c7-99506d787f41\",\"setup\":{\"Mode\":\"Auto\"}},{\"path\":\"SmallBattery\",\"currentGuid\":\"55a0a8fb-b7c6-43ce-879e-5221e8b7880a\",\"setup\":{}},{\"path\":\"SmallFuelPowerGenerator\",\"currentGuid\":\"3745a5db-16a8-42eb-9586-ebf071e75ffa\",\"setup\":{}},{\"path\":\"Support_R\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_L\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"Support_B\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}},{\"path\":\"ThrustInverse\",\"currentGuid\":\"4ea266d0-fbd5-4023-b34e-662b30e2819e\",\"setup\":{}},{\"path\":\"Support_\u0421\",\"currentGuid\":\"ad236af6-3feb-466c-8ce1-4cc6a8dad25a\",\"setup\":{}}],\"wires\":[[\"TestControlc35a2cab-5842-4f61-8ac6-e385fb19ef6b\",\"Support_R4476b0bd-1330-4488-b135-96678de0f76b\",\"ThrustInverse16fb3ff0-c2bf-4172-a89f-73b8554f0c28\"],[\"TestControlc464be03-99bf-4c54-8819-3144b21e4943\",\"Support_B4476b0bd-1330-4488-b135-96678de0f76b\"],[\"Support_R65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_L65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_B65c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"Support_\u042165c57623-8fb0-4aaf-a0d5-fe3dc729732f\",\"SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2\",\"SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc\"],[\"TestJetf799627d-ab5b-4083-a5ac-f35e1e181c0d\",\"TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143\",\"SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744\"],[\"TestJet2f3f89db-1f62-4742-b237-d1c86d86dea0\",\"TestControlfd38eb0b-33d9-497f-9fc8-8c8f27efd26b\"],[\"Support_L4476b0bd-1330-4488-b135-96678de0f76b\",\"ThrustInversed95c5826-b255-4a45-a53c-12046f4cfc8b\"],[\"TestControlc705a022-ddc1-45c4-9bc2-1d033167681d\",\"Support_Rcbb3401d-a8e6-48a6-bd07-57bfe42941e5\",\"Support_Lcbb3401d-a8e6-48a6-bd07-57bfe42941e5\",\"Support_Bcbb3401d-a8e6-48a6-bd07-57bfe42941e5\",\"Support_\u0421cbb3401d-a8e6-48a6-bd07-57bfe42941e5\"]]}"
 --- !u!1 &4479284407765901574
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,6 +764,58 @@ PrefabInstance:
     - target: {fileID: 4007178922747367424, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: m_Name
       value: TestControl
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[2].axe.Axis._name
+      value: Mouse ScrollWheel
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[0].keyNegative.keys.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[0].keyPositive.keys.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[1].keyNegative.keys.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[1].keyPositive.keys.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[0].keyNegative.keys.Array.data[0].KeyCodes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[0].keyPositive.keys.Array.data[0].KeyCodes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[1].keyNegative.keys.Array.data[0].KeyCodes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[1].keyPositive.keys.Array.data[0].KeyCodes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[0].keyNegative.keys.Array.data[0].KeyCodes.Array.data[0]
+      value: 115
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[0].keyPositive.keys.Array.data[0].KeyCodes.Array.data[0]
+      value: 119
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[1].keyNegative.keys.Array.data[0].KeyCodes.Array.data[0]
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007178922747367426, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
+      propertyPath: axes.Array.data[1].keyPositive.keys.Array.data[0].KeyCodes.Array.data[0]
+      value: 97
       objectReference: {fileID: 0}
     - target: {fileID: 4007178922747367427, guid: b249800ad0fa4ac49b0be7281b7690ff, type: 3}
       propertyPath: m_RootOrder

@@ -752,22 +752,16 @@ MonoBehaviour:
       cache: 0
       valueType: 0
     keyPositive:
-      _controlType: 1
-      keyCode: 119
-      mouseButton: 0
-      otherButton: 
+      keys: []
     keyNegative:
-      _controlType: 1
-      keyCode: 115
-      mouseButton: 0
-      otherButton: 
+      keys: []
     axe:
-      nameAxe: 
+      Axis:
+        _name: 
+        Inverse: 0
+        Multiply: 0
     keyActiveAxis:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     computerInput: Pitch
     inputValue: 0
     realValue: 0
@@ -790,22 +784,16 @@ MonoBehaviour:
       cache: 0
       valueType: 0
     keyPositive:
-      _controlType: 1
-      keyCode: 97
-      mouseButton: 0
-      otherButton: 
+      keys: []
     keyNegative:
-      _controlType: 1
-      keyCode: 100
-      mouseButton: 0
-      otherButton: 
+      keys: []
     axe:
-      nameAxe: 
+      Axis:
+        _name: 
+        Inverse: 0
+        Multiply: 0
     keyActiveAxis:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     computerInput: Roll
     inputValue: 0
     realValue: 0
@@ -822,34 +810,28 @@ MonoBehaviour:
     axeType: 0
     fromZeroToOne: 0
     _device: {fileID: 8794010622563960864}
-  - enableInteraction: 0
+  - enableInteraction: 1
     port:
       guid: fd38eb0b-33d9-497f-9fc8-8c8f27efd26b
       cache: 0
       valueType: 0
     keyPositive:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     keyNegative:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     axe:
-      nameAxe: Mouse ScrollWheel
+      Axis:
+        _name: Mouse ScrollWheel
+        Inverse: 0
+        Multiply: 20
     keyActiveAxis:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     computerInput: Engine
     inputValue: 0
     realValue: 0
     logicValue: 0
-    multiply: 15
-    sensitivity: 1
+    multiply: 1
+    sensitivity: 3
     gravity: 1
     power: 0.75
     dead: 0
@@ -866,28 +848,22 @@ MonoBehaviour:
       cache: 0
       valueType: 0
     keyPositive:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     keyNegative:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
+      keys: []
     axe:
-      nameAxe: 
+      Axis:
+        _name: 
+        Inverse: 0
+        Multiply: 0
     keyActiveAxis:
-      _controlType: 0
-      keyCode: 0
-      mouseButton: 0
-      otherButton: 
-    computerInput: TestAxis
+      keys: []
+    computerInput: SupportsPower
     inputValue: 0
     realValue: 0
     logicValue: 0
     multiply: 1
-    sensitivity: 1
+    sensitivity: 3
     gravity: 1
     power: 1
     dead: 0
@@ -895,8 +871,8 @@ MonoBehaviour:
     step: 0
     inverse: 0
     saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
+    axeType: 1
+    fromZeroToOne: 1
     _device: {fileID: 1011826808027148322}
   buttons: []
   toggles: []

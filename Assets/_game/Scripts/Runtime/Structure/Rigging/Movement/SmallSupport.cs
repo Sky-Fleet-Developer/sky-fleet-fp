@@ -4,6 +4,7 @@ using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using static Core.Structure.StructureUpdateModule;
 
 namespace Runtime.Structure.Rigging.Movement
 {
@@ -71,16 +72,16 @@ namespace Runtime.Structure.Rigging.Movement
 
         public void ConsumptionTick()
         {
-            currentConsumption = powerPerHandle.Evaluate(powerHandle.Value) * consumption * Time.deltaTime;
+            currentConsumption = powerPerHandle.Evaluate(powerHandle.Value) * consumption;
             powerInput.charge = 0;
-            powerInput.maxInput = currentConsumption;
+            powerInput.maxInput = currentConsumption * DeltaTime;
             powerInput.maxOutput = 0;
         }
 
         public void PowerTick()
         {
             if (currentConsumption == 0) power = 0;
-            else power = powerInput.charge / currentConsumption;
+            else power = powerInput.charge / (consumption * DeltaTime);
         }
 
         public void ApplyForce()
