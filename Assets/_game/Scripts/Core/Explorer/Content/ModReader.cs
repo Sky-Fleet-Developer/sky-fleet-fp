@@ -90,9 +90,18 @@ namespace Core.Explorer.Content
             return infoPath.FullName + "/Mods/";
         }
 
+        private void CorrectDirectory(string path)
+        {
+            if(!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
         private LinkedList<string> GetListMods(string pathToMods)
         {
             LinkedList<string> list = new LinkedList<string>();
+            CorrectDirectory(pathToMods);
             string[] directoryMods = Directory.GetDirectories(pathToMods);
             for (int i = 0; i < directoryMods.Length; i++)
             {

@@ -1,6 +1,7 @@
 using System;
 using Core.Structure.Rigging.Control.Attributes;
 using Core.Structure.Wires;
+using Core.GameSetting;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -22,8 +23,8 @@ namespace Core.Structure.Rigging.Control
         public string GetPortDescription()
         {
             string keysDescr = string.Empty;
-            if (!axisX.IsNone()) keysDescr += axisX.GetNameAxe();
-            if (!axisY.IsNone()) keysDescr += "," + axisY.GetNameAxe();
+            if (!axisX.IsNone()) keysDescr += axisX.Axis.ToString();
+            if (!axisY.IsNone()) keysDescr += "," + axisY.Axis.ToString();
 
             return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
         }
@@ -45,8 +46,8 @@ namespace Core.Structure.Rigging.Control
         }
 
 
-        [SerializeField] protected AxeInput axisX;
-        [SerializeField] protected AxeInput axisY;
+        [SerializeField] protected InputControl.CorrectInputAxis axisX;
+        [SerializeField] protected InputControl.CorrectInputAxis axisY;
         [SerializeField] protected TypeTrackballLimit typeLimit;
         [SerializeField, Range(0.1f, 4f)] protected float multiply = 1;
 
@@ -57,11 +58,29 @@ namespace Core.Structure.Rigging.Control
 
         private Vector2 GetPos()
         {
+            Vector2 retPos = currentPos;
 
-            Vector2 delta = new Vector2(axisX.GetValue(), -axisY.GetValue());
-            delta.x = delta.x * multiply;
-            delta.y = delta.y * multiply;
-            return currentPos + delta;
+            if (axisX.IsAbsolute())
+            {
+                float d = axisX.GetInputAbsolute();
+                d *= multiply;
+                retPos.x += d;
+            }
+            else
+            {
+                retPos.x = axisX.GetInputSum() * multiply;
+            }
+            if (axisY.IsAbsolute())
+            {
+                float d = axisY.GetInputAbsolute();
+                d *= multiply;
+                retPos.y += d;
+            }
+            else
+            {
+                retPos.y = axisY.GetInputSum() * multiply;
+            }
+            return retPos;
         }
 
         public void Tick()
