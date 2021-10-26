@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -217,6 +218,8 @@ namespace Core.Structure.Wires
         }
     }
 
+   
+
     [ShowInInspector]
     public abstract class Wire : System.IDisposable
     {
@@ -351,4 +354,5 @@ namespace Core.Structure.Wires
         }
     }
 
+ 
 }
