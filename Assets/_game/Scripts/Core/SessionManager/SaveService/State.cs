@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.ContentSerializer.Bundles;
+using UnityEngine;
 
 namespace Core.SessionManager.SaveService
 {
     [System.Serializable]
     public class State
     {
-        public UnityEngine.Vector3 playerPos;
-        public UnityEngine.Vector3 playerRot;
+        public Vector3 playerPos;
+        public Vector3 playerRot;
 
         public List<StructureBundle> structuresCache;
-        //TODO: characters
-        //TODO: session settings
 
         public State()
         {
@@ -22,16 +21,9 @@ namespace Core.SessionManager.SaveService
         public State(List<StructureBundle> structuresCache)
         {
             this.structuresCache = structuresCache;
-            //TODO копировать настройки сессии и сохранить список модов (путей к модам)
         }
     }
-    //public Dictionary<int, ModPointer> remap;
-    /*[System.Serializable]
-    public struct ModPointer
-    {
-        public int index;
-        public string modPath;
-    }*/
+
     
     [System.AttributeUsage(System.AttributeTargets.Property)]
     public class PlayerPropertyAttribute : System.Attribute { }
