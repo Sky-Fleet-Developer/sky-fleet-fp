@@ -12,7 +12,7 @@ using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.Utilities;
 using UnityEngine;
-using  Object = UnityEngine.Object;
+using Object = UnityEngine.Object;
 
 namespace Core.Structure
 {
@@ -38,7 +38,7 @@ namespace Core.Structure
             Type attribute = typeof(PlayerPropertyAttribute);
 
             string log = $"Properties for type {type.Name}:\n";
-            
+
             foreach (PropertyInfo property in type.GetProperties())
             {
                 if (property.GetCustomAttributes().FirstOrDefault(x => x.GetType() == attribute) != null)
@@ -49,10 +49,10 @@ namespace Core.Structure
             }
 
             Debug.Log(log);
-            
+
             return properties.ToArray();
         }
-        
+
         private static void ApplyProperty(IBlock instance, PropertyInfo propery, string value)
         {
             Type type = propery.PropertyType;
@@ -197,21 +197,30 @@ namespace Core.Structure
         {
             PropertyInfo[] properties = GetBlockProperties(block);
 
-            Dictionary<string, string> setup = new Dictionary<string, string>(); 
-            
+            Dictionary<string, string> setup = new Dictionary<string, string>();
+
             for (int i = 0; i < properties.Length; i++)
             {
                 string value = properties[i].GetValue(block).ToString();
                 setup.Add(properties[i].Name, value);
             }
 
-            return new BlockConfiguration {setup = setup, path = GetPath(block), currentGuid = block.Guid };
+            return new BlockConfiguration { setup = setup, path = GetPath(block), currentGuid = block.Guid };
         }
 
         public static string GetPath(IBlock block)
         {
             string result = block.transform.name;
             Transform tr = block.transform.parent;
+            result = GetPath(tr) + "/" + result;
+
+            return result;
+        }
+
+        public static string GetPath(Transform transform)
+        {
+            string result = string.Empty;
+            Transform tr = transform;
             while (tr.GetComponent<IStructure>() == null)
             {
                 tr = tr.parent;
@@ -223,7 +232,7 @@ namespace Core.Structure
 
         public static (Transform parent, string name) GetParent(IStructure structure, string path)
         {
-            string[] pathStrings = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] pathStrings = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             Transform tr = structure.transform;
             for (int i = 0; i < pathStrings.Length - 1; i++)
             {
@@ -241,17 +250,17 @@ namespace Core.Structure
             {
                 oldConfig = JsonConvert.DeserializeObject<StructureConfiguration>(structure.Configuration);
             }*/
-            
+
             StructureConfiguration configuration = new StructureConfiguration
             {
                 blocks = new List<BlockConfiguration>(structure.Blocks.Count),
                 wires = new List<List<string>>()
             };
 
-            for(int i = 0; i < structure.Blocks.Count; i++)
+            for (int i = 0; i < structure.Blocks.Count; i++)
             {
                 IBlock block = structure.Blocks[i];
-                
+
                 configuration.blocks.Add(GetConfiguration(block));
             }
 
@@ -265,7 +274,7 @@ namespace Core.Structure
 
             return configuration;
         }
-        
+
 
         public static Dictionary<Type, FieldInfo[]> BlocksPorts;
 
@@ -275,13 +284,13 @@ namespace Core.Structure
 
             if (BlocksPorts == null) BlocksPorts = new Dictionary<Type, FieldInfo[]>();
             if (BlocksPorts.TryGetValue(blockType, out FieldInfo[] infos)) return infos;
-                
+
             List<FieldInfo> fields = new List<FieldInfo>();
 
             Type type = typeof(Port);
 
             //string log = $"Ports for type {blockType.Name}:\n";
-            
+
             foreach (FieldInfo field in blockType.GetFields())
             {
                 if (field.FieldType == type || field.FieldType.InheritsFrom(type))
@@ -294,13 +303,13 @@ namespace Core.Structure
             //Debug.Log(log);
 
             infos = fields.ToArray();
-            
+
             BlocksPorts.Add(blockType, infos);
 
             return infos;
         }
 
-        
+
         public static List<PortPointer> GetAllPorts(IStructure structure)
         {
             List<PortPointer> result = new List<PortPointer>();
@@ -311,13 +320,13 @@ namespace Core.Structure
 
             return result;
         }
-        
+
         public static void GetAllPorts(IBlock block, ref List<PortPointer> result)
         {
             GetPorts(block, ref result);
             GetMultiplePorts(block, ref result);
         }
-        
+
         public static void GetPorts(IBlock block, ref List<PortPointer> result)
         {
             FieldInfo[] properties = GetPortsInfo(block);
@@ -326,10 +335,10 @@ namespace Core.Structure
                 result.Add(new PortPointer(block, property.GetValue(block) as Port));
             }
         }
-        
+
         public static void GetMultiplePorts(IBlock block, ref List<PortPointer> result)
         {
-            if(block is IMultiplePorts specialPortsBlock)
+            if (block is IMultiplePorts specialPortsBlock)
             {
                 IEnumerable<PortPointer> specialPorts = specialPortsBlock.GetPorts();
                 Debug.Log($"+ {specialPorts.Count()} special ports");

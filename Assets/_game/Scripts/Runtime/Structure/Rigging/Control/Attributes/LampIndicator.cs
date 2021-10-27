@@ -7,18 +7,27 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 {
     public class LampIndicator : DeviceBase<bool>
     {
+        [SerializeField] private Color active;
+        [SerializeField] private Color inactive;
+
         [SerializeField] private MeshRenderer render;
 
         bool oldValue;
 
-        private int emissive = Shader.PropertyToID("EmissiveColor"); 
-        // Используй это кешированное значение вместо первого аргумента в SetColor. И не забудь остальные пункты по этому скрипту))
-        
+        private int emissive = Shader.PropertyToID("_EmissiveColor");
+
+        private void Awake()
+        {
+            render.material.color = inactive;
+            render.material.SetColor(emissive, inactive);
+        }
+
         public override void Init(IStructure structure, IBlock block)
         {
             base.Init(structure, block);
             oldValue = false;
-            render.material.SetColor("EmissiveColor", Color.red);
+            render.material.color = inactive;
+            render.material.SetColor(emissive, inactive);
         }
 
         public override void UpdateDevice()
@@ -28,11 +37,13 @@ namespace Runtime.Structure.Rigging.Control.Attributes
                 oldValue = port.Value;
                 if (oldValue)
                 {
-                    render.material.SetColor("EmissiveColor", Color.green);
+                    render.material.color = active;
+                    render.material.SetColor(emissive, active);
                 }
                 else
                 {
-                    render.material.SetColor("EmissiveColor", Color.red);
+                    render.material.color = inactive;
+                    render.material.SetColor(emissive, inactive);
                 }
             }
         }
