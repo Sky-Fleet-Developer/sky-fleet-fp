@@ -33,10 +33,22 @@ namespace Core.ContentSerializer
             stream.Write(shortBuffer, 0, sizeof(short));
         }
 
-        public int ReadShort(Stream stream)
+        public short ReadShort(Stream stream)
         {
             stream.Read(shortBuffer, 0, sizeof(short));
             return BitConverter.ToInt16(shortBuffer, 0);
+        }
+
+        public void WriteUShort(ushort value, Stream stream)
+        {
+            shortBuffer = BitConverter.GetBytes(value);
+            stream.Write(shortBuffer, 0, sizeof(ushort));
+        }
+
+        public ushort ReadUShort(Stream stream)
+        {
+            stream.Read(shortBuffer, 0, sizeof(ushort));
+            return BitConverter.ToUInt16(shortBuffer, 0);
         }
 
         public void WriteFloat(float value, Stream stream)

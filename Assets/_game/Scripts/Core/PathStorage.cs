@@ -23,36 +23,41 @@ namespace Core
         public static readonly string SETTING_DATA_PATH = "Setting";
         public static readonly string SETTING_DATA_FILE = "Setting.opt";
 
+        public static readonly string LANDSCAPES_DATA_PATH = "Landscapes";
+        
         public static string GetPathToSessionSave()
         {
-            string pathU = Application.dataPath;
-            DirectoryInfo infoPath = Directory.GetParent(pathU);
-            pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_SAVE;
+            DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
+            string pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_SAVE;
             return pathU;
         }
 
 
         public static string GetPathToSessionPresets()
         {
-            string pathU = Application.dataPath;
-            DirectoryInfo infoPath = Directory.GetParent(pathU);
-            pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS;
+            DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
+            string pathU = infoPath.FullName + "\\" + PathStorage.BASE_DATA_PATH + "\\" + PathStorage.DATA_SESSION_PRESETS;
             return pathU;
         }
 
         public static string GetPathToSettingFile()
         {
-            string pathU = Application.dataPath;
-            DirectoryInfo infoPath = Directory.GetParent(pathU);
-            pathU = infoPath.FullName + "\\" + PathStorage.SETTING_DATA_PATH + "\\" + PathStorage.SETTING_DATA_FILE;
+            DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
+            string pathU = infoPath.FullName + "\\" + PathStorage.SETTING_DATA_PATH + "\\" + PathStorage.SETTING_DATA_FILE;
             return pathU;
         }
 
         public static string GetPathToSettingDirectory()
         {
-            string pathU = Application.dataPath;
-            DirectoryInfo infoPath = Directory.GetParent(pathU);
-            pathU = infoPath.FullName + "\\" + PathStorage.SETTING_DATA_PATH;
+            DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
+            string pathU = infoPath.FullName + "\\" + PathStorage.SETTING_DATA_PATH;
+            return pathU;
+        }
+
+        public static string GetPathToLandscapesDirectory()
+        {
+            DirectoryInfo infoPath = Directory.GetParent(Application.dataPath);
+            string pathU = infoPath.FullName + "\\" + PathStorage.LANDSCAPES_DATA_PATH;
             return pathU;
         }
 
