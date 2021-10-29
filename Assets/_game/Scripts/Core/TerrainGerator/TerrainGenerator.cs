@@ -55,7 +55,7 @@ namespace Core.TerrainGenerator
             }
             for (int i = 0; i < maps.Count; i++)
             {
-                maps[i].ApplyToTerrain(CreateTerrain(maps[i].Pos, maps[i].Pos.x * sideSize, maps[i].Pos.y * sideSize, maps[i].SizeSide, sideSize, 150));
+                maps[i].ApplyToTerrain(CreateTerrain(maps[i].Pos, maps[i].Pos.x * sideSize, maps[i].Pos.y * sideSize, maps[i].SizeSide, sideSize, height));
             }
 
 
@@ -110,16 +110,18 @@ namespace Core.TerrainGenerator
             obj.transform.position = new Vector3(startPosX, 0, -startPosY);
 
             Terrain ter = obj.AddComponent<Terrain>();
-            ter.terrainData = new TerrainData();
+            TerrainData data = new TerrainData();
+            ter.terrainData = data;
 
-            ter.terrainData.heightmapResolution = heightMap;
-            ter.terrainData.size = new Vector3(width, height, width);
+            ter.drawInstanced = true;
+            data.heightmapResolution = heightMap;
+            data.size = new Vector3(width, height, width);
             ter.materialTemplate = materialTerrain;
 
             TerrainCollider collider = obj.AddComponent<TerrainCollider>();
             collider.terrainData = ter.terrainData;
 
-
+            ter.allowAutoConnect = true;
             terrains.Add(index, ter);
             terrainsDates.Add(ter.terrainData);
 
