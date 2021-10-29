@@ -625,7 +625,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directoryLandscapes: Test
-  sizeRaw: 257
   formatMap: Heightmap_{0}-{1}.r16
   materialTerrain: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
   sideSize: 1000
