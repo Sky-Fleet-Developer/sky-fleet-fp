@@ -69,7 +69,7 @@ namespace Core.TerrainGenerator
                 terrains.TryGetValue(new Vector2Int(terrain.Key.x + 1, terrain.Key.y), out right);
                 terrains.TryGetValue(new Vector2Int(terrain.Key.x, terrain.Key.y - 1), out top);
                 terrains.TryGetValue(new Vector2Int(terrain.Key.x, terrain.Key.y + 1), out buttom);
-
+                //terrain.Value.terrainData.alp
                 Debug.Log("Left: " + left + " Right: " + right + " Top: " + top + " Buttom: " + buttom, terrain.Value);
 
                 terrain.Value.SetNeighbors(left, top, right, buttom);
