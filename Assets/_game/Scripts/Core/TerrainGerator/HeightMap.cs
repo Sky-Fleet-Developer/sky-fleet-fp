@@ -11,9 +11,12 @@ namespace Core.TerrainGenerator
     {
         public float[,] Heights;
         
-        public HeightMap(int sizeSide, int x, int y, string path) : base(sizeSide, x, y)
+        public int SideSize { get; private set; }
+
+        public HeightMap(int sizeSide, int x, int y, string path) : base(x, y)
         {
-            Heights = new float[SizeSide, SizeSide];
+            SideSize = sizeSide;
+            Heights = new float[sizeSide, sizeSide];
             RawReader.ReadRaw16(path, this);
         }
 

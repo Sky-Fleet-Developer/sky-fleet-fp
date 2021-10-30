@@ -11,10 +11,10 @@ namespace Core.TerrainGenerator
     {
         public Texture2D TreesTexture;
 
-        public TreesLayer(int sizeSide, int x, int y, string path) : base(sizeSide, x, y)
+        public TreesLayer(int sizeSide, int x, int y, string path) : base(x, y)
         {
 
-            TreesTexture = new Texture2D((int)SizeSide, (int)SizeSide);
+            TreesTexture = new Texture2D(sizeSide, sizeSide);
             PNGReader.ReadPNG(path, TreesTexture);
         }
 

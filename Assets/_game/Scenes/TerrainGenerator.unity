@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 1478.8682, g: 1831.9521, b: 2425.4668, a: 1}
+  m_IndirectSpecularColor: {r: 1481.7754, g: 1835.8867, b: 2430.4492, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -625,7 +625,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directoryLandscapes: Test
-  formatMap: Heightmap_{0}-{1}.r16
-  materialTerrain: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
-  sideSize: 1000
-  height: 600
+  terrainOptionRaws:
+    sizeRaw: 257
+    formatMap: Heightmap_{0}-{1}.r16
+    materialTerrain: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
+    sideSize: 1000
+    height: 180
+  terrainsSplatMapsOption:
+    nameSplat: Splatmap
+  terrainsLayersMapsOption:
+    nameBaseColor: BaseColor
+    nameNormal: Normal

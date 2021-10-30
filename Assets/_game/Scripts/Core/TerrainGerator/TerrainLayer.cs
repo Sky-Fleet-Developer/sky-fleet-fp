@@ -14,15 +14,12 @@ namespace Core.TerrainGenerator
 
     public abstract class TerrainLayer
     {
-        public int SizeSide { get; private set; }
-
         public Vector2Int Pos { get; private set; }
 
-        
+       
 
-        public TerrainLayer(int sizeSide, int x, int y)
+        public TerrainLayer(int x, int y)
         {
-            SizeSide = sizeSide;
             Pos = new Vector2Int(x, y);
         }
 
