@@ -5,7 +5,7 @@ namespace Core
 {
     public class Bootstrapper : MonoBehaviour
     {
-        private async void Awake()
+        private async void Start()
         {
             foreach(ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>())
             {

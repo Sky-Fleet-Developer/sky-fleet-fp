@@ -13,7 +13,7 @@ public class TestLoadTrees : MonoBehaviour
     [Space]
     [SerializeField] private float area;
 
-    [Button]
+    /*[Button]
     private void Generate()
     {
         TreesLayer layer = new TreesLayer(0, 0, path);
@@ -22,5 +22,5 @@ public class TestLoadTrees : MonoBehaviour
             GameObject obj = Instantiate(prefab, transform);
             obj.transform.position = new Vector3(pos.Pos.x * area, 0, pos.Pos.y * area);
         }
-    }
+    }*/
 }

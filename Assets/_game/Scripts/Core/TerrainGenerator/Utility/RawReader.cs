@@ -9,24 +9,24 @@ namespace Core.TerrainGenerator.Utility
 {
     public static class RawReader
     {
-        static public void ReadRaw16(string path, HeightMap map)
+        public static void ReadRaw16(string path, HeightLayer layer)
         {
             using (FileStream file = File.Open(path, FileMode.Open))
             {
                 int i = 0;
                 byte[] buf = new byte[sizeof(ushort)];
-                float[] height = new float[map.SideSize * map.SideSize];
+                float[] height = new float[layer.SideSize * layer.SideSize];
                 while (file.Read(buf, 0, sizeof(ushort)) > 0)
                 {
-                    float value = (float)BitConverter.ToUInt16(buf, 0) / (float)ushort.MaxValue;
+                    float value = (float)BitConverter.ToUInt16(buf, 0) / ushort.MaxValue;
                     height[i] = value;
                     i++;
                 }
-                for(int j = 0; j < map.SideSize; j++)
+                for(int j = 0; j < layer.SideSize; j++)
                 {
-                    for (int k = 0; k < map.SideSize; k++)
+                    for (int k = 0; k < layer.SideSize; k++)
                     {
-                        map.Heights[j,k] = height[j * map.SideSize + k];
+                        layer.heights[j,k] = height[j * layer.SideSize + k];
                     }
                 }
             }

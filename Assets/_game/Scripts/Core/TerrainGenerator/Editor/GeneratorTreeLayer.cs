@@ -69,7 +69,7 @@ namespace Core.TerrainGenerator.Editor
 
         void OnWizardCreate()
         {
-            treesLayer = new TreesLayer(0, 0);
+            treesLayer = new TreesLayer(Vector2Int.zero);
             CreateTexutreRandom();
             Texture2D[] textures = LoadTreesMaps();
             for (int i = 0; i < generateRandomPos.width; i++)

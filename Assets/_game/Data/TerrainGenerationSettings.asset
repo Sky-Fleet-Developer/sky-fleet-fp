@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7671948353902161526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d5211ca1ab587c439e2152d94757411, type: 3}
+  m_Name: Heightmap
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000}
+  formatMap:
+    format: Heightmap_{x}-{y}
+    extension: r16
+--- !u!114 &-1368039965201892930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db8a5efba01ddb64dba1efd64b982676, type: 3}
+  m_Name: Color map
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000}
+  layersCount: 3
+  textureLayers:
+  - {fileID: 8574412962073106934, guid: cdb5f9c65a78ff94b97bbd4e5feb172a, type: 2}
+  - {fileID: 8574412962073106934, guid: f0afbb44bfd0b694ba86268feec35d23, type: 2}
+  - {fileID: 8574412962073106934, guid: ef772106201fe384da7f5f78073c25a3, type: 2}
+  splatmapFormats:
+  - format: Splatmap_1-{x}_{y}
+    extension: png
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fa131243efcf674d96d76c9966c3bee, type: 3}
+  m_Name: TerrainGenerationSettings
+  m_EditorClassIdentifier: 
+  directoryLandscapes: Test
+  material: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
+  propSize: 1000
+  height: 500
+  heightmapResolution: 257
+  visibleDistance: 1500
+  settings:
+  - {fileID: -7671948353902161526}
+  - {fileID: -1368039965201892930}

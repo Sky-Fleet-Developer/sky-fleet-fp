@@ -10,13 +10,31 @@ namespace Core.TerrainGenerator
         public string format = "Name_{x}_{y}";
         public string extension = "png";
 
+        public FileFormatSeeker()
+        {
+            
+        }
+        public FileFormatSeeker(FileFormatSeeker clone)
+        {
+            format = clone.format;
+            extension = clone.extension;
+        }
+
+        public string SearchInFolder(Vector2Int position, string path)
+        {
+            string f = format.Replace("{x}", "{0}").Replace("{y}", "{1}");
+            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + "/";
+            string p = path + string.Format(f, position.x, position.y) + "." + extension;
+            if (File.Exists(p)) return p;
+            return null;
+        }
+        
         public Dictionary<Vector2Int, string> SearchInFolder(string path)
         {
             string f = format.Replace("{x}", "{0}").Replace("{y}", "{1}");
+            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + "/";
             Dictionary<Vector2Int, string> result = new Dictionary<Vector2Int, string>();
 
-            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + "/";
-            
             int x = 0;
             int y = 0;
             //positive x

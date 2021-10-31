@@ -4,34 +4,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Core.TerrainGenerator.Utility;
+using Sirenix.OdinInspector;
 
 namespace Core.TerrainGenerator
 {
-    public struct TreePos
-    {
-        public int Layer;
-        public Vector2 Pos;
-        public int NumTree;
-
-        public TreePos(int layer, int numTree, Vector2 pos)
-        {
-            Layer = layer;
-            NumTree = numTree;
-            Pos = pos;
-        }
-    }
-
+    [ShowInInspector]
     public class TreesLayer : TerrainLayer
     {
         public List<TreePos> Trees;
+        public TerrainData terrainData;
 
-        public TreesLayer(int x, int y, string path) : base(x, y)
+        public TreesLayer(TerrainData data, string path, Vector2Int position) : base(position)
         {
+            terrainData = data;
             Trees = new List<TreePos>();
             TreesLayerFiles.LoadTreeLayer(path, this);
         }
 
-        public TreesLayer(int x, int y) : base(x, y)
+        public TreesLayer( Vector2Int position) : base(position)
         {
             Trees = new List<TreePos>();
         }
@@ -41,7 +31,7 @@ namespace Core.TerrainGenerator
             throw new System.NotImplementedException();
         }
 
-        public override void ApplyToTerrain(Terrain data)
+        public override void ApplyToTerrain()
         {
             List<TreeInstance> instances = new List<TreeInstance>();
             for(int i = 0; i < Trees.Count; i++)
@@ -55,8 +45,21 @@ namespace Core.TerrainGenerator
                 instance.position = new Vector3(Trees[i].Pos.x, 0, Trees[i].Pos.y);
                 instances.Add(instance);
             }
-            data.terrainData.SetTreeInstances(instances.ToArray(), true);
-           
+            terrainData.SetTreeInstances(instances.ToArray(), true);
+        }
+    }
+    
+    public struct TreePos
+    {
+        public int Layer;
+        public Vector2 Pos;
+        public int NumTree;
+
+        public TreePos(int layer, int numTree, Vector2 pos)
+        {
+            Layer = layer;
+            NumTree = numTree;
+            Pos = pos;
         }
     }
 }
