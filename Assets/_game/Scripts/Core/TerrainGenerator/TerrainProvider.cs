@@ -130,88 +130,6 @@ namespace Core.TerrainGenerator
             }
         }
 
-        #region Terrain layers
-
-        /*private void LoadTerrainLayers(DirectoryInfo directoryMap)
-        {
-            foreach (KeyValuePair<Vector2Int, Terrain> terrain in terrains)
-            {
-                terrain.Value.terrainData.terrainLayers = terrainsSplatMapsOption.textureLayers;
-            }
-        }*/
-
-        #endregion
-
-        #region Splat maps
-
-        /*private void LoadSplatMaps(DirectoryInfo directoryMap)
-        {
-            Dictionary<Terrain, List<ColorLayer>> colorsLayers = new Dictionary<Terrain, List<ColorLayer>>();
-            Dictionary<Vector2Int, string> mapPaths = terrainsSplatMapsOption.format.SearchInFolder(directoryMap.FullName);
-
-            foreach (KeyValuePair<Vector2Int, string> map in mapPaths)
-            {
-
-                ColorLayer color = new ColorLayer(terrainOptionRaws.sideSize, map.Key.x, map.Key.y, map.Value);
-                List<ColorLayer> list;
-                if (colorsLayers.TryGetValue(terrains[map.Key], out list))
-                {
-                    list.Add(color);
-                }
-                else
-                {
-                    colorsLayers.Add(terrains[map.Key], new List<ColorLayer>(1) {color});
-                }
-            }
-
-            SetSplatMap(colorsLayers);
-        }*/
-
-        /*private void SetSplatMap(Dictionary<Terrain, List<ColorLayer>> colorsLayers)
-        {
-            Dictionary<Terrain, List<ColorLayer>>.KeyCollection keys = colorsLayers.Keys;
-            foreach (Terrain terrain in keys)
-            {
-                List<ColorLayer> list = null;
-                colorsLayers.TryGetValue(terrain, out list);
-                int size = list[0].textures.width;
-                terrain.terrainData.alphamapResolution = size;
-                int countLayer = terrain.terrainData.terrainLayers.Length;
-                float[,,] sets = new float[size, size, countLayer];
-
-                for (int i = 0; i < size; i++)
-                {
-                    for (int i2 = 0; i2 < size; i2++)
-                    {
-                        for (int i3 = 0; i3 < countLayer; i3++)
-                        {
-                            if (i3 % 3 == 0)
-                            {
-                                sets[i, i2, i3] = list[i3 / 3].textures.GetPixel(i, i2).r;
-                            }
-                            else if (i3 % 3 == 1)
-                            {
-                                sets[i, i2, i3] = list[i3 / 3].textures.GetPixel(i, i2).g;
-                            }
-                            else
-                            {
-                                sets[i, i2, i3] = list[i3 / 3].textures.GetPixel(i, i2).b;
-                            }
-                        }
-                    }
-                }
-
-                terrain.terrainData.SetAlphamaps(0, 0, sets);
-            }
-        }*/
-
-        private FileInfo[] GetSlaptMapPath(DirectoryInfo directoryMap, string name, Vector2Int pos)
-        {
-            return directoryMap.GetFiles(name + "_*-" + pos.x + "_" + pos.y + ".*");
-        }
-
-        #endregion
-
         #region Trees layers
 
         /*private void LoadTreesLayer(DirectoryInfo directoryMap)
@@ -232,43 +150,6 @@ namespace Core.TerrainGenerator
         }*/
 
         #endregion
-
-        #region Raws load to terrains;
-
-        /*private void LoadTerrains(DirectoryInfo directoryMap)
-        {
-            Dictionary<Vector2Int, string> paths = terrainOptionRaws.formatMap.SearchInFolder(directoryMap.FullName);
-            List<HeightLayer> maps = new List<HeightLayer>();
-
-            foreach (KeyValuePair<Vector2Int, string> path in paths)
-            {
-                maps.Add(new HeightLayer(terrainOptionRaws.sizeRaw, path.Key.x, path.Key.y, path.Value));
-            }
-
-            for (int i = 0; i < maps.Count; i++)
-            {
-                maps[i].ApplyToTerrain(CreateTerrain(maps[i].Pos, maps[i].Pos.x * terrainOptionRaws.sideSize, maps[i].Pos.y * terrainOptionRaws.sideSize, maps[i].SideSize, terrainOptionRaws.sideSize, terrainOptionRaws.height));
-            }     
-
-            foreach (KeyValuePair<Vector2Int, Terrain> terrain in terrains)
-            {
-                Terrain left;
-                Terrain right;
-                Terrain top;
-                Terrain buttom;
-                terrains.TryGetValue(new Vector2Int(terrain.Key.x - 1, terrain.Key.y), out left);
-                terrains.TryGetValue(new Vector2Int(terrain.Key.x + 1, terrain.Key.y), out right);
-                terrains.TryGetValue(new Vector2Int(terrain.Key.x, terrain.Key.y - 1), out top);
-                terrains.TryGetValue(new Vector2Int(terrain.Key.x, terrain.Key.y + 1), out buttom);
-
-                terrain.Value.SetNeighbors(left, top, right, buttom);
-            }
-        }*/
-
-        private FileInfo[] GetPathToRaws(DirectoryInfo directoryMap)
-        {
-            return directoryMap.GetFiles("*.r16").ToArray();
-        }
 
 
         private Terrain CreateTerrain(Vector2Int prop)
@@ -299,8 +180,6 @@ namespace Core.TerrainGenerator
 
             return ter;
         }
-
-        #endregion
 
         public void RegisterDeformer(IDeformer deformer)
         {
