@@ -45,9 +45,17 @@ namespace Core.TerrainGenerator
             public string nameNormal;
         }
 
+        [System.Serializable]
+        public class TerrainsTreesLayersOption
+        {
+            public string pathToFile;
+            public GameObject[] trees;
+        }
+
         [SerializeField] private TerrainsRawsOption terrainOptionRaws = new TerrainsRawsOption();
         [SerializeField] private TerrainsSplatMapsOption terrainsSplatMapsOption = new TerrainsSplatMapsOption();
         [SerializeField] private TerrainsLayersMapsOption terrainsLayersMapsOption = new TerrainsLayersMapsOption();
+        [SerializeField] private TerrainsTreesLayersOption terrainsTreesLayersOption = new TerrainsTreesLayersOption();
 
         Dictionary<Vector2Int, Terrain> terrains;
         List<TerrainData> terrainsDates;
@@ -67,6 +75,7 @@ namespace Core.TerrainGenerator
             LoadTerrains(directoryMap);
             LoadTerrainLayers(directoryMap);
             LoadSplatMaps(directoryMap);
+            LoadTreesLayer(directoryMap);
 
             return Task.CompletedTask;
         }
@@ -197,6 +206,25 @@ namespace Core.TerrainGenerator
             return directoryMap.GetFiles(name + "_*-" + pos.x + "_" + pos.y + ".*");
         }
         #endregion
+        #region Trees layers
+        private void LoadTreesLayer(DirectoryInfo directoryMap)
+        {
+            TreesLayer layer = new TreesLayer(0, 0, terrainsTreesLayersOption.pathToFile);
+            Terrain terrain;
+            terrains.TryGetValue(new Vector2Int(0, 0) , out terrain);
+
+            List<TreePrototype> prototypes = new List<TreePrototype>();
+            for(int i = 0; i < terrainsTreesLayersOption.trees.Length; i++)
+            {
+                TreePrototype prototype = new TreePrototype();
+                prototype.prefab = terrainsTreesLayersOption.trees[i];
+                prototypes.Add(prototype);
+            }
+            terrain.terrainData.treePrototypes = prototypes.ToArray();
+            layer.ApplyToTerrain(terrain);
+        }
+        #endregion
+
         #region Raws load to terrains;
         private void LoadTerrains(DirectoryInfo directoryMap)
         {
@@ -211,8 +239,7 @@ namespace Core.TerrainGenerator
             for (int i = 0; i < maps.Count; i++)
             {
                 maps[i].ApplyToTerrain(CreateTerrain(maps[i].Pos, maps[i].Pos.x * terrainOptionRaws.sideSize, maps[i].Pos.y * terrainOptionRaws.sideSize, maps[i].SideSize, terrainOptionRaws.sideSize, terrainOptionRaws.height));
-            }
-
+            }     
 
             foreach (KeyValuePair<Vector2Int, Terrain> terrain in terrains)
             {

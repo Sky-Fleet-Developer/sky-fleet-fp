@@ -123,6 +123,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &743249844
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 743249846}
+  - component: {fileID: 743249845}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &743249845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 743249844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5af8d42ee2515654aa576102bd06eadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  path: D:\Projects\Unity\sky-fleet-fp\Landscapes\Test\Trees.trs
+  prefab: {fileID: 0}
+  area: 100
+--- !u!4 &743249846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 743249844}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 72.545334, y: 316.3943, z: 560.9095}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &973769408
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,7 +406,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 808.4683, y: 301.78885, z: -899.4959}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 2112900434}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -605,11 +652,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2112900433}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 808.4683, y: 301.78885, z: -899.4959}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_Father: {fileID: 1232935055}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2112900435
 MonoBehaviour:
@@ -637,3 +684,64 @@ MonoBehaviour:
   terrainsLayersMapsOption:
     nameBaseColor: BaseColor
     nameNormal: Normal
+  terrainsTreesLayersOption:
+    pathToFile: D:\Projects\Unity\sky-fleet-fp\Landscapes\Test\Trees.trs
+    trees:
+    - {fileID: 6307873901052613052, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+--- !u!1001 &568392836815615627
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 72.545334
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 327.4025
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 560.9095
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5889598537759640033, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6307873901052613052, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+      propertyPath: m_Name
+      value: Cube
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}

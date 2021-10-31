@@ -20,6 +20,8 @@ namespace Core.TerrainGenerator.Editor
 
         [Range(0, 1)]
         public float minValueFilter;
+        [Range(0.0f, 0.5f)]
+        public float minDist;
 
         private Texture2D generateRandomPos;
         private Texture2D loadMapTrees;
@@ -88,19 +90,19 @@ namespace Core.TerrainGenerator.Editor
                             if (!lockR && colors[i4].a * colors[i4].r * currectPixelR.r > minValueFilter)
                             {
                                 lockR = true;
-                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos(colors.Length, i4) / sizeRandomMap);
+                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
                                 treesLayer.Trees.Add(new TreePos(i4 * 3, 0, pos));
                             }
                             if (!lockG && colors[i4].a * colors[i4].g * currectPixelR.r > minValueFilter)
                             {
                                 lockG = true;
-                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos(colors.Length, i4) / sizeRandomMap);
+                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
                                 treesLayer.Trees.Add(new TreePos(i4 * 3 + 1, 0, pos));
                             }
                             if (!lockB && colors[i4].a * colors[i4].b * currectPixelR.r > minValueFilter)
                             {
                                 lockB = true;
-                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos(colors.Length, i4) / sizeRandomMap);
+                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
                                 treesLayer.Trees.Add(new TreePos(i4 * 3 + 2, 0, pos));
                             }
                         }
@@ -112,11 +114,9 @@ namespace Core.TerrainGenerator.Editor
             SaveChanges();
         }
 
-        private Vector2 GetAdditionalPos(int sizeRect, int index)
+        private Vector2 GetAdditionalPos()
         {
-            int i = index / sizeRect;
-            int i2 = index % sizeRect;
-            return new Vector2((float)i / (float)sizeRect, (float)i2 / (float)sizeRect);
+            return new Vector2(UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist), UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist));
         }
 
         private void CreateTexutreRandom()

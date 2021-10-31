@@ -28,6 +28,7 @@ namespace Core.TerrainGenerator
         public TreesLayer(int x, int y, string path) : base(x, y)
         {
             Trees = new List<TreePos>();
+            TreesLayerFiles.LoadTreeLayer(path, this);
         }
 
         public TreesLayer(int x, int y) : base(x, y)
@@ -42,7 +43,20 @@ namespace Core.TerrainGenerator
 
         public override void ApplyToTerrain(Terrain data)
         {
-            throw new System.NotImplementedException();
+            List<TreeInstance> instances = new List<TreeInstance>();
+            for(int i = 0; i < Trees.Count; i++)
+            {
+                TreeInstance instance = new TreeInstance();
+                instance.widthScale = 1;
+                instance.heightScale = 1;
+                instance.prototypeIndex = 0;
+                instance.rotation = 0;
+                instance.color = Color.white;
+                instance.position = new Vector3(Trees[i].Pos.x, 0, Trees[i].Pos.y);
+                instances.Add(instance);
+            }
+            data.terrainData.SetTreeInstances(instances.ToArray(), true);
+           
         }
     }
 }
