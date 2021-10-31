@@ -23,7 +23,7 @@ namespace Core.TerrainGenerator
             public int sizeRaw;
 
             [Space]
-            public string formatMap;
+            public FileFormatSeeker formatMap;
 
             [Space]
             public Material materialTerrain;
@@ -200,20 +200,14 @@ namespace Core.TerrainGenerator
         #region Raws load to terrains;
         private void LoadTerrains(DirectoryInfo directoryMap)
         {
-            FileInfo[] paths = GetPathToRaws(directoryMap);
+            Dictionary<Vector2Int, string> paths = terrainOptionRaws.formatMap.SearchInFolder(directoryMap.FullName);
             List<HeightMap> maps = new List<HeightMap>();
-            for (int i = 0; i < paths.Length; i++)
+
+            foreach (KeyValuePair<Vector2Int, string> path in paths)
             {
-                for (int i2 = 0; i2 < paths.Length; i2++)
-                {
-                    string str = string.Format(terrainOptionRaws.formatMap, i, i2);
-                    FileInfo find = paths.Where(x => { return x.Name == str; }).FirstOrDefault();
-                    if (find != null)
-                    {
-                        maps.Add(new HeightMap(terrainOptionRaws.sizeRaw, i, i2, find.FullName));
-                    }
-                }
+                maps.Add(new HeightMap(terrainOptionRaws.sizeRaw, path.Key.x, path.Key.y, path.Value));
             }
+
             for (int i = 0; i < maps.Count; i++)
             {
                 maps[i].ApplyToTerrain(CreateTerrain(maps[i].Pos, maps[i].Pos.x * terrainOptionRaws.sideSize, maps[i].Pos.y * terrainOptionRaws.sideSize, maps[i].SideSize, terrainOptionRaws.sideSize, terrainOptionRaws.height));
