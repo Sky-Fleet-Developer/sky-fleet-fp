@@ -26,7 +26,7 @@ namespace Core.TerrainGenerator.Utility
                 {
                     for (int k = 0; k < layer.SideSize; k++)
                     {
-                        layer.heights[j,k] = height[j * layer.SideSize + k];
+                        layer.heights[layer.SideSize - 1 - j, k] = height[j * layer.SideSize + k];
                     }
                 }
             }

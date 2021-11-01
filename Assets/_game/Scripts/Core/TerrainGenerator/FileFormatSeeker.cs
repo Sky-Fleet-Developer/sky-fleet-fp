@@ -23,7 +23,7 @@ namespace Core.TerrainGenerator
         public string SearchInFolder(Vector2Int position, string path)
         {
             string f = format.Replace("{x}", "{0}").Replace("{y}", "{1}");
-            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + "/";
+            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + '\\';
             string p = path + string.Format(f, position.x, position.y) + "." + extension;
             if (File.Exists(p)) return p;
             return null;
@@ -32,7 +32,7 @@ namespace Core.TerrainGenerator
         public Dictionary<Vector2Int, string> SearchInFolder(string path)
         {
             string f = format.Replace("{x}", "{0}").Replace("{y}", "{1}");
-            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + "/";
+            if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + '\\';
             Dictionary<Vector2Int, string> result = new Dictionary<Vector2Int, string>();
 
             int x = 0;

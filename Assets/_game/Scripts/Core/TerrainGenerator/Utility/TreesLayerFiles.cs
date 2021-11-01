@@ -21,6 +21,7 @@ namespace Core.TerrainGenerator.Utility
                 {
                     extension.WriteInt(layer.Trees[i].Layer, file);
                     extension.WriteInt(layer.Trees[i].NumTree, file);
+                    extension.WriteByte((byte)(layer.Trees[i].Rotate * byte.MaxValue), file);
                     extension.WriteFloat(layer.Trees[i].Pos.x, file);
                     extension.WriteFloat(layer.Trees[i].Pos.y, file);
                 }
@@ -38,8 +39,8 @@ namespace Core.TerrainGenerator.Utility
                     TreePos pos = new TreePos();
                     pos.Layer = extension.ReadInt(file);
                     pos.NumTree = extension.ReadInt(file);
+                    pos.Rotate = (extension.ReadByte(file) / (float)byte.MaxValue);
                     pos.Pos = new Vector2(extension.ReadFloat(file), extension.ReadFloat(file));
-
                     layer.Trees.Add(pos);
                 }
             }

@@ -34,7 +34,7 @@ namespace Core.TerrainGenerator.Editor
             {
                 ParamsBakingModels.Params[i].SetValue(this, ParamsBakingModels.ValueParams[i]);
             }
-            this.hasUnsavedChanges = true;
+            
         }
 
         [MenuItem("Factory/Tree layer generator")]
@@ -91,19 +91,19 @@ namespace Core.TerrainGenerator.Editor
                             {
                                 lockR = true;
                                 Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
-                                treesLayer.Trees.Add(new TreePos(i4 * 3, 0, pos));
+                                treesLayer.Trees.Add(new TreePos(i4 * 3, 0, GetRotate(), pos));
                             }
                             if (!lockG && colors[i4].a * colors[i4].g * currectPixelR.r > minValueFilter)
                             {
                                 lockG = true;
                                 Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
-                                treesLayer.Trees.Add(new TreePos(i4 * 3 + 1, 0, pos));
+                                treesLayer.Trees.Add(new TreePos(i4 * 3 + 1, 0, GetRotate(), pos));
                             }
                             if (!lockB && colors[i4].a * colors[i4].b * currectPixelR.r > minValueFilter)
                             {
                                 lockB = true;
                                 Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
-                                treesLayer.Trees.Add(new TreePos(i4 * 3 + 2, 0, pos));
+                                treesLayer.Trees.Add(new TreePos(i4 * 3 + 2, 0, GetRotate(), pos));
                             }
                         }
                     }
@@ -117,6 +117,11 @@ namespace Core.TerrainGenerator.Editor
         private Vector2 GetAdditionalPos()
         {
             return new Vector2(UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist), UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist));
+        }
+
+        private float GetRotate()
+        {
+            return UnityEngine.Random.Range(0.0f, 1.0f);
         }
 
         private void CreateTexutreRandom()

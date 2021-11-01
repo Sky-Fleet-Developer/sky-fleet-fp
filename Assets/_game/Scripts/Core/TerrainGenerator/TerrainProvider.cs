@@ -22,15 +22,10 @@ namespace Core.TerrainGenerator
 
         public TerrainGenerationSettings settings;
 
-        [System.Serializable]
-        public class TerrainsTreesLayersOption
-        {
-            public string pathToFile;
-            public GameObject[] trees;
-        }
-
         [ShowInInspector]
         private Dictionary<Vector2Int, List<TerrainLayer>> layers = new Dictionary<Vector2Int, List<TerrainLayer>>();
+
+
 
         private Dictionary<Vector2Int, Terrain> terrains = new Dictionary<Vector2Int, Terrain>();
         private List<TerrainData> terrainsDates = new List<TerrainData>();
@@ -68,7 +63,8 @@ namespace Core.TerrainGenerator
 
             foreach (Vector2Int prop in props)
             {
-                if (!terrains.TryGetValue(prop, out Terrain terrain) || terrain == null) CreateTerrain(prop);
+                if (!terrains.TryGetValue(prop, out Terrain terrain) || terrain == null)
+                    terrain = CreateTerrain(prop);
 
                 if (!layers.ContainsKey(prop))
                 {
@@ -77,7 +73,8 @@ namespace Core.TerrainGenerator
 
                 foreach (LayerSettings layerSettings in settings.settings)
                 {
-                    layers[prop].Add(layerSettings.MakeTerrainLayer(prop, settings.directory.FullName));
+                    TerrainLayer layer = layerSettings.MakeTerrainLayer(prop, settings.directory.FullName);
+                    if (layer != null) layers[prop].Add(layer);
                 }
             }
 
@@ -130,33 +127,12 @@ namespace Core.TerrainGenerator
             }
         }
 
-        #region Trees layers
-
-        /*private void LoadTreesLayer(DirectoryInfo directoryMap)
-        {
-            TreesLayer layer = new TreesLayer(0, 0, terrainsTreesLayersOption.pathToFile);
-            Terrain terrain;
-            terrains.TryGetValue(new Vector2Int(0, 0) , out terrain);
-
-            List<TreePrototype> prototypes = new List<TreePrototype>();
-            for(int i = 0; i < terrainsTreesLayersOption.trees.Length; i++)
-            {
-                TreePrototype prototype = new TreePrototype();
-                prototype.prefab = terrainsTreesLayersOption.trees[i];
-                prototypes.Add(prototype);
-            }
-            terrain.terrainData.treePrototypes = prototypes.ToArray();
-            layer.ApplyToTerrain(terrain);
-        }*/
-
-        #endregion
-
 
         private Terrain CreateTerrain(Vector2Int prop)
         {
             GameObject obj = new GameObject($"Terrain ({prop.x}, {prop.y})");
 
-            obj.transform.position = new Vector3(prop.x * settings.propSize, 0, -prop.y * settings.propSize);
+            obj.transform.position = new Vector3(prop.x * settings.propSize, 0, prop.y * settings.propSize);
 
             Terrain ter = obj.AddComponent<Terrain>();
             TerrainData data = new TerrainData();

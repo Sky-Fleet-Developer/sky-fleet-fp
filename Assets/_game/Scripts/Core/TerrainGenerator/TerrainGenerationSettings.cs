@@ -46,6 +46,12 @@ namespace Core.TerrainGenerator
             MakeNewLayer<ColorLayerSettings>("Color map");
         }
 
+        [Button]
+        private void MakeTreesLayer()
+        {
+            MakeNewLayer<TreesLayerSetting>("Trees map");
+        }
+
         private void MakeNewLayer<T>(string n) where T : LayerSettings
         {
             if (settings.FirstOrDefault(x => x.GetType() == typeof(T))) return;
