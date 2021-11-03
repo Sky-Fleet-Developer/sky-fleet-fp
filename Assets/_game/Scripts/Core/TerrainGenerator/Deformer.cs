@@ -1,7 +1,9 @@
+using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using Core.TerrainGenerator.Settings;
+using Core.Utilities;
 using UnityEditor;
 using UnityEngine;
 using Newtonsoft.Json;
@@ -21,28 +23,24 @@ namespace Core.TerrainGenerator
                 }
                 return settings;
             }
-            set
-            {
-                settings = value;
-            }
+            set => settings = value;
         }
 
-        public Rect AxisAlinedRect
-        {
-            get
-            {
-                return axisAlinedRect;
-            }
-        }
-        public Rect LocalAlinedRect { get { return localAlined; } }
+        public Rect AxisAlignedRect => axisAlignedRect;
+
+        public Vector4 LocalRect => localRect;
+        public float Fade => fade;
+
 
         [SerializeField]
-        private Rect localAlined;
-
+        private Vector4 localRect;
+        
+        [SerializeField, Range(0f, 1f)]
+        private float fade = 0.2f;
 
         private List<IDeformerLayerSetting> settings;
 
-        private Rect axisAlinedRect;
+        [ShowInInspector] private Rect axisAlignedRect;
 
         [SerializeField, HideInInspector]
         private string[] typesInfo;
@@ -59,57 +57,64 @@ namespace Core.TerrainGenerator
         public void AddDeformerSettings(System.Type deformer)
         {
             IDeformerLayerSetting layer = System.Activator.CreateInstance(deformer) as IDeformerLayerSetting;
-            settings.Add(layer);
+            Settings.Add(layer);
         }
 
         [Button]
         public void SaveToJson()
         {
-             
-            if (settings != null)
+            if (settings == null) return;
+            
+            typesInfo = new string[settings.Count];
+            jsonConfig = new string[settings.Count];
+            for (int i = 0; i < settings.Count; i++)
             {
-                typesInfo = new string[settings.Count];
-                jsonConfig = new string[settings.Count];
-                for (int i = 0; i < settings.Count; i++)
-                {
-                    typesInfo[i] = settings[i].GetType().FullName;
-                    jsonConfig[i] = JsonConvert.SerializeObject(settings[i]);
-                }
-                
+                typesInfo[i] = settings[i].GetType().FullName;
+                jsonConfig[i] = JsonConvert.SerializeObject(settings[i]);
             }
         }
 
         [Button]
         public void ReadFromJson()
         {
-            if(jsonConfig == null)
-            {
-                settings = new List<IDeformerLayerSetting>();
-                return;
-            }
+            settings = new List<IDeformerLayerSetting>();
+            if(jsonConfig == null || jsonConfig.Length == 0) return;
+            
             for(int i = 0; i < jsonConfig.Length; i++)
             {
-                //System.Type type = 
+                System.Type type = TypeExtensions.GetTypeByName(typesInfo[i]);
+                IDeformerLayerSetting newDeformer = JsonConvert.DeserializeObject(jsonConfig[i], type) as IDeformerLayerSetting;
+                newDeformer.Init(this);
+                settings.Add(newDeformer);
             }
         }
 
 
         private void CalculateAxisAlinedRect()
         {
-            Vector3 leftDown = transform.rotation * new Vector3(localAlined.position.x, 0, localAlined.position.y) + transform.position;
-            Vector3 leftUp = transform.rotation * new Vector3(localAlined.position.x, 0, localAlined.position.y + localAlined.size.y) + transform.position;
-            Vector3 rightDown = transform.rotation * new Vector3(localAlined.position.x + localAlined.size.x, 0, localAlined.position.y) + transform.position;
-            Vector3 rightUp = transform.rotation * new Vector3(localAlined.position.x + localAlined.size.x, 0, localAlined.position.y + localAlined.size.y) + transform.position;
-            axisAlinedRect = new Rect(Mathf.Min(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Min(leftDown.y, leftUp.y, rightDown.y, rightUp.y),
-                Mathf.Max(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Max(leftDown.y, leftUp.y, rightDown.y, rightUp.y));
+            var rotation = transform.rotation;
+            var position = transform.position;
+            Vector3 leftDown = rotation * new Vector3(localRect.x - localRect.z * 0.5f, 0, localRect.y - localRect.w * 0.5f) + position;
+            Vector3 leftUp = rotation * new Vector3(localRect.x - localRect.z * 0.5f, 0, localRect.y + localRect.w * 0.5f) + position;
+            Vector3 rightDown = rotation * new Vector3(localRect.x + localRect.z * 0.5f, 0, localRect.y - localRect.w * 0.5f) + position;
+            Vector3 rightUp = rotation * new Vector3(localRect.x + localRect.z * 0.5f, 0, localRect.y + localRect.w * 0.5f) + position;
+            Vector2 min = new Vector2(Mathf.Min(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Min(leftDown.z, leftUp.z, rightDown.z, rightUp.z));
+            Vector2 max = new Vector2(Mathf.Max(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Max(leftDown.z, leftUp.z, rightDown.z, rightUp.z));
+            axisAlignedRect.min = min;
+            axisAlignedRect.max = max;
         }
-
 
         private void OnDrawGizmosSelected()
         {
+            CalculateAxisAlinedRect();
+
+            Gizmos.DrawWireCube(new Vector3(axisAlignedRect.position.x + axisAlignedRect.width * 0.5f, transform.position.y, axisAlignedRect.position.y + axisAlignedRect.height * 0.5f), new Vector3(axisAlignedRect.width, 0, axisAlignedRect.height));
+
             Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.color = Color.white * 0.8f;
+            Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w));
             Gizmos.color = Color.white;
-            Gizmos.DrawWireCube(Vector3.zero, new Vector3(localAlined.width, 0, localAlined.height));
+            Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w) * (1 - fade));
         }
     }
 }

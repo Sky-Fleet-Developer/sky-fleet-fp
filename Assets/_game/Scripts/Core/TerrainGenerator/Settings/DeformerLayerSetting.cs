@@ -8,8 +8,8 @@ namespace Core.TerrainGenerator.Settings
 
         void Init(Deformer core);
 
-        void ReadFromTerrain(Terrain[] terrain);
+        void ReadFromTerrain();
 
-        void WriteToTerrain(Terrain[] terrain);
+        void WriteToTerrain(Terrain[] terrains);
     }
 }

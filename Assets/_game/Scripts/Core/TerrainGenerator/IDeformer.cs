@@ -9,8 +9,9 @@ namespace Core.TerrainGenerator
     {
         List<IDeformerLayerSetting> Settings { get; }
 
-        Rect AxisAlinedRect { get; }
+        Rect AxisAlignedRect { get; }
 
-        Rect LocalAlinedRect { get; }
+        Vector4 LocalRect { get; }
+        float Fade { get; }
     }
 }
