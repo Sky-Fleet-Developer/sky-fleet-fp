@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.Settings
@@ -14,6 +15,7 @@ namespace Core.TerrainGenerator.Settings
             Core = core;
         }
         
+        [Button]
         public void ReadFromTerrain(Terrain[] terrain)
         {
             TerrainCollider[] colliders = new TerrainCollider[terrain.Length];

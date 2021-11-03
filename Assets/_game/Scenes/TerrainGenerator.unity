@@ -516,13 +516,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a45bc5800746a4b4198e06edd389a75d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: []
   localAlined:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 10
-    height: 10
+    width: 0
+    height: 0
+  typesInfo: []
+  jsonConfig: []
 --- !u!4 &1123148534
 Transform:
   m_ObjectHideFlags: 0
