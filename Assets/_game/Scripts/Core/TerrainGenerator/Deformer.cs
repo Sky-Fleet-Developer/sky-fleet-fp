@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.TerrainGenerator.Settings;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +9,7 @@ namespace Core.TerrainGenerator
 {
     public class Deformer : MonoBehaviour, IDeformer
     {
-        public List<DeformerLayerSetting> Settings { get { return settings; } }
+        public List<IDeformerLayerSetting> Settings { get { return settings; } }
 
         public Rect AxisAlinedRect
         {
@@ -23,8 +23,8 @@ namespace Core.TerrainGenerator
         [SerializeField]
         private Rect localAlined;
 
-        [SerializeField]
-        private List<DeformerLayerSetting> settings;
+        [SerializeField, ShowInInspector]
+        private List<IDeformerLayerSetting> settings = new List<IDeformerLayerSetting>();
 
         private Rect axisAlinedRect;
 
@@ -34,11 +34,10 @@ namespace Core.TerrainGenerator
         }
 
         [Button]
-        public void AddDeformerSettings(Type deformer)
+        public void AddDeformerSettings(System.Type deformer)
         {
-            DeformerLayerSetting layer = (DeformerLayerSetting)ScriptableObject.CreateInstance(deformer);
+            IDeformerLayerSetting layer = System.Activator.CreateInstance(deformer) as IDeformerLayerSetting; //(DeformerLayerSetting)ScriptableObject.CreateInstance(deformer);
             settings.Add(layer);
-            AssetDatabase.CreateAsset(layer, Application.dataPath);
         }
 
         private void CalculateAxisAlinedRect()

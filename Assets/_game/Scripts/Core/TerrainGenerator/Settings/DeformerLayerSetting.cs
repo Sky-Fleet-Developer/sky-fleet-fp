@@ -1,29 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.TerrainGenerator
+namespace Core.TerrainGenerator.Settings
 {
-    [System.Serializable]
-    public class DeformerLayerSetting : ScriptableObject
+    public interface IDeformerLayerSetting
     {
-        protected Deformer core;
+        Deformer Core { get; set; }
 
-        public void Init(Deformer core)
-        {
-            this.core = core;
-        }
+        void Init(Deformer core);
 
-        public virtual void ReadFromTerrain(Terrain[] terrain)
-        {
+        void ReadFromTerrain(Terrain[] terrain);
 
-        }
-
-        public virtual void WriteToTerrain(Terrain[] terrain)
-        {
-
-        }
-
-
+        void WriteToTerrain(Terrain[] terrain);
     }
 }
