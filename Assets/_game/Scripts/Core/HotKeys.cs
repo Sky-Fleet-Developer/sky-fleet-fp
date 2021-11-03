@@ -17,6 +17,8 @@ namespace Core
 
         public InputButtons setPaseBut;
 
+        public static bool IsBlocks { get; set; }
+
         public Task Load()
         {
             fastSaveBut = InputControl.Instance.GetInput<InputButtons>("General", "Fast save");
@@ -26,7 +28,7 @@ namespace Core
 
         void Update()
         {
-            if (!InputControl.Instance.IsTakeInput)
+            if (!IsBlocks)
             {
                 if (InputControl.Instance.GetButtonDown(fastSaveBut) > 0)
                 {

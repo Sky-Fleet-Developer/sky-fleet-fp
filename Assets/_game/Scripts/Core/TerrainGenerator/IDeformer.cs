@@ -6,6 +6,10 @@ namespace Core.TerrainGenerator
 {
     public interface IDeformer
     {
+        List<DeformerLayerSetting> Settings { get; }
 
+        Rect AxisAlinedRect { get; }
+
+        Rect LocalAlinedRect { get; }
     }
 }

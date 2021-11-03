@@ -1,3 +1,4 @@
+using Core;
 using Core.Boot_strapper;
 using Core.GameSetting;
 using Core.Utilities;
@@ -12,6 +13,7 @@ namespace Runtime.Explorer
 {
     public class TakeInputUI : Singleton<TakeInputUI>, ILoadAtStart
     {
+
         [SerializeField] private GameObject basic;
 
         [Header("Dialog take buttons")]
@@ -41,6 +43,7 @@ namespace Runtime.Explorer
             if (IsBusy)
                 throw new MethodAccessException();
             IsBusy = true;
+            HotKeys.IsBlocks = true;
             basic.SetActive(true);
             takeButtons.SetActive(true);
             InputControl.Instance.TakeInputButton(x =>
@@ -54,6 +57,7 @@ namespace Runtime.Explorer
             if (IsBusy)
                 throw new MethodAccessException();
             IsBusy = true;
+            HotKeys.IsBlocks = true;
             basic.SetActive(true);
             takeAxles.SetActive(true);
             InputControl.Instance.TakeInputAxis(x =>
@@ -70,17 +74,20 @@ namespace Runtime.Explorer
                 delegate
                 {
                     IsBusy = false;
+                    HotKeys.IsBlocks = false;
                     GetInputButtons(endTakeButtons);
                 },
                 delegate
                 {
                     IsBusy = false;
+                    HotKeys.IsBlocks = false;
                     endTakeButtons?.Invoke(ButtonCodes.Zero());
                     basic.SetActive(false);
                 },
                 delegate
                 {
                     IsBusy = false;
+                    HotKeys.IsBlocks = false;
                     endTakeButtons?.Invoke(buttons);
                     basic.SetActive(false);
                 }
@@ -95,17 +102,20 @@ namespace Runtime.Explorer
                 delegate
                 {
                     IsBusy = false;
+                    HotKeys.IsBlocks = false;
                     GetInputAxis(endTakeAxis);
                 },
                 delegate
                 {
                     IsBusy = false;
+                    HotKeys.IsBlocks = false;
                     endTakeAxis?.Invoke(AxisCode.Zero());
                     basic.SetActive(false);
                 },
                 delegate
                 {
                     IsBusy = false;
+                    HotKeys.IsBlocks = false;
                     endTakeAxis?.Invoke(axis);
                     basic.SetActive(false);
                 }
