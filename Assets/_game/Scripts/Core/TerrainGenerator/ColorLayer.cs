@@ -19,7 +19,7 @@ namespace Core.TerrainGenerator
 
         [ShowInInspector, ReadOnly] private TerrainData terrainData;
         private int layersCount;
-        public ColorLayer(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int position) : base(position)
+        public ColorLayer(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
         {
             this.layersCount = layersCount;
             this.terrainData = terrainData;
@@ -79,12 +79,12 @@ namespace Core.TerrainGenerator
             }
         }
 
-        public override void ApplyDeformer(IDeformer deformer)
+        protected override void ApplyDeformer(IDeformer deformer)
         {
             
         }
 
-        public override void ApplyToTerrain()
+        protected override void ApplyToTerrain()
         {
             if (loadedCount == 0) return;
             

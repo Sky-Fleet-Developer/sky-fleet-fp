@@ -26,7 +26,7 @@ namespace Core.TerrainGenerator.Editor
         private Texture2D generateRandomPos;
         private Texture2D loadMapTrees;
 
-        private TreesLayer treesLayer;
+        private List<TreePos> trees = new List<TreePos>();
 
         public GeneratorTreeLayer()
         {
@@ -69,7 +69,7 @@ namespace Core.TerrainGenerator.Editor
 
         void OnWizardCreate()
         {
-            treesLayer = new TreesLayer(Vector2Int.zero);
+            trees = new List<TreePos>();
             CreateTexutreRandom();
             Texture2D[] textures = LoadTreesMaps();
             for (int i = 0; i < generateRandomPos.width; i++)
@@ -91,26 +91,26 @@ namespace Core.TerrainGenerator.Editor
                             {
                                 lockR = true;
                                 Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
-                                treesLayer.Trees.Add(new TreePos(i4 * 3, 0, GetRotate(), pos));
+                                trees.Add(new TreePos(i4 * 3, 0, GetRotate(), pos));
                             }
                             if (!lockG && colors[i4].a * colors[i4].g * currectPixelR.r > minValueFilter)
                             {
                                 lockG = true;
                                 Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
-                                treesLayer.Trees.Add(new TreePos(i4 * 3 + 1, 0, GetRotate(), pos));
+                                trees.Add(new TreePos(i4 * 3 + 1, 0, GetRotate(), pos));
                             }
                             if (!lockB && colors[i4].a * colors[i4].b * currectPixelR.r > minValueFilter)
                             {
                                 lockB = true;
                                 Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
-                                treesLayer.Trees.Add(new TreePos(i4 * 3 + 2, 0, GetRotate(), pos));
+                                trees.Add(new TreePos(i4 * 3 + 2, 0, GetRotate(), pos));
                             }
                         }
                     }
                 }
             }
-            Debug.Log(treesLayer.Trees.Count);
-            TreesLayerFiles.SaveTreeLayer(pathToSave, treesLayer);
+            Debug.Log(trees.Count);
+            TreesLayerFiles.SaveTreeLayer(pathToSave, trees);
             SaveChanges();
         }
 

@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Core.TerrainGenerator.Settings;
 using UnityEngine;
 
 using Core.TerrainGenerator.Utility;
@@ -11,11 +13,13 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public class HeightLayer : TerrainLayer
     {
-        [System.NonSerialized] public float[,] heights;
-        public TerrainData terrainData;
-        public int SideSize { get; private set; }
+        private float[,] baseHeights;
+        private float[,] deformatedHeights;
+        private TerrainData terrainData;
+        private List<HeightMapDeformerSettings> deformers = new List<HeightMapDeformerSettings>();
+        public int SideSize { get; }
 
-        public HeightLayer(TerrainData terrainData, int sizeSide, Vector2Int position, string path) : base(position)
+        public HeightLayer(TerrainData terrainData, int sizeSide, Vector2Int chunk, string path) : base(chunk, terrainData.size.x)
         {
             if (path == null)
             {
@@ -25,20 +29,49 @@ namespace Core.TerrainGenerator
 
             this.terrainData = terrainData;
             SideSize = sizeSide;
-            heights = new float[sizeSide, sizeSide];
-            RawReader.ReadRaw16(path, this);
+            baseHeights = new float[sizeSide, sizeSide];
+            RawReader.ReadRaw16(path, baseHeights);
             IsReady = true;
         }
 
-        public override void ApplyDeformer(IDeformer deformer)
+        protected override void ApplyDeformer(IDeformer deformer)
         {
-            throw new System.NotImplementedException();
+            HeightMapDeformerSettings deformerSettings = deformer.Settings.FirstOrDefault(x => x.GetType() == typeof(HeightMapDeformerSettings)) as HeightMapDeformerSettings;
+            if (deformerSettings == null) return;
+            deformers.Add(deformerSettings);
+            RectangleAffectSettings rectangleSettings = new RectangleAffectSettings(terrainData, Position, terrainData.heightmapResolution, deformer);
+            deformerSettings.CalculateCache(this, rectangleSettings, Position, terrainData.size);
         }
 
-        public override void ApplyToTerrain()
+        protected override void ApplyToTerrain()
         {
-            if (heights == null) return;
-            terrainData.SetHeights(0, 0, heights);
+            if (baseHeights == null) return;
+            
+            if (DeformersDirty)
+            {
+                BakeDeformations();
+            }
+            
+            terrainData.SetHeights(0, 0, baseHeights);
+        }
+
+        private void BakeDeformations()
+        {
+            var cachedDeformers = new Dictionary<Vector2Int, HeightCache>[deformers.Count];
+
+            for (var i = 0; i < deformers.Count; i++)
+            {
+                cachedDeformers[i] = deformers[i].cache[this];
+            }
+
+            for (int x = 0; x < SideSize; x++)
+            {
+                for (int y = 0; y < SideSize; y++)
+                {
+                    float hBase = baseHeights[y, x];
+                    
+                }
+            }
         }
     }
 }

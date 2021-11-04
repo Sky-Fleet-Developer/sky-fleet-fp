@@ -14,9 +14,9 @@ namespace Core.TerrainGenerator
         public List<TreePos> Trees;
         public TerrainData terrainData;
 
-        public TreesLayer(TerrainData data, string path, Vector2Int position, GameObject[] prototypes) : base(position)
+        public TreesLayer(TerrainData terrainData, string path, Vector2Int chunk, GameObject[] prototypes) : base(chunk, terrainData.size.x)
         {
-            terrainData = data;
+            this.terrainData = terrainData;
             SetPrototypes(prototypes);            
             Trees = new List<TreePos>();
             TreesLayerFiles.LoadTreeLayer(path, this);
@@ -33,18 +33,13 @@ namespace Core.TerrainGenerator
             }
             terrainData.treePrototypes = treePrototypes;
         }
-
-        public TreesLayer( Vector2Int position) : base(position)
-        {
-            Trees = new List<TreePos>();
-        }
-
-        public override void ApplyDeformer(IDeformer deformer)
+        
+        protected override void ApplyDeformer(IDeformer deformer)
         {
             throw new System.NotImplementedException();
         }
 
-        public override void ApplyToTerrain()
+        protected override void ApplyToTerrain()
         {
             List<TreeInstance> instances = new List<TreeInstance>();
             for(int i = 0; i < Trees.Count; i++)
