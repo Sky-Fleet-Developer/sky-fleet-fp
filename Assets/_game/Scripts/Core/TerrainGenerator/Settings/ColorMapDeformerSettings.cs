@@ -40,7 +40,7 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int i2 = 0; i2 < Resolution.y; i2++)
                 {
-                    Vector3 pos = Core.transform.rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * rect.z, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * rect.w) + Core.transform.position;
+                    Vector3 pos = Core.transform.rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.transform.position;
 
                     Terrain tr = GetTerrainInPos(terrains.ToArray(), pos);
                     Debug.DrawLine(new Vector3(pos.x, Core.transform.position.y, pos.z), new Vector3(pos.x, 0, pos.z), tr != null ? Color.blue : Color.red, 2);
