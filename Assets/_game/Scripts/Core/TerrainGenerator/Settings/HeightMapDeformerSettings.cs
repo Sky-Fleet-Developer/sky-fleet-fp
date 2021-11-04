@@ -40,6 +40,11 @@ namespace Core.TerrainGenerator.Settings
         }
 
         [Button]
+        public void WriteToTerrain()
+        {
+            WriteToTerrain(Core.GetTerrainsContacts());
+        }
+
         public void WriteToTerrain(Terrain[] terrains)
         {
             foreach (Terrain terrain in terrains)
@@ -125,9 +130,6 @@ EditorUtility.SetDirty(terrain.terrainData);
 
         private float GetHeightBilinear(float x, float y)
         {
-            //x = Mathf.Clamp(x, 0.001f, 0.999f);            
-            //y = Mathf.Clamp(y, 0.001f, 0.999f);     
-            
             float xPos = x * Resolution.x;
             float yPos = y * Resolution.y;
             

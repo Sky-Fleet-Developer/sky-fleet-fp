@@ -57,6 +57,7 @@ namespace Core.TerrainGenerator
         public void AddDeformerSettings(System.Type deformer)
         {
             IDeformerLayerSetting layer = System.Activator.CreateInstance(deformer) as IDeformerLayerSetting;
+            layer.Init(this);
             Settings.Add(layer);
         }
 
@@ -103,6 +104,35 @@ namespace Core.TerrainGenerator
             axisAlignedRect.min = min;
             axisAlignedRect.max = max;
         }
+
+        public Terrain[] GetTerrainsContacts()
+        {
+            Vector4 rect = LocalRect;
+            Ray[] rays = new Ray[4];
+            rays[0] = new Ray(new Vector3(0, 6000, 0) + transform.right * -rect.z / 2 + transform.forward * rect.w / 2 + transform.position, Vector3.down);
+            rays[1] = new Ray(new Vector3(0, 6000, 0) + transform.right * rect.z / 2 + transform.forward * rect.w / 2 + transform.position, Vector3.down);
+            rays[2] = new Ray(new Vector3(0, 6000, 0) + transform.right * rect.z / 2 + transform.forward * -rect.w / 2 + transform.position, Vector3.down);
+            rays[3] = new Ray(new Vector3(0, 6000, 0) + transform.right * -rect.z / 2 + transform.forward * -rect.w / 2 + transform.position, Vector3.down);
+            List<Terrain> terrains = new List<Terrain>();
+            for (int i = 0; i < rays.Length; i++)
+            {
+                RaycastHit[] hits = Physics.RaycastAll(rays[i], Mathf.Infinity);
+                foreach (RaycastHit hit in hits)
+                {
+                    Terrain tr = hit.collider.gameObject.GetComponent<Terrain>();
+                    if (tr != null)
+                    {
+                        if (terrains.Find(new System.Predicate<Terrain>(x => { return x.terrainData == tr.terrainData; })) == null)
+                        {
+                            terrains.Add(tr);
+                        }
+                    }
+                }
+            }
+
+            return terrains.ToArray();
+        }
+
 
         private void OnDrawGizmosSelected()
         {
