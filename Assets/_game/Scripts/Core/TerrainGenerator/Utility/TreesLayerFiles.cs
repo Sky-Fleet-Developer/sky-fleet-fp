@@ -11,19 +11,19 @@ namespace Core.TerrainGenerator.Utility
 {
     public static class TreesLayerFiles
     {
-        public static void SaveTreeLayer(string path, TreesLayer layer)
+        public static void SaveTreeLayer(string path, List<TreePos> trees)
         {
             using (FileStream file = File.Open(path, FileMode.OpenOrCreate))
             {
                 ExtensionStream extension = new ExtensionStream();
-                extension.WriteInt(layer.Trees.Count, file);
-                for (int i = 0; i < layer.Trees.Count; i++)
+                extension.WriteInt(trees.Count, file);
+                for (int i = 0; i < trees.Count; i++)
                 {
-                    extension.WriteInt(layer.Trees[i].Layer, file);
-                    extension.WriteInt(layer.Trees[i].NumTree, file);
-                    extension.WriteByte((byte)(layer.Trees[i].Rotate * byte.MaxValue), file);
-                    extension.WriteFloat(layer.Trees[i].Pos.x, file);
-                    extension.WriteFloat(layer.Trees[i].Pos.y, file);
+                    extension.WriteInt(trees[i].Layer, file);
+                    extension.WriteInt(trees[i].NumTree, file);
+                    extension.WriteByte((byte)(trees[i].Rotate * byte.MaxValue), file);
+                    extension.WriteFloat(trees[i].Pos.x, file);
+                    extension.WriteFloat(trees[i].Pos.y, file);
                 }
             }
         }

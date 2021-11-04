@@ -1,4 +1,3 @@
-using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -41,6 +40,7 @@ namespace Core.TerrainGenerator
         private List<IDeformerLayerSetting> settings;
 
         [ShowInInspector] private Rect axisAlignedRect;
+        [ShowInInspector] private List<Vector2Int> affectedChunks;
 
         [SerializeField, HideInInspector]
         private string[] typesInfo;
@@ -50,7 +50,13 @@ namespace Core.TerrainGenerator
 
         private void Start()
         {
-            CalculateAxisAlinedRect();
+            CalculateAxisAlignedRect();
+            TerrainProvider.OnInitialize(Register);
+        }
+
+        private void Register()
+        {
+            TerrainProvider.Instance.RegisterDeformer(this);
         }
 
         [Button]
@@ -91,7 +97,7 @@ namespace Core.TerrainGenerator
         }
 
 
-        private void CalculateAxisAlinedRect()
+        private void CalculateAxisAlignedRect()
         {
             var rotation = transform.rotation;
             var position = transform.position;
@@ -105,14 +111,39 @@ namespace Core.TerrainGenerator
             axisAlignedRect.max = max;
         }
 
+        public IEnumerable<Vector2Int> GetAffectChunks(float chunkSize)
+        {
+            if (affectedChunks != null) return affectedChunks;
+            
+            Vector4 rect = LocalRect;
+            Vector3[] array =
+            {
+                transform.right * -rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position,
+                transform.right * rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position,
+                transform.right * rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position,
+                transform.right * -rect.z * 0.5f + transform.forward * -rect.w * 0.5f + transform.position,
+            };
+
+            affectedChunks = new List<Vector2Int>();
+            foreach (Vector3 point in array)
+            {
+                Vector2Int newItem = 
+                    new Vector2Int(Mathf.FloorToInt(point.x / chunkSize), Mathf.FloorToInt(point.y / chunkSize));
+                if(affectedChunks.Contains(newItem) == false) affectedChunks.Add(newItem);
+            }
+
+            return affectedChunks;
+        }
+        
         public Terrain[] GetTerrainsContacts()
         {
             Vector4 rect = LocalRect;
             Ray[] rays = new Ray[4];
-            rays[0] = new Ray(new Vector3(0, 6000, 0) + transform.right * -rect.z / 2 + transform.forward * rect.w / 2 + transform.position, Vector3.down);
-            rays[1] = new Ray(new Vector3(0, 6000, 0) + transform.right * rect.z / 2 + transform.forward * rect.w / 2 + transform.position, Vector3.down);
-            rays[2] = new Ray(new Vector3(0, 6000, 0) + transform.right * rect.z / 2 + transform.forward * -rect.w / 2 + transform.position, Vector3.down);
-            rays[3] = new Ray(new Vector3(0, 6000, 0) + transform.right * -rect.z / 2 + transform.forward * -rect.w / 2 + transform.position, Vector3.down);
+            Vector3 up = Vector3.up * 6000;
+            rays[0] = new Ray(up + transform.right * -rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position, Vector3.down);
+            rays[1] = new Ray(up + transform.right * rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position, Vector3.down);
+            rays[2] = new Ray(up + transform.right * rect.z * 0.5f + transform.forward * -rect.w * 0.5f + transform.position, Vector3.down);
+            rays[3] = new Ray(up + transform.right * -rect.z * 0.5f + transform.forward * -rect.w * 0.5f + transform.position, Vector3.down);
             List<Terrain> terrains = new List<Terrain>();
             for (int i = 0; i < rays.Length; i++)
             {
@@ -122,7 +153,8 @@ namespace Core.TerrainGenerator
                     Terrain tr = hit.collider.gameObject.GetComponent<Terrain>();
                     if (tr != null)
                     {
-                        if (terrains.Find(new System.Predicate<Terrain>(x => { return x.terrainData == tr.terrainData; })) == null)
+                        if (terrains.Find(
+                            new System.Predicate<Terrain>(x => { return x.terrainData == tr.terrainData; })) == null)
                         {
                             terrains.Add(tr);
                         }
@@ -136,7 +168,7 @@ namespace Core.TerrainGenerator
 
         private void OnDrawGizmosSelected()
         {
-            CalculateAxisAlinedRect();
+            CalculateAxisAlignedRect();
 
             Gizmos.DrawWireCube(new Vector3(axisAlignedRect.position.x + axisAlignedRect.width * 0.5f, transform.position.y, axisAlignedRect.position.y + axisAlignedRect.height * 0.5f), new Vector3(axisAlignedRect.width, 0, axisAlignedRect.height));
 
@@ -145,6 +177,30 @@ namespace Core.TerrainGenerator
             Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w));
             Gizmos.color = Color.white;
             Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w) * (1 - fade));
+        }
+        
+        public static Rect GetAffectRectangle(Terrain terrain, Rect rect)
+        {
+            Vector3 pos = terrain.transform.position;
+            rect.position -= pos.XZ();
+
+            float terrainSizeInv = 1f / terrain.terrainData.size.x;
+
+            rect.position *= terrainSizeInv;
+            rect.size *= terrainSizeInv;
+
+            return rect;
+        }
+        public static Rect GetAffectRectangle(TerrainData data, Vector3 terrainPosition, Rect rect)
+        {
+            rect.position -= terrainPosition.XZ();
+
+            float terrainSizeInv = 1f / data.size.x;
+
+            rect.position *= terrainSizeInv;
+            rect.size *= terrainSizeInv;
+
+            return rect;
         }
     }
 }

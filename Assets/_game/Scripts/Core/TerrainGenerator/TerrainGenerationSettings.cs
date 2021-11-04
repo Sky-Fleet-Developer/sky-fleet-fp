@@ -13,7 +13,7 @@ namespace Core.TerrainGenerator
     {
         public string directoryLandscapes;
         [Space] public Material material;
-        [Space] public int propSize = 1000;
+        [Space] public int chunkSize = 1000;
         public int height = 600;
         [Space] public int heightmapResolution = 257;
         [Space(20)] public float visibleDistance = 1000;

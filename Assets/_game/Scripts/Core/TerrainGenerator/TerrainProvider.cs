@@ -25,15 +25,21 @@ namespace Core.TerrainGenerator
         [ShowInInspector]
         private Dictionary<Vector2Int, List<TerrainLayer>> layers = new Dictionary<Vector2Int, List<TerrainLayer>>();
 
-
-
-        private Dictionary<Vector2Int, Terrain> terrains = new Dictionary<Vector2Int, Terrain>();
+        private Dictionary<Vector2Int, Terrain> chunks = new Dictionary<Vector2Int, Terrain>();
         private List<TerrainData> terrainsDates = new List<TerrainData>();
         private List<IDeformer> deformers = new List<IDeformer>();
 
+        private static event System.Action onInitialize;
+
+        public static void OnInitialize(System.Action callback)
+        {
+            if (Instance) callback?.Invoke();
+            else onInitialize += callback;
+        }
+
         public static Terrain GetTerrain(Vector2Int position)
         {
-            return Instance.terrains[position];
+            return Instance.chunks[position];
         }
 
         [Button]
@@ -63,7 +69,7 @@ namespace Core.TerrainGenerator
 
             foreach (Vector2Int prop in props)
             {
-                if (!terrains.TryGetValue(prop, out Terrain terrain) || terrain == null)
+                if (!chunks.TryGetValue(prop, out Terrain terrain) || terrain == null)
                     terrain = CreateTerrain(prop);
 
                 if (!layers.ContainsKey(prop))
@@ -102,6 +108,8 @@ namespace Core.TerrainGenerator
                     terrainLayer.ApplyToTerrain();
                 }
             }
+            
+            onInitialize?.Invoke();
         }
 
         private IEnumerable<Vector2Int> GetCurrentProps()
@@ -110,7 +118,7 @@ namespace Core.TerrainGenerator
             Vector3 playerPosition;
             if (player == null) playerPosition = Vector3.zero;
             else playerPosition = player.transform.position;
-            float sI = 1f / settings.propSize;
+            float sI = 1f / settings.chunkSize;
             Vector2 playerCell =
                 new Vector2(playerPosition.x * sI, -playerPosition.z * sI);
             float visibleDistance = settings.visibleDistance * sI;
@@ -132,7 +140,7 @@ namespace Core.TerrainGenerator
         {
             GameObject obj = new GameObject($"Terrain ({prop.x}, {prop.y})");
 
-            obj.transform.position = new Vector3(prop.x * settings.propSize, 0, prop.y * settings.propSize);
+            obj.transform.position = new Vector3(prop.x * settings.chunkSize, 0, prop.y * settings.chunkSize);
 
             Terrain ter = obj.AddComponent<Terrain>();
             TerrainData data = new TerrainData();
@@ -141,7 +149,7 @@ namespace Core.TerrainGenerator
 
             ter.drawInstanced = true;
             data.heightmapResolution = settings.heightmapResolution;
-            data.size = new Vector3(settings.propSize, settings.height, settings.propSize);
+            data.size = new Vector3(settings.chunkSize, settings.height, settings.chunkSize);
             ter.materialTemplate = settings.material;
 
             TerrainCollider collider = obj.AddComponent<TerrainCollider>();
@@ -149,8 +157,8 @@ namespace Core.TerrainGenerator
 
             ter.allowAutoConnect = true;
 
-            if (terrains.ContainsKey(prop)) terrains[prop] = ter;
-            else terrains.Add(prop, ter);
+            if (chunks.ContainsKey(prop)) chunks[prop] = ter;
+            else chunks.Add(prop, ter);
 
             terrainsDates.Add(ter.terrainData);
 
@@ -160,6 +168,15 @@ namespace Core.TerrainGenerator
         public void RegisterDeformer(IDeformer deformer)
         {
             deformers.Add(deformer);
+            var affectChunks = deformer.GetAffectChunks(settings.chunkSize);
+            
+            foreach (Vector2Int chunk in affectChunks)
+            {
+                foreach (TerrainLayer terrainLayer in layers[chunk])
+                {
+                    terrainLayer.RegisterDeformer(deformer);
+                }
+            }
         }
     }
 }

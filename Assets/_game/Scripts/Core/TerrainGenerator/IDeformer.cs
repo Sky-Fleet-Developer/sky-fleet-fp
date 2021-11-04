@@ -13,5 +13,7 @@ namespace Core.TerrainGenerator
 
         Vector4 LocalRect { get; }
         float Fade { get; }
+
+        IEnumerable<Vector2Int> GetAffectChunks(float chunkSize);
     }
 }

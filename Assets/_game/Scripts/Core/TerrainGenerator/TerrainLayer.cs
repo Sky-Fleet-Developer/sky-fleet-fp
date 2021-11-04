@@ -9,14 +9,21 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public abstract class TerrainLayer
     {
-        public Vector2Int Porition { get; private set; }
+        public Vector2Int Chunk { get; }
+        public Vector3 Position { get; }
 
-        public TerrainLayer(Vector2Int position)
+        public TerrainLayer(Vector2Int chunk, float chunkSize)
         {
-            Porition = position;
+            Chunk = chunk;
+            Position = new Vector3(chunk.x * chunkSize, 0, chunk.y * chunkSize);
+        }
+        
+        public void RegisterDeformer(IDeformer deformer)
+        {
+            ApplyDeformer(deformer);
         }
 
-        public abstract void ApplyDeformer(IDeformer deformer);
+        protected abstract void ApplyDeformer(IDeformer deformer);
 
         public abstract void ApplyToTerrain();
         

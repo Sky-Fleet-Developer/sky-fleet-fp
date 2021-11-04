@@ -2,6 +2,8 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Core.TerrainGenerator.Settings;
 using UnityEngine;
 
 using Core.TerrainGenerator.Utility;
@@ -14,16 +16,15 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public class ColorLayer : TerrainLayer
     {
-        [ShowInInspector, ReadOnly] private List<Texture2D> textures;
         private List<Color[]> colors;
 
         [ShowInInspector, ReadOnly] private TerrainData terrainData;
         private int layersCount;
-        public ColorLayer(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int position) : base(position)
+        private int alphamapResolution;
+        public ColorLayer(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
         {
             this.layersCount = layersCount;
             this.terrainData = terrainData;
-            textures = new List<Texture2D>();
             Load(paths);
         }
 
@@ -60,48 +61,56 @@ namespace Core.TerrainGenerator
                 {
                     Texture2D tex = DownloadHandlerTexture.GetContent(request);
                     tex.Apply();
-                    textures.Add(tex);
+                    ReadPixels(tex);
                     if (++loadedCount == countToLoad)
                     {
-                        ReadPixels();
                         IsReady = true;
                     }
                 }
             }
         }
 
-        private void ReadPixels()
+        private void ReadPixels(Texture2D tex)
         {
-            colors = new List<Color[]>(textures.Count);
-            foreach (Texture2D tex in textures)
+            if (colors == null)
             {
-                colors.Add(tex.GetPixels());   
+                colors = new List<Color[]>();
+                alphamapResolution = tex.width;
             }
+            colors.Add(tex.GetPixels());
         }
 
-        public override void ApplyDeformer(IDeformer deformer)
+        protected override void ApplyDeformer(IDeformer deformer)
         {
+            var d = deformer.Settings.FirstOrDefault(x => x.GetType() == typeof(ColorMapDeformerSettings));
+            if (!(d is ColorMapDeformerSettings deformerSettings)) return;
+            RectangleAffectSettings rectangleSettings = new RectangleAffectSettings(terrainData, Position, terrainData.alphamapResolution, deformer);
+
+            var alphamap = terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY,
+                rectangleSettings.deltaX, rectangleSettings.deltaY);
             
+            deformerSettings.WriteToAlphamaps(alphamap, 0, 0, rectangleSettings, Position, terrainData.size, layersCount);
+            
+            terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
         }
 
         public override void ApplyToTerrain()
         {
             if (loadedCount == 0) return;
             
-            int size = textures[0].width;
-            terrainData.alphamapResolution = size;
-            float[,,] sets = new float[size, size, layersCount];
+            terrainData.alphamapResolution = alphamapResolution;
+            float[,,] sets = new float[alphamapResolution, alphamapResolution, layersCount];
 
             float[] temp = new float[layersCount];
 
-            for (int x = 0; x < size; x++)
+            for (int x = 0; x < alphamapResolution; x++)
             {
-                for (int y = 0; y < size; y++)
+                for (int y = 0; y < alphamapResolution; y++)
                 {
                     float sum = 0;
                     for (int i = 0; i < layersCount; i++)
                     {
-                        float res = GetColorPerIndex(x + y * size, i);
+                        float res = GetColorPerIndex(x + y * alphamapResolution, i);
                         temp[i] = res;
                         sum += res;
                     }
