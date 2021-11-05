@@ -16,17 +16,12 @@ namespace Runtime.Explorer.SessionUI
     {
         [SerializeField] private GameObject gameMenuObj;
 
-        public Task Load()
+        public Task LoadStart()
         {
             PauseGame.Instance.PauseOn += OpenGameMenu;
             PauseGame.Instance.PauseOff += CloseGameMenu;
             CloseGameMenu();
             return Task.CompletedTask;
-        }
-
-        protected override void Awake()
-        {
-            base.Awake();
         }
 
         protected override void OnDestroy()

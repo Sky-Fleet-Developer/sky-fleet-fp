@@ -3,16 +3,18 @@ using Core.SessionManager.SaveService;
 using Core.Utilities;
 using System.Threading.Tasks;
 using Core.SessionManager.GameProcess;
+using UnityEngine;
 
 namespace Core.SessionManager
 {
     public class FastSave : Singleton<FastSave>, ILoadAtStart
     {
         private SaveLoadUtility saver;
-        public Task Load()
+
+        public Task LoadStart()
         {
             saver = new SaveLoadUtility();
-            HotKeys.Instance.FastSave += Save;
+            KeysControl.Instance.Hot.FastSave += Save;
             return Task.CompletedTask;
         }
 

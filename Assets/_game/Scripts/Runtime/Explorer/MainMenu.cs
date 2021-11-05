@@ -24,7 +24,7 @@ public class MainMenu : UiBlockBase, ILoadAtStart
     private IUiStructure _structure;
     private List<ButtonItemPointer> buttons = new List<ButtonItemPointer>();
 
-    public Task Load()
+    public Task LoadStart()
     {
         _structure = GetComponentInParent<IUiStructure>();
         foreach (UIBlockButton uiBlockButton in menus)

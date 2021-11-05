@@ -16,10 +16,11 @@ namespace Core.GameSetting
 
         private Setting setting;
 
-        public Task Load()
+        public Task LoadStart()
         {
+            
             setting = new Setting();
-            if(!GameSettingFileManager.LoadSetting(setting, PathStorage.GetPathToSettingFile()))
+            if (!GameSettingFileManager.LoadSetting(setting, PathStorage.GetPathToSettingFile()))
             {
                 Debug.Log("Saved settings were not loaded.");
             }

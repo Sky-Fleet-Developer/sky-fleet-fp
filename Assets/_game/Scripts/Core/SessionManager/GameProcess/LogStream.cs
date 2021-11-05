@@ -19,8 +19,7 @@ namespace Core.SessionManager.GameProcess
         public const int MaxCountLogs = 20;
 
         private FileStream fileLog;
-
-        public Task Load()
+        public Task LoadStart()
         {
             string pathBase = PathStorage.GetPathToLogs();
             if (!Directory.Exists(pathBase))
