@@ -1,5 +1,6 @@
 using Core.Boot_strapper;
 using Core.Utilities;
+using Runtime.Character.Control;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,11 +10,15 @@ namespace Runtime.Character
 {
     public class SpawnPerson : Singleton<SpawnPerson>, ILoadAtStart
     {
-        [SerializeField] private GameObject player;
+        public FirstPersonController Player { get => player; }
+
+        [SerializeField] private FirstPersonController player;
+
+
 
         public Task LoadStart()
         {
-            player.SetActive(true);
+            player.gameObject.SetActive(true);
             return Task.CompletedTask;
         }
     }

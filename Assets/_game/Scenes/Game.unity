@@ -448,6 +448,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e1ab0498d98d80c408696ae1ef0c12cf, type: 3}
+--- !u!4 &524430984 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9102070319755283106, guid: e1ab0498d98d80c408696ae1ef0c12cf, type: 3}
+  m_PrefabInstance: {fileID: 524430983}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1312028779
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -503,13 +508,23 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1763909230583632507, guid: d654e41f73a101e429bf6d8f4b29de4b, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1366750030}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d654e41f73a101e429bf6d8f4b29de4b, type: 3}
---- !u!1 &1366750027 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9102070319755283116, guid: e1ab0498d98d80c408696ae1ef0c12cf, type: 3}
+--- !u!114 &1366750030 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9102070319755283109, guid: e1ab0498d98d80c408696ae1ef0c12cf, type: 3}
   m_PrefabInstance: {fileID: 524430983}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c169459f1cf0ed4f9ed784e23897405, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1720475586
 GameObject:
   m_ObjectHideFlags: 0
@@ -1068,6 +1083,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 614683394381037785, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: viewer
+      value: 
+      objectReference: {fileID: 524430984}
     - target: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_RootOrder
       value: 6
@@ -1127,7 +1146,7 @@ PrefabInstance:
     - target: {fileID: 8878757039438359807, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 1366750027}
+      objectReference: {fileID: 1366750030}
     - target: {fileID: 8984863272464365300, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

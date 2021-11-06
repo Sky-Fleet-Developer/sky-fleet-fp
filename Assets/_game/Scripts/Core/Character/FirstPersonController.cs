@@ -12,7 +12,7 @@ using Core.GameSetting;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
-
+using Core.Utilities;
 
 namespace Runtime.Character.Control
 {
@@ -132,7 +132,6 @@ namespace Runtime.Character.Control
         private void Update()
         {
             if (PauseGame.Instance.IsPause) return;
-
             CurrentState.Update();
         }
         
@@ -215,10 +214,19 @@ namespace Runtime.Character.Control
         
         private class FreeWalkState : InteractionState
         {
+
+
             public FreeWalkState(FirstPersonController master) : base(master)
             {
+                WorldOffset.Instance.SendWorldMove += CorrectPosition;
             }
             
+            private void CorrectPosition(Vector3 offset)
+            {
+                if (!Master.CanMove) return;
+                Master.OffsetMove(offset);
+            }
+
             public override void Update()
             {
                 base.Update();
@@ -271,6 +279,11 @@ namespace Runtime.Character.Control
                 -verticalBorders, verticalBorders);
             transform.Rotate(Vector3.up * (x * horizontalSpeed * Time.deltaTime));
             cameraRoot.localEulerAngles = Vector3.right * vertical;
+        }
+
+        private void OffsetMove(Vector3 pos)
+        {
+            transform.position += pos;
         }
 
         private void Move()

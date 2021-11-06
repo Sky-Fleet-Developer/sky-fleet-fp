@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Core.Utilities;
 using Core.GameSetting;
 using UnityEngine;
@@ -17,67 +18,103 @@ namespace Core
 
         private List<Request> requests;
 
+        private LinkedList<KeyToRequest> clearKeysQueue;
 
         public Task LoadStart()
         {
             Hot = new HotKeys();
             requests = new List<Request>();
+            clearKeysQueue = new LinkedList<KeyToRequest>();
             return Task.CompletedTask;
         }
 
-        public Request RegisterRequest(string category, string nameButton, PressType type, Action action)
+        public KeyToRequest RegisterRequest(string category, string nameButton, PressType type, Action action)
         {
             InputButtons button = InputControl.Instance.GetInput<InputButtons>(category, nameButton);
             if (button == null)
             {
                 return null;
             }
-            Request request = new Request();
-            request.Button = button;
-            request.PressMod = type;
-            request.CallPress = x => { action?.Invoke(); };
-            requests.Add(request);
-            return request;
+            return RequestCreateOrAdd(button, type, x => { action?.Invoke(); });
         }
 
-        public Request RegisterRequest(string category, string nameButton, PressType type, Action<PressType> action)
+        public KeyToRequest RegisterRequest(string category, string nameButton, PressType type, Action<PressType> action)
         {
             InputButtons button = InputControl.Instance.GetInput<InputButtons>(category, nameButton);
             if (button == null)
             {
                 return null;
             }
-            Request request = new Request();
-            request.Button = button;
-            request.PressMod = type;
-            request.CallPress = action;
-            requests.Add(request);
-            return request;
+            return RequestCreateOrAdd(button, type, x => { action?.Invoke(x); });
         }
 
-        public Request RegisterRequest(InputButtons button, PressType type, Action action)
+        public KeyToRequest RegisterRequest(InputButtons button, PressType type, Action action)
+        {
+            return RequestCreateOrAdd(button, type, x => { action?.Invoke(); });
+        }
+
+        public KeyToRequest RegisterRequest(InputButtons button, PressType type, Action<PressType> action)
+        {
+            return RequestCreateOrAdd(button, type, x => { action?.Invoke(x); });
+        }
+
+        private KeyToRequest RequestCreateOrAdd(InputButtons button, PressType type, Action<PressType> action)
+        {
+            Request request = FindRequest(button);
+            if (request != null)
+            {
+                request.Keys.Add(new KeyToRequest() { CallPress = action, PressMod = type });
+                return request.Keys[request.Keys.Count - 1];
+            }
+            else
+            {
+                KeyToRequest key = CreateNewRequest(button, type);
+                key.CallPress = action;
+                return key;
+            }
+        }
+
+        private Request FindRequest(InputButtons button)
+        {
+            return requests.Where(x => { return x.Button == button; }).FirstOrDefault();
+        }
+
+        private KeyToRequest CreateNewRequest(InputButtons button, PressType type)
         {
             Request request = new Request();
             request.Button = button;
-            request.PressMod = type;
-            request.CallPress = x => { action?.Invoke(); };
+            KeyToRequest key = new KeyToRequest();
+            key.PressMod = type;
+            request.Keys = new List<KeyToRequest>();
+            request.Keys.Add(key);
+
             requests.Add(request);
-            return request;
+            return key;
         }
 
-        public Request RegisterRequest(InputButtons button, PressType type, Action<PressType> action)
+        public void RemoveRequest(KeyToRequest keyToRequest)
         {
-            Request request = new Request();
-            request.Button = button;
-            request.PressMod = type;
-            request.CallPress = action;
-            requests.Add(request);
-            return request;
+            clearKeysQueue.AddLast(keyToRequest);
         }
 
-        public void RemoveReques(Request request)
+
+        private void RemoveKeyFromRequest(KeyToRequest keyToRequest)
         {
-            requests.Remove(request);
+            Request req = null;
+            requests.ForEach(x =>
+            {
+                KeyToRequest key = x.Keys.Where(x => { return x == keyToRequest; }).FirstOrDefault();
+                if (key != null)
+                {
+                    req = x;
+                    req.Keys.Remove(key);
+                }
+            });
+
+            if (req != null && req.Keys.Count == 0)
+            {
+                requests.Remove(req);
+            }
         }
 
         private void Update()
@@ -86,25 +123,38 @@ namespace Core
             {
                 Hot.Update();
 
-                    for (int i = 0; i < requests.Count; i++)
+                for (int i = 0; i < requests.Count; i++)
+                {
+                    if (InputControl.Instance.GetButtonDown(requests[i].Button) > 0)
                     {
-                        if (requests[i].PressMod == PressType.Up && InputControl.Instance.GetButtonUp(requests[i].Button) > 0)
+                        for (int i2 = 0; i2 < requests[i].Keys.Count; i2++)
                         {
-                            requests[i].CallPress?.Invoke(PressType.Up);
-                        }
-                        if (requests[i].PressMod == PressType.Always && InputControl.Instance.GetButton(requests[i].Button) > 0)
-                        {
-                        requests[i].CallPress?.Invoke(PressType.Always);
-                        }
-                        if (requests[i].PressMod == PressType.Down && InputControl.Instance.GetButtonDown(requests[i].Button) > 0)
-                        {
-                        requests[i].CallPress?.Invoke(PressType.Down);
+                            if (requests[i].Keys[i2].PressMod == PressType.Down) requests[i].Keys[i2].CallPress(PressType.Down);
                         }
                     }
+                    if (InputControl.Instance.GetButtonUp(requests[i].Button) > 0)
+                    {
+                        for (int i2 = 0; i2 < requests[i].Keys.Count; i2++)
+                        {
+                            if (requests[i].Keys[i2].PressMod == PressType.Up) requests[i].Keys[i2].CallPress(PressType.Up);
+                        }
+                    }
+                    if (InputControl.Instance.GetButton(requests[i].Button) > 0)
+                    {
+                        for (int i2 = 0; i2 < requests[i].Keys.Count; i2++)
+                        {
+                            if (requests[i].Keys[i2].PressMod == PressType.Always) requests[i].Keys[i2].CallPress(PressType.Always);
+                        }
+                    }
+                }
+
+                foreach (KeyToRequest key in clearKeysQueue)
+                {
+                    RemoveKeyFromRequest(key);
+                }
+                clearKeysQueue.Clear();
             }
         }
-
-
 
         public enum PressType
         {
@@ -113,11 +163,15 @@ namespace Core
             Always = 4,
         }
 
-        public class Request
+        private class Request
         {
             public InputButtons Button;
-            public PressType PressMod;
+            public List<KeyToRequest> Keys;
+        }
 
+        public class KeyToRequest
+        {
+            public PressType PressMod;
             public Action<PressType> CallPress;
         }
     }
