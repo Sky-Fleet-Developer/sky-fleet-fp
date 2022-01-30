@@ -27,6 +27,7 @@ namespace Core.TerrainGenerator
             Load(paths);
         }
 
+        private int alphamapResolution;
         private int countToLoad;
         private int loadedCount;
         private void Load(List<string> paths)

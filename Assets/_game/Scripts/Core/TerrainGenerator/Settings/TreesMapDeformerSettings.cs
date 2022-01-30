@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -62,7 +63,6 @@ namespace Core.TerrainGenerator.Settings
             {
                 WriteToTerrainData(terrain.terrainData, terrain.transform.position);
             }
-
         }
 
         public void WriteToTerrainData(TerrainData data, Vector3 pos)
@@ -77,7 +77,7 @@ namespace Core.TerrainGenerator.Settings
                     newTrees.Add(trees[i]);
                 }
             }
-            data.SetTreeInstances(new TreeInstance[0], true);
+            //data.SetTreeInstances(new TreeInstance[0], true);
             Rect terrainRect = new Rect(0, 0, 1, 1);
             
             foreach (TreeInstance tree in Trees)

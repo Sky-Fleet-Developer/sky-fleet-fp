@@ -108,6 +108,9 @@ namespace Core.TerrainGenerator
                     terrainLayer.Apply();
                 }
             }
+
+            await Task.Yield();
+            await Task.Yield();
             
             onInitialize?.Invoke();
         }
