@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Explorer.SessionUI
 {
-    public class ExitToMenu : UiBlockBase
+    public class ExitToMenu : Service
     {
         [SerializeField] private Button yesButton;
         [SerializeField] private Button noButton;
@@ -38,7 +38,7 @@ namespace Runtime.Explorer.SessionUI
 
         private void OnNo()
         {
-            Frame.Close();
+            Window.Close();
         }
     }
 }

@@ -3,16 +3,18 @@ using Core.SessionManager.SaveService;
 using Core.Utilities;
 using System.Threading.Tasks;
 using Core.SessionManager.GameProcess;
+using UnityEngine;
 
 namespace Core.SessionManager
 {
     public class FastSave : Singleton<FastSave>, ILoadAtStart
     {
         private SaveLoadUtility saver;
+
         public Task Load()
         {
             saver = new SaveLoadUtility();
-            HotKeys.Instance.FastSave += Save;
+            KeysControl.Instance.Hot.FastSave += Save;
             return Task.CompletedTask;
         }
 
@@ -21,11 +23,11 @@ namespace Core.SessionManager
             if(saver.CheckIsCanSave(Session.Instance.Settings.name, PathStorage.GetPathToSessionSave()))
             {
                 saver.SaveWithName(Session.Instance.Settings.name);
-                LogStream.Instance.PushLog("Session saved");
+                LogStream.PushLog("Session saved");
             }
             else
             {
-                LogStream.Instance.PushLog("Session could not be saved");
+                LogStream.PushLog("Session could not be saved");
             }
         }
     }

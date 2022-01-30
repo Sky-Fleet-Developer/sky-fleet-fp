@@ -13,7 +13,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Explorer.SessionViewer
 {
-    public class SessionCreator : UiBlockBase
+    public class SessionCreator : Service
     {
         [SerializeField] private Button takeModAll;
         [SerializeField] private Button putModAll;
@@ -71,7 +71,7 @@ namespace Runtime.Explorer.SessionViewer
         ModViewer GetModViewer()
         {
             ModViewer block;
-            if(Frame.GetBlock(out block))
+            if(Window.GetBlock(out block))
             {
                 return block;
             }

@@ -13,7 +13,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Explorer.SessionViewer.SessionLoader
 {
-    public class SessionSaver : UiBlockBase
+    public class SessionSaver : Service
     {
         [SerializeField] private SessionFilerManager sessionFilerManager;
 

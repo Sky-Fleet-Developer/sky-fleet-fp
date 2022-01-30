@@ -147,6 +147,18 @@ namespace Core.GameSetting
 
         public void AddKey(ButtonCodes key)
         {
+            int exist = keys.Count(x =>
+            {
+                if (key.KeyCodes.Length != x.KeyCodes.Length) return false;
+                bool match = true;
+                for (var i = 0; i < key.KeyCodes.Length; i++)
+                {
+                    match &= key.KeyCodes[i] == x.KeyCodes[i];
+                }
+
+                return match;
+            });
+            if (exist > 0) return;
             keys.Add(key);
         }
 

@@ -29,6 +29,14 @@ namespace Core.TerrainGenerator
         private List<TerrainData> terrainsDates = new List<TerrainData>();
         private List<IDeformer> deformers = new List<IDeformer>();
 
+        private static event System.Action onInitialize;
+
+        public static void OnInitialize(System.Action callback)
+        {
+            if (Instance) callback?.Invoke();
+            else onInitialize += callback;
+        }
+
         public static Terrain GetTerrain(Vector2Int position)
         {
             return Instance.chunks[position];
@@ -100,6 +108,8 @@ namespace Core.TerrainGenerator
                     terrainLayer.Apply();
                 }
             }
+            
+            onInitialize?.Invoke();
         }
 
         private IEnumerable<Vector2Int> GetCurrentProps()

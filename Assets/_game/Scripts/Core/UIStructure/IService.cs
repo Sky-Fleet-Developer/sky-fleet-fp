@@ -7,23 +7,25 @@ using UnityEngine;
 
 namespace Core.UiStructure
 {
-    public interface IUiBlock
+    public interface IService
     {
-        UiFrame Frame { get; set; }
-        IUiStructure Structure { get; set; }
+        MonoBehaviour Self { get; }
+        Window Window { get; set; }
+        BearerCanvas Bearer { get; set; }
         RectTransform RectTransform { get; }
         IEnumerator Show(BlockSequenceSettings settings = null);
         IEnumerator Hide(BlockSequenceSettings settings = null);
     }
 
-    public class UiBlockBase : MonoBehaviour, IUiBlock
+    public class Service : MonoBehaviour, IService
     {
-        public UiFrame Frame { get; set; }
-        public IUiStructure Structure { get; set; }
-        public static IUiBlock FocusBlock { get; private set; }
-        public static event Action<IUiBlock> OnBlockWasFocused;
+        public MonoBehaviour Self => this;
+        public Window Window { get; set; }
+        public BearerCanvas Bearer { get; set; }
+        public static IService FocusBlock { get; private set; }
+        public static event Action<IService> OnBlockWasFocused;
 
-        public static void FocusOn(IUiBlock block)
+        public static void FocusOn(IService block)
         {
             if (FocusBlock == block) return;
             OnBlockWasFocused?.Invoke(block);
@@ -39,7 +41,7 @@ namespace Core.UiStructure
 
         protected virtual void Awake()
         {
-            Structure = GetComponentInParent<IUiStructure>();
+            Bearer = GetComponentInParent<BearerCanvas>();
             rectTransform = transform as RectTransform;
             OnBlockWasFocused += OnBlockFocusChanged;
         }
@@ -47,16 +49,16 @@ namespace Core.UiStructure
         protected virtual void OnDestroy()
         {
             OnBlockWasFocused -= OnBlockFocusChanged;
-            if (Structure != null)
+            if (Bearer != null)
             {
-                Structure.Remove(this);
+                Bearer.Remove(this);
             }
         }
 
-        protected virtual void OnBlockFocusChanged(IUiBlock block)
+        protected virtual void OnBlockFocusChanged(IService block)
         {
             if (block == null) return;
-            if (gameObject.activeSelf && setAsFocusedOnShow && (UiBlockBase) block != this)
+            if (gameObject.activeSelf && setAsFocusedOnShow && (Service) block != this)
             {
                 StartCoroutine(Hide());
             }
@@ -73,30 +75,31 @@ namespace Core.UiStructure
         {
             if (settings == null) yield return hideTransition.Setup(Vector3.zero, rectTransform.DOScale).SetUpdate(UpdateType.Normal, true).WaitForCompletion();
             else yield return settings.ApplySequenceSettings(this);
-            gameObject.SetActive(false);
-            if ((UiBlockBase) FocusBlock == this) FocusOn(null);
+            DynamicPool.Instance.Return(this);
+            if ((Service) FocusBlock == this) FocusOn(null);
         }
 
-        public static T Show<T>(T prefab, IUiStructure structure, BlockSequenceSettings settings = null) where T : MonoBehaviour, IUiBlock
+        /*public static T Show<T>(T prefab, BearerCanvas bearer, BlockSequenceSettings settings = null) where T : MonoBehaviour, IService
         {
             T instance;
-            if (prefab is UiFrame == false && structure.GetBlock<T>(out T block, prefab.GetType()))
+            if (prefab is Window == false && bearer.GetBlock<T>(out T block, prefab.GetType()))
             {
                 instance = block;
             }
             else
             {
-                instance = DynamicPool.Instance.Get(prefab, structure.transform);
+                instance = DynamicPool.Instance.Get(prefab, bearer.transform);
             }
             instance.gameObject.SetActive(true);
             instance.transform.localPosition = Vector3.zero;
-            structure.StartCoroutine(instance.Show(settings));
+            bearer.StartCoroutine(instance.Show(settings));
             return instance;
-        }
+        }*/
+
     }
 
     public abstract class BlockSequenceSettings
     {
-        public abstract IEnumerator ApplySequenceSettings(UiBlockBase block);
+        public abstract IEnumerator ApplySequenceSettings(Service block);
     }
 }

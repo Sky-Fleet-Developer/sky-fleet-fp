@@ -10,7 +10,7 @@ namespace Core.TerrainGenerator.Settings
     [System.Serializable]
     public class ColorMapDeformerSettings : IDeformerLayerSetting
     {
-        public float[] SplatMaps;
+        public float[,,] SplatMaps;
         public Vector2Int Resolution;
 
         [HideInInspector]
@@ -32,33 +32,33 @@ namespace Core.TerrainGenerator.Settings
             Terrain[] terrains = Core.GetTerrainsContacts();
             Vector4 rect = Core.LocalRect;
 
-            CountLayers = (int)Mathf.Max(terrains.Select(x => { return (float)x.terrainData.terrainLayers.Length; }).ToArray());
-            SplatMaps = new float[Resolution.x * Resolution.y * CountLayers];
+            CountLayers = terrains.Max(x => x.terrainData.terrainLayers.Length);
+            SplatMaps = new float[CountLayers, Resolution.x, Resolution.y];
             if (CountLayers == 0) return;
 
-            for (int i = 0; i < Resolution.x; i++)
+            for (int x = 0; x < Resolution.x; x++)
             {
-                for (int i2 = 0; i2 < Resolution.y; i2++)
+                for (int y = 0; y < Resolution.y; y++)
                 {
-                    Vector3 pos = Core.transform.rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * rect.z, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * rect.w) + Core.transform.position;
+                    Vector3 pos = Core.transform.rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0, (y / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.transform.position;
 
-                    Terrain tr = GetTerrainInPos(terrains.ToArray(), pos);
+                    Terrain tr = GetTerrainInPos(terrains, pos);
                     Debug.DrawLine(new Vector3(pos.x, Core.transform.position.y, pos.z), new Vector3(pos.x, 0, pos.z), tr != null ? Color.blue : Color.red, 2);
                     if (tr != null)
                     {
                         float[] alphas = GetLayersFromTerrainInPos(tr, pos);
-                        for (int i3 = 0; i3 < CountLayers; i3++)
+                        for (int idx = 0; idx < CountLayers; idx++)
                         {
-                            if (i3 >= alphas.Length)
+                            if (idx >= alphas.Length)
                             {
                                 break;
                             }
-                            SplatMaps[i3 * Resolution.x * Resolution.y + i * Resolution.x + i2] = alphas[i3];
+                            SplatMaps[idx,x,y] = alphas[idx];
                         }
                     }
                     else
                     {
-                        SplatMaps[0 * Resolution.x * Resolution.y + i * Resolution.x + i2] = 1;
+                        SplatMaps[0, x, y] = 1;
                     }
                 }
             }
@@ -101,60 +101,55 @@ namespace Core.TerrainGenerator.Settings
         {
             foreach (Terrain terrain in terrains)
             {
-                int resolution = terrain.terrainData.alphamapResolution;
-                Rect rect = GetAffectRectangle(terrain);
-                int minX = Mathf.CeilToInt(rect.x * resolution);
-                int minY = Mathf.CeilToInt(rect.y * resolution);
-                minX = Mathf.Max(minX, 0);
-                minY = Mathf.Max(minY, 0);
-                int maxX = Mathf.FloorToInt(rect.xMax * resolution);
-                int maxY = Mathf.FloorToInt(rect.yMax * resolution);
-                maxX = Mathf.Min(maxX, resolution);
-                maxY = Mathf.Min(maxY, resolution);
-                int deltaX = maxX - minX;
-                int deltaY = maxY - minY;
+                var settings = new RectangleAffectSettings(terrain, Core);
 
-                float[,,] alphas = terrain.terrainData.GetAlphamaps(minX, minY, deltaX, deltaY);
-                int countTrLayers = terrain.terrainData.terrainLayers.Length;
+                float[,,] alphas = terrain.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
 
-                Rect globalRect = Core.AxisAlignedRect;
-                Vector3 terrPos = terrain.transform.position;
-                float ceilSize = terrain.terrainData.size.x / resolution;
+                int layersCount = terrain.terrainData.terrainLayers.Length;
 
-                for (int x = 0; x < deltaX; x++)
-                {
-                    for (int y = 0; y < deltaY; y++)
-                    {
-                        Vector3 worldPos = terrPos + new Vector3((minX + x) * ceilSize, 0, (minY + y) * ceilSize);
-
-                        Vector2 localCoordinates = GetLocalPointCoordinates(worldPos);
-
-                        if (localCoordinates.x < 0 || localCoordinates.x > 1 || localCoordinates.y < 0 || localCoordinates.y > 1) continue;
-
-                        float[] alphasR = GetAlphasBilinear(localCoordinates.x, localCoordinates.y);
-                        float opacity = GetOpacity(localCoordinates.x, localCoordinates.y);
-                        for (int i = 0; i < alphasR.Length; i++)
-                        {
-                            if (i >= countTrLayers) break;
-
-                            alphas[y, x, i] = alphas[y, x, i] * (1 - opacity) + alphasR[i] * opacity;
-                        }
-
-#if UNITY_EDITOR
-                        Debug.DrawLine(worldPos + Vector3.up * Core.transform.position.y, worldPos, Color.red, 2);
-#endif
-                    }
-                }
+                WriteToAlphamaps(alphas, 0, 0, settings, terrain.transform.position, terrain.terrainData.size, layersCount);
 #if UNITY_EDITOR
                 Undo.RecordObject(terrain.terrainData, "change terrain");
 #endif
-                terrain.terrainData.SetAlphamaps(minX, minY, alphas);
+                terrain.terrainData.SetAlphamaps(settings.minX, settings.minY, alphas);
 
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(terrain.terrainData);
 #endif
             }
         }
+
+        public void WriteToAlphamaps(float[,,] alphamap, int xBegin, int yBegin, RectangleAffectSettings settings,
+            Vector3 terrainPosition, Vector3 terrainSize, int layersCount)
+        {
+            float ceilSize = terrainSize.x / settings.resolution;
+
+            for (int x = 0; x < settings.deltaX; x++)
+            {
+                for (int y = 0; y < settings.deltaY; y++)
+                {
+                    Vector3 worldPos = terrainPosition + new Vector3((settings.minX + x) * ceilSize, 0, (settings.minY + y) * ceilSize);
+
+                    Vector2 localCoordinates = GetLocalPointCoordinates(worldPos);
+
+                    if (localCoordinates.x < 0 || localCoordinates.x > 1 || localCoordinates.y < 0 || localCoordinates.y > 1) continue;
+
+                    float[] alphasR = GetAlphasBilinear(localCoordinates.x, localCoordinates.y);
+                    float opacity = GetOpacity(localCoordinates.x, localCoordinates.y);
+                    for (int i = 0; i < alphasR.Length; i++)
+                    {
+                        if (i >= layersCount) break;
+
+                        alphamap[yBegin + y, xBegin + x, i] = alphamap[yBegin + y, xBegin + x, i] * (1 - opacity) + alphasR[i] * opacity;
+                    }
+
+#if UNITY_EDITOR
+                    Debug.DrawLine(worldPos + Vector3.up * Core.transform.position.y, worldPos, Color.red, 2);
+#endif
+                }
+            }
+        }
+
 
         private Vector2 GetLocalPointCoordinates(Vector3 worldPos)
         {
@@ -196,14 +191,14 @@ namespace Core.TerrainGenerator.Settings
             float[] layers = new float[CountLayers];
             for (int i = 0; i < CountLayers; i++)
             {
+                float topValue = Mathf.LerpUnclamped(SplatMaps[i, minX, minY],
+                    SplatMaps[i, minX + 1, minY], remainsX);
 
-                float topValue = Mathf.LerpUnclamped(SplatMaps[i * Resolution.x * Resolution.y + minX * Resolution.y + minY],
-                    SplatMaps[i * Resolution.x * Resolution.y + minX * Resolution.y + Resolution.y + minY], remainsX);
-
-                float bottomValue = Mathf.LerpUnclamped(SplatMaps[i * Resolution.x * Resolution.y + minX * Resolution.y + minY + 1],
-                    SplatMaps[i * Resolution.x * Resolution.y + minX * Resolution.y + Resolution.y + minY + 1], remainsX);
+                float bottomValue = Mathf.LerpUnclamped(SplatMaps[i, minX, minY + 1],
+                    SplatMaps[i, minX + 1, minY + 1], remainsX);
                 layers[i] = Mathf.LerpUnclamped(topValue, bottomValue, remainsY);
             }
+
             return layers;
         }
 

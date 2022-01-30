@@ -27,7 +27,7 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int i2 = 0; i2 < Resolution.y; i2++)
                 {
-                    Vector3 pos = Core.transform.rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * Core.LocalRect.z, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * Core.LocalRect.w);
+                    Vector3 pos = Core.transform.rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * Core.LocalRect.z + Core.LocalRect.x, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * Core.LocalRect.w + Core.LocalRect.y);
                     pos += Core.transform.position;
                     Ray ray = new Ray(pos, -Vector3.up);
                     RaycastHit hit;
@@ -47,7 +47,7 @@ namespace Core.TerrainGenerator.Settings
             WriteToTerrain(Core.GetTerrainsContacts());
         }
 
-        public void WriteToTerrain(Terrain[] terrains)
+        public void WriteToTerrain(params Terrain[] terrains)
         {
             foreach (Terrain terrain in terrains)
             {

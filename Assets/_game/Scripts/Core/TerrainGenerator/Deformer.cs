@@ -1,4 +1,3 @@
-using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -52,6 +51,12 @@ namespace Core.TerrainGenerator
         private void Start()
         {
             CalculateAxisAlignedRect();
+            TerrainProvider.OnInitialize(Register);
+        }
+
+        private void Register()
+        {
+            TerrainProvider.Instance.RegisterDeformer(this);
         }
 
         [Button]
@@ -108,7 +113,7 @@ namespace Core.TerrainGenerator
 
         public IEnumerable<Vector2Int> GetAffectChunks(float chunkSize)
         {
-            if (affectedChunks == null) return affectedChunks;
+            if (affectedChunks != null) return affectedChunks;
             
             Vector4 rect = LocalRect;
             Vector3[] array =
