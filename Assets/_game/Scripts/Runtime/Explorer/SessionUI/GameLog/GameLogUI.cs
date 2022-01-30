@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using Core.SessionManager.GameProcess;
+using Core.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
-using Core.SessionManager.GameProcess;
-using Core.Utilities.UI;
-using Core.Utilities;
 
-namespace Runtime.Explorer.SessionUI
+namespace Runtime.Explorer.SessionUI.GameLog
 {
     public class GameLogUI : MonoBehaviour
     {
@@ -18,15 +15,15 @@ namespace Runtime.Explorer.SessionUI
         private float time = 0;
         private bool lockTime = false;
 
-        private const float deltaTime = 0.1f;
+        private const float DeltaTime = 0.1f;
 
         private bool isHide = false;
 
         private void Start()
         {
-            LogStream.Instance.PushLogCall += OnPushLog;
-            PauseGame.Instance.PauseOn += OnSetPause;
-            PauseGame.Instance.PauseOff += OnSetUnpause;
+            LogStream.PushLogCall += OnPushLog;
+            PauseGame.Instance.OnPause += SetOnPause;
+            PauseGame.Instance.OnResume += OnSetUnpause;
             SetActiveUIElements(false);
         }
 
@@ -36,7 +33,7 @@ namespace Runtime.Explorer.SessionUI
             {
                 if (!lockTime)
                 {
-                    time -= deltaTime;
+                    time -= DeltaTime;
                 }
                 if(time <= 0 && !isHide)
                 {
@@ -53,8 +50,8 @@ namespace Runtime.Explorer.SessionUI
 
         private void OnDestroy()
         {
-            PauseGame.Instance.PauseOn -= OnSetPause;
-            PauseGame.Instance.PauseOff -= OnSetUnpause;
+            PauseGame.Instance.OnPause -= SetOnPause;
+            PauseGame.Instance.OnResume -= OnSetUnpause;
         }
 
         private void OnPushLog(LogString log)
@@ -73,10 +70,10 @@ namespace Runtime.Explorer.SessionUI
             }
         }
 
-        private void OnSetPause()
+        private void SetOnPause()
         {
             lockTime = true;
-            time = deltaTime;
+            time = DeltaTime;
         }
 
         private void OnSetUnpause()

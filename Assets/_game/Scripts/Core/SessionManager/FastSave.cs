@@ -21,11 +21,11 @@ namespace Core.SessionManager
             if(saver.CheckIsCanSave(Session.Instance.Settings.name, PathStorage.GetPathToSessionSave()))
             {
                 saver.SaveWithName(Session.Instance.Settings.name);
-                LogStream.Instance.PushLog("Session saved");
+                LogStream.PushLog("Session saved");
             }
             else
             {
-                LogStream.Instance.PushLog("Session could not be saved");
+                LogStream.PushLog("Session could not be saved");
             }
         }
     }

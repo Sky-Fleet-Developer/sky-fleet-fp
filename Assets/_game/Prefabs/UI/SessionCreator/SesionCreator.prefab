@@ -889,7 +889,6 @@ GameObject:
   - component: {fileID: 3322352339464336553}
   - component: {fileID: 1218950300239512291}
   - component: {fileID: 35993906268649298}
-  - component: {fileID: 997558299638425405}
   - component: {fileID: 6383720028978207978}
   m_Layer: 5
   m_Name: SesionCreator
@@ -1050,26 +1049,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonItemPrefab: {fileID: 5235951519822700180, guid: a884329d59284d04988f09ab201955dc, type: 3}
   content: {fileID: 3322352340058929135}
---- !u!114 &997558299638425405
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3322352339464336555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreLayout: 0
-  m_MinWidth: 720
-  m_MinHeight: 800
-  m_PreferredWidth: -1
-  m_PreferredHeight: -1
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
-  m_LayoutPriority: 1
 --- !u!114 &6383720028978207978
 MonoBehaviour:
   m_ObjectHideFlags: 0

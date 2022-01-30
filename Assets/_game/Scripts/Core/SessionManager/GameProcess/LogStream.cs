@@ -2,6 +2,7 @@ using Core.Utilities;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using Core.Boot_strapper;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Core.SessionManager.GameProcess
     [DontDestroyOnLoad]
     public class LogStream : Singleton<LogStream>, ILoadAtStart
     {
-        public event Action<LogString> PushLogCall;
+        public static event Action<LogString> PushLogCall;
 
         [SerializeField] private LinkedList<LogString> logs = new LinkedList<LogString>();
 
@@ -20,36 +21,50 @@ namespace Core.SessionManager.GameProcess
 
         private FileStream fileLog;
 
+        private static bool _initialized;
+        
         public Task Load()
         {
-            string pathBase = PathStorage.GetPathToLogs();
-            if (!Directory.Exists(pathBase))
+            if (_initialized)
             {
-                Directory.CreateDirectory(pathBase);
+                Destroy(gameObject);
             }
             else
             {
-                Directory.Delete(pathBase, true);
-                Directory.CreateDirectory(pathBase);
+                _initialized = true;
+
+                string pathBase = PathStorage.GetPathToLogs();
+                if (!Directory.Exists(pathBase))
+                {
+                    Directory.CreateDirectory(pathBase);
+                }
+                else
+                {
+                   // Directory.Delete(pathBase, true);
+                    Directory.CreateDirectory(pathBase);
+                }
+
+                DateTime time = DateTime.Now;
+                string nameSave = time.ToString("G").Replace(':', '-');
+                string path = pathBase + "\\" + nameSave + ".txt";
+                
+                fileLog = File.Create(path);
             }
-            DateTime time = DateTime.Now;
-            string nameSave = time.Year + "-" + time.Month + "-" + time.Day + " - " + time.Hour + "." + time.Minute;
-            string path = pathBase + "\\" + nameSave + ".txt";
-            fileLog = File.Open(path, FileMode.OpenOrCreate);
+
             return Task.CompletedTask;
         }
 
-        public void PushLog(string text)
+        public static void PushLog(string text)
         {
-            FlushLog(text);
+            Instance.FlushLog(text);
 
             LogString log = new LogString();
             log.Log = text;
-            logs.AddLast(log);
+            Instance.logs.AddLast(log);
             PushLogCall?.Invoke(log);
-            if(CheckIsOverflow())
+            if(Instance.CheckIsOverflow())
             {
-                RemoveBackLog();
+                Instance.RemoveBackLog();
             }
         }
         
@@ -71,7 +86,7 @@ namespace Core.SessionManager.GameProcess
 
         private void FlushLog(string log)
         {
-            byte[] info = new UTF8Encoding(true).GetBytes(DateTime.Now.ToString() + "-: " + log + "\n");
+            byte[] info = new UTF8Encoding(true).GetBytes(DateTime.Now.ToString(CultureInfo.InvariantCulture) + "-: " + log + "\n");
             fileLog.Write(info, 0, info.Length);
             fileLog.Flush();
         }

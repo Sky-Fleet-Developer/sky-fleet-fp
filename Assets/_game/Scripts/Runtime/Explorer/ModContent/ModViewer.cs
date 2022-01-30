@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Explorer.ModContent
 {
-    public class ModViewer : UiBlockBase
+    public class ModViewer : Service
     {
         [Header("StaticHierarchy")]
         public RectTransform selectionScrollRoot;

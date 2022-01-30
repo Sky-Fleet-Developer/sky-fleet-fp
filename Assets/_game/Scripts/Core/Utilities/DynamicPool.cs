@@ -17,12 +17,12 @@ namespace Core.Utilities
             all = new List<(GameObject, Component)>();
         }
 
-        public (GameObject, Component) Find(GameObject prefab, bool remuve = false)
+        public (GameObject, Component) Find(Component prefab, bool remuve = false)
         {
             DynamicPool inst = Instance;
             for (int i = 0; i < pool.Count; i++)
             {
-                if (pool[i].Item1 == prefab)
+                if (pool[i].Item1 == prefab.gameObject)
                 {
                     if (remuve)
                     {
@@ -38,27 +38,27 @@ namespace Core.Utilities
 
         public T Get<T>(T source, Transform parent) where T : Component
         {
-            T t = Get<T>(source.gameObject);
-            t.transform.SetParent(parent);
-            t.transform.localPosition = Vector3.zero;
-            t.transform.localRotation =Quaternion.identity;
-            t.transform.localScale = Vector3.one;
+            T t = Get<T>(source);
+            var tr = t.transform;
+            tr.SetParent(parent);
+            tr.localPosition = Vector3.zero;
+            tr.localRotation =Quaternion.identity;
+            tr.localScale = Vector3.one;
+            if (tr is RectTransform rtr)
+            {
+                rtr.anchoredPosition = Vector2.zero;
+            }
             return t;
         }
 
-        public T Get<T>(T source) where T : Component
-        {
-            return Get<T>(source.gameObject);
-        }
-
-        public T Get<T>(GameObject prefab) where T : Component
+        public T Get<T>(T prefab) where T : Component
         {
             (GameObject, Component) target = Find(prefab, true);
             if (target.Item1 == null)
             {
-                GameObject instance = Instantiate(prefab);
+                T instance = Instantiate(prefab);
                 instance.name = prefab.name + $"({all.Count(x => x.Item1 == prefab)})";
-                target = (prefab, instance.GetComponent<T>());
+                target = (prefab.gameObject, instance);
                 all.Add(target);
             }
             free.Add(target);
@@ -74,11 +74,12 @@ namespace Core.Utilities
 
         public void Return(Component component)
         {
+            if (!component) return;
+
             for (int i = 0; i < free.Count; i++)
             {
                 if (free[i].Item2 == component)
                 {
-                    if (!component) return;
                     component.transform.SetParent(Instance.transform);
                     component.gameObject.SetActive(false);
                     pool.Add(free[i]);

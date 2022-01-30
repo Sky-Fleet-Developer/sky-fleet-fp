@@ -9,8 +9,8 @@ namespace Core.SessionManager.GameProcess
 {
     public class PauseGame : Singleton<PauseGame>, ILoadAtStart
     {
-        public event Action PauseOn;
-        public event Action PauseOff;
+        public event Action OnPause;
+        public event Action OnResume;
 
         public bool IsPause { get; private set; }
 
@@ -26,30 +26,30 @@ namespace Core.SessionManager.GameProcess
             if (!IsPause)
             {
                 IsPause = true;
-                PauseOn();
+                OnPause?.Invoke();
             }
             else
             {
                 IsPause = false;
-                PauseOff();
+                OnResume?.Invoke();
             }
         }
 
-        public void SetOnPause()
+        public void Pause()
         {
             if (!IsPause)
             {
                 IsPause = true;
-                PauseOn();
+                OnPause?.Invoke();
             }
         }
 
-        public void SetOffPause()
+        public void Resume()
         {
             if (IsPause)
             {
                 IsPause = false;
-                PauseOff();
+                OnResume?.Invoke();
             }
         }
 

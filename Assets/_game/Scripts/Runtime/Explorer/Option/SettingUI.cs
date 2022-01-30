@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Core.UIStructure;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ using Paterns.AbstractFactory;
 
 namespace Runtime.Explorer
 {
-    public class SettingUI : UiBlockBase
+    public class SettingUI : Service
     {
 
         [SerializeField] private ItemPointer prefabCategory;
@@ -148,7 +149,10 @@ namespace Runtime.Explorer
                 for (int i = 0; i < button.Keys.Count; i++)
                 {
                     listButtons.Append(button.Keys[i].ToString());
-                    listButtons.Append(" ");
+                    if (i < button.Keys.Count - 1)
+                    {
+                        listButtons.Append(", ");
+                    }
                 }
                 return listButtons.ToString();
             }
@@ -163,13 +167,17 @@ namespace Runtime.Explorer
 
         private void CallAddInputButton(InputButtons input, ItemPointer pointerUI)
         {
-            TakeInputUI.Instance.GetInputButtons(x => { OnAddInputButton(x, input, pointerUI); });
+            InputReader reader = ServiceIssue.Instance.GetOrMakeService<InputReader>();
+            reader.Window.Fullscreen();
+            reader.GetInputButtons(x => { OnAddInputButton(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;
         }
 
         private void CallAddInputAxis(InputAxis input, ItemPointer pointerUI)
         {
-            TakeInputUI.Instance.GetInputAxis(x => { OnAddInputAxis(x, input, pointerUI); });
+            InputReader reader = ServiceIssue.Instance.GetOrMakeService<InputReader>();
+            reader.Window.Fullscreen();
+            reader.GetInputAxis(x => { OnAddInputAxis(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;
         }
 

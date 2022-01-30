@@ -1,4 +1,5 @@
 using Core.Boot_strapper;
+using Core.SessionManager.GameProcess;
 using UnityEngine;
 
 namespace Core
@@ -7,7 +8,7 @@ namespace Core
     {
         private async void Start()
         {
-            foreach(ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>())
+            foreach (ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>())
             {
                 await load.Load();
             }

@@ -6,12 +6,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.UiStructure;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Runtime.Explorer
 {
-    public class TakeInputUI : Singleton<TakeInputUI>, ILoadAtStart
+    public class InputReader : Service
     {
 
         [SerializeField] private GameObject basic;
@@ -29,97 +30,98 @@ namespace Runtime.Explorer
         [SerializeField] private Button cancleBut;
         [SerializeField] private Button okBut;
 
-        private bool IsBusy;
+        private bool isBusy;
 
         public Task Load()
         {
-            IsBusy = false;
             basic.SetActive(false);
             return Task.CompletedTask;
         }
 
         public void GetInputButtons(Action<ButtonCodes> endTakeButtons)
         {
-            if (IsBusy)
-                throw new MethodAccessException();
-            IsBusy = true;
+            if (isBusy) throw new MethodAccessException();
+            isBusy = true;
             HotKeys.IsBlocks = true;
             basic.SetActive(true);
             takeButtons.SetActive(true);
             InputControl.Instance.TakeInputButton(x =>
             {
-                OnTakeInputButtons(x, endTakeButtons);
+                OnReceiveInput(x, endTakeButtons);
             });
         }
 
         public void GetInputAxis(Action<AxisCode> endTakeAxis)
         {
-            if (IsBusy)
-                throw new MethodAccessException();
-            IsBusy = true;
+            if (isBusy) throw new MethodAccessException();
+            isBusy = true;
             HotKeys.IsBlocks = true;
             basic.SetActive(true);
             takeAxles.SetActive(true);
             InputControl.Instance.TakeInputAxis(x =>
             {
-                OnTakeInputAxis(x, endTakeAxis);
+                OnReceiveInput(x, endTakeAxis);
             });
         }
 
-        private void OnTakeInputButtons(ButtonCodes buttons, Action<ButtonCodes> endTakeButtons)
+        private void OnReceiveInput(ButtonCodes buttons, Action<ButtonCodes> endTakeButtons)
         {
             takeButtons.SetActive(false);
             ShowDialog(
                 buttons.ToString(),
                 delegate
                 {
-                    IsBusy = false;
+                    isBusy = false;
                     HotKeys.IsBlocks = false;
                     GetInputButtons(endTakeButtons);
                 },
                 delegate
                 {
-                    IsBusy = false;
+                    isBusy = false;
                     HotKeys.IsBlocks = false;
                     endTakeButtons?.Invoke(ButtonCodes.Zero());
+                    Window.Close();
                     basic.SetActive(false);
                 },
                 delegate
                 {
-                    IsBusy = false;
+                    isBusy = false;
                     HotKeys.IsBlocks = false;
                     endTakeButtons?.Invoke(buttons);
+                    Window.Close();
                     basic.SetActive(false);
                 }
-                );
+            );
         }
 
-        private void OnTakeInputAxis(AxisCode axis, Action<AxisCode> endTakeAxis)
+        private void OnReceiveInput(AxisCode axis, Action<AxisCode> endTakeAxis)
         {
             takeAxles.SetActive(false);
             ShowDialog(
                 axis.ToString(),
                 delegate
                 {
-                    IsBusy = false;
+                    isBusy = false;
                     HotKeys.IsBlocks = false;
                     GetInputAxis(endTakeAxis);
                 },
                 delegate
                 {
-                    IsBusy = false;
+                    isBusy = false;
                     HotKeys.IsBlocks = false;
                     endTakeAxis?.Invoke(AxisCode.Zero());
+                    Window.Close();
                     basic.SetActive(false);
                 },
                 delegate
                 {
-                    IsBusy = false;
+                    isBusy = false;
                     HotKeys.IsBlocks = false;
                     endTakeAxis?.Invoke(axis);
+                    Window.Close();
                     basic.SetActive(false);
                 }
-                );
+            );
         }
 
 

@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace Runtime.Explorer.SessionUI
 {
-    public class GameUIBase : UiStructureBase, ILoadAtStart
+    public class GameUI : BearerCanvas, ILoadAtStart
     {
         [SerializeField] private GameObject gameMenuObj;
 
         public Task Load()
         {
-            PauseGame.Instance.PauseOn += OpenGameMenu;
-            PauseGame.Instance.PauseOff += CloseGameMenu;
+            PauseGame.Instance.OnPause += OpenGameMenu;
+            PauseGame.Instance.OnResume += CloseGameMenu;
             CloseGameMenu();
             return Task.CompletedTask;
         }
@@ -32,8 +32,8 @@ namespace Runtime.Explorer.SessionUI
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            PauseGame.Instance.PauseOn -= OpenGameMenu;
-            PauseGame.Instance.PauseOff -= CloseGameMenu;
+            PauseGame.Instance.OnPause -= OpenGameMenu;
+            PauseGame.Instance.OnResume -= CloseGameMenu;
         }
 
         private void CloseGameMenu()
