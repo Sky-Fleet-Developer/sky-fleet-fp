@@ -54,7 +54,7 @@ namespace Core.TerrainGenerator
             });
         }
 
-        public Task LoadStart()
+        public Task Load()
         {
             Instance = this;
 

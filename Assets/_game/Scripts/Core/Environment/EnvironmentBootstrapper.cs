@@ -7,7 +7,7 @@ namespace Core.Environment
     public class EnvironmentBootstrapper : MonoBehaviour, ILoadAtStart
     {
 
-        public Task LoadStart()
+        public Task Load()
         {
            /* LinkedList<Mod> mods = Session.Instance.GetMods();
 

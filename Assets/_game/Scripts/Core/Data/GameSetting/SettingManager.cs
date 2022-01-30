@@ -16,7 +16,7 @@ namespace Core.GameSetting
 
         private Setting setting;
 
-        public Task LoadStart()
+        public Task Load()
         {
             
             setting = new Setting();

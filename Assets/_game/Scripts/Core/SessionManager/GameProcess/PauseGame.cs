@@ -14,7 +14,7 @@ namespace Core.SessionManager.GameProcess
 
         public bool IsPause { get; private set; }
 
-        public Task LoadStart()
+        public Task Load()
         {
             KeysControl.Instance.Hot.SetPause += UpdatePause;
             return Task.CompletedTask;

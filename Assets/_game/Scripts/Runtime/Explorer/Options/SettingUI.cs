@@ -1,17 +1,15 @@
-using Core.GameSetting;
-using Core.UiStructure;
-using Core.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Core.GameSetting;
+using Core.UiStructure;
 using Core.UIStructure;
+using Core.Utilities;
+using Paterns.AbstractFactory;
 using UnityEngine;
 using UnityEngine.UI;
 
-using Paterns.AbstractFactory;
-
-namespace Runtime.Explorer
+namespace Runtime.Explorer.Options
 {
     public class SettingUI : Service
     {

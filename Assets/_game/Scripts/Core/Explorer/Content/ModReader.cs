@@ -20,7 +20,7 @@ namespace Core.Explorer.Content
         private static event System.Action<List<Mod>> onModsLoaded;
         [System.NonSerialized, ShowInInspector, ReadOnly] public static bool isModsLoaded = false;
 
-        public async Task LoadStart()
+        public async Task Load()
         {
             LinkedList<string> modsD = GetListMods(GetPathDirectoryMods());
             foreach (string name in modsD)

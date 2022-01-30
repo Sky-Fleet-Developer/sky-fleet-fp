@@ -1,16 +1,12 @@
-using Core;
-using Core.Boot_strapper;
-using Core.GameSetting;
-using Core.Utilities;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core;
+using Core.GameSetting;
 using Core.UiStructure;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Runtime.Explorer
+namespace Runtime.Explorer.Options
 {
     public class InputReader : Service
     {
@@ -40,7 +36,7 @@ namespace Runtime.Explorer
 
         public void GetInputButtons(Action<ButtonCodes> endTakeButtons)
         {
-            if (IsBusy) throw new MethodAccessException();
+            if (isBusy) throw new MethodAccessException();
             isBusy = true;
             KeysControl.IsBlocks = true;
             basic.SetActive(true);

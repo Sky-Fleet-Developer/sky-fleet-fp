@@ -22,7 +22,7 @@ namespace Core.Utilities
 
         [SerializeField] private Transform viewer; 
 
-        public Task LoadStart()
+        public Task Load()
         {
             return Task.CompletedTask;
         }

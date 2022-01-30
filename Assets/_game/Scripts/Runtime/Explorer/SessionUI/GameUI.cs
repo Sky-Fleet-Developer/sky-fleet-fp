@@ -16,7 +16,7 @@ namespace Runtime.Explorer.SessionUI
     {
         [SerializeField] private GameObject gameMenuObj;
 
-        public Task LoadStart()
+        public Task Load()
         {
             PauseGame.Instance.OnPause += OpenGameMenu;
             PauseGame.Instance.OnResume += CloseGameMenu;

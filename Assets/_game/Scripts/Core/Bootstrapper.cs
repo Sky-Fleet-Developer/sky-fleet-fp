@@ -10,7 +10,7 @@ namespace Core
         {
             foreach (ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>())
             {
-                await load.LoadStart();
+                await load.Load();
             }
         }
     }

@@ -19,7 +19,7 @@ namespace Core.Environment
             new Dictionary<IStructure, StructureRayCastingProfile>();
 
 
-        public Task LoadStart()
+        public Task Load()
         {
             Instance = this;
 

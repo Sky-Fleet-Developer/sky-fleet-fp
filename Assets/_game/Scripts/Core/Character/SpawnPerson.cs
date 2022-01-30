@@ -16,7 +16,7 @@ namespace Runtime.Character
 
 
 
-        public Task LoadStart()
+        public Task Load()
         {
             player.gameObject.SetActive(true);
             return Task.CompletedTask;

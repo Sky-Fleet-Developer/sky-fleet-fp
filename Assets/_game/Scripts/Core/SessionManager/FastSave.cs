@@ -11,7 +11,7 @@ namespace Core.SessionManager
     {
         private SaveLoadUtility saver;
 
-        public Task LoadStart()
+        public Task Load()
         {
             saver = new SaveLoadUtility();
             KeysControl.Instance.Hot.FastSave += Save;

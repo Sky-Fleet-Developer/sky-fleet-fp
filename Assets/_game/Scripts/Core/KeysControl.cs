@@ -20,7 +20,7 @@ namespace Core
 
         private LinkedList<KeyToRequest> clearKeysQueue;
 
-        public Task LoadStart()
+        public Task Load()
         {
             Hot = new HotKeys();
             requests = new List<Request>();
