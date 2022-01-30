@@ -7,6 +7,7 @@ namespace Core.SessionManager.SaveService
     [System.Serializable]
     public class State
     {
+        public UnityEngine.Vector3 worldOffset;
         public UnityEngine.Vector3 playerPos;
         public UnityEngine.Vector3 playerRot;
 

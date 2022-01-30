@@ -14,7 +14,7 @@ namespace Core.Game
         public static bool RotationLocked;
         public State CurrentState { get; set; }
 
-        public Task Load()
+        public Task LoadStart()
         {
             Instance = this;
             CurrentState = new FreeCursorState(this);

@@ -4,8 +4,6 @@ namespace Core.Boot_strapper
 {
     public interface ILoadAtStart
     {
-        Task Load();
-
-
+        Task LoadStart();
     }
 }

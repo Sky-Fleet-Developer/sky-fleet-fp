@@ -38,7 +38,8 @@ namespace Core.SessionManager.SaveService
             List<StructureBundle> bundles = serializer.GetBundlesFor(structures);
 
             State state = new State(bundles);
-            Debug.Log(Session.Instance.Player);
+
+            state.worldOffset = WorldOffset.Instance.Offset;
             state.playerPos = Session.Instance.Player.transform.localPosition;
             state.playerRot = Session.Instance.Player.transform.localEulerAngles;
 
@@ -54,6 +55,7 @@ namespace Core.SessionManager.SaveService
 
             Session.Instance.Player.transform.localPosition = state.playerPos;
             Session.Instance.Player.transform.localEulerAngles = state.playerRot;
+            WorldOffset.Instance.Offset = state.worldOffset;
 
             List<System.Reflection.Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             LinkedList<Mod> mods = Session.Instance.Settings.mods;

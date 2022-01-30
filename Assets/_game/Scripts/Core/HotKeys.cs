@@ -7,38 +7,36 @@ using System.Threading.Tasks;
 
 namespace Core
 {
-    public class HotKeys : Singleton<HotKeys>, ILoadAtStart
+    public class HotKeys
     {
         public event Action FastSave;
 
         public event Action SetPause;
 
-        public InputButtons fastSaveBut;
+        private InputButtons fastSaveBut;
 
-        public InputButtons setPaseBut;
+        private InputButtons setPaseBut;
 
-        public static bool IsBlocks { get; set; }
 
-        public Task Load()
+
+        public HotKeys()
         {
             fastSaveBut = InputControl.Instance.GetInput<InputButtons>("General", "Fast save");
             setPaseBut = InputControl.Instance.GetInput<InputButtons>("General", "Set pause");
-            return Task.CompletedTask;
         }
 
-        void Update()
+        public void Update()
         {
-            if (!IsBlocks)
+
+            if (InputControl.Instance.GetButtonDown(fastSaveBut) > 0)
             {
-                if (InputControl.Instance.GetButtonDown(fastSaveBut) > 0)
-                {
-                    FastSave?.Invoke();
-                }
-                if (InputControl.Instance.GetButtonDown(setPaseBut) > 0)
-                {
-                    SetPause?.Invoke();
-                }
+                FastSave?.Invoke();
             }
+            if (InputControl.Instance.GetButtonDown(setPaseBut) > 0)
+            {
+                SetPause?.Invoke();
+            }
+
         }
     }
 }

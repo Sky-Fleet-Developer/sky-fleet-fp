@@ -6,7 +6,7 @@ namespace Core.SessionManager
 {
     public class SessionReporting : MonoBehaviour, ILoadAtStart
     {
-        public Task Load()
+        public Task LoadStart()
         {
             if(Session.Instance.IsInitialized())
             {

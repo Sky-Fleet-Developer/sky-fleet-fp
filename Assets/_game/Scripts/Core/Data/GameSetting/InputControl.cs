@@ -23,7 +23,7 @@ namespace Core.GameSetting
 
         private Coroutine busyCoroutine;
 
-        public Task Load()
+        public Task LoadStart()
         {
             return Task.CompletedTask;
         }

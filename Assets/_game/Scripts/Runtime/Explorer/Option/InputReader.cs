@@ -32,7 +32,7 @@ namespace Runtime.Explorer
 
         private bool isBusy;
 
-        public Task Load()
+        public Task LoadStart()
         {
             basic.SetActive(false);
             return Task.CompletedTask;
@@ -40,9 +40,9 @@ namespace Runtime.Explorer
 
         public void GetInputButtons(Action<ButtonCodes> endTakeButtons)
         {
-            if (isBusy) throw new MethodAccessException();
+            if (IsBusy) throw new MethodAccessException();
             isBusy = true;
-            HotKeys.IsBlocks = true;
+            KeysControl.IsBlocks = true;
             basic.SetActive(true);
             takeButtons.SetActive(true);
             InputControl.Instance.TakeInputButton(x =>
@@ -55,7 +55,7 @@ namespace Runtime.Explorer
         {
             if (isBusy) throw new MethodAccessException();
             isBusy = true;
-            HotKeys.IsBlocks = true;
+            KeysControl.IsBlocks = true;
             basic.SetActive(true);
             takeAxles.SetActive(true);
             InputControl.Instance.TakeInputAxis(x =>
@@ -72,13 +72,13 @@ namespace Runtime.Explorer
                 delegate
                 {
                     isBusy = false;
-                    HotKeys.IsBlocks = false;
+                    KeysControl.IsBlocks = false;
                     GetInputButtons(endTakeButtons);
                 },
                 delegate
                 {
                     isBusy = false;
-                    HotKeys.IsBlocks = false;
+                    KeysControl.IsBlocks = false;
                     endTakeButtons?.Invoke(ButtonCodes.Zero());
                     Window.Close();
                     basic.SetActive(false);
@@ -86,7 +86,7 @@ namespace Runtime.Explorer
                 delegate
                 {
                     isBusy = false;
-                    HotKeys.IsBlocks = false;
+                    KeysControl.IsBlocks = false;
                     endTakeButtons?.Invoke(buttons);
                     Window.Close();
                     basic.SetActive(false);
@@ -102,13 +102,13 @@ namespace Runtime.Explorer
                 delegate
                 {
                     isBusy = false;
-                    HotKeys.IsBlocks = false;
+                    KeysControl.IsBlocks = false;
                     GetInputAxis(endTakeAxis);
                 },
                 delegate
                 {
                     isBusy = false;
-                    HotKeys.IsBlocks = false;
+                    KeysControl.IsBlocks = false;
                     endTakeAxis?.Invoke(AxisCode.Zero());
                     Window.Close();
                     basic.SetActive(false);
@@ -116,7 +116,7 @@ namespace Runtime.Explorer
                 delegate
                 {
                     isBusy = false;
-                    HotKeys.IsBlocks = false;
+                    KeysControl.IsBlocks = false;
                     endTakeAxis?.Invoke(axis);
                     Window.Close();
                     basic.SetActive(false);

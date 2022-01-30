@@ -6,19 +6,20 @@ namespace Runtime.Character
 {
     public class CharacterMotor : MonoBehaviour
     {
-        
+
         //--------character properties--------//
         [FoldoutGroup("Character")] public float sprintSpeed;
-        [FoldoutGroup("Character")]public float forwardSpeed;
-        [FoldoutGroup("Character")]public float sideSpeed;
+        [FoldoutGroup("Character")] public float forwardSpeed;
+        [FoldoutGroup("Character")] public float sideSpeed;
         [FoldoutGroup("Character")] public float backSpeed;
-        [FoldoutGroup("Character")]public float jumpImpulse;
-        
+        [FoldoutGroup("Character")] public float jumpImpulse;
+
         //--------locomotor properties--------//
         [FoldoutGroup("Locomotor")] public float skinWidth = 0.2f;
         [FoldoutGroup("Locomotor")] public float radius = 0.4f;
         [FoldoutGroup("Locomotor"),
-         Header("Скольжение")] public float staticFriction = 600;
+         Header("Скольжение")]
+        public float staticFriction = 600;
         [FoldoutGroup("Locomotor")] public float frictionDrag = 200;
         [FoldoutGroup("Locomotor"), Min(0.0001f)] public float maxFrictionOffset = 0.3f;
         [FoldoutGroup("Locomotor"), Min(0.01f)] public float slidingValue = 0.5f;
@@ -28,11 +29,11 @@ namespace Runtime.Character
         [FoldoutGroup("Locomotor"), Header("Препятствия")] public float rayPerInputOffset = 0.1f;
         [FoldoutGroup("Locomotor")] public float yDragMul = 2f;
 
-        [Header("Сила срыва"), FoldoutGroup("Locomotor")] 
+        [Header("Сила срыва"), FoldoutGroup("Locomotor")]
         public float maxStaticFriction;
-        [Header("Сила сцепления"), FoldoutGroup("Locomotor")] 
+        [Header("Сила сцепления"), FoldoutGroup("Locomotor")]
         public float minSlidingFriction;
-        
+
         //--------runtime--------//
         private bool sliding;
         private RaycastHit groundHit;
@@ -51,15 +52,15 @@ namespace Runtime.Character
         private float sideDelta;
         private float sideVelocity;
         private Transform platform;
-        
+
         private Vector2 targetSpeed;
         [ShowInInspector] private bool jump;
         [ShowInInspector, ReadOnly] private bool canJump = true;
         private bool jumpTickNow;
 
-        
+
         [ShowInInspector, ReadOnly] public bool InputSprint { get; set; }
-        [ShowInInspector, ReadOnly]  public Vector2 InputAxis { get; set; }
+        [ShowInInspector, ReadOnly] public Vector2 InputAxis { get; set; }
         private Vector2 input;
 
         public void InputJump()
@@ -77,7 +78,7 @@ namespace Runtime.Character
             platformPoint = Vector3.zero;
             platform = null;
         }
-        
+
         private void Start()
         {
             rigidbody = GetComponentInParent<Rigidbody>();
@@ -96,7 +97,7 @@ namespace Runtime.Character
         {
             input.x = Mathf.Lerp(input.x, Mathf.Clamp(InputAxis.x, -1f, 1f), Time.deltaTime * 2.5f);
             input.y = Mathf.Lerp(input.y, Mathf.Clamp(InputAxis.y, -1f, 1f), Time.deltaTime * 2.5f);
-            
+
             float along = input.x * (input.x > 0 ? (InputSprint ? sprintSpeed : forwardSpeed) : backSpeed);
             targetSpeed = new Vector2(along, sideSpeed * Mathf.Clamp(input.y, -1f, 1f));
         }
@@ -108,13 +109,13 @@ namespace Runtime.Character
             Vector3 offset = transform.forward * input.x + transform.right * input.y;
 
             position = position + transform.up * (radius + skinWidth) + offset * rayPerInputOffset;
-            
+
             grounded = Physics.SphereCast(position, radius, -transform.up, out groundHit, skinWidth * 2,
                 GameData.Data.groundLayer);
-            
+
             //Debug.DrawLine(position, transform.position, Color.cyan);
             //Debug.DrawRay(position, -transform.up * groundHit.distance, Color.cyan);
-            
+
             //Debug.DrawLine(position, position - transform.up * (grounded ? groundHit.distance : height + skinWidth));
         }
 
@@ -184,7 +185,7 @@ namespace Runtime.Character
                 {
                     yDelta = Mathf.Clamp(groundHit.distance - skinWidth * 1.5f, -skinWidth * 0.5f, skinWidth);
                     yVel = Mathf.Max(localSelfVelocity.y, -1) * rigidbody.mass;
-                   // transform.position -= transform.up * yDelta;
+                    // transform.position -= transform.up * yDelta;
                 }
                 //to world
 
@@ -245,9 +246,9 @@ namespace Runtime.Character
             float aMag = normalAcceleration.magnitude;
             Vector3 aDir = aMag == 0 ? Vector3.zero : normalAcceleration / aMag;
             Vector3 up = Vector3.up - aDir * (Mathf.Min(aMag * accelerationInclination, inclinationMax));
-            
+
             Quaternion qUp = Quaternion.LookRotation(up, fwd);
-            
+
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(qUp * Vector3.up, qUp * Vector3.forward), Time.deltaTime * inclinationHardness);
         }
     }

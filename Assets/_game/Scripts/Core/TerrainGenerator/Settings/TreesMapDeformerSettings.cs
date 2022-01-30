@@ -32,7 +32,7 @@ namespace Core.TerrainGenerator.Settings
                 TreeInstance[] trTrees = terrain.terrainData.treeInstances;
                 for (int i = 0; i < trTrees.Length; i++)
                 {
-                    Vector3 local = GetPosTreeInDeformer(terrain, trTrees[i].position);
+                    Vector3 local = GetPosTreeInDeformer(terrain.terrainData, trTrees[i].position);
                     if (rectCore.Contains(local.XZ()))
                     {
                         TreeInstance tree = trTrees[i];
@@ -50,50 +50,56 @@ namespace Core.TerrainGenerator.Settings
             WriteToTerrain(Core.GetTerrainsContacts());
         }
 
-        private Vector3 GetPosTreeInDeformer(Terrain terrain, Vector3 posTree)
+        private Vector3 GetPosTreeInDeformer(TerrainData data, Vector3 posTree)
         {
-            posTree.Scale(terrain.terrainData.size);
+            posTree.Scale(data.size);
             return Core.transform.InverseTransformPoint(posTree);
         }
 
         public void WriteToTerrain(Terrain[] terrains)
         {
+            foreach (Terrain terrain in terrains)
+            {
+                WriteToTerrainData(terrain.terrainData, terrain.transform.position);
+            }
+
+        }
+
+        public void WriteToTerrainData(TerrainData data, Vector3 pos)
+        {
             Rect rectCore = new Rect(Core.LocalRect.x - Core.LocalRect.z / 2, Core.LocalRect.y - Core.LocalRect.w / 2, Core.LocalRect.z, Core.LocalRect.w);
-            foreach (Terrain terrain in terrains)
+            TreeInstance[] trees = data.treeInstances;
+            List<TreeInstance> newTrees = new List<TreeInstance>();
+            for (int i = 0; i < trees.Length; i++)
             {
-                TreeInstance[] trees = terrain.terrainData.treeInstances;
-                List<TreeInstance> newTrees = new List<TreeInstance>();
-                for (int i = 0; i < trees.Length; i++)
+                if (!rectCore.Contains(GetPosTreeInDeformer(data, trees[i].position).XZ()))
                 {
-                    if (!rectCore.Contains(GetPosTreeInDeformer(terrain, trees[i].position).XZ()))
-                    {
-                        newTrees.Add(trees[i]);
-                    }
+                    newTrees.Add(trees[i]);
                 }
-                terrain.terrainData.SetTreeInstances(newTrees.ToArray(), true);
             }
-
+            data.SetTreeInstances(new TreeInstance[0], true);
             Rect terrainRect = new Rect(0, 0, 1, 1);
-            foreach (Terrain terrain in terrains)
+            
+            foreach (TreeInstance tree in Trees)
             {
-                List<TreeInstance> newTrees = new List<TreeInstance>(terrain.terrainData.treeInstances);
-
-                foreach (TreeInstance tree in Trees)
+                
+                Vector3 trPos = tree.position;
+                trPos = Core.transform.TransformPoint(trPos);
+                trPos = trPos - pos;
+                trPos.y = 0;
+                trPos *= 1.0f / data.size.x;
+                if (terrainRect.Contains(trPos.XZ()))
                 {
-                    Vector3 trPos = tree.position;
-                    trPos = Core.transform.TransformPoint(trPos);
-                    trPos = terrain.transform.InverseTransformPoint(trPos);
-                    trPos *= 1.0f / terrain.terrainData.size.x;
-                    if (terrainRect.Contains(trPos.XZ()))
-                    {
-                        TreeInstance newTree = tree;
-                        newTree.position = trPos;
-                        newTree.rotation = (Core.transform.rotation * Quaternion.AngleAxis(newTree.rotation, Vector3.up)).eulerAngles.y;
-                        newTrees.Add(newTree);
-                    }
-                }                
-                terrain.terrainData.SetTreeInstances(newTrees.ToArray(), true);
+                    TreeInstance newTree = tree;
+                    newTree.position = trPos;
+                    newTree.rotation = (Core.transform.rotation * Quaternion.AngleAxis(newTree.rotation, Vector3.up)).eulerAngles.y;
+                    newTree.lightmapColor = new Color32();
+                    newTree.color = new Color32();
+                    newTrees.Add(newTree);
+                    Debug.Log("Add : " + newTree.position + " , " + newTree.rotation + " , " + tree.prototypeIndex);
+                } 
             }
+            data.SetTreeInstances(newTrees.ToArray(), true);
         }
     }
 }

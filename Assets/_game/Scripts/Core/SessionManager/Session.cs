@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Core.Explorer.Content;
 using Core.SessionManager.SaveService;
 using Core.Utilities;
+using Runtime.Character;
 using Runtime.Character.Control;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace Core.SessionManager
         public FirstPersonController Player { get; private set; }
 
         private bool isInitialized = false;
+
 
         [ShowInInspector] private SessionSettings settings = new SessionSettings();
 
@@ -40,7 +42,7 @@ namespace Core.SessionManager
 
         private void InitPlayer()
         {
-            if (Player == null) Player = FindObjectOfType<FirstPersonController>();
+            if (Player == null) Player = SpawnPerson.Instance.Player;
         }
 
         [Button]
@@ -59,13 +61,13 @@ namespace Core.SessionManager
             await Load(filePath);
             onComplete?.Invoke();
         }
-        
+
         [Button]
         public Task Load(string filePath)
         {
             return saveLoad.Load(filePath);
         }
-        
+
         public bool IsInitialized()
         {
             return isInitialized;
@@ -78,7 +80,7 @@ namespace Core.SessionManager
 
         public void SetSettings(SessionSettings newSettings)
         {
-            if(SceneManager.GetActiveScene().buildIndex == (int)SceneLoader.TypeScene.Menu)
+            if (SceneManager.GetActiveScene().buildIndex == (int)SceneLoader.TypeScene.Menu)
             {
                 settings = newSettings;
             }
@@ -95,7 +97,7 @@ namespace Core.SessionManager
             isInitialized = true;
             Time.timeScale = 1;
         }
-        
+
         public void Clear()
         {
             isInitialized = false;

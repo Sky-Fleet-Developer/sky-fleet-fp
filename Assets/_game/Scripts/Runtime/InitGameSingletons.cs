@@ -11,7 +11,8 @@ namespace Runtime
 {
     public class InitGameSingletons : MonoBehaviour, ILoadAtStart
     {
-        public Task Load()
+
+        public Task LoadStart()
         {
             StructureUpdateModule.CheckInstance();
             GameData.CheckInstance();

@@ -5,6 +5,8 @@ using UnityEngine;
 
 using Core.TerrainGenerator.Utility;
 using Sirenix.OdinInspector;
+using Core.TerrainGenerator.Settings;
+using System.Linq;
 
 namespace Core.TerrainGenerator
 {
@@ -17,7 +19,7 @@ namespace Core.TerrainGenerator
         public TreesLayer(TerrainData terrainData, string path, Vector2Int chunk, GameObject[] prototypes) : base(chunk, terrainData.size.x)
         {
             this.terrainData = terrainData;
-            SetPrototypes(prototypes);            
+            SetPrototypes(prototypes);
             Trees = new List<TreePos>();
             TreesLayerFiles.LoadTreeLayer(path, this);
             IsReady = true;
@@ -26,23 +28,26 @@ namespace Core.TerrainGenerator
         private void SetPrototypes(GameObject[] prototypes)
         {
             TreePrototype[] treePrototypes = new TreePrototype[prototypes.Length];
-            for(int i = 0; i < treePrototypes.Length;i++)
+            for (int i = 0; i < treePrototypes.Length; i++)
             {
                 treePrototypes[i] = new TreePrototype();
                 treePrototypes[i].prefab = prototypes[i];
             }
             terrainData.treePrototypes = treePrototypes;
         }
-        
+
         protected override void ApplyDeformer(IDeformer deformer)
         {
-            throw new System.NotImplementedException();
+            TreesMapDeformerSettings deformerSettings = deformer.Settings.FirstOrDefault(x => x.GetType() == typeof(TreesMapDeformerSettings)) as TreesMapDeformerSettings;
+            if (deformerSettings == null) return;
+
+            deformerSettings.WriteToTerrainData(terrainData, Position);
         }
 
         public override void ApplyToTerrain()
         {
             List<TreeInstance> instances = new List<TreeInstance>();
-            for(int i = 0; i < Trees.Count; i++)
+            for (int i = 0; i < Trees.Count; i++)
             {
                 TreeInstance instance = new TreeInstance();
                 instance.widthScale = 1;
@@ -57,7 +62,7 @@ namespace Core.TerrainGenerator
             terrainData.SetTreeInstances(instances.ToArray(), true);
         }
     }
-    
+
     public struct TreePos
     {
         public int Layer;
@@ -65,7 +70,7 @@ namespace Core.TerrainGenerator
         public int NumTree;
         public float Rotate;
 
-        public TreePos(int layer, int numTree, float rotate,Vector2 pos)
+        public TreePos(int layer, int numTree, float rotate, Vector2 pos)
         {
             Layer = layer;
             NumTree = numTree;
