@@ -6,9 +6,9 @@ namespace Core.Utilities.AsyncAwaitUtil.Source
 {
     public static class Awaiters
     {
-        readonly static WaitForUpdate _waitForUpdate = new WaitForUpdate();
-        readonly static WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
-        readonly static WaitForEndOfFrame _waitForEndOfFrame = new WaitForEndOfFrame();
+        static readonly WaitForUpdate _waitForUpdate = new WaitForUpdate();
+        static readonly WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
+        static readonly WaitForEndOfFrame _waitForEndOfFrame = new WaitForEndOfFrame();
 
         public static WaitForUpdate NextFrame
         {

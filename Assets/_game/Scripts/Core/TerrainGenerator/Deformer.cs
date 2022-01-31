@@ -51,7 +51,7 @@ namespace Core.TerrainGenerator
         private void Start()
         {
             CalculateAxisAlignedRect();
-            TerrainProvider.OnInitialize(Register);
+            TerrainProvider.onInitialize.Subscribe(Register);
         }
 
         private void Register()

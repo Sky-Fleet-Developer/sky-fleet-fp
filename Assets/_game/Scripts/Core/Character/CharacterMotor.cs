@@ -251,5 +251,11 @@ namespace Runtime.Character
 
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(qUp * Vector3.up, qUp * Vector3.forward), Time.deltaTime * inclinationHardness);
         }
+
+        public void MoveOffset(Vector3 offset)
+        {
+            transform.position += offset;
+            
+        }
     }
 }

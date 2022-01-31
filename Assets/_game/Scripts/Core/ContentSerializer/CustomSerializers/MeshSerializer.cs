@@ -104,7 +104,7 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public int GetStringsCount() => 2;
 
-        public async static Task Deserialize(FileStream file, Mesh mesh)
+        public static async Task Deserialize(FileStream file, Mesh mesh)
         {
             FactoryArrayDeconvert deconvert = new FactoryArrayDeconvert();
 

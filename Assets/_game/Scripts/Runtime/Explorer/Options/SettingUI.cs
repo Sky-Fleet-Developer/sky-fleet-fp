@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Core.GameSetting;
+using Core.Data.GameSettings;
 using Core.UiStructure;
 using Core.UIStructure;
 using Core.Utilities;
@@ -34,9 +34,9 @@ namespace Runtime.Explorer.Options
 
         private void FillList()
         {
-            ControlSetting control = SettingManager.Instance.GetControlSetting();
+            ControlSettings control = ControlSettings.Current;
             FactoryUIElement factory = new FactoryUIElement();
-            foreach (ControlSetting.CategoryInputs category in control.Categoryes)
+            foreach (InputCategory category in control.Categories)
             {
                 ItemPointer categoryItem = DynamicPool.Instance.Get(prefabCategory, content);
                 categoryItem.GetPointer<Text>("Text").text = category.Name;
@@ -196,7 +196,7 @@ namespace Runtime.Explorer.Options
         //
         private void CallSaveOption()
         {
-            SettingManager.Instance.SaveSetting();
+            ControlSettings.Save();
         }
     }
 }

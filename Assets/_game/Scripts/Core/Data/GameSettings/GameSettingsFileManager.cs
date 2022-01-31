@@ -1,17 +1,14 @@
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using Paterns.AbstractFactory;
-
 using Core.ContentSerializer;
+using Paterns.AbstractFactory;
 using UnityEngine;
 
-namespace Core.GameSetting
+namespace Core.Data.GameSettings
 {
-
-    public static class GameSettingFileManager
+    public static class GameSettingsFileManager
     {
-        static private void CorrectDirectory()
+        private static void CorrectDirectory()
         {
             string path = PathStorage.GetPathToSettingDirectory();
             if (!Directory.Exists(path))
@@ -20,41 +17,33 @@ namespace Core.GameSetting
             }
         }
 
-        static public bool LoadSetting(Setting setting, string path)
+        public static void LoadSetting(ControlSettings settings, string path)
         {
             CorrectDirectory();
-            if (File.Exists(path))
+
+            using (FileStream file = File.Open(path, FileMode.Open))
             {
-                using (FileStream file = File.Open(path, FileMode.Open))
+                ExtensionStream extension = new ExtensionStream();
+                int count = extension.ReadInt(file);
+                for (int i = 0; i < count; i++)
                 {
-                    FactoryOptionLoad factory = new FactoryOptionLoad();
-                    ExtensionStream extension = new ExtensionStream();
-                    int count = extension.ReadInt(file);
-                    for(int i = 0; i < count; i++)
-                    {
-                        ControlSetting.CategoryInputs category = ReadCategory(file);
-                        SetCategoryToControlSetting(setting.Control, category);
-                    }
+                    InputCategory inputCategory = ReadCategory(file);
+                    SetCategoryToControlSettings(settings, inputCategory);
                 }
-                return true;
-            }
-            else
-            {
-                return false;
             }
         }
 
-        static private void SetCategoryToControlSetting(ControlSetting control, ControlSetting.CategoryInputs category)
+        private static void SetCategoryToControlSettings(ControlSettings settings, InputCategory inputCategory)
         {
-            ControlSetting.CategoryInputs originalCategory = control.Categoryes.Where(x => { return x.Name == category.Name; }).FirstOrDefault();
-            if(originalCategory != null)
+            InputCategory originalInputCategory = settings.Categories.Where(x => { return x.Name == inputCategory.Name; }).FirstOrDefault();
+            if(originalInputCategory != null)
             {
-                for(int i = 0; i < category.Elements.Count; i++)
+                for(int i = 0; i < inputCategory.Elements.Count; i++)
                 {
                     int index = -1;
-                    for(int i2 = 0; i2 < originalCategory.Elements.Count; i2++)
+                    for(int i2 = 0; i2 < originalInputCategory.Elements.Count; i2++)
                     {
-                        if(originalCategory.Elements[i2].Name == category.Elements[i].Name)
+                        if(originalInputCategory.Elements[i2].Name == inputCategory.Elements[i].Name)
                         {
                             index = i2;
                             break;
@@ -63,55 +52,53 @@ namespace Core.GameSetting
 
                     if(index != -1)
                     {
-                        originalCategory.Elements[index] = category.Elements[i];
+                        originalInputCategory.Elements[index] = inputCategory.Elements[i];
                     }
                 }
             }
         }
 
-        static public bool SaveSetting(Setting setting, string path)
+        public static void SaveSetting(ControlSettings settings, string path)
         {
             CorrectDirectory();
             using (FileStream file = File.Open(path, FileMode.OpenOrCreate))
             {
-                ControlSetting control = setting.Control;
                 ExtensionStream extension = new ExtensionStream();
-                extension.WriteInt(control.Categoryes.Count, file);
-                for (int i = 0; i < control.Categoryes.Count; i++)
+                extension.WriteInt(settings.Categories.Count, file);
+                for (int i = 0; i < settings.Categories.Count; i++)
                 {
-                    WriteCaterogry(file, control.Categoryes[i]);
+                    WriteCategory(file, settings.Categories[i]);
                 }
             }
-            return true;
         }
 
-        private static void WriteCaterogry(Stream streamOpen, ControlSetting.CategoryInputs category)
+        private static void WriteCategory(Stream streamOpen, InputCategory inputCategory)
         {
             ExtensionStream extension = new ExtensionStream();
-            extension.WriteString(category.Name, streamOpen);
-            extension.WriteInt(category.Elements.Count, streamOpen);
+            extension.WriteString(inputCategory.Name, streamOpen);
+            extension.WriteInt(inputCategory.Elements.Count, streamOpen);
             FactoryOptionSave factory = new FactoryOptionSave();
-            for (int i = 0; i < category.Elements.Count; i++)
+            for (int i = 0; i < inputCategory.Elements.Count; i++)
             {
-                factory.Generate(new SettingDefine() { Element = category.Elements[i], StreamOpen = streamOpen });
+                factory.Generate(new SettingDefine() { Element = inputCategory.Elements[i], StreamOpen = streamOpen });
             }
         }
 
-        private static ControlSetting.CategoryInputs ReadCategory(Stream streamOpen)
+        private static InputCategory ReadCategory(Stream streamOpen)
         {
-            ControlSetting.CategoryInputs category = new ControlSetting.CategoryInputs();
+            InputCategory inputCategory = new InputCategory();
             ExtensionStream extension = new ExtensionStream();
-            FactoryOptionLoad factory = new FactoryOptionLoad();
-            category.Name = extension.ReadString(streamOpen);
+            OptionLoadFactory optionLoadFactory = new OptionLoadFactory();
+            inputCategory.Name = extension.ReadString(streamOpen);
             int countInput = extension.ReadInt(streamOpen);
             for (int i = 0; i < countInput; i++)
             {
                 TypeSettingElement type = (TypeSettingElement)extension.ReadByte(streamOpen);
-                ElementControlSetting element = factory.Generate(new SettingDefine() { TypeElement = type, StreamOpen = streamOpen});
-                category.Elements.Add(element);
+                ElementControlSetting element = optionLoadFactory.Generate(new SettingDefine() { TypeElement = type, StreamOpen = streamOpen});
+                inputCategory.Elements.Add(element);
             }
 
-            return category;
+            return inputCategory;
         }
 
         private enum TypeSettingElement : byte
@@ -153,10 +140,10 @@ namespace Core.GameSetting
             }
         }
 
-        private class FactoryOptionLoad : AbstractFactory<SettingDefine, ElementControlSetting>
+        private class OptionLoadFactory : AbstractFactory<SettingDefine, ElementControlSetting>
         {
 
-            public FactoryOptionLoad()
+            public OptionLoadFactory()
             {
                 RegisterNewType(new LoadToggleSetting());
                 RegisterNewType(new LoadInputButtonsSetting());

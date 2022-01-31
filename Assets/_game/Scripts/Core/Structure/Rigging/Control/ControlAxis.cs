@@ -1,7 +1,6 @@
+using Core.Data.GameSettings;
 using Core.Structure.Rigging.Control.Attributes;
 using Core.Structure.Wires;
-using Core.GameSetting;
-
 using Sirenix.OdinInspector;
 using UnityEngine;
 using static Core.Structure.StructureUpdateModule;

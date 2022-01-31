@@ -10,7 +10,7 @@ namespace Core.TerrainGenerator.Utility
 {
     public static class PNGReader
     {
-        static public void ReadPNG(string path, Texture2D texture)
+        public static void ReadPNG(string path, Texture2D texture)
         {
             byte[] buffer = File.ReadAllBytes(path);
             texture.LoadImage(buffer);

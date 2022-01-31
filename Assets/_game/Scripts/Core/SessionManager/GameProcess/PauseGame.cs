@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Core.GameSetting;
 using Core.Boot_strapper;
 using Core.Utilities;
 using UnityEngine;

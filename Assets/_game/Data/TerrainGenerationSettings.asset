@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   directoryLandscapes: Test
   material: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
-  propSize: 1000
+  chunkSize: 1000
   height: 500
   heightmapResolution: 257
   visibleDistance: 1500

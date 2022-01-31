@@ -1,78 +1,37 @@
-using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using UnityEngine;
+using Core.SessionManager;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
-namespace Core.GameSetting
+namespace Core.Data.GameSettings
 {
     [System.Serializable]
-    public class ControlSetting
+    public class ControlSettings
     {
-        public class CategoryInputs : INameSetting
+        public static ControlSettings Current => Session.Instance.Control;
+        public List<InputCategory> Categories => categoryInputs;
+
+        private List<InputCategory> categoryInputs;
+
+        public ControlSettings()
         {
-            public string Name { get; set; }
-
-            public List<ElementControlSetting> Elements { get; private set; }
-
-            public CategoryInputs()
-            {
-                Elements = new List<ElementControlSetting>();
-            }
-
-            public InputAxis AddAxisInput(string name)
-            {
-                InputAxis axis = new InputAxis();
-                axis.Name = name;
-                Elements.Add(axis);
-                return axis;
-            }
-
-            public InputButtons AddInputButtons(string name)
-            {
-                InputButtons buttons = new InputButtons();
-                buttons.Name = name;
-                Elements.Add(buttons);
-                return buttons;
-            }
-
-            public ToggleSetting AddToggle(string name)
-            {
-                ToggleSetting toggle = new ToggleSetting();
-                toggle.Name = name;
-                Elements.Add(toggle);
-                return toggle;
-            }
-
-            public T FindElement<T>(string name) where T : ElementControlSetting
-            {
-                return (T)Elements.Where(x => { return x.Name == name && x.GetType() == typeof(T); }).FirstOrDefault();
-            }
+            categoryInputs = new List<InputCategory>();
         }
 
-        public List<CategoryInputs> Categoryes => categoryInputs;
-
-        private List<CategoryInputs> categoryInputs;
-
-        public ControlSetting()
+        public InputCategory AddCategory(string name)
         {
-            categoryInputs = new List<CategoryInputs>();
+            InputCategory inputCategory = new InputCategory();
+            inputCategory.Name = name;
+            categoryInputs.Add(inputCategory);
+            return inputCategory;
         }
 
-        public CategoryInputs AddCategory(string name)
+        public static ControlSettings GetDefaultSetting()
         {
-            CategoryInputs category = new CategoryInputs();
-            category.Name = name;
-            categoryInputs.Add(category);
-            return category;
-        }
-
-        public static ControlSetting GetDefaultSetting()
-        {
-            ControlSetting control = new ControlSetting();
-            CategoryInputs moveCategory = control.AddCategory("Move player");
+            ControlSettings control = new ControlSettings();
+            InputCategory moveCategory = control.AddCategory("Move player");
             moveCategory.AddInputButtons("Move forward");
             moveCategory.AddInputButtons("Move back");
             moveCategory.AddInputButtons("Move left");
@@ -81,16 +40,20 @@ namespace Core.GameSetting
             moveCategory.AddToggle("Use axles for move player?");
             moveCategory.AddAxisInput("Axis forward/back");
             moveCategory.AddAxisInput("Axis left/right");
-            CategoryInputs cameraCategory = control.AddCategory("Camera");
+            InputCategory cameraCategory = control.AddCategory("Camera");
             cameraCategory.AddAxisInput("Axis up/down");
             cameraCategory.AddAxisInput("Axis left/right");
 
-            CategoryInputs generalCategory = control.AddCategory("General");
+            InputCategory generalCategory = control.AddCategory("General");
             generalCategory.AddInputButtons("Fast save");
             generalCategory.AddInputButtons("Set pause");
             return control;
         }
 
+        public static void Save()
+        {
+            Session.Instance.SaveControlSetting();
+        }
     }
 
     public interface INameSetting

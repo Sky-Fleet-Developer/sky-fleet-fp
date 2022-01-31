@@ -1,16 +1,14 @@
-using Core.Boot_strapper;
-using Core.Utilities;
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
-using Core.SessionManager.GameProcess;
-using static Core.Structure.StructureUpdateModule;
+using Core.Boot_strapper;
+using Core.Utilities;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
-namespace Core.GameSetting
+namespace Core.Data.GameSettings
 {
     [DontDestroyOnLoad]
     public class InputControl : Singleton<InputControl>, ILoadAtStart
@@ -30,11 +28,11 @@ namespace Core.GameSetting
 
         public T GetInput<T>(string categoryName, string inputName) where T : ElementControlSetting
         {
-            ControlSetting control = SettingManager.Instance.GetControlSetting();
-            ControlSetting.CategoryInputs category = control.Categoryes.Where(x => { return x.Name == categoryName; }).FirstOrDefault();
-            if (category != null)
+            ControlSettings control = ControlSettings.Current;
+            InputCategory inputCategory = control.Categories.Where(x => { return x.Name == categoryName; }).FirstOrDefault();
+            if (inputCategory != null)
             {
-                return category.FindElement<T>(inputName);
+                return inputCategory.FindElement<T>(inputName);
             }
             return null;
         }

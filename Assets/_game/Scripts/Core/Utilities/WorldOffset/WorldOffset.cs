@@ -16,46 +16,68 @@ namespace Core.Utilities
         [ShowInInspector]
         public Vector3 Offset { get; set; }
 
-        public event Action<Vector3> SendWorldMove;
+        public static event Action<Vector3> OnWorldOffsetChange;
 
-        [SerializeField] private Vector3 limit;
+        [SerializeField] private float limit = 1000;
+        private float limit_i;
 
-        [SerializeField] private Transform viewer; 
+        private Transform anchor;
+
+        bool ILoadAtStart.enabled => true;
+
+        protected override void Setup()
+        {
+            gameObject.SetActive(false);
+        }
 
         public Task Load()
         {
+            if (limit != 0)
+            {
+                limit_i = 1f / limit;
+                Session.OnPlayerWasLoaded.Subscribe(OnPlayerWasLoaded);
+            }
+
             return Task.CompletedTask;
         }
 
+        private void OnPlayerWasLoaded()
+        {
+            gameObject.SetActive(true);
+            anchor = Session.Instance.Player.transform;
+        }
+        
         private void Update()
         {
+            Vector3 pos = anchor.position;
 
-            Vector3 playerPos = viewer.position;
-            Vector3 newPos = Vector3.zero;
-            if (playerPos.x > 0 && limit.x < playerPos.x)
+            Vector3 offset = Vector3.zero;            
+            
+            if (Mathf.Abs(pos.x) > limit)
             {
-                Offset = new Vector3(Offset.x - limit.x, 0, Offset.z);
-                newPos += new Vector3(-limit.x, 0, 0);
+                offset += Vector3.right * pos.x;
             }
-            else if (playerPos.x < 0 && limit.x < -playerPos.x)
+            else if(Mathf.Abs(pos.y) > limit)
             {
-                Offset = new Vector3(Offset.x + limit.x, 0, Offset.z);
-                newPos += new Vector3(limit.x, 0, 0);
+                offset += Vector3.up * pos.y;
             }
-
-            if (playerPos.z > 0 && limit.z < playerPos.z)
+            else if(Mathf.Abs(pos.z) > limit)
             {
-                Offset = new Vector3(Offset.x, 0, Offset.z - limit.z);
-                newPos += new Vector3(0, 0, -limit.z);
-            }
-            else if (playerPos.z < 0 && limit.z < -playerPos.z)
-            {
-                Offset = new Vector3(Offset.x, 0, Offset.z + limit.z);
-                newPos += new Vector3(0, 0, limit.z);
+                offset += Vector3.forward * pos.z;
             }
 
-            //Debug.Log(newPos);
-            //SendWorldMove?.Invoke(newPos);
+            if(offset != Vector3.zero) MakeOffset(-offset);
+        }
+
+        private void MakeOffset(Vector3 offset)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                offset[i] = Mathf.Ceil(offset[i] * limit_i) * limit;
+            }
+            
+            Offset += offset;
+            OnWorldOffsetChange?.Invoke(offset);
         }
     }
 }

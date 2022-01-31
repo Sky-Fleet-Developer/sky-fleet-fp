@@ -29,14 +29,8 @@ namespace Core.TerrainGenerator
         private List<TerrainData> terrainsDates = new List<TerrainData>();
         private List<IDeformer> deformers = new List<IDeformer>();
 
-        private static event System.Action onInitialize;
-
-        public static void OnInitialize(System.Action callback)
-        {
-            if (Instance) callback?.Invoke();
-            else onInitialize += callback;
-        }
-
+        public static LateEvent onInitialize = new LateEvent();
+        
         public static Terrain GetTerrain(Vector2Int position)
         {
             return Instance.chunks[position];
@@ -54,16 +48,23 @@ namespace Core.TerrainGenerator
             });
         }
 
-        public Task Load()
+        async Task ILoadAtStart.Load()
         {
             Instance = this;
-
-            Load(GetCurrentProps());
-
-            return Task.CompletedTask;
+            WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+            await Load(GetCurrentProps());
         }
 
-        public void Load(IEnumerable<Vector2Int> props)
+        private void OnWorldOffsetChange(Vector3 offset)
+        {
+            transform.position += offset;
+            foreach (KeyValuePair<Vector2Int, Terrain> chunk in chunks)
+            {
+                chunk.Value.transform.position += offset;
+            }
+        }
+
+        public Task Load(IEnumerable<Vector2Int> props)
         {
             if (settings.directory == null) throw new System.Exception("Wrong directory!");
 
@@ -84,7 +85,7 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            _ = AwaitForReadyAndApply();
+            return AwaitForReadyAndApply();
         }
 
         private async Task AwaitForReadyAndApply()
@@ -109,10 +110,9 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            await Task.Yield();
-            await Task.Yield();
+            await Task.Delay(1000);
             
-            onInitialize?.Invoke();
+            onInitialize.Invoke();
         }
 
         private IEnumerable<Vector2Int> GetCurrentProps()
@@ -143,7 +143,8 @@ namespace Core.TerrainGenerator
         {
             GameObject obj = new GameObject($"Terrain ({prop.x}, {prop.y})");
 
-            obj.transform.position = new Vector3(prop.x * settings.chunkSize, 0, prop.y * settings.chunkSize);
+            Vector3 selfPos = transform.position;
+            obj.transform.position = new Vector3(selfPos.x + prop.x * settings.chunkSize, selfPos.y, selfPos.z + prop.y * settings.chunkSize);
 
             Terrain ter = obj.AddComponent<Terrain>();
             TerrainData data = new TerrainData();

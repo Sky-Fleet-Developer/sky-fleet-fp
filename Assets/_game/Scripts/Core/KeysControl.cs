@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using Core.Utilities;
-using Core.GameSetting;
 using UnityEngine;
 using Core.Boot_strapper;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Core.Data.GameSettings;
 
 namespace Core
 {

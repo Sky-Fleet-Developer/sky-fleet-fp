@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Core;
-using Core.GameSetting;
+using Core.Data.GameSettings;
 using Core.UiStructure;
 using UnityEngine;
 using UnityEngine.UI;

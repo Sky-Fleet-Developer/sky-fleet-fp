@@ -1,5 +1,5 @@
 using System;
-using Core.GameSetting;
+using Core.Data.GameSettings;
 using Core.Structure.Rigging.Control.Attributes;
 using Core.Structure.Wires;
 using Sirenix.OdinInspector;

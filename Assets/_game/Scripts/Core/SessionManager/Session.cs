@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Data.GameSettings;
 using Core.Explorer.Content;
 using Core.SessionManager.SaveService;
 using Core.Utilities;
@@ -14,7 +15,10 @@ namespace Core.SessionManager
     [DontDestroyOnLoad]
     public class Session : Singleton<Session>
     {
+        public static LateEvent OnPlayerWasLoaded = new LateEvent();
+        
         public SessionSettings Settings => settings;
+        public ControlSettings Control => control;
 
         public FirstPersonController Player { get; private set; }
 
@@ -22,6 +26,7 @@ namespace Core.SessionManager
 
 
         [ShowInInspector] private SessionSettings settings = new SessionSettings();
+        [ShowInInspector] private ControlSettings control = ControlSettings.GetDefaultSetting();
 
         [ShowInInspector] private SaveLoad saveLoad = new SaveLoad();
 
@@ -29,20 +34,55 @@ namespace Core.SessionManager
 
         protected override void Setup()
         {
-            InitPlayer();
+            LoadSettings();
         }
 
         private void OnLevelWasLoaded(int level)
         {
             if (level != 0)
             {
-                InitPlayer();
+                LoadSettings();
             }
         }
 
+        private void LoadSettings()
+        {
+            LoadControl();
+            InitPlayer();
+        }
+        
         private void InitPlayer()
         {
             if (Player == null) Player = SpawnPerson.Instance.Player;
+            OnPlayerWasLoaded.Invoke();
+        }
+
+        private void LoadControl()
+        {
+            try
+            {
+                GameSettingsFileManager.LoadSetting(control, PathStorage.GetPathToSettingFile());
+                Debug.Log("Saved settings were loaded.");
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogError("Error when loading control: " + e);
+                return;
+            }
+        }
+        
+        public void SaveControlSetting()
+        {
+            try
+            {
+                GameSettingsFileManager.SaveSetting(control, PathStorage.GetPathToSettingFile());
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogError(e);
+                return;
+            }
+            Debug.Log("The settings were saved successfully.");
         }
 
         [Button]

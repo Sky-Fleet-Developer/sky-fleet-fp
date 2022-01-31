@@ -8,9 +8,9 @@ namespace Core
     {
         private async void Start()
         {
-            foreach (ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>())
+            foreach (ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>(true))
             {
-                await load.Load();
+                if(load.enabled) await load.Load();
             }
         }
     }

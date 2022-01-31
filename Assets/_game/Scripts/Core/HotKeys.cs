@@ -1,9 +1,9 @@
 using System;
 using Core.Utilities;
-using Core.GameSetting;
 using UnityEngine;
 using Core.Boot_strapper;
 using System.Threading.Tasks;
+using Core.Data.GameSettings;
 
 namespace Core
 {

@@ -1,6 +1,7 @@
 using System.Collections;
 using Cinemachine;
 using Core.Character;
+using Core.Data.GameSettings;
 using Core.Environment;
 using Core.Game;
 using Core.Patterns.State;
@@ -8,7 +9,6 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.SessionManager.GameProcess;
 using Core.Structure.Rigging.Control;
-using Core.GameSetting;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -63,7 +63,13 @@ namespace Runtime.Character.Control
         public IControl AttachedControl => attachedControl;
         private IControl attachedControl;
 
-        public State CurrentState { get; set; }
+        public State CurrentState
+        {
+            get => currentInteractionState;
+            set => currentInteractionState = (InteractionState)value;
+        }
+
+        private InteractionState currentInteractionState;
         //public Quaternion globalView;
 
         private float vertical;
@@ -86,6 +92,12 @@ namespace Runtime.Character.Control
         private void Start()
         {
             if (!isInitialized) Init();
+            WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+        }
+
+        private void OnWorldOffsetChange(Vector3 offset)
+        {
+            currentInteractionState.OnWorldOffsetChange(offset);
         }
 
         public void Init()
@@ -139,6 +151,12 @@ namespace Runtime.Character.Control
         {
             public InteractionState(FirstPersonController master) : base(master)
             {
+            }
+
+            public virtual void OnWorldOffsetChange(Vector3 offset)
+            {
+                /*var cam = CinemachineBrain.SoloCamera;
+                cam.OnTargetObjectWarped(Master.cameraRoot, offset);*/
             }
 
             public override void Update()
@@ -215,16 +233,15 @@ namespace Runtime.Character.Control
         private class FreeWalkState : InteractionState
         {
 
-
             public FreeWalkState(FirstPersonController master) : base(master)
             {
-                WorldOffset.Instance.SendWorldMove += CorrectPosition;
             }
             
-            private void CorrectPosition(Vector3 offset)
+            public override void OnWorldOffsetChange(Vector3 offset)
             {
                 if (!Master.CanMove) return;
-                Master.OffsetMove(offset);
+                Master.motor.MoveOffset(offset);
+                base.OnWorldOffsetChange(offset);
             }
 
             public override void Update()
@@ -279,11 +296,6 @@ namespace Runtime.Character.Control
                 -verticalBorders, verticalBorders);
             transform.Rotate(Vector3.up * (x * horizontalSpeed * Time.deltaTime));
             cameraRoot.localEulerAngles = Vector3.right * vertical;
-        }
-
-        private void OffsetMove(Vector3 pos)
-        {
-            transform.position += pos;
         }
 
         private void Move()
