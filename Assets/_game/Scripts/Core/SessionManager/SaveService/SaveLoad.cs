@@ -40,7 +40,7 @@ namespace Core.SessionManager.SaveService
             State state = new State(bundles);
 
             state.worldOffset = WorldOffset.Instance.Offset;
-            state.playerPos = Session.Instance.Player.transform.localPosition;
+            state.playerPos = Session.Instance.Player.transform.localPosition - WorldOffset.Instance.Offset;
             state.playerRot = Session.Instance.Player.transform.localEulerAngles;
 
             SaveToFile(state, path, name);

@@ -45,6 +45,7 @@ namespace Core.Utilities
         {
             gameObject.SetActive(true);
             anchor = Session.Instance.Player.transform;
+            MakeOffset(-Offset);
         }
         
         private void Update()
