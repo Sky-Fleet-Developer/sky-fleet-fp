@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Settings
 {
     [System.Serializable]
-    public class ColorMapDeformerSettings : IDeformerLayerSetting
+    public class ColorMapDeformerModule : IDeformerModule
     {
         public float[,,] SplatMaps;
         public Vector2Int Resolution;
@@ -17,11 +17,9 @@ namespace Core.TerrainGenerator.Settings
         public int CountLayers;
 
         [JsonIgnore]
-        public Deformer Core { get; set; }
-
-
-
-        public void Init(Deformer core)
+        public IDeformer Core { get; set; }
+        
+        public void Init(IDeformer core)
         {
             Core = core;
         }
@@ -40,10 +38,10 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int y = 0; y < Resolution.y; y++)
                 {
-                    Vector3 pos = Core.transform.rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0, (y / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.transform.position;
+                    Vector3 pos = Core.Rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0, (y / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.Position;
 
                     Terrain tr = GetTerrainInPos(terrains, pos);
-                    Debug.DrawLine(new Vector3(pos.x, Core.transform.position.y, pos.z), new Vector3(pos.x, 0, pos.z), tr != null ? Color.blue : Color.red, 2);
+                    Debug.DrawLine(new Vector3(pos.x, Core.Position.y, pos.z), new Vector3(pos.x, 0, pos.z), tr != null ? Color.blue : Color.red, 2);
                     if (tr != null)
                     {
                         float[] alphas = GetLayersFromTerrainInPos(tr, pos);
@@ -90,33 +88,31 @@ namespace Core.TerrainGenerator.Settings
             return alphaNormal;
         }
 
-        [Button]
+       /* [Button]
         public void WriteToTerrain()
         {
-            WriteToTerrain(Core.GetTerrainsContacts());
-        }
+            WriteToChannel(Core.GetTerrainsContacts());
+        }*/
 
-
-        public void WriteToTerrain(Terrain[] terrains)
+        public void WriteToChannel(DeformationChannel sourceChannel)
         {
-            foreach (Terrain terrain in terrains)
-            {
-                var settings = new RectangleAffectSettings(terrain, Core);
+            if (!(sourceChannel is ColorChannel channel)) return;
+            
+            RectangleAffectSettings settings = channel.GetAffectSettingsForDeformer(Core);
 
-                float[,,] alphas = terrain.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
+                float[,,] alphas = channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
 
-                int layersCount = terrain.terrainData.terrainLayers.Length;
+                int layersCount = channel.terrainData.terrainLayers.Length;
 
-                WriteToAlphamaps(alphas, 0, 0, settings, terrain.transform.position, terrain.terrainData.size, layersCount);
+                WriteToAlphamaps(alphas, 0, 0, settings, channel.Position, channel.terrainData.size, layersCount);
 #if UNITY_EDITOR
-                Undo.RecordObject(terrain.terrainData, "change terrain");
+                Undo.RecordObject(channel.terrainData, "change terrain");
 #endif
-                terrain.terrainData.SetAlphamaps(settings.minX, settings.minY, alphas);
+            channel.terrainData.SetAlphamaps(settings.minX, settings.minY, alphas);
 
 #if UNITY_EDITOR
-                EditorUtility.SetDirty(terrain.terrainData);
+                EditorUtility.SetDirty(channel.terrainData);
 #endif
-            }
         }
 
         public void WriteToAlphamaps(float[,,] alphamap, int xBegin, int yBegin, RectangleAffectSettings settings,
@@ -130,7 +126,7 @@ namespace Core.TerrainGenerator.Settings
                 {
                     Vector3 worldPos = terrainPosition + new Vector3((settings.minX + x) * ceilSize, 0, (settings.minY + y) * ceilSize);
 
-                    Vector2 localCoordinates = GetLocalPointCoordinates(worldPos);
+                    Vector2 localCoordinates = Core.GetLocalPointCoordinates(worldPos);
 
                     if (localCoordinates.x < 0 || localCoordinates.x > 1 || localCoordinates.y < 0 || localCoordinates.y > 1) continue;
 
@@ -144,29 +140,10 @@ namespace Core.TerrainGenerator.Settings
                     }
 
 #if UNITY_EDITOR
-                    Debug.DrawLine(worldPos + Vector3.up * Core.transform.position.y, worldPos, Color.red, 2);
+                    Debug.DrawLine(worldPos + Vector3.up * Core.Position.y, worldPos, Color.red, 2);
 #endif
                 }
             }
-        }
-
-
-        private Vector2 GetLocalPointCoordinates(Vector3 worldPos)
-        {
-            Vector3 localPos = Core.transform.InverseTransformPoint(worldPos);
-
-            float x = localPos.x;
-            float y = localPos.z;
-
-            Vector4 lRect = Core.LocalRect;
-
-            x = (x - lRect.x) + lRect.z * 0.5f;
-            y = (y - lRect.y) + lRect.w * 0.5f;
-
-            x /= lRect.z;
-            y /= lRect.w;
-
-            return new Vector2(x, y);
         }
 
         private float GetOpacity(float x, float y)

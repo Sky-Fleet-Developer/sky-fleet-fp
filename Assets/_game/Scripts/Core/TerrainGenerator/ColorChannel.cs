@@ -14,13 +14,13 @@ using UnityEngine.Networking;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class ColorLayer : TerrainLayer
+    public class ColorChannel : DeformationChannel
     {
         private List<Color[]> colors;
 
-        [ShowInInspector, ReadOnly] private TerrainData terrainData;
+        [ShowInInspector, ReadOnly] public TerrainData terrainData { get; private set; }
         private int layersCount;
-        public ColorLayer(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
+        public ColorChannel(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
         {
             this.layersCount = layersCount;
             this.terrainData = terrainData;
@@ -82,14 +82,15 @@ namespace Core.TerrainGenerator
 
         protected override void ApplyDeformer(IDeformer deformer)
         {
-            var d = deformer.Settings.FirstOrDefault(x => x.GetType() == typeof(ColorMapDeformerSettings));
-            if (!(d is ColorMapDeformerSettings deformerSettings)) return;
-            RectangleAffectSettings rectangleSettings = new RectangleAffectSettings(terrainData, Position, terrainData.alphamapResolution, deformer);
+            ColorMapDeformerModule deformerModule = deformer.GetModules<ColorMapDeformerModule>();
+            if (deformerModule == null) return;
 
-            var alphamap = terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY,
+            RectangleAffectSettings rectangleSettings = GetAffectSettingsForDeformer(deformer);
+
+            float[,,] alphamap = terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY,
                 rectangleSettings.deltaX, rectangleSettings.deltaY);
             
-            deformerSettings.WriteToAlphamaps(alphamap, 0, 0, rectangleSettings, Position, terrainData.size, layersCount);
+            deformerModule.WriteToAlphamaps(alphamap, 0, 0, rectangleSettings, Position, terrainData.size, layersCount);
             
             terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
         }
@@ -136,6 +137,8 @@ namespace Core.TerrainGenerator
             }
             terrainData.SetAlphamaps(0, 0, sets);
         }
+
+        public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) => new RectangleAffectSettings(terrainData, Position, terrainData.alphamapResolution, deformer);
 
         private float GetColorPerIndex(int n, int i)
         {

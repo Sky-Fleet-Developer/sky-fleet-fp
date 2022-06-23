@@ -3,8 +3,11 @@ using UnityEngine;
 
 namespace Core.TerrainGenerator.Settings
 {
+    /// <summary>
+    /// Saves settings about channel creating and setup
+    /// </summary>
     [System.Serializable]
-    public abstract class LayerSettings : ScriptableObject
+    public abstract class ChannelSettings : ScriptableObject
     {
         [SerializeField] private TerrainGenerationSettings container;
         public TerrainGenerationSettings Container => container;
@@ -16,6 +19,6 @@ namespace Core.TerrainGenerator.Settings
         }
 #endif
 
-        public abstract TerrainLayer MakeTerrainLayer(Vector2Int position, string directory);
+        public abstract DeformationChannel MakeDeformationChannel(Vector2Int position, string directory);
     }
 }

@@ -3,16 +3,16 @@ using UnityEngine;
 
 namespace Core.TerrainGenerator.Settings
 {
-    public class TreesLayerSetting : LayerSettings
+    public class TreesChannelSettings : ChannelSettings
     {
         public FileFormatSeeker format;
         public GameObject[] prototypes;
 
-        public override TerrainLayer MakeTerrainLayer(Vector2Int position, string directory)
+        public override DeformationChannel MakeDeformationChannel(Vector2Int position, string directory)
         {
             string path = format.SearchInFolder(position, directory);
             if (path == null) return null;
-            return new TreesLayer(TerrainProvider.GetTerrain(position).terrainData, path, position, prototypes);
+            return new TreesChannel(TerrainProvider.GetTerrain(position).terrainData, path, position, prototypes);
         }
     }
 }

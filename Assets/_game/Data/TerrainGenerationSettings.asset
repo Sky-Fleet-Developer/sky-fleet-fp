@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fa131243efcf674d96d76c9966c3bee, type: 3}
   m_Name: TerrainGenerationSettings
   m_EditorClassIdentifier: 
-  directoryLandscapes: Test
+  targetDirectory: Test
   material: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
   chunkSize: 1000
   height: 500

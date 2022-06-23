@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,12 +12,12 @@ using System.Linq;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class TreesLayer : TerrainLayer
+    public class TreesChannel : DeformationChannel
     {
         public List<TreePos> Trees;
         public TerrainData terrainData;
 
-        public TreesLayer(TerrainData terrainData, string path, Vector2Int chunk, GameObject[] prototypes) : base(chunk, terrainData.size.x)
+        public TreesChannel(TerrainData terrainData, string path, Vector2Int chunk, GameObject[] prototypes) : base(chunk, terrainData.size.x)
         {
             this.terrainData = terrainData;
             SetPrototypes(prototypes);
@@ -38,10 +39,10 @@ namespace Core.TerrainGenerator
 
         protected override void ApplyDeformer(IDeformer deformer)
         {
-            TreesMapDeformerSettings deformerSettings = deformer.Settings.FirstOrDefault(x => x.GetType() == typeof(TreesMapDeformerSettings)) as TreesMapDeformerSettings;
-            if (deformerSettings == null) return;
+            TreesMapDeformerModule deformerModule = deformer.GetModules<TreesMapDeformerModule>();
+            if (deformerModule == null) return;
 
-            deformerSettings.WriteToTerrainData(terrainData, Position);
+            deformerModule.WriteToTerrainData(terrainData, Position);
         }
 
         protected override void ApplyToTerrain()
@@ -61,6 +62,10 @@ namespace Core.TerrainGenerator
             }
             terrainData.SetTreeInstances(instances.ToArray(), true);
         }
+
+        public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
+            throw new NotImplementedException();
+        // new RectangleAffectSettings(terrainData, Position, terrainData.detailResolution, deformer);
     }
 
     public struct TreePos

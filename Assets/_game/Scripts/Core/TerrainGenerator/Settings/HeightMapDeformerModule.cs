@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.TerrainGenerator.Utility;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -7,19 +8,18 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Settings
 {
     [System.Serializable]
-    public class HeightMapDeformerSettings : IDeformerLayerSetting
+    public class HeightMapDeformerModule : IDeformerModule
     {
         public float[] Heights;
         public Vector2Int Resolution;
-        public Dictionary<TerrainLayer, Dictionary<Vector2Int, HeightCache>> cache;
+        //public Dictionary<DeformationChannel, Dictionary<Vector2Int, HeightCache>> cache;
         
-        [JsonIgnore] public Deformer Core { get; set; }
-        public void Init(Deformer core)
+        [JsonIgnore] public IDeformer Core { get; set; }
+        public void Init(IDeformer core)
         {
             Core = core;
         }
         
-        [Button]
         public void ReadFromTerrain()
         {
             Heights = new float[Resolution.x * Resolution.y];
@@ -27,13 +27,13 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int i2 = 0; i2 < Resolution.y; i2++)
                 {
-                    Vector3 pos = Core.transform.rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * Core.LocalRect.z + Core.LocalRect.x, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * Core.LocalRect.w + Core.LocalRect.y);
-                    pos += Core.transform.position;
+                    Vector3 pos = Core.Rotation * new Vector3((i / (Resolution.x - 1f) - 0.5f) * Core.LocalRect.z + Core.LocalRect.x, 6000, (i2 / (Resolution.y - 1f) - 0.5f) * Core.LocalRect.w + Core.LocalRect.y);
+                    pos += Core.Position;
                     Ray ray = new Ray(pos, -Vector3.up);
                     RaycastHit hit;
                     if (Physics.Raycast(ray, out hit, Mathf.Infinity))
                     {
-                        float h = hit.point.y - Core.transform.position.y;
+                        float h = hit.point.y - Core.Position.y;
                         Heights[i * Resolution.y + i2] = h;
                         Debug.DrawLine(hit.point, hit.point + Vector3.down * h, h < 0 ? Color.green : Color.red, 5);
                     }
@@ -41,56 +41,59 @@ namespace Core.TerrainGenerator.Settings
             }
         }
 
-        [Button]
-        public void WriteToTerrain()
+        /*[Button]
+        public void WriteToChannel()
         {
-            WriteToTerrain(Core.GetTerrainsContacts());
-        }
+            WriteToChannel(Core.GetTerrainsContacts());
+        }*/
 
-        public void WriteToTerrain(params Terrain[] terrains)
+        public void WriteToChannel(DeformationChannel sourceChannel)
         {
-            foreach (Terrain terrain in terrains)
-            {
-                var settings = new RectangleAffectSettings(terrain, Core);
+            if (!(sourceChannel is HeightChannel channel)) return;
 
-                float[,] heights = terrain.terrainData.GetHeights(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
+            RectangleAffectSettings settings = sourceChannel.GetAffectSettingsForDeformer(Core);
 
-                Dictionary<Vector2Int, HeightCache> map = CalculateMap(settings, terrain.transform.position, terrain.terrainData.size);
-                
-                WriteToHeightmap(map, heights, 0, 0, settings);
-                
-#if UNITY_EDITOR
+            float[,] source = channel.GetSourceLayer(Core);
+            float[,] destination = channel.GetDestinationLayer(Core);
+
+            Dictionary<Vector2Int, HeightCache>
+                map = CalculateMap(settings, channel.Position, channel.terrainData.size);
+
+            WriteToHeightmap(map, source, destination, settings.minX, settings.minY, settings);
+
+/*#if UNITY_EDITOR
 Undo.RecordObject(terrain.terrainData, "change terrain");
-#endif
-                terrain.terrainData.SetHeights(settings.minX, settings.minY, heights);
-                
-#if UNITY_EDITOR
+#endif*/
+            //channel.terrainData.SetHeights(settings.minX, settings.minY, source);
+
+/*#if UNITY_EDITOR
 EditorUtility.SetDirty(terrain.terrainData);
-#endif
-            }
+#endif*/
         }
 
-        public void CalculateCache(TerrainLayer layer, RectangleAffectSettings settings, Vector3 terrainPosition, Vector3 terrainSize)
+        /*public void CalculateCache(TerrainData terrainData, HeightChannel channel, RectangleAffectSettings settings, Vector3 terrainPosition, Vector3 terrainSize)
         {
-            if (cache == null) cache = new Dictionary<TerrainLayer, Dictionary<Vector2Int, HeightCache>>();
-            cache.Add(layer, CalculateMap(settings, terrainPosition, terrainSize));
-        }
+            if (cache == null) cache = new float[settings.deltaX, settings.deltaY];
 
-        private Dictionary<Vector2Int, HeightCache> CalculateMap(RectangleAffectSettings settings, Vector3 terrainPosition, Vector3 terrainSize)
+            float[,] prevLayerCache = channel.GetLayerCache(Core);
+            
+        }*/
+
+        private Dictionary<Vector2Int, HeightCache> CalculateMap(RectangleAffectSettings rectSettings, Vector3 terrainPosition, Vector3 terrainSize)
         {
-            float ceilSize = terrainSize.x / settings.resolution;
+            float ceilSize = terrainSize.x / rectSettings.resolution;
             float heightInv = 1f / terrainSize.y;
-            float hMid = Core.transform.position.y;
+            float hMid = Core.Position.y;
 
             Dictionary<Vector2Int, HeightCache> map = new  Dictionary<Vector2Int, HeightCache>();
                 
-            for (int x = 0; x < settings.deltaX; x++)
+            for (int x = 0; x < rectSettings.deltaX; x++)
             {
-                for (int y = 0; y < settings.deltaY; y++)
+                for (int y = 0; y < rectSettings.deltaY; y++)
                 {
-                    Vector3 worldPos = terrainPosition + new Vector3((settings.minX + x) * ceilSize, 0, (settings.minY + y) * ceilSize);
+                    Vector3 worldPos = terrainPosition + new Vector3((rectSettings.minX + x) * ceilSize, 0, (rectSettings.minY + y) * ceilSize);
 
-                    Vector2 localCoordinates = GetLocalPointCoordinates(worldPos);
+                    Vector2 localCoordinates = Core.GetLocalPointCoordinates(worldPos);
                         
                     if(localCoordinates.x < 0 || localCoordinates.x > 1 || localCoordinates.y < 0 || localCoordinates.y > 1) continue;
 
@@ -103,37 +106,21 @@ EditorUtility.SetDirty(terrain.terrainData);
             return map;
         }
 
-        public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] heights, int xBegin, int yBegin, RectangleAffectSettings settings)
+        public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] source, float[,] destination, int xBegin, int yBegin, RectangleAffectSettings settings)
         {
             for (int x = 0; x < settings.deltaX; x++)
             {
                 for (int y = 0; y < settings.deltaY; y++)
                 {
                     if (!map.TryGetValue(new Vector2Int(x, y), out HeightCache m)) continue;
+
+                    float s = source[yBegin + y, xBegin + x];
                     
-                    float hDelta = m.height - heights[yBegin + y, xBegin + x];
+                    float hDelta = m.height - s;
                     
-                    heights[yBegin + y, xBegin + x] += hDelta * m.alpha;
+                    destination[yBegin + y, xBegin + x] = s + hDelta * m.alpha;
                 }
             }
-        }
-
-        private Vector2 GetLocalPointCoordinates(Vector3 worldPos)
-        {
-            Vector3 localPos = Core.transform.InverseTransformPoint(worldPos);
-
-            float x = localPos.x;
-            float y = localPos.z;
-
-            Vector4 lRect = Core.LocalRect;
-
-            x = (x - lRect.x) + lRect.z * 0.5f;
-            y = (y - lRect.y) + lRect.w * 0.5f;
-
-            x /= lRect.z;
-            y /= lRect.w;
-
-            return new Vector2(x, y);
         }
 
         private float GetOpacity(float x, float y)
@@ -190,7 +177,7 @@ EditorUtility.SetDirty(terrain.terrainData);
         public RectangleAffectSettings(Terrain terrain, IDeformer deformer)
         {
             resolution = terrain.terrainData.heightmapResolution;
-            Rect rect = Deformer.GetAffectRectangle(terrain, deformer.AxisAlignedRect);
+            Rect rect = MathfUtilities.GetAffectRectangle(terrain, deformer.AxisAlignedRect);
             minX = Mathf.CeilToInt(rect.x * resolution);
             minY = Mathf.CeilToInt(rect.y * resolution);
             minX = Mathf.Max(minX, 0);
@@ -205,7 +192,7 @@ EditorUtility.SetDirty(terrain.terrainData);
         public RectangleAffectSettings(TerrainData data, Vector3 terrainPosition, int resolution, IDeformer deformer)
         {
             this.resolution = resolution;
-            Rect rect = Deformer.GetAffectRectangle(data, terrainPosition, deformer.AxisAlignedRect);
+            Rect rect = MathfUtilities.GetAffectRectangle(data, terrainPosition, deformer.AxisAlignedRect);
             minX = Mathf.CeilToInt(rect.x * resolution);
             minY = Mathf.CeilToInt(rect.y * resolution);
             minX = Mathf.Max(minX, 0);

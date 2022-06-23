@@ -8,51 +8,51 @@ using UnityEngine;
 
 namespace Core.TerrainGenerator
 {
+    /// <summary>
+    /// Saves info about deformation channels and chunk values
+    /// </summary>
     [System.Serializable, CreateAssetMenu]
     public class TerrainGenerationSettings : ScriptableObject
     {
-        public string directoryLandscapes;
+        public string targetDirectory;
         [Space] public Material material;
         [Space] public int chunkSize = 1000;
         public int height = 600;
         [Space] public int heightmapResolution = 257;
         [Space(20)] public float visibleDistance = 1000;
 
-        [SerializeField] public List<LayerSettings> settings;
+        [SerializeField] public List<ChannelSettings> settings;
 
         public DirectoryInfo directory;
 
         private void OnEnable()
         {
-            directory = GetDirectory();
+            directory = GetDirectory(targetDirectory);
             if (directory == null) Debug.LogWarning("Wrong directory!");
         }
 
         private void OnValidate()
         {
-            directory = GetDirectory();
+            directory = GetDirectory(targetDirectory);
         }
 
 #if UNITY_EDITOR
         [Button]
         private void MakeHeightmapLayer()
         {
-            MakeNewLayer<HeightmapLayerSettings>("Heightmap");
+            MakeNewLayer<HeightmapChannelSettings>("Heightmap");
         }
-
         [Button]
         private void MakeColorLayer()
         {
-            MakeNewLayer<ColorLayerSettings>("Color map");
+            MakeNewLayer<ColorChannelSettings>("Color map");
         }
-
         [Button]
         private void MakeTreesLayer()
         {
-            MakeNewLayer<TreesLayerSetting>("Trees map");
+            MakeNewLayer<TreesChannelSettings>("Trees map");
         }
-
-        private void MakeNewLayer<T>(string n) where T : LayerSettings
+        private void MakeNewLayer<T>(string n) where T : ChannelSettings
         {
             if (settings.FirstOrDefault(x => x.GetType() == typeof(T))) return;
 
@@ -79,13 +79,13 @@ namespace Core.TerrainGenerator
             }
         }
 
-        private DirectoryInfo GetDirectory()
+        private DirectoryInfo GetDirectory(string directoryName)
         {
             string[] directories = Directory.GetDirectories(PathStorage.GetPathToLandscapesDirectory());
             foreach (string t in directories)
             {
                 DirectoryInfo info = new DirectoryInfo(t);
-                if (info.Name == directoryLandscapes)
+                if (info.Name == directoryName)
                 {
                     return info;
                 }

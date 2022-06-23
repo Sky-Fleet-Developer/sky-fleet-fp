@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Core.TerrainGenerator.Settings
 {
-    public class ColorLayerSettings : LayerSettings
+    public class ColorChannelSettings : ChannelSettings
     {
         [SerializeField, HideInInspector] private int layersCount = 3;
 
-        public UnityEngine.TerrainLayer[] textureLayers;
+        public TerrainLayer[] textureLayers;
 
         [ShowInInspector]
         public int LayersCount
@@ -47,7 +47,7 @@ namespace Core.TerrainGenerator.Settings
         };
 
 
-        public override TerrainLayer MakeTerrainLayer(Vector2Int position, string directory)
+        public override DeformationChannel MakeDeformationChannel(Vector2Int position, string directory)
         {
             List<string> paths = new List<string>(); 
             foreach (FileFormatSeeker format in splatmapFormats)
@@ -58,7 +58,7 @@ namespace Core.TerrainGenerator.Settings
 
             var data = TerrainProvider.GetTerrain(position).terrainData;
             data.terrainLayers = textureLayers;
-            return new ColorLayer(data, layersCount, paths, position);
+            return new ColorChannel(data, layersCount, paths, position);
         }
     }
 }

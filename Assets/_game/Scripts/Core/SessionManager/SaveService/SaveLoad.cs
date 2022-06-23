@@ -31,13 +31,9 @@ namespace Core.SessionManager.SaveService
         {
             Debug.Log("Begin to save the session...");
 
-            IEnumerable<IStructure> structures = CollectStructures();
-
-            Serializer serializer = StructureProvider.GetSerializer();
-
-            List<StructureBundle> bundles = serializer.GetBundlesFor(structures);
-
-            State state = new State(bundles);
+            State state = new State();
+            
+            
 
             state.worldOffset = WorldOffset.Instance.Offset;
             state.playerPos = Session.Instance.Player.transform.localPosition - WorldOffset.Instance.Offset;
@@ -239,28 +235,6 @@ namespace Core.SessionManager.SaveService
                 stream.Write(BitConverter.GetBytes(nameB.Length), 0, intSize); //mod name size
                 stream.Write(nameB, 0, nameB.Length); //mod name
             }
-        }
-
-        private IEnumerable<IStructure> CollectStructures()
-        {
-            return Application.isPlaying ? CollectInRuntime() : CollectInEditor();
-        }
-
-        private IEnumerable<IStructure> CollectInRuntime()
-        {
-            return StructureUpdateModule.Structures.Clone();
-        }
-
-        private IEnumerable<IStructure> CollectInEditor()
-        {
-            List<IStructure> result = new List<IStructure>();
-
-            foreach (MonoBehaviour monobeh in Object.FindObjectsOfType<MonoBehaviour>())
-            {
-                if (monobeh is IStructure structure) result.Add(structure);
-            }
-
-            return result;
         }
     }
 

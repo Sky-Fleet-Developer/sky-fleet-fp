@@ -1,7 +1,9 @@
+using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using Core.TerrainGenerator.Settings;
+using Core.TerrainGenerator.Utility;
 using Core.Utilities;
 using UnityEditor;
 using UnityEngine;
@@ -11,46 +13,47 @@ namespace Core.TerrainGenerator
 {
     public class Deformer : MonoBehaviour, IDeformer
     {
-        [ShowInInspector]
-        public List<IDeformerLayerSetting> Settings
+        public T GetModules<T>() where T : class, IDeformerModule
         {
-            get
+            Type t = typeof(T);
+            foreach (SerializedDeformerModule module in modules)
             {
-                if (settings == null)
-                {
-                    ReadFromJson();
-                }
-                return settings;
+                if(module.GetLayerType() == t) return module.Module as T;
             }
-            set => settings = value;
+
+            return null;
         }
 
+        public Quaternion Rotation => transform.rotation;
+        public Vector3 Position => transform.position;
         public Rect AxisAlignedRect => axisAlignedRect;
 
         public Vector4 LocalRect => localRect;
         public float Fade => fade;
+        public int Layer => layer;
 
+        [SerializeField] private Vector4 localRect;
+        [SerializeField, Range(0f, 1f)] private float fade = 0.2f;
+        [SerializeField] private int layer;
 
-        [SerializeField]
-        private Vector4 localRect;
-        
-        [SerializeField, Range(0f, 1f)]
-        private float fade = 0.2f;
-
-        private List<IDeformerLayerSetting> settings;
+        [SerializeField] private List<SerializedDeformerModule> modules;
 
         [ShowInInspector] private Rect axisAlignedRect;
         [ShowInInspector] private List<Vector2Int> affectedChunks;
 
-        [SerializeField, HideInInspector]
+        /*[SerializeField, HideInInspector]
         private string[] typesInfo;
 
         [SerializeField, HideInInspector]
-        private string[] jsonConfig;
+        private string[] jsonConfig;*/
 
         private void Start()
         {
             CalculateAxisAlignedRect();
+            foreach (SerializedDeformerModule module in modules)
+            {
+                module.Init(this);
+            }
             TerrainProvider.onInitialize.Subscribe(Register);
         }
 
@@ -62,108 +65,111 @@ namespace Core.TerrainGenerator
         [Button]
         public void AddDeformerSettings(System.Type deformer)
         {
-            IDeformerLayerSetting layer = System.Activator.CreateInstance(deformer) as IDeformerLayerSetting;
-            layer.Init(this);
-            Settings.Add(layer);
+            /*IDeformerLayerSettings layerSettings = System.Activator.CreateInstance(deformer) as IDeformerLayerSettings;
+            layerSettings.Init(this);
+            Settings.Add(layerSettings);*/
+            modules.Add(new SerializedDeformerModule(this, deformer));
         }
 
-        [Button]
+        /*[Button]
         public void SaveToJson()
         {
-            if (settings == null) return;
+            if (modules == null) return;
             
-            typesInfo = new string[settings.Count];
-            jsonConfig = new string[settings.Count];
-            for (int i = 0; i < settings.Count; i++)
+            typesInfo = new string[modules.Count];
+            jsonConfig = new string[modules.Count];
+            for (int i = 0; i < modules.Count; i++)
             {
-                typesInfo[i] = settings[i].GetType().FullName;
-                jsonConfig[i] = JsonConvert.SerializeObject(settings[i]);
+                typesInfo[i] = modules[i].GetType().FullName;
+                jsonConfig[i] = JsonConvert.SerializeObject(modules[i]);
             }
-        }
+        }*/
 
-        [Button]
+        /*[Button]
         public void ReadFromJson()
         {
-            settings = new List<IDeformerLayerSetting>();
+            settings = new List<IDeformerLayerSettings>();
             if(jsonConfig == null || jsonConfig.Length == 0) return;
             
             for(int i = 0; i < jsonConfig.Length; i++)
             {
                 System.Type type = TypeExtensions.GetTypeByName(typesInfo[i]);
-                IDeformerLayerSetting newDeformer = JsonConvert.DeserializeObject(jsonConfig[i], type) as IDeformerLayerSetting;
+                IDeformerLayerSettings newDeformer = JsonConvert.DeserializeObject(jsonConfig[i], type) as IDeformerLayerSettings;
                 newDeformer.Init(this);
                 settings.Add(newDeformer);
+            }
+        }*/
+
+        [Button]
+        public void ReadFromTerrain()
+        {
+            foreach (SerializedDeformerModule deformerLayerSettings in modules)
+            {
+                deformerLayerSettings.Module.Init(this);
+                deformerLayerSettings.Module.ReadFromTerrain();
+                deformerLayerSettings.Serialize();
+            }
+
+            foreach (SerializedDeformerModule module in modules)
+            {
+                module.Serialize();
             }
         }
 
 
         private void CalculateAxisAlignedRect()
         {
-            var rotation = transform.rotation;
-            var position = transform.position;
-            Vector3 leftDown = rotation * new Vector3(localRect.x - localRect.z * 0.5f, 0, localRect.y - localRect.w * 0.5f) + position;
-            Vector3 leftUp = rotation * new Vector3(localRect.x - localRect.z * 0.5f, 0, localRect.y + localRect.w * 0.5f) + position;
-            Vector3 rightDown = rotation * new Vector3(localRect.x + localRect.z * 0.5f, 0, localRect.y - localRect.w * 0.5f) + position;
-            Vector3 rightUp = rotation * new Vector3(localRect.x + localRect.z * 0.5f, 0, localRect.y + localRect.w * 0.5f) + position;
-            Vector2 min = new Vector2(Mathf.Min(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Min(leftDown.z, leftUp.z, rightDown.z, rightUp.z));
-            Vector2 max = new Vector2(Mathf.Max(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Max(leftDown.z, leftUp.z, rightDown.z, rightUp.z));
+            Quaternion rotation = transform.rotation;
+            Vector3 position = transform.position; 
+            (Vector3 min, Vector3 max) = MathfUtilities.GetAxisAlignedRect(localRect, rotation, position);
             axisAlignedRect.min = min;
             axisAlignedRect.max = max;
         }
+
 
         public IEnumerable<Vector2Int> GetAffectChunks(float chunkSize)
         {
             if (affectedChunks != null) return affectedChunks;
             
             Vector4 rect = LocalRect;
-            Vector3[] array =
-            {
-                transform.right * -rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position,
-                transform.right * rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position,
-                transform.right * rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position,
-                transform.right * -rect.z * 0.5f + transform.forward * -rect.w * 0.5f + transform.position,
-            };
-
-            affectedChunks = new List<Vector2Int>();
-            foreach (Vector3 point in array)
-            {
-                Vector2Int newItem = 
-                    new Vector2Int(Mathf.FloorToInt(point.x / chunkSize), Mathf.FloorToInt(point.y / chunkSize));
-                if(affectedChunks.Contains(newItem) == false) affectedChunks.Add(newItem);
-            }
+            Vector3 right = transform.right;
+            Vector3 forward = transform.forward;
+            Vector3 position = transform.position;
+            affectedChunks = MathfUtilities.GetAffectChunks(chunkSize, right, rect, forward, position);
 
             return affectedChunks;
         }
-        
-        public Terrain[] GetTerrainsContacts()
+
+        public Terrain[] GetTerrainsContacts() //TODO: Cache
         {
             Vector4 rect = LocalRect;
-            Ray[] rays = new Ray[4];
-            Vector3 up = Vector3.up * 6000;
-            rays[0] = new Ray(up + transform.right * -rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position, Vector3.down);
-            rays[1] = new Ray(up + transform.right * rect.z * 0.5f + transform.forward * rect.w * 0.5f + transform.position, Vector3.down);
-            rays[2] = new Ray(up + transform.right * rect.z * 0.5f + transform.forward * -rect.w * 0.5f + transform.position, Vector3.down);
-            rays[3] = new Ray(up + transform.right * -rect.z * 0.5f + transform.forward * -rect.w * 0.5f + transform.position, Vector3.down);
-            List<Terrain> terrains = new List<Terrain>();
-            for (int i = 0; i < rays.Length; i++)
-            {
-                RaycastHit[] hits = Physics.RaycastAll(rays[i], Mathf.Infinity);
-                foreach (RaycastHit hit in hits)
-                {
-                    Terrain tr = hit.collider.gameObject.GetComponent<Terrain>();
-                    if (tr != null)
-                    {
-                        if (terrains.Find(
-                            new System.Predicate<Terrain>(x => { return x.terrainData == tr.terrainData; })) == null)
-                        {
-                            terrains.Add(tr);
-                        }
-                    }
-                }
-            }
-
-            return terrains.ToArray();
+            Transform tr = transform;
+            Vector3 right = tr.right;
+            Vector3 forward = tr.forward;
+            Vector3 position = tr.position;
+            return MathfUtilities.GetTerrainsContacts(right, rect, forward, position);
         }
+
+        public Vector2 GetLocalPointCoordinates(Vector3 worldPos)
+        {
+            Vector3 localPos = transform.InverseTransformPoint(worldPos);
+
+            float x = localPos.x;
+            float y = localPos.z;
+
+            Vector4 lRect = LocalRect;
+
+            x = (x - lRect.x) + lRect.z * 0.5f;
+            y = (y - lRect.y) + lRect.w * 0.5f;
+
+            x /= lRect.z;
+            y /= lRect.w;
+
+            return new Vector2(x, y);
+        }
+
+        public Vector3 InverseTransformPoint(Vector3 worldPos) => transform.InverseTransformPoint(worldPos);
+        public Vector3 TransformPoint(Vector3 localPos) => transform.TransformPoint(localPos);
 
 
         private void OnDrawGizmosSelected()
@@ -179,28 +185,6 @@ namespace Core.TerrainGenerator
             Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w) * (1 - fade));
         }
         
-        public static Rect GetAffectRectangle(Terrain terrain, Rect rect)
-        {
-            Vector3 pos = terrain.transform.position;
-            rect.position -= pos.XZ();
 
-            float terrainSizeInv = 1f / terrain.terrainData.size.x;
-
-            rect.position *= terrainSizeInv;
-            rect.size *= terrainSizeInv;
-
-            return rect;
-        }
-        public static Rect GetAffectRectangle(TerrainData data, Vector3 terrainPosition, Rect rect)
-        {
-            rect.position -= terrainPosition.XZ();
-
-            float terrainSizeInv = 1f / data.size.x;
-
-            rect.position *= terrainSizeInv;
-            rect.size *= terrainSizeInv;
-
-            return rect;
-        }
     }
 }

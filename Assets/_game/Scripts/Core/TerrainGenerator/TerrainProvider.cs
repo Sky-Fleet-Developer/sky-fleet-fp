@@ -16,6 +16,9 @@ using UnityEditor;
 
 namespace Core.TerrainGenerator
 {
+    /// <summary>
+    /// runtime generating terrain chunks by TerrainGenerationSettings
+    /// </summary>
     public class TerrainProvider : MonoBehaviour, ILoadAtStart
     {
         public static TerrainProvider Instance;
@@ -23,7 +26,7 @@ namespace Core.TerrainGenerator
         public TerrainGenerationSettings settings;
 
         [ShowInInspector]
-        private Dictionary<Vector2Int, List<TerrainLayer>> layers = new Dictionary<Vector2Int, List<TerrainLayer>>();
+        private Dictionary<Vector2Int, List<DeformationChannel>> channels = new Dictionary<Vector2Int, List<DeformationChannel>>();
 
         private Dictionary<Vector2Int, Terrain> chunks = new Dictionary<Vector2Int, Terrain>();
         private List<TerrainData> terrainsDates = new List<TerrainData>();
@@ -73,15 +76,15 @@ namespace Core.TerrainGenerator
                 if (!chunks.TryGetValue(prop, out Terrain terrain) || terrain == null)
                     terrain = CreateTerrain(prop);
 
-                if (!layers.ContainsKey(prop))
+                if (!channels.ContainsKey(prop))
                 {
-                    layers.Add(prop, new List<TerrainLayer>());
+                    channels.Add(prop, new List<DeformationChannel>());
                 }
 
-                foreach (LayerSettings layerSettings in settings.settings)
+                foreach (ChannelSettings layerSettings in settings.settings)
                 {
-                    TerrainLayer layer = layerSettings.MakeTerrainLayer(prop, settings.directory.FullName);
-                    if (layer != null) layers[prop].Add(layer);
+                    DeformationChannel channel = layerSettings.MakeDeformationChannel(prop, settings.directory.FullName);
+                    if (channel != null) channels[prop].Add(channel);
                 }
             }
 
@@ -90,11 +93,11 @@ namespace Core.TerrainGenerator
 
         private async Task AwaitForReadyAndApply()
         {
-            foreach (KeyValuePair<Vector2Int, List<TerrainLayer>> layerKV in layers)
+            foreach (KeyValuePair<Vector2Int, List<DeformationChannel>> channelKV in channels)
             {
-                foreach (TerrainLayer terrainLayer in layerKV.Value)
+                foreach (DeformationChannel channel in channelKV.Value)
                 {
-                    while (!terrainLayer.IsReady)
+                    while (!channel.IsReady)
                     {
                         await Task.Delay(100);
                     }
@@ -102,9 +105,9 @@ namespace Core.TerrainGenerator
             }
 
 
-            foreach (KeyValuePair<Vector2Int, List<TerrainLayer>> layer in layers)
+            foreach (KeyValuePair<Vector2Int, List<DeformationChannel>> layer in channels)
             {
-                foreach (TerrainLayer terrainLayer in layer.Value)
+                foreach (DeformationChannel terrainLayer in layer.Value)
                 {
                     terrainLayer.Apply();
                 }
@@ -176,9 +179,9 @@ namespace Core.TerrainGenerator
             
             foreach (Vector2Int chunk in affectChunks)
             {
-                foreach (TerrainLayer terrainLayer in layers[chunk])
+                foreach (DeformationChannel channel in channels[chunk])
                 {
-                    terrainLayer.RegisterDeformer(deformer);
+                    channel.RegisterDeformer(deformer);
                 }
             }
         }

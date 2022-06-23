@@ -9,14 +9,14 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Settings
 {
     [System.Serializable]
-    public class TreesMapDeformerSettings : IDeformerLayerSetting
+    public class TreesMapDeformerModule : IDeformerModule
     {
         public List<TreeInstance> Trees;
 
         [JsonIgnore]
-        public Deformer Core { get; set; }
+        public IDeformer Core { get; set; }
 
-        public void Init(Deformer core)
+        public void Init(IDeformer core)
         {
             Core = core;
         }
@@ -38,31 +38,32 @@ namespace Core.TerrainGenerator.Settings
                     {
                         TreeInstance tree = trTrees[i];
                         tree.position = local;
-                        tree.rotation = (Quaternion.Inverse(Core.transform.rotation) * Quaternion.AngleAxis(tree.rotation, Vector3.up)).eulerAngles.y;
+                        tree.rotation = (Quaternion.Inverse(Core.Rotation) * Quaternion.AngleAxis(tree.rotation, Vector3.up)).eulerAngles.y;
                         Trees.Add(tree);
                     }
                 }
             }
         }
 
-        [Button]
+
+
+       /* [Button]
         public void WriteToTerrain()
         {
-            WriteToTerrain(Core.GetTerrainsContacts());
-        }
+            WriteToChannel(Core.GetTerrainsContacts());
+        }*/
 
         private Vector3 GetPosTreeInDeformer(TerrainData data, Vector3 posTree)
         {
             posTree.Scale(data.size);
-            return Core.transform.InverseTransformPoint(posTree);
+            return Core.InverseTransformPoint(posTree);
         }
 
-        public void WriteToTerrain(Terrain[] terrains)
+        public void WriteToChannel(DeformationChannel sourceChannel)
         {
-            foreach (Terrain terrain in terrains)
-            {
-                WriteToTerrainData(terrain.terrainData, terrain.transform.position);
-            }
+            if (!(sourceChannel is TreesChannel channel)) return;
+
+            WriteToTerrainData(channel.terrainData, channel.Position);
         }
 
         public void WriteToTerrainData(TerrainData data, Vector3 pos)
@@ -84,7 +85,7 @@ namespace Core.TerrainGenerator.Settings
             {
                 
                 Vector3 trPos = tree.position;
-                trPos = Core.transform.TransformPoint(trPos);
+                trPos = Core.TransformPoint(trPos);
                 trPos = trPos - pos;
                 trPos.y = 0;
                 trPos *= 1.0f / data.size.x;
@@ -92,7 +93,7 @@ namespace Core.TerrainGenerator.Settings
                 {
                     TreeInstance newTree = tree;
                     newTree.position = trPos;
-                    newTree.rotation = (Core.transform.rotation * Quaternion.AngleAxis(newTree.rotation, Vector3.up)).eulerAngles.y;
+                    newTree.rotation = (Core.Rotation * Quaternion.AngleAxis(newTree.rotation, Vector3.up)).eulerAngles.y;
                     newTree.lightmapColor = new Color32();
                     newTree.color = new Color32();
                     newTrees.Add(newTree);

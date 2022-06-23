@@ -28,7 +28,7 @@ namespace Core.TerrainGenerator.Utility
             }
         }
 
-        public static void LoadTreeLayer(string path, TreesLayer layer)
+        public static void LoadTreeLayer(string path, TreesChannel channel)
         {
             using (FileStream file = File.Open(path, FileMode.Open))
             {
@@ -41,7 +41,7 @@ namespace Core.TerrainGenerator.Utility
                     pos.NumTree = extension.ReadInt(file);
                     pos.Rotate = (extension.ReadByte(file) / (float)byte.MaxValue);
                     pos.Pos = new Vector2(extension.ReadFloat(file), extension.ReadFloat(file));
-                    layer.Trees.Add(pos);
+                    channel.Trees.Add(pos);
                 }
             }
         }
