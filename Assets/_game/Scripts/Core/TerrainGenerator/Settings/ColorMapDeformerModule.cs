@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System.Linq;
@@ -13,12 +14,10 @@ namespace Core.TerrainGenerator.Settings
         public float[,,] SplatMaps;
         public Vector2Int Resolution;
 
-        [HideInInspector]
-        public int CountLayers;
+        [HideInInspector] public int CountLayers;
 
-        [JsonIgnore]
-        public IDeformer Core { get; set; }
-        
+        [JsonIgnore] public IDeformer Core { get; set; }
+
         public void Init(IDeformer core)
         {
             Core = core;
@@ -38,10 +37,12 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int y = 0; y < Resolution.y; y++)
                 {
-                    Vector3 pos = Core.Rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0, (y / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.Position;
+                    Vector3 pos = Core.Rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0,
+                        (y / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.Position;
 
                     Terrain tr = GetTerrainInPos(terrains, pos);
-                    Debug.DrawLine(new Vector3(pos.x, Core.Position.y, pos.z), new Vector3(pos.x, 0, pos.z), tr != null ? Color.blue : Color.red, 2);
+                    Debug.DrawLine(new Vector3(pos.x, Core.Position.y, pos.z), new Vector3(pos.x, 0, pos.z),
+                        tr != null ? Color.blue : Color.red, 2);
                     if (tr != null)
                     {
                         float[] alphas = GetLayersFromTerrainInPos(tr, pos);
@@ -51,7 +52,8 @@ namespace Core.TerrainGenerator.Settings
                             {
                                 break;
                             }
-                            SplatMaps[idx,x,y] = alphas[idx];
+
+                            SplatMaps[idx, x, y] = alphas[idx];
                         }
                     }
                     else
@@ -66,56 +68,72 @@ namespace Core.TerrainGenerator.Settings
         {
             for (int i = 0; i < terrains.Length; i++)
             {
-                Rect rect = new Rect(terrains[i].transform.position, new Vector2(terrains[i].terrainData.size.x, terrains[i].terrainData.size.z));
+                Rect rect = new Rect(terrains[i].transform.position,
+                    new Vector2(terrains[i].terrainData.size.x, terrains[i].terrainData.size.z));
                 if (rect.Contains(new Vector2(pos.x, pos.z)))
                 {
                     return terrains[i];
                 }
             }
+
             return null;
         }
 
         private float[] GetLayersFromTerrainInPos(Terrain terrain, Vector3 pos)
         {
             Vector3 localPos = terrain.transform.InverseTransformPoint(pos);
-            Vector2 normalized = new Vector2(localPos.x / terrain.terrainData.size.x, localPos.z / terrain.terrainData.size.z);
-            float[,,] alpha = terrain.terrainData.GetAlphamaps((int)(normalized.x * terrain.terrainData.alphamapWidth), (int)(normalized.y * terrain.terrainData.alphamapWidth), 1, 1);
+            Vector2 normalized = new Vector2(localPos.x / terrain.terrainData.size.x,
+                localPos.z / terrain.terrainData.size.z);
+            float[,,] alpha = terrain.terrainData.GetAlphamaps((int) (normalized.x * terrain.terrainData.alphamapWidth),
+                (int) (normalized.y * terrain.terrainData.alphamapWidth), 1, 1);
             float[] alphaNormal = new float[alpha.Length];
             for (int i = 0; i < alpha.Length; i++)
             {
                 alphaNormal[i] = alpha[0, 0, i];
             }
+
             return alphaNormal;
         }
 
-       /* [Button]
-        public void WriteToTerrain()
-        {
-            WriteToChannel(Core.GetTerrainsContacts());
-        }*/
+        /* [Button]
+         public void WriteToTerrain()
+         {
+             WriteToChannel(Core.GetTerrainsContacts());
+         }*/
 
         public void WriteToChannel(DeformationChannel sourceChannel)
         {
             if (!(sourceChannel is ColorChannel channel)) return;
-            
+
             RectangleAffectSettings settings = channel.GetAffectSettingsForDeformer(Core);
 
-                float[,,] alphas = channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
+            //float[,,] alphamap = GetSourceLayer(module.Core);//terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, rectangleSettings.deltaX, rectangleSettings.deltaY);
 
-                int layersCount = channel.terrainData.terrainLayers.Length;
+            float[,,]
+                source = channel
+                    .GetSourceLayer(
+                        Core); //channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
+            float[][,,] destination = channel.GetDestinationLayers(Core).ToArray();
 
-                WriteToAlphamaps(alphas, 0, 0, settings, channel.Position, channel.terrainData.size, layersCount);
+            int layersCount = channel.terrainData.terrainLayers.Length;
+
+            WriteToAlphamaps(source, destination, settings.minX, settings.minY, settings, channel.Position,
+                channel.terrainData.size,
+                layersCount);
+            /*
 #if UNITY_EDITOR
-                Undo.RecordObject(channel.terrainData, "change terrain");
+            Undo.RecordObject(channel.terrainData, "change terrain");
 #endif
-            channel.terrainData.SetAlphamaps(settings.minX, settings.minY, alphas);
+        channel.terrainData.SetAlphamaps(settings.minX, settings.minY, source);
 
 #if UNITY_EDITOR
-                EditorUtility.SetDirty(channel.terrainData);
+            EditorUtility.SetDirty(channel.terrainData);
 #endif
+*/
         }
 
-        public void WriteToAlphamaps(float[,,] alphamap, int xBegin, int yBegin, RectangleAffectSettings settings,
+        public void WriteToAlphamaps(float[,,] source, float[][,,] destination, int xBegin, int yBegin,
+            RectangleAffectSettings settings,
             Vector3 terrainPosition, Vector3 terrainSize, int layersCount)
         {
             float ceilSize = terrainSize.x / settings.resolution;
@@ -124,11 +142,13 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int y = 0; y < settings.deltaY; y++)
                 {
-                    Vector3 worldPos = terrainPosition + new Vector3((settings.minX + x) * ceilSize, 0, (settings.minY + y) * ceilSize);
+                    Vector3 worldPos = terrainPosition +
+                                       new Vector3((settings.minX + x) * ceilSize, 0, (settings.minY + y) * ceilSize);
 
                     Vector2 localCoordinates = Core.GetLocalPointCoordinates(worldPos);
 
-                    if (localCoordinates.x < 0 || localCoordinates.x > 1 || localCoordinates.y < 0 || localCoordinates.y > 1) continue;
+                    if (localCoordinates.x < 0 || localCoordinates.x > 1 || localCoordinates.y < 0 ||
+                        localCoordinates.y > 1) continue;
 
                     float[] alphasR = GetAlphasBilinear(localCoordinates.x, localCoordinates.y);
                     float opacity = GetOpacity(localCoordinates.x, localCoordinates.y);
@@ -136,7 +156,11 @@ namespace Core.TerrainGenerator.Settings
                     {
                         if (i >= layersCount) break;
 
-                        alphamap[yBegin + y, xBegin + x, i] = alphamap[yBegin + y, xBegin + x, i] * (1 - opacity) + alphasR[i] * opacity;
+                        for (int d = 0; d < destination.Length; d++)
+                        {
+                            destination[d][yBegin + y, xBegin + x, i] =
+                                source[yBegin + y, xBegin + x, i] * (1 - opacity) + alphasR[i] * opacity;
+                        }
                     }
 
 #if UNITY_EDITOR

@@ -44,7 +44,15 @@ namespace Core.Utilities
         private void OnPlayerWasLoaded()
         {
             gameObject.SetActive(true);
-            anchor = Session.Instance.Player.transform;
+            if (Session.hasInstance)
+            {
+                anchor = Session.Instance.Player.transform;
+            }
+            else
+            {
+                anchor = transform;
+            }
+
             MakeOffset(-Offset);
         }
         

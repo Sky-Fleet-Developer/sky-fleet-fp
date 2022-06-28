@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Core.TerrainGenerator.Utility;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
@@ -54,7 +55,7 @@ namespace Core.TerrainGenerator.Settings
             RectangleAffectSettings settings = sourceChannel.GetAffectSettingsForDeformer(Core);
 
             float[,] source = channel.GetSourceLayer(Core);
-            float[,] destination = channel.GetDestinationLayer(Core);
+            float[][,] destination = channel.GetDestinationLayers(Core).ToArray();
 
             Dictionary<Vector2Int, HeightCache>
                 map = CalculateMap(settings, channel.Position, channel.terrainData.size);
@@ -106,7 +107,7 @@ EditorUtility.SetDirty(terrain.terrainData);
             return map;
         }
 
-        public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] source, float[,] destination, int xBegin, int yBegin, RectangleAffectSettings settings)
+        public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] source, float[][,] destination, int xBegin, int yBegin, RectangleAffectSettings settings)
         {
             for (int x = 0; x < settings.deltaX; x++)
             {
@@ -117,8 +118,14 @@ EditorUtility.SetDirty(terrain.terrainData);
                     float s = source[yBegin + y, xBegin + x];
                     
                     float hDelta = m.height - s;
+
+                    float result = s + hDelta * m.alpha;
                     
-                    destination[yBegin + y, xBegin + x] = s + hDelta * m.alpha;
+                    for (var i = 0; i < destination.Length; i++)
+                    {
+                        int a = yBegin + y, b = xBegin +x;
+                        destination[i][a, b] = result;
+                    }
                 }
             }
         }

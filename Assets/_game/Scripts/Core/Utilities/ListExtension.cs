@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Core.Utilities
 {
@@ -12,6 +13,15 @@ namespace Core.Utilities
             for (int i = 0; i < value.Count; i++)
             {
                 ret.Add(value[i]);
+            }
+            return ret;
+        }
+        public static List<T> DeepClone<T>(this List<T> value) where T : ICloneable
+        {
+            List<T> ret = new List<T>(value.Count);
+            for (int i = 0; i < value.Count; i++)
+            {
+                ret.Add((T)value[i].Clone());
             }
             return ret;
         }

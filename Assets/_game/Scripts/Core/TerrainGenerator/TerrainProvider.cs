@@ -31,6 +31,7 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, Terrain> chunks = new Dictionary<Vector2Int, Terrain>();
         private List<TerrainData> terrainsDates = new List<TerrainData>();
         private List<IDeformer> deformers = new List<IDeformer>();
+        private List<IDeformer>  deformersQueue = new List<IDeformer>();
 
         public static LateEvent onInitialize = new LateEvent();
         
@@ -120,10 +121,14 @@ namespace Core.TerrainGenerator
 
         private IEnumerable<Vector2Int> GetCurrentProps()
         {
-            FirstPersonController player = Session.Instance.Player;
-            Vector3 playerPosition;
-            if (player == null) playerPosition = Vector3.zero;
-            else playerPosition = player.transform.position;
+            Vector3 playerPosition = Vector3.zero;
+
+            if (Session.hasInstance)
+            {
+                FirstPersonController player = Session.Instance.Player;
+                if (player != null) playerPosition = player.transform.position;
+            }
+
             float sI = 1f / settings.chunkSize;
             Vector2 playerCell =
                 new Vector2(playerPosition.x * sI, -playerPosition.z * sI);
@@ -172,18 +177,61 @@ namespace Core.TerrainGenerator
             return ter;
         }
 
-        public void RegisterDeformer(IDeformer deformer)
+        private Task deformersQueueTimer;
+        public async void RegisterDeformer(IDeformer deformer)
         {
+            deformersQueue.Add(deformer);
             deformers.Add(deformer);
-            var affectChunks = deformer.GetAffectChunks(settings.chunkSize);
+
+            if (deformersQueueTimer == null)
+            {
+                deformersQueueTimer = LaunchDeformersQueue();
+                await deformersQueueTimer;
+            }
+        }
+
+        private void ApplyToChannels(IDeformer deformer)
+        {
+            IEnumerable<Vector2Int> affectChunks = deformer.GetAffectChunks(settings.chunkSize);
+
+            Vector2Int[] chunksArr = affectChunks as Vector2Int[] ?? affectChunks.ToArray();
             
-            foreach (Vector2Int chunk in affectChunks)
+            foreach (Vector2Int chunk in chunksArr)
             {
                 foreach (DeformationChannel channel in channels[chunk])
                 {
                     channel.RegisterDeformer(deformer);
                 }
             }
+        }
+
+        private async Task LaunchDeformersQueue()
+        {
+            await Task.Delay(2000);
+            deformersQueueTimer = null;
+
+            foreach (IDeformer deformer in deformersQueue)
+            {
+                ApplyToChannels(deformer);
+            }
+
+            foreach (List<DeformationChannel> deformationChannels in channels.Values)
+            {
+                foreach (DeformationChannel deformationChannel in deformationChannels)
+                {
+                    if(deformationChannel.IsDirty) deformationChannel.ApplyDirtyToCache();
+                }
+            }
+            
+            foreach (List<DeformationChannel> deformationChannels in channels.Values)
+            {
+                foreach (DeformationChannel deformationChannel in deformationChannels)
+                {
+                    if(deformationChannel.IsDirty) deformationChannel.Apply();
+                }
+            }
+
+            deformersQueue.Clear();
         }
     }
 }

@@ -8,21 +8,22 @@ using Core.TerrainGenerator.Utility;
 using Sirenix.OdinInspector;
 using Core.TerrainGenerator.Settings;
 using System.Linq;
+using Core.Utilities;
 
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class TreesChannel : DeformationChannel
+    public class TreesChannel : DeformationChannel<List<TreePos>, TreesMapDeformerModule>
     {
-        public List<TreePos> Trees;
         public TerrainData terrainData;
 
         public TreesChannel(TerrainData terrainData, string path, Vector2Int chunk, GameObject[] prototypes) : base(chunk, terrainData.size.x)
         {
             this.terrainData = terrainData;
             SetPrototypes(prototypes);
-            Trees = new List<TreePos>();
-            TreesLayerFiles.LoadTreeLayer(path, this);
+            List<TreePos> zeroLayer = new List<TreePos>();
+            deformationLayersCache.Add(zeroLayer);
+            TreesLayerFiles.LoadTreeLayer(path, zeroLayer);
             IsReady = true;
         }
 
@@ -37,27 +38,30 @@ namespace Core.TerrainGenerator
             terrainData.treePrototypes = treePrototypes;
         }
 
-        protected override void ApplyDeformer(IDeformer deformer)
+        protected override List<TreePos> GetLayerCopy(List<TreePos> source)
         {
-            TreesMapDeformerModule deformerModule = deformer.GetModules<TreesMapDeformerModule>();
-            if (deformerModule == null) return;
+            return source.DeepClone();
+        }
 
-            deformerModule.WriteToTerrainData(terrainData, Position);
+        protected override void ApplyToCache(TreesMapDeformerModule module)
+        {
+            module.WriteToTerrainData(terrainData, Position);
         }
 
         protected override void ApplyToTerrain()
         {
             List<TreeInstance> instances = new List<TreeInstance>();
-            for (int i = 0; i < Trees.Count; i++)
+            List<TreePos> lastLayer = GetLastLayer();
+            for (int i = 0; i < lastLayer.Count; i++)
             {
                 TreeInstance instance = new TreeInstance();
                 instance.widthScale = 1;
                 instance.heightScale = 1;
                 instance.prototypeIndex = 0;
                 instance.rotation = 0;
-                instance.rotation = Trees[i].Rotate;
+                instance.rotation = lastLayer[i].Rotate;
                 instance.color = Color.white;
-                instance.position = new Vector3(Trees[i].Pos.x, 0, Trees[i].Pos.y);
+                instance.position = new Vector3(lastLayer[i].Pos.x, 0, lastLayer[i].Pos.y);
                 instances.Add(instance);
             }
             terrainData.SetTreeInstances(instances.ToArray(), true);
@@ -68,7 +72,7 @@ namespace Core.TerrainGenerator
         // new RectangleAffectSettings(terrainData, Position, terrainData.detailResolution, deformer);
     }
 
-    public struct TreePos
+    public struct TreePos : ICloneable
     {
         public int Layer;
         public Vector2 Pos;
@@ -81,6 +85,11 @@ namespace Core.TerrainGenerator
             NumTree = numTree;
             Pos = pos;
             Rotate = rotate;
+        }
+
+        public object Clone()
+        {
+            return new TreePos(Layer, NumTree, Rotate, Pos);
         }
     }
 }

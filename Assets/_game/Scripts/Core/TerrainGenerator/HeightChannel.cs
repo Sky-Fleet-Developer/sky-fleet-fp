@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,11 +12,9 @@ using Sirenix.OdinInspector;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class HeightChannel : DeformationChannel<float[,]>
+    public class HeightChannel : DeformationChannel<float[,], HeightMapDeformerModule>
     {
         public TerrainData terrainData { get; private set; }
-        private Dictionary<int, List<HeightMapDeformerModule>> deformers = new  Dictionary<int, List<HeightMapDeformerModule>>();
-        private int maxDeformerLayer;
         public int SideSize { get; }
 
         public HeightChannel(TerrainData terrainData, int sizeSide, Vector2Int chunk, string path) : base(chunk, terrainData.size.x)
@@ -27,39 +26,9 @@ namespace Core.TerrainGenerator
             IsReady = true;
         }
 
-        protected override void ApplyDeformer(IDeformer deformer)
+        protected override void ApplyToCache(HeightMapDeformerModule module)
         {
-            HeightMapDeformerModule deformerModule = deformer.GetModules<HeightMapDeformerModule>();
-            if (deformerModule == null) return;
-            AddDeformer(deformerModule, deformer.Layer);
-            maxDeformerLayer = Mathf.Max(maxDeformerLayer, deformer.Layer);
-            deformerModule.WriteToChannel(this);
-            
-            RecalculateMatches(deformer);
-            ApplyToTerrain();
-        }
-
-        private void RecalculateMatches(IDeformer deformer)
-        {
-            for (int i = deformer.Layer + 1; i <= maxDeformerLayer; i++)
-            {
-                if (deformers.TryGetValue(i, out List<HeightMapDeformerModule> ds))
-                {
-                    foreach (HeightMapDeformerModule d in ds)
-                    {
-                        d.WriteToChannel(this);
-                    }
-                }
-            }
-        }
-
-        private void AddDeformer(HeightMapDeformerModule deformer, int layer)
-        {
-            if (!deformers.ContainsKey(layer))
-            {
-                deformers.Add(layer, new List<HeightMapDeformerModule>());
-            }
-            deformers[layer].Add(deformer);
+            module.WriteToChannel(this);
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
@@ -69,27 +38,12 @@ namespace Core.TerrainGenerator
         {
             if(deformationLayersCache[0] == null) return;
             
-            terrainData.SetHeights(0, 0, deformationLayersCache[deformationLayersCache.Count-1]);
-        }
-        
-        public float[,] GetSourceLayer(IDeformer deformer)
-        {
-            return deformationLayersCache[GetPreviousLayerIdx(deformer.Layer)];
+            terrainData.SetHeights(0, 0, GetLastLayer());
         }
 
-        public float[,] GetDestinationLayer(IDeformer deformer)
+        protected override float[,] GetLayerCopy(float[,] source)
         {
-            int prev = GetPreviousLayerIdx(deformer.Layer);
-            if (deformationLayersCache.Count == prev + 1)
-            {
-                deformationLayersCache.Add(deformationLayersCache[prev].Clone() as float[,]);   
-            }
-            return deformationLayersCache[prev + 1];
-        }
-
-        private int GetPreviousLayerIdx(int idx)
-        {
-            return Mathf.Max(0, Mathf.Min(deformationLayersCache.Count, idx));
+            return source.Clone() as float[,];
         }
     }
 }

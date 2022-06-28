@@ -14,9 +14,8 @@ using UnityEngine.Networking;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class ColorChannel : DeformationChannel
+    public class ColorChannel : DeformationChannel<float[,,], ColorMapDeformerModule>
     {
-        private List<Color[]> colors;
 
         [ShowInInspector, ReadOnly] public TerrainData terrainData { get; private set; }
         private int layersCount;
@@ -26,78 +25,27 @@ namespace Core.TerrainGenerator
             this.terrainData = terrainData;
             Load(paths);
         }
-
-        private int alphamapResolution;
-        private int countToLoad;
-        private int loadedCount;
-        private void Load(List<string> paths)
-        {
-            List<Task> tasks = new List<Task>();
-            foreach (string path in paths)
-            {
-                if(path == null) continue;
-                Task t = LoadAtPath(path);
-                tasks.Add(t);
-            }
-
-            countToLoad = tasks.Count;
-            loadedCount = 0;
-            if (tasks.Count == 0)
-            {
-                IsReady = true;
-            }
-        }
         
-        private async Task LoadAtPath(string path) // TODO: get texture in edit-mode
+
+        protected override float[,,] GetLayerCopy(float[,,] source)
         {
-            using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
-            {
-                await request.SendWebRequest();
-                if (request.error != null)
-                {
-                    Debug.LogError(request.error);
-                }
-                else
-                {
-                    Texture2D tex = DownloadHandlerTexture.GetContent(request);
-                    tex.Apply();
-                    ReadPixels(tex);
-                    if (++loadedCount == countToLoad)
-                    {
-                        IsReady = true;
-                    }
-                }
-            }
+            return source.Clone() as float[,,];
         }
 
-        private void ReadPixels(Texture2D tex)
+        protected override void ApplyToCache(ColorMapDeformerModule module)
         {
-            if (colors == null)
-            {
-                colors = new List<Color[]>();
-                alphamapResolution = tex.width;
-            }
-            colors.Add(tex.GetPixels());
-        }
+            //RectangleAffectSettings rectangleSettings = GetAffectSettingsForDeformer(module.Core);
 
-        protected override void ApplyDeformer(IDeformer deformer)
-        {
-            ColorMapDeformerModule deformerModule = deformer.GetModules<ColorMapDeformerModule>();
-            if (deformerModule == null) return;
-
-            RectangleAffectSettings rectangleSettings = GetAffectSettingsForDeformer(deformer);
-
-            float[,,] alphamap = terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY,
-                rectangleSettings.deltaX, rectangleSettings.deltaY);
+            module.WriteToChannel(this);//, rectangleSettings.minX, rectangleSettings.minY, rectangleSettings, Position, terrainData.size, layersCount);
             
-            deformerModule.WriteToAlphamaps(alphamap, 0, 0, rectangleSettings, Position, terrainData.size, layersCount);
-            
-            terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
+           // terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
         }
 
         protected override void ApplyToTerrain()
         {
             if (loadedCount == 0) return;
+
+            /*int lastLayer = deformationLayersCache.Count - 1;
             
             terrainData.alphamapResolution = alphamapResolution;
             float[,,] sets = new float[alphamapResolution, alphamapResolution, layersCount];
@@ -111,7 +59,7 @@ namespace Core.TerrainGenerator
                     float sum = 0;
                     for (int i = 0; i < layersCount; i++)
                     {
-                        float res = GetColorPerIndex(x + y * alphamapResolution, i);
+                        float res = GetColorPerIndex(lastLayer, x, y, i);
                         temp[i] = res;
                         sum += res;
                     }
@@ -134,17 +82,88 @@ namespace Core.TerrainGenerator
                         }
                     }
                 }
-            }
-            terrainData.SetAlphamaps(0, 0, sets);
+            }*/
+            
+            terrainData.SetAlphamaps(0, 0, GetLastLayer());
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) => new RectangleAffectSettings(terrainData, Position, terrainData.alphamapResolution, deformer);
 
-        private float GetColorPerIndex(int n, int i)
+        /*private float GetColorPerIndex(int layer, int x, int y, int n)
         {
-            int a = i / 3;
-            int b = i % 3;
-            return colors[a][n][b];
+            return deformationLayersCache[layer][x, y, n];
+        }*/
+
+        #region Loading
+        private int alphamapResolution;
+        private int countToLoad;
+        private int loadedCount;
+        private async void Load(List<string> paths)
+        {
+            countToLoad = paths.Count;
+            List<Task> tasks = new List<Task>();
+            foreach (string path in paths)
+            {
+                if(path == null) continue;
+                Task t = LoadAtPath(path);
+                tasks.Add(t);
+            }
+
+            loadedCount = 0;
+            if (tasks.Count == 0)
+            {
+                IsReady = true;
+            }
+            foreach (Task task in tasks)
+            {
+                await task;
+            }
         }
+        
+        private async Task LoadAtPath(string path) // TODO: get texture in edit-mode
+        {
+            using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
+            {
+                await request.SendWebRequest();
+                if (request.error != null)
+                {
+                    Debug.LogError(request.error);
+                }
+                else
+                {
+                    Texture2D tex = DownloadHandlerTexture.GetContent(request);
+                    tex.Apply();
+                    if (deformationLayersCache.Count == 0)
+                    {
+                        alphamapResolution = tex.width;
+                        deformationLayersCache.Add(new float[alphamapResolution, alphamapResolution, layersCount]);
+                    }
+                    ReadPixels(tex);
+                    if (++loadedCount == countToLoad)
+                    {
+                        IsReady = true;
+                    }
+                }
+            }
+        }
+
+        private void ReadPixels(Texture2D tex)
+        {
+            float[,,] colors = deformationLayersCache[0];
+            Color[] pixels = tex.GetPixels();
+            for (int x = 0; x < tex.width; x++)
+            {
+                for (int y = 0; y < tex.height; y++)
+                {
+                    int max = Mathf.Min(loadedCount + 4, layersCount);
+                    int i2 = 0;
+                    for (int i = loadedCount; i < max; i++)
+                    {
+                        colors[x, y, i2++] = pixels[x + y * alphamapResolution][i];
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

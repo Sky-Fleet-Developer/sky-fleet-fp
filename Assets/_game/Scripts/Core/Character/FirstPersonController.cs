@@ -209,7 +209,7 @@ namespace Runtime.Character.Control
             }
         }
         
-        private class ControlAxisState : State<FirstPersonController>
+        private class ControlAxisState : InteractionState
         {
             private ControlAxis axis;
             private InteractionState lastState;

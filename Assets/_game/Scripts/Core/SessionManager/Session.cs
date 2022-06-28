@@ -53,10 +53,22 @@ namespace Core.SessionManager
         
         private void InitPlayer()
         {
-            if (Player == null) Player = SpawnPerson.Instance.Player;
+            if (Player == null)
+            {
+                if (!TryFindPlayer())
+                {
+                    Player = SpawnPerson.Instance.Player;
+                }
+            }
             OnPlayerWasLoaded.Invoke();
         }
 
+        private bool TryFindPlayer()
+        {
+            Player = FindObjectOfType<FirstPersonController>();
+            return Player;
+        }
+        
         private void LoadControl()
         {
             try

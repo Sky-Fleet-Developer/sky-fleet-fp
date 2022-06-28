@@ -170,6 +170,9 @@ namespace Core.TerrainGenerator
 
         public Vector3 InverseTransformPoint(Vector3 worldPos) => transform.InverseTransformPoint(worldPos);
         public Vector3 TransformPoint(Vector3 localPos) => transform.TransformPoint(localPos);
+        public virtual void OnSetDirty(Type changedModuleType)
+        {
+        }
 
 
         private void OnDrawGizmosSelected()

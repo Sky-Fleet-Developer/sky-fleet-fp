@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Core.TerrainGenerator.Settings;
@@ -22,5 +23,9 @@ namespace Core.TerrainGenerator
         Vector2 GetLocalPointCoordinates(Vector3 worldPos);
         Vector3 InverseTransformPoint(Vector3 worldPos);
         Vector3 TransformPoint(Vector3 localPos);
+        /// <summary>
+        /// Changes was applied to channel layer only, but not to landscape
+        /// </summary>
+        void OnSetDirty(Type changedModuleType);
     }
 }

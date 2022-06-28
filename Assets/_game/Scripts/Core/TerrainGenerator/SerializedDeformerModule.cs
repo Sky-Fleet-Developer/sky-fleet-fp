@@ -27,8 +27,9 @@ namespace Core.TerrainGenerator
             return Type.GetType(type);
         }
 
-        [SerializeField] private string serializedData;
-        [SerializeField] private string type;
+        [ShowInInspector] private bool showJson;
+        [SerializeField, ShowIf("showJson")] private string serializedData;
+        [SerializeField, ShowIf("showJson")] private string type;
 
         public SerializedDeformerModule(IDeformer deformer, Type newLayerType)
         {
@@ -44,7 +45,6 @@ namespace Core.TerrainGenerator
 
         private void Deserialize()
         {
-            Debug.Log(type);
             Type t = GetLayerType();
             module = JsonConvert.DeserializeObject(serializedData, t) as IDeformerModule;
             module?.Init(deformer);
