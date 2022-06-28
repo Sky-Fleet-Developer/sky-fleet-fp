@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Runtime.Character.Control;
 using Core.SessionManager;
 using System;
+using Runtime.Character;
 using Sirenix.OdinInspector;
 
 namespace Core.Utilities
@@ -30,12 +31,20 @@ namespace Core.Utilities
             gameObject.SetActive(false);
         }
 
+        private void OnValidate()
+        {
+            if (limit != 0)
+            {
+                limit_i = 1f / limit;
+            }
+        }
+
         public Task Load()
         {
             if (limit != 0)
             {
                 limit_i = 1f / limit;
-                Session.OnPlayerWasLoaded.Subscribe(OnPlayerWasLoaded);
+                SpawnPerson.OnPlayerWasLoaded.Subscribe(OnPlayerWasLoaded);
             }
 
             return Task.CompletedTask;

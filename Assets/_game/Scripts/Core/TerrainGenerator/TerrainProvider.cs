@@ -121,29 +121,36 @@ namespace Core.TerrainGenerator
 
         private IEnumerable<Vector2Int> GetCurrentProps()
         {
-            Vector3 playerPosition = Vector3.zero;
-
-            if (Session.hasInstance)
-            {
-                FirstPersonController player = Session.Instance.Player;
-                if (player != null) playerPosition = player.transform.position;
-            }
+            Vector3 viewPosition = GetViewPosition();
 
             float sI = 1f / settings.chunkSize;
-            Vector2 playerCell =
-                new Vector2(playerPosition.x * sI, -playerPosition.z * sI);
+            Vector2 viewCell =
+                new Vector2(viewPosition.x * sI, -viewPosition.z * sI);
             float visibleDistance = settings.visibleDistance * sI;
 
-            Vector2Int playerCellInt = new Vector2Int(Mathf.FloorToInt(playerCell.x), Mathf.FloorToInt(playerCell.y));
+            Vector2Int viewCellInt = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
 
-            for (int x = playerCellInt.x - 3; x <= playerCellInt.x + 3; x++)
+            for (int x = viewCellInt.x - 3; x <= viewCellInt.x + 3; x++)
             {
-                for (int y = playerCellInt.y - 3; y <= playerCellInt.y + 3; y++)
+                for (int y = viewCellInt.y - 3; y <= viewCellInt.y + 3; y++)
                 {
-                    if (Mathf.Abs(playerCell.x - x) < visibleDistance && Mathf.Abs(playerCell.y - y) < visibleDistance)
+                    if (Mathf.Abs(viewCell.x - x) < visibleDistance && Mathf.Abs(viewCell.y - y) < visibleDistance)
                         yield return new Vector2Int(x, y);
                 }
             }
+        }
+
+        private bool cameraInitialized;
+        private Transform mainCamera;
+        private Vector3 GetViewPosition()
+        {
+            if (!cameraInitialized)
+            {
+                Camera cam = Camera.main;
+                if (cam) mainCamera = cam.transform;
+                else return Vector3.zero;
+            }
+            return mainCamera.position;
         }
 
 

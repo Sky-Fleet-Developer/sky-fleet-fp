@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,40 +13,43 @@ namespace Core.SessionManager
             Session = 1
         }
 
-        private static AsyncOperation operationLoad;
+        private static AsyncOperation loadingOperation;
+        private static TaskCompletionSource<bool> sceneLoading;
+        private static int nextSceneBuildIdx;
 
         public static event Action StartChangeScene;
 
-        public static void LoadGameScene(Action<AsyncOperation> onComplete = null)
+        public static Task LoadGameScene() => LoadScene(1);
+        public static Task LoadScene(int buildIdx)
         {
-            if (operationLoad != null)
-                return;
+            if (sceneLoading == null)
+            {
+                StartChangeScene?.Invoke();
+                nextSceneBuildIdx = buildIdx;
+                loadingOperation = SceneManager.LoadSceneAsync(buildIdx, LoadSceneMode.Single);
 
-            StartChangeScene?.Invoke();
-            operationLoad = SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
-            operationLoad.completed += EndLoad;
-            operationLoad.completed += onComplete;
+                sceneLoading = new TaskCompletionSource<bool>();
+            }
+            else
+            {
+                if (nextSceneBuildIdx != buildIdx) throw new Exception("Previous loading is not complete!\n");
+            }
+
+            return sceneLoading.Task;
         }
 
-        public static void LoadMenuScene(Action<AsyncOperation> onComplete = null)
-        {
-            if (operationLoad != null)
-                return;
+        public static Task LoadMenuScene() => LoadScene(0);
 
-            StartChangeScene?.Invoke();
-            operationLoad = SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
-            operationLoad.completed += EndLoad;
-            operationLoad.completed += onComplete;
-        }
-
-        private static void EndLoad(AsyncOperation asyncOpr)
+        private static void EndLoad(AsyncOperation operation)
         {
-            operationLoad.completed -= EndLoad;
-            operationLoad = null;
-            if (asyncOpr.isDone && SceneManager.GetActiveScene().buildIndex > 0)
+            loadingOperation.completed -= EndLoad;
+            sceneLoading.SetResult(true);
+            if (loadingOperation.isDone && SceneManager.GetActiveScene().buildIndex > 0)
             {
                 Debug.Log("Session scene loaded.");
             }
+            loadingOperation = null;
+            sceneLoading = null;
         }
     }
 }

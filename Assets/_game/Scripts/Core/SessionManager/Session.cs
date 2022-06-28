@@ -15,8 +15,6 @@ namespace Core.SessionManager
     [DontDestroyOnLoad]
     public class Session : Singleton<Session>
     {
-        public static LateEvent OnPlayerWasLoaded = new LateEvent();
-        
         public SessionSettings Settings => settings;
         public ControlSettings Control => control;
 
@@ -35,11 +33,12 @@ namespace Core.SessionManager
         protected override void Setup()
         {
             LoadSettings();
+            SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
         }
 
-        private void OnLevelWasLoaded(int level)
+        private void SceneManagerOnsceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (level != 0)
+            if (scene.buildIndex != 0)
             {
                 LoadSettings();
             }
@@ -48,7 +47,7 @@ namespace Core.SessionManager
         private void LoadSettings()
         {
             LoadControl();
-            InitPlayer();
+            SpawnPerson.OnPlayerWasLoaded.Subscribe(InitPlayer);
         }
         
         private void InitPlayer()
@@ -60,7 +59,6 @@ namespace Core.SessionManager
                     Player = SpawnPerson.Instance.Player;
                 }
             }
-            OnPlayerWasLoaded.Invoke();
         }
 
         private bool TryFindPlayer()
@@ -103,9 +101,9 @@ namespace Core.SessionManager
             saveLoadUtility.SaveWithName(name);
         }
 
-        public void Load(string filePath, System.Action onComplete)
+        public async void Load(string filePath, System.Action onComplete)
         {
-            Task task = LoadAndComplete(filePath, onComplete);
+            await LoadAndComplete(filePath, onComplete);
         }
 
         private async Task LoadAndComplete(string filePath, System.Action onComplete)

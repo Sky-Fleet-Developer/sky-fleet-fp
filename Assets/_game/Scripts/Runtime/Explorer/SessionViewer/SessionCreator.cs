@@ -81,7 +81,7 @@ namespace Runtime.Explorer.SessionViewer
             }
         }
 
-        void CallStartSession()
+        async void CallStartSession()
         {
             Session.Instance.BeginInit();
             if(!string.IsNullOrEmpty(presetSessionField.text))
@@ -101,7 +101,7 @@ namespace Runtime.Explorer.SessionViewer
             });
             Session.Instance.EndInit();
             Debug.Log(Session.Instance.Settings.name);
-            SceneLoader.LoadGameScene();
+            await SceneLoader.LoadGameScene();
         }
 
 

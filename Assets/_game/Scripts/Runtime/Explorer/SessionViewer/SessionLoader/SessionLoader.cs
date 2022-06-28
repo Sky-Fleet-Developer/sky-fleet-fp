@@ -91,16 +91,14 @@ namespace Runtime.Explorer.SessionViewer.SessionLoader
             items.Clear();
         }
 
-        private void StartSession()
+        private async void StartSession()
         {
             if (currentSessionSettings == null)
                 return;
             Session.Instance.BeginInit();
             Session.Instance.SetSettings(currentSessionSettings);
-            SceneLoader.LoadGameScene(delegate
-            {
-                Session.Instance.Load(currentSessionPath, Session.Instance.EndInit);
-            });
+            await SceneLoader.LoadGameScene();
+            Session.Instance.Load(currentSessionPath, Session.Instance.EndInit);
         }
 
     }

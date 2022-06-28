@@ -31,9 +31,9 @@ namespace Runtime.Explorer.SessionUI
             noButton.onClick.RemoveAllListeners();
         }
 
-        private void OnYes()
+        private async void OnYes()
         {
-            SceneLoader.LoadMenuScene();
+            await SceneLoader.LoadMenuScene();
         }
 
         private void OnNo()
