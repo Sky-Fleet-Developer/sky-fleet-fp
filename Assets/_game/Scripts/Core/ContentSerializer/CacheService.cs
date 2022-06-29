@@ -153,7 +153,13 @@ namespace Core.ContentSerializer
             Dictionary<string, string> hash,
             Dictionary<int, Component> components, ISerializationContext context)
         {
-            int count = int.Parse(hash[prefix]);
+            if (!hash.TryGetValue(prefix, out string countString))
+            {
+                Debug.LogError($"Has no hash with key {prefix}");
+                return;
+            }
+
+            int count = int.Parse(countString);
             IList list = Activator.CreateInstance(type) as IList;
             Type elementType = type.GetGenericArguments().Single();
             object obj = list;
@@ -165,7 +171,7 @@ namespace Core.ContentSerializer
 
             setter?.Invoke(list);
         }
-        
+
 
         public static void GetArrayCache(string prefix, object source, Dictionary<string, string> hash,
             ISerializationContext context)

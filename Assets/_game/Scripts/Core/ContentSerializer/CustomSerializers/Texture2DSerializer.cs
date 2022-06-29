@@ -28,7 +28,7 @@ namespace Core.ContentSerializer.CustomSerializers
                     string name = $"Tex_{tex.name}_{tex.GetInstanceID()}";
                     try
                     {
-                        string path = $"{Application.dataPath}/{PathStorage.BASE_PATH_TEXTURES}";
+                        string path = $"{context.ModFolderPath}/{PathStorage.BASE_PATH_TEXTURES}";
                         Directory.CreateDirectory(path);
                         File.Copy(filePath, $"{path}/{name}.png");
                     }

@@ -17,11 +17,9 @@ namespace Core.ContentSerializer
     [System.Serializable]
     public class SerializationModule
     {
-        [JsonIgnore, ShowInInspector]
-        private GameObject[] PrefabsToSerialize = new GameObject[0];
+        [JsonIgnore, NonSerialized] public List<GameObject> PrefabsToSerialize = new List<GameObject>();
 
-        [JsonIgnore, ShowInInspector]
-        private List<Object> AssetsToSerialize =  new List<Object>();
+        [JsonIgnore, NonSerialized] public List<Object> AssetsToSerialize = new List<Object>();
 
         [JsonIgnore, HideInInspector]
         public List<Bundle> Cache
@@ -53,8 +51,10 @@ namespace Core.ContentSerializer
         private bool isCurrentlyBuilded = false;
         
         [Button]
-        public void SerializeAll()
+        public void SerializeAll(string pathToSave)
         {
+            string path = pathToSave.Replace("DATA_PATH", Application.dataPath) + "/";
+            
             AssetsToSerialize = new List<Object>();
 
             isCurrentlyBuilded = true;
@@ -63,23 +63,24 @@ namespace Core.ContentSerializer
             prefabsCache = new List<PrefabBundle>();
             assetsCache = new List<AssetBundle>();
             
-            foreach (PrefabBundle serializePrefab in SerializePrefabs())
+            foreach (PrefabBundle serializePrefab in SerializePrefabs(path))
             {
                 Cache.Add(serializePrefab);
                 prefabsCache.Add(serializePrefab);
             }
-            foreach (AssetBundle serializeAsset in SerializeAssets())
+            foreach (AssetBundle serializeAsset in SerializeAssets(path))
             {
                 Cache.Add(serializeAsset);
                 assetsCache.Add(serializeAsset);
             }
             
-            WriteClass();
+            WriteClass(path);
         }
 
-        public List<PrefabBundle> SerializePrefabs()
+        public List<PrefabBundle> SerializePrefabs(string pathToSave)
         {
             Serializer serializer = ModProvider.GetSerializer();
+            serializer.ModFolderPath = pathToSave;
             serializer.DetectedObjectReport = v =>
             {
                 int id = v.GetInstanceID();
@@ -90,9 +91,10 @@ namespace Core.ContentSerializer
             return serializer.GetBundlesFor(PrefabsToSerialize);
         }
 
-        public List<AssetBundle> SerializeAssets()
+        public List<AssetBundle> SerializeAssets(string pathToSave)
         {
             Serializer serializer = ModProvider.GetSerializer();
+            serializer.ModFolderPath = pathToSave;
             List<Object> collector = AssetsToSerialize.Clone();
             List<AssetBundle> result = new List<AssetBundle>();
 
@@ -107,9 +109,9 @@ namespace Core.ContentSerializer
 
             while (collector.Count > 0)
             {
-                Object[] array = collector.ToArray();
+                List<Object> temp = collector.Clone();
                 collector = new List<Object>();
-                result.AddRange(serializer.GetBundlesFor(array));
+                result.AddRange(serializer.GetBundlesFor(temp));
             }
 
             return result;
@@ -180,8 +182,8 @@ namespace Core.ContentSerializer
             return GetAsset(Cache.FirstOrDefault(x => x.id == id), availableAssemblies);
         }
 
-        [Button]
-        private void ClearDirectoryClass()
+        /*[Button]
+        private void ClearDirectoryClass(string pathToSave)
         {
             string path = Application.dataPath + PathStorage.BASE_MODS_PATH;
             Debug.Log(path);
@@ -196,11 +198,10 @@ namespace Core.ContentSerializer
 #endif
 
             }
-        }
+        }*/
 
-        private void WriteClass()
+        private void WriteClass(string path)
         {
-            string path = Application.dataPath + PathStorage.BASE_MODS_PATH + "/";
             string jsonS = JsonConvert.SerializeObject(this);
             File.WriteAllText(path + PathStorage.BASE_MOD_FILE_DEFINE, jsonS);
 

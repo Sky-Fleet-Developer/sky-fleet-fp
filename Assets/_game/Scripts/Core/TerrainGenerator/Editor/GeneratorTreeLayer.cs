@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Core.TerrainGenerator.Utility;
 
+#if UNITY_EDITOR
 namespace Core.TerrainGenerator.Editor
 {
     public class GeneratorTreeLayer : ScriptableWizard
@@ -153,3 +154,4 @@ namespace Core.TerrainGenerator.Editor
 
     }
 }
+#endif

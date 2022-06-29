@@ -20,7 +20,7 @@ namespace Core.Explorer.Content
         private static event System.Action<List<Mod>> onModsLoaded;
         [System.NonSerialized, ShowInInspector, ReadOnly] public static bool isModsLoaded = false;
 
-        public async Task Load()
+        public Task Load()
         {
             LinkedList<string> modsD = GetListMods(GetPathDirectoryMods());
             foreach (string name in modsD)
@@ -28,12 +28,13 @@ namespace Core.Explorer.Content
                 Debug.Log("Find mod: " + name);
             }
             
-            List<Task> loadTasks = GenerateMods(modsD, new ModLoader());
+            GenerateMods(modsD, new ModLoader());
 
-            await Task.WhenAll(loadTasks);
             onModsLoaded?.Invoke(mods);
             isModsLoaded = true;
             onModsLoaded = null;
+            
+            return Task.CompletedTask;
         }
 
 
@@ -62,21 +63,17 @@ namespace Core.Explorer.Content
             return null;
         }
 
-        private List<Task> GenerateMods(LinkedList<string> directorys, ModLoader loader)
+        private void GenerateMods(LinkedList<string> directorys, ModLoader loader)
         {
-            List<Task> tasks = new List<Task>();
             foreach (string directory in directorys)
             {
-                Task task = LoadMod(directory, loader);
-                tasks.Add(task);
+                LoadMod(directory, loader);
             }
-
-            return tasks;
         }
 
-        private async Task LoadMod(string modDirectory, ModLoader loader)
+        private void LoadMod(string modDirectory, ModLoader loader)
         {
-            Mod mod = await loader.Read(modDirectory);
+            Mod mod = loader.Read(modDirectory);
             if (mod != null)
             {
                 mods.Add(mod);

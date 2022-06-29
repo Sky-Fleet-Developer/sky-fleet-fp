@@ -92,7 +92,7 @@ namespace Core.ContentSerializer.CustomSerializers
                     memoryStream.Write(bones.ToArray(), 0, bones.Length);
 
 
-                    string path = $"{Application.dataPath}{PathStorage.BASE_PATH_MODELS}";
+                    string path = $"{context.ModFolderPath}{PathStorage.BASE_PATH_MODELS}";
                     Directory.CreateDirectory(path);
                     FileStream file = File.Open($"{path}/{mesh.name}_{mesh.GetInstanceID()}.mesh", FileMode.OpenOrCreate);
                     memoryStream.Seek(0, SeekOrigin.Begin);
@@ -243,15 +243,7 @@ namespace Core.ContentSerializer.CustomSerializers
 
         public async Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
-            string path;
-            if (context.IsCurrentlyBuilded)
-            {
-                path = $"{Application.dataPath}{PathStorage.BASE_PATH_MODELS}";
-            }
-            else
-            {
-                path = $"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_MODELS}";
-            }
+            string path = $"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_MODELS}";
 
             Debug.Log($"Search mesh in path: {path}/{cache[prefix + "_1"]}.mesh");
 

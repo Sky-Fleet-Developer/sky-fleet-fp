@@ -14,16 +14,9 @@ namespace Core.ContentSerializer.AssetCreators
             ISerializationContext context)
         {
             string name = cache[prefix + "_1"];
-            if (context.IsCurrentlyBuilded)
-            {
-                Debug.Log($"Search texture in path: {Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");
-                return await CreateInstance($"{Application.dataPath}{PathStorage.BASE_PATH_TEXTURES}/{name}.png");
-            }
-            else
-            {
-                Debug.Log($"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
-                return await CreateInstance($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
-            }
+
+            Debug.Log($"Search texture in path: {context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
+            return await CreateInstance($"{context.ModFolderPath}{PathStorage.MOD_RELETIVE_PATH_TEXTURES}/{name}.png");
         }
 
 

@@ -237,6 +237,9 @@ namespace Core.Structure.Wires
         public PortType ValueType => valueType;
         protected PortType valueType;
 
+        public Wire()
+        {
+        }
         public Wire(PortType type)
         {
             valueType = type;

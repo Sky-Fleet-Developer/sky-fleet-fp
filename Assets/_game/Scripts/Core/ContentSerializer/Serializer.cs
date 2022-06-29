@@ -22,7 +22,7 @@ namespace Core.ContentSerializer
         }
 
         public SerializerBehaviour Behaviour { get; }
-        public string ModFolderPath => throw new System.NotImplementedException();
+        public string ModFolderPath { get; set; }
         public bool IsCurrentlyBuilded { get; set; }
 
 
@@ -32,12 +32,12 @@ namespace Core.ContentSerializer
             Behaviour.context = this;
         }
 
-        public List<PrefabBundle> GetBundlesFor(GameObject[] prefabs)
+        public List<PrefabBundle> GetBundlesFor(IEnumerable<GameObject> prefabs)
         {
             return prefabs.Select(x => new PrefabBundle(x, this)).ToList();
         }
         
-        public List<AssetBundle> GetBundlesFor(Object[] prefabs)
+        public List<AssetBundle> GetBundlesFor(IEnumerable<Object> prefabs)
         {
             return prefabs.Where(x => x != null).Select(x => new AssetBundle(x, this)).ToList();
         }

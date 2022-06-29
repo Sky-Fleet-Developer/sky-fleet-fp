@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace Core.Explorer.Content
 {
@@ -11,14 +13,21 @@ namespace Core.Explorer.Content
     /// </summary>
     public class ModLoader
     {
-        public async Task<Mod> Read(string path)
+        public Mod Read(string path)
         {
-            string fileDefineMod = File.ReadAllText(path + "/" + PathStorage.BASE_MOD_FILE_DEFINE);
-            SerializationModule module = JsonConvert.DeserializeObject<SerializationModule>(fileDefineMod);
+            try
+            {
+                string fileDefineMod = File.ReadAllText(path + "/" + PathStorage.BASE_MOD_FILE_DEFINE);
+                SerializationModule module = JsonConvert.DeserializeObject<SerializationModule>(fileDefineMod);
             
-            Assembly assembly = ReadAssembly(path + "/" + PathStorage.ASSEMBLY_FILE_DEFINE);
-
-            return new Mod(path, module, assembly);
+                Assembly assembly = ReadAssembly(path + "/" + PathStorage.ASSEMBLY_FILE_DEFINE);
+                return new Mod(path, module, assembly);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return null;
+            }
         }
         
         private Assembly ReadAssembly(string path)
