@@ -34,6 +34,7 @@ namespace Core.ContentSerializer.Bundles
             foreach (IBlock block in structure.Blocks)
             {
                 context.Behaviour.GetNestedCache(block.Guid + block.transform.name, block, blocksCache);
+                context.Behaviour.GetNestedCache(block.Guid + block.transform.name, block.transform, blocksCache);
             }
             
             context.Behaviour.GetNestedCache("this", tr, parentsCache);
@@ -75,6 +76,8 @@ namespace Core.ContentSerializer.Bundles
             foreach (IBlock block in instance.Blocks)
             {
                 tempTask = context.Behaviour.SetNestedCache(block.Guid + block.transform.name, block, blocksCache, null);
+                awaiters.Add(tempTask);
+                tempTask = context.Behaviour.SetNestedCache(block.Guid + block.transform.name, block.transform, blocksCache, null);
                 awaiters.Add(tempTask);
             }
             

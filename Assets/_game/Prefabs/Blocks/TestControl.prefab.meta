@@ -1,7 +1,9 @@
 fileFormatVersion: 2
 guid: b249800ad0fa4ac49b0be7281b7690ff
+labels:
+- Block
 PrefabImporter:
   externalObjects: {}
   userData: 
-  assetBundleName: block
-  assetBundleVariant: block
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: d0eb4b66315acbb4c8659a43f7ffe54c
+labels:
+- Dynamic
+- Structure
 PrefabImporter:
   externalObjects: {}
   userData: 

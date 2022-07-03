@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Runtime.Structure.Ship
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class ShipTest : BaseStructure, IDynamicStructure
+    public class DynamicStructure : BaseStructure, IDynamicStructure
     {
         public float Mass => rigidbody.mass;
         
