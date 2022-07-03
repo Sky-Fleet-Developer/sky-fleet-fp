@@ -1,14 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
 using Core.Explorer.Content;
 using Core.UiStructure;
+using Core.UIStructure.Utilities;
 using Core.Utilities;
-using Core.Utilities.UI;
+using Runtime.Explorer.ModContent;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace Runtime.Explorer.ModContent
+namespace Runtime.Explorer.Services
 {
     public class ModViewer : Service
     {

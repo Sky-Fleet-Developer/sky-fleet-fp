@@ -6,7 +6,7 @@ using Core.UiStructure;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Runtime.Explorer.Options
+namespace Runtime.Explorer.Services
 {
     public class InputReader : Service
     {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.ContentSerializer.Bundles;
@@ -6,8 +7,10 @@ using Core.Explorer.Content;
 using Core.Utilities;
 using Runtime;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
 
 namespace Core.Structure.Rigging
 {
@@ -16,6 +19,31 @@ namespace Core.Structure.Rigging
     {
         public List<RemotePrefabItem> items;
         private Dictionary<string, RemotePrefabItem> itemsCache;
+#if UNITY_EDITOR
+        [Space(20), SerializeField] private AddPrefabSettings[] autoSearchSettings;
+
+        [Button]
+        private void SearchPrefabsInFolders()
+        {
+            foreach (AddPrefabSettings autoSearchSetting in autoSearchSettings)
+            {
+                foreach (string path in autoSearchSetting.GetPaths())
+                {
+                    string correctedPath = "Assets" + path.Replace(Application.dataPath.Replace('/', '\\'), "");
+                    var target = AssetDatabase.LoadAssetAtPath<GameObject>(correctedPath);
+                    if(target == null) continue;
+                    if (items.FirstOrDefault(x => x.GetReferenceInEditor() == target) == null)
+                    {
+                        AssetDatabase.TryGetGUIDAndLocalFileIdentifier(target.GetInstanceID(), out string guid,
+                            out long localId);
+                        RemotePrefabItem newItem = new RemotePrefabItem(new AssetReference(guid));
+                        newItem.tags = autoSearchSetting.tags.Clone();
+                        items.Add(newItem);
+                    }
+                }
+            }
+        }
+        #endif
         
         public RemotePrefabItem GetItem(string guid)
         {
@@ -42,6 +70,21 @@ namespace Core.Structure.Rigging
                 itemsCache.Add(newItem.guid, newItem);
             }
         }
+        [System.Serializable]
+        private class AddPrefabSettings
+        {
+            [SerializeField, FolderPath(AbsolutePath = true)] private string pathToSearchFolder;
+            [SerializeField] public List<string> tags;
+
+            public IEnumerable<string> GetPaths()
+            {
+                DirectoryInfo origin = new DirectoryInfo(pathToSearchFolder);
+                foreach (FileInfo fileInfo in origin.GetFiles("*.prefab"))
+                {
+                    yield return fileInfo.FullName;
+                }
+            }
+        }
     }
 
     [System.Serializable]
@@ -53,7 +96,11 @@ namespace Core.Structure.Rigging
         public string guid;
         public List<string> tags;
         [System.NonSerialized] public GameObject loaded;
-        
+
+        public RemotePrefabItem(AssetReference reference)
+        {
+            this.reference = reference;
+        }
         public RemotePrefabItem(int tagIdx, PrefabBundle prefab, Mod mod)
         {
             this.mod = mod;
@@ -70,7 +117,7 @@ namespace Core.Structure.Rigging
             }
             else if (bundleReference != null)
             {
-                loaded = (GameObject)await mod.module.GetAsset(bundleReference, mod.assemblies);
+                loaded = (GameObject)await mod.module.GetAsset(bundleReference, mod.AllAssemblies);
             }
 
             return loaded;
@@ -112,6 +159,11 @@ namespace Core.Structure.Rigging
                 val = val.Insert(Time.frameCount % 3, "*");
                 return val;
             }
+        }
+
+        public GameObject GetReferenceInEditor()
+        {
+            return reference.editorAsset as GameObject;
         }
 #endif
 

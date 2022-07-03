@@ -1,8 +1,9 @@
 using System;
+using Core.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Core.Utilities.UI
+namespace Core.UIStructure.Utilities
 {
     public class ButtonItemPointer : ItemPointer
     {

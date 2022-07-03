@@ -22,19 +22,29 @@ namespace Core.Explorer.Content
 
         public Task Load()
         {
-            LinkedList<string> modsD = GetListMods(GetPathDirectoryMods());
-            foreach (string name in modsD)
+            LinkedList<string> directories = FindAllMods(GetPathDirectoryMods());
+            foreach (string name in directories)
             {
                 Debug.Log("Find mod: " + name);
             }
             
-            GenerateMods(modsD, new ModLoader());
+            GenerateMods(directories, new ModLoader());
 
             onModsLoaded?.Invoke(mods);
             isModsLoaded = true;
             onModsLoaded = null;
             
+            Bootstrapper.OnLoadComplete.Subscribe(LaunchExes);
+            
             return Task.CompletedTask;
+        }
+
+        private void LaunchExes()
+        {
+            foreach (Mod mod in mods)
+            {
+                mod.LaunchExeIsExist();
+            }
         }
 
 
@@ -63,9 +73,9 @@ namespace Core.Explorer.Content
             return null;
         }
 
-        private void GenerateMods(LinkedList<string> directorys, ModLoader loader)
+        private void GenerateMods(LinkedList<string> directories, ModLoader loader)
         {
-            foreach (string directory in directorys)
+            foreach (string directory in directories)
             {
                 LoadMod(directory, loader);
             }
@@ -77,6 +87,7 @@ namespace Core.Explorer.Content
             if (mod != null)
             {
                 mods.Add(mod);
+                mod.CreateExeIsExist();
             }
         }
 
@@ -95,11 +106,11 @@ namespace Core.Explorer.Content
             }
         }
 
-        private LinkedList<string> GetListMods(string pathToMods)
+        private LinkedList<string> FindAllMods(string rootPath)
         {
             LinkedList<string> list = new LinkedList<string>();
-            CorrectDirectory(pathToMods);
-            string[] directoryMods = Directory.GetDirectories(pathToMods);
+            CorrectDirectory(rootPath);
+            string[] directoryMods = Directory.GetDirectories(rootPath);
             for (int i = 0; i < directoryMods.Length; i++)
             {
                 if (File.Exists(directoryMods[i] + "/modDefine.json"))

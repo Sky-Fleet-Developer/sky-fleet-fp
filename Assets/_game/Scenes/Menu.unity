@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 224891130}
   - component: {fileID: 224891131}
   m_Layer: 0
-  m_Name: ModLoader
+  m_Name: ModReader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

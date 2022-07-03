@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using Core.TerrainGenerator.Settings;
@@ -9,7 +10,9 @@ using UnityEngine;
 using Core.TerrainGenerator.Utility;
 using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine.Networking;
+using Color = UnityEngine.Color;
 
 namespace Core.TerrainGenerator
 {
@@ -101,6 +104,7 @@ namespace Core.TerrainGenerator
         private async void Load(List<string> paths)
         {
             countToLoad = paths.Count;
+            loadedCount = 0;
             List<Task> tasks = new List<Task>();
             foreach (string path in paths)
             {
@@ -109,7 +113,6 @@ namespace Core.TerrainGenerator
                 tasks.Add(t);
             }
 
-            loadedCount = 0;
             if (tasks.Count == 0)
             {
                 IsReady = true;
@@ -122,6 +125,12 @@ namespace Core.TerrainGenerator
         
         private async Task LoadAtPath(string path) // TODO: get texture in edit-mode
         {
+#if UNITY_EDITOR
+            Bitmap bitmap = new Bitmap(path);
+            var tex = new Texture2D(bitmap.Width, bitmap.Height);
+            PNGReader.ReadPNG(path, tex);
+            ApplyTex(tex);
+#else
             using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
             {
                 await request.SendWebRequest();
@@ -132,18 +141,25 @@ namespace Core.TerrainGenerator
                 else
                 {
                     Texture2D tex = DownloadHandlerTexture.GetContent(request);
-                    tex.Apply();
-                    if (deformationLayersCache.Count == 0)
-                    {
-                        alphamapResolution = tex.width;
-                        deformationLayersCache.Add(new float[alphamapResolution, alphamapResolution, layersCount]);
-                    }
-                    ReadPixels(tex);
-                    if (++loadedCount == countToLoad)
-                    {
-                        IsReady = true;
-                    }
+                    ApplyTex(tex);
                 }
+            }
+#endif
+        }
+
+        private void ApplyTex(Texture2D tex)
+        {
+            tex.Apply();
+            if (deformationLayersCache.Count == 0)
+            {
+                alphamapResolution = tex.width;
+                deformationLayersCache.Add(new float[alphamapResolution, alphamapResolution, layersCount]);
+            }
+
+            ReadPixels(tex);
+            if (++loadedCount == countToLoad)
+            {
+                IsReady = true;
             }
         }
 

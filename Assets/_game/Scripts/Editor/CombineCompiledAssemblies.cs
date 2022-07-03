@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Windows.Forms;
 using Application = UnityEngine.Application;
 
+#if UNITY_EDITOR
 namespace UnityEditor
 {
     [CreateAssetMenu(menuName = "CombineCompiledAssemblies")]
@@ -17,6 +18,15 @@ namespace UnityEditor
         public SerializedFilePath[] combinedFiles;
         [FolderPath(AbsolutePath = true)] public string path = string.Empty;
 
+        [MenuItem("Tools/ExportLibrariesForMod")]
+        public static void CollectStatic()
+        {
+            CombineCompiledAssemblies instance =
+                AssetDatabase.LoadAssetAtPath<CombineCompiledAssemblies>(
+                    "Assets/_game/Scripts/Editor/CombineCompiledAssemblies.asset");
+            instance.Collect();
+        }
+        
         [Button]
         public void Collect()
         {
@@ -66,3 +76,4 @@ namespace UnityEditor
     }
 
 }
+#endif

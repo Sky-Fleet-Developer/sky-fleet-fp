@@ -1,17 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
-using Core.Explorer.Content;
+using Core;
 using Core.SessionManager;
 using Core.SessionManager.SaveService;
 using Core.UiStructure;
-using Core.Utilities;
-using Core.Utilities.UI;
-using Core;
-
+using Runtime.Explorer.SessionViewer;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Runtime.Explorer.SessionViewer.SessionLoader
+namespace Runtime.Explorer.Services
 {
     public class SessionSaver : Service
     {

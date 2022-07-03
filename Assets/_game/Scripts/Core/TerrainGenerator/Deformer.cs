@@ -47,7 +47,7 @@ namespace Core.TerrainGenerator
         [SerializeField, HideInInspector]
         private string[] jsonConfig;*/
 
-        private void Start()
+        public void Start()
         {
             CalculateAxisAlignedRect();
             foreach (SerializedDeformerModule module in modules)

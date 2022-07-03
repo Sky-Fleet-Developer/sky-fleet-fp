@@ -4,8 +4,10 @@ using System.Text;
 using Core.Data.GameSettings;
 using Core.UiStructure;
 using Core.UIStructure;
+using Core.UIStructure.Utilities;
 using Core.Utilities;
 using Paterns.AbstractFactory;
+using Runtime.Explorer.Services;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -166,7 +168,7 @@ namespace Runtime.Explorer.Options
         private void CallAddInputButton(InputButtons input, ItemPointer pointerUI)
         {
             InputReader reader = ServiceIssue.Instance.GetOrMakeService<InputReader>();
-            reader.Window.Fullscreen();
+            reader.Window.RectTransform.Fullscreen();
             reader.GetInputButtons(x => { OnAddInputButton(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;
         }
@@ -174,7 +176,7 @@ namespace Runtime.Explorer.Options
         private void CallAddInputAxis(InputAxis input, ItemPointer pointerUI)
         {
             InputReader reader = ServiceIssue.Instance.GetOrMakeService<InputReader>();
-            reader.Window.Fullscreen();
+            reader.Window.RectTransform.Fullscreen();
             reader.GetInputAxis(x => { OnAddInputAxis(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;
         }

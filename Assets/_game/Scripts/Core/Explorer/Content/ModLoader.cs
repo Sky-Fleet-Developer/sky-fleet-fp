@@ -32,7 +32,10 @@ namespace Core.Explorer.Content
         
         private Assembly ReadAssembly(string path)
         {
-            return System.AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path));
+#if  UNITY_EDITOR
+            return AppDomain.CurrentDomain.Load(File.ReadAllBytes(path));
+#endif
+            return AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path));
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Core.UIStructure
     {
         [SerializeField] protected RectTransform content;
         public RectTransform Content => content;
+        public RectTransform RectTransform => transform as RectTransform;
 
         protected IService[] blocks = new IService[0];
 
@@ -167,18 +168,7 @@ namespace Core.UIStructure
             blocks = null;
             DynamicPool.Instance.Return(Bearer);
         }
-
-        #region Self layout
-
-        public void Fullscreen()
-        {
-            RectTransform.anchorMax = Vector2.one;
-            RectTransform.anchorMin = Vector2.zero;
-            RectTransform.sizeDelta = Vector2.zero;
-            RectTransform.anchoredPosition = Vector2.zero;
-        }
-
-        #endregion
+        
 
         private class EmptySettingsShow : BlockSequenceSettings
         {

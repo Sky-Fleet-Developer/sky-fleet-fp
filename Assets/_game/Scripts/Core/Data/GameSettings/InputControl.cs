@@ -203,12 +203,7 @@ namespace Core.Data.GameSettings
                     {
                         if (Input.GetKeyDown(key))
                         {
-                            bool isAllPress = true;
-                            if (keys.Count > 0 && !Input.GetKey(keys[0]))
-                            {
-                                isAllPress = false;
-                            }
-
+                            bool isAllPress = !(keys.Count > 0 && !Input.GetKey(keys[0]));
 
                             if (isAllPress)
                             {

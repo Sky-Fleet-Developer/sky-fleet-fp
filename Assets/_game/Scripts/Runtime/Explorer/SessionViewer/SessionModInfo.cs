@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.Explorer.Content;
+using Core.UIStructure.Utilities;
 using Core.Utilities;
-using Core.Utilities.UI;
 using UnityEngine;
 
 namespace Runtime.Explorer.SessionViewer

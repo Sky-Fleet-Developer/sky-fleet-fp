@@ -50,11 +50,11 @@ namespace Core.UIStructure
             return (T)bearer.CreateWindow(GetFramePrefab<T>());
         }
 
-        public List<IService> GetOrMakeServices<TWindow>(Window.LayoutType layoutType = Window.LayoutType.Horizontal, params Type[] services) where TWindow : Window
+        public List<IService> CreateServices<TWindow>(Window.LayoutType layoutType = Window.LayoutType.Horizontal, params Type[] services) where TWindow : Window
         {
             var window = CreateWindow<TWindow>();
             window.SetLayout(layoutType);
-            return GetOrMakeServices(window, 0, services);
+            return CreateServices(window, 0, services);
         }
 
         public T GetOrMakeService<T>(Window.LayoutType layoutType = Window.LayoutType.None) where T : MonoBehaviour, IService
@@ -62,17 +62,17 @@ namespace Core.UIStructure
             BearerCanvas bearer = CreateBearer();
             Window window = bearer.CreateWindow(availableFrames[0]);
             window.SetLayout(layoutType);
-            return GetOrMakeService<T>(window);
+            return CreateService<T>(window);
         }
 
-        public TService GetOrMakeService<TWindow, TService>(Window.LayoutType layoutType = Window.LayoutType.None) where TService : MonoBehaviour, IService where TWindow : Window
+        public TService CreateService<TWindow, TService>(Window.LayoutType layoutType = Window.LayoutType.None) where TService : MonoBehaviour, IService where TWindow : Window
         {
             Window window = CreateWindow<TWindow>();
             window.SetLayout(layoutType);
-            return GetOrMakeService<TService>(window);
+            return CreateService<TService>(window);
         }
 
-        public List<IService> GetOrMakeServices(Window window, int index, params Type[] services)
+        public List<IService> CreateServices(Window window, int index, params Type[] services)
         {
             List<IService> instances = new List<IService>();
             foreach (Type type in services)
@@ -87,7 +87,7 @@ namespace Core.UIStructure
             return instances;
         }
         
-        public T GetOrMakeService<T>(Window window, int index = 0) where T : MonoBehaviour, IService
+        public T CreateService<T>(Window window, int index = 0) where T : MonoBehaviour, IService
         {
             Type type = typeof(T);
             T prefab = (T) GetServicePrefab(x => x.GetType() == type);

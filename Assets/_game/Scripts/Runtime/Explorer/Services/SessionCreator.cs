@@ -1,17 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
-
+using Core;
 using Core.Explorer.Content;
 using Core.SessionManager;
-using Core.UiStructure;
-using Core;
 using Core.SessionManager.SaveService;
-
-using Runtime.Explorer.ModContent;
+using Core.UiStructure;
+using Runtime.Explorer.SessionViewer;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Runtime.Explorer.SessionViewer
+namespace Runtime.Explorer.Services
 {
     public class SessionCreator : Service
     {

@@ -6,8 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 using Core.Utilities;
-using Core.Utilities.UI;
 using Core;
+using Core.UIStructure.Utilities;
 
 namespace Runtime.Explorer.SessionViewer
 {

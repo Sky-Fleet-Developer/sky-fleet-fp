@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
@@ -15,13 +16,15 @@ namespace Core.Explorer.Content
         public Assembly assembly;
         public string name;
 
-        private LinkedList<System.Type> classes = new LinkedList<System.Type>();
+        private LinkedList<System.Type> monoTypes = new LinkedList<System.Type>();
 
         private LinkedList<string> prefabsNames = new LinkedList<string>();
 
         private LinkedList<string> assetsNames = new LinkedList<string>();
 
-        public Assembly[] assemblies;
+        public Assembly[] AllAssemblies;
+
+        private ModExe exe;
 
         public Mod(string modFolderPath, SerializationModule module, Assembly assembly)
         {
@@ -33,12 +36,12 @@ namespace Core.Explorer.Content
 
             List<Assembly> assembliesList = System.AppDomain.CurrentDomain.GetAssemblies().ToList();
             assembliesList.Add(assembly);
-            assemblies = assembliesList.ToArray();
+            AllAssemblies = assembliesList.ToArray();
             
             foreach (System.Type classT in assembly.GetTypes())
             {
                 if(classT.IsClass && classT.IsPublic && classT.IsSubclassOf(typeof(MonoBehaviour)))
-                    classes.AddLast(classT);
+                    monoTypes.AddLast(classT);
             }
             foreach (Bundle bundle in module.Cache)
             {
@@ -56,7 +59,7 @@ namespace Core.Explorer.Content
 
         public LinkedList<System.Type> GetClasses()
         {
-            return classes;
+            return monoTypes;
         }
 
         public LinkedList<string> GetPrefabsNames()
@@ -67,6 +70,23 @@ namespace Core.Explorer.Content
         public LinkedList<string> GetAssetsNames()
         {
             return assetsNames;
+        }
+
+        public void CreateExeIsExist()
+        {
+            Type exeT = typeof(ModExe);
+            foreach (Type t in assembly.GetTypes())
+            {
+                if (t.IsSubclassOf(exeT))
+                {
+                    exe = Activator.CreateInstance(t, this) as ModExe;
+                }
+            }
+        }
+
+        public void LaunchExeIsExist()
+        {
+            exe?.Main();
         }
     }
 }

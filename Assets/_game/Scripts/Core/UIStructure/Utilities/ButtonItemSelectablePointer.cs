@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Core.Utilities.UI
+namespace Core.UIStructure.Utilities
 {
     public class ButtonItemSelectablePointer : ButtonItemPointer
     {

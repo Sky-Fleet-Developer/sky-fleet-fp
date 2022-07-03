@@ -1,11 +1,10 @@
+using System.Collections;
 using Core.SessionManager;
 using Core.UiStructure;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Runtime.Explorer.SessionUI
+namespace Runtime.Explorer.Services
 {
     public class ExitToMenu : Service
     {

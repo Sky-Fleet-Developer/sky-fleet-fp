@@ -5,8 +5,8 @@ using Core.ContentSerializer.Bundles;
 using Core.Explorer.Content;
 using Core.Structure.Rigging;
 using Core.UiStructure;
+using Core.UIStructure.Utilities;
 using Core.Utilities;
-using Core.Utilities.UI;
 using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
@@ -83,7 +83,7 @@ namespace Runtime.Explorer.ModContent
         private async void ShowPrefab(PrefabBundle bundle)
         {
             if(previewInstance) Destroy(previewInstance);
-            Object obj = await mod.module.GetAsset(bundle, mod.assemblies);
+            Object obj = await mod.module.GetAsset(bundle, mod.AllAssemblies);
             GameObject prefab = (GameObject) obj;
             previewInstance = Instantiate(prefab);
             previewInstance.gameObject.SetActive(true);

@@ -26,30 +26,47 @@ namespace Core.TerrainGenerator
         public TerrainGenerationSettings settings;
 
         [ShowInInspector]
-        private Dictionary<Vector2Int, List<DeformationChannel>> channels = new Dictionary<Vector2Int, List<DeformationChannel>>();
+        private Dictionary<Vector2Int, List<DeformationChannel>> channels =
+            new Dictionary<Vector2Int, List<DeformationChannel>>();
 
         private Dictionary<Vector2Int, Terrain> chunks = new Dictionary<Vector2Int, Terrain>();
-        private List<TerrainData> terrainsDates = new List<TerrainData>();
+        private List<TerrainData> terrainsData = new List<TerrainData>();
         private List<IDeformer> deformers = new List<IDeformer>();
-        private List<IDeformer>  deformersQueue = new List<IDeformer>();
+        private List<IDeformer> deformersQueue = new List<IDeformer>();
 
         public static LateEvent onInitialize = new LateEvent();
-        
+
         public static Terrain GetTerrain(Vector2Int position)
         {
             return Instance.chunks[position];
         }
 
         [Button]
-        public void TestLoad()
+        private void TestLoad()
         {
-            Load(new List<Vector2Int>()
+            Instance = this;
+            Load(GetCurrentProps());
+            foreach (Deformer deformer in FindObjectsOfType<Deformer>())
             {
-                Vector2Int.zero,
-                Vector2Int.right,
-                Vector2Int.up,
-                Vector2Int.one
-            });
+                deformer.Start();
+            }
+        }
+        [Button]
+        private void RemoveTest()
+        {
+            foreach (Terrain chunksValue in chunks.Values)
+            {
+                DestroyImmediate(chunksValue.gameObject);
+            }
+
+            foreach (TerrainData data in terrainsData)
+            {
+                DestroyImmediate(data);
+            }
+
+            channels = new Dictionary<Vector2Int, List<DeformationChannel>>();
+            deformers = new List<IDeformer>();
+            deformersQueue = new List<IDeformer>();
         }
 
         async Task ILoadAtStart.Load()
@@ -84,7 +101,8 @@ namespace Core.TerrainGenerator
 
                 foreach (ChannelSettings layerSettings in settings.settings)
                 {
-                    DeformationChannel channel = layerSettings.MakeDeformationChannel(prop, settings.directory.FullName);
+                    DeformationChannel channel =
+                        layerSettings.MakeDeformationChannel(prop, settings.directory.FullName);
                     if (channel != null) channels[prop].Add(channel);
                 }
             }
@@ -115,7 +133,7 @@ namespace Core.TerrainGenerator
             }
 
             await Task.Delay(1000);
-            
+
             onInitialize.Invoke();
         }
 
@@ -142,6 +160,7 @@ namespace Core.TerrainGenerator
 
         private bool cameraInitialized;
         private Transform mainCamera;
+
         private Vector3 GetViewPosition()
         {
             if (!cameraInitialized)
@@ -150,6 +169,7 @@ namespace Core.TerrainGenerator
                 if (cam) mainCamera = cam.transform;
                 else return Vector3.zero;
             }
+
             return mainCamera.position;
         }
 
@@ -159,7 +179,8 @@ namespace Core.TerrainGenerator
             GameObject obj = new GameObject($"Terrain ({prop.x}, {prop.y})");
 
             Vector3 selfPos = transform.position;
-            obj.transform.position = new Vector3(selfPos.x + prop.x * settings.chunkSize, selfPos.y, selfPos.z + prop.y * settings.chunkSize);
+            obj.transform.position = new Vector3(selfPos.x + prop.x * settings.chunkSize, selfPos.y,
+                selfPos.z + prop.y * settings.chunkSize);
 
             Terrain ter = obj.AddComponent<Terrain>();
             TerrainData data = new TerrainData();
@@ -179,12 +200,13 @@ namespace Core.TerrainGenerator
             if (chunks.ContainsKey(prop)) chunks[prop] = ter;
             else chunks.Add(prop, ter);
 
-            terrainsDates.Add(ter.terrainData);
+            terrainsData.Add(ter.terrainData);
 
             return ter;
         }
 
         private Task deformersQueueTimer;
+
         public async void RegisterDeformer(IDeformer deformer)
         {
             deformersQueue.Add(deformer);
@@ -202,7 +224,7 @@ namespace Core.TerrainGenerator
             IEnumerable<Vector2Int> affectChunks = deformer.GetAffectChunks(settings.chunkSize);
 
             Vector2Int[] chunksArr = affectChunks as Vector2Int[] ?? affectChunks.ToArray();
-            
+
             foreach (Vector2Int chunk in chunksArr)
             {
                 foreach (DeformationChannel channel in channels[chunk])
@@ -226,15 +248,15 @@ namespace Core.TerrainGenerator
             {
                 foreach (DeformationChannel deformationChannel in deformationChannels)
                 {
-                    if(deformationChannel.IsDirty) deformationChannel.ApplyDirtyToCache();
+                    if (deformationChannel.IsDirty) deformationChannel.ApplyDirtyToCache();
                 }
             }
-            
+
             foreach (List<DeformationChannel> deformationChannels in channels.Values)
             {
                 foreach (DeformationChannel deformationChannel in deformationChannels)
                 {
-                    if(deformationChannel.IsDirty) deformationChannel.Apply();
+                    if (deformationChannel.IsDirty) deformationChannel.Apply();
                 }
             }
 

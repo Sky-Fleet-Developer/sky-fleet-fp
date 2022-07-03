@@ -55,8 +55,6 @@ namespace Core.ContentSerializer
         {
             string path = pathToSave.Replace("DATA_PATH", Application.dataPath) + "/";
             
-            AssetsToSerialize = new List<Object>();
-
             isCurrentlyBuilded = true;
 
             Cache = new List<Bundle>();
@@ -177,9 +175,14 @@ namespace Core.ContentSerializer
             return instance.gameObject;
         }
         
-        private Task<Object> GetObject(int id, System.Reflection.Assembly[] availableAssemblies)
+        public Task<Object> GetObject(int id, System.Reflection.Assembly[] availableAssemblies)
         {
             return GetAsset(Cache.FirstOrDefault(x => x.id == id), availableAssemblies);
+        }
+        
+        public Task<Object> GetObject(string name, System.Reflection.Assembly[] availableAssemblies)
+        {
+            return GetAsset(Cache.FirstOrDefault(x => x.name == name), availableAssemblies);
         }
 
         /*[Button]
