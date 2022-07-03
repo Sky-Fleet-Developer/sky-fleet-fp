@@ -15,4 +15,5 @@ MonoBehaviour:
   combinedFiles:
   - filePath: G:\Projects\scy-fleet-fp\Library\ScriptAssemblies\Runtime.dll
   - filePath: G:\Projects\scy-fleet-fp\Library\ScriptAssemblies\Core.dll
+  - filePath: G:\Projects\scy-fleet-fp\Library\ScriptAssemblies\WorldEditor.dll
   path: G:/Projects/scy-fleet-fp/OutputData

@@ -88,7 +88,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: 0abe989d-931d-41aa-a81a-a68b1fbffbbf
     tags:
     - device
   - reference:
@@ -96,7 +96,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: 70888b7d-6e60-4c6a-9b88-1e70f083270e
     tags:
     - device
   - reference:
@@ -104,7 +104,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: e7852fc9-0d3e-4e2f-b09a-aad96cc09935
     tags:
     - device
   - reference:
@@ -112,7 +112,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: 02c3af31-0bf3-4deb-be13-c30462ccfe9c
     tags:
     - device
   - reference:
@@ -120,7 +120,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: 1c9d3541-c0fd-4287-beba-c575b73365af
     tags:
     - indicator
   - reference:
@@ -128,7 +128,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: ef786cfb-cef3-4407-93b1-97700ea78123
     tags:
     - indicator
   - reference:
@@ -136,7 +136,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: 5c66ac95-70cc-4833-9658-7a93a67d0324
     tags:
     - indicator
   - reference:
@@ -144,9 +144,17 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: fecefe4e-01cf-4bec-a2f3-8ab8dc7e6365
     tags:
     - indicator
+  - reference:
+      m_AssetGUID: 0fbd8324154f38445998d1fabd80ffb7
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: c1068a3d-6483-4a10-b9fa-b346bb6195bf
+    tags:
+    - block
   autoSearchSettings:
   - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Blocks
     tags:

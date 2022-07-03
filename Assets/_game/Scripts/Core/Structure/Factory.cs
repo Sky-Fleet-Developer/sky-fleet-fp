@@ -11,6 +11,7 @@ using Core.Structure.Wires;
 using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.Utilities;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -95,12 +96,12 @@ namespace Core.Structure
             }
         }
 
-        public static void ApplySetup(IBlock block, Dictionary<string, string> setup)
+        public static void ApplySetup(IBlock block, BlockConfiguration setup)
         {
             PropertyInfo[] properties = GetBlockProperties(block);
             for (int i = 0; i < properties.Length; i++)
             {
-                if (setup.TryGetValue(properties[i].Name, out string value))
+                if (setup.TryGetSetup(properties[i].Name, out string value))
                 {
                     ApplyProperty(block, properties[i], value);
                 }
@@ -117,40 +118,36 @@ namespace Core.Structure
 
             structure.RefreshBlocksAndParents();
 
-            List<Task> awaiters = new List<Task>();
 
-            for (int i = 0; i < structure.Blocks.Count; i++)
+            if (structure.Blocks.Count > 0)
             {
-                IBlock block = structure.Blocks[i];
-                string path = GetPath(block);
-                BlockConfiguration blockConfig = configuration.GetBlock(path);
-
-                if (blockConfig == null) continue;
-
-                if (block.Guid != blockConfig.currentGuid)
-                {
-                    Task task = ReplaceBlock(structure, i, blockConfig.currentGuid);
-                    awaiters.Add(task);
-                }
+                await ReplaceExistBlocks(structure, configuration);
             }
-            await Task.WhenAll(awaiters);
-            await new WaitForEndOfFrame();
+            else
+            {
+                await InstanceBlocks(structure, configuration);
+            }
+
+            await Task.Yield();
             structure.RefreshBlocksAndParents();
+            structure.InitBlocks();
 
             foreach (IBlock block in structure.Blocks)
             {
                 string path = GetPath(block);
-                BlockConfiguration blockConfig = configuration.GetBlock(path);
+                BlockConfiguration blockConfig = configuration.GetBlock(path, block.transform.name);
 
                 if (blockConfig == null) continue;
 
-                ApplySetup(block, blockConfig.setup);
+                ApplySetup(block, blockConfig);
             }
 
             try
             {
                 structure.InitBlocks();
-                structure.InitWires();
+
+                configuration.ApplyWires(structure);
+
                 structure.OnInitComplete();
                 Debug.Log($"{structure.transform.name} configuration success!");
             }
@@ -160,28 +157,80 @@ namespace Core.Structure
             }
         }
 
-        public static async Task ReplaceBlock(IStructure structure, int blockIdx, string guid)
+        private static Task InstanceBlocks(IStructure structure, StructureConfiguration configuration)
+        {
+            List<Task> waiting = new List<Task>();
+            foreach (BlockConfiguration config in configuration.blocks)
+            {
+                waiting.Add(InstantiateBlock(config, structure));
+            }
+            return Task.WhenAll(waiting);
+        }
+
+        private static async Task InstantiateBlock(BlockConfiguration configuration, IStructure structure)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Parent parent = structure.Parents.FirstOrDefault(x => x.Path == configuration.path);
+                if (parent == null)
+                {
+                    await Task.Yield();
+                    continue;
+                }
+                RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(configuration.currentGuid);
+                GameObject source = await wantedBlock.LoadPrefab();
+                Transform instance;
+
+                if (Application.isPlaying)
+                {
+                    instance = DynamicPool.Instance.Get(source.transform, parent.Transform);
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
+                    instance.SetParent(parent.Transform, false);
+#else
+                    instance = Instantiate(blockSource.transform, parent.Transform);
+#endif
+                }
+
+                configuration.ApplyPrimarySetup(instance.GetComponent<IBlock>());
+                break;
+            }
+        }
+
+        private static Task ReplaceExistBlocks(IStructure structure, StructureConfiguration configuration)
+        {
+            List<Task> waiting = new List<Task>();
+            for (int i = 0; i < structure.Blocks.Count; i++)
+            {
+                IBlock block = structure.Blocks[i];
+                string path = GetPath(block);
+                BlockConfiguration blockConfig = configuration.GetBlock(path,block.transform.name);
+
+                if (blockConfig == null) continue;
+
+                if (block.Guid != blockConfig.currentGuid)
+                {
+                    Task task = ReplaceBlock(structure, i, blockConfig);
+                    waiting.Add(task);
+                }
+                else
+                {
+                    blockConfig.ApplyPrimarySetup(block);
+                }
+            }
+
+            return Task.WhenAll(waiting);
+        }
+
+
+        public static async Task ReplaceBlock(IStructure structure, int blockIdx, BlockConfiguration configuration)
         {
             IBlock block = structure.Blocks[blockIdx];
 
-            RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(guid);
-            GameObject blockSource = await wantedBlock.LoadPrefab();
-            Transform instance;
-
-            if (Application.isPlaying)
-            {
-                instance = DynamicPool.Instance.Get(blockSource.transform, block.transform.parent);
-            }
-            else
-            {
-                instance = Object.Instantiate(blockSource.transform, block.transform.parent);
-            }
-
-            instance.localPosition = block.transform.localPosition;
-            instance.localRotation = block.transform.localRotation;
-            instance.localScale = block.transform.lossyScale;
-            instance.name = block.transform.name;
-            instance.SetSiblingIndex(block.transform.GetSiblingIndex());
+            await InstantiateBlock(configuration, structure);
 
             if (Application.isPlaying)
             {
@@ -195,26 +244,21 @@ namespace Core.Structure
 
         public static BlockConfiguration GetConfiguration(IBlock block)
         {
-            PropertyInfo[] properties = GetBlockProperties(block);
-
-            Dictionary<string, string> setup = new Dictionary<string, string>();
-
-            for (int i = 0; i < properties.Length; i++)
-            {
-                string value = properties[i].GetValue(block).ToString();
-                setup.Add(properties[i].Name, value);
-            }
-
-            return new BlockConfiguration { setup = setup, path = GetPath(block), currentGuid = block.Guid };
+            return new BlockConfiguration(block, GetPath(block));
         }
 
-        public static string GetPath(IBlock block)
+        /*public static string GetPath(IBlock block)
         {
             string result = block.transform.name;
             Transform tr = block.transform.parent;
             result = GetPath(tr) + "/" + result;
 
             return result;
+        }*/
+
+        public static string GetPath(IBlock block)
+        {
+            return GetPath(block.transform.parent);
         }
 
         public static string GetPath(Transform transform)
@@ -230,9 +274,9 @@ namespace Core.Structure
             return result;
         }
 
-        public static (Transform parent, string name) GetParent(IStructure structure, string path)
+        /*public static (Transform parent, string name) GetParent(IStructure structure, string path)
         {
-            string[] pathStrings = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] pathStrings = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
             Transform tr = structure.transform;
             for (int i = 0; i < pathStrings.Length - 1; i++)
             {
@@ -241,7 +285,7 @@ namespace Core.Structure
             }
 
             return (tr, pathStrings[pathStrings.Length - 1]);
-        }
+        }*/
 
         public static StructureConfiguration GetConfiguration(IStructure structure)
         {
@@ -254,7 +298,8 @@ namespace Core.Structure
             StructureConfiguration configuration = new StructureConfiguration
             {
                 blocks = new List<BlockConfiguration>(structure.Blocks.Count),
-                wires = new List<List<string>>()
+                wires = new List<WireConfiguration>(),
+                bodyGuid = structure.Guid
             };
 
             for (int i = 0; i < structure.Blocks.Count; i++)
@@ -268,7 +313,7 @@ namespace Core.Structure
             {
                 foreach (Wire structureWire in structure.Wires)
                 {
-                    configuration.wires.Add(structureWire.ports.Select(x => x.Id).ToList());
+                    configuration.wires.Add(new WireConfiguration(structureWire.ports.Select(x => x.Id).ToList()));
                 }
             }
 

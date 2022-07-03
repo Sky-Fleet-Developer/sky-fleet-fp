@@ -119,7 +119,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8079527148125192985}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.21283627, y: -3.3577142, z: 9.492968}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -143,10 +143,12 @@ MonoBehaviour:
   tags: []
   mass: 5
   mountingType: 
-  inputPort:
-    guid: a13f2824-084d-48ae-91c9-fdeb578ce81b
+  portA:
+    guid: 16fb3ff0-c2bf-4172-a89f-73b8554f0c28
     cache: 0
-  outputPort:
-    guid: 7235a4ce-0fe3-4e6d-a558-66dadd03fc3c
+    valueType: 0
+  portB:
+    guid: d95c5826-b255-4a45-a53c-12046f4cfc8b
     cache: 0
-  trimer: 0
+    valueType: 0
+  trim: 0

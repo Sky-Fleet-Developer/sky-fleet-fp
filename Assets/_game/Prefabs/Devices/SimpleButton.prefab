@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36be9fd06c5508e40b558b409b0f2d39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 0abe989d-931d-41aa-a81a-a68b1fbffbbf
+  tags: []
   port:
     guid: 04f84eac-650d-4742-8da3-3e48f02247ac
     valueType: 2

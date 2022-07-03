@@ -66,14 +66,14 @@ namespace Core.SessionManager.SaveService
 
             Deserializer deserializer = StructureProvider.GetDeserializer(assemblies.ToArray());
 
-            List<Task> awaiters = new List<Task>();
+            List<Task> waiting = new List<Task>();
             foreach (StructureBundle structureBundle in state.structuresCache)
             {
                 Task<IStructure> task = structureBundle.ConstructStructure(deserializer);
-                awaiters.Add(task);
+                waiting.Add(task);
             }
 
-            await Task.WhenAll(awaiters);
+            await Task.WhenAll(waiting);
             Debug.Log($"Save at path {filePath} successfully loaded!");
         }
 

@@ -89,6 +89,10 @@ MonoBehaviour:
     m_Address: Assets/_game/Prefabs/Indicators/Speedometer.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 0fbd8324154f38445998d1fabd80ffb7
+    m_Address: Assets/_game/Prefabs/Blocks/LightSupport-Single.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6089aed05677e8245b41cfd7d4a2ffce, type: 2}
   m_SchemaSet:

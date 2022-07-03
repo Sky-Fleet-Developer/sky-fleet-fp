@@ -113,7 +113,11 @@ namespace Core.Structure.Rigging
         {
             if (reference != null)
             {
+#if UNITY_EDITOR
+                return reference.editorAsset as GameObject;
+#else
                 if (!loaded) loaded = await AssetManager.Instance.LoadAssetTask<GameObject>(reference, "Block");
+#endif
             }
             else if (bundleReference != null)
             {

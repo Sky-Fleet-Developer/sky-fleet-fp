@@ -58,7 +58,6 @@ namespace Core.ContentSerializer.Bundles
 
             IStructure instance = Object.Instantiate(prefab).GetComponent<IStructure>();
             instance.transform.name = name;
-            instance.Configuration = configuration;
             if (Application.isPlaying)
             {
                 instance.Init();
@@ -71,33 +70,33 @@ namespace Core.ContentSerializer.Bundles
 
             Transform tr = instance.transform;
 
-            List<Task> awaiters = new List<Task>();
+            List<Task> waiting = new List<Task>();
             Task tempTask;
             foreach (IBlock block in instance.Blocks)
             {
                 tempTask = context.Behaviour.SetNestedCache(block.Guid + block.transform.name, block, blocksCache, null);
-                awaiters.Add(tempTask);
+                waiting.Add(tempTask);
                 tempTask = context.Behaviour.SetNestedCache(block.Guid + block.transform.name, block.transform, blocksCache, null);
-                awaiters.Add(tempTask);
+                waiting.Add(tempTask);
             }
             
             tempTask = context.Behaviour.SetNestedCache("this", tr, parentsCache, null);
-            awaiters.Add(tempTask);
+            waiting.Add(tempTask);
             
             foreach (Parent parent in instance.Parents)
             {
                 tempTask = context.Behaviour.SetNestedCache(parent.Transform.name, parent.Transform, parentsCache, null);
-                awaiters.Add(tempTask);
+                waiting.Add(tempTask);
             }
             
             foreach (Rigidbody rigidbody in tr.GetComponentsInChildren<Rigidbody>())
             {
                 string prefix = rigidbody.transform == tr ? "this" : rigidbody.name;
                 tempTask = context.Behaviour.SetNestedCache(prefix, rigidbody, dynamicsCache, null);
-                awaiters.Add(tempTask);
+                waiting.Add(tempTask);
             }
 
-            await Task.WhenAll(awaiters);
+            await Task.WhenAll(waiting);
             
             Debug.Log($"Structure {instance.transform.name} successfully loaded!");
             return instance;

@@ -126,6 +126,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 
+  tags: []
   port:
     guid: 46f221c5-d316-4075-8b6d-0f34b6f193fb
     cache: 0
@@ -180,6 +182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 
+  tags: []
   port:
     guid: 46f221c5-d316-4075-8b6d-0f34b6f193fb
     cache: 0
@@ -752,9 +756,11 @@ MonoBehaviour:
       cache: 0
       valueType: 0
     keyPositive:
-      keys: []
+      keys:
+      - KeyCodes: 77000000
     keyNegative:
-      keys: []
+      keys:
+      - KeyCodes: 73000000
     axe:
       Axis:
         _name: 
@@ -784,9 +790,11 @@ MonoBehaviour:
       cache: 0
       valueType: 0
     keyPositive:
-      keys: []
+      keys:
+      - KeyCodes: 61000000
     keyNegative:
-      keys: []
+      keys:
+      - KeyCodes: 64000000
     axe:
       Axis:
         _name: 
@@ -1196,6 +1204,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 
+  tags: []
   port:
     guid: ca1c02f1-9b2d-49e3-b4ec-85bd49d87da3
     cache: 0

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,23 +53,15 @@ namespace Core.Structure
                 return parents;
             }
         }
-
-        public string Configuration
-        {
-            get => configuration;
-            set => configuration = value;
-        }
-
+        
         public float Radius { get; private set; }
-
 
         [ShowInInspector] protected List<IBlock> blocks;
 
         public Transform[] parentsObjects;
         protected List<Parent> parents = null;
-        [SerializeField] protected string configuration;
-        protected StructureConfiguration currentConfiguration;
-        [ShowInInspector] protected List<Wire> wires;
+        //protected StructureConfiguration currentConfiguration;
+        [ShowInInspector] protected List<Wire> wires = new List<Wire>();
         
         private bool initialized = false;
         
@@ -82,26 +75,14 @@ namespace Core.Structure
             initialized = false;
         }
         
-        protected virtual void Start()
+        public virtual void Init()
         {
-            if (!initialized) Init();
-        }
-
-        public void Init()
-        {
-            if (!string.IsNullOrEmpty(configuration))
-            {
-                _ = ApplyConfigurationAndRegister();
-            }
-            else
-            {
-                RefreshBlocks();
-                InitParents();
-                InitBlocks();
-                OnInitComplete();
-                StructureUpdateModule.RegisterStructure(this);
-                OnFinishInit();
-            }
+            RefreshBlocks();
+            InitParents();
+            InitBlocks();
+            OnInitComplete();
+            StructureUpdateModule.RegisterStructure(this);
+            OnFinishInit();
 
             initialized = true;
         }
@@ -111,13 +92,13 @@ namespace Core.Structure
             CalculateStructureRadius();
         }
 
-        private async Task ApplyConfigurationAndRegister()
+        /*private async Task ApplyConfigurationAndRegister()
         {
             currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
             await Factory.ApplyConfiguration(this, currentConfiguration);
             StructureUpdateModule.RegisterStructure(this);
             OnFinishInit();
-        }
+        }*/
 
         protected void OnDestroy()
         {
@@ -148,21 +129,18 @@ namespace Core.Structure
             blocksCache = null;
         }
         
-        [Button]
         public void RefreshBlocksAndParents()
         {
             RefreshBlocks();
             InitParents();
         }
         
-        [Button]
         public void RefreshBlocks()
         {
             ClearBlocksCache();
             blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
-        [Button]
         public void InitParents()
         {
             if (parentsObjects != null)
@@ -238,29 +216,6 @@ namespace Core.Structure
         void IWiresMaster.AddWire(Wire wire)
         {
             wires.Add(wire);
-        } 
-
-        [Button]
-        public void InitWires()
-        {
-            wires = new List<Wire>();
-            if (!string.IsNullOrEmpty(configuration))
-            {
-                currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
-                if (currentConfiguration == null) return;
-            }
-            
-            foreach (List<string> wire in currentConfiguration.wires)
-            {
-                PortPointer[] portsToConnect = new PortPointer[wire.Count];
-                
-                for (var i = 0; i < wire.Count; i++)
-                {
-                    portsToConnect[i] = GetPort(wire[i]);
-                }
-
-                ConnectPorts(portsToConnect);
-            }
         }
 
         public virtual void UpdateStructureLod(int lod, Vector3 cameraPos)

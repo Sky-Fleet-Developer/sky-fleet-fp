@@ -21,7 +21,7 @@ namespace Core.Utilities
 
     public class ButtonAwiter : INotifyCompletion
     {
-        private static Dictionary<Button, ButtonAwiter> awaiters;
+        private static Dictionary<Button, ButtonAwiter> waiting;
 
         
         private System.Action _continuation;
@@ -32,11 +32,11 @@ namespace Core.Utilities
 
         public ButtonAwiter(Button button)
         {
-            if (awaiters == null) awaiters = new Dictionary<Button, ButtonAwiter>();
+            if (waiting == null) waiting = new Dictionary<Button, ButtonAwiter>();
             this.button = button;
             _continuation = null;
             button.onClick.AddListener(OnClick);
-            awaiters.Add(button, this);
+            waiting.Add(button, this);
         }
 
         public void OnCompleted(Action continuation)
@@ -48,14 +48,14 @@ namespace Core.Utilities
         {
             button.onClick.RemoveListener(OnClick);
             _continuation?.Invoke();
-            awaiters.Remove(button);
+            waiting.Remove(button);
         }
 
         public static void Dispose(Button button)
         {
-            if(awaiters.ContainsKey(button) == false) return;
-            awaiters[button].Dispose();
-            awaiters.Remove(button);
+            if(waiting.ContainsKey(button) == false) return;
+            waiting[button].Dispose();
+            waiting.Remove(button);
         }
         
         public void Dispose()
