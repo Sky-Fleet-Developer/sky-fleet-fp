@@ -152,7 +152,8 @@ namespace Core.Structure.Rigging
                 if (tablePrefabCache != null)
                 {
                     guid = tablePrefabCache.Guid;
-                    tags = tablePrefabCache.Tags;
+                    tags ??= new List<string>();
+                    tags.AddRange(tablePrefabCache.Tags);
                 }
 
                 string val = "--";

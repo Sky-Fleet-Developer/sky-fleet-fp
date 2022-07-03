@@ -17,11 +17,18 @@ namespace Core.Structure
         {
             get
             {
-                if (string.IsNullOrEmpty(guid)) guid = System.Guid.NewGuid().ToString();
+                if (string.IsNullOrEmpty(guid))
+                {
+                    guid = System.Guid.NewGuid().ToString();
+#if UNITY_EDITOR
+                 UnityEditor.EditorUtility.SetDirty(this);   
+#endif
+                }
                 return guid;
             }
             set => guid = value;
         }
+        [SerializeField, HideInInspector] private string guid;
 
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
@@ -54,7 +61,6 @@ namespace Core.Structure
 
         public float Radius { get; private set; }
 
-        [SerializeField, HideInInspector] private string guid;
 
         [ShowInInspector] protected List<IBlock> blocks;
 

@@ -130,11 +130,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44b20c8a23aec0347ab7688edfd6718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: fecefe4e-01cf-4bec-a2f3-8ab8dc7e6365
+  tags: []
+  port:
+    guid: 
+    cache: 0
+    valueType: 0
+  arrowAxe: {x: 0, y: 1, z: 0}
   arrows:
   - arrow: {fileID: 6986353986514930149}
     minMaxAngle: {x: 0, y: 2}
     multiple: 1
-  current: 0
 --- !u!1 &7007776026243908267
 GameObject:
   m_ObjectHideFlags: 0

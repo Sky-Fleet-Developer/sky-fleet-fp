@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 8040085449637010262}
   - component: {fileID: 3790363283660480975}
   m_Layer: 0
-  m_Name: IndicatorDiod
+  m_Name: LampIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -140,10 +140,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2d3765b06b53844c9765dfc15b0d948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 5c66ac95-70cc-4833-9658-7a93a67d0324
+  tags: []
   port:
     guid: 86042fab-889e-486a-81a9-36712297bb2b
     cache: 0
     valueType: 0
+  active: {r: 0, g: 0, b: 0, a: 0}
+  inactive: {r: 0, g: 0, b: 0, a: 0}
   render: {fileID: 4881590822100167014}
 --- !u!1 &7450886487122073177
 GameObject:

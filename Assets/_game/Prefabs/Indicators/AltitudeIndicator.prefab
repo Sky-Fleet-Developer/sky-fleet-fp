@@ -289,6 +289,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29688498565d1624a98eb19bb7f8f270, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: ef786cfb-cef3-4407-93b1-97700ea78123
+  tags: []
   bubble_pitch: {fileID: 8393613959641084137}
   bubble_roll: {fileID: 2658002195392173263}
   compass: {fileID: 6109028321788086425}

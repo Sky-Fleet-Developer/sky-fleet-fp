@@ -76,6 +76,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9a4bddd10db4e419a5c8c187a4b2ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 02c3af31-0bf3-4deb-be13-c30462ccfe9c
+  tags: []
   port:
     guid: d21a6961-2e1e-446e-aac8-ccb488087be3
     cache: {x: 0, y: 0}

@@ -157,6 +157,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 70888b7d-6e60-4c6a-9b88-1e70f083270e
+  tags: []
   port:
     guid: daba98a8-4a04-4711-b19a-38e25f9177c7
     cache: 0

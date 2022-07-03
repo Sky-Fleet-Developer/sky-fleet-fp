@@ -127,6 +127,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44b20c8a23aec0347ab7688edfd6718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guid: 1c9d3541-c0fd-4287-beba-c575b73365af
+  tags: []
+  port:
+    guid: 2794ccc8-0fd9-4e21-83da-a507e744da20
+    cache: 0
+    valueType: 0
+  arrowAxe: {x: 0, y: 1, z: 0}
   arrows:
   - arrow: {fileID: 9175210857023492042}
     minMaxAngle: {x: 0, y: 360}
@@ -134,7 +141,6 @@ MonoBehaviour:
   - arrow: {fileID: 6920349507057536670}
     minMaxAngle: {x: 0, y: 360}
     multiple: 0.1
-  current: 0
 --- !u!1 &6920349507057536671
 GameObject:
   m_ObjectHideFlags: 0

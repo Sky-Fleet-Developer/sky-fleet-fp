@@ -21,62 +21,74 @@ MonoBehaviour:
     m_Address: Assets/_game/Prefabs/Blocks/TestJet.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: b249800ad0fa4ac49b0be7281b7690ff
     m_Address: Assets/_game/Prefabs/Blocks/TestControl.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: 48a371fc77a91fe4098ec1d5f2fcd654
     m_Address: Assets/_game/Prefabs/Blocks/TestHydrogenStorage.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: f241b618a0db84543894629afe816ce2
     m_Address: Assets/_game/Prefabs/Blocks/SmallFuelPowerGenerator.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: 72a701bdd11c43343a4c894c98cf6f97
     m_Address: Assets/_game/Prefabs/Blocks/SmallBattery.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: d0eb4b66315acbb4c8659a43f7ffe54c
     m_Address: Assets/_game/Prefabs/Structures/TestShip.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: 47d5c998281a5a94483aa12a9a4e60cb
     m_Address: Assets/_game/Prefabs/Blocks/SmallSupport.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: 0b735169160b97744aec9c8a4edc840c
     m_Address: Assets/_game/Prefabs/Blocks/LiquidTank.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: f16d3e7948dbe24408d78a6e2a5855cf
     m_Address: Assets/_game/Prefabs/Blocks/ThrustInverse.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: aa1b82e31421c4341a0a61590069ff38
     m_Address: Assets/_game/Prefabs/Blocks/Gyroscop.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
+  - m_GUID: 404f02ccb3657464296220633d380584
+    m_Address: Assets/_game/Prefabs/Devices/SimpleLever.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4ca2c25fe279e2140ac5867b9d14696b
+    m_Address: Assets/_game/Prefabs/Devices/SimpleButton.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b3b2a075259390140903f3b8e68ffdc9
+    m_Address: Assets/_game/Prefabs/Devices/StickyToggle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 91903854c6e4aef468cded0d646113f5
+    m_Address: Assets/_game/Prefabs/Devices/Trackball.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3410f8851092e0e4daec79551b207db1
+    m_Address: Assets/_game/Prefabs/Indicators/AltitudeIndicator.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 12563a4c4a509c54a8156af71c274465
+    m_Address: Assets/_game/Prefabs/Indicators/Altimetr.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cebf0db46a0b9624ca1f26061c3818f7
+    m_Address: Assets/_game/Prefabs/Indicators/LampIndicator.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 327d9390f1204a34f84505e07d1325e6
+    m_Address: Assets/_game/Prefabs/Indicators/Speedometer.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6089aed05677e8245b41cfd7d4a2ffce, type: 2}
   m_SchemaSet:

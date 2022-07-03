@@ -14,13 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   items:
   - reference:
-      m_AssetGUID: b249800ad0fa4ac49b0be7281b7690ff
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_EditorAssetChanged: 0
-    guid: 40222abb-51cd-4887-8afb-92518f93a6cd
-    tags: []
-  - reference:
       m_AssetGUID: 48a371fc77a91fe4098ec1d5f2fcd654
       m_SubObjectName: 
       m_SubObjectType: 
@@ -83,3 +76,87 @@ MonoBehaviour:
       m_EditorAssetChanged: 0
     guid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
     tags: []
+  - reference:
+      m_AssetGUID: b249800ad0fa4ac49b0be7281b7690ff
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 40222abb-51cd-4887-8afb-92518f93a6cd
+    tags: []
+  - reference:
+      m_AssetGUID: 4ca2c25fe279e2140ac5867b9d14696b
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - device
+  - reference:
+      m_AssetGUID: 404f02ccb3657464296220633d380584
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - device
+  - reference:
+      m_AssetGUID: b3b2a075259390140903f3b8e68ffdc9
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - device
+  - reference:
+      m_AssetGUID: 91903854c6e4aef468cded0d646113f5
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - device
+  - reference:
+      m_AssetGUID: 12563a4c4a509c54a8156af71c274465
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - indicator
+  - reference:
+      m_AssetGUID: 3410f8851092e0e4daec79551b207db1
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - indicator
+  - reference:
+      m_AssetGUID: cebf0db46a0b9624ca1f26061c3818f7
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - indicator
+  - reference:
+      m_AssetGUID: 327d9390f1204a34f84505e07d1325e6
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - indicator
+  autoSearchSettings:
+  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Blocks
+    tags:
+    - block
+  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Devices
+    tags:
+    - device
+  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Indicators
+    tags:
+    - indicator
+  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Structures
+    tags:
+    - structure

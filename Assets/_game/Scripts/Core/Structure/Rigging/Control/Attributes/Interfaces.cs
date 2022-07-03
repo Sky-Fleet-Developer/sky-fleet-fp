@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Core.Structure.Rigging.Control.Attributes
 {
 
-    public interface IDevice
+    public interface IDevice : ITablePrefab
     {
         IStructure Structure { get; }
         IBlock Block { get; }
