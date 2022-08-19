@@ -23,7 +23,7 @@ namespace Core.TerrainGenerator.Utility
             {
                 right * (-rect.z * 0.5f) + forward * (rect.w * 0.5f) + position,
                 right * (rect.z * 0.5f) + forward * (rect.w * 0.5f) + position,
-                right * (rect.z * 0.5f) + forward * (rect.w * 0.5f) + position,
+                right * (rect.z * 0.5f) + forward * (-rect.w * 0.5f) + position,
                 right * (-rect.z * 0.5f) + forward * (-rect.w * 0.5f) + position,
             };
 
@@ -31,7 +31,7 @@ namespace Core.TerrainGenerator.Utility
             foreach (Vector3 point in array)
             {
                 Vector2Int newItem =
-                    new Vector2Int(Mathf.FloorToInt(point.x / chunkSize), Mathf.FloorToInt(point.y / chunkSize));
+                    new Vector2Int(Mathf.FloorToInt(point.x / chunkSize), Mathf.FloorToInt(point.z / chunkSize));
                 if (result.Contains(newItem) == false) result.Add(newItem);
             }
 

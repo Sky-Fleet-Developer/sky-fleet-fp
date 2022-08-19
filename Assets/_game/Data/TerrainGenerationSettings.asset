@@ -51,9 +51,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetDirectory: Test
   material: {fileID: 2100000, guid: 18d1936a122886d44bbb9f47027028af, type: 2}
-  chunkSize: 1000
+  chunkSize: 1250
   height: 500
   heightmapResolution: 257
+  alphamapResolution: 257
   visibleDistance: 1500
   settings:
   - {fileID: -7671948353902161526}

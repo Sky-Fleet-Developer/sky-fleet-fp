@@ -4,6 +4,7 @@ using Runtime.Character.Control;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cinemachine;
 using Core;
 using UnityEngine;
 
@@ -32,6 +33,8 @@ namespace Runtime.Character
             {
                 player.gameObject.SetActive(true);
                 OnPlayerWasLoaded.Invoke();
+                CinemachineVirtualCamera camHolder = GetComponentInChildren<CinemachineVirtualCamera>();
+                if (camHolder) camHolder.enabled = false;
             });
             return Task.CompletedTask;
         }

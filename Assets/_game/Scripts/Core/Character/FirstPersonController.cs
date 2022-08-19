@@ -12,7 +12,6 @@ using Core.Structure.Rigging.Control;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Core.Utilities;
 
 namespace Runtime.Character.Control
 {

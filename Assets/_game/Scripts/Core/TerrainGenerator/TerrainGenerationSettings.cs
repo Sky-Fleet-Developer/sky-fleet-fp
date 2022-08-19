@@ -19,6 +19,7 @@ namespace Core.TerrainGenerator
         [Space] public int chunkSize = 1000;
         public int height = 600;
         [Space] public int heightmapResolution = 257;
+        public int alphamapResolution = 257;
         [Space(20)] public float visibleDistance = 1000;
 
         [SerializeField] public List<ChannelSettings> settings;

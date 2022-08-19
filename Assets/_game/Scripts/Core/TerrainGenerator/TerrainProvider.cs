@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -7,6 +8,7 @@ using Paterns;
 using Core.Utilities;
 using Core.Boot_strapper;
 using System.Threading.Tasks;
+using Core.Game;
 using Core.SessionManager;
 using Core.TerrainGenerator.Settings;
 using Sirenix.OdinInspector;
@@ -57,12 +59,12 @@ namespace Core.TerrainGenerator
         {
             foreach (Terrain chunksValue in chunks.Values)
             {
-                DestroyImmediate(chunksValue.gameObject);
+                if(chunksValue != null) DestroyImmediate(chunksValue.gameObject);
             }
 
             foreach (TerrainData data in terrainsData)
             {
-                DestroyImmediate(data);
+                if(terrainsData != null) DestroyImmediate(data);
             }
 
             channels = new Dictionary<Vector2Int, List<DeformationChannel>>();
@@ -70,11 +72,14 @@ namespace Core.TerrainGenerator
             deformersQueue = new List<IDeformer>();
         }
 
+        private TaskCompletionSource<bool> deformersInitialization;
         async Task ILoadAtStart.Load()
         {
             Instance = this;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+            deformersInitialization = new TaskCompletionSource<bool>();
             await Load(GetCurrentProps());
+            await deformersInitialization.Task;
         }
 
         private void OnWorldOffsetChange(Vector3 offset)
@@ -102,8 +107,7 @@ namespace Core.TerrainGenerator
 
                 foreach (ChannelSettings layerSettings in settings.settings)
                 {
-                    DeformationChannel channel =
-                        layerSettings.MakeDeformationChannel(prop, settings.directory.FullName);
+                    DeformationChannel channel = layerSettings.MakeDeformationChannel(prop, settings.directory.FullName);
                     if (channel != null) channels[prop].Add(channel);
                 }
             }
@@ -136,6 +140,8 @@ namespace Core.TerrainGenerator
             await Task.Delay(1000);
 
             onInitialize.Invoke();
+            
+            if(deformersQueueTimer == null) deformersInitialization.SetResult(true);
         }
 
         private IEnumerable<Vector2Int> GetCurrentProps()
@@ -143,28 +149,37 @@ namespace Core.TerrainGenerator
             Vector3 viewPosition = GetViewPosition();
 
             float sI = 1f / settings.chunkSize;
-            Vector2 viewCell =
-                new Vector2(viewPosition.x * sI, -viewPosition.z * sI);
-            float visibleDistance = settings.visibleDistance * sI;
+            Vector2 viewCell = new Vector2(viewPosition.x * sI, viewPosition.z * sI);
 
-            Vector2Int viewCellInt = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
+            Vector2Int viewPositionInt = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
 
-            for (int x = viewCellInt.x - 3; x <= viewCellInt.x + 3; x++)
+            for (int x = viewPositionInt.x - 8; x <= viewPositionInt.x + 8; x++)
             {
-                for (int y = viewCellInt.y - 3; y <= viewCellInt.y + 3; y++)
+                for (int y = viewPositionInt.y - 8; y <= viewPositionInt.y + 8; y++)
                 {
-                    if (Mathf.Abs(viewCell.x - x) < visibleDistance && Mathf.Abs(viewCell.y - y) < visibleDistance)
-                        yield return new Vector2Int(x, y);
+                    Vector2Int position = new Vector2Int(x, y);
+                    if (IsPropInView(position, viewPosition)) yield return position;
                 }
             }
         }
 
-        private bool cameraInitialized;
+        private bool IsPropInView(Vector2Int position, Vector3 viewPosition)
+        {
+            viewPosition.y = 0;
+            Vector3 center = GetPropCenter(position);
+            Vector3 closestPointToProp = viewPosition + (center - viewPosition).normalized * Mathf.Min(settings.visibleDistance, Vector3.Distance(center, viewPosition));
+            Vector3 difference = closestPointToProp - center;
+            difference.x = Mathf.Abs(difference.x);
+            difference.z = Mathf.Abs(difference.z);
+            return difference.x < settings.chunkSize * 0.5f && difference.z < settings.chunkSize * 0.5f;
+        }
+
+        private bool isCameraInitialized;
         private Transform mainCamera;
 
         private Vector3 GetViewPosition()
         {
-            if (!cameraInitialized)
+            if (!isCameraInitialized)
             {
                 Camera cam = Camera.main;
                 if (cam) mainCamera = cam.transform;
@@ -190,6 +205,7 @@ namespace Core.TerrainGenerator
 
             ter.drawInstanced = true;
             data.heightmapResolution = settings.heightmapResolution;
+            data.alphamapResolution = settings.alphamapResolution;
             data.size = new Vector3(settings.chunkSize, settings.height, settings.chunkSize);
             ter.materialTemplate = settings.material;
 
@@ -228,9 +244,12 @@ namespace Core.TerrainGenerator
 
             foreach (Vector2Int chunk in chunksArr)
             {
-                foreach (DeformationChannel channel in channels[chunk])
+                if (channels.TryGetValue(chunk, out List<DeformationChannel> channelsList))
                 {
-                    channel.RegisterDeformer(deformer);
+                    foreach (DeformationChannel channel in channelsList)
+                    {
+                        channel.RegisterDeformer(deformer);
+                    }
                 }
             }
         }
@@ -262,6 +281,40 @@ namespace Core.TerrainGenerator
             }
 
             deformersQueue.Clear();
+            if (deformersInitialization != null)
+            {
+                deformersInitialization.SetResult(true);
+                deformersInitialization = null;
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!settings) return;
+            DrawBoundsForProps(GetCurrentProps());
+            
+            Gizmos.color = Color.white * 0.5f;
+            Matrix4x4 defaultMatrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 0, 1));
+            Gizmos.DrawWireSphere(GetViewPosition(), settings.visibleDistance);
+            Gizmos.matrix = defaultMatrix;
+        }
+
+        private void DrawBoundsForProps(IEnumerable<Vector2Int> props)
+        {
+            Gizmos.color = Color.white * 0.2f;
+            foreach (Vector2Int position in props)
+            {
+                Vector3 center = GetPropCenter(position) + Vector3.up * settings.height * 0.5f;
+                Vector3 size = new Vector3(settings.chunkSize, settings.height, settings.chunkSize);
+                Gizmos.DrawWireCube(center, size);
+            }
+            Gizmos.color = Color.white;
+        }
+
+        private Vector3 GetPropCenter(Vector2Int position)
+        {
+            return new Vector3(position.x + 0.5f, 0, position.y + 0.5f) * settings.chunkSize;
         }
     }
 }

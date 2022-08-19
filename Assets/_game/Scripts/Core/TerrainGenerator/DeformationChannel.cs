@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Game;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
 using Core.Utilities;
@@ -63,7 +64,7 @@ namespace Core.TerrainGenerator
             deformers[layer].Add(deformer);
         }
         
-        protected void AddDeformerToDirty(TModule deformer)
+        private void AddDeformerToDirty(TModule deformer)
         {
             int layer = deformer.Core.Layer;
             if (!dirtyDeformers.ContainsKey(layer))
@@ -72,6 +73,7 @@ namespace Core.TerrainGenerator
             }
             dirtyDeformers[layer].Add(deformer);
             IsDirty = true;
+            deformer.Core.OnSetDirty(deformer.GetType());
         }
 
         public override void RegisterDeformer(IDeformer deformer)
@@ -135,7 +137,7 @@ namespace Core.TerrainGenerator
     {
         public Vector2Int Chunk { get; }
         public Vector3 Position { get; }
-        public Vector3 WorldPosition => WorldOffset.Instance.Offset + Position;
+        public Vector3 WorldPosition => Position - WorldOffset.Offset;
         public bool IsDirty { get; protected set; }
 
         public DeformationChannel(Vector2Int chunk, float chunkSize)

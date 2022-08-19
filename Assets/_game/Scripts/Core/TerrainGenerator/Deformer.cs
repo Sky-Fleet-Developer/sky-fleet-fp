@@ -2,12 +2,14 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Game;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
 using Core.Utilities;
 using UnityEditor;
 using UnityEngine;
 using Newtonsoft.Json;
+using Runtime;
 
 namespace Core.TerrainGenerator
 {
@@ -25,8 +27,8 @@ namespace Core.TerrainGenerator
         }
 
         public Quaternion Rotation => transform.rotation;
-        public Vector3 Position => transform.position;
-        public Rect AxisAlignedRect => axisAlignedRect;
+        public Vector3 Position => transform.position - WorldOffset.Offset;
+        public Rect AxisAlignedRect => CalculateAxisAlignedRect();
 
         public Vector4 LocalRect => localRect;
         public float Fade => fade;
@@ -116,14 +118,21 @@ namespace Core.TerrainGenerator
             }
         }
 
-
-        private void CalculateAxisAlignedRect()
+        private Vector3 lastCalculationPosition;
+        private Quaternion lastCalculationRotation;
+        public Rect CalculateAxisAlignedRect()
         {
+            Vector3 position = Position;
             Quaternion rotation = transform.rotation;
-            Vector3 position = transform.position; 
+            if(lastCalculationPosition == position && lastCalculationRotation == rotation) return axisAlignedRect;
+
+            lastCalculationPosition = position;
+            lastCalculationRotation = rotation;
+
             (Vector3 min, Vector3 max) = MathfUtilities.GetAxisAlignedRect(localRect, rotation, position);
             axisAlignedRect.min = min;
             axisAlignedRect.max = max;
+            return axisAlignedRect;
         }
 
 
@@ -134,7 +143,7 @@ namespace Core.TerrainGenerator
             Vector4 rect = LocalRect;
             Vector3 right = transform.right;
             Vector3 forward = transform.forward;
-            Vector3 position = transform.position;
+            Vector3 position = Position;
             affectedChunks = MathfUtilities.GetAffectChunks(chunkSize, right, rect, forward, position);
 
             return affectedChunks;
@@ -152,7 +161,7 @@ namespace Core.TerrainGenerator
 
         public Vector2 GetLocalPointCoordinates(Vector3 worldPos)
         {
-            Vector3 localPos = transform.InverseTransformPoint(worldPos);
+            Vector3 localPos = transform.InverseTransformPoint(worldPos + WorldOffset.Offset);
 
             float x = localPos.x;
             float y = localPos.z;
@@ -168,10 +177,25 @@ namespace Core.TerrainGenerator
             return new Vector2(x, y);
         }
 
-        public Vector3 InverseTransformPoint(Vector3 worldPos) => transform.InverseTransformPoint(worldPos);
-        public Vector3 TransformPoint(Vector3 localPos) => transform.TransformPoint(localPos);
+        public Vector3 InverseTransformPoint(Vector3 worldPos) => transform.InverseTransformPoint(worldPos + WorldOffset.Offset);
+        public Vector3 TransformPoint(Vector3 localPos) => transform.TransformPoint(localPos - WorldOffset.Offset);
         public virtual void OnSetDirty(Type changedModuleType)
         {
+            if (changedModuleType == typeof(HeightMapDeformerModule))
+            {
+                AlignWithTerrain();
+            }
+        }
+
+        public void AlignWithTerrain()
+        {
+            Vector3 origin = transform.position;
+            float height = TerrainProvider.Instance.settings.height;
+            origin.y = height;
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, height, GameData.Data.groundLayer))
+            {
+                transform.position = hit.point;
+            }
         }
 
 

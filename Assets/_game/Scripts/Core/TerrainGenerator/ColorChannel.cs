@@ -19,7 +19,6 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public class ColorChannel : DeformationChannel<float[,,], ColorMapDeformerModule>
     {
-
         [ShowInInspector, ReadOnly] public TerrainData terrainData { get; private set; }
         private int layersCount;
         public ColorChannel(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
@@ -46,8 +45,7 @@ namespace Core.TerrainGenerator
 
         protected override void ApplyToTerrain()
         {
-            if (loadedCount == 0) return;
-
+            if (deformationLayersCache.Count == 0) return;
             /*int lastLayer = deformationLayersCache.Count - 1;
             
             terrainData.alphamapResolution = alphamapResolution;
@@ -99,17 +97,13 @@ namespace Core.TerrainGenerator
 
         #region Loading
         private int alphamapResolution;
-        private int countToLoad;
-        private int loadedCount;
         private async void Load(List<string> paths)
         {
-            countToLoad = paths.Count;
-            loadedCount = 0;
-            List<Task> tasks = new List<Task>();
+            List<Task<Texture2D>> tasks = new List<Task<Texture2D>>();
             foreach (string path in paths)
             {
                 if(path == null) continue;
-                Task t = LoadAtPath(path);
+                Task<Texture2D> t = LoadAtPath(path);
                 tasks.Add(t);
             }
 
@@ -117,65 +111,112 @@ namespace Core.TerrainGenerator
             {
                 IsReady = true;
             }
-            foreach (Task task in tasks)
+
+            int idx = 0;
+            foreach (Task<Texture2D> task in tasks)
             {
-                await task;
+                var tex = await task;
+                ApplyTex(tex, idx++);
             }
+
+            //Normalize();
+            
+            IsReady = true;
         }
         
-        private async Task LoadAtPath(string path) // TODO: get texture in edit-mode
+        private async Task<Texture2D> LoadAtPath(string path) // TODO: get texture in edit-mode
         {
 #if UNITY_EDITOR
             Bitmap bitmap = new Bitmap(path);
             var tex = new Texture2D(bitmap.Width, bitmap.Height);
             PNGReader.ReadPNG(path, tex);
-            ApplyTex(tex);
+            tex.Apply();
+            return tex;
 #else
+            return ApplyInBuild(path);
+#endif
+        }
+
+        private async Task<Texture2D> ApplyInBuild(string path)
+        {
             using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(path))
             {
                 await request.SendWebRequest();
                 if (request.error != null)
                 {
                     Debug.LogError(request.error);
+                    return null;
                 }
                 else
                 {
                     Texture2D tex = DownloadHandlerTexture.GetContent(request);
-                    ApplyTex(tex);
+                    tex.Apply();
+                    return tex;
                 }
             }
-#endif
         }
 
-        private void ApplyTex(Texture2D tex)
+        private void ApplyTex(Texture2D tex, int idx)
         {
-            tex.Apply();
             if (deformationLayersCache.Count == 0)
             {
                 alphamapResolution = tex.width;
                 deformationLayersCache.Add(new float[alphamapResolution, alphamapResolution, layersCount]);
             }
 
-            ReadPixels(tex);
-            if (++loadedCount == countToLoad)
-            {
-                IsReady = true;
-            }
+            ReadPixels(tex, idx);
         }
 
-        private void ReadPixels(Texture2D tex)
+        private void ReadPixels(Texture2D tex, int idx)
         {
             float[,,] colors = deformationLayersCache[0];
             Color[] pixels = tex.GetPixels();
-            for (int x = 0; x < tex.width; x++)
+            int w = tex.width;
+            int h = tex.height;
+            int maxFromZero = Mathf.Min(3, layersCount);
+            int min = Mathf.Min(idx * 3, layersCount);
+
+            for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < tex.height; y++)
+                for (int y = 0; y < h; y++)
                 {
-                    int max = Mathf.Min(loadedCount + 4, layersCount);
-                    int i2 = 0;
-                    for (int i = loadedCount; i < max; i++)
+                    int i2 = min;
+                    for (int i = 0; i < maxFromZero; i++)
                     {
-                        colors[x, y, i2++] = pixels[x + y * alphamapResolution][i];
+                        colors[y, x, i2++] = pixels[x + y * alphamapResolution][i];
+                    }
+                }
+            }
+        }
+
+        private void Normalize()
+        {
+            if(deformationLayersCache.Count == 0) return;
+            
+            float[,,] colors = deformationLayersCache[0];
+            int w = colors.GetLength(1);
+            int h = colors.GetLength(0);
+            int max = Mathf.Min(3, layersCount);
+
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    float sum = 0;
+                    for (int i = 0; i < max; i++)
+                    {
+                        sum += colors[y, x, i];
+                    }
+                    if (sum == 0)
+                    {
+                        colors[y, x, 0] = 1f;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < max; i++)
+                        {
+                            colors[y, x, i] /= sum;
+                        }
                     }
                 }
             }

@@ -8,15 +8,13 @@ using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;
 using Core.Explorer.Content;
+using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Utilities;
 using Newtonsoft.Json;
 using Runtime;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Object = UnityEngine.Object;
-using Serializer = Core.ContentSerializer.Serializer;
 
 namespace Core.SessionManager.SaveService
 {
@@ -35,8 +33,8 @@ namespace Core.SessionManager.SaveService
             
             
 
-            state.worldOffset = WorldOffset.Instance.Offset;
-            state.playerPos = Session.Instance.Player.transform.localPosition - WorldOffset.Instance.Offset;
+            state.worldOffset = WorldOffset.Offset;
+            state.playerPos = Session.Instance.Player.transform.localPosition - WorldOffset.Offset;
             state.playerRot = Session.Instance.Player.transform.localEulerAngles;
 
             SaveToFile(state, path, name);
@@ -51,7 +49,7 @@ namespace Core.SessionManager.SaveService
 
             Session.Instance.Player.transform.localPosition = state.playerPos;
             Session.Instance.Player.transform.localEulerAngles = state.playerRot;
-            WorldOffset.Instance.Offset = state.worldOffset;
+            WorldOffset.Offset = state.worldOffset;
 
             List<System.Reflection.Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             LinkedList<Mod> mods = Session.Instance.Settings.mods;
