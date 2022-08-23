@@ -14,17 +14,26 @@ namespace Core.TerrainGenerator
     [System.Serializable, CreateAssetMenu]
     public class TerrainGenerationSettings : ScriptableObject
     {
-        public string targetDirectory;
-        [Space] public Material material;
-        [Space] public int chunkSize = 1000;
-        public int height = 600;
-        [Space] public int heightmapResolution = 257;
-        public int alphamapResolution = 257;
-        [Space(20)] public float visibleDistance = 1000;
+        [SerializeField] private string targetDirectory;
+        [Space, SerializeField] private Material material;
+        [Space, SerializeField] private int chunkSize = 1000;
+        [SerializeField] private int height = 600;
+        [Space, SerializeField] private int heightmapResolution = 257;
+        [SerializeField] private int alphamapResolution = 257;
+        [Space(20), SerializeField] private float visibleDistance = 1000;
+        [SerializeField] private float chunksRefreshDistance = 300;
+        [SerializeField] private List<ChannelSettings> settings;
 
-        [SerializeField] public List<ChannelSettings> settings;
 
         public DirectoryInfo directory;
+        public List<ChannelSettings> Settings => settings;
+        public int ChunkSize => chunkSize;
+        public float VisibleDistance => visibleDistance;
+        public float ChunksRefreshDistance => chunksRefreshDistance;
+        public int HeightmapResolution => heightmapResolution;
+        public int AlphamapResolution => alphamapResolution;
+        public int Height => height;
+        public Material Material => material;
 
         private void OnEnable()
         {
@@ -43,24 +52,27 @@ namespace Core.TerrainGenerator
         {
             MakeNewLayer<HeightmapChannelSettings>("Heightmap");
         }
+
         [Button]
         private void MakeColorLayer()
         {
             MakeNewLayer<ColorChannelSettings>("Color map");
         }
+
         [Button]
         private void MakeTreesLayer()
         {
             MakeNewLayer<TreesChannelSettings>("Trees map");
         }
+
         private void MakeNewLayer<T>(string n) where T : ChannelSettings
         {
-            if (settings.FirstOrDefault(x => x.GetType() == typeof(T))) return;
+            if (Settings.FirstOrDefault(x => x.GetType() == typeof(T))) return;
 
             T newSettings = CreateInstance<T>();
             newSettings.name = n;
             newSettings.Initialize(this);
-            settings.Add(newSettings);
+            Settings.Add(newSettings);
 
             AssetDatabase.AddObjectToAsset(newSettings, this);
             AssetDatabase.SaveAssets();
@@ -69,7 +81,7 @@ namespace Core.TerrainGenerator
         }
 #endif
 
-        
+
         [Button]
         private void CorrectDirectory()
         {

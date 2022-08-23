@@ -21,10 +21,15 @@ namespace Core.TerrainGenerator
     {
         [ShowInInspector, ReadOnly] public TerrainData terrainData { get; private set; }
         private int layersCount;
-        public ColorChannel(TerrainData terrainData, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
+        private List<IColorFilter> filters;
+        private bool normalizeAlphamap;
+        public ColorChannel(TerrainData terrainData, List<IColorFilter> filters, bool normalizeAlphamap, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
         {
             this.layersCount = layersCount;
             this.terrainData = terrainData;
+            this.filters = filters;
+            if (this.filters == null) this.filters = new List<IColorFilter>();
+            this.normalizeAlphamap = normalizeAlphamap;
             Load(paths);
         }
         
@@ -119,7 +124,7 @@ namespace Core.TerrainGenerator
                 ApplyTex(tex, idx++);
             }
 
-            //Normalize();
+            if(normalizeAlphamap) Normalize();
             
             IsReady = true;
         }
@@ -181,9 +186,15 @@ namespace Core.TerrainGenerator
                 for (int y = 0; y < h; y++)
                 {
                     int i2 = min;
+                    var color = pixels[x + y * alphamapResolution];
+                    foreach (IColorFilter colorFilter in filters)
+                    {
+                        color = colorFilter.Evaluate(color);
+                    }
+                    
                     for (int i = 0; i < maxFromZero; i++)
                     {
-                        colors[y, x, i2++] = pixels[x + y * alphamapResolution][i];
+                        colors[y, x, i2++] = color[i];
                     }
                 }
             }

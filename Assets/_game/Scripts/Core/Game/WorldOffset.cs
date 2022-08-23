@@ -72,11 +72,11 @@ namespace Core.Game
             {
                 offset += Vector3.right * pos.x;
             }
-            else if(Mathf.Abs(pos.y) > limit)
+            if(Mathf.Abs(pos.y) > limit)
             {
                 offset += Vector3.up * pos.y;
             }
-            else if(Mathf.Abs(pos.z) > limit)
+            if(Mathf.Abs(pos.z) > limit)
             {
                 offset += Vector3.forward * pos.z;
             }

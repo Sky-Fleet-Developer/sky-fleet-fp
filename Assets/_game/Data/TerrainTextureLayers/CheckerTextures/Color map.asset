@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db8a5efba01ddb64dba1efd64b982676, type: 3}
+  m_Name: Color map
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000, guid: f30562ef8e2cc5a4c96c01de562980b3, type: 2}
+  layersCount: 6
+  hueShift:
+    hueAdd: 0
+    saturationAdd: 0
+    valueAdd: 0
+  normalizeAlphamap: 0
+  textureLayers:
+  - {fileID: 8574412962073106934, guid: ed594df0bdf89484b9b9009168cc4813, type: 2}
+  - {fileID: 8574412962073106934, guid: 99e0322ab15382449bbf0dfe4d8e6a33, type: 2}
+  - {fileID: 8574412962073106934, guid: 70f58b4a8315c8c4198e3cad38ba489b, type: 2}
+  - {fileID: 8574412962073106934, guid: d2c17fe146bf36c4dae40543eb57b743, type: 2}
+  - {fileID: 8574412962073106934, guid: d14314a23230ad141a58ce6919fdde5f, type: 2}
+  - {fileID: 8574412962073106934, guid: d68ef557a06f350499ba07bdf012abed, type: 2}
+  splatmapFormats:
+  - format: 10x10-8x8Ch_1_{x}-{y}
+    extension: png
+  - format: 10x10-8x8Ch_2_{x}-{y}
+    extension: png

@@ -1,3 +1,4 @@
+using System;
 using Core.Boot_strapper;
 using Core.Utilities;
 using Runtime.Character.Control;
@@ -18,7 +19,12 @@ namespace Runtime.Character
 
         private FirstPersonController player;
         [SerializeField] private FirstPersonController source;
-        
+
+        private void Start()
+        {
+            CinemachineVirtualCamera camHolder = GetComponentInChildren<CinemachineVirtualCamera>();
+            if (camHolder) camHolder.enabled = false;
+        }
 
         public Task Load()
         {
@@ -33,8 +39,6 @@ namespace Runtime.Character
             {
                 player.gameObject.SetActive(true);
                 OnPlayerWasLoaded.Invoke();
-                CinemachineVirtualCamera camHolder = GetComponentInChildren<CinemachineVirtualCamera>();
-                if (camHolder) camHolder.enabled = false;
             });
             return Task.CompletedTask;
         }

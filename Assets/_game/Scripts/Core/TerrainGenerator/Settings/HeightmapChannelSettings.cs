@@ -13,7 +13,7 @@ namespace Core.TerrainGenerator.Settings
         {
             string path = formatMap.SearchInFolder(position, directory);
 
-            return new HeightChannel(TerrainProvider.GetTerrain(position).terrainData, Container.heightmapResolution, position, path);
+            return new HeightChannel(TerrainProvider.GetTerrain(position).terrainData, Container.HeightmapResolution, position, path);
         }
     }
 }

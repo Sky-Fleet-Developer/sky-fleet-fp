@@ -7,8 +7,11 @@ namespace Core.TerrainGenerator.Settings
     public class ColorChannelSettings : ChannelSettings
     {
         [SerializeField, HideInInspector] private int layersCount = 3;
-
+        [SerializeField] private HueShift hueShift;
+        [SerializeField] private bool normalizeAlphamap;
+        
         public TerrainLayer[] textureLayers;
+        
 
         [ShowInInspector]
         public int LayersCount
@@ -58,7 +61,7 @@ namespace Core.TerrainGenerator.Settings
 
             var data = TerrainProvider.GetTerrain(position).terrainData;
             data.terrainLayers = textureLayers;
-            return new ColorChannel(data, layersCount, paths, position);
+            return new ColorChannel(data, new List<IColorFilter>{hueShift}, normalizeAlphamap, layersCount, paths, position);
         }
     }
 }

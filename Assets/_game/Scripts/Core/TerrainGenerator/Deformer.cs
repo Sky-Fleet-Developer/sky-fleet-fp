@@ -56,7 +56,7 @@ namespace Core.TerrainGenerator
             {
                 module.Init(this);
             }
-            TerrainProvider.onInitialize.Subscribe(Register);
+            TerrainProvider.OnInitialize.Subscribe(Register);
         }
 
         private void Register()
@@ -190,7 +190,7 @@ namespace Core.TerrainGenerator
         public void AlignWithTerrain()
         {
             Vector3 origin = transform.position;
-            float height = TerrainProvider.Instance.settings.height;
+            float height = TerrainProvider.Instance.settings.Height;
             origin.y = height;
             if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, height, GameData.Data.groundLayer))
             {

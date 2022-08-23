@@ -30,10 +30,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   container: {fileID: 11400000}
   layersCount: 6
+  hueShift:
+    hueAdd: 0
+    saturationAdd: 0
+    valueAdd: 0
+  normalizeAlphamap: 0
   textureLayers:
-  - {fileID: 8574412962073106934, guid: f15f7408a7455ce4fb39a41469413aa0, type: 2}
   - {fileID: 8574412962073106934, guid: ee73f4444d532004dbd7587c505bc9aa, type: 2}
   - {fileID: 8574412962073106934, guid: 00f5639df07ad134eb4671158c82f3f5, type: 2}
+  - {fileID: 8574412962073106934, guid: f15f7408a7455ce4fb39a41469413aa0, type: 2}
   - {fileID: 8574412962073106934, guid: cdb5f9c65a78ff94b97bbd4e5feb172a, type: 2}
   - {fileID: 8574412962073106934, guid: 5385fd36a996cb0459dd0b98321bdd4c, type: 2}
   - {fileID: 8574412962073106934, guid: 11a4a9212b0c31044b63bf8093179c87, type: 2}
@@ -60,7 +65,7 @@ MonoBehaviour:
   height: 2625
   heightmapResolution: 1025
   alphamapResolution: 1025
-  visibleDistance: 2000
+  visibleDistance: 590
   settings:
   - {fileID: -7671948353902161526}
   - {fileID: -1368039965201892930}
