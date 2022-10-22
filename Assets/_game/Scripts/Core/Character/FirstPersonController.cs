@@ -1,19 +1,21 @@
+using System;
 using System.Collections;
 using Cinemachine;
-using Core.Character;
 using Core.Data.GameSettings;
 using Core.Environment;
 using Core.Game;
 using Core.Patterns.State;
+using Core.SessionManager.GameProcess;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.SessionManager.GameProcess;
 using Core.Structure.Rigging.Control;
 using DG.Tweening;
+using Runtime;
+using Runtime.Character;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Runtime.Character.Control
+namespace Core.Character
 {
     [RequireComponent(typeof(CharacterMotor))]
     public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster
@@ -88,10 +90,15 @@ namespace Runtime.Character.Control
         private InputControl.CorrectInputAxis cameraY;
         private InputControl.CorrectInputAxis cameraX;
 
+        private void Awake()
+        {
+            currentInteractionState = new DefaultState(this);
+            WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+        }
+
         private void Start()
         {
             if (!isInitialized) Init();
-            WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
         }
 
         private void OnWorldOffsetChange(Vector3 offset)
@@ -145,7 +152,21 @@ namespace Runtime.Character.Control
             if (PauseGame.Instance.IsPause) return;
             CurrentState.Update();
         }
-        
+
+        private class DefaultState : InteractionState
+        {
+            public DefaultState(FirstPersonController master) : base(master)
+            {
+            }
+
+            public override void OnWorldOffsetChange(Vector3 offset)
+            {
+                if (!Master.CanMove) return;
+                Master.motor.MoveOffset(offset);
+                base.OnWorldOffsetChange(offset);
+            }
+        }
+
         private class InteractionState : State<FirstPersonController>
         {
             public InteractionState(FirstPersonController master) : base(master)
@@ -238,8 +259,13 @@ namespace Runtime.Character.Control
             
             public override void OnWorldOffsetChange(Vector3 offset)
             {
-                if (!Master.CanMove) return;
+                if (!Master.CanMove)
+                {
+                    Debug.Log($"FIRST_PERSON_CONTROLLER: world offset blocked");
+                    return;
+                }
                 Master.motor.MoveOffset(offset);
+                Debug.Log($"FIRST_PERSON_CONTROLLER: Moved by world offset to {Master.transform.position}");
                 base.OnWorldOffsetChange(offset);
             }
 

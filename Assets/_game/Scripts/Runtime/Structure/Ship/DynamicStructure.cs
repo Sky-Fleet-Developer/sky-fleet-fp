@@ -20,13 +20,11 @@ namespace Runtime.Structure.Ship
         public Rigidbody Physics => rigidbody;
 
         private Rigidbody rigidbody;
-        
 
-        protected override void Awake()
+        public override void Init()
         {
-            base.Awake();
-            
             rigidbody = GetComponent<Rigidbody>();
+            base.Init();
         }
 
         protected override void OnFinishInit()

@@ -38,6 +38,8 @@ namespace Core.Game
 
         public Task Load()
         {
+            Offset = Vector3.zero;
+
             if (limit != 0)
             {
                 limit_i = 1f / limit;
@@ -59,10 +61,10 @@ namespace Core.Game
                 anchor = transform;
             }
 
-            MakeOffset(-Offset);
+            FixedUpdate();
         }
         
-        private void Update()
+        private void FixedUpdate()
         {
             Vector3 pos = anchor.position;
 
@@ -84,6 +86,7 @@ namespace Core.Game
             if(offset != Vector3.zero) MakeOffset(-offset);
         }
 
+        [Button]
         private void MakeOffset(Vector3 offset)
         {
             for (int i = 0; i < 3; i++)
@@ -92,6 +95,7 @@ namespace Core.Game
             }
             
             Offset += offset;
+            Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);
         }
     }

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Character;
 using Core.Data.GameSettings;
 using Core.Explorer.Content;
 using Core.SessionManager.SaveService;
 using Core.Utilities;
 using Runtime.Character;
-using Runtime.Character.Control;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.SceneManagement;

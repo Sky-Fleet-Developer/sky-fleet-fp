@@ -1,4 +1,5 @@
 using Core;
+using Core.Game;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
@@ -60,7 +61,7 @@ namespace WorldEditor
         [Button]
         private async void Instance()
         {
-            var structure = GetComponentInChildren<IStructure>();
+            IStructure structure = GetComponentInChildren<IStructure>();
             if (structure == null)
             {
                 RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(configuration.bodyGuid);
@@ -70,6 +71,7 @@ namespace WorldEditor
                 if (Application.isPlaying)
                 {
                     instance = DynamicPool.Instance.Get(source.transform, transform);
+                    instance.position += WorldOffset.Offset;
                 }
                 else
                 {
@@ -80,7 +82,7 @@ namespace WorldEditor
                     instance = Instantiate(blockSource.transform, transform);
 #endif
                 }
-
+                
                 structure = instance.GetComponent<IStructure>();
             }
             await Factory.ApplyConfiguration(structure, configuration);

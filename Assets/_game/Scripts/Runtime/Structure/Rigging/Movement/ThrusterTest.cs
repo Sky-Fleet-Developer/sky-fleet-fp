@@ -29,17 +29,17 @@ namespace Runtime.Structure.Rigging.Movement
             if (structure is IDynamicStructure dynamicStructure) root = dynamicStructure;
         }
 
-        public void FuelTick()
+        void IFuelUser.FuelTick()
         {
             float amount = Mathf.Clamp(fuelPerThrottle.Evaluate(throttle.Value), 0f, fuel.Value);
             fuelPerSec = amount;
-            fuel.Value -= amount * Time.deltaTime;
+            fuel.Value -= amount.DeltaTime();
         }
         
-        public void ApplyForce()
+        void IForceUser.ApplyForce()
         {
             currentThrust = maximalThrust * thrustPerFuel.Evaluate(fuelPerSec);
-            root.AddForce(transform.forward * (currentThrust * Time.deltaTime), transform.position);
+            root.AddForce(transform.forward * (currentThrust.DeltaTime()), transform.position);
         }
     }
 }

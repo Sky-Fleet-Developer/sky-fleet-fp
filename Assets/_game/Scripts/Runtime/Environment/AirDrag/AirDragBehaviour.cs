@@ -72,7 +72,7 @@ namespace Runtime.Environment.AirDrag
             Debug.DrawRay(position, normal.normalized * 2, Color.blue);
             Debug.DrawRay(position, drag * 0.001f, Color.red);
             
-            structure.AddForce(drag * DeltaTime, position);
+            structure.AddForce(drag.DeltaTime(), position);
         }
 
         private void CalculateDragFor(IStructure structure)
@@ -88,6 +88,12 @@ namespace Runtime.Environment.AirDrag
             catch (Exception e)
             {
                 Debug.LogError(e);
+            }
+
+            if (!Application.isPlaying)
+            {
+                DestroyImmediate(Cam.gameObject);
+                Cam = null;
             }
         }
 

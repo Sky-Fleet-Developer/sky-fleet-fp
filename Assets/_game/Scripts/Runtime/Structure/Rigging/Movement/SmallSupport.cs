@@ -1,3 +1,4 @@
+using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Wires;
@@ -68,6 +69,14 @@ namespace Runtime.Structure.Rigging.Movement
         {
             base.InitBlock(structure, parent);
             if (structure is IDynamicStructure dynamicStructure) root = dynamicStructure;
+
+            WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
+            WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+        }
+
+        private void OnWorldOffsetChange(Vector3 offset)
+        {
+            lastPosition += offset;
         }
 
         public void ConsumptionTick()

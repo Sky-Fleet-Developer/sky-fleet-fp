@@ -1,12 +1,12 @@
 using System;
 using Core.Boot_strapper;
 using Core.Utilities;
-using Runtime.Character.Control;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cinemachine;
 using Core;
+using Core.Character;
 using UnityEngine;
 
 namespace Runtime.Character
@@ -35,10 +35,10 @@ namespace Runtime.Character
             }
             player = Instantiate(source, spawnPos, transform.rotation);
             player.gameObject.SetActive(false);
+            OnPlayerWasLoaded.Invoke();
             Bootstrapper.OnLoadComplete.Subscribe(() =>
             {
                 player.gameObject.SetActive(true);
-                OnPlayerWasLoaded.Invoke();
             });
             return Task.CompletedTask;
         }

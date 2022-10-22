@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Core.Character;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using UnityEngine;
-using Runtime.Character.Control;
 using Core.SessionManager;
 using Runtime;
 
@@ -119,6 +119,7 @@ namespace Core.Structure
 
         private void FixedUpdate()
         {
+            if(!Physics.autoSimulation) return;
             DeltaTime = Time.deltaTime;
             for (int i = 0; i < ForceUsers.Count; i++)
             {
@@ -131,4 +132,18 @@ namespace Core.Structure
             OnEndPhysicsTick?.Invoke();
         }
     }
+
+    public static class Extensions
+    {
+        public static float DeltaTime(this float value)
+        {
+            return value * StructureUpdateModule.DeltaTime;
+        }
+
+        public static Vector3 DeltaTime(this Vector3 value)
+        {
+            return value * StructureUpdateModule.DeltaTime;
+        }
+    }
+    
 }

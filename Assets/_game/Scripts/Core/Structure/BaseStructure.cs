@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Game;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Core.Structure.Wires;
@@ -73,6 +74,7 @@ namespace Core.Structure
         protected virtual void Awake()
         {
             initialized = false;
+            this.AddWorldOffsetAnchor();
         }
         
         public virtual void Init()
