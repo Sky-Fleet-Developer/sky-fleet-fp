@@ -104,42 +104,32 @@ namespace Core.TerrainGenerator
         private int alphamapResolution;
         private async void Load(List<string> paths)
         {
-            List<Task<Texture2D>> tasks = new List<Task<Texture2D>>();
-            foreach (string path in paths)
-            {
-                if(path == null) continue;
-                Task<Texture2D> t = LoadAtPath(path);
-                tasks.Add(t);
-            }
-
-            if (tasks.Count == 0)
-            {
-                IsReady = true;
-            }
-
             int idx = 0;
-            foreach (Task<Texture2D> task in tasks)
-            {
-                var tex = await task;
-                ApplyTex(tex, idx++);
-            }
+            await Task.WhenAll(paths.Select(x => LoadAndApply(x, idx++)));
 
             if(normalizeAlphamap) Normalize();
             
             IsReady = true;
         }
+
+        private async Task LoadAndApply(string path, int index)
+        {
+            if(path == null) return;
+            Texture2D texture = await LoadAtPath(path);
+            await ApplyTex(texture, index);
+        }
         
         private async Task<Texture2D> LoadAtPath(string path) // TODO: get texture in edit-mode
         {
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
             Bitmap bitmap = new Bitmap(path);
             var tex = new Texture2D(bitmap.Width, bitmap.Height);
             PNGReader.ReadPNG(path, tex);
             tex.Apply();
             return tex;
-#else
-            return ApplyInBuild(path);
-#endif
+#else*/
+            return await ApplyInBuild(path);
+//#endif
         }
 
         private async Task<Texture2D> ApplyInBuild(string path)
@@ -161,7 +151,7 @@ namespace Core.TerrainGenerator
             }
         }
 
-        private void ApplyTex(Texture2D tex, int idx)
+        private Task ApplyTex(Texture2D tex, int idx)
         {
             if (deformationLayersCache.Count == 0)
             {
@@ -169,10 +159,10 @@ namespace Core.TerrainGenerator
                 deformationLayersCache.Add(new float[alphamapResolution, alphamapResolution, layersCount]);
             }
 
-            ReadPixels(tex, idx);
+            return ReadPixels(tex, idx);
         }
 
-        private void ReadPixels(Texture2D tex, int idx)
+        private async Task ReadPixels(Texture2D tex, int idx)
         {
             float[,,] colors = deformationLayersCache[0];
             Color[] pixels = tex.GetPixels();
@@ -183,6 +173,7 @@ namespace Core.TerrainGenerator
 
             for (int x = 0; x < w; x++)
             {
+                await Task.Yield();
                 for (int y = 0; y < h; y++)
                 {
                     int i2 = min;
@@ -207,18 +198,30 @@ namespace Core.TerrainGenerator
             float[,,] colors = deformationLayersCache[0];
             int w = colors.GetLength(1);
             int h = colors.GetLength(0);
-            int max = Mathf.Min(3, layersCount);
+            //int max = Mathf.Min(3, layersCount);
 
             for (int x = 0; x < w; x++)
             {
                 for (int y = 0; y < h; y++)
                 {
                     float sum = 0;
-                    for (int i = 0; i < max; i++)
+                    for (int i = 0; i < layersCount; i++)
                     {
                         sum += colors[y, x, i];
                     }
-                    if (sum == 0)
+
+                    if (sum > 1)
+                    {
+                        for (int i = 0; i < layersCount; i++)
+                        {
+                            colors[y, x, i] = colors[y, x, i] / sum;
+                        }
+                    }
+                    else
+                    {
+                        colors[y, x, 0] = 1f - sum;
+                    }
+                    /*if (sum == 0)
                     {
                         colors[y, x, 0] = 1f;
                     }
@@ -228,7 +231,7 @@ namespace Core.TerrainGenerator
                         {
                             colors[y, x, i] /= sum;
                         }
-                    }
+                    }*/
                 }
             }
         }

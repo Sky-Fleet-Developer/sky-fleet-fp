@@ -130,7 +130,9 @@ namespace Core.TerrainGenerator
 
         public async void RefreshProps()
         {
+            UnityEngine.Profiling.Profiler.BeginSample("TERRAIN");
             await LoadPropsForCurrentPosition();
+            UnityEngine.Profiling.Profiler.EndSample();
         }
         
         private async Task AwaitForReadyAndApply()
@@ -146,6 +148,7 @@ namespace Core.TerrainGenerator
                 }
             }
 
+            UnityEngine.Profiling.Profiler.BeginSample("Apply changes");
 
             foreach (KeyValuePair<Vector2Int, List<DeformationChannel>> layer in channels)
             {
@@ -154,12 +157,13 @@ namespace Core.TerrainGenerator
                     terrainLayer.Apply();
                 }
             }
+            UnityEngine.Profiling.Profiler.EndSample();
 
             await Task.Delay(1000);
 
             OnInitialize.Invoke();
             
-            if(deformersQueueTimer == null) deformersInitialization.SetResult(true);
+            if(deformersQueueTimer == null ) deformersInitialization.TrySetResult(true);
         }
 
         private IEnumerable<Vector2Int> GetCurrentProps()
