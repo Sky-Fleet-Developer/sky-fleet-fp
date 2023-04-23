@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,30 +14,38 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine.Networking;
 using Color = UnityEngine.Color;
+using Object = UnityEngine.Object;
 
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class ColorChannel : DeformationChannel<float[,,], ColorMapDeformerModule>
+    public class ColorChannel : DeformationChannel<float[], ColorMapDeformerModule>
     {
-        [ShowInInspector, ReadOnly] public TerrainData terrainData { get; private set; }
-        private int layersCount;
-        private List<IColorFilter> filters;
-        private bool normalizeAlphamap;
-        public ColorChannel(TerrainData terrainData, List<IColorFilter> filters, bool normalizeAlphamap, int layersCount, List<string> paths, Vector2Int chunk) : base(chunk, terrainData.size.x)
+        [ShowInInspector, ReadOnly] public Chunk Chunk { get; private set; }
+        private readonly int layersCount;
+        private readonly bool normalizeAlphamap;
+        private readonly string layerMaskProperty;
+        private readonly RenderTexture texture;
+        private readonly ComputeShader blitShader;
+        public ColorChannel(Chunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap, int layersCount, List<string> paths, Vector2Int position) : base(position, chunk.ChunkSize)
         {
             this.layersCount = layersCount;
-            this.terrainData = terrainData;
-            this.filters = filters;
-            if (this.filters == null) this.filters = new List<IColorFilter>();
+            this.Chunk = chunk;
+            this.blitShader = blitShader;
+            this.layerMaskProperty = layerMaskProperty;
             this.normalizeAlphamap = normalizeAlphamap;
+            texture = new RenderTexture(chunk.ColorMapResolution, chunk.ColorMapResolution, 0);
+            texture.filterMode = FilterMode.Bilinear;
+            texture.wrapMode = TextureWrapMode.Clamp;
+            texture.enableRandomWrite = true;
+            texture.Create();
             Load(paths);
         }
         
 
-        protected override float[,,] GetLayerCopy(float[,,] source)
+        protected override float[] GetLayerCopy(float[] source)
         {
-            return source.Clone() as float[,,];
+            return source.Clone() as float[];
         }
 
         protected override void ApplyToCache(ColorMapDeformerModule module)
@@ -48,52 +57,36 @@ namespace Core.TerrainGenerator
            // terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
         }
 
-        protected override void ApplyToTerrain()
+        protected override Task ApplyToTerrain()
         {
-            if (deformationLayersCache.Count == 0) return;
-            /*int lastLayer = deformationLayersCache.Count - 1;
-            
-            terrainData.alphamapResolution = alphamapResolution;
-            float[,,] sets = new float[alphamapResolution, alphamapResolution, layersCount];
+            if (deformationLayersCache.Count == 0) return Task.CompletedTask;
 
-            float[] temp = new float[layersCount];
-
-            for (int x = 0; x < alphamapResolution; x++)
-            {
-                for (int y = 0; y < alphamapResolution; y++)
-                {
-                    float sum = 0;
-                    for (int i = 0; i < layersCount; i++)
-                    {
-                        float res = GetColorPerIndex(lastLayer, x, y, i);
-                        temp[i] = res;
-                        sum += res;
-                    }
-
-                    if (sum == 0)
-                    {
-                        sets[x, y, 0] = 1;
-                        for (int i = 1; i < layersCount; i++)
-                        {
-                            sets[x, y, i] = 0;
-                        }
-                    }
-                    else
-                    {
-                        sum = 1 / sum;
-
-                        for (int i = 0; i < layersCount; i++)
-                        {
-                            sets[x, y, i] = temp[i] * sum;
-                        }
-                    }
-                }
-            }*/
-            
-            terrainData.SetAlphamaps(0, 0, GetLastLayer());
+            Material material = Chunk.Material;
+            Blit();
+            material.SetTexture(layerMaskProperty, texture);
+            return Task.CompletedTask;
         }
 
-        public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) => new RectangleAffectSettings(terrainData, Position, terrainData.alphamapResolution, deformer);
+        private void Blit()
+        {
+            int kernelHandle = blitShader.FindKernel("Blit");
+            using (ComputeBuffer buffer = new ComputeBuffer(Chunk.ColorMapResolution * Chunk.ColorMapResolution * layersCount, sizeof(float)))
+            {
+                buffer.SetData(GetLastLayer());
+                blitShader.SetBuffer(kernelHandle, "input", buffer);
+                blitShader.SetTexture(kernelHandle, "result", texture);
+                blitShader.SetInt("resolution", Chunk.ColorMapResolution);
+                blitShader.SetInt("layersCount", layersCount);
+                blitShader.Dispatch(kernelHandle, 
+                    Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f),
+                    Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f), 
+                    1);
+            }
+
+            RenderTexture.active = texture;
+        }
+
+        public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) => new RectangleAffectSettings(Chunk, Position, Chunk.Resolution, deformer);
 
         /*private float GetColorPerIndex(int layer, int x, int y, int n)
         {
@@ -101,35 +94,44 @@ namespace Core.TerrainGenerator
         }*/
 
         #region Loading
-        private int alphamapResolution;
         private async void Load(List<string> paths)
         {
             int idx = 0;
             await Task.WhenAll(paths.Select(x => LoadAndApply(x, idx++)));
 
-            if(normalizeAlphamap) Normalize();
+            //if(normalizeAlphamap) Normalize();
             
-            IsReady = true;
+            loading.SetResult(true);
         }
 
         private async Task LoadAndApply(string path, int index)
         {
             if(path == null) return;
-            Texture2D texture = await LoadAtPath(path);
-            await ApplyTex(texture, index);
+            deformationLayersCache.Add(LoadAtPath(path));
+            await Task.Yield();
         }
         
-        private async Task<Texture2D> LoadAtPath(string path) // TODO: get texture in edit-mode
+        private float[] LoadAtPath(string path) // TODO: get texture in edit-mode
         {
-/*#if UNITY_EDITOR
-            Bitmap bitmap = new Bitmap(path);
-            var tex = new Texture2D(bitmap.Width, bitmap.Height);
+            int res = Chunk.ColorMapResolution;
+            Texture2D tex = new Texture2D(res, res);
             PNGReader.ReadPNG(path, tex);
-            tex.Apply();
-            return tex;
-#else*/
-            return await ApplyInBuild(path);
-//#endif
+            float[] result = new float[res * res * layersCount];
+            Color[] pixels = tex.GetPixels();
+            
+            for (int u = 0; u < res; u++)
+            {
+                for (int v = 0; v < res; v++)
+                {
+                    Color pixel = pixels[u + v * res];
+                    for (int w = 0; w < layersCount; w++)
+                    {
+                        result[(u + v * res) * layersCount + w] = pixel[w];
+                    }
+                }
+            }
+
+            return result;
         }
 
         private async Task<Texture2D> ApplyInBuild(string path)
@@ -145,55 +147,28 @@ namespace Core.TerrainGenerator
                 else
                 {
                     Texture2D tex = DownloadHandlerTexture.GetContent(request);
+                    tex.wrapMode = TextureWrapMode.Clamp;
                     tex.Apply();
                     return tex;
                 }
             }
         }
 
-        private Task ApplyTex(Texture2D tex, int idx)
+        /*private void ApplyTex(Texture2D tex, int idx)
         {
             if (deformationLayersCache.Count == 0)
             {
                 alphamapResolution = tex.width;
-                deformationLayersCache.Add(new float[alphamapResolution, alphamapResolution, layersCount]);
+                deformationLayersCache.Add(tex);
             }
+        }*/
 
-            return ReadPixels(tex, idx);
-        }
 
-        private async Task ReadPixels(Texture2D tex, int idx)
-        {
-            float[,,] colors = deformationLayersCache[0];
-            Color[] pixels = tex.GetPixels();
-            int w = tex.width;
-            int h = tex.height;
-            int maxFromZero = Mathf.Min(3, layersCount);
-            int min = Mathf.Min(idx * 3, layersCount);
-
-            for (int x = 0; x < w; x++)
-            {
-                await Task.Yield();
-                for (int y = 0; y < h; y++)
-                {
-                    int i2 = min;
-                    var color = pixels[x + y * alphamapResolution];
-                    foreach (IColorFilter colorFilter in filters)
-                    {
-                        color = colorFilter.Evaluate(color);
-                    }
-                    
-                    for (int i = 0; i < maxFromZero; i++)
-                    {
-                        colors[y, x, i2++] = color[i];
-                    }
-                }
-            }
-        }
 
         private void Normalize()
         {
-            if(deformationLayersCache.Count == 0) return;
+            throw new NotImplementedException();
+            /*if(deformationLayersCache.Count == 0) return;
             
             float[,,] colors = deformationLayersCache[0];
             int w = colors.GetLength(1);
@@ -221,19 +196,19 @@ namespace Core.TerrainGenerator
                     {
                         colors[y, x, 0] = 1f - sum;
                     }
-                    /*if (sum == 0)
-                    {
-                        colors[y, x, 0] = 1f;
-                    }
-                    else
-                    {
-                        for (int i = 0; i < max; i++)
-                        {
-                            colors[y, x, i] /= sum;
-                        }
-                    }*/
+                    //if (sum == 0)
+                    //{
+                    //    colors[y, x, 0] = 1f;
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 0; i < max; i++)
+                    //    {
+                    //        colors[y, x, i] /= sum;
+                    //    }
+                    //}
                 }
-            }
+            }*/
         }
         #endregion
     }

@@ -20,11 +20,17 @@ namespace Core.TerrainGenerator
             extension = clone.extension;
         }
 
-        public string SearchInFolder(Vector2Int position, string path)
+        public string GetPathByFormat(Vector2Int position, string path)
         {
             string f = format.Replace("{x}", "{0}").Replace("{y}", "{1}");
             if (path[path.Length - 1] != '/' && path[path.Length - 1] != '\\') path = path + '\\';
             string p = path + string.Format(f, position.x, position.y) + "." + extension;
+            return p;
+        }
+
+        public string SearchInFolder(Vector2Int position, string path)
+        {
+            string p = GetPathByFormat(position, path);
             if (File.Exists(p)) return p;
             return null;
         }

@@ -5,8 +5,10 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
+#endif
 using UnityEngine;
 
 namespace WorldEditor
@@ -79,7 +81,7 @@ namespace WorldEditor
                     instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
                     instance.SetParent(transform, false);
 #else
-                    instance = Instantiate(blockSource.transform, transform);
+                    instance = Instantiate(source.transform, transform);
 #endif
                 }
                 

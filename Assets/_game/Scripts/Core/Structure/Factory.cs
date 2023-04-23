@@ -191,7 +191,7 @@ namespace Core.Structure
                     instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
                     instance.SetParent(parent.Transform, false);
 #else
-                    instance = Instantiate(blockSource.transform, parent.Transform);
+                    instance = Object.Instantiate(source.transform, parent.Transform);
 #endif
                 }
 

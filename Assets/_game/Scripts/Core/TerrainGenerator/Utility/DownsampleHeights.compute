@@ -1,0 +1,30 @@
+#pragma kernel compute_shader
+
+StructuredBuffer<float> input;
+RWStructuredBuffer<float> result;
+int inputSize;
+int outputSize;
+int compressionRatio;
+
+[numthreads(8, 8, 1)]
+void compute_shader (uint3 id : SV_DispatchThreadID)
+{
+    float buffer = 0;
+
+    int umax = min(id.x * compressionRatio + compressionRatio, inputSize);
+    int vmax = min(id.y * compressionRatio + compressionRatio, inputSize);
+    int counter = 0;
+    for(int u = id.x * compressionRatio; u < umax; u++)
+    {
+        for(int v = id.y * compressionRatio; v < vmax; v++)
+        {
+            buffer += input[u * inputSize + v];
+            counter++;
+        }
+    }
+    buffer /= counter;
+    if(id.x < outputSize && id.y < outputSize)
+    {
+        result[id.x * outputSize + id.y] = buffer;
+    }
+}

@@ -14,16 +14,23 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public class HeightChannel : DeformationChannel<float[,], HeightMapDeformerModule>
     {
-        public TerrainData terrainData { get; private set; }
-        public int SideSize { get; }
+        public Chunk chunk { get; private set; }
+        public int Resolution { get; }
 
-        public HeightChannel(TerrainData terrainData, int sizeSide, Vector2Int chunk, string path) : base(chunk, terrainData.size.x)
+        public HeightChannel(Chunk chunk, int resolution, float chunkSize, Vector2Int coordinates, string path) : base(coordinates, chunkSize)
         {
-            this.terrainData = terrainData;
-            SideSize = sizeSide;
-            deformationLayersCache.Add(new float[sizeSide, sizeSide]);
-            if (path != null) RawReader.ReadRaw16(path, deformationLayersCache[0]);
-            IsReady = true;
+            this.chunk = chunk;
+            Resolution = resolution;
+            ReadTex(path, resolution);
+        }
+
+        private async void ReadTex(string path, int resolution)
+        {
+            float debugTime = Time.realtimeSinceStartup;
+            Debug.Log("TIMING: begin read tex " + path);
+            deformationLayersCache.Add(path != null ? await RawReader.ReadRaw16Async(path) : new float[resolution + 1, resolution + 1]);
+            Debug.Log("TIMING: end read tex " + (Time.realtimeSinceStartup - debugTime));
+            loading.SetResult(true);
         }
 
         protected override void ApplyToCache(HeightMapDeformerModule module)
@@ -32,13 +39,18 @@ namespace Core.TerrainGenerator
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
-            new RectangleAffectSettings(terrainData, Position, terrainData.heightmapResolution, deformer);
+            new RectangleAffectSettings(chunk, Position, chunk.Resolution + 1, deformer);
 
-        protected override void ApplyToTerrain()
+        protected override Task ApplyToTerrain()
         {
-            if(deformationLayersCache[0] == null) return;
+            if(deformationLayersCache[0] == null) return Task.CompletedTask;
             
-            terrainData.SetHeights(0, 0, GetLastLayer());
+            return chunk.SetHeights(GetLastLayer());
+        }
+
+        public override Task PostApply()
+        {
+            return chunk.PostProcess();
         }
 
         protected override float[,] GetLayerCopy(float[,] source)

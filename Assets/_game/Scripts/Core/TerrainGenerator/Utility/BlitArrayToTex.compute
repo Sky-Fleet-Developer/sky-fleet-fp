@@ -1,0 +1,18 @@
+#pragma kernel Blit
+
+StructuredBuffer<float> input;
+RWTexture2D<float4> result;
+int resolution;
+int layersCount;
+
+[numthreads(8, 8, 1)]
+void Blit (uint3 id : SV_DispatchThreadID)
+{
+    const int idx = (id.x + id.y * resolution) * layersCount;
+    float4 color = float4(0,0,0,1);
+    for(int i = 0; i < layersCount; i++)
+    {
+        color[i] = input[idx + i];
+    }
+    result[id.xy] = color;
+}

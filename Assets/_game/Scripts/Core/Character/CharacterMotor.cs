@@ -95,8 +95,8 @@ namespace Runtime.Character
 
         private void ReadInput()
         {
-            input.x = Mathf.Lerp(input.x, Mathf.Clamp(InputAxis.x, -1f, 1f), Time.deltaTime * 2.5f);
-            input.y = Mathf.Lerp(input.y, Mathf.Clamp(InputAxis.y, -1f, 1f), Time.deltaTime * 2.5f);
+            input.x = Mathf.Lerp(input.x, Mathf.Clamp(InputAxis.x, -1f, 1f), Time.deltaTime * 30);
+            input.y = Mathf.Lerp(input.y, Mathf.Clamp(InputAxis.y, -1f, 1f), Time.deltaTime * 30);
 
             float along = input.x * (input.x > 0 ? (InputSprint ? sprintSpeed : forwardSpeed) : backSpeed);
             targetSpeed = new Vector2(along, sideSpeed * Mathf.Clamp(input.y, -1f, 1f));
@@ -111,7 +111,7 @@ namespace Runtime.Character
             position = position + transform.up * (radius + skinWidth) + offset * rayPerInputOffset;
 
             grounded = Physics.SphereCast(position, radius, -transform.up, out groundHit, skinWidth * 2,
-                GameData.Data.groundLayer);
+                GameData.Data.walkableLayer);
 
             //Debug.DrawLine(position, transform.position, Color.cyan);
             //Debug.DrawRay(position, -transform.up * groundHit.distance, Color.cyan);

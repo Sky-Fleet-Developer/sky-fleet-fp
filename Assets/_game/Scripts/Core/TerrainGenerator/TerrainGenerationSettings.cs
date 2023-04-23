@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Core.TerrainGenerator.Settings;
+using Core.TerrainGenerator.Utility;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -27,7 +28,7 @@ namespace Core.TerrainGenerator
 
         public DirectoryInfo directory;
         public List<ChannelSettings> Settings => settings;
-        public int ChunkSize => chunkSize;
+        public float ChunkSize => chunkSize;
         public float VisibleDistance => visibleDistance;
         public float ChunksRefreshDistance => chunksRefreshDistance;
         public int HeightmapResolution => heightmapResolution;
@@ -37,20 +38,20 @@ namespace Core.TerrainGenerator
 
         private void OnEnable()
         {
-            directory = GetDirectory(targetDirectory);
+            directory = DirectoryUtilities.GetDirectory(targetDirectory);
             if (directory == null) Debug.LogWarning("Wrong directory!");
         }
 
         private void OnValidate()
         {
-            directory = GetDirectory(targetDirectory);
+            directory = DirectoryUtilities.GetDirectory(targetDirectory);
         }
 
 #if UNITY_EDITOR
         [Button]
         private void MakeHeightmapLayer()
         {
-            MakeNewLayer<HeightmapChannelSettings>("Heightmap");
+            MakeNewLayer<MeshHeightmapChannelSettings>("Heightmap");
         }
 
         [Button]
@@ -90,21 +91,6 @@ namespace Core.TerrainGenerator
             {
                 Directory.CreateDirectory(path);
             }
-        }
-
-        private DirectoryInfo GetDirectory(string directoryName)
-        {
-            string[] directories = Directory.GetDirectories(PathStorage.GetPathToLandscapesDirectory());
-            foreach (string t in directories)
-            {
-                DirectoryInfo info = new DirectoryInfo(t);
-                if (info.Name == directoryName)
-                {
-                    return info;
-                }
-            }
-
-            return null;
         }
     }
 }

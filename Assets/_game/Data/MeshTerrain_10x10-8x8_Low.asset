@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7671948353902161526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d5211ca1ab587c439e2152d94757411, type: 3}
+  m_Name: Heightmap
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000}
+  formatMap:
+    format: 10x10-8x8Height_l2_{x}-{y}
+    extension: r16
+--- !u!114 &-1368039965201892930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db8a5efba01ddb64dba1efd64b982676, type: 3}
+  m_Name: Color map
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000}
+  layersCount: 3
+  normalizeAlphamap: 0
+  layerMaskProperty: _LayerMaskMap
+  blitShader: {fileID: 7200000, guid: ca86cc731d7c8a14d84cea50dd9051c1, type: 3}
+  splatmapFormats:
+  - format: 10x10-8x8Ch_1_{x}-{y}
+    extension: png
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fa131243efcf674d96d76c9966c3bee, type: 3}
+  m_Name: MeshTerrain_10x10-8x8_Low
+  m_EditorClassIdentifier: 
+  targetDirectory: 10x10-8x8
+  material: {fileID: 2100000, guid: 2c2fa0e240c4e5149a4018f354eb5eb3, type: 2}
+  chunkSize: 1800
+  height: 2625
+  heightmapResolution: 64
+  alphamapResolution: 257
+  visibleDistance: 4000
+  chunksRefreshDistance: 300
+  settings:
+  - {fileID: -7671948353902161526}
+  - {fileID: -1368039965201892930}
+--- !u!114 &4259751407393431562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ca804ae224a69448a67bac69eb3bba9, type: 3}
+  m_Name: Trees map
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000}
+  format:
+    format: Trees_{x}_{y}
+    extension: trs
+  prototypes:
+  - {fileID: 6307873901052613052, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
+--- !u!114 &5765027533259470609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Far heightmap
+  m_EditorClassIdentifier: 
+  container: {fileID: 11400000}
+  originalFormatMap:
+    format: 10x10-8x8Height_{x}-{y}
+    extension: r16
+  compressedFormatMap:
+    format: 10x10-8x8Height_low_{x}-{y}
+    extension: r16
+  downSamplingShader: {fileID: 7200000, guid: c015f54267923954fbe8a0ad23a2bcb1, type: 3}
+  compressionRatio: 2

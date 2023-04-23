@@ -22,7 +22,7 @@ namespace Core.TerrainGenerator
         protected Dictionary<int, List<TModule>> dirtyDeformers = new  Dictionary<int, List<TModule>>();
         protected int maxDeformerLayer;
         
-        protected DeformationChannel(Vector2Int chunk, float chunkSize) : base(chunk, chunkSize)
+        protected DeformationChannel(Vector2Int coordinates, float chunkSize) : base(coordinates, chunkSize)
         {
         }
         
@@ -135,30 +135,36 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public abstract class DeformationChannel
     {
-        public Vector2Int Chunk { get; }
+        public Vector2Int Coordinates { get; }
         public Vector3 Position { get; }
         public Vector3 WorldPosition => Position - WorldOffset.Offset;
         public bool IsDirty { get; protected set; }
 
-        public DeformationChannel(Vector2Int chunk, float chunkSize)
+        public DeformationChannel(Vector2Int coordinates, float chunkSize)
         {
-            Chunk = chunk;
-            Position = new Vector3(chunk.x * chunkSize, 0, chunk.y * chunkSize);
+            Coordinates = coordinates;
+            Position = new Vector3(coordinates.x * chunkSize, 0, coordinates.y * chunkSize);
+            IsDirty = true;
         }
 
         public abstract void RegisterDeformer(IDeformer deformer);
         public abstract void ApplyDirtyToCache();
 
-        public void Apply()
+        public async Task Apply()
         {
-            ApplyToTerrain();
+            if(!LoadingTask.IsCompleted || applyToTerrainTask != null) return;
+            applyToTerrainTask = ApplyToTerrain();
+            await applyToTerrainTask;
+            applyToTerrainTask = null;
             IsDirty = false;
         }
-        
-        protected abstract void ApplyToTerrain();
-        
-        [ShowInInspector] public bool IsReady { get; protected set; }
 
+        protected abstract Task ApplyToTerrain();
+        public virtual Task PostApply() => Task.CompletedTask;
+
+        protected readonly TaskCompletionSource<bool> loading = new TaskCompletionSource<bool>();
+        [ShowInInspector] public Task<bool> LoadingTask => loading.Task;
+        private Task applyToTerrainTask = null;
         public abstract RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer);
     }
 }

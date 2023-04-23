@@ -41,7 +41,7 @@ namespace Core.TerrainGenerator
         [SerializeField] private List<SerializedDeformerModule> modules;
 
         [ShowInInspector] private Rect axisAlignedRect;
-        [ShowInInspector] private List<Vector2Int> affectedChunks;
+        [ShowInInspector] private Dictionary<int, List<Vector2Int>> affectedChunks = new Dictionary<int, List<Vector2Int>>();
 
         /*[SerializeField, HideInInspector]
         private string[] typesInfo;
@@ -59,9 +59,9 @@ namespace Core.TerrainGenerator
             TerrainProvider.OnInitialize.Subscribe(Register);
         }
 
-        private void Register()
+        private void Register(TerrainProvider provider)
         {
-            TerrainProvider.Instance.RegisterDeformer(this);
+            provider.RegisterDeformer(this);
         }
 
         [Button]
@@ -138,15 +138,16 @@ namespace Core.TerrainGenerator
 
         public IEnumerable<Vector2Int> GetAffectChunks(float chunkSize)
         {
-            if (affectedChunks != null) return affectedChunks;
+            int key = (int) chunkSize;
+            if (affectedChunks.TryGetValue(key, out List<Vector2Int> chunks)) return chunks;
             
             Vector4 rect = LocalRect;
             Vector3 right = transform.right;
             Vector3 forward = transform.forward;
             Vector3 position = Position;
-            affectedChunks = MathfUtilities.GetAffectChunks(chunkSize, right, rect, forward, position);
+            affectedChunks.Add(key, MathfUtilities.GetAffectChunks(chunkSize, right, rect, forward, position));
 
-            return affectedChunks;
+            return affectedChunks[key];
         }
 
         public Terrain[] GetTerrainsContacts() //TODO: Cache
@@ -190,9 +191,9 @@ namespace Core.TerrainGenerator
         public void AlignWithTerrain()
         {
             Vector3 origin = transform.position;
-            float height = TerrainProvider.Instance.settings.Height;
+            float height = TerrainProvider.MaxWorldHeight;
             origin.y = height;
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, height, GameData.Data.groundLayer))
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, height, GameData.Data.terrainLayer))
             {
                 transform.position = hit.point;
             }

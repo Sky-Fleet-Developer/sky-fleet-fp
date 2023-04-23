@@ -58,9 +58,9 @@ namespace Core.TerrainGenerator.Settings
             float[][,] destination = channel.GetDestinationLayers(Core).ToArray();
 
             Dictionary<Vector2Int, HeightCache>
-                map = CalculateMap(settings, channel.Position, channel.terrainData.size);
+                map = CalculateMap(settings, channel.Position, channel.chunk.ChunkSize, channel.chunk.Height);
 
-            WriteToHeightmap(map, source, destination, settings.minX, settings.minY, settings);
+            WriteToHeightmap(map, source, destination, settings);
 
 /*#if UNITY_EDITOR
 Undo.RecordObject(terrain.terrainData, "change terrain");
@@ -80,10 +80,10 @@ EditorUtility.SetDirty(terrain.terrainData);
             
         }*/
 
-        private Dictionary<Vector2Int, HeightCache> CalculateMap(RectangleAffectSettings rectSettings, Vector3 terrainPosition, Vector3 terrainSize)
+        private Dictionary<Vector2Int, HeightCache> CalculateMap(RectangleAffectSettings rectSettings, Vector3 terrainPosition, float size, float height)
         {
-            float ceilSize = terrainSize.x / rectSettings.resolution;
-            float heightInv = 1f / terrainSize.y;
+            float ceilSize = size / rectSettings.resolution;
+            float heightInv = 1f / height;
             float hMid = Core.Position.y;
 
             Dictionary<Vector2Int, HeightCache> map = new  Dictionary<Vector2Int, HeightCache>();
@@ -107,7 +107,7 @@ EditorUtility.SetDirty(terrain.terrainData);
             return map;
         }
 
-        public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] source, float[][,] destination, int xBegin, int yBegin, RectangleAffectSettings settings)
+        public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] source, float[][,] destination, RectangleAffectSettings settings)
         {
             for (int x = 0; x < settings.deltaX; x++)
             {
@@ -115,15 +115,14 @@ EditorUtility.SetDirty(terrain.terrainData);
                 {
                     if (!map.TryGetValue(new Vector2Int(x, y), out HeightCache m)) continue;
 
-                    float s = source[yBegin + y, xBegin + x];
+                    float s = source[settings.minY + y, settings.minX + x];
                     
                     float hDelta = m.height - s;
 
                     float result = s + hDelta * m.alpha;
-                    
+                    int a = settings.minY + y, b = settings.minX + x;
                     for (var i = 0; i < destination.Length; i++)
                     {
-                        int a = yBegin + y, b = xBegin +x;
                         destination[i][a, b] = result;
                     }
                 }
@@ -196,10 +195,10 @@ EditorUtility.SetDirty(terrain.terrainData);
             deltaX = maxX - minX;
             deltaY = maxY - minY;
         }
-        public RectangleAffectSettings(TerrainData data, Vector3 terrainPosition, int resolution, IDeformer deformer)
+        public RectangleAffectSettings(Chunk chunk, Vector3 terrainPosition, int resolution, IDeformer deformer)
         {
             this.resolution = resolution;
-            Rect rect = MathfUtilities.GetAffectRectangle(data, terrainPosition, deformer.AxisAlignedRect);
+            Rect rect = MathfUtilities.GetAffectRectangle(chunk, terrainPosition, deformer.AxisAlignedRect);
             minX = Mathf.CeilToInt(rect.x * resolution);
             minY = Mathf.CeilToInt(rect.y * resolution);
             minX = Mathf.Max(minX, 0);

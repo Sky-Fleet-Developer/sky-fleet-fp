@@ -44,7 +44,8 @@ namespace Runtime
         public float interactionDistance = 1f;
         public string controlFailText = "Control is alredy used";
         [Header("Physics")]
-        public LayerMask groundLayer;
+        public LayerMask walkableLayer;
+        public LayerMask terrainLayer;
         [Header("Logistics")] 
         public float fuelTransitionAmount = 5;
         [Header("Lod")]

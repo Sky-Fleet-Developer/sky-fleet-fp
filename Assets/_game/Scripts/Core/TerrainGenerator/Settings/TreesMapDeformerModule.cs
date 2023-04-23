@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System.Linq;
@@ -63,12 +64,14 @@ namespace Core.TerrainGenerator.Settings
         {
             if (!(sourceChannel is TreesChannel channel)) return;
 
-            WriteToTerrainData(channel.terrainData, channel.Position);
+            WriteToTerrainData(channel.Chunk, channel.Position);
         }
 
-        public void WriteToTerrainData(TerrainData data, Vector3 pos)
+        public void WriteToTerrainData(Chunk data, Vector3 pos)
         {
-            Rect rectCore = new Rect(Core.LocalRect.x - Core.LocalRect.z / 2, Core.LocalRect.y - Core.LocalRect.w / 2, Core.LocalRect.z, Core.LocalRect.w);
+            throw new NotImplementedException();
+
+            /*Rect rectCore = new Rect(Core.LocalRect.x - Core.LocalRect.z / 2, Core.LocalRect.y - Core.LocalRect.w / 2, Core.LocalRect.z, Core.LocalRect.w);
             TreeInstance[] trees = data.treeInstances;
             List<TreeInstance> newTrees = new List<TreeInstance>();
             for (int i = 0; i < trees.Length; i++)
@@ -100,7 +103,7 @@ namespace Core.TerrainGenerator.Settings
                     Debug.Log("Add : " + newTree.position + " , " + newTree.rotation + " , " + tree.prototypeIndex);
                 } 
             }
-            data.SetTreeInstances(newTrees.ToArray(), true);
+            data.SetTreeInstances(newTrees.ToArray(), true);*/
         }
     }
 }

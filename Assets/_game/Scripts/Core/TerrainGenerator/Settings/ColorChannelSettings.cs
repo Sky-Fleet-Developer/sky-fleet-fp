@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -7,10 +8,9 @@ namespace Core.TerrainGenerator.Settings
     public class ColorChannelSettings : ChannelSettings
     {
         [SerializeField, HideInInspector] private int layersCount = 3;
-        [SerializeField] private HueShift hueShift;
         [SerializeField] private bool normalizeAlphamap;
-        
-        public TerrainLayer[] textureLayers;
+        [SerializeField] private string layerMaskProperty = "_LayerMask";
+        [SerializeField] private ComputeShader blitShader;
         
 
         [ShowInInspector]
@@ -50,7 +50,7 @@ namespace Core.TerrainGenerator.Settings
         };
 
 
-        public override DeformationChannel MakeDeformationChannel(Vector2Int position, string directory)
+        public override DeformationChannel MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory)
         {
             List<string> paths = new List<string>(); 
             foreach (FileFormatSeeker format in splatmapFormats)
@@ -59,9 +59,8 @@ namespace Core.TerrainGenerator.Settings
                paths.Add(path);
             }
 
-            var data = TerrainProvider.GetTerrain(position).terrainData;
-            data.terrainLayers = textureLayers;
-            return new ColorChannel(data, new List<IColorFilter>{hueShift}, normalizeAlphamap, layersCount, paths, position);
+            Chunk chunk = terrain.GetChunk(position);
+            return new ColorChannel(chunk, blitShader, layerMaskProperty, normalizeAlphamap, layersCount, paths, position);
         }
     }
 }

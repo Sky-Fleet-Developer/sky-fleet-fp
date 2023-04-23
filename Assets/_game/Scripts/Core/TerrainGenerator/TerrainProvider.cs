@@ -24,31 +24,34 @@ namespace Core.TerrainGenerator
     /// </summary>
     public class TerrainProvider : MonoBehaviour, ILoadAtStart
     {
-        public static TerrainProvider Instance;
-        public static readonly LateEvent OnInitialize = new LateEvent();
-       
+        public static readonly LateEvent<TerrainProvider> OnInitialize = new LateEvent<TerrainProvider>();
+        public static float MaxWorldHeight { get; private set; }
         public TerrainGenerationSettings settings;
 
         [ShowInInspector]
         private Dictionary<Vector2Int, List<DeformationChannel>> channels =
             new Dictionary<Vector2Int, List<DeformationChannel>>();
 
-        private Dictionary<Vector2Int, Terrain> chunks = new Dictionary<Vector2Int, Terrain>();
-        private List<TerrainData> terrainsData = new List<TerrainData>();
-        private List<IDeformer> deformers = new List<IDeformer>();
+        private Dictionary<Vector2Int, Chunk> chunks = new Dictionary<Vector2Int, Chunk>();
+
+        private Dictionary<Vector2Int, HashSet<IDeformer>> deformersByChunk = new Dictionary<Vector2Int, HashSet<IDeformer>>();
         private List<IDeformer> deformersQueue = new List<IDeformer>();
 
         private PropsRefreshTicker refreshTicker;
 
-        public static Terrain GetTerrain(Vector2Int position)
+        public Chunk GetChunk(Vector2Int position)
         {
-            return Instance.chunks[position];
+            return chunks[position];
+        }
+
+        bool ILoadAtStart.enabled
+        {
+            get => enabled && gameObject.activeInHierarchy;
         }
 
         [Button]
         private void TestLoad()
         {
-            Instance = this;
             Load(GetCurrentProps());
             foreach (Deformer deformer in FindObjectsOfType<Deformer>())
             {
@@ -58,33 +61,32 @@ namespace Core.TerrainGenerator
         [Button]
         private void RemoveTest()
         {
-            foreach (Terrain chunksValue in chunks.Values)
+            foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
             {
-                if(chunksValue != null) DestroyImmediate(chunksValue.gameObject);
+                chunk.Value?.Destroy();
             }
 
-            foreach (TerrainData data in terrainsData)
-            {
-                if(terrainsData != null) DestroyImmediate(data);
-            }
-
+            chunks = new Dictionary<Vector2Int, Chunk>();
+            
             channels = new Dictionary<Vector2Int, List<DeformationChannel>>();
-            deformers = new List<IDeformer>();
+            deformersByChunk = new Dictionary<Vector2Int, HashSet<IDeformer>>();
             deformersQueue = new List<IDeformer>();
         }
 
-        private TaskCompletionSource<bool> deformersInitialization;
         async Task ILoadAtStart.Load()
         {
-            Instance = this;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
-            deformersInitialization = new TaskCompletionSource<bool>();
+            MaxWorldHeight = Mathf.Max(MaxWorldHeight, settings.Height);
             
             if (settings.directory == null) throw new System.Exception("Wrong directory!");
 
             await LoadPropsForCurrentPosition();
+            OnInitialize.Invoke(this);
             refreshTicker?.TryRun();
-            await deformersInitialization.Task;
+            if (deformersQueueTask != null)
+            {
+                await deformersQueueTask;
+            }
         }
 
         private async Task LoadPropsForCurrentPosition()
@@ -95,33 +97,70 @@ namespace Core.TerrainGenerator
         private void OnWorldOffsetChange(Vector3 offset)
         {
             transform.position += offset;
-            foreach (KeyValuePair<Vector2Int, Terrain> chunk in chunks)
+            foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
             {
-                chunk.Value.transform.position += offset;
+                chunk.Value.Position += offset;
             }
         }
 
         private Task Load(IEnumerable<Vector2Int> props)
         {
+            foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
+            {
+                chunk.Value.IsChunkVisible = false;
+            }
+            
             foreach (Vector2Int prop in props)
             {
                 if (!chunks.ContainsKey(prop))
                 {
-                    var terrain = CreateTerrain(prop);
-
-                    terrainsData.Add(terrain.terrainData);
-                    chunks.Add(prop, terrain);
+                    chunks.Add(prop, null);
                 }
-
-                if (!channels.ContainsKey(prop))
+                else
                 {
-                    channels.Add(prop, new List<DeformationChannel>());
-                    
-                    foreach (ChannelSettings layerSettings in settings.Settings)
+                    chunks[prop].IsChunkVisible = true;
+                }
+            }
+
+            HashSet<Vector2Int> toRemove = new HashSet<Vector2Int>();
+            HashSet<Vector2Int> toCreate = new HashSet<Vector2Int>();
+            foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
+            {
+                if (chunk.Value == null)
+                {
+                    toCreate.Add(chunk.Key);
+                }
+                else if(chunk.Value.IsChunkVisible == false)
+                {
+                    toRemove.Add(chunk.Key);
+                    chunk.Value.Destroy();
+                }
+            }
+            foreach (Vector2Int coord in toRemove)
+            {
+                chunks.Remove(coord);
+                channels.Remove(coord);
+            }
+
+            foreach (Vector2Int coord in toCreate)
+            {
+                chunks[coord] = CreateTerrain(coord);
+                channels.Add(coord, new List<DeformationChannel>());
+                foreach (ChannelSettings layerSettings in settings.Settings)
+                {
+                    DeformationChannel channel =
+                        layerSettings.MakeDeformationChannel(this, coord, settings.directory.FullName);
+
+                    if (deformersByChunk.TryGetValue(coord, out HashSet<IDeformer> deformers))
                     {
-                        DeformationChannel channel = layerSettings.MakeDeformationChannel(prop, settings.directory.FullName);
-                        if (channel != null) channels[prop].Add(channel);
+                        foreach (IDeformer deformer in deformers)
+                        {
+                            channel.RegisterDeformer(deformer);
+                        }
+                        channel.ApplyDirtyToCache();
                     }
+
+                    if (channel != null) channels[coord].Add(channel);
                 }
             }
 
@@ -137,33 +176,19 @@ namespace Core.TerrainGenerator
         
         private async Task AwaitForReadyAndApply()
         {
-            foreach (KeyValuePair<Vector2Int, List<DeformationChannel>> channelKV in channels)
-            {
-                foreach (DeformationChannel channel in channelKV.Value)
-                {
-                    while (!channel.IsReady)
-                    {
-                        await Task.Delay(100);
-                    }
-                }
-            }
-
             UnityEngine.Profiling.Profiler.BeginSample("Apply changes");
-
-            foreach (KeyValuePair<Vector2Int, List<DeformationChannel>> layer in channels)
-            {
-                foreach (DeformationChannel terrainLayer in layer.Value)
-                {
-                    terrainLayer.Apply();
-                }
-            }
+            await Task.WhenAll(channels.SelectMany(x => x.Value.Select(WaitForChannelLoadingAndApply)));
+            await Task.WhenAll(channels.SelectMany(x => x.Value.Select(v => v.PostApply())));
             UnityEngine.Profiling.Profiler.EndSample();
+        }
 
-            await Task.Delay(1000);
-
-            OnInitialize.Invoke();
-            
-            if(deformersQueueTimer == null ) deformersInitialization.TrySetResult(true);
+        private async Task WaitForChannelLoadingAndApply(DeformationChannel channel)
+        {
+            if (channel.IsDirty)
+            {
+                await channel.LoadingTask;
+                await channel.Apply();
+            }
         }
 
         private IEnumerable<Vector2Int> GetCurrentProps()
@@ -229,56 +254,32 @@ namespace Core.TerrainGenerator
         }
         
 
-        private Terrain CreateTerrain(Vector2Int prop)
+        private Chunk CreateTerrain(Vector2Int prop)
         {
-            GameObject obj = new GameObject($"Terrain ({prop.x}, {prop.y})");
+            Chunk chunk = new Chunk($"Terrain ({prop.x}, {prop.y})", transform, settings);
 
             Vector3 selfPos = transform.position;
-            obj.transform.position = new Vector3(selfPos.x + prop.x * settings.ChunkSize, selfPos.y,
+            chunk.Position = new Vector3(selfPos.x + prop.x * settings.ChunkSize, selfPos.y,
                 selfPos.z + prop.y * settings.ChunkSize);
 
-            Terrain ter = obj.AddComponent<Terrain>();
-            TerrainData data = new TerrainData();
-            data.name = obj.name;
-            ter.terrainData = data;
-
-            ter.drawInstanced = true;
-            data.heightmapResolution = settings.HeightmapResolution;
-            data.alphamapResolution = settings.AlphamapResolution;
-            data.size = new Vector3(settings.ChunkSize, settings.Height, settings.ChunkSize);
-            ter.materialTemplate = settings.Material;
-
-            TerrainCollider collider = obj.AddComponent<TerrainCollider>();
-            collider.terrainData = ter.terrainData;
-
-            ter.allowAutoConnect = true;
-
-            return ter;
+            return chunk;
         }
 
         private Task deformersQueueTimer;
-
-        public async void RegisterDeformer(IDeformer deformer)
+        private Task deformersQueueTask;
+        public void RegisterDeformer(IDeformer deformer)
         {
             deformersQueue.Add(deformer);
-            deformers.Add(deformer);
-
-            if (deformersQueueTimer == null)
+            IEnumerable<Vector2Int> affected = deformer.GetAffectChunks(settings.ChunkSize);
+            foreach (Vector2Int coord in affected)
             {
-                deformersQueueTimer = LaunchDeformersQueue();
-                await deformersQueueTimer;
-            }
-        }
-
-        private void ApplyToChannels(IDeformer deformer)
-        {
-            IEnumerable<Vector2Int> affectChunks = deformer.GetAffectChunks(settings.ChunkSize);
-
-            Vector2Int[] chunksArr = affectChunks as Vector2Int[] ?? affectChunks.ToArray();
-
-            foreach (Vector2Int chunk in chunksArr)
-            {
-                if (channels.TryGetValue(chunk, out List<DeformationChannel> channelsList))
+                if (!deformersByChunk.ContainsKey(coord))
+                {
+                    deformersByChunk.Add(coord, new HashSet<IDeformer>());
+                }
+                
+                deformersByChunk[coord].Add(deformer);
+                if (channels.TryGetValue(coord, out List<DeformationChannel> channelsList))
                 {
                     foreach (DeformationChannel channel in channelsList)
                     {
@@ -286,17 +287,28 @@ namespace Core.TerrainGenerator
                     }
                 }
             }
+
+            if (deformersQueueTimer == null)
+            {
+                TaskCompletionSource<bool> queueCompletionSource = new TaskCompletionSource<bool>();
+                deformersQueueTimer = queueCompletionSource.Task;
+                deformersQueueTask = LaunchDeformersQueue(queueCompletionSource);
+                WaitForDeformersQueueAndSetTaskNull();
+            }
         }
 
-        private async Task LaunchDeformersQueue()
+        private async void WaitForDeformersQueueAndSetTaskNull()
+        {
+            await deformersQueueTask;
+            deformersQueueTask = null;
+        }
+        
+
+        private async Task LaunchDeformersQueue(TaskCompletionSource<bool> queueCompletionSource)
         {
             await Task.Delay(2000);
+            queueCompletionSource.SetResult(true);
             deformersQueueTimer = null;
-
-            foreach (IDeformer deformer in deformersQueue)
-            {
-                ApplyToChannels(deformer);
-            }
 
             foreach (List<DeformationChannel> deformationChannels in channels.Values)
             {
@@ -306,20 +318,10 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            foreach (List<DeformationChannel> deformationChannels in channels.Values)
-            {
-                foreach (DeformationChannel deformationChannel in deformationChannels)
-                {
-                    if (deformationChannel.IsDirty) deformationChannel.Apply();
-                }
-            }
+            await Task.WhenAll(channels.SelectMany(x => x.Value.Select(v => v.IsDirty ? v.Apply() : Task.CompletedTask)));
+            await Task.WhenAll(channels.SelectMany(x => x.Value.Select(v => v.PostApply())));
 
             deformersQueue.Clear();
-            if (deformersInitialization != null)
-            {
-                deformersInitialization.SetResult(true);
-                deformersInitialization = null;
-            }
         }
 
         private void OnDrawGizmos()

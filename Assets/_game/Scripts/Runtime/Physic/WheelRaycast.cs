@@ -73,7 +73,7 @@ namespace Runtime.Physic
         private void GroundCast(Vector3 position)
         {
             grounded = UnityEngine.Physics.Raycast(position, -transform.up, out groundHit, SuspensionDisnatce,
-                GameData.Data.groundLayer);
+                GameData.Data.walkableLayer);
             Debug.DrawLine(position, position - transform.up * (grounded ? groundHit.distance : SuspensionDisnatce));
         }
 

@@ -29,7 +29,7 @@ namespace Runtime.Character
         public Task Load()
         {
             Vector3 spawnPos = transform.position;
-            if (Physics.Raycast(transform.position + Vector3.up * 10000, Vector3.down, out RaycastHit groundHit, 11000, GameData.Data.groundLayer))
+            if (Physics.Raycast(transform.position + Vector3.up * 10000, Vector3.down, out RaycastHit groundHit, 11000, GameData.Data.walkableLayer))
             {
                 spawnPos = groundHit.point + Vector3.up;
             }

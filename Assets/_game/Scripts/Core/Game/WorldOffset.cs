@@ -17,6 +17,7 @@ namespace Core.Game
         public static event Action<Vector3> OnWorldOffsetChange;
 
         [SerializeField] private float limit = 1000;
+        [SerializeField] private bool moveY = false;
         private float limit_i;
 
         private Transform anchor;
@@ -74,7 +75,7 @@ namespace Core.Game
             {
                 offset += Vector3.right * pos.x;
             }
-            if(Mathf.Abs(pos.y) > limit)
+            if(moveY && Mathf.Abs(pos.y) > limit)
             {
                 offset += Vector3.up * pos.y;
             }

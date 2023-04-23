@@ -19,9 +19,12 @@ MonoBehaviour:
       m_Bits: 64
     interactionDistance: 2
     controlFailText: Control is alredy used
-    groundLayer:
+    walkableLayer:
       serializedVersion: 2
-      m_Bits: 65
+      m_Bits: 65601
+    terrainLayer:
+      serializedVersion: 2
+      m_Bits: 196608
     fuelTransitionAmount: 2
     lodDistances:
     - 50

@@ -1,0 +1,22 @@
+#pragma kernel compute_shader
+
+Texture2D<float4> inputTexture;
+RWTexture2D<float4> outputTexture;
+int compressionRatio;
+
+[numthreads(8, 8, 1)]
+void compute_shader (uint3 id : SV_DispatchThreadID)
+{
+    float4 buffer = float4(0,0,0,0);
+
+    for(int u = 0; u < compressionRatio; u++)
+    {
+        for(int v = 0; v < compressionRatio; v++)
+        {
+            buffer += inputTexture.Load(int3(id.xy + float2(u, v), 0));
+        }
+    }
+    buffer /= compressionRatio * compressionRatio;
+    
+    outputTexture[id.xy] = buffer;
+}

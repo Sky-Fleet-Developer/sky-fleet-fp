@@ -97,7 +97,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalThrust: 85000
+  maximalThrust: 150000
   throttle:
     guid: 2f3f89db-1f62-4742-b237-d1c86d86dea0
     cache: 0

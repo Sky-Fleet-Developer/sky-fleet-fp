@@ -109,17 +109,11 @@ namespace Core.TerrainGenerator.Settings
 
             //float[,,] alphamap = GetSourceLayer(module.Core);//terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, rectangleSettings.deltaX, rectangleSettings.deltaY);
 
-            float[,,]
-                source = channel
-                    .GetSourceLayer(
-                        Core); //channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
-            float[][,,] destination = channel.GetDestinationLayers(Core).ToArray();
-
-            int layersCount = channel.terrainData.terrainLayers.Length;
+            float[] source = channel.GetSourceLayer(Core); //channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
+            float[][] destination = channel.GetDestinationLayers(Core).ToArray();
 
             WriteToAlphamaps(source, destination, settings.minX, settings.minY, settings, channel.Position,
-                channel.terrainData.size,
-                layersCount);
+                channel.Chunk.ChunkSize);
             /*
 #if UNITY_EDITOR
             Undo.RecordObject(channel.terrainData, "change terrain");
@@ -132,11 +126,11 @@ namespace Core.TerrainGenerator.Settings
 */
         }
 
-        public void WriteToAlphamaps(float[,,] source, float[][,,] destination, int xBegin, int yBegin,
+        public void WriteToAlphamaps(float[] source, float[][] destination, int xBegin, int yBegin,
             RectangleAffectSettings settings,
-            Vector3 terrainPosition, Vector3 terrainSize, int layersCount)
+            Vector3 terrainPosition, float chunkSize)
         {
-            float ceilSize = terrainSize.x / settings.resolution;
+            float ceilSize = chunkSize / settings.resolution;
 
             for (int x = 0; x < settings.deltaX; x++)
             {
@@ -154,12 +148,10 @@ namespace Core.TerrainGenerator.Settings
                     float opacity = GetOpacity(localCoordinates.x, localCoordinates.y);
                     for (int i = 0; i < alphasR.Length; i++)
                     {
-                        if (i >= layersCount) break;
-
                         for (int d = 0; d < destination.Length; d++)
                         {
-                            destination[d][yBegin + y, xBegin + x, i] =
-                                source[yBegin + y, xBegin + x, i] * (1 - opacity) + alphasR[i] * opacity;
+                            destination[d][ xBegin + x + (yBegin + y) * settings.resolution + i * settings.resolution * settings.resolution] =
+                                source[xBegin + x + (yBegin + y) * settings.resolution + i * settings.resolution * settings.resolution] * (1 - opacity) + alphasR[i] * opacity;
                         }
                     }
 

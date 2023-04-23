@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8684531937093414052}
   - component: {fileID: 2814397878552879366}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Terrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,7 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2718442238139209658}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2814397878552879366
 MonoBehaviour:
@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc0da1fbdae1214993ae6bf25c7b38d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: 56f092b61098edb488ac9e75f61fd851, type: 2}
+  settings: {fileID: 11400000, guid: 032a3b316246b884d8edda18c08b23ef, type: 2}
 --- !u!1 &2718442238139209660
 GameObject:
   m_ObjectHideFlags: 0
@@ -80,7 +80,9 @@ Transform:
   - {fileID: 2718442238514360133}
   - {fileID: 2718442239984798256}
   - {fileID: 2718442239448992003}
+  - {fileID: 2603947844516841168}
   - {fileID: 8684531937093414052}
+  - {fileID: 4980003380249097012}
   - {fileID: 4209774599177273067}
   - {fileID: 8689684013004599819}
   m_Father: {fileID: 0}
@@ -342,7 +344,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2718442238139209658}
-  m_RootOrder: 10
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &614683394381037785
 MonoBehaviour:
@@ -357,6 +359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   limit: 1000
+  moveY: 0
 --- !u!1 &4494832321663123639
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,6 +533,74 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 401256124902158202}
+--- !u!1 &4963882073451471490
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2603947844516841168}
+  - component: {fileID: 8082874671489288709}
+  m_Layer: 0
+  m_Name: TerrainTexturesResizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2603947844516841168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4963882073451471490}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2718442238139209658}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8082874671489288709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4963882073451471490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2af9f3ca98233be45a2a4fb1ec075d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetDirectory: 10x10-8x8
+  formats:
+  - enabled: 1
+    originalFormat:
+      format: 10x10-8x8Height_{x}-{y}
+      extension: r16
+    resizedFormat:
+      format: 10x10-8x8Height_l2_{x}-{y}
+      extension: r16
+    cutChunksFormat:
+      format: 10x10-8x8Height_div2_{x}-{y}
+      extension: r16
+    shader: {fileID: 7200000, guid: c015f54267923954fbe8a0ad23a2bcb1, type: 3}
+  - enabled: 0
+    originalFormat:
+      format: 10x10-8x8Ch_1_{x}-{y}
+      extension: png
+    resizedFormat:
+      format: Name_{x}_{y}
+      extension: png
+    cutChunksFormat:
+      format: 10x10-8x8Ch_1_div2_{x}-{y}
+      extension: png
+    shader: {fileID: 7200000, guid: c015f54267923954fbe8a0ad23a2bcb1, type: 3}
+  compressionRatio: 4
 --- !u!1 &7253911849314168398
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,6 +644,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &7648995866182422052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4980003380249097012}
+  - component: {fileID: 3786771357358106087}
+  m_Layer: 17
+  m_Name: Terrain_Low
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4980003380249097012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7648995866182422052}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2718442238139209658}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3786771357358106087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7648995866182422052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc0da1fbdae1214993ae6bf25c7b38d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings: {fileID: 11400000, guid: 64e925c4a7a8a5b44b9f25a2d42bd552, type: 2}
 --- !u!1 &8634603330985523465
 GameObject:
   m_ObjectHideFlags: 0
@@ -603,7 +718,7 @@ Transform:
   m_Children:
   - {fileID: 8533222582234166124}
   m_Father: {fileID: 2718442238139209658}
-  m_RootOrder: 9
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8878757039438359807
 MonoBehaviour:
@@ -635,7 +750,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5012899578813571034, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5651153240177143137, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_Pivot.x
