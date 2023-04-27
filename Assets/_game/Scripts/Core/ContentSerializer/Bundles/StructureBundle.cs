@@ -21,15 +21,16 @@ namespace Core.ContentSerializer.Bundles
             
         }
         
-        public StructureBundle(IStructure structure, ISerializationContext context)
+        public StructureBundle(BaseStructure structure, ISerializationContext context)
         {
             if(structure.Blocks == null || structure.Blocks.Count == 0) structure.RefreshBlocksAndParents();
-
+            
+            Transform tr = structure.transform;
+            
             configuration = JsonConvert.SerializeObject(Factory.GetConfiguration(structure));
             guid = structure.Guid;
-            name = structure.transform.name;
+            name = tr.name;
 
-            Transform tr = structure.transform;
             
             foreach (IBlock block in structure.Blocks)
             {
@@ -50,13 +51,13 @@ namespace Core.ContentSerializer.Bundles
             }
         }
 
-        public async Task<IStructure> ConstructStructure(ISerializationContext context)
+        public async Task<BaseStructure> ConstructStructure(ISerializationContext context)
         {
             RemotePrefabItem item = TablePrefabs.Instance.GetItem(guid);
             GameObject prefab = await item.LoadPrefab();
             if (prefab == null) return null;
 
-            IStructure instance = Object.Instantiate(prefab).GetComponent<IStructure>();
+            BaseStructure instance = Object.Instantiate(prefab).GetComponent<BaseStructure>();
             instance.transform.name = name;
             if (Application.isPlaying)
             {

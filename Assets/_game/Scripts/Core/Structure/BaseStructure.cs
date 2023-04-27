@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Game;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
+using Core.Utilities;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Core.Structure
 {
-    public abstract class BaseStructure : MonoBehaviour, IStructure
+    public abstract class BaseStructure : MonoBehaviour, IStructure, ITablePrefab
     {
         [ShowInInspector]
         public string Guid
@@ -34,15 +37,11 @@ namespace Core.Structure
 
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
-        public Vector3 position => transform.position;
-        public Quaternion rotation => transform.rotation;
-        List<IBlock> IStructure.Blocks => blocks;
-        IEnumerable<Wire> IWiresMaster.Wires => wires;
         bool IStructure.Active => gameObject.activeSelf;
 
         Bounds IStructure.Bounds { get; } //TODO: constant updateing structure
-
-        List<Parent> IStructure.Parents
+        public LateEvent OnInitComplete { get; } = new LateEvent();
+        public List<Parent> Parents
         {
             get
             {
@@ -57,18 +56,14 @@ namespace Core.Structure
         
         public float Radius { get; private set; }
 
-        [ShowInInspector] protected List<IBlock> blocks;
+        [ShowInInspector] public List<IBlock> Blocks { get; private set; }
 
         public Transform[] parentsObjects;
         protected List<Parent> parents = null;
         //protected StructureConfiguration currentConfiguration;
-        [ShowInInspector] protected List<Wire> wires = new List<Wire>();
-        
         private bool initialized = false;
-        
-        private Dictionary<string, PortPointer> portsCache;
-        private List<PortPointer> portsPointersCache;
-        private Dictionary<System.Type, object> blocksCache;
+
+        private Dictionary<System.Type, IBlock[]> blocksCache;
 
 
         protected virtual void Awake()
@@ -76,13 +71,12 @@ namespace Core.Structure
             initialized = false;
             this.AddWorldOffsetAnchor();
         }
-        
+
         public virtual void Init()
         {
-            RefreshBlocks();
-            InitParents();
+            RefreshBlocksAndParents();
             InitBlocks();
-            OnInitComplete();
+            OnInitComplete.Invoke();
             StructureUpdateModule.RegisterStructure(this);
             OnFinishInit();
 
@@ -110,24 +104,14 @@ namespace Core.Structure
         [Button]
         public void InitBlocks()
         {
-            foreach (IBlock block in blocks)
+            foreach (IBlock block in Blocks)
             {
                 block.InitBlock(this, GetParentFor(block));
             }
         }
 
-        public void OnInitComplete()
-        {
-            foreach (IBlock block in blocks)
-            {
-                block.OnInitComplete();
-            }
-        }
-        
         private void ClearBlocksCache()
         {
-            portsPointersCache = null;
-            portsCache = null;
             blocksCache = null;
         }
         
@@ -140,7 +124,7 @@ namespace Core.Structure
         public void RefreshBlocks()
         {
             ClearBlocksCache();
-            blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
+            Blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
         public void InitParents()
@@ -158,23 +142,24 @@ namespace Core.Structure
         }
 
 
-        public List<T> GetBlocksByType<T>()
+        public T[] GetBlocksByType<T>() where T : IBlock
         {
-            if (blocksCache == null) blocksCache = new Dictionary<System.Type, object>();
+            if (blocksCache == null) blocksCache = new Dictionary<System.Type, IBlock[]>();
             System.Type type = typeof(T);
-            if (blocksCache.TryGetValue(type, out object val)) return val as List<T>;
+            if (blocksCache.TryGetValue(type, out IBlock[] val)) return val as T[];
 
             List<T> selection = new List<T>();
-            for (int i = 0; i < blocks.Count; i++)
+            for (int i = 0; i < Blocks.Count; i++)
             {
-                if (blocks[i] is T block)
+                if (Blocks[i] is T block)
                 {
                     selection.Add(block);
                 }
             }
 
-            blocksCache.Add(type, selection);
-            return selection;
+            T[] arr = selection.ToArray();
+            blocksCache.Add(type, arr as IBlock[]);
+            return arr;
         }
 
         public Parent GetParentFor(IBlock block)
@@ -189,36 +174,8 @@ namespace Core.Structure
 
             return null;
         }
-        public PortPointer GetPort(string id)
-        {
-            if (portsCache == null) portsCache = new Dictionary<string, PortPointer>();
-            if (portsCache.TryGetValue(id, out PortPointer port)) return port;
 
-            if(portsPointersCache == null) portsPointersCache = Factory.GetAllPorts(this);
-            
-            port = portsPointersCache.FirstOrDefault(x => x.Id.Equals(id));
-            portsCache.Add(id, port);
-            return port;
-        }
 
-        public void ConnectPorts(params PortPointer[] ports)
-        {
-            Wire existWire = null;
-            
-            foreach (PortPointer port in ports)
-            {
-                existWire = port.Port.GetWire();
-                if (existWire != null) break;
-            }
-
-            if (existWire == null) Wires.Utilities.CreateWireForPorts(this, ports);
-            else Wires.Utilities.AddPortsToWire(existWire, ports);
-        }
-
-        void IWiresMaster.AddWire(Wire wire)
-        {
-            wires.Add(wire);
-        }
 
         public virtual void UpdateStructureLod(int lod, Vector3 cameraPos)
         {

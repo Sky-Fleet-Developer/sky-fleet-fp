@@ -54,5 +54,5 @@ MonoBehaviour:
   currentAmount: 500
   output:
     guid: a9893d7e-45f6-47a4-99ab-2c6f9568e143
-    serializedType: Core.Structure.Wires.Hydrogen
+    serializedType: Core.Graph.Wires.Hydrogen
     serializedTypeShort: Hydrogen

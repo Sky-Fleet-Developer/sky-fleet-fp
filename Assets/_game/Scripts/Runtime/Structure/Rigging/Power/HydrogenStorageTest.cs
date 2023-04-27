@@ -1,13 +1,13 @@
+using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using UnityEngine;
 using static Core.Structure.StructureUpdateModule;
 using Utilities = Core.Structure.Rigging.Utilities;
 
 namespace Runtime.Structure.Rigging.Power
 {
-    public class HydrogenStorageTest : Block, ITank
+    public class HydrogenStorageTest : BlockWithNode, ITank
     {
         public float CurrentAmount => currentAmount;
         public float MaximalAmount => maximalAmount;

@@ -1,7 +1,7 @@
 using Core.Game;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +9,7 @@ using static Core.Structure.StructureUpdateModule;
 
 namespace Runtime.Structure.Rigging.Movement
 {
-    public class SmallSupport : Block, ISupport
+    public class SmallSupport : BlockWithNode, ISupport
     {
         [SerializeField] private Transform variatorTransform;
 

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Structure.Rigging;
+﻿using System.Collections.Generic;
+using Core.Structure;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Core.Structure.Wires
+namespace Core.Graph.Wires
 {
     public enum PortType
     {
@@ -25,16 +24,16 @@ namespace Core.Structure.Wires
     
     public struct PortPointer : System.IEquatable<PortPointer>, System.IEquatable<string>
     {
-        public readonly IBlock Block;
+        private readonly IGraphNode node;
         public readonly  Port Port;
 
         public readonly string Id;
         
-        public PortPointer(IBlock block, Port port)
+        public PortPointer(IGraphNode node, Port port)
         {
-            Block = block;
+            this.node = node;
             Port = port;
-            Id = Block.transform.name + Port.Guid;
+            Id = node.NodeId + Port.Guid;
         }
 
         public override string ToString()

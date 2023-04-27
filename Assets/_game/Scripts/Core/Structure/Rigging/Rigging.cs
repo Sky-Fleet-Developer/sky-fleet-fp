@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Core.Character;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure.Rigging.Control;
-using Core.Structure.Wires;
 using Core.Utilities;
 using UnityEngine;
 
@@ -21,13 +22,12 @@ namespace Core.Structure.Rigging
         string MountingType { get; }
 
         void InitBlock(IStructure structure, Parent parent);
-        void OnInitComplete();
         Bounds GetBounds();
         string Save();
         void Load(string value);
     }
     
-    public interface IPowerUser : IBlock
+    public interface IPowerUser : IBlock, IGraphNode
     {
         void ConsumptionTick();
         void PowerTick();
@@ -40,7 +40,7 @@ namespace Core.Structure.Rigging
         PowerPort Power { get; }
     }
     
-    public interface IFuelUser : IBlock
+    public interface IFuelUser : IBlock, IGraphNode
     {
         void FuelTick();
     }
@@ -75,7 +75,7 @@ namespace Core.Structure.Rigging
     }
 
 
-    public interface IStorage
+    public interface IStorage : IGraphNode
     {
         float CurrentAmount { get; }
         float MaximalAmount { get; }
@@ -86,7 +86,7 @@ namespace Core.Structure.Rigging
         void PushToPort(float amount);
     }
 
-    public interface IControl : IInteractiveBlock, IUpdatableBlock, IMultiplePorts
+    public interface IControl : IInteractiveBlock, IUpdatableBlock, IMultiplePortsNode
     {
         bool IsUnderControl { get; }
         List<ControlAxis> Axes { get; }
@@ -95,7 +95,7 @@ namespace Core.Structure.Rigging
         void LeaveControl(ICharacterController controller);
     }
     
-    public interface IComputer : IMultiplePorts, IUpdatableBlock, IConsumer
+    public interface IComputer : IMultiplePortsNode, IUpdatableBlock, IConsumer
     {
 
     }

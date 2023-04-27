@@ -5,9 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.Utilities;
@@ -108,7 +109,7 @@ namespace Core.Structure
             }
         }
 
-        public static async Task ApplyConfiguration(IStructure structure, StructureConfiguration configuration)
+        public static async Task ApplyConfiguration(BaseStructure structure, StructureConfiguration configuration)
         {
             if (structure.transform.gameObject.activeInHierarchy == false)
             {
@@ -145,10 +146,8 @@ namespace Core.Structure
             try
             {
                 structure.InitBlocks();
-
-                configuration.ApplyWires(structure);
-
-                structure.OnInitComplete();
+                
+                //structure.OnInitComplete.Invoke();
                 Debug.Log($"{structure.transform.name} configuration success!");
             }
             catch (Exception e)
@@ -287,7 +286,7 @@ namespace Core.Structure
             return (tr, pathStrings[pathStrings.Length - 1]);
         }*/
 
-        public static StructureConfiguration GetConfiguration(IStructure structure)
+        public static StructureConfiguration GetConfiguration(BaseStructure structure)
         {
             /*StructureConfiguration oldConfig = null;
             if (!string.IsNullOrEmpty(structure.Configuration))
@@ -309,86 +308,19 @@ namespace Core.Structure
                 configuration.blocks.Add(GetConfiguration(block));
             }
 
-            if (structure.Wires != null)
+            /*if (structure.Wires != null)
             {
                 foreach (Wire structureWire in structure.Wires)
                 {
                     configuration.wires.Add(new WireConfiguration(structureWire.ports.Select(x => x.Id).ToList()));
                 }
-            }
+            }*/
 
             return configuration;
         }
 
 
-        public static Dictionary<Type, FieldInfo[]> BlocksPorts;
 
-        public static FieldInfo[] GetPortsInfo(IBlock block)
-        {
-            Type blockType = block.GetType();
-
-            if (BlocksPorts == null) BlocksPorts = new Dictionary<Type, FieldInfo[]>();
-            if (BlocksPorts.TryGetValue(blockType, out FieldInfo[] infos)) return infos;
-
-            List<FieldInfo> fields = new List<FieldInfo>();
-
-            Type type = typeof(Port);
-
-            //string log = $"Ports for type {blockType.Name}:\n";
-
-            foreach (FieldInfo field in blockType.GetFields())
-            {
-                if (field.FieldType == type || field.FieldType.InheritsFrom(type))
-                {
-                    fields.Add(field);
-                    //log += $"{field.Name},";
-                }
-            }
-
-            //Debug.Log(log);
-
-            infos = fields.ToArray();
-
-            BlocksPorts.Add(blockType, infos);
-
-            return infos;
-        }
-
-
-        public static List<PortPointer> GetAllPorts(IStructure structure)
-        {
-            List<PortPointer> result = new List<PortPointer>();
-            foreach (IBlock structureBlock in structure.Blocks)
-            {
-                GetAllPorts(structureBlock, ref result);
-            }
-
-            return result;
-        }
-
-        public static void GetAllPorts(IBlock block, ref List<PortPointer> result)
-        {
-            GetPorts(block, ref result);
-            GetMultiplePorts(block, ref result);
-        }
-
-        public static void GetPorts(IBlock block, ref List<PortPointer> result)
-        {
-            FieldInfo[] properties = GetPortsInfo(block);
-            foreach (FieldInfo property in properties)
-            {
-                result.Add(new PortPointer(block, property.GetValue(block) as Port));
-            }
-        }
-
-        public static void GetMultiplePorts(IBlock block, ref List<PortPointer> result)
-        {
-            if (block is IMultiplePorts specialPortsBlock)
-            {
-                IEnumerable<PortPointer> specialPorts = specialPortsBlock.GetPorts();
-                Debug.Log($"+ {specialPorts.Count()} special ports");
-                result.AddRange(specialPorts);
-            }
-        }
+        
     }
 }

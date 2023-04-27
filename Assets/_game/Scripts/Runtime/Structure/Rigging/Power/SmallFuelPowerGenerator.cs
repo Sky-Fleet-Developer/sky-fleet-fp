@@ -2,13 +2,13 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Structure.Wires;
+using Core.Graph.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Power
 {
-    public class SmallFuelPowerGenerator : Block, IFuelPowerGenerator
+    public class SmallFuelPowerGenerator : BlockWithNode, IFuelPowerGenerator
     {
         public float MaximalOutput => maximalOutput;
         public float FuelConsumption => fuelPerSec;

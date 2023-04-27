@@ -1,12 +1,12 @@
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Power
 {
-    public class SmallBattery : Block, IPowerUser
+    public class SmallBattery : BlockWithNode, IPowerUser
     {
         public float maxInput = 1;
         public float maxOutput = 1;

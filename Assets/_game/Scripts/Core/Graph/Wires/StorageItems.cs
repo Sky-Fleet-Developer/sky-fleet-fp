@@ -3,7 +3,7 @@ using System.Linq;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 
-namespace Core.Structure.Wires
+namespace Core.Graph.Wires
 {
     [System.Serializable]
     public abstract class StorageItem

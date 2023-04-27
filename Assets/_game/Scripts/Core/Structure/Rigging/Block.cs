@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Graph;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -49,7 +50,6 @@ namespace Core.Structure.Rigging
             boundsCash.center = parent.Transform.InverseTransformPoint(boundsCash.center);
         }
 
-        public virtual void OnInitComplete() { }
         public string Save()
         {
             return string.Empty;
@@ -67,5 +67,16 @@ namespace Core.Structure.Rigging
         {
             return boundsCash;
         }
+    }
+
+    public abstract class BlockWithNode : Block, IGraphNode
+    {
+        public IGraph Graph { get; private set; }
+        public void InitNode(IGraph graph)
+        {
+            Graph = graph;
+        }
+
+        public string NodeId => transform.name;
     }
 }

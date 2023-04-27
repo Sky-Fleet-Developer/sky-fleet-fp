@@ -113,8 +113,11 @@ namespace Runtime.Environment.AirDrag
 
             
             AirDragProfile result = new AirDragProfile(calculator.CalculateAirDrag(structure.transform, this), this);
-            profiles.Add(structure, result);
-            
+            if (!profiles.ContainsKey(structure))
+            {
+                profiles.Add(structure, result);
+            }
+
             foreach (KeyValuePair<Renderer, (Material[] materials, int layer)> renderer in oldMaterials)
             {
                 renderer.Key.gameObject.layer = renderer.Value.layer;

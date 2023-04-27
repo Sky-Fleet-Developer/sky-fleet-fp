@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Structure.Wires;
+using Core.Graph.Wires;
 
 namespace Core.ContentSerializer.CustomSerializers
 {

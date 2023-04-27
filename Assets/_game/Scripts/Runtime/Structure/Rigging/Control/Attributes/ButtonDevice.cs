@@ -19,7 +19,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         {
             if(animClick == null)
             {
-                animClick = structure.StartCoroutine(AnimButtonClick());
+                animClick = StartCoroutine(AnimButtonClick());
             }
         }
 

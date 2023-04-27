@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using UnityEngine;
 using static Core.Structure.StructureUpdateModule;
 using Utilities = Core.Structure.Rigging.Utilities;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class Gyroscope : Block, IGyroscope
+    public class Gyroscope : BlockWithNode, IGyroscope
     {
         public Port<float> localSpeedX = new Port<float>(PortType.Thrust);
         public Port<float> localSpeedY = new Port<float>(PortType.Thrust);
@@ -28,7 +29,8 @@ namespace Runtime.Structure.Rigging.Control
         private IDynamicStructure root;
         
         //[SerializeField] private List<PortPointer> cache;
-
+        
+        
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);

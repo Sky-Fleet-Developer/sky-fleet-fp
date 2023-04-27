@@ -4,7 +4,7 @@ using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Core.Structure.Wires
+namespace Core.Graph.Wires
 {
     [CreateAssetMenu(menuName = "Data/Ports colors data")]
     public class PortsColorsData : SingletonAsset<PortsColorsData>

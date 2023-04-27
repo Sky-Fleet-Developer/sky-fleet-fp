@@ -1,10 +1,11 @@
 using System.Collections.Generic;
-using Core.Structure.Wires;
+using Core.Graph;
+using Core.Graph.Wires;
 using UnityEngine;
 
 namespace Core.Structure.Rigging.Control
 {
-    public abstract class Computer : Block, IComputer
+    public abstract class Computer : BlockWithNode, IComputer
     {
 
         public PowerPort power = new PowerPort();

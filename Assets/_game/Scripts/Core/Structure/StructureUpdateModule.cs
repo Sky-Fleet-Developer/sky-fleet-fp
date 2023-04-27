@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.Character;
 using Core.Structure.Rigging;
 using Core.Utilities;
@@ -65,7 +66,7 @@ namespace Core.Structure
             {
                 float radius = str.Radius;
                 
-                float distToPlayer = (player.transform.position - str.position).sqrMagnitude;
+                float distToPlayer = (player.transform.position - str.transform.position).sqrMagnitude;
                 distToPlayer -= radius;
                 float[] distances = GameData.Data.sqrLodDistances;
                 for (int i = 0; i < distances.Length; i++)
@@ -81,7 +82,7 @@ namespace Core.Structure
             foreach (IControl t in Controls)
             {
                 IStructure str = t.Structure;
-                if (str.Active && str.enabled && t.IsUnderControl)
+                if (str.Active && t.IsUnderControl)
                 {
                     t.ReadInput();
                 }
@@ -91,7 +92,7 @@ namespace Core.Structure
             foreach (IPowerUser t in PowerUsers)
             {
                 IStructure str = t.Structure;
-                if (str.Active && str.enabled)
+                if (str.Active)
                 {
                     t.ConsumptionTick();
                 }
@@ -101,7 +102,7 @@ namespace Core.Structure
             foreach (IPowerUser t in PowerUsers)
             {
                 IStructure str = t.Structure;
-                if (str.Active && str.enabled)
+                if (str.Active)
                 {
                     t.PowerTick();
                 }
@@ -109,7 +110,7 @@ namespace Core.Structure
             foreach (IFuelUser t in FuelUsers)
             {
                 IStructure str = t.Structure;
-                if (str.Active && str.enabled)
+                if (str.Active)
                 {
                     t.FuelTick();
                 }
@@ -124,7 +125,7 @@ namespace Core.Structure
             for (int i = 0; i < ForceUsers.Count; i++)
             {
                 IStructure str = ForceUsers[i].Structure;
-                if (str.Active && str.enabled)
+                if (str.Active)
                 {
                     ForceUsers[i].ApplyForce();
                 }

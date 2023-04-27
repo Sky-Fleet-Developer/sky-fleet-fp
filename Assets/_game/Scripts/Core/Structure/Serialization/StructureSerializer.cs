@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;
@@ -17,11 +18,12 @@ namespace Core.Structure.Serialization
         
         public void PrepareForGameSerialization(State state)
         {
-            IEnumerable<IStructure> structures = CollectStructures();
+            IEnumerable<BaseStructure> structures = CollectStructures();
 
             Serializer serializer = StructureProvider.GetSerializer();
 
-            List<StructureBundle> bundles = serializer.GetBundlesFor(structures);
+            List<StructureBundle> bundles = structures.Select(x => new StructureBundle(x, serializer)).ToList();
+
         }
 
         public event Action OnDataWasSerialized;
@@ -34,26 +36,25 @@ namespace Core.Structure.Serialization
 
         }
 
-        private IEnumerable<IStructure> CollectStructures()
+        private IEnumerable<BaseStructure> CollectStructures()
         {
             return Application.isPlaying ? CollectInRuntime() : CollectInEditor();
         }
 
-        private IEnumerable<IStructure> CollectInRuntime()
+        private IEnumerable<BaseStructure> CollectInRuntime()
         {
-            return StructureUpdateModule.Structures.Clone();
+            for (int i = 0; i < StructureUpdateModule.Structures.Count; i++)
+            {
+                if (StructureUpdateModule.Structures[i] is BaseStructure baseStructure)
+                {
+                    yield return baseStructure;
+                }
+            }
         }
 
-        private IEnumerable<IStructure> CollectInEditor()
+        private IEnumerable<BaseStructure> CollectInEditor()
         {
-            List<IStructure> result = new List<IStructure>();
-
-            foreach (MonoBehaviour monobeh in Object.FindObjectsOfType<MonoBehaviour>())
-            {
-                if (monobeh is IStructure structure) result.Add(structure);
-            }
-
-            return result;
+            return Object.FindObjectsOfType<BaseStructure>();
         }
     }
 }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Core.Structure.Wires;
+using Core.Graph.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

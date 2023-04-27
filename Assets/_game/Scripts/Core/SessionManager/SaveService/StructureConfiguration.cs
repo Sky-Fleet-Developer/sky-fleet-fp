@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
-using Core.Structure.Wires;
 
 namespace Core.SessionManager.SaveService
 {
@@ -23,7 +24,7 @@ namespace Core.SessionManager.SaveService
             return value;
         }
 
-        public void ApplyWires(IWiresMaster wiresMaster)
+        public void ApplyWires(IGraph graph)
         {
             foreach (WireConfiguration wire in wires)
             {
@@ -31,10 +32,10 @@ namespace Core.SessionManager.SaveService
 
                 for (var i = 0; i < wire.ports.Count; i++)
                 {
-                    portsToConnect[i] = wiresMaster.GetPort(wire.ports[i]);
+                    portsToConnect[i] = graph.GetPort(wire.ports[i]);
                 }
 
-                wiresMaster.ConnectPorts(portsToConnect);
+                graph.ConnectPorts(portsToConnect);
             }
         }
     }

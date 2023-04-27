@@ -1,5 +1,5 @@
+using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
-using Core.Structure.Wires;
 
 namespace Core.Structure.Rigging.Control
 {

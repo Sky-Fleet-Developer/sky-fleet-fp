@@ -1,12 +1,12 @@
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Movement
 {
-    public class ThrusterTest : Block, IJet
+    public class ThrusterTest : BlockWithNode, IJet
     {
         public AnimationCurve thrustPerFuel;
         public AnimationCurve fuelPerThrottle;

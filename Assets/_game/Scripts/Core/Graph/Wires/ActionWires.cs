@@ -1,11 +1,8 @@
-
 using System;
 using System.Collections.Generic;
-using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
-using UnityEngine;
 
-namespace Core.Structure.Wires
+namespace Core.Graph.Wires
 {
     [ShowInInspector, InlineProperty(LabelWidth = 150)]
     public class ActionPort<T> : Port

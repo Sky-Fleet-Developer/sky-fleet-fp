@@ -1,7 +1,7 @@
 using System;
 using Core.Data.GameSettings;
+using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
-using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

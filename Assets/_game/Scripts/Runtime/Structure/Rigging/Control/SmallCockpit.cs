@@ -2,19 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
 using Core.Structure.Rigging.Control.Attributes;
-using Core.Structure.Wires;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class SmallCockpit : Block, IControl
+    public class SmallCockpit : BlockWithNode, IControl
     {
         //public float Durability => durability;
         //public ArmorData Armor => armor;
@@ -51,9 +52,10 @@ namespace Runtime.Structure.Rigging.Control
         {
             base.InitBlock(structure, parent);
             devices = GetComponentsInChildren<IDevice>();
+            structure.OnInitComplete.Subscribe(OnInitComplete);
         }
 
-        public override void OnInitComplete()
+        private void OnInitComplete()
         {
             CollectControlElements();
             foreach (IDevice device in devices)

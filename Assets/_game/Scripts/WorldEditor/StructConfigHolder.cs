@@ -1,5 +1,6 @@
 using Core;
 using Core.Game;
+using Core.Graph;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
@@ -49,7 +50,13 @@ namespace WorldEditor
         [Button]
         public void EditConfiguration()
         {
-            Selection.activeGameObject = GetComponentInChildren<IStructure>().transform.gameObject;
+            BaseStructure instance = GetComponentInChildren<BaseStructure>();
+            if (!instance)
+            {
+                Debug.LogError("Instantiate prefab at first!");
+                return;
+            }
+            Selection.activeGameObject = instance.transform.gameObject;
             WiresEditor.OpenWindow();
             WiresEditor.CurrentEditor.GetFomSelection();
         }
@@ -63,7 +70,7 @@ namespace WorldEditor
         [Button]
         private async void Instance()
         {
-            IStructure structure = GetComponentInChildren<IStructure>();
+            BaseStructure structure = GetComponentInChildren<BaseStructure>();
             if (structure == null)
             {
                 RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(configuration.bodyGuid);
@@ -85,10 +92,16 @@ namespace WorldEditor
 #endif
                 }
                 
-                structure = instance.GetComponent<IStructure>();
+                structure = instance.GetComponent<BaseStructure>();
             }
             await Factory.ApplyConfiguration(structure, configuration);
             structure.Init();
+            IGraph graph = structure.gameObject.GetComponent<IGraph>();
+            if (graph != null)
+            {
+                graph.InitGraph();
+                configuration.ApplyWires(graph);
+            }
         }
     }
 }

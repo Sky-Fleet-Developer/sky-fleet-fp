@@ -1,13 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Core.Structure.Rigging;
 using UnityEngine;
 
-namespace Core.Structure.Wires
+namespace Core.Graph.Wires
 {
-    public static partial class Utilities
+    public static class Utilities
     {
         private static List<System.Type> storageItemTypes;
 
@@ -38,23 +36,23 @@ namespace Core.Structure.Wires
             return storageItemTypes;
         }
         
-        public static void GetPortsDescriptions(IBlock block, ref List<IPortsContainer> container)
+        public static void GetPortsDescriptions(IGraphNode node, ref List<IPortsContainer> container)
         {
-            if (block is IMultiplePorts multiplePorts)
+            if (node is IMultiplePortsNode multiplePorts)
             {
-                Rigging.Utilities.GetPortsFromSpecialBlock(block.transform.name, multiplePorts, ref container);
+                Graph.GraphUtilities.GetPortsFromSpecialBlock(node.NodeId, multiplePorts, ref container);
             }
             else
             {
-                GetPortsFromBlock(block, ref container);
+                GetPortsFromBlock(node, ref container);
             }
         }
 
-        private static void GetPortsFromBlock(IBlock block, ref List<IPortsContainer> container)
+        private static void GetPortsFromBlock(IGraphNode node, ref List<IPortsContainer> container)
         {
-            FieldInfo[] fields = Factory.GetPortsInfo(block);
+            FieldInfo[] fields = GraphUtilities.GetPortsInfo(node);
             List<PortPointer> pointers = new List<PortPointer>();
-            Factory.GetAllPorts(block, ref pointers);
+            GraphUtilities.GetAllPorts(node, ref pointers);
             List<IPortsContainer> infos = new List<IPortsContainer>(fields.Length);
             
             for (var i = 0; i < pointers.Count; i++)
@@ -63,7 +61,7 @@ namespace Core.Structure.Wires
                 infos.Add(new PortInfo(pointers[i], $"{fields[i].Name}: {portName}"));
             }
             
-            container.Add(new PortsGroupContainer(block.transform.name, infos));
+            container.Add(new PortsGroupContainer(node.NodeId, infos));
         }
 
         private static string GetNameOf(Port port)
@@ -81,7 +79,7 @@ namespace Core.Structure.Wires
             return string.Empty;
         }
         
-        public static void CreateWireForPorts(IWiresMaster master, params PortPointer[] ports)
+        public static void CreateWireForPorts(IGraph master, params PortPointer[] ports)
         {
             int canConnect = 0;
             PortPointer zero = ports[0];
@@ -136,17 +134,17 @@ namespace Core.Structure.Wires
     public class PortsGroupContainer : IPortsContainer
     {
         private List<IPortsContainer> items;
-        private string blockName;
+        private string nodeId;
         public bool HasNestedValues => true;
-        public PortsGroupContainer(string blockName, List<IPortsContainer> items)
+        public PortsGroupContainer(string nodeId, List<IPortsContainer> items)
         {
             this.items = items;
-            this.blockName = blockName;
+            this.nodeId = nodeId;
         }
 
         public List<IPortsContainer> GetNestedValues() => items;
 
-        public string GetDescription() => blockName;
+        public string GetDescription() => nodeId;
 
         public Color GetColor() => Color.white;
         public PortPointer GetPort() => default;

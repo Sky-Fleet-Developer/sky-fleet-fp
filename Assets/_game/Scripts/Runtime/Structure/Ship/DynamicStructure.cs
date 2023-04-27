@@ -47,7 +47,7 @@ namespace Runtime.Structure.Ship
         {
             float mass = 0;
             Vector3 pos = Vector3.zero;
-            blocks.ForEach(x =>
+            Blocks.ForEach(x =>
             {
                 mass += x.Mass;
                 pos += x.transform.localPosition * x.Mass;

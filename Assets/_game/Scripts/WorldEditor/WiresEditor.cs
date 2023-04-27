@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Structure.Wires;
 using UnityEditor;
 using UnityEngine;
-using Utilities = Core.Structure.Wires.Utilities;
+using Utilities = Core.Graph.Wires.Utilities;
 
 #if UNITY_EDITOR
 namespace WorldEditor
@@ -21,11 +22,12 @@ namespace WorldEditor
             CurrentEditor = GetWindow<WiresEditor>();
         }
 
-        private IStructure selectedStructure;
-        private IStructure currentStructure;
+        private IGraph selectedGraph;
+        private IGraph currentGraph;
+        private Transform currentGraphTransform;
         private StructConfigHolder configHolder;
 
-        [SerializeField] private List<IBlock> blocks;
+        [SerializeField] private List<IGraphNode> nodes;
 
         //[SerializeField] private StructureConfiguration configuration = null;
         private List<IPortsContainer> portsDescriptions;
@@ -75,7 +77,7 @@ namespace WorldEditor
 
         private void SaveAndDestroyDialog()
         {
-            if (currentStructure == null || !configDirty) return;
+            if (currentGraph == null || !configDirty) return;
             if (EditorUtility.DisplayDialog("", "Save wires?", "Yes", "No"))
             {
                 WriteConfig();
@@ -84,9 +86,9 @@ namespace WorldEditor
 
         public void GetFomSelection()
         {
-            if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out IStructure structure))
+            if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out IGraph structure))
             {
-                var parent = structure.transform.parent;
+                Transform parent = Selection.activeTransform.parent;
                 if (parent)
                 {
                     configHolder = parent.GetComponent<StructConfigHolder>();
@@ -104,17 +106,18 @@ namespace WorldEditor
                     }
                 }
 
-                selectedStructure = structure;
+                currentGraphTransform = Selection.activeTransform;
+                selectedGraph = structure;
             }
         }
 
         private void OnGUI()
         {
-            if (selectedStructure == null) return;
+            if (selectedGraph == null) return;
 
             GUI.skin = MainSkin;
 
-            if (currentStructure == null)
+            if (currentGraph == null)
             {
                 CreateButton();
             }
@@ -147,22 +150,21 @@ namespace WorldEditor
         private void CreateButton()
         {
             GUILayout.Space(20);
-            EditorGUILayout.ObjectField(selectedStructure.transform, typeof(Transform), true);
+            EditorGUILayout.ObjectField(currentGraphTransform, typeof(Transform), true);
 
             if (GUILayout.Button("Edit configuration", GUILayout.Width(200)))
             {
-                currentStructure = selectedStructure;
+                currentGraph = selectedGraph;
 
-                currentStructure.RefreshBlocksAndParents();
-                currentStructure.InitBlocks();
+                currentGraph.InitGraph();
 
-                blocks = currentStructure.Blocks;
+                nodes = currentGraph.Nodes;
 
                 CreateArrays();
 
-                foreach (IBlock block in blocks)
+                foreach (IGraphNode node in nodes)
                 {
-                    Utilities.GetPortsDescriptions(block, ref portsDescriptions);
+                    Utilities.GetPortsDescriptions(node, ref portsDescriptions);
                 }
 
                 foreach (IPortsContainer portsContainer in portsDescriptions)
@@ -186,7 +188,7 @@ namespace WorldEditor
                     List<IPortsContainer> wire = new List<IPortsContainer>();
                     foreach (string portId in configWire.ports)
                     {
-                        var port = currentStructure.GetPort(portId);
+                        var port = currentGraph.GetPort(portId);
                         var container = FindContainerForPort(port);
                         wire.Add(container);
                     }
@@ -258,7 +260,7 @@ namespace WorldEditor
 
         private void DrawStructureBlocks()
         {
-            GUILayout.Box(currentStructure.GetType().Name);
+            GUILayout.Box(currentGraph.GetType().Name);
             GUILayout.Space(10);
             for (int i = 0; i < portsDescriptions.Count; i++)
             {
@@ -276,15 +278,12 @@ namespace WorldEditor
 
         private void WriteConfig()
         {
-            var configToSave = Factory.GetConfiguration(currentStructure);
+            MonoBehaviour monobeh = currentGraphTransform.gameObject.GetComponent<IStructure>() as MonoBehaviour;
+            Undo.RecordObject(monobeh, "Config");
             foreach (List<IPortsContainer> wire in wires)
             {
-                configToSave.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
+                configHolder.configuration.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
             }
-
-            MonoBehaviour monobeh = currentStructure.transform.gameObject.GetComponent<IStructure>() as MonoBehaviour;
-            Undo.RecordObject(monobeh, "Config");
-            configHolder.configuration = configToSave; //JsonConvert.SerializeObject(configToSave);
             EditorUtility.SetDirty(monobeh);
             configDirty = false;
         }

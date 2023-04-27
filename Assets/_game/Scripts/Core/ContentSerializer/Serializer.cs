@@ -41,10 +41,5 @@ namespace Core.ContentSerializer
         {
             return prefabs.Where(x => x != null).Select(x => new AssetBundle(x, this)).ToList();
         }
-
-        public List<StructureBundle> GetBundlesFor(IEnumerable<IStructure> structures)
-        {
-            return structures.Select(x => new StructureBundle(x, this)).ToList();
-        }
     }
 }
