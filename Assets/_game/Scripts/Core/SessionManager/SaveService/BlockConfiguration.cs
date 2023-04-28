@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Utilities;
 using UnityEngine;
 
 namespace Core.SessionManager.SaveService
@@ -66,6 +68,45 @@ namespace Core.SessionManager.SaveService
             transform.localScale = Vector3.one;
             transform.name = blockName;
             transform.SetSiblingIndex(sibilingIdx);
+        }
+
+        public async Task Instantiate(BaseStructure structure)
+        {
+            IBlock block = Factory.GetBlockByPath(path, blockName, structure);
+
+            if (block != null)
+            {
+                if (block.Guid != currentGuid)
+                {
+                    if (Application.isPlaying)
+                    {
+                        DynamicPool.Instance.Return(block.transform);
+                    }
+                    else
+                    {
+                        Object.DestroyImmediate(block.transform.gameObject);
+                    }
+                }
+                else
+                {
+                    ApplyPrimarySetup(block);
+                    return;
+                }
+            }
+
+            await Factory.InstantiateBlock(this, structure);
+        }
+        
+        public void ApplySetup(IBlock block)
+        {
+            PropertyInfo[] properties = Factory.GetBlockProperties(block);
+            for (int i = 0; i < properties.Length; i++)
+            {
+                if (TryGetSetup(properties[i].Name, out string value))
+                {
+                    Factory.ApplyProperty(block, properties[i], value);
+                }
+            }
         }
     }
 }

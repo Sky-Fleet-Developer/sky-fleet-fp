@@ -34,8 +34,9 @@ namespace Core.SessionManager.SaveService
             
 
             state.worldOffset = WorldOffset.Offset;
-            state.playerPos = Session.Instance.Player.transform.localPosition - WorldOffset.Offset;
-            state.playerRot = Session.Instance.Player.transform.localEulerAngles;
+            Transform playerTransform = Session.Instance.Player.transform;
+            state.playerPos = playerTransform.localPosition - WorldOffset.Offset;
+            state.playerRot = playerTransform.localEulerAngles;
 
             SaveToFile(state, path, name);
             Debug.Log("Session was saved successfully!");
@@ -47,8 +48,9 @@ namespace Core.SessionManager.SaveService
 
             //TODO: подождать пока загрузится сцена меню, если мы ещё не в ней
 
-            Session.Instance.Player.transform.localPosition = state.playerPos;
-            Session.Instance.Player.transform.localEulerAngles = state.playerRot;
+            Transform playerTransform = Session.Instance.Player.transform;
+            playerTransform.localPosition = state.playerPos;
+            playerTransform.localEulerAngles = state.playerRot;
             WorldOffset.Offset = state.worldOffset;
 
             List<System.Reflection.Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
@@ -77,26 +79,23 @@ namespace Core.SessionManager.SaveService
 
         private State LoadStateAtPath(string filePath)
         {
-
-            FileStream stream = new FileStream(filePath, FileMode.Open);
             State state = null;
-            try
+            using (FileStream stream = new FileStream(filePath, FileMode.Open))
             {
-                byte[] intBuffer = new byte[IntSize];
-                stream.Read(intBuffer, 0, IntSize);
-                int headerLength = BitConverter.ToInt32(intBuffer, 0);
-                stream.Seek(headerLength, SeekOrigin.Begin);
+                try
+                {
+                    byte[] intBuffer = new byte[IntSize];
+                    stream.Read(intBuffer, 0, IntSize);
+                    int headerLength = BitConverter.ToInt32(intBuffer, 0);
+                    stream.Seek(headerLength, SeekOrigin.Begin);
 
-                state = ReadStateJson(stream);
+                    state = ReadStateJson(stream);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
             }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
-
-
-
-            stream.Close();
 
             return state;
         }

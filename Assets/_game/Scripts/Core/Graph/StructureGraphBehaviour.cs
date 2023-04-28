@@ -72,10 +72,25 @@ namespace Core.Graph
                 if (existWire != null) break;
             }
 
-            if (existWire == null) Graph.Wires.Utilities.CreateWireForPorts(this, ports);
+            if (existWire == null) CreateWireForPorts(ports);
             else Graph.Wires.Utilities.AddPortsToWire(existWire, ports);
         }
 
+        private void CreateWireForPorts( params PortPointer[] ports)
+        {
+            int canConnect = 0;
+            PortPointer zero = ports[0];
+            for (int i = 1; i < ports.Length; i++)
+            {
+                if (zero.Port.CanConnect(ports[i].Port)) canConnect++;
+            }
+                
+            if(canConnect == 0) return;
+                
+            Wire newWire = zero.Port.CreateWire();
+            Wires.Utilities.AddPortsToWire(newWire, ports);
+            AddWire(newWire);
+        }
 
         private List<PortPointer> GetAllPorts()
         {

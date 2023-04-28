@@ -64,11 +64,11 @@ namespace WorldEditor
         
         private void Start()
         {
-            Bootstrapper.OnLoadComplete.Subscribe(Instance);
+            Bootstrapper.OnLoadComplete.Subscribe(InstantiateStructure);
         }
 
         [Button]
-        private async void Instance()
+        private async void InstantiateStructure()
         {
             BaseStructure structure = GetComponentInChildren<BaseStructure>();
             if (structure == null)
@@ -94,7 +94,7 @@ namespace WorldEditor
                 
                 structure = instance.GetComponent<BaseStructure>();
             }
-            await Factory.ApplyConfiguration(structure, configuration);
+            await configuration.ApplyConfiguration(structure);
             structure.Init();
             IGraph graph = structure.gameObject.GetComponent<IGraph>();
             if (graph != null)

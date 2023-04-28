@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure;
+using Core.Structure.Rigging;
+using UnityEngine;
 
 namespace Core.SessionManager.SaveService
 {
@@ -38,12 +42,56 @@ namespace Core.SessionManager.SaveService
                 graph.ConnectPorts(portsToConnect);
             }
         }
+        
+        public async Task ApplyConfiguration(BaseStructure structure)
+        {
+            if (structure.transform.gameObject.activeInHierarchy == false)
+            {
+                Debug.LogError("Apply configuration only to instances!");
+                return;
+            }
+
+            structure.RefreshBlocksAndParents();
+
+            List<Task> waiting = new List<Task>();
+            
+            foreach (BlockConfiguration blockConfiguration in blocks)
+            {
+                waiting.Add(blockConfiguration.Instantiate(structure));
+            }
+            
+            await Task.WhenAll(waiting);
+
+            
+            await Task.Yield();
+            structure.RefreshBlocksAndParents();
+            structure.InitBlocks();
+
+            foreach (IBlock block in structure.Blocks)
+            {
+                string path = Factory.GetPath(block);
+                BlockConfiguration blockConfig = GetBlock(path, block.transform.name);
+                blockConfig?.ApplySetup(block);
+            }
+
+            try
+            {
+                structure.InitBlocks();
+                
+                //structure.OnInitComplete.Invoke();
+                Debug.Log($"{structure.transform.name} configuration success!");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error when init structure: " + e);
+            }
+        }
     }
 
     [System.Serializable]
     public class WireConfiguration
     {
-        public List<string> ports = new List<string>();
+        public List<string> ports;
 
         public WireConfiguration(List<string> ports)
         {

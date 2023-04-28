@@ -55,7 +55,7 @@ namespace Core.Structure
             return properties.ToArray();
         }
 
-        private static void ApplyProperty(IBlock instance, PropertyInfo propery, string value)
+        public static void ApplyProperty(IBlock instance, PropertyInfo propery, string value)
         {
             Type type = propery.PropertyType;
             if (type == typeof(string))
@@ -96,77 +96,9 @@ namespace Core.Structure
                 }
             }
         }
+        
 
-        public static void ApplySetup(IBlock block, BlockConfiguration setup)
-        {
-            PropertyInfo[] properties = GetBlockProperties(block);
-            for (int i = 0; i < properties.Length; i++)
-            {
-                if (setup.TryGetSetup(properties[i].Name, out string value))
-                {
-                    ApplyProperty(block, properties[i], value);
-                }
-            }
-        }
-
-        public static async Task ApplyConfiguration(BaseStructure structure, StructureConfiguration configuration)
-        {
-            if (structure.transform.gameObject.activeInHierarchy == false)
-            {
-                Debug.LogError("Apply configuration only to instances!");
-                return;
-            }
-
-            structure.RefreshBlocksAndParents();
-
-
-            if (structure.Blocks.Count > 0)
-            {
-                await ReplaceExistBlocks(structure, configuration);
-            }
-            else
-            {
-                await InstanceBlocks(structure, configuration);
-            }
-
-            await Task.Yield();
-            structure.RefreshBlocksAndParents();
-            structure.InitBlocks();
-
-            foreach (IBlock block in structure.Blocks)
-            {
-                string path = GetPath(block);
-                BlockConfiguration blockConfig = configuration.GetBlock(path, block.transform.name);
-
-                if (blockConfig == null) continue;
-
-                ApplySetup(block, blockConfig);
-            }
-
-            try
-            {
-                structure.InitBlocks();
-                
-                //structure.OnInitComplete.Invoke();
-                Debug.Log($"{structure.transform.name} configuration success!");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Error when init structure: " + e);
-            }
-        }
-
-        private static Task InstanceBlocks(IStructure structure, StructureConfiguration configuration)
-        {
-            List<Task> waiting = new List<Task>();
-            foreach (BlockConfiguration config in configuration.blocks)
-            {
-                waiting.Add(InstantiateBlock(config, structure));
-            }
-            return Task.WhenAll(waiting);
-        }
-
-        private static async Task InstantiateBlock(BlockConfiguration configuration, IStructure structure)
+        public static async Task InstantiateBlock(BlockConfiguration configuration, IStructure structure)
         {
             for (int i = 0; i < 10; i++)
             {
@@ -198,48 +130,7 @@ namespace Core.Structure
                 break;
             }
         }
-
-        private static Task ReplaceExistBlocks(IStructure structure, StructureConfiguration configuration)
-        {
-            List<Task> waiting = new List<Task>();
-            for (int i = 0; i < structure.Blocks.Count; i++)
-            {
-                IBlock block = structure.Blocks[i];
-                string path = GetPath(block);
-                BlockConfiguration blockConfig = configuration.GetBlock(path,block.transform.name);
-
-                if (blockConfig == null) continue;
-
-                if (block.Guid != blockConfig.currentGuid)
-                {
-                    Task task = ReplaceBlock(structure, i, blockConfig);
-                    waiting.Add(task);
-                }
-                else
-                {
-                    blockConfig.ApplyPrimarySetup(block);
-                }
-            }
-
-            return Task.WhenAll(waiting);
-        }
-
-
-        public static async Task ReplaceBlock(IStructure structure, int blockIdx, BlockConfiguration configuration)
-        {
-            IBlock block = structure.Blocks[blockIdx];
-
-            await InstantiateBlock(configuration, structure);
-
-            if (Application.isPlaying)
-            {
-                DynamicPool.Instance.Return(block.transform);
-            }
-            else
-            {
-                Object.DestroyImmediate(block.transform.gameObject);
-            }
-        }
+        
 
         public static BlockConfiguration GetConfiguration(IBlock block)
         {
@@ -254,6 +145,22 @@ namespace Core.Structure
 
             return result;
         }*/
+        
+        public static IBlock GetBlockByPath(string path, string blockName, IStructure structure)
+        {
+            if (path.Length == 0)
+            {
+                return structure.Blocks.FirstOrDefault(x => x.transform.name == blockName);
+            }
+            for (int i = 0; i < structure.Parents.Count; i++)
+            {
+                if (structure.Parents[i].Path == path)
+                {
+                    return structure.Parents[i].Blocks.FirstOrDefault(x => x.transform.name == blockName);
+                }
+            }
+            return null;
+        } 
 
         public static string GetPath(IBlock block)
         {

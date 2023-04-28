@@ -31,11 +31,6 @@ namespace Core.Structure.Serialization
         {
         }
         
-        public void PrepareForGameSerialization(string serializationId)
-        {
-
-        }
-
         private IEnumerable<BaseStructure> CollectStructures()
         {
             return Application.isPlaying ? CollectInRuntime() : CollectInEditor();
