@@ -978,7 +978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0772be7108f9e194595f742880fc02b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  configuration:
+  blocksConfiguration:
     bodyGuid: 93cbead4-d7c3-47fb-b271-510007e82fb3
     blocks:
     - path: 
@@ -1073,6 +1073,7 @@ MonoBehaviour:
       localRotation: {x: -0, y: 0, z: 0}
       setupKeys: []
       setupValues: []
+  graphConfiguration:
     wires:
     - ports:
       - TestControlfd38eb0b-33d9-497f-9fc8-8c8f27efd26b
