@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core;
 using Core.Game;
 using Core.Graph;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 #if UNITY_EDITOR
@@ -16,7 +20,13 @@ namespace WorldEditor
 {
     public class StructConfigHolder : MonoBehaviour
     {
-        public StructureConfiguration configuration;
+        public StructureConfiguration blocksConfiguration;
+        public GraphConfiguration graphConfiguration;
+        public IEnumerable<Configuration> GetAllConfigs()
+        {
+            yield return blocksConfiguration;
+            yield return graphConfiguration;
+        }
         
 #if UNITY_EDITOR
         [MenuItem("Tools/Make config for structure")]
@@ -70,11 +80,31 @@ namespace WorldEditor
         [Button]
         private async void InstantiateStructure()
         {
-            BaseStructure structure = GetComponentInChildren<BaseStructure>();
-            if (structure == null)
+            GameObject root = await GetOrCreateRoot();
+            
+            foreach (Configuration config in GetAllConfigs())
             {
-                RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(configuration.bodyGuid);
-                GameObject source = await wantedBlock.LoadPrefab();
+                Type genericType = config.GetType().BaseType.GenericTypeArguments[0];
+                await config.TryApply(root.GetComponent(genericType));
+            }
+            
+            root.GetComponent<IStructure>().Init();
+            //TODO move to other class
+          /*  IGraph graph = structure.transform.gameObject.GetComponent<IGraph>();
+            if (graph != null)
+            {
+                graph.InitGraph();
+                configuration.ApplyWires(graph);
+            }*/
+        }
+
+        private async Task<GameObject> GetOrCreateRoot()
+        {
+            ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();
+            if (prefab == null)
+            {
+                RemotePrefabItem prefabItem = TablePrefabs.Instance.GetItem(blocksConfiguration.bodyGuid);
+                GameObject source = await prefabItem.LoadPrefab();
                 Transform instance;
 
                 if (Application.isPlaying)
@@ -91,17 +121,11 @@ namespace WorldEditor
                     instance = Instantiate(source.transform, transform);
 #endif
                 }
-                
-                structure = instance.GetComponent<BaseStructure>();
+
+                prefab = instance.GetComponent<ITablePrefab>();
             }
-            await configuration.ApplyConfiguration(structure);
-            structure.Init();
-            IGraph graph = structure.gameObject.GetComponent<IGraph>();
-            if (graph != null)
-            {
-                graph.InitGraph();
-                configuration.ApplyWires(graph);
-            }
+
+            return prefab.transform.gameObject;
         }
     }
 }

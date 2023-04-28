@@ -4,20 +4,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Graph;
 using Core.Graph.Wires;
-using Core.Structure;
 using Core.Structure.Rigging;
 using UnityEngine;
 
-namespace Core.SessionManager.SaveService
+namespace Core.Structure.Serialization
 {
     [System.Serializable]
-    public class StructureConfiguration
+    public class StructureConfiguration : Configuration<IStructure>
     {
         public string bodyGuid;
         public List<BlockConfiguration> blocks = new List<BlockConfiguration>();
-        public List<WireConfiguration> wires = new List<WireConfiguration>();
-        
+
         private Dictionary<string, BlockConfiguration> blocksCache;
+
+        public StructureConfiguration(IStructure structure) : base(structure)
+        {
+            bodyGuid = structure.Guid;
+            
+            for (int i = 0; i < structure.Blocks.Count; i++)
+            {
+                IBlock block = structure.Blocks[i];
+
+                blocks.Add(new BlockConfiguration(block));
+            }
+        }
         
         public BlockConfiguration GetBlock(string path, string blockName)
         {
@@ -27,23 +37,8 @@ namespace Core.SessionManager.SaveService
             
             return value;
         }
-
-        public void ApplyWires(IGraph graph)
-        {
-            foreach (WireConfiguration wire in wires)
-            {
-                PortPointer[] portsToConnect = new PortPointer[wire.ports.Count];
-
-                for (var i = 0; i < wire.ports.Count; i++)
-                {
-                    portsToConnect[i] = graph.GetPort(wire.ports[i]);
-                }
-
-                graph.ConnectPorts(portsToConnect);
-            }
-        }
         
-        public async Task ApplyConfiguration(BaseStructure structure)
+        public override async Task Apply(IStructure structure)
         {
             if (structure.transform.gameObject.activeInHierarchy == false)
             {
@@ -57,7 +52,7 @@ namespace Core.SessionManager.SaveService
             
             foreach (BlockConfiguration blockConfiguration in blocks)
             {
-                waiting.Add(blockConfiguration.Instantiate(structure));
+                waiting.Add(blockConfiguration.ApplyConfiguration(structure));
             }
             
             await Task.WhenAll(waiting);
@@ -69,7 +64,7 @@ namespace Core.SessionManager.SaveService
 
             foreach (IBlock block in structure.Blocks)
             {
-                string path = Factory.GetPath(block);
+                string path = block.GetPath();
                 BlockConfiguration blockConfig = GetBlock(path, block.transform.name);
                 blockConfig?.ApplySetup(block);
             }
@@ -77,25 +72,12 @@ namespace Core.SessionManager.SaveService
             try
             {
                 structure.InitBlocks();
-                
-                //structure.OnInitComplete.Invoke();
                 Debug.Log($"{structure.transform.name} configuration success!");
             }
             catch (Exception e)
             {
                 Debug.LogError("Error when init structure: " + e);
             }
-        }
-    }
-
-    [System.Serializable]
-    public class WireConfiguration
-    {
-        public List<string> ports;
-
-        public WireConfiguration(List<string> ports)
-        {
-            this.ports = ports;
         }
     }
 }

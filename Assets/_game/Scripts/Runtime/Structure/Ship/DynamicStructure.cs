@@ -26,10 +26,6 @@ namespace Runtime.Structure.Ship
         {
             rigidbody = GetComponent<Rigidbody>();
             base.Init();
-        }
-
-        protected override void OnFinishInit()
-        {
             RecalculateMass();
         }
 

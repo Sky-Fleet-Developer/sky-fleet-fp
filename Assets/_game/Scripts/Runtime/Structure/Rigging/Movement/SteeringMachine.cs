@@ -16,15 +16,6 @@ namespace Runtime.Structure.Rigging.Movement
 
         [SerializeField] private Vector3 rotationAxis = Vector3.up;
 
-        [ShowInInspector]
-        Transform Target
-        {
-            set
-            {
-                path = Factory.GetPath(value);
-            }
-        }
-
         [SerializeField] string path;
 
         Transform target;

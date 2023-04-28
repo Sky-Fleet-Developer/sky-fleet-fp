@@ -13,20 +13,6 @@ namespace Core.Structure.Rigging
         float Mass { get; }
     }
 
-    public interface IBlock : ITablePrefab, IMass
-    {
-        // ReSharper disable once InconsistentNaming
-        Vector3 localPosition { get; }
-        Parent Parent { get; }
-        IStructure Structure { get; }
-        string MountingType { get; }
-
-        void InitBlock(IStructure structure, Parent parent);
-        Bounds GetBounds();
-        string Save();
-        void Load(string value);
-    }
-    
     public interface IPowerUser : IBlock, IGraphNode
     {
         void ConsumptionTick();
@@ -39,12 +25,12 @@ namespace Core.Structure.Rigging
         float Consumption { get; }
         PowerPort Power { get; }
     }
-    
+
     public interface IFuelUser : IBlock, IGraphNode
     {
         void FuelTick();
     }
-    
+
     public interface IForceUser : IBlock
     {
         void ApplyForce();
@@ -94,15 +80,13 @@ namespace Core.Structure.Rigging
         void ReadInput();
         void LeaveControl(ICharacterController controller);
     }
-    
+
     public interface IComputer : IMultiplePortsNode, IUpdatableBlock, IConsumer
     {
-
     }
 
     public interface IGyroscope : IUpdatableBlock, IConsumer
     {
-        
     }
 
     public interface IFuelPowerGenerator : IFuelUser, IPowerUser
@@ -122,7 +106,6 @@ namespace Core.Structure.Rigging
 
     public interface ISupport : IPowerUser, IForceUser
     {
-        
     }
 
     public interface ITank : IStorage, IFuelUser
@@ -144,15 +127,13 @@ namespace Core.Structure.Rigging
         public bool attachAndLock;
         public DOTweenTransition transition;
     }
+
     [System.Serializable]
     public struct CharacterDetachhData
     {
         public Transform anchor;
         public DOTweenTransition transition;
     }
-    
-
-
 
 
     [System.Serializable]

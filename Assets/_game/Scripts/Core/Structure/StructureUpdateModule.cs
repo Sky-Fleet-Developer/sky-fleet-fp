@@ -62,7 +62,7 @@ namespace Core.Structure
         {
             DeltaTime = Time.deltaTime;
             FirstPersonController player = Session.Instance.Player;
-            foreach (IStructure str in Structures)
+            /*foreach (IStructure str in Structures)
             {
                 float radius = str.Radius;
                 
@@ -78,7 +78,7 @@ namespace Core.Structure
                     }
                 }
 
-            }
+            }*/
             foreach (IControl t in Controls)
             {
                 IStructure str = t.Structure;

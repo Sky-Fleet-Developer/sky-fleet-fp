@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.CustomSerializers;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using Sirenix.Utilities;
 using UnityEngine;
 
@@ -74,7 +75,6 @@ namespace Core.ContentSerializer.Providers
             new Dictionary<System.Type, ICustomSerializer>
             {
                 {typeof(Transform), new TransformSerializer()},
-                {typeof(IBlock), new IBlockSerializer()},
                 {typeof(Rigidbody), new RigidbodySerializer()},
             };
     }

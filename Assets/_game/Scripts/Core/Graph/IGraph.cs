@@ -9,7 +9,8 @@ namespace Core.Graph
         void AddWire(Wire wire);
         PortPointer GetPort(string id);
         void ConnectPorts(params PortPointer[] ports);
-        List<IGraphNode> Nodes { get; }
+        IEnumerable<IGraphNode> Nodes { get; }
+        IEnumerable<Wire> Wires { get; }
     }
 
     public interface IGraphNode

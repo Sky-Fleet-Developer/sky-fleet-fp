@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -21,13 +23,13 @@ namespace Core.ContentSerializer.Bundles
             
         }
         
-        public StructureBundle(BaseStructure structure, ISerializationContext context)
+        public StructureBundle(IStructure structure, ISerializationContext context)
         {
             if(structure.Blocks == null || structure.Blocks.Count == 0) structure.RefreshBlocksAndParents();
             
             Transform tr = structure.transform;
             
-            configuration = JsonConvert.SerializeObject(Factory.GetConfiguration(structure));
+            configuration = JsonConvert.SerializeObject(new StructureConfiguration(structure));
             guid = structure.Guid;
             name = tr.name;
 

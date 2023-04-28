@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.Explorer.Content;
+using Core.Structure;
 using Core.Structure.Rigging;
 using Core.UiStructure;
 using Core.UIStructure.Utilities;

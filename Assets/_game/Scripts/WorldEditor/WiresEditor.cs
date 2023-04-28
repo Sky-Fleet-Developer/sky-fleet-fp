@@ -5,6 +5,7 @@ using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using UnityEditor;
 using UnityEngine;
 using Utilities = Core.Graph.Wires.Utilities;
@@ -146,7 +147,6 @@ namespace WorldEditor
             selectedPorts = new List<IPortsContainer>();
         }
 
-        //New
         private void CreateButton()
         {
             GUILayout.Space(20);
@@ -158,7 +158,7 @@ namespace WorldEditor
 
                 currentGraph.InitGraph();
 
-                nodes = currentGraph.Nodes;
+                nodes = currentGraph.Nodes.ToList();
 
                 CreateArrays();
 
@@ -178,12 +178,7 @@ namespace WorldEditor
                 }
 
 
-                //if (!string.IsNullOrEmpty())
-                //{
-                StructureConfiguration config = configHolder.configuration;
-                //JsonConvert.DeserializeObject<StructureConfiguration>(currentStructure.Configuration);
-
-                foreach (WireConfiguration configWire in config.wires)
+                foreach (WireConfiguration configWire in configHolder.graphConfiguration.wires)
                 {
                     List<IPortsContainer> wire = new List<IPortsContainer>();
                     foreach (string portId in configWire.ports)
@@ -195,7 +190,6 @@ namespace WorldEditor
 
                     wires.Add(wire);
                 }
-                //}
             }
         }
 
@@ -282,7 +276,7 @@ namespace WorldEditor
             Undo.RecordObject(monobeh, "Config");
             foreach (List<IPortsContainer> wire in wires)
             {
-                configHolder.configuration.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
+                configHolder.graphConfiguration.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
             }
             EditorUtility.SetDirty(monobeh);
             configDirty = false;

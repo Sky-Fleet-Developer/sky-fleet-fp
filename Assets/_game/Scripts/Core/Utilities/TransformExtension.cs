@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Core.Utilities
@@ -28,6 +29,20 @@ namespace Core.Utilities
         {
             transform.gameObject.layer = layer;
             foreach (Transform hit in transform) hit.ApplyLayer(layer);
+        }
+        
+        public static string GetPath(this Transform transform, Transform root = null)
+        {
+            string result = string.Empty;
+            Transform tr = transform;
+            for(int i = 0; i < 10; i++)
+            {
+                if(!tr || tr == root) break;
+                result = tr.name + "/" + result;
+                tr = tr.parent;
+            }
+
+            return result;
         }
     }
 }

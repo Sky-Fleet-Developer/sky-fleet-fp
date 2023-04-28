@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Core.Graph.Wires;
 using Core.Structure;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 
 namespace Core.Graph
@@ -13,12 +10,14 @@ namespace Core.Graph
     public class StructureGraphBehaviour : MonoBehaviour, IGraph
     {
         private IStructure structure;
-        [ShowInInspector] private List<Wire> wires = new List<Wire>();
         private Dictionary<string, PortPointer> portsCache;
         private List<PortPointer> portsPointersCache;
-        public List<IGraphNode> Nodes { get; private set; }
+        public List<IGraphNode> nodes = new List<IGraphNode>();
+        [ShowInInspector] public List<Wire> wires = new List<Wire>();
 
-        
+        public IEnumerable<IGraphNode> Nodes => nodes;
+        public IEnumerable<Wire> Wires => wires;
+        private bool initialized = false;
         private void Awake()
         {
             structure ??= GetComponent<IStructure>();
@@ -27,8 +26,10 @@ namespace Core.Graph
 
         public void InitGraph()
         {
+            if(initialized) return;
+            
             structure ??= GetComponent<IStructure>();
-            Nodes = new List<IGraphNode>();
+            
             portsCache = new Dictionary<string, PortPointer>();
             if (structure == null)
             {
@@ -40,10 +41,12 @@ namespace Core.Graph
             {
                 if (structure.Blocks[i] is IGraphNode node)
                 {
-                    Nodes.Add(node);
+                    nodes.Add(node);
                     node.InitNode(this);
                 }
             }
+
+            initialized = true;
         }
 
         public void AddWire(Wire wire)
@@ -88,14 +91,14 @@ namespace Core.Graph
             if(canConnect == 0) return;
                 
             Wire newWire = zero.Port.CreateWire();
-            Wires.Utilities.AddPortsToWire(newWire, ports);
+            Graph.Wires.Utilities.AddPortsToWire(newWire, ports);
             AddWire(newWire);
         }
 
         private List<PortPointer> GetAllPorts()
         {
             List<PortPointer> result = new List<PortPointer>();
-            foreach (IGraphNode structureBlock in Nodes)
+            foreach (IGraphNode structureBlock in nodes)
             {
                 GraphUtilities.GetAllPorts(structureBlock, ref result);
             }

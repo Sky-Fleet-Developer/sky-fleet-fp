@@ -50,15 +50,6 @@ namespace Core.Structure.Rigging
             boundsCash.center = parent.Transform.InverseTransformPoint(boundsCash.center);
         }
 
-        public string Save()
-        {
-            return string.Empty;
-        }
-
-        public void Load(string value)
-        {
-        }
-
         private void Start()
         {
         }

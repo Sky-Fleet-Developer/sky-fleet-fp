@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
+using UnityEditor;
 using UnityEngine;
 
-namespace Core.SessionManager.SaveService
+namespace Core.Structure.Serialization
 {
     [System.Serializable]
     public class BlockConfiguration
@@ -22,15 +23,15 @@ namespace Core.SessionManager.SaveService
         [SerializeField] private List<string> setupKeys = new List<string>();
         [SerializeField] private List<string> setupValues = new List<string>();
 
-        public BlockConfiguration(IBlock block, string path)
+        public BlockConfiguration(IBlock block)
         {
-            this.path = path;
+            path = block.GetPath();
             blockName = block.transform.name;
             sibilingIdx = block.transform.GetSiblingIndex();
             currentGuid = block.Guid;
             localPosition = block.transform.localPosition;
             localRotation = block.transform.localEulerAngles;
-            PropertyInfo[] properties = Factory.GetBlockProperties(block);
+            PropertyInfo[] properties = block.GetProperties();
 
             for (int i = 0; i < properties.Length; i++)
             {
@@ -70,9 +71,9 @@ namespace Core.SessionManager.SaveService
             transform.SetSiblingIndex(sibilingIdx);
         }
 
-        public async Task Instantiate(BaseStructure structure)
+        public async Task ApplyConfiguration(IStructure structure)
         {
-            IBlock block = Factory.GetBlockByPath(path, blockName, structure);
+            IBlock block = structure.GetBlockByPath(path, blockName);
 
             if (block != null)
             {
@@ -86,25 +87,62 @@ namespace Core.SessionManager.SaveService
                     {
                         Object.DestroyImmediate(block.transform.gameObject);
                     }
-                }
-                else
-                {
-                    ApplyPrimarySetup(block);
-                    return;
+                    block = await Instantiate(structure);
                 }
             }
+            else
+            {
+                block = await Instantiate(structure);
+            }
+            
+            ApplyPrimarySetup(block);
+        }
 
-            await Factory.InstantiateBlock(this, structure);
+        private async Task<IBlock> Instantiate(IStructure structure)
+        {
+            Parent parent = null;
+            for (int i = 0; i < 10; i++)
+            {
+                parent = structure.Parents.FirstOrDefault(x => x.Path == path);
+                if (parent == null)
+                {
+                    await Task.Yield();
+                    continue;
+                }
+                break;
+            }
+            
+            if(parent == null) return null;
+            
+            RemotePrefabItem wantedBlock = TablePrefabs.Instance.GetItem(currentGuid);
+            GameObject source = await wantedBlock.LoadPrefab();
+            Transform instance;
+
+            if (Application.isPlaying)
+            {
+                instance = DynamicPool.Instance.Get(source.transform, parent.Transform);
+            }
+            else
+            {
+#if UNITY_EDITOR
+                instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
+                instance.SetParent(parent.Transform, false);
+#else
+                instance = Object.Instantiate(source.transform, parent.Transform);
+#endif
+            }
+
+            return instance.GetComponent<IBlock>();
         }
         
         public void ApplySetup(IBlock block)
         {
-            PropertyInfo[] properties = Factory.GetBlockProperties(block);
+            PropertyInfo[] properties = block.GetProperties();
             for (int i = 0; i < properties.Length; i++)
             {
                 if (TryGetSetup(properties[i].Name, out string value))
                 {
-                    Factory.ApplyProperty(block, properties[i], value);
+                    block.ApplyProperty(properties[i], value);
                 }
             }
         }

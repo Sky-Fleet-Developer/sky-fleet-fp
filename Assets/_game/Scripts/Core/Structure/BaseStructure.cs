@@ -15,7 +15,7 @@ using Object = UnityEngine.Object;
 
 namespace Core.Structure
 {
-    public abstract class BaseStructure : MonoBehaviour, IStructure, ITablePrefab
+    public abstract class BaseStructure : MonoBehaviour, IStructure
     {
         [ShowInInspector]
         public string Guid
@@ -76,25 +76,11 @@ namespace Core.Structure
         {
             RefreshBlocksAndParents();
             InitBlocks();
+            CalculateStructureRadius();
             OnInitComplete.Invoke();
             StructureUpdateModule.RegisterStructure(this);
-            OnFinishInit();
-
             initialized = true;
         }
-
-        protected virtual void OnFinishInit()
-        {
-            CalculateStructureRadius();
-        }
-
-        /*private async Task ApplyConfigurationAndRegister()
-        {
-            currentConfiguration = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
-            await Factory.ApplyConfiguration(this, currentConfiguration);
-            StructureUpdateModule.RegisterStructure(this);
-            OnFinishInit();
-        }*/
 
         protected void OnDestroy()
         {
@@ -106,7 +92,7 @@ namespace Core.Structure
         {
             foreach (IBlock block in Blocks)
             {
-                block.InitBlock(this, GetParentFor(block));
+                block.InitBlock(this, this.GetParentFor(block));
             }
         }
 
@@ -161,30 +147,7 @@ namespace Core.Structure
             blocksCache.Add(type, arr as IBlock[]);
             return arr;
         }
-
-        public Parent GetParentFor(IBlock block)
-        {
-            for (int i = 0; i < parents.Count; i++)
-            {
-                if (block.transform.parent == parents[i].Transform)
-                {
-                    return parents[i];
-                }
-            }
-
-            return null;
-        }
-
-
-
-        public virtual void UpdateStructureLod(int lod, Vector3 cameraPos)
-        {
-            foreach(IUpdatableBlock block in GetBlocksByType<IUpdatableBlock>())
-            {
-                block.UpdateBlock(lod);
-            }
-        }
-
+        
         public void CalculateStructureRadius()
         {
             Bounds allB = new Bounds(transform.position, Vector3.zero);
