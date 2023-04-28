@@ -59,12 +59,10 @@ namespace Core.Structure
         [ShowInInspector] public List<IBlock> Blocks { get; private set; }
 
         public Transform[] parentsObjects;
-        protected List<Parent> parents = null;
-        //protected StructureConfiguration currentConfiguration;
+
+        private List<Parent> parents = null;
         private bool initialized = false;
-
-        private Dictionary<System.Type, IBlock[]> blocksCache;
-
+        
 
         protected virtual void Awake()
         {
@@ -76,6 +74,7 @@ namespace Core.Structure
         {
             RefreshBlocksAndParents();
             InitBlocks();
+            this.AddBlocksCache();
             CalculateStructureRadius();
             OnInitComplete.Invoke();
             StructureUpdateModule.RegisterStructure(this);
@@ -85,6 +84,7 @@ namespace Core.Structure
         protected void OnDestroy()
         {
             StructureUpdateModule.DestroyStructure(this);
+            this.RemoveBlocksCache();
         }
 
         [Button]
@@ -95,25 +95,20 @@ namespace Core.Structure
                 block.InitBlock(this, this.GetParentFor(block));
             }
         }
-
-        private void ClearBlocksCache()
-        {
-            blocksCache = null;
-        }
         
         public void RefreshBlocksAndParents()
         {
             RefreshBlocks();
             InitParents();
         }
-        
-        public void RefreshBlocks()
+
+        private void RefreshBlocks()
         {
-            ClearBlocksCache();
+            this.TryClearBlocksCache();
             Blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
         }
 
-        public void InitParents()
+        private void InitParents()
         {
             if (parentsObjects != null)
             {
@@ -128,30 +123,10 @@ namespace Core.Structure
         }
 
 
-        public T[] GetBlocksByType<T>() where T : IBlock
-        {
-            if (blocksCache == null) blocksCache = new Dictionary<System.Type, IBlock[]>();
-            System.Type type = typeof(T);
-            if (blocksCache.TryGetValue(type, out IBlock[] val)) return val as T[];
-
-            List<T> selection = new List<T>();
-            for (int i = 0; i < Blocks.Count; i++)
-            {
-                if (Blocks[i] is T block)
-                {
-                    selection.Add(block);
-                }
-            }
-
-            T[] arr = selection.ToArray();
-            blocksCache.Add(type, arr as IBlock[]);
-            return arr;
-        }
-        
-        public void CalculateStructureRadius()
+        private void CalculateStructureRadius()
         {
             Bounds allB = new Bounds(transform.position, Vector3.zero);
-            foreach (IBlock block in GetBlocksByType<IUpdatableBlock>())
+            foreach (IUpdatableBlock block in this.GetBlocksByType<IUpdatableBlock>())
             {
                 allB.Encapsulate(block.GetBounds());
             }

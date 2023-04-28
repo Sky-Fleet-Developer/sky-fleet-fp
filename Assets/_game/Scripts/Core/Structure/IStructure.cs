@@ -18,7 +18,6 @@ namespace Core.Structure
         //TODO: Visibility
         List<Parent> Parents { get; }
         List<IBlock> Blocks { get; }
-        T[] GetBlocksByType<T>() where T : IBlock;
         LateEvent OnInitComplete { get; }
         //TODO: Navigation
 
@@ -67,6 +66,47 @@ namespace Core.Structure
             }
 
             return null;
+        }
+
+        private static Dictionary<IStructure, Dictionary<System.Type, IBlock[]>> blocksCache =
+            new Dictionary<IStructure, Dictionary<Type, IBlock[]>>();
+
+
+        public static void AddBlocksCache(this IStructure structure)
+        {
+            blocksCache.Add(structure, new Dictionary<Type, IBlock[]>());
+        }
+
+        public static void RemoveBlocksCache(this IStructure structure)
+        {
+            blocksCache.Remove(structure);
+        }
+
+        public static void TryClearBlocksCache(this IStructure structure)
+        {
+            if (blocksCache.ContainsKey(structure))
+            {
+                blocksCache[structure].Clear();
+            }
+        }
+        
+        public static T[] GetBlocksByType<T>(this IStructure structure) where T : IBlock
+        {
+            System.Type type = typeof(T);
+            if (blocksCache[structure].TryGetValue(type, out IBlock[] val)) return val as T[];
+
+            List<T> selection = new List<T>();
+            for (int i = 0; i < structure.Blocks.Count; i++)
+            {
+                if (structure.Blocks[i] is T block)
+                {
+                    selection.Add(block);
+                }
+            }
+
+            T[] arr = selection.ToArray();
+            blocksCache[structure].Add(type, arr as IBlock[]);
+            return arr;
         }
     }
 }
