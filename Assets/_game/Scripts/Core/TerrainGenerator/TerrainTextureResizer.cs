@@ -233,13 +233,18 @@ namespace Core.TerrainGenerator
         }
 
         [Button]
-        private void SyncOriginalNeighbors()
+        private void SyncOriginalNeighborsBtn()
         {
             Awake();
+            SyncOriginalNeighbors();
+        }
+
+        private void SyncOriginalNeighbors()
+        {
             if (TryGetDirectory(out DirectoryInfo directory)) return;
             foreach (FormatContainer formatContainer in formats)
             {
-                if(!formatContainer.enabled || string.IsNullOrEmpty(formatContainer.originalFormat.format)) continue;
+                if (!formatContainer.enabled || string.IsNullOrEmpty(formatContainer.originalFormat.format)) continue;
 
                 Dictionary<Vector2Int, string> paths = formatContainer.originalFormat.SearchInFolder(directory.FullName);
                 Worker worker = workers[formatContainer.originalFormat.extension];
@@ -249,13 +254,18 @@ namespace Core.TerrainGenerator
         }
 
         [Button]
-        private void CutOriginal()
+        private void CutOriginalBtn()
         {
             Awake();
+            CutOriginal();
+        }
+
+        private void CutOriginal()
+        {
             if (TryGetDirectory(out DirectoryInfo directory)) return;
             foreach (FormatContainer formatContainer in formats)
             {
-                if(!formatContainer.enabled || string.IsNullOrEmpty(formatContainer.originalFormat.format)) continue;
+                if (!formatContainer.enabled || string.IsNullOrEmpty(formatContainer.originalFormat.format)) continue;
 
                 string directoryName = directory.FullName;
                 Dictionary<Vector2Int, string> paths = formatContainer.originalFormat.SearchInFolder(directoryName);

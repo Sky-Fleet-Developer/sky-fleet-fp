@@ -32,7 +32,7 @@ namespace Core.SessionManager.GameProcess
             else
             {
                 _initialized = true;
-
+                DontDestroyOnLoad(gameObject);
                 string pathBase = PathStorage.GetPathToLogs();
                 if (!Directory.Exists(pathBase))
                 {

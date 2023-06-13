@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   container: {fileID: 11400000}
   formatMap:
-    format: 10x10-8x8Height_div2_{x}-{y}
+    format: 10x10-8x8Height_{x}-{y}
     extension: r16
 --- !u!114 &-1368039965201892930
 MonoBehaviour:
@@ -34,7 +34,7 @@ MonoBehaviour:
   layerMaskProperty: _LayerMaskMap
   blitShader: {fileID: 7200000, guid: ca86cc731d7c8a14d84cea50dd9051c1, type: 3}
   splatmapFormats:
-  - format: 10x10-8x8Ch_1_div2_{x}-{y}
+  - format: 10x10-8x8Ch_1_{x}-{y}
     extension: png
 --- !u!114 &11400000
 MonoBehaviour:
@@ -50,10 +50,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetDirectory: 10x10-8x8
   material: {fileID: 2100000, guid: 8c7157b6424ca0b4fa88c766adc1682e, type: 2}
-  chunkSize: 900
+  chunkSize: 1800
   height: 2625
-  heightmapResolution: 128
-  alphamapResolution: 129
+  heightmapResolution: 256
+  alphamapResolution: 257
   visibleDistance: 400
   chunksRefreshDistance: 50
   settings:

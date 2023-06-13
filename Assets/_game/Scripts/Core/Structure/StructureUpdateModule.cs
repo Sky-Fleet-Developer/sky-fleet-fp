@@ -115,7 +115,14 @@ namespace Core.Structure
                     t.FuelTick();
                 }
             }
-
+            foreach (IUpdatableBlock t in Updatables)
+            {
+                IStructure str = t.Structure;
+                if (str.Active)
+                {
+                    t.UpdateBlock(0);
+                }
+            }
         }
 
         private void FixedUpdate()

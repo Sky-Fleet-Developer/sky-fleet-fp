@@ -599,7 +599,7 @@ MonoBehaviour:
     cutChunksFormat:
       format: 10x10-8x8Ch_1_div2_{x}-{y}
       extension: png
-    shader: {fileID: 7200000, guid: c015f54267923954fbe8a0ad23a2bcb1, type: 3}
+    shader: {fileID: 7200000, guid: 0111d3e445f7e804a88b07b0cf74e664, type: 3}
   compressionRatio: 4
 --- !u!1 &7253911849314168398
 GameObject:

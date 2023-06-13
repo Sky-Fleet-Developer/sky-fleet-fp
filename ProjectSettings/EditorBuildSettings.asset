@@ -5,14 +5,17 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/_game/Scenes/Menu.unity
     guid: 7fb188eadcc9ee446bc744b23e089a1b
-  - enabled: 1
+  - enabled: 0
     path: Assets/_game/Scenes/Game.unity
     guid: fbbbde073e705fe4d88057f181eff25c
-  - enabled: 1
+  - enabled: 0
     path: Assets/_game/Scenes/TempScene.unity
     guid: 9b5ba790b556de440b8659cfe3aa09f2
+  - enabled: 1
+    path: Assets/_game/Scenes/TerrainGenerator.unity
+    guid: f1a3828c75fc00842b2772fc098d3215
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 58c59921c31793843b7d0f7dfa070d72, type: 2}
