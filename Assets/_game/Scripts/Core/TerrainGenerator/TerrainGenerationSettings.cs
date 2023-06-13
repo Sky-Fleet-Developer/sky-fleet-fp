@@ -24,6 +24,7 @@ namespace Core.TerrainGenerator
         [Space(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private List<ChannelSettings> settings;
+        public ComputeShader blitArrayToTexShader;
 
 
         public DirectoryInfo directory;

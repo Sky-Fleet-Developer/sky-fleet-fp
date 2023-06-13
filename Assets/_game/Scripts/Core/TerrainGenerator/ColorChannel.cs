@@ -69,12 +69,12 @@ namespace Core.TerrainGenerator
 
         private void Blit()
         {
-            int kernelHandle = blitShader.FindKernel("Blit");
+            int kernelHandle = blitShader.FindKernel("BlitRGBA");
             using (ComputeBuffer buffer = new ComputeBuffer(Chunk.ColorMapResolution * Chunk.ColorMapResolution * layersCount, sizeof(float)))
             {
                 buffer.SetData(GetLastLayer());
                 blitShader.SetBuffer(kernelHandle, "input", buffer);
-                blitShader.SetTexture(kernelHandle, "result", texture);
+                blitShader.SetTexture(kernelHandle, "resultRGBA", texture);
                 blitShader.SetInt("resolution", Chunk.ColorMapResolution);
                 blitShader.SetInt("layersCount", layersCount);
                 blitShader.Dispatch(kernelHandle, 

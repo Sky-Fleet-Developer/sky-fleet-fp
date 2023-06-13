@@ -1,12 +1,13 @@
-#pragma kernel Blit
+#pragma kernel BlitRGBA
 
 StructuredBuffer<float> input;
-RWTexture2D<float4> result;
+RWTexture2D<float4> resultRGBA;
+RWTexture2D<float> resultR16;
 int resolution;
 int layersCount;
 
 [numthreads(8, 8, 1)]
-void Blit (uint3 id : SV_DispatchThreadID)
+void BlitLayered (uint3 id : SV_DispatchThreadID)
 {
     const int idx = (id.x + id.y * resolution) * layersCount;
     float4 color = float4(0,0,0,1);
@@ -14,5 +15,14 @@ void Blit (uint3 id : SV_DispatchThreadID)
     {
         color[i] = input[idx + i];
     }
-    result[id.xy] = color;
+    resultRGBA[id.xy] = color;
+}
+
+#pragma kernel BlitR16
+
+[numthreads(8, 8, 1)]
+void BlitR16 (uint3 id : SV_DispatchThreadID)
+{
+    const int idx = id.x + id.y * resolution;
+    resultR16[id.xy] = input[idx];
 }
