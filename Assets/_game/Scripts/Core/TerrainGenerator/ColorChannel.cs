@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Core.TerrainGenerator.Settings;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public class ColorChannel : DeformationChannel<float[], ColorMapDeformerModule>
     {
+        private static readonly Semaphore Semaphore = new Semaphore(3, 3);
+        private static Utilities.AsyncThreadDelegate<float[]> _readWorker = new Utilities.AsyncThreadDelegate<float[]>(Semaphore);
         [ShowInInspector, ReadOnly] public Chunk Chunk { get; private set; }
         private readonly int layersCount;
         private readonly bool normalizeAlphamap;
@@ -107,31 +110,59 @@ namespace Core.TerrainGenerator
         private async Task LoadAndApply(string path, int index)
         {
             if(path == null) return;
-            deformationLayersCache.Add(LoadAtPath(path));
-            await Task.Yield();
+            //deformationLayersCache.Add(LoadAtPath(path));
+            deformationLayersCache.Add(await _readWorker.RunAsync(() => LoadAtPath(path)));
+        }
+        
+        private byte GetColorChannel(System.Drawing.Color value, int channelIdx)
+        {
+            switch (channelIdx)
+            {
+                case 0: return value.R;
+                case 1: return value.G;
+                case 2: return value.B;
+                default: return value.A;
+            }
         }
         
         private float[] LoadAtPath(string path) // TODO: get texture in edit-mode
         {
-            int res = Chunk.ColorMapResolution;
-            Texture2D tex = new Texture2D(res, res);
-            PNGReader.ReadPNG(path, tex);
-            float[] result = new float[res * res * layersCount];
-            Color[] pixels = tex.GetPixels();
-            
-            for (int u = 0; u < res; u++)
+            const float divider = 1f / 255f;
+            using (Bitmap bitmap = new Bitmap(path))
             {
-                for (int v = 0; v < res; v++)
+                int resolution = bitmap.Width;
+                float[] result = new float[resolution * resolution * layersCount];
+                for (int u = 0; u < resolution; u++)
                 {
-                    Color pixel = pixels[u + v * res];
+                    for (int v = 0; v < resolution; v++)
+                    {
+                        System.Drawing.Color pixel = bitmap.GetPixel(u, resolution - v - 1);
+                        for (int w = 0; w < layersCount; w++)
+                        {
+                            result[(u + v * resolution) * layersCount + w] = GetColorChannel(pixel, w) * divider;
+                        }
+                    }
+                }
+
+                return result;
+            }
+            /*PNGReader.ReadPNG(path, cacheTexture);
+            float[] result = new float[resolution * resolution * layersCount];
+            Color[] pixels = cacheTexture.GetPixels();
+            
+            for (int u = 0; u < resolution; u++)
+            {
+                for (int v = 0; v < resolution; v++)
+                {
+                    Color pixel = pixels[u + v * resolution];
                     for (int w = 0; w < layersCount; w++)
                     {
-                        result[(u + v * res) * layersCount + w] = pixel[w];
+                        result[(u + v * resolution) * layersCount + w] = pixel[w];
                     }
                 }
             }
 
-            return result;
+            return result;*/
         }
 
         private async Task<Texture2D> ApplyInBuild(string path)

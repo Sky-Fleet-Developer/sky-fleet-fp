@@ -28,7 +28,7 @@ namespace Core.TerrainGenerator
         {
             float debugTime = Time.realtimeSinceStartup;
             Debug.Log("TIMING: begin read tex " + path);
-            deformationLayersCache.Add(path != null ? await RawReader.ReadRaw16Async(path) : new float[resolution + 1, resolution + 1]);
+            deformationLayersCache.Add(path != null ? await RawReader.ReadAsync(path) : new float[resolution + 1, resolution + 1]);
             Debug.Log("TIMING: end read tex " + (Time.realtimeSinceStartup - debugTime));
             loading.SetResult(true);
         }

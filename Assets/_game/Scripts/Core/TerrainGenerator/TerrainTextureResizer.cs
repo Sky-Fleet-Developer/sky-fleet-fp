@@ -40,7 +40,7 @@ namespace Core.TerrainGenerator
         {
             public override void Resize(string originPath, string resizedPath, ComputeShader shader, int compressionRatio)
             {
-                float[,] origin = RawReader.ReadRaw16(originPath);
+                float[,] origin = RawReader.ReadArray(originPath);
             
                 int kernelHandle = shader.FindKernel("compute_shader");
             
@@ -72,8 +72,8 @@ namespace Core.TerrainGenerator
             
             public override void SyncHorizontal(string right, string left)
             {
-                float[,] r = RawReader.ReadRaw16(right);
-                float[,] l = RawReader.ReadRaw16(left);
+                float[,] r = RawReader.ReadArray(right);
+                float[,] l = RawReader.ReadArray(left);
 
                 int size = r.GetLength(0);
                 int last = size - 1;
@@ -89,8 +89,8 @@ namespace Core.TerrainGenerator
 
             public override void SyncVertical(string top, string bottom)
             {
-                float[,] t = RawReader.ReadRaw16(top);
-                float[,] b = RawReader.ReadRaw16(bottom);
+                float[,] t = RawReader.ReadArray(top);
+                float[,] b = RawReader.ReadArray(bottom);
 
                 int size = t.GetLength(1);
                 int last = size - 1;
@@ -106,7 +106,7 @@ namespace Core.TerrainGenerator
 
             public override void Cut(string path, string blPath, string brPath, string tlPath, string trPath)
             {
-                float[,] origin = RawReader.ReadRaw16(path);
+                float[,] origin = RawReader.ReadArray(path);
                 int res = origin.GetLength(0);
                 int partRes = (res - 1) / 2 + 1;
                 float[,] cache = new float[partRes, partRes];

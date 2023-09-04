@@ -101,9 +101,10 @@ namespace Core.TerrainGenerator
         private const int MaxTicksForFrame = 100;
         private async Task GenerateMesh()
         {
-            float debugTime = Time.realtimeSinceStartup;
-            Debug.Log("TIMING: begin generate mesh " + view.transform.name);
+            //float debugTime = Time.realtimeSinceStartup;
+            //Debug.Log("TIMING: begin generate mesh " + view.transform.name);
             view.Mesh = new Mesh {name = view.transform.name};
+            view.Mesh.MarkDynamic();
             vertices = new Vector3[resolution * resolution  * 4];
             int[] triangles = new int[resolution * resolution * 6];
             Vector2[] uvs0 = new Vector2[vertices.Length];
@@ -148,13 +149,13 @@ namespace Core.TerrainGenerator
             view.Mesh.SetUVs(0, uvs0);
             Recalculate();
             view.Mesh.RecalculateTangents();
-            Debug.Log("TIMING: end generate mesh " + (Time.realtimeSinceStartup - debugTime));
+            //Debug.Log("TIMING: end generate mesh " + (Time.realtimeSinceStartup - debugTime));
         }
 
         public async Task SetHeights(float[,] heights)
         {
-            float debugTime = Time.realtimeSinceStartup;
-            Debug.Log("TIMING: begin set heights " + view.transform.name);
+           // float debugTime = Time.realtimeSinceStartup;
+            //Debug.Log("TIMING: begin set heights " + view.transform.name);
             int xOffset = localCoordinates.x * resolution;
             int yOffset = localCoordinates.y * resolution;
             
@@ -176,14 +177,14 @@ namespace Core.TerrainGenerator
                 }
             }
             await GenerationTask;
-            Debug.Log("TIMING: end set heights to array " + (Time.realtimeSinceStartup - debugTime));
+            //Debug.Log("TIMING: end set heights to array " + (Time.realtimeSinceStartup - debugTime));
             view.Mesh.vertices = vertices;
-            Debug.Log("TIMING: end set heights to mesh " + (Time.realtimeSinceStartup - debugTime));
+            //Debug.Log("TIMING: end set heights to mesh " + (Time.realtimeSinceStartup - debugTime));
             await Task.Yield();
             view.collider.sharedMesh = view.Mesh;
-            Debug.Log("TIMING: end set heights to collider " + (Time.realtimeSinceStartup - debugTime));
+            //Debug.Log("TIMING: end set heights to collider " + (Time.realtimeSinceStartup - debugTime));
             view.transform.gameObject.SetActive(true); // if object was in pool it will be turned off until mesh sets
-            Debug.Log("UnHide " + view.transform.name);
+            //Debug.Log("UnHide " + view.transform.name);
         }
 
         private void SetVertexHeight(float value, int vertexIdx)
