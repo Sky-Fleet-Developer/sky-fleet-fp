@@ -248,7 +248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7648995866182422052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
@@ -531,6 +531,168 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &895699894
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 895699896}
+  - component: {fileID: 895699895}
+  m_Layer: 0
+  m_Name: Lonceston_Config
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &895699895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 895699894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0772be7108f9e194595f742880fc02b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blocksConfiguration:
+    bodyGuid: ac9e9048-8002-4f14-8101-cc9993b06b44
+    blocks:
+    - path: 
+      blockName: Jet_Lonceston
+      sibilingIdx: 2
+      currentGuid: 34ff1dc2-8845-43a9-a144-83f9c1ab2d06
+      localPosition: {x: 0, y: 2.9399827, z: -27.350416}
+      localRotation: {x: -9.754814e-18, y: 180.00002, z: 5.211021e-11}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: Support_LF
+      sibilingIdx: 3
+      currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
+      localPosition: {x: -4.6309953, y: 3.073014, z: 12.566375}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: Support_RF
+      sibilingIdx: 4
+      currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
+      localPosition: {x: 4.63099, y: 3.0730066, z: 12.566371}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: Support_RB
+      sibilingIdx: 5
+      currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
+      localPosition: {x: 4.5170326, y: 3.073017, z: -15.459207}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: Support_LB
+      sibilingIdx: 6
+      currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
+      localPosition: {x: -4.5170164, y: 3.0730228, z: -15.459251}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: Gyroscope
+      sibilingIdx: 7
+      currentGuid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
+      localPosition: {x: 0, y: 12.790016, z: 0.7199587}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: TestHydrogenStorage
+      sibilingIdx: 8
+      currentGuid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
+      localPosition: {x: 0.020000001, y: 15.980015, z: -9.160026}
+      localRotation: {x: 0.5961058, y: 359.8739, z: -0.0017351476}
+      setupKeys:
+      - Mode
+      setupValues:
+      - Auto
+    - path: 
+      blockName: SmallBattery
+      sibilingIdx: 9
+      currentGuid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+      localPosition: {x: 0.020000001, y: 15.980015, z: -9.160026}
+      localRotation: {x: 0.5961058, y: 359.8739, z: -0.0017351476}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: SmallFuelPowerGenerator
+      sibilingIdx: 10
+      currentGuid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+      localPosition: {x: 0.020000001, y: 15.980015, z: -9.160026}
+      localRotation: {x: 0.5961058, y: 359.8739, z: -0.0017351476}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: UninterruptiblePowerSupply
+      sibilingIdx: 11
+      currentGuid: aef848e4-90c9-4fde-8f74-f221591873c3
+      localPosition: {x: 0, y: 6.1249914, z: -0.5539838}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
+    - path: 
+      blockName: Bridge_Lonceston
+      sibilingIdx: 12
+      currentGuid: 7c45a38e-33e4-46b5-a199-b13d2f66c8c1
+      localPosition: {x: 0.000012911565, y: 0, z: -0.20002343}
+      localRotation: {x: 0.00000250796, y: 1.1404882e-18, z: 5.211021e-11}
+      setupKeys:
+      - SomeProperty
+      setupValues:
+      - 1
+  graphConfiguration:
+    wires:
+    - ports:
+      - Bridge_Loncestonfd38eb0b-33d9-497f-9fc8-8c8f27efd26b
+      - Jet_Lonceston1bc1da6d-3509-44cc-bde4-97dff7d59b87
+    - ports:
+      - Jet_Loncestonf799627d-ab5b-4083-a5ac-f35e1e181c0d
+      - TestHydrogenStoragea9893d7e-45f6-47a4-99ab-2c6f9568e143
+      - SmallFuelPowerGenerator7ac4983b-32a1-4013-8093-698fc6cd7744
+    - ports:
+      - Gyroscope35a665c6-e760-4efc-8a08-665f7a8d412b
+      - SmallBattery0f711e28-beef-42a4-8731-4c344abeeef2
+      - SmallFuelPowerGeneratorfd689e1e-5084-4dca-be25-aeef478e5acc
+      - UninterruptiblePowerSupply0f711e28-beef-42a4-8731-4c344abeeef2
+      - Support_LFe33edc61-0257-4b9f-aeea-a59e103af53a
+      - Support_RFe33edc61-0257-4b9f-aeea-a59e103af53a
+      - Support_RBe33edc61-0257-4b9f-aeea-a59e103af53a
+      - Support_LBe33edc61-0257-4b9f-aeea-a59e103af53a
+    - ports:
+      - Support_LF23e163ed-6d4a-4a54-833a-78ccd4bea772
+      - Support_RF23e163ed-6d4a-4a54-833a-78ccd4bea772
+      - Support_RB23e163ed-6d4a-4a54-833a-78ccd4bea772
+      - Support_LB23e163ed-6d4a-4a54-833a-78ccd4bea772
+      - Bridge_Loncestonc705a022-ddc1-45c4-9bc2-1d033167681d
+--- !u!4 &895699896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 895699894}
+  m_LocalRotation: {x: -0.005201994, y: 0.0011003293, z: 0.000009417424, w: 0.9999859}
+  m_LocalPosition: {x: 4381.61, y: 808.45, z: 6858.05}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1248684300
 GameObject:
@@ -1081,7 +1243,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1901434461
 MonoBehaviour:
   m_ObjectHideFlags: 0

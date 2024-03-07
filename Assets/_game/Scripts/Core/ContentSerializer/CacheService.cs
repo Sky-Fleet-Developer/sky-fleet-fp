@@ -302,6 +302,7 @@ namespace Core.ContentSerializer
                 {typeof(Vector3), new VectorConverter()},
                 {typeof(Vector2), new VectorConverter()},
                 {typeof(Quaternion), new QuaternionConverter()},
+                {typeof(Quaternion), new Matrix4x4Converter()},
             };
 
         public static readonly List<(Type type, string property)> forbiddenProperties =

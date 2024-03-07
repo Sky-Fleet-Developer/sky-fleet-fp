@@ -6,6 +6,7 @@ using Core.Game;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
 using Core.Utilities;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -30,7 +31,16 @@ namespace Core.TerrainGenerator
         public DataT GetSourceLayer(IDeformer deformer)
         {
             int l = GetPreviousLayerIdx(deformer.Layer);
-            return deformationLayersCache[l];
+            var dlc = deformationLayersCache;
+            try
+            {
+                return dlc[l];
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(JsonConvert.SerializeObject(dlc));
+                throw;
+            }
         }
 
         public IEnumerable<DataT> GetDestinationLayers(IDeformer deformer)
