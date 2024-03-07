@@ -14,6 +14,7 @@ namespace Runtime.Structure.Rigging.Movement
         public float CurrentThrust => currentThrust; 
 
         [SerializeField] private float maximalThrust;
+        [SerializeField] private float fuelConsumptionMul = 1;
 
         private IDynamicStructure root;
 
@@ -31,7 +32,7 @@ namespace Runtime.Structure.Rigging.Movement
 
         void IFuelUser.FuelTick()
         {
-            float amount = Mathf.Clamp(fuelPerThrottle.Evaluate(throttle.Value), 0f, fuel.Value);
+            float amount = Mathf.Clamp(fuelPerThrottle.Evaluate(throttle.Value) * fuelConsumptionMul, 0f, fuel.Value);
             fuelPerSec = amount;
             fuel.Value -= amount.DeltaTime();
         }

@@ -17,16 +17,16 @@ namespace Core.Graph
 
         public IEnumerable<IGraphNode> Nodes => nodes;
         public IEnumerable<Wire> Wires => wires;
-        private bool initialized = false;
+        private bool _isInitialized = false;
         private void Awake()
         {
             structure ??= GetComponent<IStructure>();
-            structure.OnInitComplete.Subscribe(InitGraph);
+            structure.OnInitComplete.Subscribe(() => InitGraph(true));
         }
 
-        public void InitGraph()
+        public void InitGraph(bool force = false)
         {
-            if(initialized) return;
+            if(_isInitialized && !force) return;
             
             structure ??= GetComponent<IStructure>();
             
@@ -36,7 +36,7 @@ namespace Core.Graph
                 Debug.LogError($"{transform.name} has no IStructure component but try to init structure graph!");
                 return;
             }
-
+            
             for (int i = 0; i < structure.Blocks.Count; i++)
             {
                 if (structure.Blocks[i] is IGraphNode node)
@@ -46,7 +46,7 @@ namespace Core.Graph
                 }
             }
 
-            initialized = true;
+            _isInitialized = true;
         }
 
         public void AddWire(Wire wire)

@@ -1,0 +1,218 @@
+fileFormatVersion: 2
+guid: 279385c3101f9fb4f99242471fa30b6d
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Accumulator
+    100002: AccumulatorBox1_001
+    100004: AccumulatorBox1_002
+    100006: AccumulatorBox1_003
+    100008: AccumulatorBox1_004
+    100010: AccumulatorBox1_008
+    100012: AccumulatorBox1_009
+    100014: AccumulatorBox1_010
+    100016: AccumulatorBox1_011
+    100018: AccumulatorBox1_012
+    100020: AccumulatorBox1_013
+    100022: AccumulatorBox1_014
+    100024: AccumulatorBox1_015
+    100026: AccumulatorBox1_016
+    100028: AccumulatorBox1_017
+    100030: AccumulatorBox1_018
+    100032: AccumulatorBox1_019
+    100034: AccumulatorBox1_020
+    100036: Box001
+    100038: Line001
+    100040: Line002
+    100042: Line003
+    100044: //RootNode
+    400000: Accumulator
+    400002: AccumulatorBox1_001
+    400004: AccumulatorBox1_002
+    400006: AccumulatorBox1_003
+    400008: AccumulatorBox1_004
+    400010: AccumulatorBox1_008
+    400012: AccumulatorBox1_009
+    400014: AccumulatorBox1_010
+    400016: AccumulatorBox1_011
+    400018: AccumulatorBox1_012
+    400020: AccumulatorBox1_013
+    400022: AccumulatorBox1_014
+    400024: AccumulatorBox1_015
+    400026: AccumulatorBox1_016
+    400028: AccumulatorBox1_017
+    400030: AccumulatorBox1_018
+    400032: AccumulatorBox1_019
+    400034: AccumulatorBox1_020
+    400036: Box001
+    400038: Line001
+    400040: Line002
+    400042: Line003
+    400044: //RootNode
+    2300000: Accumulator
+    2300002: AccumulatorBox1_001
+    2300004: AccumulatorBox1_002
+    2300006: AccumulatorBox1_003
+    2300008: AccumulatorBox1_004
+    2300010: AccumulatorBox1_008
+    2300012: AccumulatorBox1_009
+    2300014: AccumulatorBox1_010
+    2300016: AccumulatorBox1_011
+    2300018: AccumulatorBox1_012
+    2300020: AccumulatorBox1_013
+    2300022: AccumulatorBox1_014
+    2300024: AccumulatorBox1_015
+    2300026: AccumulatorBox1_016
+    2300028: AccumulatorBox1_017
+    2300030: AccumulatorBox1_018
+    2300032: AccumulatorBox1_019
+    2300034: AccumulatorBox1_020
+    2300036: Box001
+    2300038: Line001
+    2300040: Line002
+    2300042: Line003
+    3300000: Accumulator
+    3300002: AccumulatorBox1_001
+    3300004: AccumulatorBox1_002
+    3300006: AccumulatorBox1_003
+    3300008: AccumulatorBox1_004
+    3300010: AccumulatorBox1_008
+    3300012: AccumulatorBox1_009
+    3300014: AccumulatorBox1_010
+    3300016: AccumulatorBox1_011
+    3300018: AccumulatorBox1_012
+    3300020: AccumulatorBox1_013
+    3300022: AccumulatorBox1_014
+    3300024: AccumulatorBox1_015
+    3300026: AccumulatorBox1_016
+    3300028: AccumulatorBox1_017
+    3300030: AccumulatorBox1_018
+    3300032: AccumulatorBox1_019
+    3300034: AccumulatorBox1_020
+    3300036: Box001
+    3300038: Line001
+    3300040: Line002
+    3300042: Line003
+    4300000: Accumulator
+    4300002: AccumulatorBox1_001
+    4300004: AccumulatorBox1_002
+    4300006: AccumulatorBox1_003
+    4300008: AccumulatorBox1_004
+    4300010: AccumulatorBox1_008
+    4300012: AccumulatorBox1_009
+    4300014: AccumulatorBox1_010
+    4300016: AccumulatorBox1_011
+    4300018: AccumulatorBox1_012
+    4300020: AccumulatorBox1_013
+    4300022: AccumulatorBox1_014
+    4300024: AccumulatorBox1_015
+    4300026: AccumulatorBox1_016
+    4300028: AccumulatorBox1_017
+    4300030: AccumulatorBox1_018
+    4300032: AccumulatorBox1_019
+    4300034: AccumulatorBox1_020
+    4300036: Line001
+    4300038: Box001
+    4300040: Line002
+    4300042: Line003
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: AccumulatorBox
+    second: {fileID: 2100000, guid: 550dd3ac6e1c3e748b443a1da4c12ef1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cabel
+    second: {fileID: 2100000, guid: 9ca94acffc76df44eb2cfe4d2a927232, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: UninterruptiblePowerSupply
+    second: {fileID: 2100000, guid: 7624a199758eb1445b04a34636e856d3, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1.25
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

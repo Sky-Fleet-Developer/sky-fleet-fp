@@ -1,0 +1,226 @@
+fileFormatVersion: 2
+guid: 6952004b5d38bf14aa4531f129efd3a1
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Baloon
+    100002: Baloon001
+    100004: BaloonValve001
+    100006: BaloonValve002
+    100008: //RootNode
+    100010: Holder001
+    100012: Holder002
+    100014: Holder003
+    100016: Holder004
+    100018: Holder005
+    100020: Holder006
+    100022: Holder007
+    100024: Holder008
+    100026: Holder009
+    100028: Hose001
+    100030: Hose002
+    100032: HydraulicPump_X
+    100034: HydraulicPump_X001
+    100036: PressureValve
+    100038: T-piece001
+    100040: T-piece002
+    100042: Valve001
+    100044: Valve002
+    100046: Valve003
+    100048: Valve004
+    100050: Valve005
+    400000: Baloon
+    400002: Baloon001
+    400004: BaloonValve001
+    400006: BaloonValve002
+    400008: //RootNode
+    400010: Holder001
+    400012: Holder002
+    400014: Holder003
+    400016: Holder004
+    400018: Holder005
+    400020: Holder006
+    400022: Holder007
+    400024: Holder008
+    400026: Holder009
+    400028: Hose001
+    400030: Hose002
+    400032: HydraulicPump_X
+    400034: HydraulicPump_X001
+    400036: PressureValve
+    400038: T-piece001
+    400040: T-piece002
+    400042: Valve001
+    400044: Valve002
+    400046: Valve003
+    400048: Valve004
+    400050: Valve005
+    2300000: Baloon
+    2300002: Baloon001
+    2300004: BaloonValve001
+    2300006: BaloonValve002
+    2300008: //RootNode
+    2300010: Holder001
+    2300012: Holder002
+    2300014: Holder003
+    2300016: Holder004
+    2300018: Holder005
+    2300020: Holder006
+    2300022: Holder007
+    2300024: Holder008
+    2300026: Holder009
+    2300028: Hose001
+    2300030: Hose002
+    2300032: HydraulicPump_X
+    2300034: HydraulicPump_X001
+    2300036: PressureValve
+    2300038: T-piece001
+    2300040: T-piece002
+    2300042: Valve001
+    2300044: Valve002
+    2300046: Valve003
+    2300048: Valve004
+    2300050: Valve005
+    3300000: Baloon
+    3300002: Baloon001
+    3300004: BaloonValve001
+    3300006: BaloonValve002
+    3300008: //RootNode
+    3300010: Holder001
+    3300012: Holder002
+    3300014: Holder003
+    3300016: Holder004
+    3300018: Holder005
+    3300020: Holder006
+    3300022: Holder007
+    3300024: Holder008
+    3300026: Holder009
+    3300028: Hose001
+    3300030: Hose002
+    3300032: HydraulicPump_X
+    3300034: HydraulicPump_X001
+    3300036: PressureValve
+    3300038: T-piece001
+    3300040: T-piece002
+    3300042: Valve001
+    3300044: Valve002
+    3300046: Valve003
+    3300048: Valve004
+    3300050: Valve005
+    4300000: FuelLine
+    4300002: Valve001
+    4300004: HydraulicPump_X
+    4300006: Hose001
+    4300008: Baloon
+    4300010: Valve004
+    4300012: Valve002
+    4300014: Valve003
+    4300016: Valve005
+    4300018: HydraulicPump_X001
+    4300020: Hose002
+    4300022: Baloon001
+    4300024: BaloonValve001
+    4300026: BaloonValve002
+    4300028: PressureValve
+    4300030: T-piece001
+    4300032: T-piece002
+    4300034: Holder005
+    4300036: Holder001
+    4300038: Holder002
+    4300040: Holder003
+    4300042: Holder004
+    4300044: Holder006
+    4300046: Holder007
+    4300048: Holder008
+    4300050: Holder009
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FuelLine
+    second: {fileID: 2100000, guid: 28dcdb78dc0e1c84b8d8a9a2052624bd, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1.25
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

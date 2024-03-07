@@ -54,6 +54,7 @@ namespace WorldEditor
             structure.transform.SetParent(tr);
             EditorSceneManager.MarkSceneDirty(structure.scene);
             EditorUtility.SetDirty(structure.transform);
+            config.graphConfiguration = new GraphConfiguration(structure.GetComponent<IGraph>());
             return config;
         }
 

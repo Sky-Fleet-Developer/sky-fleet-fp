@@ -19,70 +19,89 @@ MonoBehaviour:
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: d4ac0d39cf8e4a147a90d726ceb2f314
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: f241b618a0db84543894629afe816ce2
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: 72a701bdd11c43343a4c894c98cf6f97
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: d0eb4b66315acbb4c8659a43f7ffe54c
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 93cbead4-d7c3-47fb-b271-510007e82fb3
-    tags: []
+    tags:
+    - structure
   - reference:
       m_AssetGUID: 47d5c998281a5a94483aa12a9a4e60cb
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: ad236af6-3feb-466c-8ce1-4cc6a8dad25a
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: 0b735169160b97744aec9c8a4edc840c
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: f16d3e7948dbe24408d78a6e2a5855cf
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 4ea266d0-fbd5-4023-b34e-662b30e2819e
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: aa1b82e31421c4341a0a61590069ff38
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: b249800ad0fa4ac49b0be7281b7690ff
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 40222abb-51cd-4887-8afb-92518f93a6cd
-    tags: []
+    tags:
+    - block
+    - test
   - reference:
       m_AssetGUID: 4ca2c25fe279e2140ac5867b9d14696b
       m_SubObjectName: 
@@ -155,6 +174,51 @@ MonoBehaviour:
     guid: c1068a3d-6483-4a10-b9fa-b346bb6195bf
     tags:
     - block
+    - test
+  - reference:
+      m_AssetGUID: 9822431ec0f4218409d7ac05beafca9f
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 34ff1dc2-8845-43a9-a144-83f9c1ab2d06
+    tags:
+    - block
+    - lonceston
+  - reference:
+      m_AssetGUID: 98c7dd88d4de1784a9289c0adbf25c0b
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: ac9e9048-8002-4f14-8101-cc9993b06b44
+    tags:
+    - structure
+  - reference:
+      m_AssetGUID: d9d918a0c56d83449a1db5955cb4c0fc
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 7c45a38e-33e4-46b5-a199-b13d2f66c8c1
+    tags:
+    - block
+    - lonceston
+  - reference:
+      m_AssetGUID: d07231a1d6ec7d14897872f167f2694a
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
+    tags:
+    - block
+    - lonceston
+  - reference:
+      m_AssetGUID: 62bc3763db5ca464a98fe961e3e3861c
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: aef848e4-90c9-4fde-8f74-f221591873c3
+    tags:
+    - block
+    - lonceston
   autoSearchSettings:
   - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Blocks
     tags:

@@ -69,9 +69,13 @@ namespace Core.Structure
             initialized = false;
             this.AddWorldOffsetAnchor();
         }
-
-        public virtual void Init()
+[Button]
+        public virtual void Init(bool force = false)
         {
+            if (initialized && !force)
+            {
+                return;
+            }
             RefreshBlocksAndParents();
             InitBlocks();
             this.AddBlocksCache();

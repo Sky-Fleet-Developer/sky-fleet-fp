@@ -26,29 +26,53 @@ namespace Core.Structure.Rigging
         {
             foreach (AddPrefabSettings autoSearchSetting in autoSearchSettings)
             {
-                foreach (string path in autoSearchSetting.GetPaths())
+                foreach ((string fullName, List<string> tags) in autoSearchSetting.GetPaths())
                 {
-                    string correctedPath = "Assets" + path.Replace(Application.dataPath.Replace('/', '\\'), "");
+                    string correctedPath = "Assets" + fullName.Replace(Application.dataPath.Replace('/', '\\'), "");
                     var target = AssetDatabase.LoadAssetAtPath<GameObject>(correctedPath);
                     if(target == null) continue;
-                    if (items.FirstOrDefault(x => x.GetReferenceInEditor() == target) == null)
+                    var exist = items.FirstOrDefault(x => x.GetReferenceInEditor() == target);
+                    if (exist == null)
                     {
                         AssetDatabase.TryGetGUIDAndLocalFileIdentifier(target.GetInstanceID(), out string guid,
                             out long localId);
                         RemotePrefabItem newItem = new RemotePrefabItem(new AssetReference(guid));
                         newItem.tags = autoSearchSetting.tags.Clone();
+                        newItem.tags.AddRange(tags);
                         items.Add(newItem);
+                    }
+                    else
+                    {
+                        exist.tags = autoSearchSetting.tags.Clone();
+                        exist.tags.AddRange(tags);
                     }
                 }
             }
         }
         #endif
+
+        private Dictionary<string, RemotePrefabItem> ConvertItems()
+        {
+            var duplicateKeys = items
+                .GroupBy(item => item.guid)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key);
+
+            foreach (string key in duplicateKeys)
+            {
+                Debug.LogError($"Duplicate key: {key}");
+            }
+            return items.ToDictionary(item => item.guid);
+        }
         
         public RemotePrefabItem GetItem(string guid)
         {
-            itemsCache ??= items.ToDictionary(item => item.guid);
-
-            return itemsCache[guid];
+            itemsCache ??= ConvertItems();
+            if (!itemsCache.TryGetValue(guid, out var value))
+            {
+                throw new KeyNotFoundException($"Cant find guid {guid}");
+            }
+            return value;
         }
 
         public void ExtractBlocksFromMod(Mod mod)
@@ -75,12 +99,37 @@ namespace Core.Structure.Rigging
             [SerializeField, FolderPath(AbsolutePath = true)] private string pathToSearchFolder;
             [SerializeField] public List<string> tags;
 
-            public IEnumerable<string> GetPaths()
+            public IEnumerable<(string fullName, List<string> tags)> GetPaths()
             {
                 DirectoryInfo origin = new DirectoryInfo(pathToSearchFolder);
+                List<string> path = new List<string>();
                 foreach (FileInfo fileInfo in origin.GetFiles("*.prefab"))
                 {
-                    yield return fileInfo.FullName;
+                    yield return (fileInfo.FullName, path);
+                }
+
+                foreach (DirectoryInfo nestedDirectory in GetNestedDirectories(origin, path))
+                {
+                    foreach (FileInfo fileInfo in nestedDirectory.GetFiles("*.prefab"))
+                    {
+                        yield return (fileInfo.FullName, path);
+                    }
+                }
+            }
+
+            private IEnumerable<DirectoryInfo> GetNestedDirectories(DirectoryInfo directoryInfo, List<string> path)
+            {
+                foreach (DirectoryInfo directory in directoryInfo.GetDirectories())
+                {
+                    string lowerCaseName = directory.Name.ToLower();
+                    path.Add(lowerCaseName);
+                    yield return directory;
+                    foreach (DirectoryInfo nestedDirectory in GetNestedDirectories(directory, path))
+                    {
+                        yield return nestedDirectory;
+                    }
+                    path.Remove(lowerCaseName);
+
                 }
             }
         }

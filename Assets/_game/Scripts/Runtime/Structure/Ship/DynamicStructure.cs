@@ -22,10 +22,10 @@ namespace Runtime.Structure.Ship
 
         private Rigidbody rigidbody;
 
-        public override void Init()
+        public override void Init(bool force)
         {
             rigidbody = GetComponent<Rigidbody>();
-            base.Init();
+            base.Init(force);
             RecalculateMass();
         }
 

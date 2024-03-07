@@ -156,7 +156,8 @@ namespace WorldEditor
             {
                 currentGraph = selectedGraph;
 
-                currentGraph.InitGraph();
+                currentGraph.InitGraph(true);
+                currentGraphTransform.GetComponent<IStructure>().Init(true);
 
                 nodes = currentGraph.Nodes.ToList();
 
@@ -176,7 +177,6 @@ namespace WorldEditor
                 {
                     if (portsContainer.HasNestedValues == false) containersWithPorts.Add(portsContainer);
                 }
-
 
                 foreach (WireConfiguration configWire in configHolder.graphConfiguration.wires)
                 {
@@ -272,12 +272,15 @@ namespace WorldEditor
 
         private void WriteConfig()
         {
-            MonoBehaviour monobeh = currentGraphTransform.gameObject.GetComponent<IStructure>() as MonoBehaviour;
+            IStructure structure = currentGraphTransform.gameObject.GetComponent<IStructure>();
+            MonoBehaviour monobeh = structure as MonoBehaviour;
             Undo.RecordObject(monobeh, "Config");
+            configHolder.graphConfiguration.wires.Clear();
             foreach (List<IPortsContainer> wire in wires)
             {
                 configHolder.graphConfiguration.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
             }
+            configHolder.blocksConfiguration = new StructureConfiguration(structure);
             EditorUtility.SetDirty(monobeh);
             configDirty = false;
         }

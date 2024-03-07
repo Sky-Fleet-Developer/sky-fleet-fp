@@ -25,7 +25,7 @@ namespace Core.Structure
         public static string GetPath(this IBlock block)
         {
             string result = string.Empty;
-            Transform tr = block.transform;
+            Transform tr = block.transform.parent;
             while (tr.GetComponent<IStructure>() == null)
             {
                 tr = tr.parent;

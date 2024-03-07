@@ -5,7 +5,7 @@ namespace Core.Graph
 {
     public interface IGraph
     {
-        void InitGraph();
+        void InitGraph(bool force = false);
         void AddWire(Wire wire);
         PortPointer GetPort(string id);
         void ConnectPorts(params PortPointer[] ports);

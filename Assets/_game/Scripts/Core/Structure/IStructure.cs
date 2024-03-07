@@ -24,7 +24,7 @@ namespace Core.Structure
         /// <summary>
         /// make structure ready to work in runtime
         /// </summary>
-        void Init();
+        void Init(bool force = false);
         /// <summary>
         /// init current blocks from current structure
         /// </summary>
@@ -74,7 +74,7 @@ namespace Core.Structure
 
         public static void AddBlocksCache(this IStructure structure)
         {
-            blocksCache.Add(structure, new Dictionary<Type, IBlock[]>());
+            blocksCache[structure] = new Dictionary<Type, IBlock[]>();
         }
 
         public static void RemoveBlocksCache(this IStructure structure)
