@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Movement
 {
-    public class ThrusterTest : BlockWithNode, IJet
+    public class SimpleThruster : BlockWithNode, IJet
     {
         public AnimationCurve thrustPerFuel;
         public AnimationCurve fuelPerThrottle;
@@ -16,7 +16,7 @@ namespace Runtime.Structure.Rigging.Movement
         [SerializeField] private float maximalThrust;
         [SerializeField] private float fuelConsumptionMul = 1;
 
-        private IDynamicStructure root;
+        protected IDynamicStructure root;
 
         public Port<float> throttle = new Port<float>(PortType.Thrust);
         public StoragePort fuel = new StoragePort(typeof(Hydrogen));
@@ -40,7 +40,12 @@ namespace Runtime.Structure.Rigging.Movement
         void IForceUser.ApplyForce()
         {
             currentThrust = maximalThrust * thrustPerFuel.Evaluate(fuelPerSec);
-            root.AddForce(transform.forward * (currentThrust.DeltaTime()), transform.position);
+            ApplyThrust(currentThrust.DeltaTime());
+        }
+
+        protected virtual void ApplyThrust(float thrust)
+        {
+            root.AddForce(transform.forward * thrust, transform.position);
         }
     }
 }

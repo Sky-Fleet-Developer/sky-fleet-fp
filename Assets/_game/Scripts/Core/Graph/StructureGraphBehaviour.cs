@@ -37,6 +37,7 @@ namespace Core.Graph
                 return;
             }
             
+            nodes.Clear();
             for (int i = 0; i < structure.Blocks.Count; i++)
             {
                 if (structure.Blocks[i] is IGraphNode node)

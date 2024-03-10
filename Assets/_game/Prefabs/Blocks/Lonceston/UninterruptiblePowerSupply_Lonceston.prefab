@@ -390,14 +390,15 @@ MonoBehaviour:
   mass: 300
   mountingType: 
   maxInput: 1
-  maxOutput: 1
+  maxOutput: 40
   storage:
     guid: 0f711e28-beef-42a4-8731-4c344abeeef2
     charge: 0
     maxInput: 1
-    maxOutput: 1
+    maxOutput: 40
+    contentType: 1
     delta: 0
-  storedPower: 0
+  storedPower: 10000
   maxStoredPower: 10000
 --- !u!1 &3402875849968676336
 GameObject:

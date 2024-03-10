@@ -46,6 +46,7 @@ namespace Core.Structure.Rigging.Control
 
         public void Init(IStructure structure, IControl block)
         {
+            AxisTick();
             //structure.ConnectPorts(port, _device.port);
         }
 
@@ -165,7 +166,7 @@ namespace Core.Structure.Rigging.Control
         public void MoveValueInteractive(float val)
         {
             realValue += val * sensitivity;
-            AxeTick();
+            AxisTick();
         }
 
         public void Tick()
@@ -199,10 +200,10 @@ namespace Core.Structure.Rigging.Control
                     break;
             }
 
-            AxeTick();
+            AxisTick();
         }
 
-        private void AxeTick()
+        private void AxisTick()
         {
             logicValue = GetLogicValue();
             port.Value = logicValue;

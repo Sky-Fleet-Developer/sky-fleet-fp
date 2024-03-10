@@ -11,20 +11,19 @@ namespace Core.Graph
 {
     public static class GraphUtilities
     {
-        public static void GetPortsFromSpecialBlock(string nodeId, IMultiplePortsNode node,
-            ref List<IPortsContainer> container)
+        public static IEnumerable<IPortsContainer> GetPortsFromSpecialBlock(string nodeId, IMultiplePortsNode node)
         {
             var multiplePortsFields = GetMultiplePortsFields(node);
 
-            List<IPortsContainer> groups = new List<IPortsContainer>(multiplePortsFields.Length);
-
             foreach (FieldInfo field in multiplePortsFields)
             {
-                if (field.GetValue(node) is IList value)
-                {
-                    List<IPortsContainer> infos = new List<IPortsContainer>(value.Count);
+                var value = field.GetValue(node);
 
-                    foreach (IPortUser portUser in value)
+                if (value is IList list) 
+                {
+                    List<IPortsContainer> infos = new List<IPortsContainer>(list.Count);
+
+                    foreach (IPortUser portUser in list)
                     {
                         string description = portUser.GetPortDescription();
                         var port = portUser.GetPort();
@@ -32,11 +31,9 @@ namespace Core.Graph
                         infos.Add(new PortInfo(new PortPointer(node, port), description));
                     }
 
-                    groups.Add(new PortsGroupContainer(field.Name + ":", infos));
+                    yield return new PortsGroupContainer(field.Name + ":", infos);
                 }
             }
-
-            container.Add(new PortsGroupContainer(nodeId, groups));
         }
         
         

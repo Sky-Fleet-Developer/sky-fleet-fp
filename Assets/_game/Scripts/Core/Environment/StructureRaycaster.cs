@@ -43,7 +43,7 @@ namespace Core.Environment
         private void OnRegisterStructure(IStructure structure)
         {
             StructureRayCastingProfile profile = new StructureRayCastingProfile(structure);
-            Profiles.Add(structure, profile);
+            Profiles[structure] = profile;
         }
 
         private void OnDestroyStructure(IStructure structure)

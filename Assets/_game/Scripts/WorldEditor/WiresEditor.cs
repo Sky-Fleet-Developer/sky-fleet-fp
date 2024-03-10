@@ -156,8 +156,8 @@ namespace WorldEditor
             {
                 currentGraph = selectedGraph;
 
-                currentGraph.InitGraph(true);
                 currentGraphTransform.GetComponent<IStructure>().Init(true);
+                currentGraph.InitGraph(true);
 
                 nodes = currentGraph.Nodes.ToList();
 

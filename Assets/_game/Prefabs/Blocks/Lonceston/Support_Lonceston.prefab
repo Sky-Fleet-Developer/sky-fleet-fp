@@ -454,15 +454,15 @@ MonoBehaviour:
   mass: 10
   mountingType: 
   variatorTransform: {fileID: 2284595469187098040}
-  pitchAngle: 5
-  rollAngle: 0
+  pitchAngle: 7
+  rollAngle: 5
   xIsFree: 1
   yIsFree: 0
   zIsFree: 1
-  disruptionForce: 11500000
-  disruptionMinForce: 9500000
-  returnForce: 6900000
-  dragForce: 3000000
+  disruptionForce: 70000000
+  disruptionMinForce: 47500000
+  returnForce: 34500000
+  dragForce: 15000000
   qMax: 0.5
   disruptionForceMP: 0.5
   consumption: 1.5

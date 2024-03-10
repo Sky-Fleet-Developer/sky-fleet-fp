@@ -26,15 +26,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 832243802212822374}
-  m_LocalRotation: {x: 0, y: 1, z: -0, w: -0.0000001872535}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 2.9400067, z: -27.350405}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1775134366154268443}
-  - {fileID: 8484014454165259029}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180.00002, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &832243802212822377
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -48,7 +47,7 @@ CapsuleCollider:
   m_Radius: 1.2
   m_Height: 6
   m_Direction: 2
-  m_Center: {x: 0, y: 0, z: -4}
+  m_Center: {x: 0, y: 0, z: 4}
 --- !u!136 &6613750151246469111
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -62,7 +61,7 @@ CapsuleCollider:
   m_Radius: 0.8
   m_Height: 6
   m_Direction: 2
-  m_Center: {x: 0, y: 0, z: -10}
+  m_Center: {x: 0, y: 0, z: 10}
 --- !u!114 &7237035913887356025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,7 +71,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 832243802212822374}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8bbc1703a49fd747918341a0b3ff943, type: 3}
+  m_Script: {fileID: 11500000, guid: fb675d9cff654700863e3b4dfb178ca6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 34ff1dc2-8845-43a9-a144-83f9c1ab2d06
@@ -127,7 +126,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalThrust: 15000000
+  maximalThrust: 40000000
   fuelConsumptionMul: 1
   throttle:
     guid: 1bc1da6d-3509-44cc-bde4-97dff7d59b87
@@ -137,6 +136,12 @@ MonoBehaviour:
     guid: f799627d-ab5b-4083-a5ac-f35e1e181c0d
     serializedType: Core.Graph.Wires.Hydrogen
     serializedTypeShort: Hydrogen
+  vector:
+    guid: 1ac5ecf7-5550-45f6-a9bf-fa879df42188
+    cache: 0
+    valueType: 0
+  nozzle: {fileID: 1775134366154268443}
+  masInclinationAngle: 30
 --- !u!1 &2383524533670721823
 GameObject:
   m_ObjectHideFlags: 0
@@ -9731,7 +9736,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4026895267778383788}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.53}
+  m_LocalPosition: {x: 0, y: 0, z: 0.5300007}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1423370051929326362}
@@ -14843,33 +14848,3 @@ AudioLowPassFilter:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &8714756506260660569
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8484014454165259029}
-  m_Layer: 12
-  m_Name: RepairAnchor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8484014454165259029
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8714756506260660569}
-  m_LocalRotation: {x: -0, y: 0.7071071, z: -0, w: 0.70710653}
-  m_LocalPosition: {x: -3.35, y: -1.24, z: -9.49}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 832243802212822375}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 90.00001, z: 0}

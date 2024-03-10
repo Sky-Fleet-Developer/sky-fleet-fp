@@ -113,6 +113,10 @@ MonoBehaviour:
     m_Address: Assets/_game/Prefabs/Blocks/Lonceston/Bridge_Lonceston.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 605b1e63956e177459a2770646853be7
+    m_Address: Assets/_game/Prefabs/Blocks/QuadroFlyComputer.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6089aed05677e8245b41cfd7d4a2ffce, type: 2}
   m_SchemaSet:

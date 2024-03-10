@@ -6,7 +6,6 @@ namespace Core.Structure.Rigging.Control
 {
     public abstract class Computer : BlockWithNode, IComputer
     {
-
         public PowerPort power = new PowerPort();
 
         public bool IsWork { get; private set; }
@@ -17,8 +16,8 @@ namespace Core.Structure.Rigging.Control
 
         [SerializeField] private float maxConsumption;
 
-        protected List<PortPointer> inputsPort = new List<PortPointer>();
-        protected List<PortPointer> outputPort = new List<PortPointer>();
+        public List<PortPointer> inputsPorts;
+        public List<PortPointer> outputPorts;
 
         private int countUpdatePassed = 0;
 
@@ -34,11 +33,11 @@ namespace Core.Structure.Rigging.Control
 
         public IEnumerable<PortPointer> GetPorts()
         {
-            foreach (PortPointer iPort in inputsPort)
+            foreach (PortPointer iPort in inputsPorts)
             {
                 yield return iPort;
             }
-            foreach (PortPointer oPort in outputPort)
+            foreach (PortPointer oPort in outputPorts)
             {
                 yield return oPort;
             }

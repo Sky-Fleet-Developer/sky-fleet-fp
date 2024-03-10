@@ -50,6 +50,7 @@ namespace Runtime.Structure.Rigging.Power
             currentOutput = powerPerFuel.Evaluate(fuelPerSec) * maximalOutput *  Time.deltaTime;
             output.charge = charge;
             output.maxOutput = currentOutput;
+            output.maxInput = 0;
         }
         public void PowerTick()
         {

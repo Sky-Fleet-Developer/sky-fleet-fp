@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Core.Structure;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -22,48 +23,6 @@ namespace Core.Graph.Wires
         public string GetPortDescription();
     }
     
-    public struct PortPointer : System.IEquatable<PortPointer>, System.IEquatable<string>
-    {
-        private readonly IGraphNode node;
-        public readonly  Port Port;
-
-        public readonly string Id;
-        
-        public PortPointer(IGraphNode node, Port port)
-        {
-            this.node = node;
-            Port = port;
-            Id = node.NodeId + Port.Guid;
-        }
-
-        public override string ToString()
-        {
-            return Id;
-        }
-
-        public bool Equals(PortPointer other)
-        {
-            return Id == other.Id;
-        }
-
-        public bool Equals(string other)
-        {
-            return Id.Equals(other);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is PortPointer other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-        
-        public bool CanConnect(Wire wire) => wire.CanConnect(this);
-    }
-
     [System.Serializable]
     public abstract class Port
     {
@@ -166,57 +125,6 @@ namespace Core.Graph.Wires
             return valueType.ToString() + " Wire type: " + typeof(T).Name;
         }
     }
-    [System.Serializable, InlineProperty(LabelWidth = 150)]
-    public class PowerPort : Port
-    {
-        [ShowInInspector] public PowerWire Wire;
-
-        public float charge;
-        public float maxInput = 1;
-        public float maxOutput = 1;
-        [ReadOnly] public float delta = 0;
-
-        public float GetPushValue()
-        {
-            float clamp = Mathf.Clamp(delta, -maxOutput, maxInput);
-            return clamp - delta;
-        }
-
-        public float GetSpaceToUpLimit()
-        {
-            return Mathf.Max(maxInput - delta, 0f);
-        }
-        public float GetSpaceToDownLimit()
-        {
-            return Mathf.Min(-maxOutput - delta, 0f);
-        }
-        
-        public override void SetWire(Wire wire)
-        {
-            if (wire is PowerWire wireT)
-            {
-                Wire = wireT;
-                wireT.ports.Add(this);
-                this.wire = Wire;
-            }
-        }
-
-        public override Wire CreateWire()
-        {
-            return new PowerWire();
-        }
-        
-        public override bool CanConnect(Port port)
-        {
-            return port is PowerPort portT;
-        }
-        
-        public override string ToString()
-        {
-            return "Power";
-        }
-    }
-
    
 
     [ShowInInspector]
@@ -253,90 +161,71 @@ namespace Core.Graph.Wires
     [ShowInInspector]
     public class PowerWire : Wire
     {
-        [System.NonSerialized, ShowInInspector, ReadOnly] public List<PowerPort> ports = new List<PowerPort>();
-
+       [System.NonSerialized, ShowInInspector, ReadOnly] private List<PowerPort>[] _ports = new List<PowerPort>[]
+        {
+            new List<PowerPort>(),
+            new List<PowerPort>(),
+            new List<PowerPort>()
+        };
 
         public PowerWire()
         {
-            StructureUpdateModule.OnConsumptionTickEnd += ConsumptionTickEnd;
+            StructureUpdateModule.OnConsumptionTickEnd += DistributionTick;
             StructureUpdateModule.OnBeginConsumptionTick += BeginConsumptionTick;
         }
-        private void ConsumptionTickEnd()
+
+        private void DistributionTick()
         {
-            for (int i = 0; i < ports.Count; i++)
-            {
-                float opposit = 0;
-                for (int i1 = 0; i1 < ports.Count; i1++)
-                {
-                    if (i != i1)
-                    {
-                        opposit += ports[i1].charge;
-                    }
-                }
-                ports[i].delta = Mathf.Clamp(opposit - ports[i].charge, -ports[i].maxOutput, ports[i].maxInput);
-            }
+            List<PowerPort> consumerPorts = _ports[(int) PortContentType.Consumer];
+            List<PowerPort> generatorPorts = _ports[(int) PortContentType.Generator];
+            List<PowerPort> storagePorts = _ports[(int) PortContentType.Storage];
+            float generated = generatorPorts.Sum(x => Mathf.Min(x.charge, x.maxOutput));
+            float wantedToConsume = consumerPorts.Sum(x => x.maxInput);
+            float remains = generated - wantedToConsume;
 
-            float othersCountInv = 1f / (ports.Count - 1);
-            float[] cache = new float[ports.Count];
-
-            for (int i = 0; i < ports.Count; i++)
-            {
-                float deltaFromOthers = 0;
-                for (int i1 = 0; i1 < ports.Count; i1++)
-                {
-                    if (i != i1)
-                    {
-                        deltaFromOthers += ports[i1].delta * othersCountInv;
-                    }
-                }
-                cache[i] = ports[i].delta - deltaFromOthers;
-            }
-
-            for (int i = 0; i < ports.Count; i++)
-            {
-                ports[i].delta = cache[i];
-            }
+            float toDistribution = generated;
             
-            for (int i1 = 0; i1 < cache.Length; i1++)
+            if (remains < 0)
             {
-                cache[i1] = 0;
-            }
-            
-            for (int i = 0; i < ports.Count; i++)
-            {
-                float wantsToPush = ports[i].GetPushValue();
-                bool pushPositive = wantsToPush > 0;
-                float pushSpace = 0;
-                if (wantsToPush != 0)
+                float storedPotential = storagePorts.Sum(x => Mathf.Min(x.charge, x.maxOutput));
+                float takenFromStorage = Mathf.Min(storedPotential, -remains);
+
+                toDistribution += takenFromStorage;
+                float power = wantedToConsume / toDistribution;
+                float clampedPower = Mathf.Min(power, 1);
+                
+                for (int i = 0; i < consumerPorts.Count; i++)
                 {
-                    for (int i1 = 0; i1 < ports.Count; i1++)
-                    {
-                        if (i != i1)
-                        {
-                            cache[i1] = pushPositive ? ports[i1].GetSpaceToDownLimit() : ports[i1].GetSpaceToUpLimit();
-                            pushSpace += cache[i1];
-                        }
-                    }
+                    consumerPorts[i].charge = consumerPorts[i].maxInput * clampedPower;
+                }
 
-                    if(pushSpace == 0) continue;
-                    float mul = wantsToPush / pushSpace;
-                    for (int i1 = 0; i1 < cache.Length; i1++)
-                    {
-                        ports[i1].delta -= cache[i1] * mul;
-                    }
+                for (int i = 0; i < generatorPorts.Count; i++)
+                {
+                    generatorPorts[i].charge = 0;
+                }
 
-                    ports[i].delta += wantsToPush;
-                    
-                    for (int i1 = 0; i1 < cache.Length; i1++)
+                if (power < 1)
+                {
+                    float takenFromStoragePercent = takenFromStorage / storedPotential;
+                    for (int i = 0; i < storagePorts.Count; i++)
                     {
-                        cache[i1] = 0;
+                        storagePorts[i].charge -= Mathf.Min(storagePorts[i].charge, storagePorts[i].maxOutput) * takenFromStoragePercent;
                     }
                 }
             }
-
-            for (int i = 0; i < ports.Count; i++)
+            else
             {
-                ports[i].charge += ports[i].delta;
+                for (int i = 0; i < consumerPorts.Count; i++)
+                {
+                    consumerPorts[i].charge = consumerPorts[i].maxInput;
+                }
+
+                float maxStoragesConsumption = storagePorts.Sum(x => x.maxInput);
+                float storePercent = remains / maxStoragesConsumption;
+                for (int i = 0; i < storagePorts.Count; i++)
+                {
+                    storagePorts[i].charge += storagePorts[i].maxInput * storePercent;
+                }
             }
         }
         
@@ -346,8 +235,14 @@ namespace Core.Graph.Wires
 
         public override void Dispose()
         {
-            StructureUpdateModule.OnConsumptionTickEnd -= ConsumptionTickEnd;
+            StructureUpdateModule.OnConsumptionTickEnd -= DistributionTick;
             StructureUpdateModule.OnBeginConsumptionTick -= BeginConsumptionTick;
+        }
+        
+        public void AddPort(Port port)
+        {
+            PowerPort powerPort = (PowerPort)port;
+            _ports[(int)powerPort.GetContentType()].Add(powerPort);
         }
 
         public override bool CanConnect(PortPointer port)

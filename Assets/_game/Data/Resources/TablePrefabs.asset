@@ -219,6 +219,14 @@ MonoBehaviour:
     tags:
     - block
     - lonceston
+  - reference:
+      m_AssetGUID: 605b1e63956e177459a2770646853be7
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 4391cf4e-8e1a-416e-8f8b-0ed380b73c2b
+    tags:
+    - block
   autoSearchSettings:
   - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Blocks
     tags:

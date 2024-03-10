@@ -46,7 +46,7 @@ namespace Core.Structure.Rigging
 
         public static bool CalculateConsumerTickB(IConsumer consumer)
         {
-            return consumer.Power.charge > consumer.Consumption * StructureUpdateModule.DeltaTime - deltaConsumption * consumer.Consumption;
+            return true; //consumer.Power.charge >= (consumer.Consumption * StructureUpdateModule.DeltaTime - deltaConsumption * consumer.Consumption) * 0.9f;
         }
     }
 }

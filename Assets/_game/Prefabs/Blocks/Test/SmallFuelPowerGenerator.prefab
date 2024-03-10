@@ -180,4 +180,5 @@ MonoBehaviour:
     charge: 0
     maxInput: 1
     maxOutput: 1
+    contentType: 2
     delta: 0

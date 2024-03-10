@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 7890871524668062681}
   - component: {fileID: 7890871524668062694}
   - component: {fileID: 7890871524668062695}
+  - component: {fileID: 8939253264643408886}
   m_Layer: 0
   m_Name: Helm_Roll
   m_TagString: Untagged
@@ -192,6 +193,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8939253264643408886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7890871524668062682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guid: a4217c27-d40e-4a11-bc3a-429b355974de
+  tags: []
+  port:
+    guid: 3b733d25-1c43-48f3-91aa-d54bc9266af4
+    cache: -0
+    valueType: 0
+  lever: {fileID: 7890871524668062681}
+  mul: 30
+  trim: 0
+  eulerStart: {x: 0, y: 90, z: 0}
+  axe: {x: 1, y: 0, z: 0}
 --- !u!1 &7890871525091224424
 GameObject:
   m_ObjectHideFlags: 0
@@ -203,6 +227,7 @@ GameObject:
   - component: {fileID: 7890871525091224439}
   - component: {fileID: 7890871525091224437}
   - component: {fileID: 7890871525091224438}
+  - component: {fileID: 631000930763434911}
   m_Layer: 0
   m_Name: Enjeen_Bracket
   m_TagString: Untagged
@@ -275,6 +300,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &631000930763434911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7890871525091224424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guid: df9deaf2-c7fe-4a86-b4ec-704941d56f8e
+  tags: []
+  port:
+    guid: ff3bd61b-3a4f-4bf0-ae41-b0838231ac56
+    cache: 0
+    valueType: 0
+  lever: {fileID: 7890871526270054247}
+  mul: 30
+  trim: 0
+  eulerStart: {x: 0, y: 0, z: 0}
+  axe: {x: 1, y: 0, z: 0}
 --- !u!1 &7890871525406876233
 GameObject:
   m_ObjectHideFlags: 0
@@ -286,6 +334,7 @@ GameObject:
   - component: {fileID: 7890871525406876232}
   - component: {fileID: 7890871525406876245}
   - component: {fileID: 7890871525406876246}
+  - component: {fileID: 5609167822506068499}
   m_Layer: 0
   m_Name: Helm_Yaw
   m_TagString: Untagged
@@ -356,6 +405,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5609167822506068499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7890871525406876233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guid: 2379f6d0-657f-4d94-9c09-6996a8ee870a
+  tags: []
+  port:
+    guid: b878307f-ae10-4722-8ffc-c642fa668aa7
+    cache: 0
+    valueType: 0
+  lever: {fileID: 7890871525406876232}
+  mul: 30
+  trim: 0
+  eulerStart: {x: 0, y: 0, z: 0}
+  axe: {x: 0, y: 0, z: 1}
 --- !u!1 &7890871525435728501
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,7 +454,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7890871525435728501}
-  m_LocalRotation: {x: -0.0860945, y: -0.0000048904553, z: 0.00017696552, w: 0.996287}
+  m_LocalRotation: {x: -0.08609375, y: 0.0000018702328, z: -0.000008355981, w: 0.99628705}
   m_LocalPosition: {x: 0.00002773817, y: -0.09570922, z: -0.000048828122}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -468,10 +540,6 @@ GameObject:
   - component: {fileID: 7890871525637504218}
   - component: {fileID: 7890871525637504216}
   - component: {fileID: 7890871525637504217}
-  - component: {fileID: 8751890215861184699}
-  - component: {fileID: 5886793032990720032}
-  - component: {fileID: 4091882487573767303}
-  - component: {fileID: 8064530057102394830}
   m_Layer: 0
   m_Name: Helm_Bracket
   m_TagString: Untagged
@@ -486,7 +554,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7890871525637504219}
-  m_LocalRotation: {x: 0.000000044723325, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 18.815292, z: -7.4856615}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -547,98 +615,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8751890215861184699
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890871525637504219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  guid: 9b80e6d1-6004-4751-86d0-5c0dc1ec9810
-  tags: []
-  port:
-    guid: 46f221c5-d316-4075-8b6d-0f34b6f193fb
-    cache: 0
-    valueType: 0
-  lever: {fileID: 7890871526147973905}
-  mul: 30
-  trim: 0
-  eulerStart: {x: 10, y: 0, z: 0}
-  axe: {x: 1, y: 0, z: 0}
---- !u!114 &5886793032990720032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890871525637504219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  guid: a4217c27-d40e-4a11-bc3a-429b355974de
-  tags: []
-  port:
-    guid: 3b733d25-1c43-48f3-91aa-d54bc9266af4
-    cache: -0
-    valueType: 0
-  lever: {fileID: 0}
-  mul: 30
-  trim: 0
-  eulerStart: {x: 0, y: 90, z: 0}
-  axe: {x: 1, y: 0, z: 0}
---- !u!114 &4091882487573767303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890871525637504219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  guid: 2379f6d0-657f-4d94-9c09-6996a8ee870a
-  tags: []
-  port:
-    guid: 46f221c5-d316-4075-8b6d-0f34b6f193fb
-    cache: 0
-    valueType: 0
-  lever: {fileID: 7890871525406876232}
-  mul: 30
-  trim: 0
-  eulerStart: {x: 0, y: 0, z: 0}
-  axe: {x: 0, y: 0, z: 1}
---- !u!114 &8064530057102394830
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890871525637504219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  guid: df9deaf2-c7fe-4a86-b4ec-704941d56f8e
-  tags: []
-  port:
-    guid: ff3bd61b-3a4f-4bf0-ae41-b0838231ac56
-    cache: 0
-    valueType: 0
-  lever: {fileID: 7890871526270054247}
-  mul: 30
-  trim: 0
-  eulerStart: {x: 0, y: 0, z: 0}
-  axe: {x: 1, y: 0, z: 0}
 --- !u!1 &7890871525832349063
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,6 +707,7 @@ GameObject:
   - component: {fileID: 7890871526147973905}
   - component: {fileID: 7890871526147973918}
   - component: {fileID: 7890871526147973919}
+  - component: {fileID: 2328694923784200690}
   m_Layer: 0
   m_Name: Helm_Pitch
   m_TagString: Untagged
@@ -805,6 +782,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2328694923784200690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7890871526147973906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guid: 9b80e6d1-6004-4751-86d0-5c0dc1ec9810
+  tags: []
+  port:
+    guid: b93669e5-0c49-46f5-b9b0-cd1f72e11332
+    cache: 0
+    valueType: 0
+  lever: {fileID: 7890871526147973905}
+  mul: 20
+  trim: 0
+  eulerStart: {x: 10, y: 0, z: 0}
+  axe: {x: 1, y: 0, z: 0}
 --- !u!1 &7890871526242370262
 GameObject:
   m_ObjectHideFlags: 0
@@ -925,7 +925,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7890871526270054232}
-  m_Mesh: {fileID: 4300146, guid: 5df8474ae4d434945b42eef16c74356f, type: 3}
+  m_Mesh: {fileID: 4300182, guid: b2addec0dd940d742b813f0bc04954a0, type: 3}
 --- !u!23 &7890871526270054245
 MeshRenderer:
   m_ObjectHideFlags: 0

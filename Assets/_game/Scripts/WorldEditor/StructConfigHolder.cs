@@ -72,9 +72,17 @@ namespace WorldEditor
             WiresEditor.CurrentEditor.GetFomSelection();
         }
 #endif
-        
+        private Rigidbody _rigidbody;
+        private bool _needFreezeRigidbody;
         private void Start()
         {
+            _needFreezeRigidbody = false;
+            _rigidbody = GetComponentInChildren<Rigidbody>();
+            if (_rigidbody)
+            {
+                _needFreezeRigidbody = !_rigidbody.isKinematic;
+                _rigidbody.isKinematic = true;
+            }
             Bootstrapper.OnLoadComplete.Subscribe(InstantiateStructure);
         }
 
@@ -82,7 +90,10 @@ namespace WorldEditor
         private async void InstantiateStructure()
         {
             GameObject root = await GetOrCreateRoot();
-            
+            if (_needFreezeRigidbody)
+            {
+                _rigidbody.isKinematic = false;
+            }
             foreach (Configuration config in GetAllConfigs())
             {
                 Type genericType = config.GetType().BaseType.GenericTypeArguments[0];
