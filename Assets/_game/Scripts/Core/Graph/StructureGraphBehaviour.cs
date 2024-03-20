@@ -63,7 +63,10 @@ namespace Core.Graph
             portsPointersCache ??= GetAllPorts();
 
             port = portsPointersCache.FirstOrDefault(x => x.Id.Equals(id));
-            portsCache.Add(id, port);
+            if (!port.IsNull())
+            {
+                portsCache.Add(id, port);
+            }
             return port;
         }
 

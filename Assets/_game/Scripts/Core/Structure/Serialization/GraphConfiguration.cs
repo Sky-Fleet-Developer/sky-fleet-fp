@@ -24,6 +24,10 @@ namespace Core.Structure.Serialization
             graph.InitGraph();
             foreach (WireConfiguration wire in wires)
             {
+                if (wire.ports.Count == 0)
+                {
+                    continue;
+                }
                 PortPointer[] portsToConnect = new PortPointer[wire.ports.Count];
 
                 for (var i = 0; i < wire.ports.Count; i++)

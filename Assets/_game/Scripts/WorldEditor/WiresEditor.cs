@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Graph;
@@ -184,11 +185,17 @@ namespace WorldEditor
                     foreach (string portId in configWire.ports)
                     {
                         var port = currentGraph.GetPort(portId);
-                        var container = FindContainerForPort(port);
-                        wire.Add(container);
+                        if (!port.IsNull())
+                        {
+                            var container = FindContainerForPort(port);
+                            wire.Add(container);
+                        }
                     }
 
-                    wires.Add(wire);
+                    if (wire.Count > 1)
+                    {
+                        wires.Add(wire);
+                    }
                 }
             }
         }
@@ -483,11 +490,17 @@ namespace WorldEditor
 
         private IPortsContainer FindContainerForPort(PortPointer port)
         {
-            List<IPortsContainer> result = new List<IPortsContainer>();
-
             foreach (IPortsContainer portsContainer in containersWithPorts)
             {
-                if (portsContainer.GetPort().Id == port.Id) return portsContainer;
+                try
+                {
+                    if (portsContainer.GetPort().Id == port.Id) return portsContainer;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
 
             return null;

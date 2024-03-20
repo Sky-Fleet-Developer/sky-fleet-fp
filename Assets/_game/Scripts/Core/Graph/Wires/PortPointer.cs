@@ -1,4 +1,6 @@
-﻿namespace Core.Graph.Wires
+﻿using System;
+
+namespace Core.Graph.Wires
 {
     public struct PortPointer : System.IEquatable<PortPointer>, System.IEquatable<string>, IPortUser
     {
@@ -22,6 +24,10 @@
         public PortPointer(IGraphNode node, Port port, string description)
         {
             this.node = node;
+            if (node == null)
+            {
+                throw new NullReferenceException();
+            }
             Port = port;
             _description = description;
             _id = null;
@@ -30,6 +36,10 @@
         public PortPointer(IGraphNode node, Port port)
         {
             this.node = node;
+            if (node == null)
+            {
+                throw new NullReferenceException();
+            }
             Port = port;
             _description = string.Empty;
             _id = null;
@@ -64,5 +74,6 @@
         public Port GetPort() => Port;
 
         public string GetPortDescription() => _description;
+        public bool IsNull() => node == null;
     }
 }

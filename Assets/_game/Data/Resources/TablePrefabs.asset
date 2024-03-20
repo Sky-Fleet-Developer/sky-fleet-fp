@@ -227,6 +227,14 @@ MonoBehaviour:
     guid: 4391cf4e-8e1a-416e-8f8b-0ed380b73c2b
     tags:
     - block
+  - reference:
+      m_AssetGUID: 02e05baff1bdc20449a234ed5944933f
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - block
   autoSearchSettings:
   - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Blocks
     tags:
