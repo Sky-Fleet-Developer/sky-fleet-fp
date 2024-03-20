@@ -95,13 +95,15 @@ namespace Core.Graph.Wires
 
         public static void AddPortsToWire(Wire wire, params PortPointer[] ports)
         {
-            PortPointer zero = ports[0];
+            PortPointer zero = ports.First(x => x.Port != null);
 
             zero.Port.SetWire(wire);
             wire.ports.Add(zero);
 
-            for (int i = 1; i < ports.Length; i++)
+            for (int i = 0; i < ports.Length; i++)
             {
+                if(ports[i].Equals(zero) || ports[i].Port == null) continue;
+                
                 if(wire.ports.Contains(ports[i]) || ports[i].CanConnect(wire) == false) continue;
                 ports[i].Port.SetWire(wire);
                 wire.ports.Add(ports[i]);

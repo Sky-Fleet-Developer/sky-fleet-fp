@@ -178,22 +178,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9095926299488358306, guid: 605b1e63956e177459a2770646853be7, type: 3}
-      propertyPath: maxTraverseBendVelocity
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 9095926299488358306, guid: 605b1e63956e177459a2770646853be7, type: 3}
-      propertyPath: maxTraverseTwistVelocity
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 9095926299488358306, guid: 605b1e63956e177459a2770646853be7, type: 3}
-      propertyPath: maxLongitudinalBendVelocity
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 9095926299488358306, guid: 605b1e63956e177459a2770646853be7, type: 3}
-      propertyPath: maxLongitudinalTwistVelocity
-      value: 10
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 605b1e63956e177459a2770646853be7, type: 3}
 --- !u!1001 &70366826

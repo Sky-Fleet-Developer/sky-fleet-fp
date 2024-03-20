@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Graph.Wires;
@@ -72,7 +73,10 @@ namespace Core.Graph
 
             foreach (PortPointer port in ports)
             {
-                existWire = port.Port.GetWire();
+                if (port.Port != null)
+                {
+                    existWire = port.Port.GetWire();
+                }
                 if (existWire != null) break;
             }
 
@@ -80,7 +84,7 @@ namespace Core.Graph
             else Graph.Wires.Utilities.AddPortsToWire(existWire, ports);
         }
 
-        private void CreateWireForPorts( params PortPointer[] ports)
+        private void CreateWireForPorts(params PortPointer[] ports)
         {
             int canConnect = 0;
             PortPointer zero = ports[0];

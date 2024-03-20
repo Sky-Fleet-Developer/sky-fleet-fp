@@ -53,6 +53,7 @@ MonoBehaviour:
     charge: 0
     maxInput: 1
     maxOutput: 1
+    contentType: 0
     delta: 0
   updateFrequency: 1
   maxConsumption: 1
@@ -85,10 +86,6 @@ MonoBehaviour:
     guid: 73ae6860-f779-4490-9e8f-742c9422b3b5
     cache: 0
     valueType: 0
-  support_FR_Pitch:
-    guid: e018fac2-5b0a-4176-a2cd-58c35577fcf1
-    cache: 0
-    valueType: 0
   support_FR_Roll:
     guid: 3885ef4b-71b3-4a71-afa9-9a41b4a7b631
     cache: 0
@@ -117,11 +114,12 @@ MonoBehaviour:
     guid: 6545794f-3dba-4b60-85cd-73f414f7b89f
     cache: 0
     valueType: 0
-  maxXVelocityZRotation: 20
+  maxLongitudinalTwistVelocity: 15
+  maxLongitudinalBendVelocity: 15
+  maxTraverseTwistVelocity: 10
+  maxTraverseBendVelocity: 10
   relativeRoll: 0
   relativePitch: 0
-  pitchSmooth: 1.5
-  rollSmooth: 5
 --- !u!1 &8087513032772608630
 GameObject:
   m_ObjectHideFlags: 0
