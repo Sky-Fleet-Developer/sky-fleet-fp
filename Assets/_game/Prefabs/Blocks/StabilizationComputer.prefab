@@ -24,7 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3652380819340246750}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.00022054947, y: 12.790015, z: 0.7200193}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -57,8 +57,11 @@ MonoBehaviour:
     delta: 0
   updateFrequency: 1
   maxConsumption: 1
-  pitchApex: 10
-  rollApex: 10
+  pitchApex: 45
+  rollApex: 45
+  pitchDumping: 40
+  rollDumping: 30
+  yawDumping: 18
   maxStrafeCorrectionVelocity: 10
   relativeRoll:
     guid: 1f2e0acf-316d-43c0-b569-2149e54c4a8c
@@ -76,6 +79,10 @@ MonoBehaviour:
     guid: ac097e44-eef6-4ae1-9c72-0fcbcd67fd7d
     cache: 0
     valueType: 0
+  inputYaw:
+    guid: 0ea701bb-8f25-4917-85c7-a9d20eb77771
+    cache: 0
+    valueType: 0
   gyroSpeedX:
     guid: 66b48e87-b8be-4d91-9d0f-e213625a3043
     cache: 0
@@ -88,12 +95,32 @@ MonoBehaviour:
     guid: 025d36fd-30cb-4879-b5fd-8d9d8de789ca
     cache: 0
     valueType: 0
+  gyroAngularSpeedY:
+    guid: 96a52c0a-28b3-403f-ac91-b28c2c8950cf
+    cache: 0
+    valueType: 0
+  gyroAngularSpeedZ:
+    guid: bdc2f16d-33be-4b00-b973-f53f21611048
+    cache: 0
+    valueType: 0
+  gyroAngularSpeedX:
+    guid: 1198e45a-59c3-4c3e-9304-0a3196f5d7c2
+    cache: 0
+    valueType: 0
   pitch:
     guid: 96d7593b-5a47-4d9d-a7ff-bcde6ed430d9
     cache: 0
     valueType: 0
   roll:
     guid: 1113d8f3-5d52-4244-84ed-4935fe00420e
+    cache: 0
+    valueType: 0
+  yaw:
+    guid: 7ad0060f-b3c2-440c-ab5e-58ded0f4c6be
+    cache: 0
+    valueType: 0
+  strafe:
+    guid: 7f3e2f2b-b674-4a40-9d61-2075e5b71934
     cache: 0
     valueType: 0
 --- !u!1 &8087513032772608630

@@ -60,9 +60,9 @@ namespace Runtime.Structure.Rigging.Control
             localSpeedX.Value = localSpeed.x;
             localSpeedY.Value = localSpeed.y;
             localSpeedZ.Value = localSpeed.z;
-            localAngularSpeedX.Value = localAngleSpeed.x;
-            localAngularSpeedY.Value = localAngleSpeed.y;
-            localAngularSpeedZ.Value = localAngleSpeed.z;
+            localAngularSpeedX.Value = localAngleSpeed.x * Mathf.Rad2Deg;
+            localAngularSpeedY.Value = localAngleSpeed.y * Mathf.Rad2Deg;
+            localAngularSpeedZ.Value = localAngleSpeed.z * Mathf.Rad2Deg;
         }
 
         public void ConsumptionTick()

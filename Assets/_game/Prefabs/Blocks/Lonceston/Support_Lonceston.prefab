@@ -454,8 +454,8 @@ MonoBehaviour:
   mass: 10
   mountingType: 
   variatorTransform: {fileID: 2284595469187098040}
-  pitchAngle: 7
-  rollAngle: 5
+  pitchAngle: 12
+  rollAngle: 12
   xIsFree: 1
   yIsFree: 0
   zIsFree: 1
@@ -499,6 +499,7 @@ MonoBehaviour:
     charge: 0
     maxInput: 1
     maxOutput: 1
+    contentType: 0
     delta: 0
   pitch:
     guid: a3ac8c0c-e3fe-42ee-ba9c-ab384fdb3b02

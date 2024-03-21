@@ -12,6 +12,9 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private Port<float> roll = new Port<float>(PortType.Thrust);
         [SerializeField] private Port<float> gyroSpeedX = new Port<float>(PortType.Thrust);
         [SerializeField] private Port<float> gyroSpeedZ = new Port<float>(PortType.Thrust);
+        [SerializeField] private Port<float> strafe = new Port<float>(PortType.Thrust);
+        [SerializeField] private float rotatePercent = 2;
+        [SerializeField] private float strafePercent = 1;
 
         [SerializeField] private Port<float> support_FR_Pitch = new Port<float>(PortType.Thrust);
         [SerializeField] private Port<float> support_FR_Roll = new Port<float>(PortType.Thrust);
@@ -48,6 +51,7 @@ namespace Runtime.Structure.Rigging.Control
                     new PortPointer(this, roll, nameof(roll)),
                     new PortPointer(this, gyroSpeedX, nameof(gyroSpeedX)),
                     new PortPointer(this, gyroSpeedZ, nameof(gyroSpeedZ)),
+                    new PortPointer(this, strafe, nameof(strafe)),
                 };
                 outputPorts = new List<PortPointer>
                 {
@@ -71,6 +75,7 @@ namespace Runtime.Structure.Rigging.Control
         {
             float rollValue = roll.GetValue();
             float pitchValue = pitch.GetValue();
+            float strafeValue = strafe.GetValue();
 
             float forwardSign = Mathf.Sign(gyroSpeedZ.GetValue());
             float sidewaysSign = Mathf.Sign(gyroSpeedX.GetValue());
@@ -79,15 +84,21 @@ namespace Runtime.Structure.Rigging.Control
 
             float longitudinalTwist = Mathf.Clamp(rollValue * forwardFunction * forwardSign / maxLongitudinalTwistVelocity, -1, 1);
             float longitudinalBend = Mathf.Clamp(pitchValue * forwardFunction / maxLongitudinalBendVelocity, -1, 1);
-            float transverseTwist = Mathf.Clamp(pitchValue * sidewaysFunction / maxTraverseTwistVelocity, -1, 1);
+            float transverseTwist = Mathf.Clamp(-pitchValue * sidewaysFunction * sidewaysSign / maxTraverseTwistVelocity, -1, 1);
             float transverseBend = Mathf.Clamp(rollValue * sidewaysFunction * sidewaysSign / maxTraverseBendVelocity, -1, 1);
 
+            float divider = 1 / (rotatePercent + strafePercent);
+            float rotateMul = rotatePercent * divider;
+            float strafeMul = strafePercent * divider;
+            
             foreach (SupportPosition supportPosition in _supportPositions)
             {
                 float supportPitch = supportPosition.Position.x * longitudinalTwist +
                                      supportPosition.Position.y * longitudinalBend;
-                float supportRoll = supportPosition.Position.y * transverseTwist -
-                                     supportPosition.Position.x * transverseBend;
+                float supportRoll = (supportPosition.Position.y * transverseTwist -
+                                     supportPosition.Position.x * transverseBend) * rotateMul
+                                    +
+                                    strafeValue * strafeMul;
                 supportPosition.SetValues(supportPitch, supportRoll);
             }
         }

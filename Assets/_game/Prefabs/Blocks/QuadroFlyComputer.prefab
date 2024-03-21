@@ -57,17 +57,12 @@ MonoBehaviour:
     delta: 0
   updateFrequency: 1
   maxConsumption: 1
-  maxRollAngle: 15
   pitch:
     guid: 72501d22-c858-4df0-a0b8-ae1ee60b6f8f
     cache: 0
     valueType: 0
   roll:
     guid: 703512ed-b141-461e-962b-7aaee288d579
-    cache: 0
-    valueType: 0
-  yaw:
-    guid: 901f8069-f801-4fbb-aba6-7c68b532d224
     cache: 0
     valueType: 0
   gyroSpeedX:
@@ -78,12 +73,14 @@ MonoBehaviour:
     guid: 8d1f05a6-f99c-476e-9368-fa237b40d53c
     cache: 0
     valueType: 0
-  gyroPitch:
-    guid: 4a94aa72-b20f-4d82-986d-c86591292774
+  strafe:
+    guid: 9f35f5f4-8a55-4c75-bcfb-ef5a62ea0929
     cache: 0
     valueType: 0
-  gyroRoll:
-    guid: 73ae6860-f779-4490-9e8f-742c9422b3b5
+  rotatePercent: 1
+  strafePercent: 2
+  support_FR_Pitch:
+    guid: 98974f7d-62f0-43b3-b29c-bc450056ddb7
     cache: 0
     valueType: 0
   support_FR_Roll:
@@ -118,8 +115,6 @@ MonoBehaviour:
   maxLongitudinalBendVelocity: 15
   maxTraverseTwistVelocity: 10
   maxTraverseBendVelocity: 10
-  relativeRoll: 0
-  relativePitch: 0
 --- !u!1 &8087513032772608630
 GameObject:
   m_ObjectHideFlags: 0

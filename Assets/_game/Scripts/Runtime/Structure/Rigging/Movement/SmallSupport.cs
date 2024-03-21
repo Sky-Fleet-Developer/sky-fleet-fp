@@ -181,6 +181,8 @@ namespace Runtime.Structure.Rigging.Movement
                     u = Vector3.up;
                 }
 
+                normal *= 3;
+
                 Handles.CircleHandleCap(0, Vector3.zero, Quaternion.LookRotation(normal, u), qMax, EventType.Repaint);
                 Handles.CircleHandleCap(0, normal * qMax, Quaternion.LookRotation(normal, u), qMax * 0.15f,
                     EventType.Repaint);
