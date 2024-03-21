@@ -126,7 +126,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximalThrust: 40000000
+  maximalThrust: 120000000
   fuelConsumptionMul: 1
   throttle:
     guid: 1bc1da6d-3509-44cc-bde4-97dff7d59b87
@@ -141,7 +141,7 @@ MonoBehaviour:
     cache: 0
     valueType: 0
   nozzle: {fileID: 1775134366154268443}
-  masInclinationAngle: 30
+  maxInclinationAngle: 30
 --- !u!1 &2383524533670721823
 GameObject:
   m_ObjectHideFlags: 0
