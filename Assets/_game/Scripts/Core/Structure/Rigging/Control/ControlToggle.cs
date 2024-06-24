@@ -16,7 +16,7 @@ namespace Core.Structure.Rigging.Control
         public Port GetPort() => port;
         public Transform Root => _device.transform;
 
-        public string GetPortDescription()
+        public string GetName()
         {
             if (keyDetected.IsNone())
             {

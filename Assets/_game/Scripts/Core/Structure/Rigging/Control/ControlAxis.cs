@@ -13,7 +13,7 @@ namespace Core.Structure.Rigging.Control
         public bool EnableInteraction => enableInteraction;
         [SerializeField] private bool enableInteraction;
         public Port GetPort() => port;
-        public string GetPortDescription()
+        public string GetName()
         {
             string keysDescr = string.Empty;
             if (!keyPositive.IsNone())

@@ -72,7 +72,7 @@ namespace Core.Structure.Rigging
         void PushToPort(float amount);
     }
 
-    public interface IControl : IInteractiveBlock, IUpdatableBlock, IMultiplePortsNode
+    public interface IControl : IInteractiveBlock, IUpdatableBlock
     {
         bool IsUnderControl { get; }
         List<ControlAxis> Axes { get; }
@@ -81,7 +81,7 @@ namespace Core.Structure.Rigging
         void LeaveControl(ICharacterController controller);
     }
 
-    public interface IComputer : IMultiplePortsNode, IUpdatableBlock, IConsumer
+    public interface IComputer : IUpdatableBlock, IConsumer
     {
     }
 

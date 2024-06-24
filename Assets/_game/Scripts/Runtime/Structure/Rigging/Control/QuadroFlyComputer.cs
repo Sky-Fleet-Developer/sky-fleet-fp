@@ -8,22 +8,22 @@ namespace Runtime.Structure.Rigging.Control
 {
     public class QuadroFlyComputer : Computer
     {
-        [SerializeField] private Port<float> pitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> roll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroSpeedX = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroSpeedZ = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> strafe = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> pitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> roll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroSpeedX = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroSpeedZ = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> strafe = new Port<float>(PortType.Thrust);
         [SerializeField] private float rotatePercent = 2;
         [SerializeField] private float strafePercent = 1;
 
-        [SerializeField] private Port<float> support_FR_Pitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_FR_Roll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_FL_Pitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_FL_Roll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_BR_Pitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_BR_Roll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_BL_Pitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> support_BL_Roll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_FR_Pitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_FR_Roll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_FL_Pitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_FL_Roll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_BR_Pitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_BR_Roll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_BL_Pitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> support_BL_Roll = new Port<float>(PortType.Thrust);
         [SerializeField] private float maxLongitudinalTwistVelocity;
         [SerializeField] private float maxLongitudinalBendVelocity;
         [SerializeField] private float maxTraverseTwistVelocity;
@@ -44,25 +44,6 @@ namespace Runtime.Structure.Rigging.Control
                     new SupportPosition(support_FL_Pitch, support_FL_Roll, new Vector2(-1, 1)),
                     new SupportPosition(support_BR_Pitch, support_BR_Roll, new Vector2(1, -1)),
                     new SupportPosition(support_BL_Pitch, support_BL_Roll, new Vector2(-1, -1)),
-                };
-                inputsPorts = new List<PortPointer>
-                {
-                    new PortPointer(this, pitch, nameof(pitch)),
-                    new PortPointer(this, roll, nameof(roll)),
-                    new PortPointer(this, gyroSpeedX, nameof(gyroSpeedX)),
-                    new PortPointer(this, gyroSpeedZ, nameof(gyroSpeedZ)),
-                    new PortPointer(this, strafe, nameof(strafe)),
-                };
-                outputPorts = new List<PortPointer>
-                {
-                    new PortPointer(this, support_FR_Pitch, "support/FR/Pitch"),
-                    new PortPointer(this, support_FR_Roll, "support/FR/Roll"),
-                    new PortPointer(this, support_FL_Pitch, "support/FL/Pitch"),
-                    new PortPointer(this, support_FL_Roll, "support/FL/Roll"),
-                    new PortPointer(this, support_BR_Pitch, "support/BR/Pitch"),
-                    new PortPointer(this, support_BR_Roll, "support/BR/Roll"),
-                    new PortPointer(this, support_BL_Pitch, "support/BL/Pitch"),
-                    new PortPointer(this, support_BL_Roll, "support/BL/Roll"),
                 };
             }
             catch (Exception e)

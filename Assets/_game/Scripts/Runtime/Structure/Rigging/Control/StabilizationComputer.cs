@@ -15,55 +15,23 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private float rollDumping = 10;
         [SerializeField] private float yawDumping = 10;
         [SerializeField] private float maxStrafeCorrectionVelocity = 10;
-        [SerializeField] private Port<bool> relativeRoll = new Port<bool>(PortType.Toggle);
-        [SerializeField] private Port<bool> relativePitch = new Port<bool>(PortType.Toggle);
-        [SerializeField] private Port<float> inputPitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> inputRoll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> inputYaw = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroSpeedX = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroPitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroRoll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroAngularSpeedY = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroAngularSpeedZ = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> gyroAngularSpeedX = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<bool> relativeRoll = new Port<bool>(PortType.Toggle);
+        [SerializeField, PortGroup("Input")] private Port<bool> relativePitch = new Port<bool>(PortType.Toggle);
+        [SerializeField, PortGroup("Input")] private Port<float> inputPitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> inputRoll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> inputYaw = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroSpeedX = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroPitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroRoll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroAngularSpeedY = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroAngularSpeedZ = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Input")] private Port<float> gyroAngularSpeedX = new Port<float>(PortType.Thrust);
         
-        [SerializeField] private Port<float> pitch = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> roll = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> yaw = new Port<float>(PortType.Thrust);
-        [SerializeField] private Port<float> strafe = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> pitch = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> roll = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> yaw = new Port<float>(PortType.Thrust);
+        [SerializeField, PortGroup("Output")] private Port<float> strafe = new Port<float>(PortType.Thrust);
 
-        
-        private StabilizationComputer()
-        {
-            try
-            {
-                inputsPorts = new List<PortPointer>
-                {
-                    new PortPointer(this, relativeRoll, nameof(relativeRoll)),
-                    new PortPointer(this, relativePitch, nameof(relativePitch)),
-                    new PortPointer(this, inputPitch, nameof(inputPitch)),
-                    new PortPointer(this, inputRoll, nameof(inputRoll)),
-                    new PortPointer(this, inputYaw, nameof(inputYaw)),
-                    new PortPointer(this, gyroAngularSpeedX, nameof(gyroAngularSpeedX)),
-                    new PortPointer(this, gyroAngularSpeedY, nameof(gyroAngularSpeedY)),
-                    new PortPointer(this, gyroAngularSpeedZ, nameof(gyroAngularSpeedZ)),
-                    new PortPointer(this, gyroSpeedX, nameof(gyroSpeedX)),
-                    new PortPointer(this, gyroPitch, nameof(gyroPitch)),
-                    new PortPointer(this, gyroRoll, nameof(gyroRoll)),
-                };
-                outputPorts = new List<PortPointer>
-                {
-                    new PortPointer(this, pitch, nameof(pitch)),
-                    new PortPointer(this, roll, nameof(roll)),
-                    new PortPointer(this, yaw, nameof(yaw)),
-                    new PortPointer(this, strafe, nameof(strafe)),
-                };
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
-        }
         
         protected override void UpdateComputer()
         {

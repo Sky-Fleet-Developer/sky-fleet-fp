@@ -4,7 +4,7 @@ using Core.Graph.Wires;
 
 namespace Core.ContentSerializer.CustomSerializers
 {
-    public class PortSerializer : ICustomSerializer
+    /*public class PortSerializer : ICustomSerializer
     {
         public string Serialize(object source, ISerializationContext context, int idx)
         {
@@ -20,5 +20,5 @@ namespace Core.ContentSerializer.CustomSerializers
             port.SetGuid(cache[prefix]);
             return Task.CompletedTask;
         }
-    }
+    }*/
 }

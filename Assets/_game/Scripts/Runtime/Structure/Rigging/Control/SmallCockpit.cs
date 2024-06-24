@@ -86,14 +86,14 @@ namespace Runtime.Structure.Rigging.Control
             }
         }
 
-        public IEnumerable<PortPointer> GetPorts()
+       /* public IEnumerable<PortPointer> GetPorts()
         {
             if (controlElementsCache == null)
             {
                 CollectControlElements();
             }
             return controlElementsCache.Select(x => new PortPointer(this, x.GetPort()));
-        }
+        }*/
 
         public IEnumerable<IInteractiveDevice> GetInteractiveDevices()
         {

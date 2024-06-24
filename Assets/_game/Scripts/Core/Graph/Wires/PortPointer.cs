@@ -7,21 +7,11 @@ namespace Core.Graph.Wires
         private readonly IGraphNode node;
         public readonly  Port Port;
 
-        public string Id
-        {
-            get
-            {
-                if (_id == null)
-                {
-                    _id = node.NodeId + Port.Guid;
-                }
-                return _id;
-            }
-        }
+        public string Id => _id;
         private string _id;
-        private string _description;
+        private string _group;
 
-        public PortPointer(IGraphNode node, Port port, string description)
+        public PortPointer(IGraphNode node, Port port, string id, string group)
         {
             this.node = node;
             if (node == null)
@@ -29,20 +19,8 @@ namespace Core.Graph.Wires
                 throw new NullReferenceException();
             }
             Port = port;
-            _description = description;
-            _id = null;
-        }
-
-        public PortPointer(IGraphNode node, Port port)
-        {
-            this.node = node;
-            if (node == null)
-            {
-                throw new NullReferenceException();
-            }
-            Port = port;
-            _description = string.Empty;
-            _id = null;
+            _group = group;
+            _id = $"{node.NodeId}_{id}";
         }
 
         public override string ToString()
@@ -73,7 +51,8 @@ namespace Core.Graph.Wires
         public bool CanConnect(Wire wire) => wire.CanConnect(this);
         public Port GetPort() => Port;
 
-        public string GetPortDescription() => _description;
+        public string GetGroup() => _group;
+        public string GetName() => _id;
         public bool IsNull() => node == null;
     }
 }

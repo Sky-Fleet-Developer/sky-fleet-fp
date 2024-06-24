@@ -357,37 +357,34 @@ namespace WorldEditor
             GUILayout.BeginHorizontal();
 
             float space = verticalOffset;
+            
 
+            string prefix = "   |";
+            Color color = Color.gray;
+            
             if (options.connected)
             {
-                space -= 25;
+                prefix = "~--|";
+                space -= 20;
+            }
+            else if (options.canConnect)
+            {
+                color = Color.white;
+                prefix = "~> |";
+                space -= 20;
             }
 
             if (options.selected)
             {
-                space -= 25;
-            }
-
-            if (options.canConnect)
-            {
-                space -= 15;
+                color = Color.blue;
+                space -= 20;
             }
 
             GUILayout.Space(verticalOffset + space);
-            if (options.connected)
-            {
-                GUILayout.Label("--", GUILayout.Width(25));
-            }
 
-            if (options.selected)
-            {
-                GUILayout.Label("-->", GUILayout.Width(25));
-            }
-
-            if (options.canConnect)
-            {
-                GUILayout.Label(">", GUILayout.Width(15));
-            }
+            GUI.contentColor = color;
+            GUILayout.Label(prefix, GUILayout.Width(25));
+            GUI.contentColor = Color.white;
 
             if (GUILayout.Button(container.GetDescription()))
             {

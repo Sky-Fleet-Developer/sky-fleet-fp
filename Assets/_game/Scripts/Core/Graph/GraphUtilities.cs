@@ -11,11 +11,11 @@ namespace Core.Graph
 {
     public static class GraphUtilities
     {
-        public static IEnumerable<IPortsContainer> GetPortsFromSpecialBlock(string nodeId, IMultiplePortsNode node)
+        /*public static IEnumerable<IPortsContainer> GetPortsFromSpecialBlock(string nodeId, IGraphNode node)
         {
-            var multiplePortsFields = GetMultiplePortsFields(node);
+            var listPortFields = GetListPortFields(node);
 
-            foreach (FieldInfo field in multiplePortsFields)
+            foreach (FieldInfo field in listPortFields)
             {
                 var value = field.GetValue(node);
 
@@ -25,21 +25,21 @@ namespace Core.Graph
 
                     foreach (IPortUser portUser in list)
                     {
-                        string description = portUser.GetPortDescription();
+                        string description = portUser.GetGroup();
                         var port = portUser.GetPort();
 
-                        infos.Add(new PortInfo(new PortPointer(node, port), description));
+                        infos.Add(new PortInfo(new PortPointer(node, port, description), description));
                     }
 
                     yield return new PortsGroupContainer(field.Name + ":", infos);
                 }
             }
-        }
+        }*/
         
         
         public static Dictionary<Type, FieldInfo[]> MultiplePorts;
 
-        public static FieldInfo[] GetMultiplePortsFields(IMultiplePortsNode block)
+        public static FieldInfo[] GetNestedPortUserFields(IGraphNode block)
         {
             Type blockType = block.GetType();
             if (MultiplePorts == null) MultiplePorts = new Dictionary<Type, FieldInfo[]>();
@@ -51,13 +51,13 @@ namespace Core.Graph
             Type type = typeof(IList);
             Type elementType = typeof(IPortUser);
 
-            string log = $"Ports for type {blockType.Name}:\n";
+            string log = $"Ports lists for type {blockType.Name}:\n";
 
             FieldInfo[] allFields = blockType.GetFields(BindingFlags.Instance | BindingFlags.Public);
             
             foreach (FieldInfo field in allFields)
             {
-                if (field.FieldType.InheritsFrom(type) && field.FieldType.GetGenericArguments().FirstOrDefault(x => TypeExtensions.InheritsFrom(x, elementType)) != null)
+                if (field.FieldType.InheritsFrom(type) && field.FieldType.GetGenericArguments().Any(x => x.InheritsFrom(elementType)))
                 {
                     fields.Add(field);
                     log += $"{field.Name},";
@@ -87,7 +87,7 @@ namespace Core.Graph
 
             //string log = $"Ports for type {blockType.Name}:\n";
 
-            foreach (FieldInfo field in blockType.GetFields())
+            foreach (FieldInfo field in blockType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (field.FieldType == type || field.FieldType.InheritsFrom(type))
                 {
@@ -105,28 +105,33 @@ namespace Core.Graph
             return infos;
         }
         
-        public static void GetAllPorts(IGraphNode node, ref List<PortPointer> result)
-        {
-            GetPorts(node, ref result);
-            if (node is IMultiplePortsNode multiplePortsNode)
-            {
-                GetMultiplePorts(multiplePortsNode, ref result);
-            }
-        }
-
         public static void GetPorts(IGraphNode node, ref List<PortPointer> result)
         {
-            FieldInfo[] properties = GraphUtilities.GetPortsInfo(node);
-            foreach (FieldInfo property in properties)
+            FieldInfo[] fields = GraphUtilities.GetPortsInfo(node);
+            foreach (FieldInfo field in fields)
             {
-                result.Add(new PortPointer(node, property.GetValue(node) as Port));
+                string group = field.Name;
+                var groupAttribute = field.GetCustomAttribute<PortGroupAttribute>();
+                if (groupAttribute != null)
+                {
+                    group = groupAttribute.Group;
+                }
+                result.Add(new PortPointer(node, field.GetValue(node) as Port, field.Name, group));
             }
-        }
+            var listPortFields = GetNestedPortUserFields(node);
+            foreach (var field in listPortFields)
+            {
+                if (field.GetValue(node) is IList list)
+                {
+                    foreach (IPortUser portUser in list)
+                    {
+                        string description = portUser.GetName();
+                        var port = portUser.GetPort();
 
-        public static void GetMultiplePorts(IMultiplePortsNode multiplePortsNode, ref List<PortPointer> result)
-        {
-            IEnumerable<PortPointer> specialPorts = multiplePortsNode.GetPorts();
-            result.AddRange(specialPorts);
+                        result.Add(new PortPointer(node, port, field.Name, description));
+                    }
+                }
+            }
         }
     }
 }

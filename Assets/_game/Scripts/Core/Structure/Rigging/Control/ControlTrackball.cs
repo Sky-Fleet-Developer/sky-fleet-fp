@@ -20,7 +20,7 @@ namespace Core.Structure.Rigging.Control
             Round = 1,
         }
 
-        public string GetPortDescription()
+        public string GetName()
         {
             string keysDescr = string.Empty;
             if (!axisX.IsNone()) keysDescr += axisX.Axis.ToString();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -40,26 +41,33 @@ namespace Core.Graph.Wires
         {
             List<IPortsContainer> subContainers = new List<IPortsContainer>();
             container.Add(new PortsGroupContainer(node.NodeId, subContainers));
-            if (node is IMultiplePortsNode multiplePorts)
-            {
-                subContainers.AddRange(Graph.GraphUtilities.GetPortsFromSpecialBlock(node.NodeId, multiplePorts));
-            }
+            //subContainers.AddRange(Graph.GraphUtilities.GetPortsFromSpecialBlock(node.NodeId, node));
             subContainers.AddRange(GetPortsFromBlock(node));
         }
 
         private static IEnumerable<IPortsContainer> GetPortsFromBlock(IGraphNode node)
         {
-            FieldInfo[] fields = GraphUtilities.GetPortsInfo(node);
             List<PortPointer> pointers = new List<PortPointer>();
-            GraphUtilities.GetPorts(node, ref pointers);
-            List<IPortsContainer> infos = new List<IPortsContainer>(fields.Length);
-            
-            for (var i = 0; i < pointers.Count; i++)
+            GraphUtilities.GetPorts(node, ref pointers); 
+            IEnumerable<IGrouping<string, PortPointer>> group = pointers.GroupBy(x => x.GetGroup());
+            foreach (IGrouping<string, PortPointer> portPointers in group)
             {
-                string portName = GetNameOf(pointers[i].Port);
-                yield return new PortInfo(pointers[i], $"{fields[i].Name}: {portName}");
+                PortPointer[] array = portPointers.ToArray();
+                if (array.Length == 1)
+                {
+                    string portName = GetNameOf(array[0].Port);
+                    yield return new PortInfo(array[0], $"{portPointers.Key}: {portName}");
+                }
+                else
+                {
+                    List<IPortsContainer> infos = new List<IPortsContainer>(array.Length);
+                    foreach (var portPointer in array)
+                    {
+                        infos.Add(new PortInfo(portPointer, $"{portPointer.Id}: {GetNameOf(portPointer.Port)}"));   
+                    }
+                    yield return new PortsGroupContainer(portPointers.Key + ":", infos);
+                }
             }
-
         }
 
         private static string GetNameOf(Port port)

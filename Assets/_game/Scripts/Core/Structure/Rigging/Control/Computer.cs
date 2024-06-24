@@ -16,9 +16,6 @@ namespace Core.Structure.Rigging.Control
 
         [SerializeField] private float maxConsumption;
 
-        public List<PortPointer> inputsPorts;
-        public List<PortPointer> outputPorts;
-
         private int countUpdatePassed = 0;
 
         public void ConsumptionTick()
@@ -29,18 +26,6 @@ namespace Core.Structure.Rigging.Control
         public void PowerTick()
         {
             IsWork = Utilities.CalculateConsumerTickB(this);
-        }
-
-        public IEnumerable<PortPointer> GetPorts()
-        {
-            foreach (PortPointer iPort in inputsPorts)
-            {
-                yield return iPort;
-            }
-            foreach (PortPointer oPort in outputPorts)
-            {
-                yield return oPort;
-            }
         }
 
         public void UpdateBlock(int lod)

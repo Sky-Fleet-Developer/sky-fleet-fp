@@ -285,7 +285,7 @@ namespace Core.ContentSerializer
                 {typeof(MeshRenderer), new MeshRendererSerializer()},
                 {typeof(Material), new MaterialSerializer()},
                 {typeof(Texture2D), new Texture2DSerializer()},
-                {typeof(Port), new PortSerializer()},
+                //{typeof(Port), new PortSerializer()},
                 {typeof(Transform), new TransformSerializer()}
             };
 

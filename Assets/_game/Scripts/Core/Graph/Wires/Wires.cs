@@ -20,25 +20,12 @@ namespace Core.Graph.Wires
     public interface IPortUser
     {
         public Port GetPort();
-        public string GetPortDescription();
+        public string GetName();
     }
     
     [System.Serializable]
     public abstract class Port
     {
-        [ShowInInspector]
-        public string Guid
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(guid)) guid = System.Guid.NewGuid().ToString();
-                return guid;
-            }
-            private set => guid = value;
-        }
-        
-        [SerializeField, HideInInspector] private string guid;
-
         protected Wire wire;
 
         public virtual void SetWire(Wire wire)
@@ -47,11 +34,6 @@ namespace Core.Graph.Wires
         }
         public Wire GetWire() => wire;
         public abstract Wire CreateWire();
-
-        public void SetGuid(string guid)
-        {
-            this.guid = guid;
-        }
 
         public abstract bool CanConnect(Port port);
         public abstract string ToString();

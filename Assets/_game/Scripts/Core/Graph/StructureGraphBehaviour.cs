@@ -109,7 +109,7 @@ namespace Core.Graph
             List<PortPointer> result = new List<PortPointer>();
             foreach (IGraphNode structureBlock in nodes)
             {
-                GraphUtilities.GetAllPorts(structureBlock, ref result);
+                GraphUtilities.GetPorts(structureBlock, ref result);
             }
 
             return result;
