@@ -1480,7 +1480,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1066914337}
   m_Layer: 0
-  m_Name: Need to change ports address from GUID to fieldName
+  m_Name: Setup new wires to renamed ports
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
