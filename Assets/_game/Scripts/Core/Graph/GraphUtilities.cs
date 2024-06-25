@@ -128,7 +128,7 @@ namespace Core.Graph
                         string description = portUser.GetName();
                         var port = portUser.GetPort();
 
-                        result.Add(new PortPointer(node, port, field.Name, description));
+                        result.Add(new PortPointer(node, port, description, field.Name));
                     }
                 }
             }

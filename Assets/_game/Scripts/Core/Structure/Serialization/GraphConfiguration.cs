@@ -3,6 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Graph;
 using Core.Graph.Wires;
+using Newtonsoft.Json;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Core.Structure.Serialization
 {
@@ -10,6 +13,16 @@ namespace Core.Structure.Serialization
     public class GraphConfiguration : Configuration<IGraph>
     {
         public List<WireConfiguration> wires = new List<WireConfiguration>();
+        [Button]
+        public void CopyToClipboard()
+        {
+            GUIUtility.systemCopyBuffer = JsonConvert.SerializeObject(wires);
+        }
+        [Button]
+        public void PasteFromClipboard()
+        {
+            wires = JsonConvert.DeserializeObject<List<WireConfiguration>>(GUIUtility.systemCopyBuffer);
+        }
         
         public GraphConfiguration(IGraph value) : base(value)
         {

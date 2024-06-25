@@ -779,16 +779,96 @@ MonoBehaviour:
   graphConfiguration:
     wires:
     - ports:
-      - Bridge_Lonceston_axes
+      - Gyroscope_localSpeedX
+      - QuadroFlyComputer_gyroSpeedX
+      - StabilizationComputer_gyroSpeedX
+    - ports:
+      - Gyroscope_localSpeedZ
+      - QuadroFlyComputer_gyroSpeedZ
+    - ports:
+      - Support_LF_pitch
+      - QuadroFlyComputer_support_FL_Pitch
+    - ports:
+      - QuadroFlyComputer_support_FL_Roll
+      - Support_LF_roll
+    - ports:
+      - Support_RF_roll
+      - QuadroFlyComputer_support_FR_Roll
+    - ports:
+      - Support_RB_pitch
+      - QuadroFlyComputer_support_BR_Pitch
+    - ports:
+      - QuadroFlyComputer_support_BR_Roll
+      - Support_RB_roll
+    - ports:
+      - Support_LB_pitch
+      - QuadroFlyComputer_support_BL_Pitch
+    - ports:
+      - QuadroFlyComputer_support_BL_Roll
+      - Support_LB_roll
+    - ports:
+      - Support_LF_powerInput
+      - Support_RF_powerInput
+      - Support_RB_powerInput
+      - Support_LB_powerInput
+      - Gyroscope_power
+      - SmallBattery_storage
+      - SmallFuelPowerGenerator_output
+      - UninterruptiblePowerSupply_storage
+      - QuadroFlyComputer_power
+      - StabilizationComputer_power
+    - ports:
+      - Jet_Lonceston_fuel
+      - SmallFuelPowerGenerator_fuel
+      - TestHydrogenStorage_output
+    - ports:
+      - Support_LF_powerHandle
+      - Support_RF_powerHandle
+      - Support_RB_powerHandle
+      - Support_LB_powerHandle
+      - Bridge_Lonceston_SupportsPower
+    - ports:
       - QuadroFlyComputer_pitch
-      - StabilizationComputer_inputPitch
+      - StabilizationComputer_pitch
     - ports:
       - QuadroFlyComputer_roll
-      - Bridge_Lonceston_axes
+      - StabilizationComputer_roll
+    - ports:
+      - StabilizationComputer_gyroPitch
+      - Gyroscope_pitch
+    - ports:
+      - StabilizationComputer_gyroRoll
+      - Gyroscope_roll
+    - ports:
+      - Support_RF_pitch
+      - QuadroFlyComputer_support_FR_Pitch
+    - ports:
+      - QuadroFlyComputer_strafe
+      - StabilizationComputer_strafe
+    - ports:
+      - Jet_Lonceston_vector
+      - StabilizationComputer_yaw
+    - ports:
+      - StabilizationComputer_gyroAngularSpeedY
+      - Gyroscope_localAngularSpeedY
+    - ports:
+      - Gyroscope_localAngularSpeedX
+      - StabilizationComputer_gyroAngularSpeedX
+    - ports:
+      - Gyroscope_localAngularSpeedZ
+      - StabilizationComputer_gyroAngularSpeedZ
+    - ports:
+      - StabilizationComputer_inputPitch
+      - Bridge_Lonceston_Pitch (W ,S )
+    - ports:
+      - Bridge_Lonceston_Roll (Q ,E )
       - StabilizationComputer_inputRoll
     - ports:
-      - Bridge_Lonceston_axes
+      - Bridge_Lonceston_Yaw (A ,D )
       - StabilizationComputer_inputYaw
+    - ports:
+      - Jet_Lonceston_throttle
+      - Bridge_Lonceston_Engine (,Mouse ScrollWheel)
 --- !u!4 &539074426
 Transform:
   m_ObjectHideFlags: 0
@@ -1163,24 +1243,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
-      propertyPath: m_Mass
-      value: 184510
-      objectReference: {fileID: 0}
-    - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_ImplicitCom
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.x
-      value: 0.000010276317
+      value: 0.00011711447
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.y
-      value: 0.022525707
+      value: 0.25671515
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.z
-      value: -0.020669322
+      value: -0.23555878
       objectReference: {fileID: 0}
     - target: {fileID: 2497653715948258186, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Enabled
@@ -1470,37 +1546,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8179921094211905357, guid: 02e05baff1bdc20449a234ed5944933f, type: 3}
   m_PrefabInstance: {fileID: 1410585811}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1066914336
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1066914337}
-  m_Layer: 0
-  m_Name: Setup new wires to renamed ports
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1066914337
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1066914336}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -138.09866, y: 925.832, z: 62.985703}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1090538846 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5750901212276131971, guid: d07231a1d6ec7d14897872f167f2694a, type: 3}
@@ -2725,4 +2770,3 @@ SceneRoots:
   - {fileID: 850300403}
   - {fileID: 1248684302}
   - {fileID: 539074426}
-  - {fileID: 1066914337}
