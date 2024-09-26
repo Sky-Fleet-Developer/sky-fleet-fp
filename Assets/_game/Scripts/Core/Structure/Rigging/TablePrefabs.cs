@@ -96,7 +96,7 @@ namespace Core.Structure.Rigging
         [System.Serializable]
         private class AddPrefabSettings
         {
-            [SerializeField, FolderPath(AbsolutePath = true)] private string pathToSearchFolder;
+            [SerializeField, FolderPath(AbsolutePath = false)] private string pathToSearchFolder;
             [SerializeField] public List<string> tags;
 
             public IEnumerable<(string fullName, List<string> tags)> GetPaths()

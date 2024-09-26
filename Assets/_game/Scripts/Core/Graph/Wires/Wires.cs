@@ -12,8 +12,8 @@ namespace Core.Graph.Wires
         BigThrust,
         Button,
         Toggle,
+        Signal,
         DoubleSignal,
-
     }
     
 

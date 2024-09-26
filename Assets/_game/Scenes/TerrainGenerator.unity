@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 1478.8683, g: 1831.9524, b: 2425.467, a: 1}
+  m_IndirectSpecularColor: {r: 1481.7755, g: 1835.887, b: 2430.4495, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -268,6 +268,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+--- !u!4 &76540842 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8595622348168803572, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+  m_PrefabInstance: {fileID: 945263423}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &115649945 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8179921094211905357, guid: 605b1e63956e177459a2770646853be7, type: 3}
@@ -668,6 +673,14 @@ MonoBehaviour:
   blocksConfiguration:
     bodyGuid: ac9e9048-8002-4f14-8101-cc9993b06b44
     blocks:
+    - path: Turret/
+      blockName: TurretRotaryMechanism_Lonceston
+      sibilingIdx: 6
+      currentGuid: 4a760db3-ae15-4ff9-9526-fb4105a00d44
+      localPosition: {x: 0, y: 0, z: 0}
+      localRotation: {x: -0, y: 0, z: 0}
+      setupKeys: []
+      setupValues: []
     - path: 
       blockName: Jet_Lonceston
       sibilingIdx: 2
@@ -817,6 +830,7 @@ MonoBehaviour:
       - UninterruptiblePowerSupply_storage
       - QuadroFlyComputer_power
       - StabilizationComputer_power
+      - TurretRotaryMechanism_Lonceston_power
     - ports:
       - Jet_Lonceston_fuel
       - SmallFuelPowerGenerator_fuel
@@ -860,6 +874,7 @@ MonoBehaviour:
     - ports:
       - StabilizationComputer_inputPitch
       - Bridge_Lonceston_Pitch (W ,S )
+      - TurretRotaryMechanism_Lonceston_targetAngle
     - ports:
       - Bridge_Lonceston_Roll (Q ,E )
       - StabilizationComputer_inputRoll
@@ -885,6 +900,68 @@ Transform:
   - {fileID: 945263424}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &699013320
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 76540842}
+    m_Modifications:
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720353829303924871, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+      propertyPath: m_Name
+      value: TurretRotaryMechanism_Lonceston
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+--- !u!4 &699013321 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5720353829303821479, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
+  m_PrefabInstance: {fileID: 699013320}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &757483070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1243,20 +1320,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      propertyPath: m_Mass
+      value: 154515
+      objectReference: {fileID: 0}
+    - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_ImplicitCom
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.x
-      value: 0.00011711447
+      value: 0.000012271192
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.y
-      value: 0.25671515
+      value: 0.026898477
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.z
-      value: -0.23555878
+      value: -0.024681723
       objectReference: {fileID: 0}
     - target: {fileID: 2497653715948258186, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Enabled
@@ -1412,6 +1493,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1590275600178998746, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1064235577}
+    - targetCorrespondingSourceObject: {fileID: 8595622348168803572, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 699013321}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
 --- !u!4 &945263424 stripped
@@ -2734,6 +2818,10 @@ PrefabInstance:
     - target: {fileID: 6433927543360965044, guid: d128a78756b2fd843b61a04fe28602e1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6433927543360965045, guid: d128a78756b2fd843b61a04fe28602e1, type: 3}
+      propertyPath: field of view
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 6433927543360965045, guid: d128a78756b2fd843b61a04fe28602e1, type: 3}
       propertyPath: far clip plane

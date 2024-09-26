@@ -63,6 +63,8 @@ namespace Runtime.Character
         [ShowInInspector, ReadOnly] public Vector2 InputAxis { get; set; }
         private Vector2 input;
 
+        private Vector3[] accelerationCache = new Vector3[10];
+        private int accelerationCachePointer;
         public void InputJump()
         {
             jump = true;
@@ -215,7 +217,7 @@ namespace Runtime.Character
                 {
                     selfVelocity = Vector3.ProjectOnPlane(selfVelocity, groundHit.normal) +
                                    groundHit.normal * jumpImpulse;
-                    rigidbody.velocity = selfVelocity;
+                    rigidbody.velocity = selfVelocity + platformVelocity;
                 }
 
                 rigidbody.AddForceAtPosition(force * deltaTime, groundHit.point);
@@ -241,10 +243,23 @@ namespace Runtime.Character
 
         private void Inclination()
         {
+            if (!grounded)
+            {
+                return;
+            }
             Vector3 fwd = transform.forward;
             fwd.y = 0;
-            float aMag = normalAcceleration.magnitude;
-            Vector3 aDir = aMag == 0 ? Vector3.zero : normalAcceleration / aMag;
+            accelerationCache[accelerationCachePointer] = normalAcceleration;
+            accelerationCachePointer = (accelerationCachePointer + 1) % accelerationCache.Length;
+            Vector3 middleAcceleration = Vector3.zero;
+            foreach (var vector in accelerationCache)
+            {
+                middleAcceleration += vector;
+            }
+            middleAcceleration /= accelerationCache.Length;
+            
+            float aMag = middleAcceleration.magnitude;
+            Vector3 aDir = aMag == 0 ? Vector3.zero : middleAcceleration / aMag;
             Vector3 up = Vector3.up - aDir * (Mathf.Min(aMag * accelerationInclination, inclinationMax));
 
             Quaternion qUp = Quaternion.LookRotation(up, fwd);

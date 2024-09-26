@@ -232,19 +232,28 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: d833a2c4-4c0c-46aa-9b51-608146a519f3
     tags:
     - block
+  - reference:
+      m_AssetGUID: ec0d4b078bd51b743a2ae251029d3dc3
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 4a760db3-ae15-4ff9-9526-fb4105a00d44
+    tags:
+    - block
+    - lonceston
   autoSearchSettings:
-  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Blocks
+  - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:
     - block
-  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Devices
+  - pathToSearchFolder: Assets/_game/Prefabs/Devices
     tags:
     - device
-  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Indicators
+  - pathToSearchFolder: Assets/_game/Prefabs/Indicators
     tags:
     - indicator
-  - pathToSearchFolder: G:/Projects/scy-fleet-fp/Assets/_game/Prefabs/Structures
+  - pathToSearchFolder: Assets/_game/Prefabs/Structures
     tags:
     - structure

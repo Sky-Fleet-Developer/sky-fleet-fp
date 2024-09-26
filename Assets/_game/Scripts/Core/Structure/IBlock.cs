@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
+using Core.Utilities;
 using UnityEngine;
 
 namespace Core.Structure
@@ -24,15 +25,7 @@ namespace Core.Structure
     {
         public static string GetPath(this IBlock block)
         {
-            string result = string.Empty;
-            Transform tr = block.transform.parent;
-            while (tr.GetComponent<IStructure>() == null)
-            {
-                tr = tr.parent;
-                result = tr.name + "/" + result;
-            }
-
-            return result;
+            return block.Parent.Transform.GetPath(block.Structure.transform);
         }
 
         private static Dictionary<Type, PropertyInfo[]> _propertiesCache;
