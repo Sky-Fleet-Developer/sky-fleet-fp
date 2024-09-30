@@ -280,8 +280,13 @@ namespace Core.Character
         
         private class SeatState : InteractionState
         {
+            protected IAimingInterface AimingInterface { get; private set; }
             public SeatState(FirstPersonController master) : base(master)
             {
+                if (master.attachedControl is IAimingInterface aiming)
+                {
+                    AimingInterface = aiming;
+                }
             }
             
             public override void Update()
@@ -290,6 +295,34 @@ namespace Core.Character
                 if (Input.GetButtonDown("Interaction"))
                 {
                     Master.attachedControl.LeaveControl(Master);
+                }
+
+                if (AimingInterface != null)
+                {
+                    if (Input.GetKey(KeyCode.LeftShift))
+                    {
+                        Master.CurrentState = new SeatAimingState(Master, this);
+                    }
+                }
+            }
+        }
+
+        private class SeatAimingState : SeatState
+        {
+            private SeatState _lastState;
+
+            public SeatAimingState(FirstPersonController master, SeatState lastState) : base(master)
+            {
+                _lastState = lastState;
+            }
+
+            public override void Update()
+            {
+                AimingInterface.Input += new Vector2(Master.cameraX.GetInputAbsolute() * Master.horizontalSpeed * Time.deltaTime, Master.cameraY.GetInputAbsolute() * Master.verticalSpeed * Time.deltaTime);
+                
+                if (!Input.GetKey(KeyCode.LeftShift))
+                {
+                    Master.CurrentState = _lastState;
                 }
             }
         }

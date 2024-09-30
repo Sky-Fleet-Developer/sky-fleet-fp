@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class SmallCockpit : BlockWithNode, IControl
+    public class SimpleCockpit : BlockWithNode, IControl
     {
         //public float Durability => durability;
         //public ArmorData Armor => armor;
@@ -142,7 +142,7 @@ namespace Runtime.Structure.Rigging.Control
             return attachData;
         }
 
-        public void UpdateBlock(int lod)
+        public virtual void UpdateBlock(int lod)
         {
             if (lod != 0) return;
 

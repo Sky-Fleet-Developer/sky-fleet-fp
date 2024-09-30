@@ -24,6 +24,7 @@ MonoBehaviour:
   - type: 4
     color: {r: 0.7811562, g: 0.7830189, b: 0.56510323, a: 1}
   powerPortColor: {r: 0.17021184, g: 0.78010476, b: 0.8018868, a: 1}
+  actionPortColor: {r: 0.74509805, g: 0.59176296, b: 0.32156864, a: 1}
   storagePortColors:
   - type: Water
     color: {r: 0.3137255, g: 0.45871434, b: 0.6509804, a: 1}

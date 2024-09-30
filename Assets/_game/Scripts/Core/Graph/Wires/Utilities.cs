@@ -76,13 +76,17 @@ namespace Core.Graph.Wires
             {
                 return f.ValueType.ToString();
             }
-            if (port is Port<Vector2> v2)
+            if (port is Port<Vector2> f2)
             {
-                return $"{v2.ValueType.ToString()}(vector 2)";
+                return $"{f2.ValueType.ToString()}(vector 2)";
             }
-            if (port is Port<Vector3> v3)
+            if (port is Port<Vector3> f3)
             {
-                return $"{v3.ValueType.ToString()}(vector 3)";
+                return $"{f3.ValueType.ToString()}(vector 3)";
+            }
+            if (port is ActionPort)
+            {
+                return "Action";
             }
             if (port is PowerPort)
             {

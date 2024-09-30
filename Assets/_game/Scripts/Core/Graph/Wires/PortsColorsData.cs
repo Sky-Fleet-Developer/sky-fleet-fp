@@ -11,6 +11,7 @@ namespace Core.Graph.Wires
     {
         public PortTColor[] portTColors;
         public Color powerPortColor;
+        public Color actionPortColor;
         public StoragePortColor[] storagePortColors;
         
         
@@ -35,7 +36,20 @@ namespace Core.Graph.Wires
             if (port.Port is Port<float> f)
             {
                 return portTColors.FirstOrDefault(x => x.type == f.ValueType).color;
-            }if (port.Port is PowerPort)
+            }
+            if (port.Port is Port<Vector2> f2)
+            {
+                return portTColors.FirstOrDefault(x => x.type == f2.ValueType).color;
+            }
+            if (port.Port is Port<Vector3> f3)
+            {
+                return portTColors.FirstOrDefault(x => x.type == f3.ValueType).color;
+            }
+            if (port.Port is ActionPort)
+            {
+                return actionPortColor;
+            }
+            if (port.Port is PowerPort)
             {
                 return powerPortColor;
             }if (port.Port is StoragePort stp)
