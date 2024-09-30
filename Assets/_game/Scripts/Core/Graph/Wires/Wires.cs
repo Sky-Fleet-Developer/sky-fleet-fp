@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Core.Structure;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -9,11 +10,10 @@ namespace Core.Graph.Wires
     public enum PortType
     {
         Thrust,
-        BigThrust,
+        LargeThrust,
         Button,
         Toggle,
         Signal,
-        DoubleSignal,
     }
     
 
@@ -47,7 +47,7 @@ namespace Core.Graph.Wires
         [ShowInInspector] public Wire<T> Wire;
 
         public PortType ValueType => valueType;
-        [SerializeField] private PortType valueType;
+        [JsonIgnore] private PortType valueType;
         
         public Port()
         {

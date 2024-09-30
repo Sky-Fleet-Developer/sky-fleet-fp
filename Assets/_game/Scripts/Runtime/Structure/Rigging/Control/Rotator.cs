@@ -12,7 +12,9 @@ namespace Runtime.Structure.Rigging.Control
     public class Rotator : BlockWithNode, IConsumer, IUpdatableBlock
     {
         [SerializeField] private PowerPort power = new PowerPort();
-        private Port<float> targetAngle = new Port<float>(PortType.Thrust);
+        private Port<float> targetAngle = new Port<float>(PortType.Signal);
+        private Port<float> currentAngle = new Port<float>(PortType.Signal);
+        private Port<float> velocity = new Port<float>(PortType.Signal);
         [SerializeField] private Vector3 rotationAxis = Vector3.up;
         [SerializeField] private bool isCycled;
         [SerializeField] private float rotationForce;
@@ -20,8 +22,8 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField, HideIf("isCycled")] private Vector2 minMaxAngle;
         private Quaternion initialRotation;
         [ShowInInspector, ReadOnly] private float inertia;
-        [ShowInInspector, ReadOnly] private float velocity;
-        [ShowInInspector, ReadOnly] private float currentAngle;
+        [ShowInInspector, ReadOnly] private float _velocity;
+        [ShowInInspector, ReadOnly] private float _currentAngle;
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);
@@ -61,22 +63,24 @@ namespace Runtime.Structure.Rigging.Control
                 Decelerate();
             }
 
-            if (velocity != 0)
+            if (_velocity != 0)
             {
                 Rotate();
             }
+            currentAngle.SetValue(_currentAngle);
+            velocity.SetValue(_velocity);
         }
 
         private void Accelerate()
         {
-            float target = targetAngle.GetValue() * 360;
+            float target = targetAngle.GetValue();
             if (!isCycled)
             {
                 target = Mathf.Clamp(target, minMaxAngle.x, minMaxAngle.y);
             }
 
-            currentAngle %= 360;
-            float delta = target - currentAngle;
+            _currentAngle %= 360;
+            float delta = target - _currentAngle;
             if (delta > 180)
             {
                 delta -= 360;
@@ -87,37 +91,37 @@ namespace Runtime.Structure.Rigging.Control
             }
 
             float maxAcceleration = inertia * rotationForce;
-            float slowingTime = Mathf.Abs(velocity / maxAcceleration);
-            int slowingSign = (int)Mathf.Sign(-velocity);
+            float slowingTime = Mathf.Abs(_velocity / maxAcceleration);
+            int slowingSign = (int)Mathf.Sign(-_velocity);
             int deltaSign =  (int)Mathf.Sign(delta);
-            float sSlowing = velocity * slowingTime + (maxAcceleration * slowingSign * slowingTime * slowingTime) * 0.5f;
+            float sSlowing = _velocity * slowingTime + (maxAcceleration * slowingSign * slowingTime * slowingTime) * 0.5f;
 
             if (slowingSign != deltaSign)
             {
                 if (Mathf.Abs(sSlowing) > Mathf.Abs(delta))
                 {
-                    velocity += slowingSign * maxAcceleration * StructureUpdateModule.DeltaTime;
+                    _velocity += slowingSign * maxAcceleration * StructureUpdateModule.DeltaTime;
                 }
                 else
                 {
-                    velocity += deltaSign * maxAcceleration * StructureUpdateModule.DeltaTime;
+                    _velocity += deltaSign * maxAcceleration * StructureUpdateModule.DeltaTime;
                 }
             }
             else
             {
-                velocity += slowingSign * maxAcceleration * StructureUpdateModule.DeltaTime;
+                _velocity += slowingSign * maxAcceleration * StructureUpdateModule.DeltaTime;
             }
         }
 
         private void Decelerate()
         {
-            velocity -= Mathf.Min(Mathf.Abs(velocity), dragForce * inertia) * Mathf.Sign(velocity) * StructureUpdateModule.DeltaTime;
+            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * inertia) * Mathf.Sign(_velocity) * StructureUpdateModule.DeltaTime;
         }
         
         private void Rotate()
         {
-            currentAngle += velocity * StructureUpdateModule.DeltaTime;
-            Parent.Transform.localRotation = initialRotation * Quaternion.AngleAxis(currentAngle, rotationAxis);
+            _currentAngle += _velocity * StructureUpdateModule.DeltaTime;
+            Parent.Transform.localRotation = initialRotation * Quaternion.AngleAxis(_currentAngle, rotationAxis);
         }
     }
 }

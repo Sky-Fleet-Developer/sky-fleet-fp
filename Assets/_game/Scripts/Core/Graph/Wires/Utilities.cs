@@ -75,10 +75,20 @@ namespace Core.Graph.Wires
             if (port is Port<float> f)
             {
                 return f.ValueType.ToString();
-            }if (port is PowerPort)
+            }
+            if (port is Port<Vector2> v2)
+            {
+                return $"{v2.ValueType.ToString()}(vector 2)";
+            }
+            if (port is Port<Vector3> v3)
+            {
+                return $"{v3.ValueType.ToString()}(vector 3)";
+            }
+            if (port is PowerPort)
             {
                 return "Power";
-            }if (port is StoragePort stp)
+            }
+            if (port is StoragePort stp)
             {
                 return stp.serializedType == "Null" ? "Storage item" : stp.serializedTypeShort;
             }

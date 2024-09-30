@@ -33,7 +33,7 @@ namespace Core.Structure.Rigging.Control
         public Port GetPort() => port;
 
         [SerializeField, ShowInInspector]
-        private Port<Vector2> port = new Port<Vector2>(PortType.DoubleSignal);
+        private Port<Vector2> port = new Port<Vector2>(PortType.Signal);
 
         public string computerInput;
         
