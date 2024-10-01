@@ -252,6 +252,15 @@ MonoBehaviour:
     guid: 
     tags:
     - block
+  - reference:
+      m_AssetGUID: 2a9f47164af56f14fa84f64f359fdef1
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 
+    tags:
+    - block
+    - lonceston
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:

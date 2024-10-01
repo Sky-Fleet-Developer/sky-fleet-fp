@@ -58,7 +58,7 @@ namespace Core.Graph.Wires
         
         public override bool CanConnect(Port port)
         {
-            return port is PowerPort portT;
+            return port is PowerPort;
         }
         
         public override string ToString()

@@ -142,5 +142,8 @@ namespace Core.Structure
             }
             Radius = allB.extents.sqrMagnitude;
         }
+
+        public Dictionary<string, List<(object owner, Action action)>> Events { get; } = new();
+        public Dictionary<string, List<(object owner, ActionBox action)>> EventsT { get; } = new();
     }
 }

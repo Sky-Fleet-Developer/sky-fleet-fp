@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Core.Character;
 using Core.Graph;
@@ -80,22 +79,6 @@ namespace Core.Structure.Rigging
         CharacterAttachData GetAttachData();
         void ReadInput();
         void LeaveControl(ICharacterController controller);
-    }
-
-    public interface IAimingInterface
-    {
-        public Vector3 Target { get; }
-        public Vector2 Input { get; set; }
-        public event Action OnStateChanged;
-        public AimingInterfaceState CurrentState { get; }
-        public bool SetState(AimingInterfaceState state);
-    }
-
-    public enum AimingInterfaceState
-    {
-        Default = 0,
-        FollowTarget = 1,
-        Aiming = 2,
     }
 
     public interface IComputer : IUpdatableBlock, IConsumer

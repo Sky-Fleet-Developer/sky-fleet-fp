@@ -13,6 +13,10 @@ namespace Core.Game
         public static CursorBehaviour Instance;
         public static bool RotationLocked;
         public State CurrentState { get; set; }
+        public void SetStatePrivate(State value)
+        {
+            CurrentState = value;
+        }
 
         public Task Load()
         {
@@ -36,6 +40,16 @@ namespace Core.Game
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        }
+
+        public static void SetAimingState()
+        {
+            Instance.CurrentState = new AimingCursorState(Instance, (State<CursorBehaviour>)Instance.CurrentState);
+        }
+
+        public static void ExitAimingState()
+        {
+            ((AimingCursorState)Instance.CurrentState).ExitState();
         }
 
         private void OnDestroy()
@@ -63,6 +77,29 @@ namespace Core.Game
                     RotationLocked = false;
                     LockCursor();
                 }
+            }
+        }
+
+        public class AimingCursorState : State<CursorBehaviour>
+        {
+            private State<CursorBehaviour> _lastState;
+
+            public AimingCursorState(CursorBehaviour master, State<CursorBehaviour> lastState) : base(master)
+            {
+                _lastState = lastState;
+                RotationLocked = true;
+                LockCursor();
+            }
+
+            public void ExitState()
+            {
+                RotationLocked = false;
+                Master.CurrentState = _lastState;
+            }
+            
+            public override void Update()
+            {
+                
             }
         }
 

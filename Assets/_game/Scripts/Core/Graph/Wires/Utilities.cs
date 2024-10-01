@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Core.Structure.Rigging;
 using UnityEngine;
 
 namespace Core.Graph.Wires
@@ -91,6 +92,10 @@ namespace Core.Graph.Wires
             if (port is PowerPort)
             {
                 return "Power";
+            }
+            if (port is AimingInterfacePort)
+            {
+                return "Aiming interface";
             }
             if (port is StoragePort stp)
             {

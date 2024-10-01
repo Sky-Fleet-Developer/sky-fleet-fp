@@ -141,7 +141,7 @@ namespace Core.Character
 
         private void LateUpdate()
         {
-            if (!PauseGame.Instance.IsPause)
+            if (!PauseGame.Instance.IsPause && !CursorBehaviour.RotationLocked)
             {
                 RotateHead();
             }
@@ -295,6 +295,7 @@ namespace Core.Character
                 if (Input.GetButtonDown("Interaction"))
                 {
                     Master.attachedControl.LeaveControl(Master);
+                    return;
                 }
 
                 if (AimingInterface != null)
@@ -302,6 +303,8 @@ namespace Core.Character
                     if (Input.GetKey(KeyCode.LeftShift))
                     {
                         Master.CurrentState = new SeatAimingState(Master, this);
+                        CursorBehaviour.SetAimingState();
+                        return;
                     }
                 }
             }
@@ -310,28 +313,36 @@ namespace Core.Character
         private class SeatAimingState : SeatState
         {
             private SeatState _lastState;
+            private Vector2 _initialInput;
+            private Vector2 _input;
+            private AimingInterfaceState _initialAimingState;
 
             public SeatAimingState(FirstPersonController master, SeatState lastState) : base(master)
             {
                 _lastState = lastState;
+                _initialInput = AimingInterface.Input;
+                _initialAimingState = AimingInterface.CurrentState;
+                AimingInterface.SetState(AimingInterfaceState.Aiming);
             }
 
             public override void Update()
             {
-                AimingInterface.Input += new Vector2(Master.cameraX.GetInputAbsolute() * Master.horizontalSpeed * Time.deltaTime, Master.cameraY.GetInputAbsolute() * Master.verticalSpeed * Time.deltaTime);
-                
                 if (!Input.GetKey(KeyCode.LeftShift))
                 {
+                    AimingInterface.SetState(_initialAimingState);
                     Master.CurrentState = _lastState;
+                    CursorBehaviour.ExitAimingState();
+                    return;
                 }
+                
+                _input += new Vector2(Master.cameraX.GetInputAbsolute() * Master.horizontalSpeed * Time.deltaTime, -Master.cameraY.GetInputAbsolute() * Master.verticalSpeed * Time.deltaTime);
+                AimingInterface.Input = _initialInput + _input;
             }
         }
 
 
         private void RotateHead()
         {
-            if (CursorBehaviour.RotationLocked) return;
-
             float y;
             if(cameraY.IsAbsolute())
             {

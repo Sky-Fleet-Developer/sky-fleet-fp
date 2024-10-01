@@ -8,19 +8,23 @@ namespace Runtime.Structure.Rigging.Control
 {
     public class CockpitWithPeriscope : SimpleCockpit, IAimingInterface
     {
-        public Port<Vector3> inputTargetPoint = new Port<Vector3>(PortType.Signal);
-        private Port<Vector3> outputTargetPoint = new Port<Vector3>(PortType.Signal);
+        public AimingInterfacePort aimingInterfacePort;
+        public Port<Vector2> correction = new Port<Vector2>(PortType.Signal);
         private ActionPort resetCorrection = new ActionPort();
         private Vector2 inputAngles;
         private AimingInterfaceState currentState = AimingInterfaceState.Default;
         public AimingInterfaceState CurrentState => currentState;
-        public Vector3 Target => inputTargetPoint.GetValue();
         public Vector2 Input
         {
             get => inputAngles;
             set => inputAngles = value;
         }
         public event Action OnStateChanged;
+
+        public CockpitWithPeriscope()
+        {
+            aimingInterfacePort = new AimingInterfacePort(this);
+        }
 
         public override void InitBlock(IStructure structure, Parent parent)
         {
@@ -35,6 +39,13 @@ namespace Runtime.Structure.Rigging.Control
 
         public bool SetState(AimingInterfaceState state)
         {
+            aimingInterfacePort.Binding.AimingDevice.SetState(state);
+            /*switch (state)
+            {
+                case AimingInterfaceState.Aiming:
+                    
+                    break;
+            }*/
             currentState = state;
             OnStateChanged?.Invoke();
             return true;
@@ -44,8 +55,8 @@ namespace Runtime.Structure.Rigging.Control
         public override void UpdateBlock(int lod)
         {
             base.UpdateBlock(lod);
-            var rotation = Quaternion.Euler(inputAngles.y, inputAngles.x, 0);
-            outputTargetPoint.SetValue(rotation * inputTargetPoint.GetValue());
+            //var rotation = Quaternion.Euler(inputAngles.y, inputAngles.x, 0);
+            correction.SetValue(inputAngles);
         }
     }
 }

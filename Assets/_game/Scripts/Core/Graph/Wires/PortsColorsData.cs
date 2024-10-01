@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Core.Structure.Rigging;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Core.Graph.Wires
         public PortTColor[] portTColors;
         public Color powerPortColor;
         public Color actionPortColor;
+        public Color aimingInterfacePortColor;
         public StoragePortColor[] storagePortColors;
         
         
@@ -52,7 +54,12 @@ namespace Core.Graph.Wires
             if (port.Port is PowerPort)
             {
                 return powerPortColor;
-            }if (port.Port is StoragePort stp)
+            }
+            if (port.Port is AimingInterfacePort)
+            {
+                return aimingInterfacePortColor;
+            }
+            if (port.Port is StoragePort stp)
             {
                 return storagePortColors.FirstOrDefault(x => x.type == stp.serializedTypeShort).color;
             }

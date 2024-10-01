@@ -16,6 +16,7 @@ namespace Runtime.Structure.Rigging.Control
         private Port<float> verticalVelocityFeedback = new Port<float>(PortType.Signal);
         
         public Port<Vector3> targetPoint = new Port<Vector3>(PortType.Signal);
+        public Port<Vector2> correction = new Port<Vector2>(PortType.Signal);
         private Port<Vector3> targetVelocity = new Port<Vector3>(PortType.Signal);
 
         
@@ -30,8 +31,9 @@ namespace Runtime.Structure.Rigging.Control
             }
             float horizontalAngle = Mathf.Atan2(target.x, target.z) * Mathf.Rad2Deg;
             float verticalAngle = Mathf.Atan2(target.y, Mathf.Sqrt(target.x * target.x + target.z * target.z)) * Mathf.Rad2Deg;
-            horizontalAngleControl.SetValue(horizontalAngle);
-            verticalAngleControl.SetValue(verticalAngle);
+            Vector2 correctionAngle = correction.GetValue();
+            horizontalAngleControl.SetValue(horizontalAngle + correctionAngle.x);
+            verticalAngleControl.SetValue(verticalAngle + correctionAngle.y);
         }
     }
 }
