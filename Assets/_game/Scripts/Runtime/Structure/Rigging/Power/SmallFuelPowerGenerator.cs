@@ -40,14 +40,14 @@ namespace Runtime.Structure.Rigging.Power
                 fuelPerSec = 0;
                 return;
             }
-            autoThrottle = Mathf.MoveTowards(autoThrottle, powerUsage, Time.deltaTime);
-            fuelPerSec = Mathf.Clamp(maxFuelConsumption * autoThrottle, minFuelUsage, fuel.Value);
+            autoThrottle = Mathf.Min(Mathf.MoveTowards(autoThrottle, powerUsage, Time.deltaTime), 1);
+            fuelPerSec = Mathf.Min(Mathf.Max(maxFuelConsumption * autoThrottle, minFuelUsage), fuel.Value);
             fuel.Value -= fuelPerSec * Time.deltaTime;
         }
 
         public void ConsumptionTick()
         {
-            currentOutput = powerPerFuel.Evaluate(fuelPerSec) * maximalOutput *  Time.deltaTime;
+            currentOutput = powerPerFuel.Evaluate(fuelPerSec / maxFuelConsumption) * maximalOutput *  Time.deltaTime;
             output.charge = charge;
             output.maxOutput = currentOutput;
             output.maxInput = 0;

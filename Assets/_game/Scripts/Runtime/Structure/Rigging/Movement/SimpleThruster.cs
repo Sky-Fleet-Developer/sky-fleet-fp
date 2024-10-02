@@ -39,7 +39,7 @@ namespace Runtime.Structure.Rigging.Movement
         
         void IForceUser.ApplyForce()
         {
-            currentThrust = maximalThrust * thrustPerFuel.Evaluate(fuelPerSec);
+            currentThrust = maximalThrust * thrustPerFuel.Evaluate(fuelPerSec / fuelConsumptionMul);
             ApplyThrust(currentThrust.DeltaTime());
         }
 

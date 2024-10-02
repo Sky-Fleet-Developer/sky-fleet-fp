@@ -61,9 +61,10 @@ namespace Runtime.Structure.Rigging.Control
         }
         
         private Quaternion initialRotation;
-        [ShowInInspector, ReadOnly] private float inertia;
+        [ShowInInspector, ReadOnly] private float _inertia;
         [ShowInInspector, ReadOnly] private float _velocity;
         [ShowInInspector, ReadOnly] private float _currentAngle;
+        [ShowInInspector, ReadOnly] private float _availablePower;
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);
@@ -75,7 +76,7 @@ namespace Runtime.Structure.Rigging.Control
         private void OnInitComplete()
         {
             var bounds = Parent.Bounds;
-            inertia = PhysicsUtilities.GetAngularAcceleration(bounds.size, Parent.Mass, rotationAxis).magnitude;
+            _inertia = PhysicsUtilities.GetAngularAcceleration(bounds.size, Parent.Mass, rotationAxis).magnitude;
         }
 
         public void ConsumptionTick()
@@ -85,7 +86,10 @@ namespace Runtime.Structure.Rigging.Control
 
         public void PowerTick()
         {
-            IsWork = Utilities.CalculateConsumerTickB(this);
+            if (Consumption == 0) _availablePower = 0;
+            else _availablePower = Power.charge / Consumption.DeltaTime();
+            _availablePower = Power.charge / Power.maxInput;
+            IsWork = _availablePower > 0;
         }
         public bool IsWork { get; private set; }
         [SerializeField] private float maxConsumption;
@@ -130,7 +134,7 @@ namespace Runtime.Structure.Rigging.Control
                 delta += 360;
             }
 
-            float maxAcceleration = inertia * rotationForce;
+            float maxAcceleration = _inertia * rotationForce * _availablePower;
             float slowingTime = Mathf.Abs(_velocity / maxAcceleration);
             int slowingSign = (int)Mathf.Sign(-_velocity);
             int deltaSign =  (int)Mathf.Sign(delta);
@@ -155,7 +159,7 @@ namespace Runtime.Structure.Rigging.Control
 
         private void Decelerate()
         {
-            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * inertia) * Mathf.Sign(_velocity) * StructureUpdateModule.DeltaTime;
+            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertia) * Mathf.Sign(_velocity) * StructureUpdateModule.DeltaTime;
         }
         
         private void Rotate()

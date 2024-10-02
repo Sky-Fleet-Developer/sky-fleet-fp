@@ -15999,6 +15999,7 @@ MonoBehaviour:
   parentsObjects:
   - {fileID: 8595622348168803572}
   - {fileID: 8753659776608864603}
+  emptyMass: 150000
 --- !u!114 &4633510688379587135
 MonoBehaviour:
   m_ObjectHideFlags: 0

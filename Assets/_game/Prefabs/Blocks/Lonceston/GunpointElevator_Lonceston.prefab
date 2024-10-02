@@ -417,7 +417,7 @@ MonoBehaviour:
   dragForce: 50
   targetParent: Turret/Gunpoint/
   minMaxAngle: {x: -30, y: 20}
-  maxConsumption: 20
+  maxConsumption: 5
 --- !u!1 &8537691263129088586
 GameObject:
   m_ObjectHideFlags: 0

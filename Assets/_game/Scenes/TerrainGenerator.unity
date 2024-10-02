@@ -1383,7 +1383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Mass
-      value: 168293
+      value: 150668
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_ImplicitCom
@@ -1391,15 +1391,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.x
-      value: 0.000011164264
+      value: 0.000012470249
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.y
-      value: 0.026280826
+      value: 0.029355131
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.z
-      value: -0.023369085
+      value: -0.02610278
       objectReference: {fileID: 0}
     - target: {fileID: 2497653715948258186, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Enabled

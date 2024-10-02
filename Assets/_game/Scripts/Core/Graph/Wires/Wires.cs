@@ -173,7 +173,7 @@ namespace Core.Graph.Wires
                 float takenFromStorage = Mathf.Min(storedPotential, -remains);
 
                 toDistribution += takenFromStorage;
-                float power = wantedToConsume / toDistribution;
+                float power = toDistribution / wantedToConsume;
                 float clampedPower = Mathf.Min(power, 1);
                 
                 for (int i = 0; i < consumerPorts.Count; i++)
@@ -186,7 +186,7 @@ namespace Core.Graph.Wires
                     generatorPorts[i].charge = 0;
                 }
 
-                if (power < 1)
+                if (power < 1 && storedPotential > 0)
                 {
                     float takenFromStoragePercent = takenFromStorage / storedPotential;
                     for (int i = 0; i < storagePorts.Count; i++)
@@ -203,10 +203,13 @@ namespace Core.Graph.Wires
                 }
 
                 float maxStoragesConsumption = storagePorts.Sum(x => x.maxInput);
-                float storePercent = remains / maxStoragesConsumption;
-                for (int i = 0; i < storagePorts.Count; i++)
+                if (maxStoragesConsumption > 0)
                 {
-                    storagePorts[i].charge += storagePorts[i].maxInput * storePercent;
+                    float storePercent = remains / maxStoragesConsumption;
+                    for (int i = 0; i < storagePorts.Count; i++)
+                    {
+                        storagePorts[i].charge += storagePorts[i].maxInput * storePercent;
+                    }
                 }
             }
         }

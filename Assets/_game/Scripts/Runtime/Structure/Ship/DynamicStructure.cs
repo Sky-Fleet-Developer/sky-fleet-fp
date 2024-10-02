@@ -8,14 +8,15 @@ namespace Runtime.Structure.Ship
     [RequireComponent(typeof(Rigidbody))]
     public class DynamicStructure : BaseStructure, IDynamicStructure
     {
-        public float Mass => rigidbody.mass;
+        [SerializeField] private float emptyMass;
+        public float Mass => emptyMass;
         
         public Vector3 Velocity => rigidbody.velocity;
 
-        [ShowInInspector]
-        public float TotalWeight { get; private set; }
+        [ShowInInspector, ReadOnly]
+        public float TotalMass { get; private set; }
 
-        [ShowInInspector]
+        [ShowInInspector, ReadOnly]
         public Vector3 LocalCenterOfMass { get; private set; }
 
         public Rigidbody Physics => rigidbody;
@@ -48,9 +49,9 @@ namespace Runtime.Structure.Ship
                 mass += x.Mass;
                 pos += x.transform.localPosition * x.Mass;
             });
-            TotalWeight = mass + Mass;
+            TotalMass = mass + Mass;
             LocalCenterOfMass = pos / (mass + Mass);
-            rigidbody.mass = TotalWeight;
+            rigidbody.mass = TotalMass;
             rigidbody.centerOfMass = LocalCenterOfMass;
         }
     }
