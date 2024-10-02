@@ -230,7 +230,7 @@ GameObject:
   - component: {fileID: 5720353829303821479}
   - component: {fileID: 2210421165951100474}
   m_Layer: 0
-  m_Name: TurretRotaryMechanism_Lonceston
+  m_Name: TurretHorizontalDrive_Lonceston
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -279,6 +279,7 @@ MonoBehaviour:
   isCycled: 1
   rotationForce: 500
   dragForce: 100
+  targetParent: Turret/
   minMaxAngle: {x: 0, y: 0}
   maxConsumption: 100
 --- !u!1 &6920792125541269836

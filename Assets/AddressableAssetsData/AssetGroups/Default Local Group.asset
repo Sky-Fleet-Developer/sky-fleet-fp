@@ -148,7 +148,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ec0d4b078bd51b743a2ae251029d3dc3
-    m_Address: Assets/_game/Prefabs/Blocks/Lonceston/TurretRotaryMechanism_Lonceston.prefab
+    m_Address: Assets/_game/Prefabs/Blocks/Lonceston/TurretHorizontalDrive_Lonceston.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -159,6 +159,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2a9f47164af56f14fa84f64f359fdef1
     m_Address: Assets/_game/Prefabs/Blocks/Lonceston/Rangfinder_suspended.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 14493bb82bfdcb64f89a1372d1ad30ca
+    m_Address: Assets/_game/Prefabs/Blocks/Lonceston/GunpointElevator_Lonceston.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

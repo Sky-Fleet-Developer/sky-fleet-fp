@@ -2,6 +2,7 @@ using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Utilities;
 using Runtime.Physic;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -19,7 +20,46 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private bool isCycled;
         [SerializeField] private float rotationForce;
         [SerializeField] private float dragForce;
-        [SerializeField, HideIf("isCycled")] private Vector2 minMaxAngle;
+        [SerializeField, ConstantField] private string targetParent;
+        [SerializeField, ConstantField, HideIf("isCycled")] private Vector2 minMaxAngle;
+
+        private Transform _targetParent;
+        [ShowInInspector]
+        private Transform TargetParent
+        {
+            get
+            {
+                if (!_targetParent)
+                {
+                    var structure = Structure ?? GetComponentInParent<IStructure>();
+                    if (structure == null)
+                    {
+                        return null;
+                    }
+                    var parent = structure.GetParentByPath(targetParent);
+                    if (parent != null)
+                    {
+                        _targetParent = parent.Transform;
+                    }
+                }
+                return _targetParent;
+            }
+            set
+            {
+                var structure = Structure ?? GetComponentInParent<IStructure>();
+                if (structure == null)
+                {
+                    return;
+                }
+                if (!value.IsChildOf(structure.transform))
+                {
+                    return;
+                }
+                targetParent = value.GetPath(structure.transform);
+                _targetParent = value;
+            }
+        }
+        
         private Quaternion initialRotation;
         [ShowInInspector, ReadOnly] private float inertia;
         [ShowInInspector, ReadOnly] private float _velocity;
@@ -27,7 +67,7 @@ namespace Runtime.Structure.Rigging.Control
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);
-            initialRotation = parent.Transform.localRotation;
+            initialRotation = TargetParent.localRotation;
             rotationAxis.Normalize();
             structure.OnInitComplete.Subscribe(OnInitComplete);
         }
@@ -121,7 +161,7 @@ namespace Runtime.Structure.Rigging.Control
         private void Rotate()
         {
             _currentAngle += _velocity * StructureUpdateModule.DeltaTime;
-            Parent.Transform.localRotation = initialRotation * Quaternion.AngleAxis(_currentAngle, rotationAxis);
+            TargetParent.localRotation = initialRotation * Quaternion.AngleAxis(_currentAngle, rotationAxis);
         }
     }
 }

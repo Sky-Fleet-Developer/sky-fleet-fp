@@ -53,14 +53,18 @@ namespace Core.Structure.Rigging
 
         private Dictionary<string, RemotePrefabItem> ConvertItems()
         {
-            var duplicateKeys = items
+            var duplicates = items
                 .GroupBy(item => item.guid)
-                .Where(group => group.Count() > 1)
-                .Select(group => group.Key);
+                .Where(group => group.Count() > 1);
+                //.Select(group => group.Key);
 
-            foreach (string key in duplicateKeys)
+            foreach (var duplication in duplicates)
             {
-                Debug.LogError($"Duplicate key: {key}");
+                Debug.LogError($"Duplications: {duplication.Key}");
+                foreach (var remotePrefabItem in duplication)
+                {
+                    Debug.LogError($"Duplicated: {remotePrefabItem.GetReferenceInEditor().name}");
+                }
             }
             return items.ToDictionary(item => item.guid);
         }
@@ -148,6 +152,15 @@ namespace Core.Structure.Rigging
         public RemotePrefabItem(AssetReference reference)
         {
             this.reference = reference;
+            var prefabGameObject = (reference.editorAsset as GameObject);
+            if (prefabGameObject)
+            {
+                var block = prefabGameObject.GetComponent<IBlock>();
+                if (block != null)
+                {
+                    guid = block.Guid;
+                }
+            }
         }
         public RemotePrefabItem(int tagIdx, PrefabBundle prefab, Mod mod)
         {

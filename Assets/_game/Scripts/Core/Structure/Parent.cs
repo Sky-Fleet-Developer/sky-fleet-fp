@@ -26,6 +26,10 @@ namespace Core.Structure
             Blocks = new List<IBlock>();
             mass = 0;
             bounds = new Bounds(Vector3.zero, Vector3.zero);
+            if (structure.Blocks == null)
+            {
+                return;
+            }
             foreach (IBlock block in structure.Blocks)
             {
                 if (block.transform.parent == transform)

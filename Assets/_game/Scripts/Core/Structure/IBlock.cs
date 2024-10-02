@@ -29,6 +29,7 @@ namespace Core.Structure
         }
 
         private static Dictionary<Type, PropertyInfo[]> _propertiesCache;
+        private static Dictionary<Type, FieldInfo[]> _fieldsCache;
 
         public static PropertyInfo[] GetProperties(this IBlock block)
         {
@@ -36,12 +37,23 @@ namespace Core.Structure
             if (_propertiesCache == null) _propertiesCache = new Dictionary<Type, PropertyInfo[]>();
             if (_propertiesCache.ContainsKey(blockType)) return _propertiesCache[blockType];
 
-            PropertyInfo[] properties = GetBlockProperties(blockType);
+            PropertyInfo[] properties = GetBlockPlayerProperties(blockType);
             _propertiesCache.Add(blockType, properties);
             return properties;
         }
+        
+        public static FieldInfo[] GetFields(this IBlock block)
+        {
+            Type blockType = block.GetType();
+            if (_fieldsCache == null) _fieldsCache = new Dictionary<Type, FieldInfo[]>();
+            if (_fieldsCache.ContainsKey(blockType)) return _fieldsCache[blockType];
 
-        private static PropertyInfo[] GetBlockProperties(Type type)
+            FieldInfo[] fields = GetBlockConstantFields(blockType);
+            _fieldsCache.Add(blockType, fields);
+            return fields;
+        }
+
+        private static PropertyInfo[] GetBlockPlayerProperties(Type type)
         {
             List<PropertyInfo> properties = new List<PropertyInfo>();
 
@@ -62,47 +74,80 @@ namespace Core.Structure
 
             return properties.ToArray();
         }
-
-        public static void ApplyProperty(this IBlock block, PropertyInfo property, string value)
+        
+        private static FieldInfo[] GetBlockConstantFields(Type type)
         {
-            Type type = property.PropertyType;
-            if (type == typeof(string))
+            List<FieldInfo> fields = new List<FieldInfo>();
+
+            Type attribute = typeof(ConstantFieldAttribute);
+
+            string log = $"Fields for type {type.Name}:\n";
+
+            foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                property.SetValue(block, value);
+                if (field.GetCustomAttributes().FirstOrDefault(x => x.GetType() == attribute) != null)
+                {
+                    fields.Add(field);
+                    log += $"{field.Name},";
+                }
             }
-            else if (type == typeof(float))
+
+            Debug.Log(log);
+
+            return fields.ToArray();
+        }
+
+        private static void ApplyMember(IBlock block, Type memberType, Action<object, object> setter, string value)
+        {
+            if (memberType == typeof(string))
+            {
+                setter(block, value);
+            }
+            else if (memberType == typeof(float))
             {
                 if (float.TryParse(value, out float val))
                 {
-                    property.SetValue(block, val);
+                    setter(block, val);
                 }
                 else
                 {
                     Debug.LogError($"Cannot parse {value} into float!");
                 }
             }
-            else if (type == typeof(int))
+            else if (memberType == typeof(int))
             {
                 if (int.TryParse(value, out int val))
                 {
-                    property.SetValue(block, val);
+                    setter(block, val);
                 }
                 else
                 {
                     Debug.LogError($"Cannot parse {value} into int!");
                 }
             }
-            else if (type == typeof(bool))
+            else if (memberType == typeof(bool))
             {
                 if (bool.TryParse(value, out bool val))
                 {
-                    property.SetValue(block, val);
+                    setter(block, val);
                 }
                 else
                 {
                     Debug.LogError($"Cannot parse {value} into bool!");
                 }
             }
+        }
+        
+        public static void ApplyField(this IBlock block, FieldInfo field, string value)
+        {
+            Type type = field.FieldType;
+            ApplyMember(block, type, field.SetValue, value);
+        }
+
+        public static void ApplyProperty(this IBlock block, PropertyInfo property, string value)
+        {
+            Type type = property.PropertyType;
+            ApplyMember(block, type, property.SetValue, value);
         }
     }
 }

@@ -188,7 +188,10 @@ namespace WorldEditor
                         if (!port.IsNull())
                         {
                             var container = FindContainerForPort(port);
-                            wire.Add(container);
+                            if (container != null)
+                            {
+                                wire.Add(container);
+                            }
                         }
                     }
 
@@ -444,6 +447,14 @@ namespace WorldEditor
             {
                 if (!wire[0].GetPort().Port.CanConnect(port.GetPort().Port)) return;
 
+                for (var i = 0; i < wire.Count; i++)
+                {
+                    if (wire[i] == null)
+                    {
+                        wire.RemoveAt(i--);
+                    }
+                }
+                
                 configDirty = true;
                 if (!options.isFirst)
                 {

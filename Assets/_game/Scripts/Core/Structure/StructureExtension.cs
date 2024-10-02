@@ -23,7 +23,20 @@ namespace Core.Structure
 
             return null;
         }
-        
+
+        public static Parent GetParentByPath(this IStructure structure, string path)
+        {
+            foreach (var structureParent in structure.Parents)
+            {
+                if (structureParent.Path == path)
+                {
+                    return structureParent;
+                }
+            }
+
+            return null;
+        }
+
         public static Parent GetParentFor(this IStructure structure, IBlock block)
         {
             for (int i = 0; i < structure.Parents.Count; i++)

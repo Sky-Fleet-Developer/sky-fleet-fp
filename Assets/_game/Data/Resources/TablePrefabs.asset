@@ -249,15 +249,24 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: 6c5a69e4-0810-4ff3-b14a-98e5fa234e68
     tags:
     - block
+  - reference:
+      m_AssetGUID: 14493bb82bfdcb64f89a1372d1ad30ca
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 374f7a78-6083-44e8-9ad8-80d7e66f8ff5
+    tags:
+    - block
+    - lonceston
   - reference:
       m_AssetGUID: 2a9f47164af56f14fa84f64f359fdef1
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 
+    guid: f901a3f0-4cc2-4e9f-94e8-b5cf2f2cdbf7
     tags:
     - block
     - lonceston

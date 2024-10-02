@@ -674,16 +674,32 @@ MonoBehaviour:
     bodyGuid: ac9e9048-8002-4f14-8101-cc9993b06b44
     blocks:
     - path: Turret/
-      blockName: TurretRotaryMechanism_Lonceston
+      blockName: GunpointElevator_Lonceston
       sibilingIdx: 6
+      currentGuid: 374f7a78-6083-44e8-9ad8-80d7e66f8ff5
+      localPosition: {x: -0.0046920776, y: 0, z: -0.00002193451}
+      localRotation: {x: 0.0000092847895, y: -0, z: -0}
+      setupKeys:
+      - targetParent
+      - minMaxAngle
+      setupValues:
+      - Turret/Gunpoint/
+      - (-30.00, 20.00)
+    - path: Turret/
+      blockName: TurretHorizontalDrive_Lonceston
+      sibilingIdx: 7
       currentGuid: 4a760db3-ae15-4ff9-9526-fb4105a00d44
       localPosition: {x: 0, y: 0, z: 0}
       localRotation: {x: -0, y: 0, z: 0}
-      setupKeys: []
-      setupValues: []
+      setupKeys:
+      - targetParent
+      - minMaxAngle
+      setupValues:
+      - Turret/
+      - (0.00, 0.00)
     - path: 
       blockName: Rangfinder_suspended
-      sibilingIdx: 3
+      sibilingIdx: 2
       currentGuid: f901a3f0-4cc2-4e9f-94e8-b5cf2f2cdbf7
       localPosition: {x: -0.000029597431, y: 22.013027, z: -9.89068}
       localRotation: {x: 0.0000093381495, y: -0, z: -0}
@@ -691,7 +707,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: AimingComputer
-      sibilingIdx: 4
+      sibilingIdx: 3
       currentGuid: 6c5a69e4-0810-4ff3-b14a-98e5fa234e68
       localPosition: {x: 0.01, y: 15.51, z: -6.75}
       localRotation: {x: -0, y: 0, z: 0}
@@ -699,7 +715,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Jet_Lonceston
-      sibilingIdx: 5
+      sibilingIdx: 4
       currentGuid: 34ff1dc2-8845-43a9-a144-83f9c1ab2d06
       localPosition: {x: 0, y: 2.9399827, z: -27.350416}
       localRotation: {x: -9.754814e-18, y: 0, z: 5.211021e-11}
@@ -707,7 +723,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Support_LF
-      sibilingIdx: 6
+      sibilingIdx: 5
       currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
       localPosition: {x: -4.6309953, y: 3.073014, z: 12.566375}
       localRotation: {x: -0, y: 0, z: 0}
@@ -715,7 +731,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Support_RF
-      sibilingIdx: 7
+      sibilingIdx: 6
       currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
       localPosition: {x: 4.63099, y: 3.0730066, z: 12.566371}
       localRotation: {x: -0, y: 0, z: 0}
@@ -723,7 +739,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Support_RB
-      sibilingIdx: 8
+      sibilingIdx: 7
       currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
       localPosition: {x: 4.5170326, y: 3.073017, z: -15.459207}
       localRotation: {x: -0, y: 0, z: 0}
@@ -731,7 +747,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Support_LB
-      sibilingIdx: 9
+      sibilingIdx: 8
       currentGuid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
       localPosition: {x: -4.5170164, y: 3.0730228, z: -15.459251}
       localRotation: {x: -0, y: 0, z: 0}
@@ -739,7 +755,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Gyroscope
-      sibilingIdx: 10
+      sibilingIdx: 9
       currentGuid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
       localPosition: {x: 0, y: 12.790016, z: 0.7199587}
       localRotation: {x: -0, y: 0, z: 0}
@@ -747,7 +763,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: TestHydrogenStorage
-      sibilingIdx: 11
+      sibilingIdx: 10
       currentGuid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
       localPosition: {x: 0.020000001, y: 15.980015, z: -9.160026}
       localRotation: {x: 0.596106, y: 359.8739, z: -0.0017351477}
@@ -757,7 +773,7 @@ MonoBehaviour:
       - Auto
     - path: 
       blockName: SmallBattery
-      sibilingIdx: 12
+      sibilingIdx: 11
       currentGuid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
       localPosition: {x: 0.020000001, y: 15.980015, z: -9.160026}
       localRotation: {x: 0.596106, y: 359.8739, z: -0.0017351477}
@@ -765,7 +781,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: SmallFuelPowerGenerator
-      sibilingIdx: 13
+      sibilingIdx: 12
       currentGuid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
       localPosition: {x: 0.020000001, y: 15.980015, z: -9.160026}
       localRotation: {x: 0.596106, y: 359.8739, z: -0.0017351477}
@@ -773,7 +789,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: UninterruptiblePowerSupply
-      sibilingIdx: 14
+      sibilingIdx: 13
       currentGuid: aef848e4-90c9-4fde-8f74-f221591873c3
       localPosition: {x: 0, y: 6.1249914, z: -0.5539838}
       localRotation: {x: -0, y: 0, z: 0}
@@ -781,7 +797,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: Bridge_Lonceston
-      sibilingIdx: 15
+      sibilingIdx: 14
       currentGuid: 7c45a38e-33e4-46b5-a199-b13d2f66c8c1
       localPosition: {x: 0.000012911565, y: 0, z: -0.20002343}
       localRotation: {x: 0.00000250796, y: 1.1404882e-18, z: 5.211021e-11}
@@ -791,7 +807,7 @@ MonoBehaviour:
       - 1
     - path: 
       blockName: QuadroFlyComputer
-      sibilingIdx: 16
+      sibilingIdx: 15
       currentGuid: 4391cf4e-8e1a-416e-8f8b-0ed380b73c2b
       localPosition: {x: -0.00022054947, y: 12.790015, z: 0.7200193}
       localRotation: {x: -0, y: 0, z: 0}
@@ -799,7 +815,7 @@ MonoBehaviour:
       setupValues: []
     - path: 
       blockName: StabilizationComputer
-      sibilingIdx: 17
+      sibilingIdx: 16
       currentGuid: d833a2c4-4c0c-46aa-9b51-608146a519f3
       localPosition: {x: -0.00022054947, y: 12.790015, z: 0.7200193}
       localRotation: {x: -0, y: 0, z: 0}
@@ -846,8 +862,9 @@ MonoBehaviour:
       - UninterruptiblePowerSupply_storage
       - QuadroFlyComputer_power
       - StabilizationComputer_power
-      - TurretRotaryMechanism_Lonceston_power
       - AimingComputer_power
+      - GunpointElevator_Lonceston_power
+      - TurretHorizontalDrive_Lonceston_power
     - ports:
       - Jet_Lonceston_fuel
       - SmallFuelPowerGenerator_fuel
@@ -901,17 +918,29 @@ MonoBehaviour:
       - Jet_Lonceston_throttle
       - Bridge_Lonceston_Engine (,Mouse ScrollWheel)
     - ports:
-      - TurretRotaryMechanism_Lonceston_targetAngle
-      - AimingComputer_horizontalAngleControl
-    - ports:
-      - TurretRotaryMechanism_Lonceston_currentAngle
-      - AimingComputer_horizontalAngleFeedback
-    - ports:
       - Bridge_Lonceston_aimingInterfacePort
       - Rangfinder_suspended_aimingInterfacePort
     - ports:
       - AimingComputer_correction
       - Bridge_Lonceston_correction
+    - ports:
+      - AimingComputer_verticalAngleControl
+      - GunpointElevator_Lonceston_targetAngle
+    - ports:
+      - AimingComputer_verticalAngleFeedback
+      - GunpointElevator_Lonceston_currentAngle
+    - ports:
+      - GunpointElevator_Lonceston_velocity
+      - AimingComputer_verticalVelocityFeedback
+    - ports:
+      - TurretHorizontalDrive_Lonceston_targetAngle
+      - AimingComputer_horizontalAngleControl
+    - ports:
+      - TurretHorizontalDrive_Lonceston_currentAngle
+      - AimingComputer_horizontalAngleFeedback
+    - ports:
+      - TurretHorizontalDrive_Lonceston_velocity
+      - AimingComputer_horizontalVelocityFeedback
 --- !u!4 &539074426
 Transform:
   m_ObjectHideFlags: 0
@@ -978,7 +1007,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5720353829303924871, guid: ec0d4b078bd51b743a2ae251029d3dc3, type: 3}
       propertyPath: m_Name
-      value: TurretRotaryMechanism_Lonceston
+      value: TurretHorizontalDrive_Lonceston
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1354,7 +1383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Mass
-      value: 163627
+      value: 168293
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_ImplicitCom
@@ -1362,15 +1391,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.x
-      value: 0.00001176938
+      value: 0.000011164264
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.y
-      value: 0.027030252
+      value: 0.026280826
       objectReference: {fileID: 0}
     - target: {fileID: 1590275600178998747, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_CenterOfMass.z
-      value: -0.024035478
+      value: -0.023369085
       objectReference: {fileID: 0}
     - target: {fileID: 2497653715948258186, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Enabled
@@ -1475,6 +1504,26 @@ PrefabInstance:
     - target: {fileID: 7311769488964000568, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8753659776608864603, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8753659776608864603, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8753659776608864603, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8753659776608864603, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8753659776608864603, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8969836775055504949, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       propertyPath: m_Enabled
@@ -1532,6 +1581,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1590275600178998746, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1064235577}
+    - targetCorrespondingSourceObject: {fileID: 8595622348168803572, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6151578832941296185}
     - targetCorrespondingSourceObject: {fileID: 8595622348168803572, guid: 98c7dd88d4de1784a9289c0adbf25c0b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 699013321}
@@ -2917,6 +2969,68 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a9f47164af56f14fa84f64f359fdef1, type: 3}
+--- !u!1001 &6151578832941296184
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 76540842}
+    m_Modifications:
+    - target: {fileID: 7187768375614162980, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_Name
+      value: GunpointElevator_Lonceston
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.0046920776
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.00002193451
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.00000008102507
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+--- !u!4 &6151578832941296185 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8636754974981556426, guid: 14493bb82bfdcb64f89a1372d1ad30ca, type: 3}
+  m_PrefabInstance: {fileID: 6151578832941296184}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6433927543260922743
 PrefabInstance:
   m_ObjectHideFlags: 0

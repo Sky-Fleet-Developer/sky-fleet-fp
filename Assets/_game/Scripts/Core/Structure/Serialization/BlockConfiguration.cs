@@ -19,10 +19,10 @@ namespace Core.Structure.Serialization
         public Vector3 localPosition;
         public Vector3 localRotation;
         
-        private Dictionary<string, string> setup;//свойства помеченные [PlayerProperty]
+        private Dictionary<string, string> setup;//свойства помеченные [PlayerProperty] или [ConstantField]
         [SerializeField] private List<string> setupKeys = new List<string>();
         [SerializeField] private List<string> setupValues = new List<string>();
-
+        
         public BlockConfiguration(IBlock block)
         {
             path = block.GetPath();
@@ -37,6 +37,13 @@ namespace Core.Structure.Serialization
             {
                 string value = properties[i].GetValue(block).ToString();
                 AddSetup(properties[i].Name, value);
+            }
+            
+            FieldInfo[] fields = block.GetFields();
+            for (int i = 0; i < fields.Length; i++)
+            {
+                string value = fields[i].GetValue(block).ToString();
+                AddSetup(fields[i].Name, value);
             }
         }
 
@@ -143,6 +150,15 @@ namespace Core.Structure.Serialization
                 if (TryGetSetup(properties[i].Name, out string value))
                 {
                     block.ApplyProperty(properties[i], value);
+                }
+            }
+            
+            FieldInfo[] fields = block.GetFields();
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (TryGetSetup(fields[i].Name, out string value))
+                {
+                    block.ApplyField(fields[i], value);
                 }
             }
         }
