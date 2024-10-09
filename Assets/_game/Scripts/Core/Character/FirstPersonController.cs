@@ -141,10 +141,12 @@ namespace Core.Character
 
         private void LateUpdate()
         {
-            if (!PauseGame.Instance.IsPause && !CursorBehaviour.RotationLocked)
+            if (PauseGame.Instance.IsPause) return;
+            if (!CursorBehaviour.RotationLocked)
             {
                 RotateHead();
             }
+            currentInteractionState.LateUpdate();
         }
 
         private void Update()
@@ -152,13 +154,17 @@ namespace Core.Character
             if (PauseGame.Instance.IsPause) return;
             CurrentState.Update();
         }
+        
+        
 
         private class DefaultState : InteractionState
         {
             public DefaultState(FirstPersonController master) : base(master)
             {
             }
-
+            public override void LateUpdate()
+            {
+            }
             public override void OnWorldOffsetChange(Vector3 offset)
             {
                 if (!Master.CanMove) return;
@@ -179,7 +185,7 @@ namespace Core.Character
                 cam.OnTargetObjectWarped(Master.cameraRoot, offset);*/
             }
 
-            public override void Update()
+            public virtual void LateUpdate()
             {
                 Ray ray;
                 if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -217,6 +223,11 @@ namespace Core.Character
                 }
             }
 
+            public override void Update()
+            {
+                
+            }
+
             private void SwitchToDevice(IInteractiveDevice device)
             {
                 switch (device)
@@ -237,6 +248,10 @@ namespace Core.Character
             {
                 this.axis = axis;
                 this.lastState = lastState;
+            }
+
+            public override void LateUpdate()
+            {
             }
 
             public override void Update()
@@ -268,7 +283,6 @@ namespace Core.Character
                 Debug.Log($"FIRST_PERSON_CONTROLLER: Moved by world offset to {Master.transform.position}");
                 base.OnWorldOffsetChange(offset);
             }
-
             public override void Update()
             {
                 base.Update();
@@ -288,7 +302,6 @@ namespace Core.Character
                     AimingInterface = aiming;
                 }
             }
-            
             public override void Update()
             {
                 base.Update();
