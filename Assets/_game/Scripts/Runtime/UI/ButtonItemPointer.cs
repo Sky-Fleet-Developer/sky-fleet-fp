@@ -1,5 +1,6 @@
 using System;
 using Core.Utilities;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ namespace Core.UIStructure.Utilities
 {
     public class ButtonItemPointer : ItemPointer
     {
-        public Text description;
+        public TextMeshProUGUI description;
         public Button button;
         public Image background;
 
@@ -37,10 +38,10 @@ namespace Core.UIStructure.Utilities
                     case int font:
                         description.fontSize = font;
                         break;
-                    case TextAnchor alignment:
+                    case TextAlignmentOptions alignment:
                         description.alignment = alignment;
                         break;
-                    case FontStyle style:
+                    case FontStyles style:
                         description.fontStyle = style;
                         break;
                     case Action cb:

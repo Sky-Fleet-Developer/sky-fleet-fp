@@ -2,6 +2,7 @@
 using Core.UiStructure;
 using Core.UIStructure;
 using Core.UIStructure.Utilities;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Explorer
@@ -11,8 +12,8 @@ namespace Runtime.Explorer
     {
         public Service[] blocks;
         public string description;
-        public FontStyle style;
-        public TextAnchor alignment;
+        [DrawWithUnity] public FontStyle style;
+        [DrawWithUnity] public TextAnchor alignment;
 
         private Action<IService[]> onBlockWasOpen;
 

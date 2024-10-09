@@ -19,11 +19,6 @@ namespace Runtime.Explorer.Services
             return base.Show(settings);
         }
 
-        public override IEnumerator Hide(BlockSequenceSettings settings = null)
-        {
-            return base.Hide();
-        }
-
         private void ClearSignals()
         {
             yesButton.onClick.RemoveAllListeners();

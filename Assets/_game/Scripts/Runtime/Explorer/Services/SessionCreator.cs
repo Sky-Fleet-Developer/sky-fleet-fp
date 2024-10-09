@@ -49,7 +49,7 @@ namespace Runtime.Explorer.Services
             putModOne.onClick.AddListener(PutOneMod);
 
             sessionFilerManager.SetStartPath(PathStorage.GetPathToSessionPresets());
-            sessionFilerManager.UpdateFileMandager();
+            sessionFilerManager.UpdateFileManager();
             sessionFilerManager.SelectFile += TakePreset;
         }
 

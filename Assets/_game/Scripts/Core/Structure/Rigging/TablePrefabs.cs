@@ -58,6 +58,7 @@ namespace Core.Structure.Rigging
                 .Where(group => group.Count() > 1);
                 //.Select(group => group.Key);
 
+#if UNITY_EDITOR
             foreach (var duplication in duplicates)
             {
                 Debug.LogError($"Duplications: {duplication.Key}");
@@ -66,6 +67,8 @@ namespace Core.Structure.Rigging
                     Debug.LogError($"Duplicated: {remotePrefabItem.GetReferenceInEditor().name}");
                 }
             }
+#endif
+
             return items.ToDictionary(item => item.guid);
         }
         
@@ -149,6 +152,7 @@ namespace Core.Structure.Rigging
         public List<string> tags;
         [System.NonSerialized] public GameObject loaded;
 
+        #if UNITY_EDITOR
         public RemotePrefabItem(AssetReference reference)
         {
             this.reference = reference;
@@ -162,6 +166,7 @@ namespace Core.Structure.Rigging
                 }
             }
         }
+        #endif
         public RemotePrefabItem(int tagIdx, PrefabBundle prefab, Mod mod)
         {
             this.mod = mod;

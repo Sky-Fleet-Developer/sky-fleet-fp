@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Core.UiStructure;
 using Core.UIStructure.Utilities;
@@ -23,6 +24,10 @@ namespace Runtime.Explorer.Services
 
         private void Start()
         {
+            if (!buttonsRoot)
+            {
+                throw new NullReferenceException("buttons root is empty");
+            }
             foreach (StartMenuItem menu in menus)
             {
                 InsertMenuButton(menu);
