@@ -8,6 +8,7 @@ using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
 using Runtime.Explorer.SessionViewer;
+using Runtime.UI;
 using UnityEngine;
 using UnityEngine.UI;
 

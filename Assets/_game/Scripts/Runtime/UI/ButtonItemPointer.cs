@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Core.UIStructure.Utilities
+namespace Runtime.UI
 {
     public class ButtonItemPointer : ItemPointer
     {
