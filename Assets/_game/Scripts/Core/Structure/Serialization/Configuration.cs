@@ -9,6 +9,7 @@ namespace Core.Structure.Serialization
     }
     public abstract class Configuration<T> : Configuration where T : class
     {
+        public Configuration(){}
         public Configuration(T value)
         {
         }

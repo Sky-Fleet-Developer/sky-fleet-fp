@@ -17,6 +17,7 @@ namespace Core.Structure.Serialization
 
         private Dictionary<string, BlockConfiguration> blocksCache;
 
+        public StructureConfiguration() : base(){}
         public StructureConfiguration(IStructure structure) : base(structure)
         {
             bodyGuid = structure.Guid;

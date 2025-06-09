@@ -34,7 +34,7 @@ namespace Core.ContentSerializer.Bundles
             name = tr.name;
 
             
-            foreach (IBlock block in structure.Blocks)
+            foreach (IBlock block in structure.Blocks!)
             {
                 context.Behaviour.GetNestedCache(block.Guid + block.transform.name, block, blocksCache);
                 context.Behaviour.GetNestedCache(block.Guid + block.transform.name, block.transform, blocksCache);
@@ -71,6 +71,9 @@ namespace Core.ContentSerializer.Bundles
                 //TODO: instantiate blocks from configuration
             }
 
+            StructureConfiguration config = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
+            config?.Apply(instance);
+            
             Transform tr = instance.transform;
 
             List<Task> waiting = new List<Task>();

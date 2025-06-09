@@ -29,7 +29,9 @@ namespace Core.SessionManager.SaveService
         {
             Debug.Log("Begin to save the session...");
 
-            State state = new State();
+            
+            
+            State state = new State(StructureUpdateModule.Structures);
             
             
 
