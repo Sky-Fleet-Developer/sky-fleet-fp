@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CombineCompiledAssemblies
   m_EditorClassIdentifier: 
   combinedFiles:
-  - filePath: G:\Projects\scy-fleet-fp\Library\ScriptAssemblies\Runtime.dll
-  - filePath: G:\Projects\scy-fleet-fp\Library\ScriptAssemblies\Core.dll
-  - filePath: G:\Projects\scy-fleet-fp\Library\ScriptAssemblies\WorldEditor.dll
-  path: G:/Projects/scy-fleet-fp/OutputData
+  - filePath: E:\Projects\scy-fleet-fp\Library\ScriptAssemblies\Runtime.dll
+  - filePath: E:\Projects\scy-fleet-fp\Library\ScriptAssemblies\Core.dll
+  - filePath: E:\Projects\scy-fleet-fp\Library\ScriptAssemblies\WorldEditor.dll
+  path: E:/Projects/scy-fleet-fp/OutputData

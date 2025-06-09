@@ -82,7 +82,7 @@ namespace Runtime.Explorer.SessionViewer
 
 
 
-        public void UpdateFileMandager()
+        public void UpdateFileManager()
         {
             ClearItemsPaths();
             GenerateFromPath(fileManager.GetPaths(currentPath));

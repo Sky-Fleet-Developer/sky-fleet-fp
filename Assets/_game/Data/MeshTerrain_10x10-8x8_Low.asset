@@ -54,11 +54,12 @@ MonoBehaviour:
   height: 2625
   heightmapResolution: 64
   alphamapResolution: 257
-  visibleDistance: 4000
+  visibleDistance: 6000
   chunksRefreshDistance: 300
   settings:
   - {fileID: -7671948353902161526}
   - {fileID: -1368039965201892930}
+  blitArrayToTexShader: {fileID: 0}
 --- !u!114 &4259751407393431562
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -57,11 +57,11 @@ namespace Core.UiStructure
 
         protected virtual void OnBlockFocusChanged(IService block)
         {
-            if (block == null) return;
-            if (gameObject.activeSelf && setAsFocusedOnShow && (Service) block != this)
+            //if (block == null) return;
+            /*if (gameObject.activeSelf && setAsFocusedOnShow && (Service) block != this)
             {
                 StartCoroutine(Hide());
-            }
+            }*/
         }
 
         public virtual IEnumerator Show(BlockSequenceSettings settings = null)
