@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Core.Boot_strapper;
 using Core.SessionManager.GameProcess;
 using Core.Utilities;
@@ -12,9 +14,23 @@ namespace Core
         public override async void Start()
         {
             base.Start();
-            foreach (ILoadAtStart load in GetComponentsInChildren<ILoadAtStart>(true))
+            Task task = RunAsync();
+            await task;
+        }
+
+        private async Task RunAsync()
+        {
+            var interfaces = GetComponentsInChildren<ILoadAtStart>(true);
+            foreach (ILoadAtStart load in interfaces)
             {
-                Container.Inject(load);
+                try
+                {
+                    Container.Inject(load);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
                 if(load.enabled) await load.Load();
             }
             OnLoadComplete.Invoke();
@@ -25,6 +41,10 @@ namespace Core
         {
             foreach (var monoInstaller in GetComponentsInChildren<MonoInstaller>())
             {
+                if (monoInstaller == this)
+                {
+                    continue;
+                }
                 Container.Inject(monoInstaller);
                 monoInstaller.InstallBindings();
             }
