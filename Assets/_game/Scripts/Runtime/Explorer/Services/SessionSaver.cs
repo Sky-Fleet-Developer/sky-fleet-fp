@@ -19,7 +19,7 @@ namespace Runtime.Explorer.Services
         private void Start()
         {
             sessionFilerManager.SetStartPath(PathStorage.GetPathToSessionSave());
-            sessionFilerManager.UpdateFileMandager();
+            sessionFilerManager.UpdateFileManager();
             saveButton.onClick.AddListener(SaveSession);
         }
 

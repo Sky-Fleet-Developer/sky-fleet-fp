@@ -43,8 +43,7 @@ namespace UnityEditor
                 File.Copy(serializedFilePath.filePath, $"{path}/{filename}");
             }
 
-            string p = $"{path}/";
-            p = p.Replace('/', '\\');
+            string p = path.Replace('/', '\\');
             Process.Start("Explorer.exe", @"/select," + p);
         }
     }
