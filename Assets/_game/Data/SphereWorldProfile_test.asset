@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15ef8cbc8ce64228b345a5aff11e4657, type: 3}
+  m_Name: SphereWorldProfile_test
+  m_EditorClassIdentifier: 
+  children:
+  - {fileID: 5092946819886672997}
+  rigidPlanetRadiusKilometers: 6000
+  atmosphereDepthKilometers: 100
+  gravity: 9.8
+  zeroHeightPercent: 50
+--- !u!114 &5092946819886672997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62210075ba2c4dfba3e1a241dd5bb066, type: 3}
+  m_Name: SphereWorldAtmosphere
+  m_EditorClassIdentifier: 
+  zeroHeightPressure: 1
+  zeroHeightTemperature: 700

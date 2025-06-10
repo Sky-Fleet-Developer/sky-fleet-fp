@@ -22,7 +22,7 @@ namespace Core.Game
 
         private Transform anchor;
 
-        bool ILoadAtStart.enabled => true;
+        bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
 
         protected override void Setup()
         {

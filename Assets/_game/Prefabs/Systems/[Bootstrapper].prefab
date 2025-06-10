@@ -141,6 +141,7 @@ Transform:
   - {fileID: 2603947844516841168}
   - {fileID: 8684531937093414052}
   - {fileID: 4980003380249097012}
+  - {fileID: 7487412251810771658}
   - {fileID: 4209774599177273067}
   - {fileID: 8689684013004599819}
   m_Father: {fileID: 0}
@@ -423,6 +424,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   limit: 1000
   moveY: 0
+--- !u!1 &3477638146960813977
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7487412251810771658}
+  - component: {fileID: 7744276338586069363}
+  m_Layer: 0
+  m_Name: SphereWorldSpace
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7487412251810771658
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3477638146960813977}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2718442238139209658}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7744276338586069363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3477638146960813977}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b324c19a640d46bd981359af317f12ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  worldProfile: {fileID: 11400000, guid: 0cf6e3d0d8bb1ec4683fcc9f3f184245, type: 2}
 --- !u!1 &4494832321663123639
 GameObject:
   m_ObjectHideFlags: 0
@@ -925,7 +971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6152280968474717946, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -162.0232
+      value: -0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 8060047345911729618, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_AnchorMax.x

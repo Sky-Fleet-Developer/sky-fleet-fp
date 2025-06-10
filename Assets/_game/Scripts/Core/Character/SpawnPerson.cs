@@ -19,6 +19,7 @@ namespace Runtime.Character
 
         private FirstPersonController player;
         [SerializeField] private FirstPersonController source;
+        bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
 
         private void Start()
         {

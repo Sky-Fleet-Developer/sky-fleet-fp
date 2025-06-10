@@ -14,6 +14,8 @@ namespace Core.TerrainGenerator
 {
     public class TerrainTextureResizer : MonoBehaviour, ILoadAtStart
     {
+        bool ILoadAtStart.enabled => this.enabled && gameObject.activeInHierarchy;
+
         [SerializeField] private string targetDirectory;
         [SerializeField] private FormatContainer[] formats;
         [SerializeField] private int compressionRatio = 2;
