@@ -25,10 +25,17 @@ namespace SphereWorld.Environment.Wind
             return new Vector3(px, py, pz);
         }
 
+        public Vector3 GetVelocity()
+        {
+            return new Vector3(vx, vy, vz);
+        }
+
         public void Randomize()
         {
-            Vector3 position = Random.onUnitSphere;
-            Vector3 velocity = Vector3.zero;
+            Vector3 random = Random.insideUnitSphere * 0.02f;
+            //random.z = 0;
+            Vector3 position = Random.onUnitSphere + random;
+            Vector3 velocity = Vector3.Cross(position, Vector3.up) * 0.1f;
             px = position.x;
             py = position.y;
             pz = position.z;

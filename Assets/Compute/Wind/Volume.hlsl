@@ -4,10 +4,8 @@
 #include "Assets/Compute/Wind/GridCell.hlsl"
 
 RWStructuredBuffer<particle> particles;
-StructuredBuffer<int> grid_links; //линк[cell] - есть 
 
 int max_grid_side_size;
-int grid_links_count;
 float min_radius_sqr;
 float max_radius_sqr;
 float cell_coord_offset;
@@ -50,28 +48,6 @@ float3 cell_center_coord(uint3 cell)
         ((float)cell.z - cellsPerSideHalf) * cell_coord_mul + cell_coord_offset);
 }
 
-int cell_index_from_link(int link)
-{
-    return grid_links[link];
-}
-
-int link_from_index(int cellIndex)
-{
-    for (int i = 0; i < grid_links_count; i++)
-    {
-        if ((int)grid_links[i] == cellIndex)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int link_from_cell(uint3 cell)
-{
-    int index = index_from_cell(cell);
-    return link_from_index(index);
-}
 
 bool is_cell_valid(uint3 cell)
 {
