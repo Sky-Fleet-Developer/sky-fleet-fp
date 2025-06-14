@@ -76,9 +76,13 @@ void contact(int a, int b, float dSqr, float mul)
     float3 velocity = particles[a].velocity;
     float3 vDelta = velocity - otherVelocity;
     float3 vNorm = vDelta != 0 ? vDelta / sqrt(dot(vDelta, vDelta)) : float3(0, 0, 0);
-    float3 viscosityForce = (-vDelta) * (0.1f+abs(dot(vNorm, deltaNorm))*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius);
+    float convergence = min(1.0f, max(-1.0f, dot(vNorm, deltaNorm)));
+    /*float3 viscosityForce = convergence > 0 ?
+        (-vDelta) * (0.1f+convergence*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius)
+        : float3(0, 0, 0);*/
+    float3 viscosityForce = (-vDelta) * (0.1f+abs(convergence)*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius);
     
-    particles[a].gradient += deltaNorm * (force / particles[b].density * mul) + viscosityForce * viscosity_coefficient;
+    particles[a].gradient += deltaNorm * (force / particles[b].density * mul) * push_force + viscosityForce * viscosity_coefficient;
 }
 
 void resolve_contact(int a, int b, float dSqr)

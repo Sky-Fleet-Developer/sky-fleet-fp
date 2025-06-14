@@ -24,7 +24,7 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private ComputeShader mainShader;
         [SerializeField] private AnimationCurve outputPressure;
         [SerializeField] private float particleInfluenceSize;
-        [SerializeField] private float densityInfluenceSize;
+        [SerializeField] private float cellSize;
         [SerializeField] private float simulationDeltaTime;
         [SerializeField] private float airGravity;
         [SerializeField] private float pushForce;
@@ -78,7 +78,6 @@ namespace SphereWorld.Environment.Wind
         private readonly int cell_coord_offset = Shader.PropertyToID("cell_coord_offset");
         private readonly int max_grid_side_size = Shader.PropertyToID("max_grid_side_size");
         private readonly int particle_influence_radius = Shader.PropertyToID("particle_influence_radius");
-        private readonly int density_influence_radius = Shader.PropertyToID("density_influence_radius");
         private readonly int delta_time = Shader.PropertyToID("delta_time");
         private readonly int collisions_debug_origin_index = Shader.PropertyToID("collisions_debug_origin_index");
         // ReSharper restore InconsistentNaming
@@ -147,12 +146,11 @@ namespace SphereWorld.Environment.Wind
         private void SetProperties()
         {
             mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
-            mainShader.SetFloat(density_influence_radius, densityInfluenceSize);
             mainShader.SetFloat(delta_time, simulationDeltaTime);
             mainShader.SetFloat(gravity, airGravity);
             mainShader.SetFloat(viscosity_coefficient, viscosity);
             mainShader.SetFloat(push_force, pushForce);
-            mainShader.SetFloat(cell_coord_offset, particleInfluenceSize * 0.5f);
+            mainShader.SetFloat(cell_coord_offset, cellSize * 0.5f);
             mainShader.SetInt(elements_length, _gridElementsBuffer.count);
             mainShader.SetInt(grid_length, _gridBuffer.count);
             mainShader.SetInt(collisions_debug_origin_index, selectedParticle);
@@ -275,7 +273,7 @@ namespace SphereWorld.Environment.Wind
                 float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
                 Gizmos.DrawWireSphere(Vector3.zero, maxGridRadius);
                 Gizmos.DrawWireSphere(Vector3.zero, 1);
-                float cellOffset = particleInfluenceSize * 0.5f;
+                float cellOffset = cellSize * 0.5f;
                 int cellsPerSide = GetMaxGridSideSize(maxGridRadius, out int cellsPerSideHalf);
                 int selectedParticleGridIndex = -1;
                 var cameraDirection = Camera.current.transform.position;
@@ -312,7 +310,10 @@ namespace SphereWorld.Environment.Wind
                             
                             Vector3 v = particle.GetVelocity() * 0.0015f;
                             //float n = Vector3.Dot(v.normalized, Vector3.forward);
-                            Debug.DrawLine(p - v, p + v,  Color.Lerp(Color.green, Color.red, pressure) * 0.6f, Time.deltaTime * drawParticlesParts);
+                            float d = Vector3.Dot(particle.GetVelocity(), particle.GetPosition()) * 0.5f + 0.5f;
+                            Color c = Color.Lerp(Color.green, Color.red, pressure) * (0.6f + d * 0.4f);
+                            //c = Color.Lerp(c, new Color(.6f, .8f, 1), d);
+                            Debug.DrawLine(p - v, p + v, c, Time.deltaTime * drawParticlesParts);
                             //Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);
 //                            Gizmos.DrawSphere(particle.GetPosition(), 0.01f);
                         }
@@ -342,7 +343,7 @@ namespace SphereWorld.Environment.Wind
                     var center = new Vector3(((float)coord.x - cellsPerSideHalf) * cellCoordMul + cellOffset,
                         ((float)coord.y - cellsPerSideHalf) * cellCoordMul + cellOffset,
                         ((float)coord.z - cellsPerSideHalf) * cellCoordMul + cellOffset);
-                    Gizmos.DrawWireCube(center, Vector3.one * particleInfluenceSize);
+                    Gizmos.DrawWireCube(center, Vector3.one * cellSize);
                 }*/
 
                 drawCounter++;
@@ -356,7 +357,7 @@ namespace SphereWorld.Environment.Wind
             var center = new Vector3(((float)cell.x - cellsPerSideHalf) * cellCoordMul + cellOffset,
                 ((float)cell.y - cellsPerSideHalf) * cellCoordMul + cellOffset,
                 ((float)cell.z - cellsPerSideHalf) * cellCoordMul + cellOffset);
-            Gizmos.DrawWireCube(center, Vector3.one * particleInfluenceSize);
+            Gizmos.DrawWireCube(center, Vector3.one * cellSize);
         }
 
         private void MakeParticlesBuffer()
@@ -373,15 +374,15 @@ namespace SphereWorld.Environment.Wind
 
         private int GetMaxGridSideSize(float maxGridRadius, out int cellsOnSideCount)
         {
-            cellsOnSideCount = Mathf.FloorToInt((maxGridRadius) / particleInfluenceSize + 0.5f) + 1;
+            cellsOnSideCount = Mathf.FloorToInt((maxGridRadius) / cellSize + 0.5f) + 1;
             return cellsOnSideCount * 2;
         }
         
         private void MakeGridAndLinks(float maxGridRadius, out int linksCount, out float maxRadiusSqr, out float minRadiusSqr, out float cellCoordMul)
         {
-            maxRadiusSqr = (maxGridRadius + particleInfluenceSize) * (maxGridRadius + particleInfluenceSize);
-            minRadiusSqr = (1 - particleInfluenceSize) * (1 - particleInfluenceSize);
-            float cellOffset = particleInfluenceSize * 0.5f;
+            maxRadiusSqr = (maxGridRadius + cellSize) * (maxGridRadius + cellSize);
+            minRadiusSqr = (1 - cellSize) * (1 - cellSize);
+            float cellOffset = cellSize * 0.5f;
             int cellsPerSide = GetMaxGridSideSize(maxGridRadius, out int cellsPerSideHalf);
             cellCoordMul = 1f / (cellsPerSideHalf - 1);
             _gridElementsBuffer = new ComputeBuffer(particlesCount,  8);

@@ -653,7 +653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a363ca47fa7c42b687ec9aa88af06579, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particlesCount: 65536
+  particlesCount: 131072
   mainShader: {fileID: 7200000, guid: 47a62251038643443a9bdc1dcae8e65d, type: 3}
   outputPressure:
     serializedVersion: 2
@@ -1561,26 +1561,26 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  particleInfluenceSize: 0.05
-  densityInfluenceSize: 0.05
-  simulationDeltaTime: 0.0001
-  airGravity: 2100
-  pushForce: 0.0022
-  viscosity: 70
-  solPeriod: 20
+  particleInfluenceSize: 0.027
+  cellSize: 0.05
+  simulationDeltaTime: 0.00004
+  airGravity: 1500
+  pushForce: 0.0018
+  viscosity: 0.02
+  solPeriod: 30
   yearPeriod: 200
   sunlightInclination: 23.5
   pressureNoise:
     m_seed: 0
     m_noiseAxes: 1
     m_noiseType: 0
-    m_numberOfOctaves: 4
-    m_initialAmplitude: 3
+    m_numberOfOctaves: 3
+    m_initialAmplitude: 15
     m_initialFrequency:
-      x: 3
-      y: 3
-      z: 3
-    m_persistence: 0.5
+      x: 2
+      y: 2
+      z: 2
+    m_persistence: 0.9
     m_lacunarity:
       x: 0
       y: 0
@@ -1594,7 +1594,7 @@ MonoBehaviour:
   readDataPeriod: 2
   enableDebug: 0
   sunlightIndicator: {fileID: 671455384}
-  pressureVisualization: {x: 60000, y: 0}
+  pressureVisualization: {x: 100000, y: 0}
 --- !u!1 &157207112
 GameObject:
   m_ObjectHideFlags: 0

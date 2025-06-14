@@ -16,7 +16,6 @@ StructuredBuffer<NoiseParameters> noise_parameters;
 int collisions_debug_origin_index;
 int dispatch_max_index;
 float gravity;
-float push_force;
 float3 sunlight;
 
 [numthreads(64,1,1)]
@@ -86,18 +85,21 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
     }
     
     float side = max(dot(particles[id.x].position, sunlight), 0);
+    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 20;
     /*float vel = sqrt(dot(p.velocity, p.velocity));
     if (vel != 0)
     {
         p.velocity /= vel;
         p.velocity *= vel + side * 0.001f;
     }*/
-    float noise = min(1, max(0.01f, GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).w * 0.5f + .5f));
-    noise = noise - 0.25f;
-    noise = abs(noise)*noise;
-    noise += 0.5f;
+    float noise = min(1.0f, max(-1.0f, GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x));
+    noise = abs(noise * noise) * noise;
+    noise = noise * 0.5f + 0.5f;
 
-    particles[id.x].density = density * (1.0f + side * 0.8f) * noise;
+    //particles[id.x].density = (0.1f + noise * 0.9f);
+    float heat = 0.3f + side * 0.7f;
+    float heatPerHeight = 1 + heat * min(1 - height, 0) * 0.5f;
+    particles[id.x].density = density * heatPerHeight * (0.6f + noise * 0.4f);
 }
 
 void DebugRecordContact(int contactParticleIndex)
@@ -160,21 +162,23 @@ void MoveParticles (uint3 id : SV_DispatchThreadID)
     }
 
     particle p = particles[id.x];
-    p.velocity += p.gradient * push_force * delta_time;
+    p.velocity += p.gradient * delta_time;
 
     float heightSqr = p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z;
     float3 pNorm = p.position / sqrt(heightSqr);
-    if (heightSqr < 1)
+    if (heightSqr < 0.9604f)
     {
         if (dot(p.velocity, p.position) < 0)
         {
             p.velocity = reflect(p.velocity, pNorm, 0.6); // TODO: slowdown when contact
         }
-        p.position = pNorm;
+        p.position = pNorm * 0.98f;
     }
     p.velocity -= pNorm * gravity * delta_time;
+    float noise = min(1, max(0.01f, GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).w * 0.5f + .5f));
 
-    p.position += p.velocity * delta_time;
+    p.position += p.velocity * (delta_time); //(0.3f + noise * 0.7f)
+    //p.velocity = p.position * 2;
     
     particles[id.x] = p;
 }
