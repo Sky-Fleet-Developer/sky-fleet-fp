@@ -1,18 +1,23 @@
 #pragma kernel ClearGrid
 #pragma kernel UpdateGrid
+#pragma kernel CalculatePressure
 #pragma kernel FindGradient
 #pragma kernel MoveParticles
 
 #include "Assets/Compute/Wind/Volume.hlsl"
 #include "Assets/Compute/Wind/Contact.hlsl"
 #include "Assets/Compute/Wind/math3.hlsl"
+#include "Assets/Compute/Wind/Noise.hlsl"
+
 RWBuffer<int> collisions_counter;
 RWBuffer<int> collisions_debug;
+StructuredBuffer<NoiseParameters> noise_parameters;
 
 int collisions_debug_origin_index;
 int dispatch_max_index;
 float gravity;
 float push_force;
+float3 sunlight;
 
 [numthreads(64,1,1)]
 void ClearGrid (uint3 id : SV_DispatchThreadID)
@@ -21,16 +26,17 @@ void ClearGrid (uint3 id : SV_DispatchThreadID)
     {
         return;
     }
-    elements[id.x] = -1;
+    elements[id.x] = int2(-1, -1);
     counter[0] = 0;
     collisions_counter[0] = 0;
     collisions_debug[id.x] = -1;
+    particles[id.x].density = 0;
     
     int startI = (float)id.x / (dispatch_max_index - 1) * grid_length;
     int endI = (float)(id.x + 1) / (dispatch_max_index - 1) * grid_length;
     for (int i = startI; i <= endI; i++)
     {
-        grid[i] = int2(-1, -1);
+        grid[i] = -1;
     }
 }
 
@@ -48,23 +54,51 @@ void UpdateGrid (uint3 id : SV_DispatchThreadID)
     p.grid_index = cellIndex;
     particles[id.x] = p;
 }
-static const uint3 neighbours[13] =
-{
-    uint3(1, 0, 0),
-    uint3(0, 1, 0),
-    uint3(0, 0, 1),
-    uint3(1, 0, 1),
-    uint3(1, 1, 0),
-    uint3(0, 1, 1),
-    uint3(1, 1, 1),
 
-    uint3(-1, 1, 1),
-    uint3(-1, 0, 1),
-    uint3(-1, -1, 1),
-    uint3(1, -1, 0),
-    uint3(1, -1, 1),
-    uint3(0, -1, 1),
-};
+[numthreads(64,1,1)]
+void CalculatePressure (uint3 id : SV_DispatchThreadID)
+{
+    if ((int)id.x >= dispatch_max_index)
+    {
+        return;
+    }
+    
+    float density = 0;
+    
+    for (uint i = 0; i < neighbours_1_all_count; i++)
+    {
+        uint3 neighbourCell = cell_from_index(particles[id.x].grid_index) + neighbours_1_all[i];
+        if (is_cell_valid(neighbourCell))
+        {
+            int index = index_from_cell(neighbourCell);
+            int iterator = grid[index];
+            while (iterator != -1)
+            {
+                int2 element = elements[iterator];
+                float dSqr = get_sqr_distance(id.x, element.x);
+                if (dSqr < particle_influence_radius * particle_influence_radius)
+                {
+                    density += SpikyKernelPow3(sqrt(dSqr), particle_influence_radius) * 0.5f;
+                }
+                iterator = element.y;
+            }
+        }
+    }
+    
+    float side = max(dot(particles[id.x].position, sunlight), 0);
+    /*float vel = sqrt(dot(p.velocity, p.velocity));
+    if (vel != 0)
+    {
+        p.velocity /= vel;
+        p.velocity *= vel + side * 0.001f;
+    }*/
+    float noise = min(1, max(0.01f, GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).w * 0.5f + .5f));
+    noise = noise - 0.25f;
+    noise = abs(noise)*noise;
+    noise += 0.5f;
+
+    particles[id.x].density = density * (1.0f + side * 0.8f) * noise;
+}
 
 void DebugRecordContact(int contactParticleIndex)
 {
@@ -77,6 +111,7 @@ void DebugRecordContact(int contactParticleIndex)
     collisions_debug[indexWrite] = contactParticleIndex;
 }
 
+
 [numthreads(64,1,1)]
 void FindGradient (uint3 id : SV_DispatchThreadID)
 {
@@ -88,12 +123,9 @@ void FindGradient (uint3 id : SV_DispatchThreadID)
     p.gradient = float3(0, 0, 0);
     particles[id.x] = p;
     
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < neighbours_1_all_count; i++)
     {
-        uint3 neighbourCell = cell_from_index(particles[id.x].grid_index);
-        neighbourCell.x += neighbours[i].x;
-        neighbourCell.y += neighbours[i].y;
-        neighbourCell.z += neighbours[i].z;
+        uint3 neighbourCell = cell_from_index(particles[id.x].grid_index) + neighbours_1_all[i];
         if (is_cell_valid(neighbourCell))
         {
             int index = index_from_cell(neighbourCell);
@@ -118,35 +150,7 @@ void FindGradient (uint3 id : SV_DispatchThreadID)
             }
         }
     }
-
-    int iterator = grid[particles[id.x].grid_index];
-    while (iterator != -1)
-    {
-        int2 element = elements[iterator];
-        iterator = element.y;
-        
-        if (element.x == id.x) continue; // discard self contact
-
-        float dSqr = get_sqr_distance(id.x, element.x);
-        if (dSqr == 0)
-        {
-            continue; //TODO: move random
-        }
-        if (dSqr < particle_influence_radius * particle_influence_radius)
-        {
-            if (id.x == collisions_debug_origin_index)
-            {
-                DebugRecordContact(element.x);
-            }
-            if(element.x == collisions_debug_origin_index)
-            {
-                DebugRecordContact(id.x);
-            }
-            resolve_contact(id.x, element.x, dSqr);
-        }
-    }
 }
-
 [numthreads(64,1,1)]
 void MoveParticles (uint3 id : SV_DispatchThreadID)
 {
@@ -157,17 +161,20 @@ void MoveParticles (uint3 id : SV_DispatchThreadID)
 
     particle p = particles[id.x];
     p.velocity += p.gradient * push_force * delta_time;
-    p.position += p.velocity * delta_time;
+
     float heightSqr = p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z;
     float3 pNorm = p.position / sqrt(heightSqr);
     if (heightSqr < 1)
     {
         if (dot(p.velocity, p.position) < 0)
         {
-            p.velocity = reflect(p.velocity, pNorm * 0.9f); // TODO: slowdown when contact
+            p.velocity = reflect(p.velocity, pNorm, 0.6); // TODO: slowdown when contact
         }
         p.position = pNorm;
     }
     p.velocity -= pNorm * gravity * delta_time;
+
+    p.position += p.velocity * delta_time;
+    
     particles[id.x] = p;
 }

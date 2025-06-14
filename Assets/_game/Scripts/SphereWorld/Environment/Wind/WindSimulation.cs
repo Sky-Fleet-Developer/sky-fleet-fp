@@ -9,6 +9,8 @@ using Sirenix.OdinInspector;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
+using Voxels.Procedural;
 using Zenject;
 using Random = UnityEngine.Random;
 
@@ -22,21 +24,31 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private ComputeShader mainShader;
         [SerializeField] private AnimationCurve outputPressure;
         [SerializeField] private float particleInfluenceSize;
+        [SerializeField] private float densityInfluenceSize;
         [SerializeField] private float simulationDeltaTime;
         [SerializeField] private float airGravity;
         [SerializeField] private float pushForce;
+        [SerializeField] private float viscosity;
+        [SerializeField] private float solPeriod;
+        [SerializeField] private float yearPeriod;
+        [SerializeField] private float sunlightInclination;
+        [SerializeField] private GPUNoiseParameters pressureNoise;
         [Header("debug")]
         [SerializeField] private int selectedParticle;
         [SerializeField] private int3 selectedCell;
         [SerializeField] private int drawParticlesParts;
         [SerializeField] private int readDataPeriod;
         [SerializeField] private bool enableDebug;
+        [SerializeField] private Transform sunlightIndicator;
+        [SerializeField] private Vector2 pressureVisualization;
         private ComputeBuffer _particlesBuffer;
         private ComputeBuffer _gridElementsBuffer;
         private ComputeBuffer _gridBuffer;
         private ComputeBuffer _gridCounterBuffer;
         private ComputeBuffer _collisionsCounterBuffer;
         private ComputeBuffer _collisionsDebugBuffer;
+        private ComputeBuffer _noiseParametersBuffer;
+
         //private RenderTexture[] _surfaces;
         private Particle[] _particlesOutput;
         private int[] _collisionsOutput;
@@ -51,6 +63,7 @@ namespace SphereWorld.Environment.Wind
         private readonly int grid = Shader.PropertyToID("grid");
         private readonly int counter = Shader.PropertyToID("counter");
         private readonly int collisions_counter = Shader.PropertyToID("collisions_counter");
+        private readonly int noise_parameters = Shader.PropertyToID("noise_parameters");
         private readonly int collisions_debug = Shader.PropertyToID("collisions_debug");
         private readonly int min_radius_sqr = Shader.PropertyToID("min_radius_sqr");
         private readonly int max_radius_sqr = Shader.PropertyToID("max_radius_sqr");
@@ -59,10 +72,13 @@ namespace SphereWorld.Environment.Wind
         private readonly int dispatch_max_index = Shader.PropertyToID("dispatch_max_index");
         private readonly int elements_length = Shader.PropertyToID("elements_length");
         private readonly int gravity = Shader.PropertyToID("gravity");
+        private readonly int sunlight = Shader.PropertyToID("sunlight");
+        private readonly int viscosity_coefficient = Shader.PropertyToID("viscosity_coefficient");
         private readonly int push_force = Shader.PropertyToID("push_force");
         private readonly int cell_coord_offset = Shader.PropertyToID("cell_coord_offset");
         private readonly int max_grid_side_size = Shader.PropertyToID("max_grid_side_size");
         private readonly int particle_influence_radius = Shader.PropertyToID("particle_influence_radius");
+        private readonly int density_influence_radius = Shader.PropertyToID("density_influence_radius");
         private readonly int delta_time = Shader.PropertyToID("delta_time");
         private readonly int collisions_debug_origin_index = Shader.PropertyToID("collisions_debug_origin_index");
         // ReSharper restore InconsistentNaming
@@ -114,6 +130,7 @@ namespace SphereWorld.Environment.Wind
             PrepareBuffersForKernel(1);
             PrepareBuffersForKernel(2);
             PrepareBuffersForKernel(3);
+            PrepareBuffersForKernel(4);
             SetProperties();
 
             //TickSimulation();
@@ -130,13 +147,16 @@ namespace SphereWorld.Environment.Wind
         private void SetProperties()
         {
             mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
+            mainShader.SetFloat(density_influence_radius, densityInfluenceSize);
             mainShader.SetFloat(delta_time, simulationDeltaTime);
             mainShader.SetFloat(gravity, airGravity);
+            mainShader.SetFloat(viscosity_coefficient, viscosity);
             mainShader.SetFloat(push_force, pushForce);
             mainShader.SetFloat(cell_coord_offset, particleInfluenceSize * 0.5f);
             mainShader.SetInt(elements_length, _gridElementsBuffer.count);
             mainShader.SetInt(grid_length, _gridBuffer.count);
             mainShader.SetInt(collisions_debug_origin_index, selectedParticle);
+            _noiseParametersBuffer.SetData(new[]{pressureNoise});
         }
 
         private int a = 0;
@@ -151,8 +171,17 @@ namespace SphereWorld.Environment.Wind
  //       [Button]
         private void TickSimulation()
         {
+            float solPhase = Time.time / solPeriod;
+            float yearPhase = Time.time / yearPeriod;
+            Quaternion rotation = Quaternion.Euler(0, solPhase * 90, 0);
+            Quaternion inclination = Quaternion.Euler(Mathf.Cos(yearPhase * Mathf.PI * 0.5f) * sunlightInclination, 0, 0);
+            Vector3 sunlightDirection = rotation * inclination * Vector3.forward;
+            sunlightIndicator.position = sunlightDirection * 2;
+            sunlightIndicator.rotation = rotation * inclination;
+            mainShader.SetVector(sunlight, sunlightDirection);
             ClearGrid();
             UpdateGrid();
+            CalculatePressure();
             FindGradient();
             MoveParticles();
         }
@@ -164,25 +193,31 @@ namespace SphereWorld.Environment.Wind
             mainShader.Dispatch(0, new int3{x = _gridElementsBuffer.count, y = 1, z = 1});
         }
         [Button]
-
         private void UpdateGrid()
         {
             mainShader.SetInt(dispatch_max_index, particlesCount);
             mainShader.Dispatch(1, new int3{x = particlesCount, y = 1, z = 1});
         }
+        
         [Button]
-
-        private void FindGradient()
+        private void CalculatePressure()
         {
             mainShader.SetInt(dispatch_max_index, particlesCount);
             mainShader.Dispatch(2, new int3{x = particlesCount, y = 1, z = 1});
         }
         [Button]
 
-        private void MoveParticles()
+        private void FindGradient()
         {
             mainShader.SetInt(dispatch_max_index, particlesCount);
             mainShader.Dispatch(3, new int3{x = particlesCount, y = 1, z = 1});
+        }
+        [Button]
+
+        private void MoveParticles()
+        {
+            mainShader.SetInt(dispatch_max_index, particlesCount);
+            mainShader.Dispatch(4, new int3{x = particlesCount, y = 1, z = 1});
         }
 
         private void PrepareBuffersForKernel(int kernelIndex)
@@ -193,6 +228,7 @@ namespace SphereWorld.Environment.Wind
             mainShader.SetBuffer(kernelIndex, counter, _gridCounterBuffer);
             mainShader.SetBuffer(kernelIndex, collisions_counter, _collisionsCounterBuffer);
             mainShader.SetBuffer(kernelIndex, collisions_debug, _collisionsDebugBuffer);
+            mainShader.SetBuffer(kernelIndex, noise_parameters, _noiseParametersBuffer);
         }
         
         [Button]
@@ -208,18 +244,12 @@ namespace SphereWorld.Environment.Wind
             //_gridElementsBuffer.GetData(_elements);
         }
 
-        [Button]
+       /* [Button]
         private void AnalizeCells()
         {
             Dictionary<int, List<int>> particlesPerCell = new ();
             HashSet<int> distributedParticles = new HashSet<int>();
-            /*foreach (var particle in _particlesOutput)
-            {
-                if (!particlesPerCell.TryGetValue(particle.gridIndex, out var cell))
-                {
-                    cell = ()
-                }
-            }*/
+
             for (var i = 0; i < _gridData.Length; i++)
             {
                 if (_gridData[i] != -1)
@@ -233,13 +263,15 @@ namespace SphereWorld.Environment.Wind
                     }
                 }
             }
-        }
+        }*/
 
         private int drawCounter = 0;
+        [ShowInInspector] private Vector2 pressureMinMax;
         private void OnDrawGizmosSelected()
         {
             if (Application.isPlaying)
             {
+                pressureMinMax = Vector2.zero;
                 float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
                 Gizmos.DrawWireSphere(Vector3.zero, maxGridRadius);
                 Gizmos.DrawWireSphere(Vector3.zero, 1);
@@ -252,6 +284,9 @@ namespace SphereWorld.Environment.Wind
                     for (var index = 0; index < _particlesOutput.Length; index++)
                     {
                         var particle = _particlesOutput[index];
+                        float pressure = (particle.density - pressureVisualization.y) / pressureVisualization.x;
+                        pressureMinMax.x = Mathf.Min(particle.density, pressureMinMax.x);
+                        pressureMinMax.y = Mathf.Max(particle.density, pressureMinMax.y);
                         if (index == selectedParticle && enableDebug)
                         {
                             Vector3 p = particle.GetPosition();
@@ -269,12 +304,16 @@ namespace SphereWorld.Environment.Wind
                         else if(index % drawParticlesParts == drawCounter % drawParticlesParts)
                         {
                             Vector3 p = particle.GetPosition();
-                            if (Vector3.Dot(cameraDirection, p) < 0)
+                            if (Vector3.Dot(cameraDirection, p) < 0.3f)
                             {
                                 continue;
                             }
-                            Debug.DrawLine(p, p - particle.GetVelocity() * 0.001f,  Color.green * 0.6f, Time.deltaTime * drawParticlesParts);
-                            Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);
+
+                            
+                            Vector3 v = particle.GetVelocity() * 0.0015f;
+                            //float n = Vector3.Dot(v.normalized, Vector3.forward);
+                            Debug.DrawLine(p - v, p + v,  Color.Lerp(Color.green, Color.red, pressure) * 0.6f, Time.deltaTime * drawParticlesParts);
+                            //Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);
 //                            Gizmos.DrawSphere(particle.GetPosition(), 0.01f);
                         }
 
@@ -350,6 +389,7 @@ namespace SphereWorld.Environment.Wind
             _gridCounterBuffer = new ComputeBuffer(1, 4);
             _collisionsCounterBuffer = new ComputeBuffer(1, 4);
             _collisionsDebugBuffer = new ComputeBuffer(particlesCount, 4);
+            _noiseParametersBuffer = new ComputeBuffer(1, GPUNoiseParameters.SizeInBytes);
             _collisionsOutput = new int[particlesCount];
             _collisionsOutputCount = new int[1];
             _gridData = new int[cellsPerSide * cellsPerSide * cellsPerSide];
@@ -399,8 +439,12 @@ namespace SphereWorld.Environment.Wind
 
         private void OnDestroy()
         {
-            _gridElementsBuffer.Dispose();
             _particlesBuffer.Dispose();
+            _gridElementsBuffer.Dispose();
+            _gridBuffer.Dispose();
+            _gridCounterBuffer.Dispose();
+            _collisionsCounterBuffer.Dispose();
+            _collisionsDebugBuffer.Dispose();
         }
     }
 }

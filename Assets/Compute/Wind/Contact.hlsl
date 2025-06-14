@@ -3,6 +3,7 @@
 #define PI 3.14f
 
 #include "Assets/Compute/Wind/Particle.hlsl"
+#include "Assets/Compute/Wind/Volume.hlsl"
 
 float smothing_kernel(float d)
 {
@@ -23,6 +24,13 @@ float SpikyKernelPow2(float dst, float radius)
     return v * v * scale;
 }
 
+float SpikyKernelPow3(float dst, float radius)
+{
+    float scale = 15 / (PI * pow(radius, 6));
+    float v = radius - dst;
+    return v * v * v * scale;
+}
+
 float DerivativeSpikyPow2(float dst, float radius)
 {
     float scale = 15 / (pow(radius, 5) * PI);
@@ -37,25 +45,40 @@ float DerivativeSpikyPow3(float dst, float radius)
     return -v * v * scale;
 }
 
+float SmoothingKernelPoly6(float dst, float radius)
+{
+    float scale = 315 / (64 * PI * pow(abs(radius), 9));
+    float v = radius * radius - dst * dst;
+    return v * v * v * scale;
+}
+
+const static float targetDensity = 0;
+
 void contact(int a, int b, float dSqr, float mul)
 {
-    particle p_a = particles[a];
-    particle p_b = particles[b];
-    float3 delta = p_b.position - p_a.position;
+    float3 delta = particles[b].position - particles[a].position;
     float d = sqrt(dSqr);
+    d = max(d, particle_influence_radius * 0.15f);
     if (d == 0)
     {
         return;
     }
     float dInv = 1.0f / d;
     float3 deltaNorm = delta * dInv;
-    float slope = DerivativeSpikyPow2(d, particle_influence_radius);
-    deltaNorm *= slope * delta_time * mul;
-    //float density =
-    p_a.gradient += deltaNorm;
-    p_b.gradient -= deltaNorm;
-    particles[a] = p_a;
-    particles[b] = p_b;
+    /*float slope = DerivativeSpikyPow2(d, particle_influence_radius);
+    deltaNorm *= slope * delta_time * mul;*/
+    float neighbourPressure = particles[b].density - targetDensity;
+    float pressure = particles[a].density - targetDensity;
+    float sharedPressure = (pressure + neighbourPressure) * 0.5f;
+    float force = DerivativeSpikyPow3(d, particle_influence_radius) * sharedPressure;
+
+    float3 otherVelocity = particles[b].velocity;
+    float3 velocity = particles[a].velocity;
+    float3 vDelta = velocity - otherVelocity;
+    float3 vNorm = vDelta != 0 ? vDelta / sqrt(dot(vDelta, vDelta)) : float3(0, 0, 0);
+    float3 viscosityForce = (-vDelta) * (0.1f+abs(dot(vNorm, deltaNorm))*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius);
+    
+    particles[a].gradient += deltaNorm * (force / particles[b].density * mul) + viscosityForce * viscosity_coefficient;
 }
 
 void resolve_contact(int a, int b, float dSqr)
@@ -64,7 +87,7 @@ void resolve_contact(int a, int b, float dSqr)
 }
 void resolve_neighbour_contact(int a, int b, float dSqr)
 {
-    contact(a, b, dSqr, 1);
+    contact(a, b, dSqr, 0.5f);
 }
 
 #endif

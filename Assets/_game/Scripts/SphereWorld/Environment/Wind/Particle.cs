@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -35,7 +34,9 @@ namespace SphereWorld.Environment.Wind
             Vector3 random = Random.insideUnitSphere * 0.02f;
             //random.z = 0;
             Vector3 position = Random.onUnitSphere + random;
-            Vector3 velocity = Vector3.Cross(position, Vector3.up) * 0.1f;
+            Vector3 velocity = Vector3.Cross(position, Vector3.up) * 2f * Mathf.Sin(position.y * 4);
+            //Vector3 position = Vector3.forward + random;
+            //Vector3 velocity = Vector3.forward * 0.1f;
             px = position.x;
             py = position.y;
             pz = position.z;

@@ -245,6 +245,13 @@
         "com.unity.render-pipelines.core": "14.0.10"
       }
     },
+    "jp.keijiro.noiseshader": {
+      "version": "3.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://registry.npmjs.com"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

@@ -6,7 +6,7 @@ struct particle
     float3 position;
     float3 velocity;
     float3 gradient;
-    int grid_index;
+    uint grid_index;
     float density;
 };
 

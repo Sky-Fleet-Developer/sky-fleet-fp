@@ -5,12 +5,14 @@
 
 RWStructuredBuffer<particle> particles;
 
-int max_grid_side_size;
+uint max_grid_side_size;
 float min_radius_sqr;
 float max_radius_sqr;
 float cell_coord_offset;
 float cell_coord_mul;
+float viscosity_coefficient;
 float particle_influence_radius;
+float density_influence_radius;
 
 float get_sqr_distance(int particleA, int particleB)
 {
@@ -23,10 +25,10 @@ int index_from_cell(uint3 cell)
     return cell.x * max_grid_side_size * max_grid_side_size + cell.y * max_grid_side_size + cell.z;
 }
 
-uint3 cell_from_index(int index)
+uint3 cell_from_index(uint index)
 {
-    int x = index / (max_grid_side_size * max_grid_side_size);
-    int r = index % (max_grid_side_size * max_grid_side_size);
+    uint x = index / (max_grid_side_size * max_grid_side_size);
+    uint r = index % (max_grid_side_size * max_grid_side_size);
     return uint3(x, r / max_grid_side_size, r % max_grid_side_size);
 }
 
