@@ -67,8 +67,8 @@ void contact(int a, int b, float dSqr, float mul)
     float3 deltaNorm = delta * dInv;
     /*float slope = DerivativeSpikyPow2(d, particle_influence_radius);
     deltaNorm *= slope * delta_time * mul;*/
-    float2 sharedPressure = (particles[a].density + particles[b].density) * float2(0.5f, 0.5f);
-    float2 force = float2(DerivativeSpikyPow2(d, particle_influence_radius), DerivativeSpikyPow3(d, particle_influence_radius)) * sharedPressure;
+    float sharedPressure = (particles[a].density + particles[b].density) * 0.5f;
+    float force = DerivativeSpikyPow2(d, particle_influence_radius) * sharedPressure;
 
     float3 otherVelocity = particles[b].velocity;
     float3 velocity = particles[a].velocity;
@@ -78,10 +78,11 @@ void contact(int a, int b, float dSqr, float mul)
     /*float3 viscosityForce = convergence > 0 ?
         (-vDelta) * (0.1f+convergence*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius)
         : float3(0, 0, 0);*/
-    float3 viscosityForce = (-vDelta) * (0.1f+abs(convergence)*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius);
+    float3 viscosityForce = (-vDelta) * (0.3f+abs(convergence)*0.7f) * SmoothingKernelPoly6(d, particle_influence_radius);
 
-    float2 pressureForce = force / particles[b].density * float2(mul, mul) * push_force;
-    particles[a].gradient += deltaNorm * (pressureForce.x + pressureForce.y) + viscosityForce * viscosity_coefficient;
+    float pressureForce = force / particles[b].density * mul * push_force;
+    
+    particles[a].gradient += deltaNorm * pressureForce + viscosityForce * viscosity_coefficient;
 }
 
 void resolve_contact(int a, int b, float dSqr)

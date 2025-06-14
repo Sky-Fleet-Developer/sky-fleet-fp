@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 namespace SphereWorld.Environment.Wind
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 48)]
+    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 44)]
     [Serializable]
     public struct Particle
     {
@@ -19,7 +19,7 @@ namespace SphereWorld.Environment.Wind
         [FieldOffset(28)] public float yGradient;
         [FieldOffset(32)] public float zGradient;
         [FieldOffset(36)] public int gridIndex;
-        [FieldOffset(40)] public Vector2 density;
+        [FieldOffset(40)] public float density;
 
         public Vector3 GetPosition()
         {
@@ -33,9 +33,9 @@ namespace SphereWorld.Environment.Wind
 
         public void Randomize()
         {
-            Vector3 random = Random.insideUnitSphere * 0.02f;
+            Vector3 random = Random.insideUnitSphere * 0.04f;
             //random.z = 0;
-            Vector3 position = Random.onUnitSphere * 1.02f + random;
+            Vector3 position = Random.onUnitSphere * 1.06f + random;
             Vector3 velocity = Vector3.Cross(position, Vector3.up) * 2f * Mathf.Sin(position.y * 4);
             //Vector3 position = Vector3.forward + random;
             //Vector3 velocity = Vector3.forward * 0.1f;
@@ -49,7 +49,7 @@ namespace SphereWorld.Environment.Wind
             yGradient = 0;
             zGradient = 0;
             gridIndex = -1;
-            density = Vector2.zero;
+            density = 0;
         }
     }
 }

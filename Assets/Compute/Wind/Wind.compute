@@ -1,6 +1,7 @@
 #pragma kernel ClearGrid
 #pragma kernel UpdateGrid
 #pragma kernel CalculatePressure
+#pragma kernel ModifyPressure
 #pragma kernel FindGradient
 #pragma kernel MoveParticles
 
@@ -51,6 +52,8 @@ void UpdateGrid (uint3 id : SV_DispatchThreadID)
     int cellIndex = index_from_cell(cell);
     push_to_cell(cellIndex, id.x);
     p.grid_index = cellIndex;
+    p.density = 0;
+    p.gradient = float3(0, 0, 0);
     particles[id.x] = p;
 }
 
@@ -62,7 +65,7 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
         return;
     }
     
-    float2 density = float2(0,0);
+    float density = particles[id.x].density;
     
     for (uint i = 0; i < neighbours_1_all_count; i++)
     {
@@ -78,30 +81,13 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
                     float d = sqrt(dSqr);
-                    density.x += SpikyKernelPow2(d, particle_influence_radius) * 0.5f;
-                    density.y += SpikyKernelPow3(d, particle_influence_radius) * 0.5f;
+                    density += SpikyKernelPow2(d, particle_influence_radius) * 0.5f;
                 }
                 iterator = element.y;
             }
         }
     }
-    
-    float side = max(dot(particles[id.x].position, sunlight), 0);
-    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 20;
-    /*float vel = sqrt(dot(p.velocity, p.velocity));
-    if (vel != 0)
-    {
-        p.velocity /= vel;
-        p.velocity *= vel + side * 0.001f;
-    }*/
-    float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
-    noise = abs(noise * noise) * noise;
-    noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
-
-    //particles[id.x].density = (0.1f + noise * 0.9f);
-    float heat = 0.3f + side * 0.7f;
-    float heatPerHeight = 1 + heat * max(1 - height, 0) * 0.5f;
-    particles[id.x].density = density * heatPerHeight * (0.6f + noise * 0.4f);
+    particles[id.x].density = density;
 }
 
 void DebugRecordContact(int contactParticleIndex)
@@ -137,7 +123,16 @@ void FindGradient (uint3 id : SV_DispatchThreadID)
             while (iterator != -1)
             {
                 int2 element = elements[iterator];
+                iterator = element.y;
+
+                if (element.x == id.x) continue;
+                
                 float dSqr = get_sqr_distance(id.x, element.x);
+                if (dSqr < 0.0000001)
+                {
+                    int toMove = min(id.x, element.x);
+                    particles[toMove].velocity += GenerateDefaultFBMNoise(float3(id.x * 0.5f, element.x * 0.3f, 0.0f), noise_parameters[0]).yzw * 0.3f;
+                }
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
                     if (id.x == collisions_debug_origin_index)
@@ -150,11 +145,31 @@ void FindGradient (uint3 id : SV_DispatchThreadID)
                     }
                     resolve_neighbour_contact(id.x, element.x, dSqr);
                 }
-                iterator = element.y;
             }
         }
     }
 }
+
+[numthreads(64,1,1)]
+void ModifyPressure (uint3 id : SV_DispatchThreadID)
+{
+    if ((int)id.x >= dispatch_max_index)
+    {
+        return;
+    }
+
+    float side = max(dot(particles[id.x].position, sunlight), 0);
+    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 20;
+
+    float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
+    noise = abs(noise * noise) * noise;
+    noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
+
+    float heat = 0.3f + side * 0.7f;
+    float heatPerHeight = 1 + heat * max(1 - height, 0) * 0.5f;
+    particles[id.x].density *= heatPerHeight * (0.6f + noise * 0.4f);
+}
+
 [numthreads(64,1,1)]
 void MoveParticles (uint3 id : SV_DispatchThreadID)
 {

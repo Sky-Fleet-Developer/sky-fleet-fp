@@ -29,7 +29,9 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private float simulationDeltaTime;
         [SerializeField] private float airGravity;
         [SerializeField] private float pushForce;
+        [SerializeField] private float nearPushForce;
         [SerializeField] private float viscosity;
+        [SerializeField] private float nearViscosity;
         [SerializeField] private float solPeriod;
         [SerializeField] private float yearPeriod;
         [SerializeField] private float sunlightInclination;
@@ -133,6 +135,7 @@ namespace SphereWorld.Environment.Wind
             PrepareBuffersForKernel(2);
             PrepareBuffersForKernel(3);
             PrepareBuffersForKernel(4);
+            PrepareBuffersForKernel(5);
             SetProperties();
 
             //TickSimulation();
@@ -148,12 +151,8 @@ namespace SphereWorld.Environment.Wind
 
         private void SetProperties()
         {
-            mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
-            mainShader.SetFloat(near_influence_radius, particleNearInfluencePercent * particleInfluenceSize);
             mainShader.SetFloat(delta_time, simulationDeltaTime);
             mainShader.SetFloat(gravity, airGravity);
-            mainShader.SetFloat(viscosity_coefficient, viscosity);
-            mainShader.SetFloat(push_force, pushForce);
             mainShader.SetFloat(cell_coord_offset, cellSize * 0.5f);
             mainShader.SetInt(elements_length, _gridElementsBuffer.count);
             mainShader.SetInt(grid_length, _gridBuffer.count);
@@ -183,6 +182,15 @@ namespace SphereWorld.Environment.Wind
             mainShader.SetVector(sunlight, sunlightDirection);
             ClearGrid();
             UpdateGrid();
+            mainShader.SetFloat(push_force, pushForce);
+            mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
+            mainShader.SetFloat(viscosity_coefficient, viscosity);
+            CalculatePressure();
+            FindGradient();
+            mainShader.SetFloat(push_force, nearPushForce);
+            mainShader.SetFloat(particle_influence_radius, particleInfluenceSize * particleNearInfluencePercent);
+            mainShader.SetFloat(viscosity_coefficient, nearViscosity);
+            CalculatePressure();
             CalculatePressure();
             FindGradient();
             MoveParticles();
@@ -208,18 +216,24 @@ namespace SphereWorld.Environment.Wind
             mainShader.Dispatch(2, new int3{x = particlesCount, y = 1, z = 1});
         }
         [Button]
-
-        private void FindGradient()
+        private void ModifyPressure()
         {
             mainShader.SetInt(dispatch_max_index, particlesCount);
             mainShader.Dispatch(3, new int3{x = particlesCount, y = 1, z = 1});
         }
         [Button]
 
-        private void MoveParticles()
+        private void FindGradient()
         {
             mainShader.SetInt(dispatch_max_index, particlesCount);
             mainShader.Dispatch(4, new int3{x = particlesCount, y = 1, z = 1});
+        }
+        [Button]
+
+        private void MoveParticles()
+        {
+            mainShader.SetInt(dispatch_max_index, particlesCount);
+            mainShader.Dispatch(5, new int3{x = particlesCount, y = 1, z = 1});
         }
 
         private void PrepareBuffersForKernel(int kernelIndex)
@@ -300,10 +314,9 @@ namespace SphereWorld.Environment.Wind
                     for (var index = 0; index < _particlesOutput.Length; index++)
                     {
                         var particle = _particlesOutput[index];
-                        float density = particle.density.x + particle.density.y;
-                        float pressure = (density - pressureVisualization.y) / pressureVisualization.x;
-                        pressureMinMax.x = Mathf.Min(density, pressureMinMax.x);
-                        pressureMinMax.y = Mathf.Max(density, pressureMinMax.y);
+                        float pressure = (particle.density - pressureVisualization.y) / pressureVisualization.x;
+                        pressureMinMax.x = Mathf.Min(particle.density, pressureMinMax.x);
+                        pressureMinMax.y = Mathf.Max(particle.density, pressureMinMax.y);
                         if (index == selectedParticle && enableDebug)
                         {
                             Vector3 p = particle.GetPosition();

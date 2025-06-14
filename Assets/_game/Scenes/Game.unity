@@ -1561,13 +1561,15 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  particleInfluenceSize: 0.03
-  particleNearInfluencePercent: 0
+  particleInfluenceSize: 0.04
+  particleNearInfluencePercent: 0.3
   cellSize: 0.05
   simulationDeltaTime: 0.00004
-  airGravity: 1500
-  pushForce: 0.0013
-  viscosity: 0.02
+  airGravity: 5000
+  pushForce: 0.0016
+  nearPushForce: 0.004
+  viscosity: 0.001
+  nearViscosity: 0.0001
   solPeriod: 30
   yearPeriod: 200
   sunlightInclination: 23.5
@@ -1595,7 +1597,7 @@ MonoBehaviour:
   readDataPeriod: 2
   enableDebug: 0
   sunlightIndicator: {fileID: 671455384}
-  pressureVisualization: {x: 150000, y: 50000}
+  pressureVisualization: {x: 200000, y: 1400000}
 --- !u!1 &157207112
 GameObject:
   m_ObjectHideFlags: 0
