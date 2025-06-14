@@ -1561,11 +1561,12 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  particleInfluenceSize: 0.027
+  particleInfluenceSize: 0.03
+  particleNearInfluencePercent: 0
   cellSize: 0.05
   simulationDeltaTime: 0.00004
   airGravity: 1500
-  pushForce: 0.0018
+  pushForce: 0.0013
   viscosity: 0.02
   solPeriod: 30
   yearPeriod: 200
@@ -1594,7 +1595,7 @@ MonoBehaviour:
   readDataPeriod: 2
   enableDebug: 0
   sunlightIndicator: {fileID: 671455384}
-  pressureVisualization: {x: 100000, y: 0}
+  pressureVisualization: {x: 150000, y: 50000}
 --- !u!1 &157207112
 GameObject:
   m_ObjectHideFlags: 0
@@ -3156,7 +3157,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1.92, y: 1.92, z: 1.92}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 153580587}

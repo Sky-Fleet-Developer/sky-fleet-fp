@@ -58,7 +58,7 @@ void contact(int a, int b, float dSqr, float mul)
 {
     float3 delta = particles[b].position - particles[a].position;
     float d = sqrt(dSqr);
-    d = max(d, particle_influence_radius * 0.15f);
+    //d = max(d, particle_influence_radius * 0.15f);
     if (d == 0)
     {
         return;
@@ -67,22 +67,21 @@ void contact(int a, int b, float dSqr, float mul)
     float3 deltaNorm = delta * dInv;
     /*float slope = DerivativeSpikyPow2(d, particle_influence_radius);
     deltaNorm *= slope * delta_time * mul;*/
-    float neighbourPressure = particles[b].density - targetDensity;
-    float pressure = particles[a].density - targetDensity;
-    float sharedPressure = (pressure + neighbourPressure) * 0.5f;
-    float force = DerivativeSpikyPow3(d, particle_influence_radius) * sharedPressure;
+    float2 sharedPressure = (particles[a].density + particles[b].density) * float2(0.5f, 0.5f);
+    float2 force = float2(DerivativeSpikyPow2(d, particle_influence_radius), DerivativeSpikyPow3(d, particle_influence_radius)) * sharedPressure;
 
     float3 otherVelocity = particles[b].velocity;
     float3 velocity = particles[a].velocity;
     float3 vDelta = velocity - otherVelocity;
-    float3 vNorm = vDelta != 0 ? vDelta / sqrt(dot(vDelta, vDelta)) : float3(0, 0, 0);
-    float convergence = min(1.0f, max(-1.0f, dot(vNorm, deltaNorm)));
+    float3 vDeltaNorm = vDelta != 0 ? vDelta / sqrt(dot(vDelta, vDelta)) : float3(0, 0, 0);
+    float convergence = min(1.0f, max(-1.0f, dot(vDeltaNorm, deltaNorm)));
     /*float3 viscosityForce = convergence > 0 ?
         (-vDelta) * (0.1f+convergence*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius)
         : float3(0, 0, 0);*/
     float3 viscosityForce = (-vDelta) * (0.1f+abs(convergence)*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius);
-    
-    particles[a].gradient += deltaNorm * (force / particles[b].density * mul) * push_force + viscosityForce * viscosity_coefficient;
+
+    float2 pressureForce = force / particles[b].density * float2(mul, mul) * push_force;
+    particles[a].gradient += deltaNorm * (pressureForce.x + pressureForce.y) + viscosityForce * viscosity_coefficient;
 }
 
 void resolve_contact(int a, int b, float dSqr)

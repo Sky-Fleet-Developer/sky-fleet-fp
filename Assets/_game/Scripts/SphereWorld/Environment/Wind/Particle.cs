@@ -1,10 +1,12 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace SphereWorld.Environment.Wind
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 44)]
+    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 48)]
+    [Serializable]
     public struct Particle
     {
         [FieldOffset(0)] public float px;
@@ -17,7 +19,7 @@ namespace SphereWorld.Environment.Wind
         [FieldOffset(28)] public float yGradient;
         [FieldOffset(32)] public float zGradient;
         [FieldOffset(36)] public int gridIndex;
-        [FieldOffset(40)] public float density;
+        [FieldOffset(40)] public Vector2 density;
 
         public Vector3 GetPosition()
         {
@@ -47,7 +49,7 @@ namespace SphereWorld.Environment.Wind
             yGradient = 0;
             zGradient = 0;
             gridIndex = -1;
-            density = 0;
+            density = Vector2.zero;
         }
     }
 }

@@ -7,7 +7,7 @@ struct particle
     float3 velocity;
     float3 gradient;
     uint grid_index;
-    float density;
+    float2 density;
 };
 
 /*struct packed_particle
