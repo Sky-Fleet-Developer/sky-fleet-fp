@@ -17,7 +17,7 @@ float3 cross(float3 a, float3 b)
 
 float3 reflect(float3 value, float3 normal, float bounce = 1.0f)
 {
-    float scalarProduct = bounce * 2.0f * dot(value, normal);
+    float scalarProduct = dot(value, normal) * (bounce * 2.0f);
     
     return value - scalarProduct * normal;
 }

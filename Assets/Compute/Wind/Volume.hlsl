@@ -12,7 +12,6 @@ float cell_coord_offset;
 float cell_coord_mul;
 float viscosity_coefficient;
 float particle_influence_radius;
-float near_influence_radius;
 float push_force;
 
 float get_sqr_distance(int particleA, int particleB)

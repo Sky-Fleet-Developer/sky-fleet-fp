@@ -65,7 +65,7 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
         return;
     }
     
-    float density = particles[id.x].density;
+    float density = 0;
     
     for (uint i = 0; i < neighbours_1_all_count; i++)
     {
@@ -77,77 +77,41 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
             while (iterator != -1)
             {
                 int2 element = elements[iterator];
+                iterator = element.y;
+                if (element.x == id.x) continue;
                 float dSqr = get_sqr_distance(id.x, element.x);
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
                     float d = sqrt(dSqr);
-                    density += SpikyKernelPow2(d, particle_influence_radius) * 0.5f;
+                    density += SpikyKernelPow3(d, particle_influence_radius) * 0.5f;
                 }
-                iterator = element.y;
             }
         }
     }
-    particles[id.x].density = density;
+
+    float side = max(dot(particles[id.x].position, sunlight), 0);
+    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 20;
+
+    float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
+    noise = abs(noise * noise) * noise;
+    noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
+
+    float heat = 0.3f + side * 0.7f;
+    float heatPerHeight = 1 + heat * max(1 - height, 0) * 0.5f;
+    
+    particles[id.x].density += density * heatPerHeight * (0.6f + noise * 0.4f);
 }
 
-void DebugRecordContact(int contactParticleIndex)
+void DebugRecordContact(int2 contactParticleIndex)
 {
     int indexWrite = 0;
-    InterlockedAdd(collisions_counter[0], 1, indexWrite);
+    InterlockedAdd(collisions_counter[0], 2, indexWrite);
     if (indexWrite >= dispatch_max_index)
     {
         return;
     }
-    collisions_debug[indexWrite] = contactParticleIndex;
-}
-
-
-[numthreads(64,1,1)]
-void FindGradient (uint3 id : SV_DispatchThreadID)
-{
-    if ((int)id.x >= dispatch_max_index)
-    {
-        return;
-    }
-    particle p = particles[id.x];
-    p.gradient = float3(0, 0, 0);
-    particles[id.x] = p;
-    
-    for (int i = 0; i < neighbours_1_all_count; i++)
-    {
-        uint3 neighbourCell = cell_from_index(particles[id.x].grid_index) + neighbours_1_all[i];
-        if (is_cell_valid(neighbourCell))
-        {
-            int index = index_from_cell(neighbourCell);
-            int iterator = grid[index];
-            while (iterator != -1)
-            {
-                int2 element = elements[iterator];
-                iterator = element.y;
-
-                if (element.x == id.x) continue;
-                
-                float dSqr = get_sqr_distance(id.x, element.x);
-                if (dSqr < 0.0000001)
-                {
-                    int toMove = min(id.x, element.x);
-                    particles[toMove].velocity += GenerateDefaultFBMNoise(float3(id.x * 0.5f, element.x * 0.3f, 0.0f), noise_parameters[0]).yzw * 0.3f;
-                }
-                if (dSqr < particle_influence_radius * particle_influence_radius)
-                {
-                    if (id.x == collisions_debug_origin_index)
-                    {
-                        DebugRecordContact(element.x);
-                    }
-                    if(element.x == collisions_debug_origin_index)
-                    {
-                        DebugRecordContact(id.x);
-                    }
-                    resolve_neighbour_contact(id.x, element.x, dSqr);
-                }
-            }
-        }
-    }
+    collisions_debug[indexWrite] = contactParticleIndex.x;
+    collisions_debug[indexWrite+1] = contactParticleIndex.y;
 }
 
 [numthreads(64,1,1)]
@@ -171,6 +135,54 @@ void ModifyPressure (uint3 id : SV_DispatchThreadID)
 }
 
 [numthreads(64,1,1)]
+void FindGradient (uint3 id : SV_DispatchThreadID)
+{
+    if ((int)id.x >= dispatch_max_index)
+    {
+        return;
+    }
+
+    float3 gradient = float3(0, 0, 0);
+    for (int i = 0; i < neighbours_1_all_count; i++)
+    {
+        uint3 neighbourCell = cell_from_index(particles[id.x].grid_index) + neighbours_1_all[i];
+        if (is_cell_valid(neighbourCell))
+        {
+            int index = index_from_cell(neighbourCell);
+            int iterator = grid[index];
+            while (iterator != -1)
+            {
+                int2 element = elements[iterator];
+                iterator = element.y;
+
+                if (element.x == id.x) continue;
+                
+                float dSqr = get_sqr_distance(id.x, element.x);
+                /*if (dSqr < 0.00000000001)
+                {
+                    //int toMove = min(id.x, element.x);
+                    //particles[toMove].position *= 1.1f;//GenerateDefaultFBMNoise(float3(id.x * 0.5f, element.x * 0.3f, 0.0f), noise_parameters[0]).yzw * 0.003f;
+                    DebugRecordContact(int2(element.x, id.x));
+                }*/
+                if (dSqr < particle_influence_radius * particle_influence_radius)
+                {
+                    float3 contactForce = resolve_neighbour_contact(id.x, element.x, dSqr);
+                    /*float length = sqrt(contactForce.x * contactForce.x + contactForce.y * contactForce.y + contactForce.z * contactForce.z);
+                    if (length > 1000000)
+                    {
+                        DebugRecordContact(int2(id.x, element.x));
+                    }*/
+                    gradient += contactForce;
+                }
+            }
+        }
+    }
+   
+    particles[id.x].gradient += gradient;
+}
+
+
+[numthreads(64,1,1)]
 void MoveParticles (uint3 id : SV_DispatchThreadID)
 {
     if ((int)id.x >= dispatch_max_index)
@@ -179,23 +191,29 @@ void MoveParticles (uint3 id : SV_DispatchThreadID)
     }
 
     particle p = particles[id.x];
-    p.position -= p.velocity * delta_time;
+    //p.position -= p.velocity * delta_time;
     p.velocity += p.gradient * delta_time;
 
-    float heightSqr = p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z;
-    float3 pNorm = p.position / sqrt(heightSqr);
-    if (heightSqr < 0.9604f)
+    float height = sqrt(p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z);
+    float3 pNorm = p.position / height;
+    if (height < 1 + particle_influence_radius)
     {
-        if (dot(p.velocity, p.position) < 0)
+        float pointBHeight = min(1, height - particle_influence_radius * 0.05f);
+        float3 pointB = pNorm * pointBHeight;
+        float3 flatVelocity = reflect(p.velocity, pNorm, 2);
+        p.velocity += contact(height - pointBHeight, p.density, p.position, p.velocity, p.density * 10, pointB, flatVelocity, 0.0f) * delta_time;
+        if (height < 1)
         {
-            p.velocity = reflect(p.velocity, pNorm, 0.6); // TODO: slowdown when contact
+            if (dot(p.velocity, p.position) < 0)
+            {
+                p.velocity = reflect(p.velocity, pNorm, 0.6); // TODO: slowdown when contact
+            }
+            p.position = pNorm;
         }
-        p.position = pNorm * 0.98f;
     }
     p.velocity -= pNorm * gravity * delta_time;
     //float noise = min(1, max(0.01f, GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).w * 0.5f + .5f));
-
-    p.position += p.velocity * (delta_time * 2); //(0.3f + noise * 0.7f)
+    p.position += p.velocity * (delta_time); //(0.3f + noise * 0.7f)
     //p.velocity = p.position * 2;
     
     particles[id.x] = p;

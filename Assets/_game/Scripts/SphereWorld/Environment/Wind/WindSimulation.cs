@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -36,6 +37,8 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private float yearPeriod;
         [SerializeField] private float sunlightInclination;
         [SerializeField] private GPUNoiseParameters pressureNoise;
+        [SerializeField][FolderPath] private string saveLoadFilePath;
+        [SerializeField] private bool needLoadAtStart;
         [Header("debug")]
         [SerializeField] private int selectedParticle;
         [SerializeField] private int3 selectedCell;
@@ -54,7 +57,7 @@ namespace SphereWorld.Environment.Wind
         private ComputeBuffer _noiseParametersBuffer;
 
         //private RenderTexture[] _surfaces;
-        private Particle[] _particlesOutput;
+        [ShowInInspector] private Particle[] _particlesOutput;
         private int[] _collisionsOutput;
         private int[] _collisionsOutputCount;
         private int[] _gridData;
@@ -82,7 +85,6 @@ namespace SphereWorld.Environment.Wind
         private readonly int cell_coord_offset = Shader.PropertyToID("cell_coord_offset");
         private readonly int max_grid_side_size = Shader.PropertyToID("max_grid_side_size");
         private readonly int particle_influence_radius = Shader.PropertyToID("particle_influence_radius");
-        private readonly int near_influence_radius = Shader.PropertyToID("near_influence_radius");
         private readonly int delta_time = Shader.PropertyToID("delta_time");
         private readonly int collisions_debug_origin_index = Shader.PropertyToID("collisions_debug_origin_index");
         // ReSharper restore InconsistentNaming
@@ -121,7 +123,6 @@ namespace SphereWorld.Environment.Wind
                 AnimationUtility.SetKeyRightTangentMode(outputPressure, i,
                     AnimationUtility.TangentMode.Auto);
             }
-
             
             MakeParticlesBuffer();
             float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
@@ -187,12 +188,34 @@ namespace SphereWorld.Environment.Wind
             mainShader.SetFloat(viscosity_coefficient, viscosity);
             CalculatePressure();
             FindGradient();
-            mainShader.SetFloat(push_force, nearPushForce);
+            /*ReadData();
+            bool exception = false;
+            for (var i = 0; i < _collisionsOutputCount[0]; i += 2)
+            {
+                int a = _collisionsOutput[i];
+                int b = _collisionsOutput[i+1];
+                var pa = _particlesOutput[a].GetPosition();
+                var pb = _particlesOutput[b].GetPosition();
+                Debug.DrawLine(pa, pa * 1.01f, Color.red, 10);
+                Debug.DrawLine(pb, pb * 1.01f, Color.red, 10);
+                Debug.DrawLine(pb * 1.01f, pa * 1.01f, Color.cyan, 10);
+                Debug.Log($"Collides {a} and {b}");
+                exception = true;
+                //int3 cell = CoordFromIndex(_particlesOutput[a].gridIndex, cellsPerSide);
+                //DrawCell(cellsPerSideHalf, cellOffset, cell, Color.cyan);
+            }
+
+            if (exception)
+            {
+                enabled = false;
+                EditorApplication.isPaused = true;
+            }*/
+            /*mainShader.SetFloat(push_force, nearPushForce);
             mainShader.SetFloat(particle_influence_radius, particleInfluenceSize * particleNearInfluencePercent);
             mainShader.SetFloat(viscosity_coefficient, nearViscosity);
             CalculatePressure();
-            CalculatePressure();
-            FindGradient();
+            FindGradient();*/
+            //ModifyPressure();
             MoveParticles();
         }
         [Button]
@@ -251,10 +274,11 @@ namespace SphereWorld.Environment.Wind
         private void ReadData()
         {
             _particlesBuffer.GetData(_particlesOutput);
+            _collisionsDebugBuffer.GetData(_collisionsOutput);
+            _collisionsCounterBuffer.GetData(_collisionsOutputCount);
             if (enableDebug)
             {
-                _collisionsDebugBuffer.GetData(_collisionsOutput);
-                _collisionsCounterBuffer.GetData(_collisionsOutputCount);
+
                 _gridBuffer.GetData(_gridData);
                 _gridElementsBuffer.GetData(_elements);
             }
@@ -325,7 +349,7 @@ namespace SphereWorld.Environment.Wind
                                 Debug.DrawLine(p, _particlesOutput[_collisionsOutput[i]].GetPosition(), Color.yellow);
                             }
                             
-                            Debug.DrawLine(p, p - particle.GetVelocity() * 0.001f,  Color.green);
+                            Debug.DrawLine(p, p - particle.GetVelocity() * 0.0005f,  Color.green);
                             Debug.DrawLine(p, p * 1.008f, Color.red);
 
                             int3 cell = CoordFromIndex(particle.gridIndex, cellsPerSide);
@@ -342,8 +366,8 @@ namespace SphereWorld.Environment.Wind
                             
                             Vector3 v = particle.GetVelocity() * 0.0015f;
                             //float n = Vector3.Dot(v.normalized, Vector3.forward);
-                            float d = Vector3.Dot(particle.GetVelocity(), particle.GetPosition()) * 0.5f + 0.5f;
-                            Color c = Color.Lerp(Color.green, Color.red, pressure) * (0.6f + d * 0.4f);
+                            //float d = Vector3.Dot(particle.GetVelocity().normalized, particle.GetPosition().normalized) * 0.5f + 0.5f;
+                            Color c = Color.Lerp(Color.green, Color.red, pressure);// * (0.6f + d * 0.4f);
                             //c = Color.Lerp(c, new Color(.6f, .8f, 1), d);
                             Debug.DrawLine(p - v, p + v, c, Time.deltaTime * drawParticlesParts);
                             //Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);
@@ -353,6 +377,13 @@ namespace SphereWorld.Environment.Wind
                         
                     }
                 }
+
+
+                if (enableDebug)
+                {
+                    
+                }
+                
                 //int3 coord = CoordFromIndex(selectedCell, cellsPerSide);
                 DrawCell(cellsPerSideHalf, cellOffset, selectedCell, Color.red);
                 /*int counter = 0;
@@ -395,13 +426,72 @@ namespace SphereWorld.Environment.Wind
         private void MakeParticlesBuffer()
         {
             var particleSize = Marshal.SizeOf(typeof(Particle));
-            _particlesBuffer = new ComputeBuffer(particlesCount, particleSize, ComputeBufferType.Structured);
-            _particlesOutput = new Particle[particlesCount];
-            for (int i = 0; i < particlesCount; i++)
+            if (needLoadAtStart)
             {
-                _particlesOutput[i].Randomize();
+                using (FileStream stream = File.Open(saveLoadFilePath + "/Save.bin", FileMode.Open))
+                {
+                    GCHandle gcHandle;
+                    byte[] header = new byte[4];
+                    byte[] particleCache = new byte[particleSize];
+                    stream.Read(header);
+                    particlesCount = System.BitConverter.ToInt32(header);
+                    _particlesOutput = new Particle[particlesCount];
+                    for (int i = 0; i < particlesCount; i++)
+                    {
+                        stream.Read(particleCache);
+                        gcHandle = GCHandle.Alloc(particleCache, GCHandleType.Pinned);
+                        _particlesOutput[i] = ReadAs<Particle>(gcHandle);
+                        gcHandle.Free();
+                    }
+                }
+
             }
+            else
+            {
+                _particlesOutput = new Particle[particlesCount];
+                for (int i = 0; i < particlesCount; i++)
+                {
+                    _particlesOutput[i].Randomize();
+                }
+            }
+            _particlesBuffer = new ComputeBuffer(particlesCount, particleSize, ComputeBufferType.Structured);
             _particlesBuffer.SetData(_particlesOutput);
+        }
+        
+        [Button]
+        private void SerializeParticlesBinary()
+        {
+            _particlesBuffer.GetData(_particlesOutput);
+            using (FileStream stream = File.Open(saveLoadFilePath + "/Save.bin", FileMode.OpenOrCreate))
+            {
+                stream.Write(System.BitConverter.GetBytes(particlesCount));
+                for (int i = 0; i < particlesCount; i++)
+                {
+                    var particle = _particlesOutput[i];
+                    WriteObject(ref particle, stream);
+                }
+            }
+        }
+        
+        private unsafe void WriteObject<T>(ref T obj, Stream stream) where T : unmanaged
+        {
+            int objectSize = Marshal.SizeOf(obj.GetType());
+        
+            fixed(void* pObject = &obj)
+            {
+                byte* bytePointer = (byte*)pObject;
+            
+                for (int i = 0; i < objectSize; ++i)
+                {
+                    stream.Write(new byte[] { bytePointer[i] }, 0, 1);
+                }
+            }
+        }
+        
+        private T ReadAs<T>(GCHandle gcHandle)
+        {
+            T payload = (T)Marshal.PtrToStructure(gcHandle.AddrOfPinnedObject(), typeof(T));
+            return payload;
         }
 
         private int GetMaxGridSideSize(float maxGridRadius, out int cellsOnSideCount)

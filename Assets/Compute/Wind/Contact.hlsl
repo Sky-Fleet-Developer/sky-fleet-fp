@@ -52,46 +52,46 @@ float SmoothingKernelPoly6(float dst, float radius)
     return v * v * v * scale;
 }
 
-const static float targetDensity = 0;
-
-void contact(int a, int b, float dSqr, float mul)
+float3 contact(float d, float densityA, float3 positionA, float3 velocityA, float densityB, float3 positionB, float3 velocityB, float convergenceFactor)
 {
-    float3 delta = particles[b].position - particles[a].position;
-    float d = sqrt(dSqr);
+    float3 delta = positionB - positionA;
     //d = max(d, particle_influence_radius * 0.15f);
-    if (d == 0)
-    {
-        return;
-    }
-    float dInv = 1.0f / d;
-    float3 deltaNorm = delta * dInv;
+    float3 deltaNorm = delta / d;
     /*float slope = DerivativeSpikyPow2(d, particle_influence_radius);
     deltaNorm *= slope * delta_time * mul;*/
-    float sharedPressure = (particles[a].density + particles[b].density) * 0.5f;
-    float force = DerivativeSpikyPow2(d, particle_influence_radius) * sharedPressure;
+    float sharedPressure = (densityB - densityA);
+    float force = DerivativeSpikyPow3(d, particle_influence_radius) * sharedPressure;
 
-    float3 otherVelocity = particles[b].velocity;
-    float3 velocity = particles[a].velocity;
-    float3 vDelta = velocity - otherVelocity;
-    float3 vDeltaNorm = vDelta != 0 ? vDelta / sqrt(dot(vDelta, vDelta)) : float3(0, 0, 0);
+    float3 vDelta = velocityA - velocityB;
+    float3 vDeltaNorm = vDelta != 0 ? vDelta / sqrt(vDelta.x * vDelta.x + vDelta.y * vDelta.y + vDelta.z * vDelta.z) : float3(0, 0, 0);
     float convergence = min(1.0f, max(-1.0f, dot(vDeltaNorm, deltaNorm)));
     /*float3 viscosityForce = convergence > 0 ?
         (-vDelta) * (0.1f+convergence*0.9f) * SmoothingKernelPoly6(d, particle_influence_radius)
         : float3(0, 0, 0);*/
-    float3 viscosityForce = (-vDelta) * (0.3f+abs(convergence)*0.7f) * SmoothingKernelPoly6(d, particle_influence_radius);
+    float3 viscosityForce = (-vDelta) * ((1 - convergenceFactor)+abs(convergence)*convergenceFactor) * SmoothingKernelPoly6(d, particle_influence_radius);
 
-    float pressureForce = force / particles[b].density * mul * push_force;
+    float pressureForce = force * push_force;
     
-    particles[a].gradient += deltaNorm * pressureForce + viscosityForce * viscosity_coefficient;
+    return deltaNorm * pressureForce + viscosityForce * viscosity_coefficient;
 }
 
-void resolve_contact(int a, int b, float dSqr)
+float3 contact(int a, int b, float dSqr, float mul)
 {
-    contact(a, b, dSqr, 0.5f);
+    float d = sqrt(dSqr);
+    if (d == 0 || particles[b].density == 0 || particles[a].density == 0)
+    {
+        return float3(0, 0, 0);
+    }
+    return contact(d, particles[a].density, particles[a].position, particles[a].velocity, particles[b].density, particles[b].position, particles[b].velocity, 0.7f) * mul;
 }
-void resolve_neighbour_contact(int a, int b, float dSqr)
+
+float3 resolve_contact(int a, int b, float dSqr)
 {
-    contact(a, b, dSqr, 0.5f);
+    return contact(a, b, dSqr, 0.5f);
+}
+float3 resolve_neighbour_contact(int a, int b, float dSqr)
+{
+    return contact(a, b, dSqr, 0.5f);
 }
 
 #endif
