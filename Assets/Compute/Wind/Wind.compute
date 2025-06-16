@@ -52,7 +52,7 @@ void UpdateGrid (uint3 id : SV_DispatchThreadID)
     int cellIndex = index_from_cell(cell);
     push_to_cell(cellIndex, id.x);
     p.grid_index = cellIndex;
-    p.density = 0;
+    p.density = 1;
     p.gradient = float3(0, 0, 0);
     particles[id.x] = p;
 }

@@ -1140,14 +1140,14 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  particleInfluenceSize: 0.04
+  particleInfluenceSize: 0.025
   particleNearInfluencePercent: 0.4
   cellSize: 0.05
   simulationDeltaTime: 0.00004
   airGravity: 1500
-  pushForce: 0.000000016
+  pushForce: 0.0006
   nearPushForce: 0
-  viscosity: 0.03
+  viscosity: 0.007
   nearViscosity: 0
   solPeriod: 30
   yearPeriod: 200
@@ -1159,16 +1159,16 @@ MonoBehaviour:
     m_numberOfOctaves: 3
     m_initialAmplitude: 15
     m_initialFrequency:
-      x: 2
-      y: 2
-      z: 2
+      x: 1.7
+      y: 2.6
+      z: 2.1
     m_persistence: 0.9
     m_lacunarity:
       x: 0
       y: 0
       z: 0
   saveLoadFilePath: ParticlesSave
-  needLoadAtStart: 0
+  needLoadAtStart: 1
   selectedParticle: 0
   selectedCell:
     x: 17
@@ -1178,7 +1178,7 @@ MonoBehaviour:
   readDataPeriod: 2
   enableDebug: 0
   sunlightIndicator: {fileID: 671455384}
-  pressureVisualization: {x: 50000, y: 50000}
+  pressureVisualization: {x: 100339.1, y: 15000}
 --- !u!1 &157207112
 GameObject:
   m_ObjectHideFlags: 0

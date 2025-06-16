@@ -54,12 +54,12 @@ float SmoothingKernelPoly6(float dst, float radius)
 
 float3 contact(float d, float densityA, float3 positionA, float3 velocityA, float densityB, float3 positionB, float3 velocityB, float convergenceFactor)
 {
-    float3 delta = positionB - positionA;
     //d = max(d, particle_influence_radius * 0.15f);
-    float3 deltaNorm = delta / d;
+    float3 deltaNorm = (positionB - positionA) / d;
     /*float slope = DerivativeSpikyPow2(d, particle_influence_radius);
     deltaNorm *= slope * delta_time * mul;*/
-    float sharedPressure = (densityB - densityA);
+    //float sharedPressure = (densityB - densityA);
+    float sharedPressure = (densityA + densityB) * 0.5f;
     float force = DerivativeSpikyPow3(d, particle_influence_radius) * sharedPressure;
 
     float3 vDelta = velocityA - velocityB;
@@ -70,7 +70,7 @@ float3 contact(float d, float densityA, float3 positionA, float3 velocityA, floa
         : float3(0, 0, 0);*/
     float3 viscosityForce = (-vDelta) * ((1 - convergenceFactor)+abs(convergence)*convergenceFactor) * SmoothingKernelPoly6(d, particle_influence_radius);
 
-    float pressureForce = force * push_force;
+    float pressureForce = force * push_force / max(densityB, 1000);
     
     return deltaNorm * pressureForce + viscosityForce * viscosity_coefficient;
 }
