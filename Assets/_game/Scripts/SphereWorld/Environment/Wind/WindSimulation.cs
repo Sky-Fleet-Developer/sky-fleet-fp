@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
+using Core.Structure;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Serialization;
 using Voxels.Procedural;
 using Zenject;
@@ -39,6 +42,7 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private GPUNoiseParameters pressureNoise;
         [SerializeField][FolderPath] private string saveLoadFilePath;
         [SerializeField] private bool needLoadAtStart;
+        [SerializeField] private RenderTexture image;
         [Header("debug")]
         [SerializeField] private int selectedParticle;
         [SerializeField] private int3 selectedCell;
@@ -55,9 +59,8 @@ namespace SphereWorld.Environment.Wind
         private ComputeBuffer _collisionsCounterBuffer;
         private ComputeBuffer _collisionsDebugBuffer;
         private ComputeBuffer _noiseParametersBuffer;
-
         //private RenderTexture[] _surfaces;
-        [ShowInInspector] private Particle[] _particlesOutput;
+        private Particle[] _particlesOutput;
         private int[] _collisionsOutput;
         private int[] _collisionsOutputCount;
         private int[] _gridData;
@@ -87,6 +90,7 @@ namespace SphereWorld.Environment.Wind
         private readonly int particle_influence_radius = Shader.PropertyToID("particle_influence_radius");
         private readonly int delta_time = Shader.PropertyToID("delta_time");
         private readonly int collisions_debug_origin_index = Shader.PropertyToID("collisions_debug_origin_index");
+        private readonly int outputImage = Shader.PropertyToID("outputImage");
         // ReSharper restore InconsistentNaming
         
 
@@ -125,6 +129,13 @@ namespace SphereWorld.Environment.Wind
             }
             
             MakeParticlesBuffer();
+            if (!image)
+            {
+                image = new RenderTexture(1024, 1024, GraphicsFormat.R32G32B32A32_SFloat, GraphicsFormat.None, 1)
+                    { enableRandomWrite = true };
+                image.Create();
+            }
+
             float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
             MakeGridAndLinks(maxGridRadius, out int linksCount, out float maxRadiusSqr, out float minRadiusSqr, out float cellCoordMul);
             mainShader.SetFloat(min_radius_sqr, minRadiusSqr);
@@ -137,7 +148,13 @@ namespace SphereWorld.Environment.Wind
             PrepareBuffersForKernel(3);
             PrepareBuffersForKernel(4);
             PrepareBuffersForKernel(5);
+            PrepareBuffersForKernel(6);
+            mainShader.SetTexture(6, outputImage, image);
+
             SetProperties();
+
+            StructureUpdateModule.OnEndUpdateTick += OnTick;
+            _routine = TickSimulation();
 
             //TickSimulation();
 
@@ -162,61 +179,79 @@ namespace SphereWorld.Environment.Wind
         }
 
         private int a = 0;
-        private void Update()
+
+        private IEnumerator _routine;
+        /*private void Update()
         {
             TickSimulation();
             if (a++ % readDataPeriod == 0)
             {
                 ReadData();
             }
-        }
+        }*/
  //       [Button]
-        private void TickSimulation()
+        
+        private void OnTick()
         {
-            float solPhase = Time.time / solPeriod;
-            float yearPhase = Time.time / yearPeriod;
-            Quaternion rotation = Quaternion.Euler(0, solPhase * 90, 0);
-            Quaternion inclination = Quaternion.Euler(Mathf.Cos(yearPhase * Mathf.PI * 0.5f) * sunlightInclination, 0, 0);
-            Vector3 sunlightDirection = rotation * inclination * Vector3.forward;
-            sunlightIndicator.position = sunlightDirection * 2;
-            sunlightIndicator.rotation = rotation * inclination;
-            mainShader.SetVector(sunlight, sunlightDirection);
-            ClearGrid();
-            UpdateGrid();
-            mainShader.SetFloat(push_force, pushForce);
-            mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
-            mainShader.SetFloat(viscosity_coefficient, viscosity);
-            CalculatePressure();
-            FindGradient();
-            /*ReadData();
-            bool exception = false;
-            for (var i = 0; i < _collisionsOutputCount[0]; i += 2)
+            _routine.MoveNext();
+        }
+        
+        private IEnumerator TickSimulation()
+        {
+            while (enabled)
             {
-                int a = _collisionsOutput[i];
-                int b = _collisionsOutput[i+1];
-                var pa = _particlesOutput[a].GetPosition();
-                var pb = _particlesOutput[b].GetPosition();
-                Debug.DrawLine(pa, pa * 1.01f, Color.red, 10);
-                Debug.DrawLine(pb, pb * 1.01f, Color.red, 10);
-                Debug.DrawLine(pb * 1.01f, pa * 1.01f, Color.cyan, 10);
-                Debug.Log($"Collides {a} and {b}");
-                exception = true;
-                //int3 cell = CoordFromIndex(_particlesOutput[a].gridIndex, cellsPerSide);
-                //DrawCell(cellsPerSideHalf, cellOffset, cell, Color.cyan);
-            }
+                float solPhase = Time.time / solPeriod;
+                float yearPhase = Time.time / yearPeriod;
+                Quaternion rotation = Quaternion.Euler(0, solPhase * 90, 0);
+                Quaternion inclination =
+                    Quaternion.Euler(Mathf.Cos(yearPhase * Mathf.PI * 0.5f) * sunlightInclination, 0, 0);
+                Vector3 sunlightDirection = rotation * inclination * Vector3.forward;
+                sunlightIndicator.position = -sunlightDirection * 2;
+                sunlightIndicator.rotation = rotation * inclination;
+                mainShader.SetVector(sunlight, sunlightDirection);
+                ClearGrid();
+                UpdateGrid();
+                yield return null;
+                mainShader.SetFloat(push_force, pushForce);
+                mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
+                mainShader.SetFloat(viscosity_coefficient, viscosity);
+                CalculatePressure();
+                yield return null;
+                FindGradient();
+                yield return null;
+                /*ReadData();
+                bool exception = false;
+                for (var i = 0; i < _collisionsOutputCount[0]; i += 2)
+                {
+                    int a = _collisionsOutput[i];
+                    int b = _collisionsOutput[i+1];
+                    var pa = _particlesOutput[a].GetPosition();
+                    var pb = _particlesOutput[b].GetPosition();
+                    Debug.DrawLine(pa, pa * 1.01f, Color.red, 10);
+                    Debug.DrawLine(pb, pb * 1.01f, Color.red, 10);
+                    Debug.DrawLine(pb * 1.01f, pa * 1.01f, Color.cyan, 10);
+                    Debug.Log($"Collides {a} and {b}");
+                    exception = true;
+                    //int3 cell = CoordFromIndex(_particlesOutput[a].gridIndex, cellsPerSide);
+                    //DrawCell(cellsPerSideHalf, cellOffset, cell, Color.cyan);
+                }
 
-            if (exception)
-            {
-                enabled = false;
-                EditorApplication.isPaused = true;
-            }*/
-            /*mainShader.SetFloat(push_force, nearPushForce);
-            mainShader.SetFloat(particle_influence_radius, particleInfluenceSize * particleNearInfluencePercent);
-            mainShader.SetFloat(viscosity_coefficient, nearViscosity);
-            CalculatePressure();
-            FindGradient();*/
-            //ModifyPressure();
-            MoveParticles();
+                if (exception)
+                {
+                    enabled = false;
+                    EditorApplication.isPaused = true;
+                }*/
+                /*mainShader.SetFloat(push_force, nearPushForce);
+                mainShader.SetFloat(particle_influence_radius, particleInfluenceSize * particleNearInfluencePercent);
+                mainShader.SetFloat(viscosity_coefficient, nearViscosity);
+                CalculatePressure();
+                FindGradient();*/
+                //ModifyPressure();
+                MoveParticles();
+                yield return null;
+                DrawPixels();
+                yield return null;
+            }
         }
         [Button]
 
@@ -257,6 +292,12 @@ namespace SphereWorld.Environment.Wind
         {
             mainShader.SetInt(dispatch_max_index, particlesCount);
             mainShader.Dispatch(5, new int3{x = particlesCount, y = 1, z = 1});
+        }
+        
+        private void DrawPixels()
+        {
+            mainShader.SetInt(dispatch_max_index, 1024);
+            mainShader.Dispatch(6, new int3{x = 2048, y = 1024, z = 1});
         }
 
         private void PrepareBuffersForKernel(int kernelIndex)
@@ -319,99 +360,99 @@ namespace SphereWorld.Environment.Wind
            }
        }*/
 
-       private int drawCounter = 0;
-        [ShowInInspector] private Vector2 pressureMinMax;
-        private void OnDrawGizmosSelected()
-        {
-            if (Application.isPlaying)
-            {
-                pressureMinMax = Vector2.zero;
-                float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
-                Gizmos.DrawWireSphere(Vector3.zero, maxGridRadius);
-                Gizmos.DrawWireSphere(Vector3.zero, 1);
-                float cellOffset = cellSize * 0.5f;
-                int cellsPerSide = GetMaxGridSideSize(maxGridRadius, out int cellsPerSideHalf);
-                int selectedParticleGridIndex = -1;
-                var cameraDirection = Camera.current.transform.position;
-                if (_particlesOutput != null)
-                {
-                    for (var index = 0; index < _particlesOutput.Length; index++)
-                    {
-                        var particle = _particlesOutput[index];
-                        float pressure = (particle.density - pressureVisualization.y) / pressureVisualization.x;
-                        pressureMinMax.x = Mathf.Min(particle.density, pressureMinMax.x);
-                        pressureMinMax.y = Mathf.Max(particle.density, pressureMinMax.y);
-                        if (index == selectedParticle && enableDebug)
-                        {
-                            Vector3 p = particle.GetPosition();
-                            for (int i = 0; i < Mathf.Min(_collisionsOutputCount[0], _collisionsOutput.Length); i++)
-                            {
-                                Debug.DrawLine(p, _particlesOutput[_collisionsOutput[i]].GetPosition(), Color.yellow);
-                            }
-                            
-                            Debug.DrawLine(p, p - particle.GetVelocity() * 0.0005f,  Color.green);
-                            Debug.DrawLine(p, p * 1.008f, Color.red);
-
-                            int3 cell = CoordFromIndex(particle.gridIndex, cellsPerSide);
-                            DrawCell(cellsPerSideHalf, cellOffset, cell, Color.yellow);
-                        }
-                        else if(index % drawParticlesParts == drawCounter % drawParticlesParts)
-                        {
-                            Vector3 p = particle.GetPosition();
-                            if (Vector3.Dot(cameraDirection, p) < 0.3f)
-                            {
-                                continue;
-                            }
-
-                            
-                            Vector3 v = particle.GetVelocity() * 0.0015f;
-                            //float n = Vector3.Dot(v.normalized, Vector3.forward);
-                            //float d = Vector3.Dot(particle.GetVelocity().normalized, particle.GetPosition().normalized) * 0.5f + 0.5f;
-                            Color c = Color.Lerp(Color.green, Color.red, pressure);// * (0.6f + d * 0.4f);
-                            //c = Color.Lerp(c, new Color(.6f, .8f, 1), d);
-                            Debug.DrawLine(p - v, p + v, c, Time.deltaTime * drawParticlesParts);
-                            //Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);
-//                            Gizmos.DrawSphere(particle.GetPosition(), 0.01f);
-                        }
-
-                        
-                    }
-                }
-
-
-                if (enableDebug)
-                {
-                    
-                }
-                
-                //int3 coord = CoordFromIndex(selectedCell, cellsPerSide);
-                DrawCell(cellsPerSideHalf, cellOffset, selectedCell, Color.red);
-                /*int counter = 0;
-                foreach (var coord in EnumerateValidCells(maxGridRadius, out _, out _, out float cellCoordMul,
-                             out int cellsPerSide))
-                {
-                    int gridIndex = IndexFromCoord(coord.x, coord.y, coord.z, cellsPerSide);
-                    if (counter++ == selectedCell)
-                    {
-                        Gizmos.color = Color.red;
-                    }
-                    else if (selectedParticleGridIndex == gridIndex)
-                    {
-                        Gizmos.color = Color.cyan;
-                    }
-                    else
-                    {
-                        Gizmos.color = Color.HSVToRGB((float)((coord.x + coord.y + coord.z) % 30) / 30, 1f,1f) * 0.2f;
-                    }
-                    var center = new Vector3(((float)coord.x - cellsPerSideHalf) * cellCoordMul + cellOffset,
-                        ((float)coord.y - cellsPerSideHalf) * cellCoordMul + cellOffset,
-                        ((float)coord.z - cellsPerSideHalf) * cellCoordMul + cellOffset);
-                    Gizmos.DrawWireCube(center, Vector3.one * cellSize);
-                }*/
-
-                drawCounter++;
-            }
-        }
+        //private int drawCounter = 0;
+        //[ShowInInspector] private Vector2 pressureMinMax;
+        //private void OnDrawGizmosSelected()
+        //{
+        //    if (Application.isPlaying)
+        //    {
+        //        pressureMinMax = Vector2.zero;
+        //        float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
+        //        Gizmos.DrawWireSphere(Vector3.zero, maxGridRadius);
+        //        Gizmos.DrawWireSphere(Vector3.zero, 1);
+        //        float cellOffset = cellSize * 0.5f;
+        //        int cellsPerSide = GetMaxGridSideSize(maxGridRadius, out int cellsPerSideHalf);
+        //        int selectedParticleGridIndex = -1;
+        //        var cameraDirection = Camera.current.transform.position;
+        //        if (_particlesOutput != null)
+        //        {
+        //            for (var index = 0; index < _particlesOutput.Length; index++)
+        //            {
+        //                var particle = _particlesOutput[index];
+        //                float pressure = (particle.density - pressureVisualization.y) / pressureVisualization.x;
+        //                pressureMinMax.x = Mathf.Min(particle.density, pressureMinMax.x);
+        //                pressureMinMax.y = Mathf.Max(particle.density, pressureMinMax.y);
+        //                if (index == selectedParticle && enableDebug)
+        //                {
+        //                    Vector3 p = particle.GetPosition();
+        //                    for (int i = 0; i < Mathf.Min(_collisionsOutputCount[0], _collisionsOutput.Length); i++)
+        //                    {
+        //                        Debug.DrawLine(p, _particlesOutput[_collisionsOutput[i]].GetPosition(), Color.yellow);
+        //                    }
+        //                    
+        //                    Debug.DrawLine(p, p - particle.GetVelocity() * 0.0005f,  Color.green);
+        //                    Debug.DrawLine(p, p * 1.008f, Color.red);
+        //
+        //                    int3 cell = CoordFromIndex(particle.gridIndex, cellsPerSide);
+        //                    DrawCell(cellsPerSideHalf, cellOffset, cell, Color.yellow);
+        //                }
+        //                else if(index % drawParticlesParts == drawCounter % drawParticlesParts)
+        //                {
+        //                    Vector3 p = particle.GetPosition();
+        //                    if (Vector3.Dot(cameraDirection, p) < 0.3f)
+        //                    {
+        //                        continue;
+        //                    }
+        //
+        //                    
+        //                    Vector3 v = particle.GetVelocity() * 0.0015f;
+        //                    //float n = Vector3.Dot(v.normalized, Vector3.forward);
+        //                    //float d = Vector3.Dot(particle.GetVelocity().normalized, particle.GetPosition().normalized) * 0.5f + 0.5f;
+        //                    Color c = Color.Lerp(Color.green, Color.red, pressure);// * (0.6f + d * 0.4f);
+        //                    //c = Color.Lerp(c, new Color(.6f, .8f, 1), d);
+        //                    Debug.DrawLine(p - v, p + v, c, Time.deltaTime * drawParticlesParts);
+        //                    //Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);
+//      //                      Gizmos.DrawSphere(particle.GetPosition(), 0.01f);
+        //                }
+        //
+        //                
+        //            }
+        //        }
+        //
+        //
+        //        if (enableDebug)
+        //        {
+        //            
+        //        }
+        //        
+        //        //int3 coord = CoordFromIndex(selectedCell, cellsPerSide);
+        //        DrawCell(cellsPerSideHalf, cellOffset, selectedCell, Color.red);
+        //        /*int counter = 0;
+        //        foreach (var coord in EnumerateValidCells(maxGridRadius, out _, out _, out float cellCoordMul,
+        //                     out int cellsPerSide))
+        //        {
+        //            int gridIndex = IndexFromCoord(coord.x, coord.y, coord.z, cellsPerSide);
+        //            if (counter++ == selectedCell)
+        //            {
+        //                Gizmos.color = Color.red;
+        //            }
+        //            else if (selectedParticleGridIndex == gridIndex)
+        //            {
+        //                Gizmos.color = Color.cyan;
+        //            }
+        //            else
+        //            {
+        //                Gizmos.color = Color.HSVToRGB((float)((coord.x + coord.y + coord.z) % 30) / 30, 1f,1f) * 0.2f;
+        //            }
+        //            var center = new Vector3(((float)coord.x - cellsPerSideHalf) * cellCoordMul + cellOffset,
+        //                ((float)coord.y - cellsPerSideHalf) * cellCoordMul + cellOffset,
+        //                ((float)coord.z - cellsPerSideHalf) * cellCoordMul + cellOffset);
+        //            Gizmos.DrawWireCube(center, Vector3.one * cellSize);
+        //        }*/
+        //
+        //        drawCounter++;
+        //    }
+        //}
 
         private void DrawCell(int cellsPerSideHalf, float cellOffset, int3 cell, Color color)
         {
@@ -568,6 +609,7 @@ namespace SphereWorld.Environment.Wind
             _gridCounterBuffer.Dispose();
             _collisionsCounterBuffer.Dispose();
             _collisionsDebugBuffer.Dispose();
+            image.Release();
         }
     }
 }

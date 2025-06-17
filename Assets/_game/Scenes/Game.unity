@@ -1143,7 +1143,7 @@ MonoBehaviour:
   particleInfluenceSize: 0.025
   particleNearInfluencePercent: 0.4
   cellSize: 0.05
-  simulationDeltaTime: 0.00004
+  simulationDeltaTime: 0.00008
   airGravity: 1500
   pushForce: 0.0006
   nearPushForce: 0
@@ -1169,6 +1169,7 @@ MonoBehaviour:
       z: 0
   saveLoadFilePath: ParticlesSave
   needLoadAtStart: 1
+  image: {fileID: 8400000, guid: 382d6d8882001f444979ff3e7b436908, type: 2}
   selectedParticle: 0
   selectedCell:
     x: 17
@@ -1820,7 +1821,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100010, guid: 186430c6a103e50468fc1038ba89f06b, type: 3}
+  - {fileID: 2100000, guid: 6fd6d26aec5801e42898d030ab42f899, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

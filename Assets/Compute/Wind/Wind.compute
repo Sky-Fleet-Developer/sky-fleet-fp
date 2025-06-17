@@ -4,6 +4,7 @@
 #pragma kernel ModifyPressure
 #pragma kernel FindGradient
 #pragma kernel MoveParticles
+#pragma kernel DrawPixels
 
 #include "Assets/Compute/Wind/Volume.hlsl"
 #include "Assets/Compute/Wind/Contact.hlsl"
@@ -89,17 +90,16 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
         }
     }
 
-    float side = max(dot(particles[id.x].position, sunlight), 0);
-    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 20;
+    float heat = max(dot(particles[id.x].position, sunlight), 0);
+    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 15;
 
     float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
     noise = abs(noise * noise) * noise;
     noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
 
-    float heat = 0.3f + side * 0.7f;
-    float heatPerHeight = 1 + heat * max(1 - height, 0) * 0.5f;
+    float heatPerHeight = 1 + heat * max(1 - height, 0) * 1.1f;
     
-    particles[id.x].density += density * heatPerHeight * (0.6f + noise * 0.4f);
+    particles[id.x].density += density * heatPerHeight + noise * 190000 * max(1 - height, 0);// * (0.6f + noise * 0.4f);
 }
 
 void DebugRecordContact(int2 contactParticleIndex)
@@ -191,7 +191,7 @@ void MoveParticles (uint3 id : SV_DispatchThreadID)
     }
 
     particle p = particles[id.x];
-    //p.position -= p.velocity * delta_time;
+    p.position -= p.velocity * delta_time;
     p.velocity += p.gradient * delta_time;
 
     float height = sqrt(p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z);
@@ -212,9 +212,77 @@ void MoveParticles (uint3 id : SV_DispatchThreadID)
         }
     }
     p.velocity -= pNorm * gravity * delta_time;
-    //float noise = min(1, max(0.01f, GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).w * 0.5f + .5f));
-    p.position += p.velocity * (delta_time); //(0.3f + noise * 0.7f)
-    //p.velocity = p.position * 2;
+    p.position += p.velocity * (delta_time * 2);
     
     particles[id.x] = p;
+}
+
+RWTexture2D<float4> outputImage;
+
+[numthreads(8,8,1)]
+void DrawPixels (uint3 id : SV_DispatchThreadID)
+{
+    float2 uv = float2((float)id.x / dispatch_max_index * PI, (float)id.y / dispatch_max_index * PI);
+    float3 sourcePointN = sphere_to_rect(uv);
+    float3 sourcePoint = sourcePointN * (1 + particle_influence_radius * 0.6f);
+    uint3 cell = cell_from_coord(sourcePoint);
+    int cellIndex = index_from_cell(cell);
+    float4 velocityCapacitor = float4(0,0,0,0);
+    float r1 = particle_influence_radius * 1.5f, r2 = particle_influence_radius * 0.5f;
+    for (int i = 0; i < neighbours_1_all_count; i++)
+    {
+        uint3 neighbourCell = cell_from_index(cellIndex) + neighbours_1_all[i];
+        if (is_cell_valid(neighbourCell))
+        {
+            int index = index_from_cell(neighbourCell);
+            int iterator = grid[index];
+            while (iterator != -1)
+            {
+                int2 element = elements[iterator];
+                iterator = element.y;
+
+                float dSqr = get_sqr_distance(element.x, sourcePoint);
+                if (dSqr < r1 * r1)
+                {
+                    float d = sqrt(dSqr);
+                    float influence = SpikyKernelPow2(d, r1) * 0.6f;
+                    float3 velocity = particles[element.x].velocity * influence;
+                    float l = sqrt(dot(velocity, velocity));
+                    velocityCapacitor.xyz += velocity;
+                    velocityCapacitor.w += l;
+                }
+                if (dSqr < r2 * r2)
+                {
+                    float d = sqrt(dSqr);
+                    float influence = SpikyKernelPow2(d, r2);
+                    float3 velocity = particles[element.x].velocity * influence;
+                    float l = sqrt(dot(velocity, velocity));
+                    velocityCapacitor.xyz += velocity;
+                    velocityCapacitor.w += l;
+                }
+            }
+        }
+    }
+    
+    if (velocityCapacitor.w > 0)
+    {
+        //float scale = 5150000;
+        velocityCapacitor.xyz /= velocityCapacitor.w;
+    }
+    /*float3 up = sourcePoint;
+    float3 right = cross(up, float3(0, 1, 0));
+    float3 fwd = cross(up, right);*/
+
+    float3 fwd = sourcePointN;
+    float3 right = cross(float3(0, 1, 0), fwd);
+    float3 up = cross(fwd, right);
+    float4x4 worldToLocal = float4x4(float4(right, 0), float4(up, 0), float4(fwd, 0), float4(0, 0, 0, 1));//float4x4(float4(1, 0, 0, 0), float4(0, 1, 0, 0), float4(0, 0, 1, 0), float4(0, 0, 0, 1));
+    velocityCapacitor.xyz = mul(worldToLocal, velocityCapacitor.xyz);
+    velocityCapacitor.xyz += float3(1, 1, 1);
+    velocityCapacitor.xyz *= 0.5f;
+    velocityCapacitor.z *= 0.0f;//velocityCapacitor.z / 4.0f + 0.375f
+    float terminator = dot(sourcePointN, sunlight);
+    float tLine = 0.7f + min(abs(terminator * 40), 1) * 0.3;
+    float tShadow = max(min(terminator * 40 + 1, 1), 0.5f);
+    outputImage[id.xy] = float4(velocityCapacitor.xyz * (tLine * tShadow), 1);
 }

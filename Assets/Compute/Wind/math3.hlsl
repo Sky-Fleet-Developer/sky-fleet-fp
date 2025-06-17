@@ -22,6 +22,21 @@ float3 reflect(float3 value, float3 normal, float bounce = 1.0f)
     return value - scalarProduct * normal;
 }
 
+float3 sphere_to_rect(float2 value)
+{
+    float x = sin(value.y) * cos(value.x);
+    float y = cos(value.y);
+    float z = sin(value.y) * sin(value.x);
+    
+    return float3(x, y, z);
+}
+
+float2 rect_to_sphere(float3 value)
+{
+    //float radius = sqrt(value.x*value.x + value.y*value.y + value.z*value.z);
+    return float2(atan2(value.z, value.x), acos(value.y));
+}
+
 static const uint neighbours_1_count = 13;
 static const uint3 neighbours_1[13] =
 {

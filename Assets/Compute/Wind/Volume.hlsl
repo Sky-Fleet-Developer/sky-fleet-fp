@@ -14,6 +14,12 @@ float viscosity_coefficient;
 float particle_influence_radius;
 float push_force;
 
+float get_sqr_distance(int particle, float3 p)
+{
+    float3 d = particles[particle].position - p;
+    return d.x * d.x + d.y * d.y + d.z * d.z;
+}
+
 float get_sqr_distance(int particleA, int particleB)
 {
     float3 d = particles[particleA].position - particles[particleB].position;

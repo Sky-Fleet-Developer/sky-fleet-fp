@@ -35,8 +35,8 @@ namespace SphereWorld.Environment.Wind
         {
             Vector3 random = Random.insideUnitSphere * 0.04f;
             //random.z = 0;
-            Vector3 position = Random.onUnitSphere * 1.06f + random;
-            Vector3 velocity = Vector3.Cross(position, Vector3.up) * 2f * Mathf.Sin(position.y * 4);
+            Vector3 position = Random.onUnitSphere * 1.03f + random;
+            Vector3 velocity = Vector3.Cross(position, Vector3.up) * 5f * Mathf.Sin(position.y * Mathf.PI * 0.5f);
             //Vector3 position = Vector3.forward + random;
             //Vector3 velocity = Vector3.forward * 0.1f;
             px = position.x;

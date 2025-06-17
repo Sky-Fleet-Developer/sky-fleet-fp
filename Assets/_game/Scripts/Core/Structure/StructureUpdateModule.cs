@@ -26,6 +26,7 @@ namespace Core.Structure
         public static event Action OnConsumptionTickEnd;
         public static event Action OnBeginConsumptionTick;
         public static event Action OnEndPhysicsTick;
+        public static event Action OnEndUpdateTick;
 
         public static float DeltaTime;
 
@@ -123,6 +124,7 @@ namespace Core.Structure
                     t.UpdateBlock(0);
                 }
             }
+            OnEndUpdateTick?.Invoke();
         }
 
         private void FixedUpdate()
