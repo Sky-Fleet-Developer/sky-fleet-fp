@@ -13,6 +13,7 @@
 
 RWBuffer<int> collisions_counter;
 RWBuffer<int> collisions_debug;
+//Buffer<float> override_densities;
 StructuredBuffer<NoiseParameters> noise_parameters;
 float surface_push_force;
 
@@ -89,22 +90,25 @@ void CalculatePressure (int3 id : SV_DispatchThreadID)
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
                     float d = sqrt(dSqr);
-                    density += SpikyKernelPow3(d * 1000, particle_influence_radius * 1000);
+                    density += SpikyKernelPow3(d * 100, particle_influence_radius * 100);
                 }
             }
         }
     }
 
     float heat = max(dot(particles[id.x].position, sunlight), 0);
-    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 15;
+    float height_factor = min((sqrt(dot(particles[id.x].position, particles[id.x].position)) - 1) * 14, 1);
 
     float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
     noise = abs(noise) * noise;
     noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
 
-    float heatPerHeight = 1 + heat * max(1 - height, 0) * 1.1f;
+    float height_f_sqr = height_factor*height_factor;
+    float energy_growth = heat * (1 - height_f_sqr);
+    float energy_loss = pow(particles[id.x].energy, 4) * height_factor;
     
-    particles[id.x].density += density * heatPerHeight + noise * 0.001f * max(1 - height, 0);// * (0.6f + noise * 0.4f);
+    particles[id.x].energy += (energy_growth * energy_growth_factor - energy_loss * energy_loss_factor) * delta_time;
+    particles[id.x].density += density + noise * 0.25f * (1 - height_factor);
 }
 
 #if ENABLE_DEBUG
@@ -189,7 +193,7 @@ void MoveParticles (int3 id : SV_DispatchThreadID)
         float pointBHeight = min(1, height - particle_influence_radius * 0.05f);
         float3 pointB = pNorm * pointBHeight;
         float3 flatVelocity = reflect(p.velocity, pNorm, 2);
-        p.velocity += contact(height - pointBHeight, p.density, p.position, p.velocity, 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
+        p.velocity += contact(height - pointBHeight, p.density * p.energy, p.position, p.velocity, 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
         if (height < 1)
         {
             if (dot(p.velocity, p.position) < 0)

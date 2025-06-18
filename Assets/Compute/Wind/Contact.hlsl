@@ -68,15 +68,23 @@ float3 contact(float d, float densityA, float3 positionA, float3 velocityA, floa
     float deltaP = densityB - densityA;
     float force = DerivativeSpikyPow3(d, particle_influence_radius) * deltaP;
 
-    float3 vDelta = velocityA - velocityB;
-    float deltaLength = sqrt(vDelta.x * vDelta.x + vDelta.y * vDelta.y + vDelta.z * vDelta.z);
+    //float3 vDelta = velocityA - velocityB;
+    //float deltaLength = sqrt(dot(vDelta,vDelta));
+    /*
     float3 viscosityForce = float3(0, 0, 0);
     if (deltaLength != 0)
     {
         float3 vDeltaNorm = vDelta / deltaLength;
         float convergence = min(1.0f, max(-1.0f, dot(vDeltaNorm, direction)));
         viscosityForce = (-vDelta) * ((1 - convergenceFactor)+abs(convergence)*convergenceFactor) * SmoothingKernelPoly6(d, particle_influence_radius);
-    }
+    }*/
+    float vA = sqrt(dot(velocityA, velocityA));
+    float vB = sqrt(dot(velocityB, velocityB));
+    float t = 0.5f;
+    float interpLength = vA + (vB - vA) * t;
+    float3 aNorm = velocityA / vA;
+    float3 interpVec = (aNorm + (velocityB / vB - aNorm) * t) * interpLength;
+    float3 viscosityForce = (interpVec - velocityA) * viscosity_coefficient * SmoothingKernelPoly6(d, particle_influence_radius);
 
     float pressureForce = force * pushForce;// / max(densityB, 10);
     
@@ -90,7 +98,7 @@ float3 contact(int a, int b, float dSqr)
     {
         return float3(0, 0, 0);
     }
-    return contact(d, particles[a].density, particles[a].position, particles[a].velocity, particles[b].density, particles[b].position, particles[b].velocity, 0.85f, push_force);
+    return contact(d, particles[a].density * particles[a].energy, particles[a].position, particles[a].velocity, particles[b].density * particles[b].energy, particles[b].position, particles[b].velocity, 0.85f, push_force);
 }
 
 float3 resolve_contact(int a, int b, float dSqr)

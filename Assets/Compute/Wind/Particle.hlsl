@@ -8,6 +8,7 @@ struct particle
     float3 gradient;
     uint grid_index;
     float density;
+    float energy;
 };
 
 /*struct packed_particle

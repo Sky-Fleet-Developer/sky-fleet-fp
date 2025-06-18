@@ -1990,34 +1990,37 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  particleInfluenceSize: 0.026
+  particleInfluenceSize: 0.04
   cellSize: 0.05
   simulationDeltaTime: 0.00008
-  airGravity: 1500
-  pushForce: 0.00055
-  surfacePushForce: 0.0003
-  viscosity: 0.007
-  solPeriod: 30
+  airGravity: 900
+  pushForce: 0.0002
+  surfacePushForce: 0.000048
+  energyGrowthFactor: 0.47
+  energyLossFactor: 0.01
+  viscosity: 0.06
+  solPeriod: 60
   yearPeriod: 200
   sunlightInclination: 23.5
   pressureNoise:
     m_seed: 0
     m_noiseAxes: 1
     m_noiseType: 0
-    m_numberOfOctaves: 3
+    m_numberOfOctaves: 4
     m_initialAmplitude: 15
     m_initialFrequency:
-      x: 1.7
-      y: 2.6
-      z: 2.1
+      x: 3.57
+      y: 5.46
+      z: 4.41
     m_persistence: 0.9
     m_lacunarity:
       x: 0
       y: 0
       z: 0
-  saveLoadFilePath: ParticlesSave
-  needLoadAtStart: 1
+  saveLoadFilePath: ParticlesSave_e
+  needLoadAtStart: 0
   image: {fileID: 8400000, guid: 382d6d8882001f444979ff3e7b436908, type: 2}
+  ticksPerFrame: 10
   selectedParticle: 0
   selectedCell:
     x: 17
@@ -2027,7 +2030,8 @@ MonoBehaviour:
   readDataPeriod: 2
   enableDebug: 0
   sunlightIndicator: {fileID: 1780892816904062649}
-  pressureVisualization: {x: 100000, y: 15000}
+  pressureVisualization: {x: 0.2, y: 1.3}
+  energyVisualization: {x: 0.4, y: 4.3}
 --- !u!1 &5829369897042708262
 GameObject:
   m_ObjectHideFlags: 0
@@ -2790,10 +2794,14 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1685912741685564054, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1685912741685564054, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3851762343457873217, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5012899578813571034, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}

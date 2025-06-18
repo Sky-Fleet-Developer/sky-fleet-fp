@@ -35,6 +35,8 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private float airGravity;
         [SerializeField] private float pushForce;
         [SerializeField] private float surfacePushForce;
+        [SerializeField] private float energyGrowthFactor;
+        [SerializeField] private float energyLossFactor;
         //[SerializeField] private float nearPushForce;
         [SerializeField] private float viscosity;
         //[SerializeField] private float nearViscosity;
@@ -54,6 +56,7 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private bool enableDebug;
         [SerializeField] private Transform sunlightIndicator;
         [SerializeField] private Vector2 pressureVisualization;
+        [SerializeField] private Vector2 energyVisualization;
 
         public event Action OnSimulationTickComplete;
         
@@ -75,7 +78,7 @@ namespace SphereWorld.Environment.Wind
 #endif
         private int[] _gridData;
         private int2[] _elements;
-        private int _entitiesParticlesCount;
+        private int _anchorsParticlesCount;
         Particle[] _singleParticle = new Particle[1];
 
         private WorldProfile _worldProfile;
@@ -90,6 +93,8 @@ namespace SphereWorld.Environment.Wind
         private readonly int min_radius_sqr = Shader.PropertyToID("min_radius_sqr");
         private readonly int max_radius_sqr = Shader.PropertyToID("max_radius_sqr");
         private readonly int cell_coord_mul = Shader.PropertyToID("cell_coord_mul");
+        private readonly int energy_growth_factor = Shader.PropertyToID("energy_growth_factor");
+        private readonly int energy_loss_factor = Shader.PropertyToID("energy_loss_factor");
         private readonly int grid_length = Shader.PropertyToID("grid_length");
         private readonly int dispatch_max_index = Shader.PropertyToID("dispatch_max_index");
         private readonly int entity_particle_start_index = Shader.PropertyToID("entity_particle_start_index");
@@ -192,10 +197,12 @@ namespace SphereWorld.Environment.Wind
             mainShader.SetFloat(delta_time, simulationDeltaTime);
             mainShader.SetFloat(gravity, airGravity);
             mainShader.SetFloat(cell_coord_offset, cellSize * 0.5f);
+            mainShader.SetFloat(energy_growth_factor, energyGrowthFactor);
+            mainShader.SetFloat(energy_loss_factor, energyLossFactor);
             mainShader.SetInt(elements_length, _gridElementsBuffer.count);
             mainShader.SetInt(grid_length, _gridBuffer.count);
             mainShader.SetInt(collisions_debug_origin_index, selectedParticle);
-            mainShader.SetInt(entity_particle_start_index, particlesCount - _entitiesParticlesCount);
+            mainShader.SetInt(entity_particle_start_index, particlesCount - _anchorsParticlesCount);
             _noiseParametersBuffer.SetData(new[]{pressureNoise});
         }
 
@@ -203,7 +210,7 @@ namespace SphereWorld.Environment.Wind
         public int AddAnchor(Vector3 position, Vector3 velocity)
         {
             _entitiesToAdd.Enqueue((position, velocity));
-            return _entitiesParticlesCount + _entitiesToAdd.Count - 1;
+            return _anchorsParticlesCount + _entitiesToAdd.Count - 1;
         }
 
         public Particle GetAnchor(int idx)
@@ -241,8 +248,8 @@ namespace SphereWorld.Environment.Wind
                         _singleParticle[0].SetPosition(value.pos);
                         _singleParticle[0].SetVelocity(value.vel);
                         _singleParticle[0].gridIndex = -1;
-                        _entitiesParticlesCount++;
-                        _particlesBuffer.SetData(_singleParticle, 0, particlesCount - _entitiesParticlesCount, 1);
+                        _anchorsParticlesCount++;
+                        _particlesBuffer.SetData(_singleParticle, 0, particlesCount - _anchorsParticlesCount, 1);
                     }
                 }
 
@@ -255,6 +262,7 @@ namespace SphereWorld.Environment.Wind
                 mainShader.SetFloat(viscosity_coefficient, viscosity);
                 CalculatePressure();
                 yield return null;
+                OverrideDensities();
                 FindGradient();
                 yield return null;
                 ReadData();
@@ -291,6 +299,17 @@ namespace SphereWorld.Environment.Wind
                 yield return null;
                 DrawPixels();
                 yield return null;
+            }
+        }
+
+        private void OverrideDensities()
+        {
+            Particle[] arr = new Particle[1];
+            for (int i = 0; i < _anchorsParticlesCount; i++)
+            {
+                _particlesBuffer.GetData(arr, 0, particlesCount - _anchorsParticlesCount + i, 1);
+                arr[i].density = 1.0001f;
+                _particlesBuffer.SetData(arr, 0, particlesCount - _anchorsParticlesCount + i, 1);
             }
         }
 
@@ -394,12 +413,15 @@ namespace SphereWorld.Environment.Wind
 #if DEBUG_ENABLED
 
         private int drawCounter = 0;
-        [ShowInInspector] private Vector2 pressureMinMax;
+        [ShowInInspector] private float mediumPressure;
+        [ShowInInspector] private float mediumEnergy;
         private void OnDrawGizmosSelected()
         {
             if (Application.isPlaying && !EditorApplication.isPaused)
             {
-                pressureMinMax = Vector2.zero;
+                mediumEnergy = 0;
+                mediumPressure = 0;
+                float particlesCountDivider = 1f / particlesCount;
                 float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;
                 Gizmos.DrawWireSphere(Vector3.zero, maxGridRadius);
                 Gizmos.DrawWireSphere(Vector3.zero, 1);
@@ -413,8 +435,9 @@ namespace SphereWorld.Environment.Wind
                     {
                         var particle = _particlesOutput[index];
                         float pressure = (particle.density - pressureVisualization.y) / pressureVisualization.x;
-                        pressureMinMax.x = Mathf.Min(particle.density, pressureMinMax.x);
-                        pressureMinMax.y = Mathf.Max(particle.density, pressureMinMax.y);
+                        float energy = (particle.energy - energyVisualization.y) / energyVisualization.x;
+                        mediumEnergy += particle.energy * particlesCountDivider;
+                        mediumPressure += particle.density * particlesCountDivider;
                         if (index == selectedParticle && enableDebug)
                         {
                             Vector3 p = particle.GetPosition();
@@ -441,7 +464,7 @@ namespace SphereWorld.Environment.Wind
                             Vector3 v = particle.GetVelocity() * 0.0015f;
                             //float n = Vector3.Dot(v.normalized, Vector3.forward);
                             //float d = Vector3.Dot(particle.GetVelocity().normalized, particle.GetPosition().normalized) * 0.5f + 0.5f;
-                            Color c = Color.Lerp(Color.green, Color.red, pressure);// * (0.6f + d * 0.4f);
+                            Color c = Color.Lerp(Color.green, Color.red, energy);// * (0.6f + d * 0.4f);
                             //c = Color.Lerp(c, new Color(.6f, .8f, 1), d);
                             Debug.DrawLine(p - v, p + v, c, Time.deltaTime * drawParticlesParts);
                             //Debug.DrawLine(p, p * 1.008f, Color.red * 0.5f, Time.deltaTime * drawParticlesParts);

@@ -927,48 +927,8 @@ PrefabInstance:
       value: '[Bootstrapper]'
       objectReference: {fileID: 0}
     - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: pushForce
-      value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: viscosity
-      value: 0.03
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: airGravity
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: enableDebug
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: ticksPerFrame
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: needLoadAtStart
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: selectedParticle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: surfacePushForce
-      value: 0.000005
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: drawParticlesParts
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: pressureVisualization.x
-      value: 0.001
-      objectReference: {fileID: 0}
-    - target: {fileID: 3427548876244542705, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: pressureVisualization.y
-      value: 0.99998
       objectReference: {fileID: 0}
     - target: {fileID: 4106121133464405458, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: polar.height
@@ -998,7 +958,23 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4741305466409360151, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4741305466409360151, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4741305466409360151, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5544326375063989252, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818731653167348003, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}

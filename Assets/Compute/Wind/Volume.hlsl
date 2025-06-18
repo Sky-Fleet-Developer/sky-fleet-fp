@@ -10,6 +10,8 @@ float cell_coord_offset;
 float cell_coord_mul;
 float viscosity_coefficient;
 float particle_influence_radius;
+float energy_growth_factor;
+float energy_loss_factor;
 
 float get_sqr_distance(int particle, float3 p)
 {

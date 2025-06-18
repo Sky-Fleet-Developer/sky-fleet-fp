@@ -35,7 +35,7 @@ namespace SphereWorld
                    _viewSettings.viewRadius * _viewSettings.viewRadius;
         }
         
-        public Vector3 GetOffset(Polar value)
+        public Vector3 GetOffset(Polar value) //TODO: wrong method!
         {
             Polar diff = value - _currentAnchor.Polar;
             Vector3 asVector = diff;
