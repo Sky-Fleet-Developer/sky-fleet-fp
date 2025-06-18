@@ -2,6 +2,7 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Data;
 using Core.Game;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;

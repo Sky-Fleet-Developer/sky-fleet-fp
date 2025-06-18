@@ -1,10 +1,10 @@
 #pragma kernel ClearGrid
 #pragma kernel UpdateGrid
 #pragma kernel CalculatePressure
-#pragma kernel ModifyPressure
 #pragma kernel FindGradient
 #pragma kernel MoveParticles
 #pragma kernel DrawPixels
+#define !ENABLE_DEBUG
 
 #include "Assets/Compute/Wind/Volume.hlsl"
 #include "Assets/Compute/Wind/Contact.hlsl"
@@ -14,24 +14,28 @@
 RWBuffer<int> collisions_counter;
 RWBuffer<int> collisions_debug;
 StructuredBuffer<NoiseParameters> noise_parameters;
+float surface_push_force;
 
 int collisions_debug_origin_index;
 int dispatch_max_index;
+int entity_particle_start_index;
 float gravity;
 float3 sunlight;
 
 [numthreads(64,1,1)]
-void ClearGrid (uint3 id : SV_DispatchThreadID)
+void ClearGrid (int3 id : SV_DispatchThreadID)
 {
-    if ((int)id.x >= dispatch_max_index)
+    if (id.x >= dispatch_max_index)
     {
         return;
     }
     elements[id.x] = int2(-1, -1);
     counter[0] = 0;
+    #if ENABLE_DEBUG
     collisions_counter[0] = 0;
     collisions_debug[id.x] = -1;
-    particles[id.x].density = float2(0,0);
+    #endif
+    particles[id.x].density = 0;
     
     int startI = (float)id.x / (dispatch_max_index - 1) * grid_length;
     int endI = (float)(id.x + 1) / (dispatch_max_index - 1) * grid_length;
@@ -42,9 +46,9 @@ void ClearGrid (uint3 id : SV_DispatchThreadID)
 }
 
 [numthreads(64,1,1)]
-void UpdateGrid (uint3 id : SV_DispatchThreadID)
+void UpdateGrid (int3 id : SV_DispatchThreadID)
 {
-    if ((int)id.x >= dispatch_max_index)
+    if (id.x >= dispatch_max_index)
     {
         return;
     }
@@ -59,9 +63,9 @@ void UpdateGrid (uint3 id : SV_DispatchThreadID)
 }
 
 [numthreads(64,1,1)]
-void CalculatePressure (uint3 id : SV_DispatchThreadID)
+void CalculatePressure (int3 id : SV_DispatchThreadID)
 {
-    if ((int)id.x >= dispatch_max_index)
+    if (id.x >= dispatch_max_index)
     {
         return;
     }
@@ -80,6 +84,7 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
                 int2 element = elements[iterator];
                 iterator = element.y;
                 if (element.x == id.x) continue;
+                if (element.x > entity_particle_start_index) continue;
                 float dSqr = get_sqr_distance(id.x, element.x);
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
@@ -102,48 +107,30 @@ void CalculatePressure (uint3 id : SV_DispatchThreadID)
     particles[id.x].density += density * heatPerHeight + noise * 190000 * max(1 - height, 0);// * (0.6f + noise * 0.4f);
 }
 
-void DebugRecordContact(int2 contactParticleIndex)
+#if ENABLE_DEBUG
+void DebugRecordContact(int contactParticleIndex)
 {
     int indexWrite = 0;
-    InterlockedAdd(collisions_counter[0], 2, indexWrite);
+    InterlockedAdd(collisions_counter[0], 1, indexWrite);
     if (indexWrite >= dispatch_max_index)
     {
         return;
     }
     collisions_debug[indexWrite] = contactParticleIndex.x;
-    collisions_debug[indexWrite+1] = contactParticleIndex.y;
+    //collisions_debug[indexWrite+1] = contactParticleIndex.y;
 }
+#endif
 
 [numthreads(64,1,1)]
-void ModifyPressure (uint3 id : SV_DispatchThreadID)
+void FindGradient (int3 id : SV_DispatchThreadID)
 {
-    if ((int)id.x >= dispatch_max_index)
-    {
-        return;
-    }
-
-    float side = max(dot(particles[id.x].position, sunlight), 0);
-    float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 20;
-
-    float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
-    noise = abs(noise * noise) * noise;
-    noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
-
-    float heat = 0.3f + side * 0.7f;
-    float heatPerHeight = 1 + heat * max(1 - height, 0) * 0.5f;
-    particles[id.x].density *= heatPerHeight * (0.6f + noise * 0.4f);
-}
-
-[numthreads(64,1,1)]
-void FindGradient (uint3 id : SV_DispatchThreadID)
-{
-    if ((int)id.x >= dispatch_max_index)
+    if (id.x >= dispatch_max_index)
     {
         return;
     }
 
     float3 gradient = float3(0, 0, 0);
-    for (int i = 0; i < neighbours_1_all_count; i++)
+    for (uint i = 0; i < neighbours_1_all_count; i++)
     {
         uint3 neighbourCell = cell_from_index(particles[id.x].grid_index) + neighbours_1_all[i];
         if (is_cell_valid(neighbourCell))
@@ -156,22 +143,18 @@ void FindGradient (uint3 id : SV_DispatchThreadID)
                 iterator = element.y;
 
                 if (element.x == id.x) continue;
-                
+                if (element.x > entity_particle_start_index) continue;
+
                 float dSqr = get_sqr_distance(id.x, element.x);
-                /*if (dSqr < 0.00000000001)
-                {
-                    //int toMove = min(id.x, element.x);
-                    //particles[toMove].position *= 1.1f;//GenerateDefaultFBMNoise(float3(id.x * 0.5f, element.x * 0.3f, 0.0f), noise_parameters[0]).yzw * 0.003f;
-                    DebugRecordContact(int2(element.x, id.x));
-                }*/
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
-                    float3 contactForce = resolve_neighbour_contact(id.x, element.x, dSqr);
-                    /*float length = sqrt(contactForce.x * contactForce.x + contactForce.y * contactForce.y + contactForce.z * contactForce.z);
-                    if (length > 1000000)
+                    #if ENABLE_DEBUG
+                    if (id.x == collisions_debug_origin_index)
                     {
-                        DebugRecordContact(int2(id.x, element.x));
-                    }*/
+                        DebugRecordContact(element.x);
+                    }
+                    #endif
+                    float3 contactForce = resolve_contact(id.x, element.x, dSqr) * 0.5f;
                     gradient += contactForce;
                 }
             }
@@ -183,9 +166,9 @@ void FindGradient (uint3 id : SV_DispatchThreadID)
 
 
 [numthreads(64,1,1)]
-void MoveParticles (uint3 id : SV_DispatchThreadID)
+void MoveParticles (int3 id : SV_DispatchThreadID)
 {
-    if ((int)id.x >= dispatch_max_index)
+    if (id.x >= dispatch_max_index)
     {
         return;
     }
@@ -195,13 +178,18 @@ void MoveParticles (uint3 id : SV_DispatchThreadID)
     p.velocity += p.gradient * delta_time;
 
     float height = sqrt(p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z);
+    if(height == 0)
+    {
+        return;
+    }    
+    
     float3 pNorm = p.position / height;
     if (height < 1 + particle_influence_radius)
     {
         float pointBHeight = min(1, height - particle_influence_radius * 0.05f);
         float3 pointB = pNorm * pointBHeight;
         float3 flatVelocity = reflect(p.velocity, pNorm, 2);
-        p.velocity += contact(height - pointBHeight, p.density, p.position, p.velocity, p.density * 10, pointB, flatVelocity, 0.0f) * delta_time;
+        p.velocity += contact(height - pointBHeight, p.density, p.position, p.velocity, p.density * 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
         if (height < 1)
         {
             if (dot(p.velocity, p.position) < 0)
@@ -228,8 +216,8 @@ void DrawPixels (uint3 id : SV_DispatchThreadID)
     uint3 cell = cell_from_coord(sourcePoint);
     int cellIndex = index_from_cell(cell);
     float4 velocityCapacitor = float4(0,0,0,0);
-    float r1 = particle_influence_radius * 1.5f, r2 = particle_influence_radius * 0.5f;
-    for (int i = 0; i < neighbours_1_all_count; i++)
+    float r1 = particle_influence_radius * 1.6f, r2 = particle_influence_radius * 0.7f;
+    for (uint i = 0; i < neighbours_1_all_count; i++)
     {
         uint3 neighbourCell = cell_from_index(cellIndex) + neighbours_1_all[i];
         if (is_cell_valid(neighbourCell))
@@ -240,6 +228,7 @@ void DrawPixels (uint3 id : SV_DispatchThreadID)
             {
                 int2 element = elements[iterator];
                 iterator = element.y;
+                if (element.x > entity_particle_start_index) continue;
 
                 float dSqr = get_sqr_distance(element.x, sourcePoint);
                 if (dSqr < r1 * r1)
@@ -277,7 +266,7 @@ void DrawPixels (uint3 id : SV_DispatchThreadID)
     float3 right = cross(float3(0, 1, 0), fwd);
     float3 up = cross(fwd, right);
     float4x4 worldToLocal = float4x4(float4(right, 0), float4(up, 0), float4(fwd, 0), float4(0, 0, 0, 1));//float4x4(float4(1, 0, 0, 0), float4(0, 1, 0, 0), float4(0, 0, 1, 0), float4(0, 0, 0, 1));
-    velocityCapacitor.xyz = mul(worldToLocal, velocityCapacitor.xyz);
+    velocityCapacitor.xyz = mul(worldToLocal, float4(velocityCapacitor.xyz, 0)).xyz;
     velocityCapacitor.xyz += float3(1, 1, 1);
     velocityCapacitor.xyz *= 0.5f;
     velocityCapacitor.z *= 0.0f;//velocityCapacitor.z / 4.0f + 0.375f

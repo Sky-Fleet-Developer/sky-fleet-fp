@@ -20,8 +20,7 @@ namespace Core.SessionManager
 
         public FirstPersonController Player { get; private set; }
 
-        private bool isInitialized = false;
-
+        private bool _isInitialized = false;
 
         [ShowInInspector] private SessionSettings settings = new SessionSettings();
         [ShowInInspector] private ControlSettings control = ControlSettings.GetDefaultSetting();
@@ -120,7 +119,7 @@ namespace Core.SessionManager
 
         public bool IsInitialized()
         {
-            return isInitialized;
+            return _isInitialized;
         }
 
         public LinkedList<Mod> GetMods()
@@ -144,13 +143,13 @@ namespace Core.SessionManager
 
         public void EndInit()
         {
-            isInitialized = true;
+            _isInitialized = true;
             Time.timeScale = 1;
         }
 
         public void Clear()
         {
-            isInitialized = false;
+            _isInitialized = false;
             settings.Clear();
         }
     }

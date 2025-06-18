@@ -1,3 +1,4 @@
+using Core.Data;
 using UnityEngine;
 
 namespace Runtime.Physic

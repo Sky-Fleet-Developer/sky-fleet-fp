@@ -2,21 +2,31 @@ using System.Collections.Generic;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zenject;
 
-namespace Runtime
+namespace Core.Data
 {
     [CreateAssetMenu(menuName = "Management/GameData")]
-    public class GameData : SingletonAsset<GameData>
+    public class GameData : CompoundScriptableObject
     {
         [InlineProperty(LabelWidth = 160), SerializeField] private SharedGameData serializedSharedData;
         [InlineProperty(LabelWidth = 160), SerializeField] private PrivateGameData serializedPrivateData;
         public static SharedGameData Data;
-        internal static PrivateGameData PrivateData; 
-        public void OnEnable()
+        internal static PrivateGameData PrivateData;
+        
+        public void Initialize()
         {
             Data = serializedSharedData;
             PrivateData = serializedPrivateData;
             SetSqrLodDistances();
+        }
+
+        public void InstallChildren(DiContainer container)
+        {
+            foreach (var child in children)
+            {
+                container.Bind(child.GetType()).FromInstance(child);
+            }
         }
 
         private void SetSqrLodDistances()

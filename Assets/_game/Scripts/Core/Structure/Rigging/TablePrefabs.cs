@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.ContentSerializer.Bundles;
+using Core.Data;
 using Core.Explorer.Content;
 using Core.Utilities;
 using Runtime;

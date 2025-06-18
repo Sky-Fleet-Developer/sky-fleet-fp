@@ -51,5 +51,18 @@ namespace SphereWorld.Environment.Wind
             gridIndex = -1;
             density = 0;
         }
+
+        public void SetPosition(Vector3 p)
+        {
+            px = p.x;
+            py = p.y;
+            pz = p.z;
+        }
+        public void SetVelocity(Vector3 v)
+        {
+            vx = v.x;
+            vy = v.y;
+            vz = v.z;
+        }
     }
 }

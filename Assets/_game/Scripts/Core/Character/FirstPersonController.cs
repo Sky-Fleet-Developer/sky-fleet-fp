@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Cinemachine;
+using Core.Data;
 using Core.Data.GameSettings;
 using Core.Environment;
 using Core.Game;

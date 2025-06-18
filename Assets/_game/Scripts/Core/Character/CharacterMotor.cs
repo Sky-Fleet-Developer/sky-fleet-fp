@@ -1,3 +1,4 @@
+using Core.Data;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;

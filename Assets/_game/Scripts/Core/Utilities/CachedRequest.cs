@@ -6,7 +6,7 @@ namespace Core.Utilities
     public class CachedRequest<T>
     {
         private T _value;
-        private float _lastRequestTime;
+        private float _prevRequestTime;
         private float _updateThreshold;
         private Func<T> _request;
         
@@ -14,16 +14,17 @@ namespace Core.Utilities
         {
             _request = request;
             _updateThreshold = updateThreshold;
+            _prevRequestTime = -updateThreshold * 2;
         }
 
         public T Value
         {
             get
             {
-                if (_lastRequestTime + _updateThreshold < Time.time)
+                if (_prevRequestTime + _updateThreshold < Time.time)
                 {
                     _value = _request();
-                    _lastRequestTime = Time.time;
+                    _prevRequestTime = Time.time;
                 }
 
                 return _value;

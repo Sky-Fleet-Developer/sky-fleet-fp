@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
+using Core.Data;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.SessionManager.SaveService;

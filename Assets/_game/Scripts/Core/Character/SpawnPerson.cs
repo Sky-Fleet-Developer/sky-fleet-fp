@@ -13,6 +13,7 @@ namespace Runtime.Character
 {
     public class SpawnPerson : Singleton<SpawnPerson>, ILoadAtStart
     {
+        [SerializeField] private int rulesSurveyFrequency;
         public static LateEvent OnPlayerWasLoaded = new LateEvent();
 
         public FirstPersonController Player => player;
@@ -27,21 +28,26 @@ namespace Runtime.Character
             if (camHolder) camHolder.enabled = false;
         }
 
-        public Task Load()
+        public async Task Load()
         {
-            Vector3 spawnPos = transform.position;
-            if (Physics.Raycast(transform.position + Vector3.up * 10000, Vector3.down, out RaycastHit groundHit, 11000, GameData.Data.walkableLayer))
+            while (Application.isPlaying)
             {
-                spawnPos = groundHit.point + Vector3.up;
+                PersonSpawnRule[] rules = GetComponentsInChildren<PersonSpawnRule>();
+                foreach (var rule in rules)
+                {
+                    if (!rule.TryGetSpawnPoint(out var spawnPosition)) continue;
+                    
+                    player = Instantiate(source, spawnPosition, transform.rotation);
+                    player.gameObject.SetActive(false);
+                    OnPlayerWasLoaded.Invoke();
+                    Bootstrapper.OnLoadComplete.Subscribe(() =>
+                    {
+                        player.gameObject.SetActive(true);
+                    });
+                    return;
+                }
+                await Task.Delay((int)(1000f / rulesSurveyFrequency));
             }
-            player = Instantiate(source, spawnPos, transform.rotation);
-            player.gameObject.SetActive(false);
-            OnPlayerWasLoaded.Invoke();
-            Bootstrapper.OnLoadComplete.Subscribe(() =>
-            {
-                player.gameObject.SetActive(true);
-            });
-            return Task.CompletedTask;
         }
     }
 }

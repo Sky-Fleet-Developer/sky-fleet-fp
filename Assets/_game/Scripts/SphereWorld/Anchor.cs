@@ -3,9 +3,10 @@ using UnityEngine;
 
 namespace SphereWorld
 {
-    [Serializable]
     public class Anchor
     {
-        public Vector3 globalPosition;
+        public Polar Polar { get; set; }
+        public Vector3 GlobalVelocity { get; set; }
+        public int ParticlePresentationIndex { get; set; }
     }
 }
