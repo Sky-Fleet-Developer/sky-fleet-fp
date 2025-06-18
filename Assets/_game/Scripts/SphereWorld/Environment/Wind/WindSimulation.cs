@@ -1,4 +1,4 @@
-﻿#undef DEBUG_ENABLED
+﻿#define DEBUG_ENABLED
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,6 +45,7 @@ namespace SphereWorld.Environment.Wind
         [SerializeField][FolderPath] private string saveLoadFilePath;
         [SerializeField] private bool needLoadAtStart;
         [SerializeField] private RenderTexture image;
+        [SerializeField] private int ticksPerFrame;
         [Header("debug")]
         [SerializeField] private int selectedParticle;
         [SerializeField] private int3 selectedCell;
@@ -215,7 +216,10 @@ namespace SphereWorld.Environment.Wind
         
         private void OnTick()
         {
-            _routine.MoveNext();
+            for (int i = 0; i < ticksPerFrame; i++)
+            {
+                _routine.MoveNext();
+            }
         }
         
         private IEnumerator TickSimulation()
@@ -393,7 +397,7 @@ namespace SphereWorld.Environment.Wind
         [ShowInInspector] private Vector2 pressureMinMax;
         private void OnDrawGizmosSelected()
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying && !EditorApplication.isPaused)
             {
                 pressureMinMax = Vector2.zero;
                 float maxGridRadius = 1f + _worldProfile.atmosphereDepthKilometers / _worldProfile.rigidPlanetRadiusKilometers;

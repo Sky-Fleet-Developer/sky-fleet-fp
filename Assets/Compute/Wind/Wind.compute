@@ -4,7 +4,7 @@
 #pragma kernel FindGradient
 #pragma kernel MoveParticles
 #pragma kernel DrawPixels
-#define !ENABLE_DEBUG
+#define ENABLE_DEBUG true
 
 #include "Assets/Compute/Wind/Volume.hlsl"
 #include "Assets/Compute/Wind/Contact.hlsl"
@@ -89,7 +89,7 @@ void CalculatePressure (int3 id : SV_DispatchThreadID)
                 if (dSqr < particle_influence_radius * particle_influence_radius)
                 {
                     float d = sqrt(dSqr);
-                    density += SpikyKernelPow3(d, particle_influence_radius) * 0.5f;
+                    density += SpikyKernelPow3(d * 1000, particle_influence_radius * 1000);
                 }
             }
         }
@@ -99,12 +99,12 @@ void CalculatePressure (int3 id : SV_DispatchThreadID)
     float height = (sqrt(dot(particles[id.x].position, particles[id.x].position)) - 0.98f) * 15;
 
     float noise = GenerateFBMNoise(particles[id.x].position, noise_parameters[0]).x;
-    noise = abs(noise * noise) * noise;
+    noise = abs(noise) * noise;
     noise = min(1.0f, max(0.0f, noise * 0.5f + 0.5f));
 
     float heatPerHeight = 1 + heat * max(1 - height, 0) * 1.1f;
     
-    particles[id.x].density += density * heatPerHeight + noise * 190000 * max(1 - height, 0);// * (0.6f + noise * 0.4f);
+    particles[id.x].density += density * heatPerHeight + noise * 0.001f * max(1 - height, 0);// * (0.6f + noise * 0.4f);
 }
 
 #if ENABLE_DEBUG
@@ -189,7 +189,7 @@ void MoveParticles (int3 id : SV_DispatchThreadID)
         float pointBHeight = min(1, height - particle_influence_radius * 0.05f);
         float3 pointB = pNorm * pointBHeight;
         float3 flatVelocity = reflect(p.velocity, pNorm, 2);
-        p.velocity += contact(height - pointBHeight, p.density, p.position, p.velocity, p.density * 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
+        p.velocity += contact(height - pointBHeight, p.density, p.position, p.velocity, 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
         if (height < 1)
         {
             if (dot(p.velocity, p.position) < 0)

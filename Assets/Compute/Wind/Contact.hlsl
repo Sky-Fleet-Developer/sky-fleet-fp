@@ -52,11 +52,21 @@ float SmoothingKernelPoly6(float dst, float radius)
     return v * v * v * scale;
 }
 
+// Fa = p0VG
+// p0-p1=0  равновесие
+// F = (p0-p1)Vg
+// p = C/V
+// F = (C0/V0 - C1/V1)Vg
+// V0 = V1 = const =>
+// F = (C0 - C1)/V * Vg
+// F = (C0 - C1)g
+
+
 float3 contact(float d, float densityA, float3 positionA, float3 velocityA, float densityB, float3 positionB, float3 velocityB, float convergenceFactor, float pushForce)
 {
-    float3 deltaNorm = (positionB - positionA) / d;
-    float sharedPressure = (densityA + densityB) * 0.5f;
-    float force = DerivativeSpikyPow3(d, particle_influence_radius) * sharedPressure;
+    float3 direction = (positionB - positionA) / d;
+    float deltaP = densityB - densityA;
+    float force = DerivativeSpikyPow3(d, particle_influence_radius) * deltaP;
 
     float3 vDelta = velocityA - velocityB;
     float deltaLength = sqrt(vDelta.x * vDelta.x + vDelta.y * vDelta.y + vDelta.z * vDelta.z);
@@ -64,13 +74,13 @@ float3 contact(float d, float densityA, float3 positionA, float3 velocityA, floa
     if (deltaLength != 0)
     {
         float3 vDeltaNorm = vDelta / deltaLength;
-        float convergence = min(1.0f, max(-1.0f, dot(vDeltaNorm, deltaNorm)));
+        float convergence = min(1.0f, max(-1.0f, dot(vDeltaNorm, direction)));
         viscosityForce = (-vDelta) * ((1 - convergenceFactor)+abs(convergence)*convergenceFactor) * SmoothingKernelPoly6(d, particle_influence_radius);
     }
 
-    float pressureForce = force * pushForce / max(densityB, 10);
+    float pressureForce = force * pushForce;// / max(densityB, 10);
     
-    return deltaNorm * pressureForce + viscosityForce * viscosity_coefficient;
+    return direction * pressureForce + viscosityForce * viscosity_coefficient;
 }
 
 float3 contact(int a, int b, float dSqr)
@@ -80,7 +90,7 @@ float3 contact(int a, int b, float dSqr)
     {
         return float3(0, 0, 0);
     }
-    return contact(d, particles[a].density, particles[a].position, particles[a].velocity, particles[b].density, particles[b].position, particles[b].velocity, 0.7f, push_force);
+    return contact(d, particles[a].density, particles[a].position, particles[a].velocity, particles[b].density, particles[b].position, particles[b].velocity, 0.85f, push_force);
 }
 
 float3 resolve_contact(int a, int b, float dSqr)
