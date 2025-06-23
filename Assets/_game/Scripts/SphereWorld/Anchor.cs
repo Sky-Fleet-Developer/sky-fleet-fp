@@ -1,4 +1,5 @@
 ﻿using System;
+using SphereWorld.Environment.Wind;
 using UnityEngine;
 
 namespace SphereWorld
@@ -7,6 +8,6 @@ namespace SphereWorld
     {
         public Polar Polar { get; set; }
         public Vector3 GlobalVelocity { get; set; }
-        public int ParticlePresentationIndex { get; set; }
+        public AnchorParticle ParticlePresentation { get; set; }
     }
 }

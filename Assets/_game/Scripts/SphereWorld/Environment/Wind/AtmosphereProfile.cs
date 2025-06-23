@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace SphereWorld.Environment.Wind
 {
@@ -16,6 +17,10 @@ namespace SphereWorld.Environment.Wind
         public float EvaluatePressurePercent(float gravity, float height)
         {
             return zeroHeightPressure * Mathf.Exp(-gravity * PressureCoefficient * height / zeroHeightTemperature);
+        }
+        public double EvaluatePressurePercent(double gravity, double height)
+        {
+            return zeroHeightPressure * Math.Exp(-gravity * PressureCoefficient * height / zeroHeightTemperature);
         }
     }
 }

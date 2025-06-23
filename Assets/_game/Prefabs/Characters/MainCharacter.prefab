@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   polar:
-    latitude: 0.1
+    latitude: 0
     longitude: 0
     height: 90
 --- !u!114 &-5221947305457680509

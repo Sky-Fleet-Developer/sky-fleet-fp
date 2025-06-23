@@ -12,6 +12,11 @@ float viscosity_coefficient;
 float particle_influence_radius;
 float energy_growth_factor;
 float energy_loss_factor;
+float zero_height_pressure;
+
+static const float MolarAirMass = 0.0289644f; // kg/mol
+static const float MolarGasConstant = 8.3144598f; // j/mol
+static const float PressureCoefficient = MolarAirMass / MolarGasConstant;
 
 float get_sqr_distance(int particle, float3 p)
 {
@@ -28,6 +33,11 @@ float get_sqr_distance(int particleA, int particleB)
 int index_from_cell(uint3 cell)
 {
     return cell.x * max_grid_side_size * max_grid_side_size + cell.y * max_grid_side_size + cell.z;
+}
+
+float get_ejection_force(float height)
+{
+    return zero_height_pressure * exp(-9.81f * PressureCoefficient * height / 700);
 }
 
 uint3 cell_from_index(uint index)

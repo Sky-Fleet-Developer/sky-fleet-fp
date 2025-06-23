@@ -61,7 +61,7 @@ namespace SphereWorld
             anchor.Polar = polar;
             float uniSphereHeight = 1f + polar.height / _space.ZeroHeight;
             Vector3 globalPosition = polar.ToGlobalWithHeight(uniSphereHeight);
-            anchor.ParticlePresentationIndex = _windSimulation.AddAnchor(globalPosition, Random.insideUnitSphere * 4);
+            anchor.ParticlePresentation = _windSimulation.AddAnchor(globalPosition, Random.insideUnitSphere * 4);
             _anchors.Add(anchor);
             CollectEntitiesNearToAnchor(anchor);
             return anchor;
@@ -82,8 +82,8 @@ namespace SphereWorld
         {
             for (var i = 0; i < _anchors.Count; i++)
             {
-                Particle p = _windSimulation.GetAnchor(_anchors[i].ParticlePresentationIndex);
-                _anchors[i].Polar = Polar.FromUniSphere(p.GetPosition(), _space.ZeroHeight);
+                Particle p = _windSimulation.GetAnchor(_anchors[i].ParticlePresentation.index);
+                _anchors[i].Polar = Polar.FromUniSphere(p.position, _space.ZeroHeight);
             }
         }
     }

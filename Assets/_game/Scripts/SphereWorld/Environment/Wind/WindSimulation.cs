@@ -1,4 +1,4 @@
-﻿#define DEBUG_ENABLED
+﻿#undef DEBUG_ENABLED
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,6 +35,8 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private float airGravity;
         [SerializeField] private float pushForce;
         [SerializeField] private float surfacePushForce;
+        [SerializeField] private float zeroHeightPressure;
+        [SerializeField] private float heightMul;
         [SerializeField] private float energyGrowthFactor;
         [SerializeField] private float energyLossFactor;
         //[SerializeField] private float nearPushForce;
@@ -58,6 +60,10 @@ namespace SphereWorld.Environment.Wind
         [SerializeField] private Vector2 pressureVisualization;
         [SerializeField] private Vector2 energyVisualization;
 
+        [ShowInInspector] private List<AnchorParticle> _anchorParticles = new ();
+        [ShowInInspector] private float mediumPressure;
+        [ShowInInspector] private float mediumEnergy;
+        private AtmosphereProfile _atmosphereProfile;
         public event Action OnSimulationTickComplete;
         
         //[ShowInInspector] private List<Particle> particlesToShow;
@@ -104,6 +110,8 @@ namespace SphereWorld.Environment.Wind
         private readonly int viscosity_coefficient = Shader.PropertyToID("viscosity_coefficient");
         private readonly int push_force = Shader.PropertyToID("push_force");
         private readonly int surface_push_force = Shader.PropertyToID("surface_push_force");
+        private readonly int zero_height_pressure = Shader.PropertyToID("zero_height_pressure");
+        private readonly int height_mul = Shader.PropertyToID("height_mul");
         private readonly int cell_coord_offset = Shader.PropertyToID("cell_coord_offset");
         private readonly int max_grid_side_size = Shader.PropertyToID("max_grid_side_size");
         private readonly int particle_influence_radius = Shader.PropertyToID("particle_influence_radius");
@@ -138,11 +146,11 @@ namespace SphereWorld.Environment.Wind
         public void Initialize()
         {
             _worldProfile = Container.Resolve<WorldProfile>();
-            AtmosphereProfile atmosphereProfile = _worldProfile.GetChildAssets<AtmosphereProfile>().First();
+            _atmosphereProfile = _worldProfile.GetChildAssets<AtmosphereProfile>().First();
             outputPressure.ClearKeys();
             for (float i = 0; i < _worldProfile.atmosphereDepthKilometers * 1000; i += 1000)
             {
-                var keyframe = new Keyframe(i, atmosphereProfile.EvaluatePressurePercent(_worldProfile.gravity, i));
+                var keyframe = new Keyframe(i, _atmosphereProfile.EvaluatePressurePercent(_worldProfile.gravity, i));
                 outputPressure.AddKey(keyframe);
             }
 
@@ -199,6 +207,12 @@ namespace SphereWorld.Environment.Wind
             mainShader.SetFloat(cell_coord_offset, cellSize * 0.5f);
             mainShader.SetFloat(energy_growth_factor, energyGrowthFactor);
             mainShader.SetFloat(energy_loss_factor, energyLossFactor);
+            mainShader.SetFloat(push_force, pushForce);
+            mainShader.SetFloat(surface_push_force, surfacePushForce);
+            mainShader.SetFloat(zero_height_pressure, zeroHeightPressure);
+            mainShader.SetFloat(height_mul, heightMul);
+            mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
+            mainShader.SetFloat(viscosity_coefficient, viscosity);
             mainShader.SetInt(elements_length, _gridElementsBuffer.count);
             mainShader.SetInt(grid_length, _gridBuffer.count);
             mainShader.SetInt(collisions_debug_origin_index, selectedParticle);
@@ -207,10 +221,15 @@ namespace SphereWorld.Environment.Wind
         }
 
         private Queue<(Vector3 pos, Vector3 vel)> _entitiesToAdd = new();
-        public int AddAnchor(Vector3 position, Vector3 velocity)
+        public AnchorParticle AddAnchor(Vector3 position, Vector3 velocity)
         {
             _entitiesToAdd.Enqueue((position, velocity));
-            return _anchorsParticlesCount + _entitiesToAdd.Count - 1;
+            AnchorParticle particle = new AnchorParticle();
+            particle.index = _anchorsParticlesCount + _entitiesToAdd.Count - 1;
+            particle.height = (position.magnitude - 1) * _worldProfile.rigidPlanetRadiusKilometers * 1000;
+            particle.balloonPressure = _atmosphereProfile.EvaluatePressurePercent(_worldProfile.gravity, particle.height);
+            _anchorParticles.Add(particle);
+            return particle;
         }
 
         public Particle GetAnchor(int idx)
@@ -256,15 +275,11 @@ namespace SphereWorld.Environment.Wind
                 ClearGrid();
                 UpdateGrid();
                 yield return null;
-                mainShader.SetFloat(push_force, pushForce);
-                mainShader.SetFloat(surface_push_force, surfacePushForce);
-                mainShader.SetFloat(particle_influence_radius, particleInfluenceSize);
-                mainShader.SetFloat(viscosity_coefficient, viscosity);
                 CalculatePressure();
                 yield return null;
-                OverrideDensities();
                 FindGradient();
                 yield return null;
+                OverrideDensities();
                 ReadData();
                 /*bool exception = false;
                 for (var i = 0; i < _collisionsOutputCount[0]; i += 2)
@@ -305,11 +320,29 @@ namespace SphereWorld.Environment.Wind
         private void OverrideDensities()
         {
             Particle[] arr = new Particle[1];
-            for (int i = 0; i < _anchorsParticlesCount; i++)
+            foreach (var particle in _anchorParticles)
             {
-                _particlesBuffer.GetData(arr, 0, particlesCount - _anchorsParticlesCount + i, 1);
-                arr[i].density = 1.0001f;
-                _particlesBuffer.SetData(arr, 0, particlesCount - _anchorsParticlesCount + i, 1);
+                _particlesBuffer.GetData(arr, 0, particlesCount - _anchorsParticlesCount + particle.index, 1);
+                arr[0].density = mediumPressure;
+                arr[0].energy = mediumEnergy;
+                //arr[0].gradient = Vector3.ProjectOnPlane(arr[0].gradient, arr[0].position);
+                float pMag = arr[0].position.magnitude;
+                Vector3 pNorm = arr[0].position / pMag;
+                double height = (pMag - 1d) * _worldProfile.rigidPlanetRadiusKilometers * 1000d;
+                double pressure = _atmosphereProfile.EvaluatePressurePercent(_worldProfile.gravity, height);
+                particle.verticalVelocity += (pressure - particle.balloonPressure) * particle.balloonVolume * _worldProfile.gravity / particle.balloonMass * StructureUpdateModule.DeltaTime;
+                particle.verticalVelocity -= particle.verticalVelocity * particle.verticalDrag * StructureUpdateModule.DeltaTime;
+                height += particle.verticalVelocity * StructureUpdateModule.DeltaTime;
+                particle.height = height;
+                Debug.DrawRay(arr[0].position, pNorm * 0.03f, Color.red);
+                arr[0].velocity = Vector3.ProjectOnPlane(arr[0].velocity, pNorm);
+                Debug.DrawRay(arr[0].position, arr[0].velocity, Color.cyan);
+                arr[0].position = pNorm * (float)(1d + height / (_worldProfile.rigidPlanetRadiusKilometers * 1000d));
+                
+                /*Vector3 p = arr[0].GetPosition();
+                arr[0].SetPosition(p.normalized * (1 + )); */
+                
+                _particlesBuffer.SetData(arr, 0, particlesCount - _anchorsParticlesCount + particle.index, 1);
             }
         }
 
@@ -413,8 +446,6 @@ namespace SphereWorld.Environment.Wind
 #if DEBUG_ENABLED
 
         private int drawCounter = 0;
-        [ShowInInspector] private float mediumPressure;
-        [ShowInInspector] private float mediumEnergy;
         private void OnDrawGizmosSelected()
         {
             if (Application.isPlaying && !EditorApplication.isPaused)
@@ -440,13 +471,13 @@ namespace SphereWorld.Environment.Wind
                         mediumPressure += particle.density * particlesCountDivider;
                         if (index == selectedParticle && enableDebug)
                         {
-                            Vector3 p = particle.GetPosition();
+                            Vector3 p = particle.position;
                             for (int i = 0; i < Mathf.Min(_collisionsOutputCount[0], _collisionsOutput.Length); i++)
                             {
-                                Debug.DrawLine(p, _particlesOutput[_collisionsOutput[i]].GetPosition(), Color.yellow);
+                                Debug.DrawLine(p, _particlesOutput[_collisionsOutput[i]].position, Color.yellow);
                             }
                             
-                            Debug.DrawLine(p, p - particle.GetVelocity() * 0.0005f,  Color.green);
+                            Debug.DrawLine(p, p - particle.velocity * 0.0005f,  Color.green);
                             Debug.DrawLine(p, p * 1.008f, Color.red);
         
                             int3 cell = CoordFromIndex(particle.gridIndex, cellsPerSide);
@@ -454,14 +485,14 @@ namespace SphereWorld.Environment.Wind
                         }
                         else if(index % drawParticlesParts == drawCounter % drawParticlesParts)
                         {
-                            Vector3 p = particle.GetPosition();
+                            Vector3 p = particle.position;
                             if (Vector3.Dot(cameraDirection, p) < 0.3f)
                             {
                                 continue;
                             }
         
                             
-                            Vector3 v = particle.GetVelocity() * 0.0015f;
+                            Vector3 v = particle.velocity * 0.0015f;
                             //float n = Vector3.Dot(v.normalized, Vector3.forward);
                             //float d = Vector3.Dot(particle.GetVelocity().normalized, particle.GetPosition().normalized) * 0.5f + 0.5f;
                             Color c = Color.Lerp(Color.green, Color.red, energy);// * (0.6f + d * 0.4f);

@@ -16,6 +16,7 @@ RWBuffer<int> collisions_debug;
 //Buffer<float> override_densities;
 StructuredBuffer<NoiseParameters> noise_parameters;
 float surface_push_force;
+float height_mul;
 
 int collisions_debug_origin_index;
 int dispatch_max_index;
@@ -178,7 +179,7 @@ void MoveParticles (int3 id : SV_DispatchThreadID)
     }
 
     particle p = particles[id.x];
-    p.position -= p.velocity * delta_time;
+    //p.position -= p.velocity * delta_time;
     p.velocity += p.gradient * delta_time;
 
     float height = sqrt(p.position.x * p.position.x + p.position.y * p.position.y + p.position.z * p.position.z);
@@ -188,23 +189,25 @@ void MoveParticles (int3 id : SV_DispatchThreadID)
     }    
     
     float3 pNorm = p.position / height;
-    if (height < 1 + particle_influence_radius)
+    //float pointBHeight = min(1, height - particle_influence_radius * 0.05f);
+    //float3 pointB = pNorm * pointBHeight;
+    //float3 flatVelocity = reflect(p.velocity, pNorm, 2);
+    //contact(height - pointBHeight, p.density * p.energy, p.position, p.velocity, 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
+    if (id.x >= entity_particle_start_index)
     {
-        float pointBHeight = min(1, height - particle_influence_radius * 0.05f);
-        float3 pointB = pNorm * pointBHeight;
-        float3 flatVelocity = reflect(p.velocity, pNorm, 2);
-        p.velocity += contact(height - pointBHeight, p.density * p.energy, p.position, p.velocity, 10, pointB, flatVelocity, 0.0f, surface_push_force) * delta_time;
-        if (height < 1)
+        float ejection_force = get_ejection_force((height - 1) * height_mul);
+        p.velocity += pNorm * ejection_force * p.energy * surface_push_force;
+    }
+    if (height < 1)
+    {
+        if (dot(p.velocity, p.position) < 0)
         {
-            if (dot(p.velocity, p.position) < 0)
-            {
-                p.velocity = reflect(p.velocity, pNorm, 0.6); // TODO: slowdown when contact
-            }
-            p.position = pNorm;
+            p.velocity = reflect(p.velocity, pNorm, 0.6); // TODO: slowdown when contact
         }
+        p.position = pNorm;
     }
     p.velocity -= pNorm * gravity * delta_time;
-    p.position += p.velocity * (delta_time * 2);
+    p.position += p.velocity * (delta_time);
     
     particles[id.x] = p;
 }
@@ -220,7 +223,11 @@ void DrawPixels (uint3 id : SV_DispatchThreadID)
     uint3 cell = cell_from_coord(sourcePoint);
     int cellIndex = index_from_cell(cell);
     float4 velocityCapacitor = float4(0,0,0,0);
-    float r1 = particle_influence_radius * 1.6f, r2 = particle_influence_radius * 0.7f;
+    float r1 = particle_influence_radius * 2.5f, r2 = particle_influence_radius * 0.9f;
+    float3 fwd = sourcePointN;
+    float3 right = cross(float3(0, 1, 0), fwd);
+    float3 up = cross(right, fwd);
+    float4x4 worldToLocal = float4x4(float4(right, 0), float4(up, 0), float4(fwd, 0), float4(0, 0, 0, 1));
     for (uint i = 0; i < neighbours_1_all_count; i++)
     {
         uint3 neighbourCell = cell_from_index(cellIndex) + neighbours_1_all[i];
@@ -238,19 +245,19 @@ void DrawPixels (uint3 id : SV_DispatchThreadID)
                 if (dSqr < r1 * r1)
                 {
                     float d = sqrt(dSqr);
-                    float influence = SpikyKernelPow2(d, r1) * 0.6f;
+                    float influence = SpikyKernelPow2(d, r1);
                     float3 velocity = particles[element.x].velocity * influence;
                     float l = sqrt(dot(velocity, velocity));
-                    velocityCapacitor.xyz += velocity;
+                    velocityCapacitor.xyz += mul(worldToLocal, float4(velocity, 0)).xyz;
                     velocityCapacitor.w += l;
                 }
                 if (dSqr < r2 * r2)
                 {
                     float d = sqrt(dSqr);
-                    float influence = SpikyKernelPow2(d, r2);
+                    float influence = SpikyKernelPow2(d, r2) * 0.6f;
                     float3 velocity = particles[element.x].velocity * influence;
                     float l = sqrt(dot(velocity, velocity));
-                    velocityCapacitor.xyz += velocity;
+                    velocityCapacitor.xyz += mul(worldToLocal, float4(velocity, 0)).xyz;
                     velocityCapacitor.w += l;
                 }
             }
@@ -266,16 +273,12 @@ void DrawPixels (uint3 id : SV_DispatchThreadID)
     float3 right = cross(up, float3(0, 1, 0));
     float3 fwd = cross(up, right);*/
 
-    float3 fwd = sourcePointN;
-    float3 right = cross(float3(0, 1, 0), fwd);
-    float3 up = cross(fwd, right);
-    float4x4 worldToLocal = float4x4(float4(right, 0), float4(up, 0), float4(fwd, 0), float4(0, 0, 0, 1));//float4x4(float4(1, 0, 0, 0), float4(0, 1, 0, 0), float4(0, 0, 1, 0), float4(0, 0, 0, 1));
-    velocityCapacitor.xyz = mul(worldToLocal, float4(velocityCapacitor.xyz, 0)).xyz;
+    //float4x4(float4(1, 0, 0, 0), float4(0, 1, 0, 0), float4(0, 0, 1, 0), float4(0, 0, 0, 1));
     velocityCapacitor.xyz += float3(1, 1, 1);
     velocityCapacitor.xyz *= 0.5f;
     velocityCapacitor.z *= 0.0f;//velocityCapacitor.z / 4.0f + 0.375f
     float terminator = dot(sourcePointN, sunlight);
     float tLine = 0.7f + min(abs(terminator * 40), 1) * 0.3;
     float tShadow = max(min(terminator * 40 + 1, 1), 0.5f);
-    outputImage[id.xy] = float4(velocityCapacitor.xyz * (tLine * tShadow), 1);
+    outputImage[id.xy] = float4(velocityCapacitor.xyz, 1);
 }
