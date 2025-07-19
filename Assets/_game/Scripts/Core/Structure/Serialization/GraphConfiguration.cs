@@ -13,6 +13,7 @@ namespace Core.Structure.Serialization
     public class GraphConfiguration : Configuration<IGraph>
     {
         public List<WireConfiguration> wires = new List<WireConfiguration>();
+        [SerializeField] private bool autoConnectPowerWires;
         [Button]
         public void CopyToClipboard()
         {
@@ -49,6 +50,15 @@ namespace Core.Structure.Serialization
                 }
 
                 graph.ConnectPorts(portsToConnect);
+            }
+
+            if (autoConnectPowerWires)
+            {
+                PortPointer[] powerPorts = graph.Ports.Where(x => x.Port is PowerPort).ToArray();
+                if (powerPorts.Length > 0)
+                {
+                    graph.ConnectPorts(powerPorts);
+                }
             }
             return Task.CompletedTask;
         }

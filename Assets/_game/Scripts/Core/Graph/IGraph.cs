@@ -11,6 +11,7 @@ namespace Core.Graph
         void ConnectPorts(params PortPointer[] ports);
         IEnumerable<IGraphNode> Nodes { get; }
         IEnumerable<Wire> Wires { get; }
+        IEnumerable<PortPointer> Ports { get; }
     }
 
     public interface IGraphNode

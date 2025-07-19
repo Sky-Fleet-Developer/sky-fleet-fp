@@ -12,12 +12,13 @@ namespace Core.Graph
     {
         private IStructure structure;
         private Dictionary<string, PortPointer> portsCache;
-        private List<PortPointer> portsPointersCache;
-        public List<IGraphNode> nodes = new List<IGraphNode>();
-        [ShowInInspector] public List<Wire> wires = new List<Wire>();
+        private List<PortPointer> portsPointers;
+        private List<IGraphNode> nodes = new List<IGraphNode>();
+        [ShowInInspector] private List<Wire> wires = new List<Wire>();
 
         public IEnumerable<IGraphNode> Nodes => nodes;
         public IEnumerable<Wire> Wires => wires;
+        public IEnumerable<PortPointer> Ports => portsPointers;
         private bool _isInitialized = false;
         private void Awake()
         {
@@ -47,6 +48,7 @@ namespace Core.Graph
                     node.InitNode(this);
                 }
             }
+            portsPointers ??= GetAllPorts();
 
             _isInitialized = true;
         }
@@ -59,10 +61,8 @@ namespace Core.Graph
         public PortPointer GetPort(string id)
         {
             if (portsCache.TryGetValue(id, out PortPointer port)) return port;
-
-            portsPointersCache ??= GetAllPorts();
-
-            port = portsPointersCache.FirstOrDefault(x => x.Id.Equals(id));
+            
+            port = portsPointers.FirstOrDefault(x => x.Id.Equals(id));
 
             if (!port.IsNull())
             {

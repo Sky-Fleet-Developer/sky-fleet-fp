@@ -12,7 +12,16 @@ namespace Core.Structure.Rigging.Control
     {
         public bool EnableInteraction => enableInteraction;
         [SerializeField] private bool enableInteraction;
-        public Port GetPort() => port;
+
+        public Port GetPort()
+        {
+            if (port == null || port.ValueType != portType)
+            {
+                port = new Port<float>(portType);
+            }
+
+            return port;
+        }
         public string GetName()
         {
             string keysDescr = string.Empty;
@@ -37,15 +46,16 @@ namespace Core.Structure.Rigging.Control
         }
         public Transform Root => _device.transform;
 
+        private Port<float> port;
 
-        [SerializeField, ShowInInspector]
-        private Port<float> port = new Port<float>(PortType.Thrust);
+        [SerializeField, DrawWithUnity] private PortType portType = PortType.Thrust;
 
         [ShowInInspector]
         public IDevice Device { get => _device; set => _device = (DeviceBase<float>)value; }
 
         public void Init(IStructure structure, IControl block)
         {
+            GetPort();
             AxisTick();
             //structure.ConnectPorts(port, _device.port);
         }
@@ -70,7 +80,7 @@ namespace Core.Structure.Rigging.Control
         [SerializeField, Range(0f, 1f)] protected float step;
         [SerializeField] protected bool inverse;
         [SerializeField] protected bool saveInactive;
-        [SerializeField] protected AxeType axeType;
+        [SerializeField, DrawWithUnity] protected AxeType axeType;
         [SerializeField] protected bool fromZeroToOne;
 
 

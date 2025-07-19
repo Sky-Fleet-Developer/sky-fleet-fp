@@ -72,27 +72,24 @@ namespace WorldEditor
             WiresEditor.CurrentEditor.GetFomSelection();
         }
 #endif
-        private Rigidbody _rigidbody;
-        private bool _needFreezeRigidbody;
+
         private void Start()
         {
-            _needFreezeRigidbody = false;
-            _rigidbody = GetComponentInChildren<Rigidbody>();
-            if (_rigidbody)
-            {
-                _needFreezeRigidbody = !_rigidbody.isKinematic;
-                _rigidbody.isKinematic = true;
-            }
             Bootstrapper.OnLoadComplete.Subscribe(InstantiateStructure);
+            var existRoot = TryGetRoot();
+            if (!existRoot.GetComponent<DynamicWorldObject>())
+            {
+                existRoot.AddComponent<DynamicWorldObject>();
+            }
         }
 
         [Button]
         private async void InstantiateStructure()
         {
             GameObject root = await GetOrCreateRoot();
-            if (_needFreezeRigidbody)
+            if (!root.GetComponent<DynamicWorldObject>())
             {
-                _rigidbody.isKinematic = false;
+                root.AddComponent<DynamicWorldObject>();
             }
             foreach (Configuration config in GetAllConfigs())
             {
@@ -110,6 +107,16 @@ namespace WorldEditor
             }*/
         }
 
+        private GameObject TryGetRoot()
+        {
+            ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();
+            if (prefab != null)
+            {
+                return prefab.transform.gameObject;
+            }
+            return null;
+        }
+        
         private async Task<GameObject> GetOrCreateRoot()
         {
             ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();

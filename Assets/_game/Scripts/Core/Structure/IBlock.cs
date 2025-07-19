@@ -149,5 +149,37 @@ namespace Core.Structure
             Type type = property.PropertyType;
             ApplyMember(block, type, property.SetValue, value);
         }
+
+        public static Parent GetParentByPath(this IBlock block, ref Parent cache, string path)
+        {
+            if (cache == null)
+            {
+                var structure = block.Structure ?? block.transform.GetComponentInParent<IStructure>();
+                if (structure == null)
+                {
+                    return null;
+                }
+                var parent = structure.GetParentByPath(path);
+                if (parent != null)
+                {
+                    cache = parent;
+                }
+            }
+            return cache;
+        }
+
+        public static void SetParentByPath(this IBlock block, Transform value, ref string path)
+        {
+            var structure = block.Structure ?? block.transform.GetComponentInParent<IStructure>();
+            if (structure == null)
+            {
+                return;
+            }
+            if (!value.IsChildOf(structure.transform))
+            {
+                return;
+            }
+            path = value.GetPath(structure.transform);
+        }
     }
 }

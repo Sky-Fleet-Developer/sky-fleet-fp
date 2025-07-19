@@ -82,20 +82,27 @@ namespace Core.Graph
             if (_blocksPorts.TryGetValue(blockType, out FieldInfo[] infos)) return infos;
 
             List<FieldInfo> fields = new List<FieldInfo>();
-
+            List<Type> typeTree = new List<Type>();
+            var t = blockType;
+            while (t != null && t.GetInterfaces().Contains(typeof(IGraphNode)))
+            {
+                typeTree.Add(t);
+                t = t.BaseType;
+            }
             Type type = typeof(Port);
 
             //string log = $"Ports for type {blockType.Name}:\n";
-
-            foreach (FieldInfo field in blockType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            for (var i = 0; i < typeTree.Count; i++)
             {
-                if (field.FieldType == type || field.FieldType.InheritsFrom(type))
+                foreach (FieldInfo field in typeTree[i].GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                 {
-                    fields.Add(field);
-                    //log += $"{field.Name},";
+                    if (field.FieldType == type || field.FieldType.InheritsFrom(type))
+                    {
+                        fields.Add(field);
+                        //log += $"{field.Name},";
+                    }
                 }
             }
-
             //Debug.Log(log);
 
             infos = fields.ToArray();
@@ -107,7 +114,7 @@ namespace Core.Graph
         
         public static void GetPorts(IGraphNode node, ref List<PortPointer> result)
         {
-            FieldInfo[] fields = GraphUtilities.GetPortsInfo(node);
+            FieldInfo[] fields = GetPortsInfo(node); 
             foreach (FieldInfo field in fields)
             {
                 string group = field.Name;

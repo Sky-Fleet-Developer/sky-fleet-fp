@@ -5,10 +5,10 @@ namespace Core.Game
 {
     public class WorldOffsetAnchor : MonoBehaviour
     {
-        private Rigidbody rigidbody;
+        private Rigidbody _rigidbody;
         public void Awake()
         {
-            rigidbody = GetComponent<Rigidbody>();
+            _rigidbody = GetComponent<Rigidbody>();
             WorldOffset.OnWorldOffsetChange += OnOffsetChange;
         }
 

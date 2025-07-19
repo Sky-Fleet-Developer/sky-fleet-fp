@@ -20,12 +20,12 @@ namespace Core.Structure.Rigging.Control
 
         public void ConsumptionTick()
         {
-            Utilities.CalculateConsumerTickA(this);
+            this.CalculateConsumerTickA();
         }
 
         public void PowerTick()
         {
-            IsWork = Utilities.CalculateConsumerTickB(this);
+            IsWork = this.CalculateConsumerTickB();
         }
 
         public void UpdateBlock(int lod)

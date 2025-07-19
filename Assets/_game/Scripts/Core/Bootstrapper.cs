@@ -37,7 +37,6 @@ namespace Core
                 }
             }
             OnLoadComplete.Invoke();
-            OnLoadComplete = new LateEvent();
         }
 
         public override void InstallBindings()
