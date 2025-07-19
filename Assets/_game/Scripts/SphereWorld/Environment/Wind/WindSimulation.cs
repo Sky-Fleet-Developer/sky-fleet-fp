@@ -120,6 +120,7 @@ namespace SphereWorld.Environment.Wind
         private readonly int outputImage = Shader.PropertyToID("outputImage");
         // ReSharper restore InconsistentNaming
         
+        bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
 
         public Task Load()
         {

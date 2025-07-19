@@ -23,15 +23,18 @@ namespace Core
             var interfaces = GetComponentsInChildren<ILoadAtStart>(true);
             foreach (ILoadAtStart load in interfaces)
             {
-                try
+                if (load.enabled)
                 {
-                    Container.Inject(load);
+                    try
+                    {
+                        Container.Inject(load);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                    }
+                    await load.Load();
                 }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
-                if(load.enabled) await load.Load();
             }
             OnLoadComplete.Invoke();
             OnLoadComplete = new LateEvent();

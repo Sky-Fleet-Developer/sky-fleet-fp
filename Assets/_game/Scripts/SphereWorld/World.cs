@@ -22,11 +22,8 @@ namespace SphereWorld
         {
             get => _space?.Anchor?.Polar ?? null;
         }
-        bool ILoadAtStart.enabled
-        {
-            get => enabled && gameObject.activeInHierarchy;
-        }
-        
+        bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
+
         public override void InstallBindings()
         {
             Container.Bind<WorldProfile>().FromInstance(worldProfile);
