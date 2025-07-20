@@ -1,5 +1,6 @@
 using System;
 using Core.Data.GameSettings;
+using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
@@ -31,35 +32,33 @@ namespace Core.Structure.Rigging.Control
                 return res;
             }
         }
-        public Transform Root => _device.transform;
+        public Transform Root => _device ? _device.transform : null;
 
         public Port GetPort() => port;
 
-        [SerializeField, ShowInInspector]
-        private Port<Action<object>> port = new Port<Action<object>>(PortType.Button);
+        private ActionPort port = new ActionPort();
 
         public string computerInput;
         
         [ShowInInspector]
-        public IDevice Device { get => _device; set => _device = (DeviceBase<Action<object>>)value; }
+        public IDevice Device { get => _device; set => _device = (DeviceBase<ActionPort>)value; }
 
-        public void Init(IStructure structure, IControl block)
+        public void Init(IGraph graph, IControl block)
         {
-            //structure.ConnectPorts(port, _device.port);
-            _device.port.cache += port.Value;
+            //graph.ConnectPorts(new PortPointer(block, _device.Port, GetName(), nameof(port)), );
         }
 
-
         [SerializeField, HideInInspector]
-        private DeviceBase<Action<object>> _device;
+        private DeviceBase<ActionPort> _device;
 
         [SerializeField] protected InputButtons keyDetected;
 
         public void Tick()
         {
-            if(InputControl.Instance.GetButton(keyDetected) > 0)
+            if(InputControl.Instance.GetButtonDown(keyDetected) > 0)
             {
-                port.Value(this);
+                port.Call();
+                _device.Port.Call();
             }
         }
     }

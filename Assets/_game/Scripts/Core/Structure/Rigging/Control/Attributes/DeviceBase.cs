@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Graph;
 using Core.Graph.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -28,17 +29,17 @@ namespace Core.Structure.Rigging.Control.Attributes
 
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
-        
-        public IStructure Structure => structure;
-        public IBlock Block => block;
 
-        protected IStructure structure;
-        protected IBlock block;
+        public IGraph Graph => _graph;
+        public IBlock Block => _block;
 
-        public virtual void Init(IStructure structure, IBlock block)
+        private IGraph _graph;
+        private IBlock _block;
+
+        public virtual void Init(IGraph graph, IBlock block)
         {
-            this.structure = structure;
-            this.block = block;
+            _graph = graph;
+            _block = block;
         }
 
         public virtual void UpdateDevice()
@@ -46,8 +47,8 @@ namespace Core.Structure.Rigging.Control.Attributes
         }
     }
 
-    public abstract class DeviceBase<T> : DeviceBase
+    public abstract class DeviceBase<T> : DeviceBase where T : Port
     {
-        public Port<T> port = new Port<T>();
+        public abstract T Port { get; }
     }
 }

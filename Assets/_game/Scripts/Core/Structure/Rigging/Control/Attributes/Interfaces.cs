@@ -1,3 +1,4 @@
+using Core.Graph;
 using UnityEngine;
 
 namespace Core.Structure.Rigging.Control.Attributes
@@ -5,9 +6,9 @@ namespace Core.Structure.Rigging.Control.Attributes
 
     public interface IDevice : ITablePrefab
     {
-        IStructure Structure { get; }
+        IGraph Graph { get; }
         IBlock Block { get; }
-        void Init(IStructure structure, IBlock block);
+        void Init(IGraph graph, IBlock block);
         void UpdateDevice();
 
     }

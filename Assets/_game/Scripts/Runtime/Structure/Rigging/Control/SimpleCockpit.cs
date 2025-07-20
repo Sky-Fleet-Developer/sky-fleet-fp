@@ -61,12 +61,12 @@ namespace Runtime.Structure.Rigging.Control
             CollectControlElements();
             foreach (IDevice device in devices)
             {
-                device.Init(Structure, this);
+                device.Init(Graph, this);
             }
 
             foreach (IControlElement controlElement in controlElementsCache)
             {
-                controlElement.Init(Structure, this);
+                controlElement.Init(Graph, this);
             }
         }
         
@@ -96,21 +96,21 @@ namespace Runtime.Structure.Rigging.Control
             return controlElementsCache.Select(x => new PortPointer(this, x.GetPort()));
         }*/
 
-        public IEnumerable<IInteractiveDevice> GetInteractiveDevices()
+        IEnumerable<IInteractiveDevice> IInteractiveBlock.GetInteractiveDevices()
         {
             return controlElementsCache;
         }
 
-        public (bool canInteractive, string data) RequestInteractive(ICharacterController character)
+        (bool canInteractive, string data) IInteractiveBlock.RequestInteractive(ICharacterController character)
         {
             if (isUnderControl) return (false, GameData.Data.controlFailText);
 
             return (true, string.Empty);
         }
 
-        public void Interaction(ICharacterController character)
+        void IInteractiveBlock.Interaction(ICharacterController character)
         {
-            if (RequestInteractive(character).canInteractive)
+            if (((IInteractiveBlock)this).RequestInteractive(character).canInteractive)
             {
                 StartCoroutine(InteractionRoutine(character));
             }

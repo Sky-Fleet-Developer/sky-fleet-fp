@@ -1,5 +1,6 @@
 using System;
 using Core.Data.GameSettings;
+using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
@@ -38,11 +39,10 @@ namespace Core.Structure.Rigging.Control
         public string computerInput;
         
         [ShowInInspector]
-        public IDevice Device { get => _device; set => _device = (DeviceBase<Vector2>)value; }
+        public IDevice Device { get => _device; set => _device = (DeviceBase<Port<Vector2>>)value; }
 
-        public void Init(IStructure structure, IControl block)
+        public void Init(IGraph graph, IControl block)
         {
-            //structure.ConnectPorts(port, _device.port);
         }
 
 
@@ -52,7 +52,7 @@ namespace Core.Structure.Rigging.Control
         [SerializeField, Range(0.1f, 4f)] protected float multiply = 1;
 
         [SerializeField, HideInInspector]
-        private DeviceBase<Vector2> _device;
+        private DeviceBase<Port<Vector2>> _device;
 
         private Vector2 currentPos = Vector3.zero;
 
@@ -97,7 +97,7 @@ namespace Core.Structure.Rigging.Control
             }
             currentPos = pos;
             port.Value = currentPos;
-            _device.port.Value = currentPos;
+            _device.Port.Value = currentPos;
         }
     }
 }

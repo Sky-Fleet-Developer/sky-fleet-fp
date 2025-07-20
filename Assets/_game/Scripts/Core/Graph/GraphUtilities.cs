@@ -117,7 +117,7 @@ namespace Core.Graph
             FieldInfo[] fields = GetPortsInfo(node); 
             foreach (FieldInfo field in fields)
             {
-                string group = field.Name;
+                string group = null;//field.Name;
                 var groupAttribute = field.GetCustomAttribute<PortGroupAttribute>();
                 if (groupAttribute != null)
                 {

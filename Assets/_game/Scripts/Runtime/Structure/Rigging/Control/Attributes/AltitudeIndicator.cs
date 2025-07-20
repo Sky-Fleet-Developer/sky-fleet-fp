@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Graph;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
@@ -29,19 +30,22 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
-        
-        public IStructure Structure => structure;
-        public IBlock Block => block;
+
+        public IGraph Graph => _graph;
+        public IBlock Block => _block;
 
         [SerializeField] private Transform bubble_pitch;
         [SerializeField] private Transform bubble_roll;
         [SerializeField] private Transform compass;
 
-        protected IStructure structure;
-        protected IBlock block;
-        
-        public void Init(IStructure structure, IBlock block)
+        private IBlock _block;
+        private IGraph _graph;
+
+
+        public void Init(IGraph graph, IBlock block)
         {
+            _block = block;
+            _graph = graph;
         }
 
         public void UpdateDevice()

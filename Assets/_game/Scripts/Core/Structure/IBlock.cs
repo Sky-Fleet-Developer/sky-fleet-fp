@@ -16,6 +16,7 @@ namespace Core.Structure
         Parent Parent { get; }
         IStructure Structure { get; }
         string MountingType { get; }
+        bool IsActive { get; }
 
         void InitBlock(IStructure structure, Parent parent);
         Bounds GetBounds();

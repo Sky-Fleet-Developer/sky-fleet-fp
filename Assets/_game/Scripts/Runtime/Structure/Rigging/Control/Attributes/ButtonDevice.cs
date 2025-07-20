@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
@@ -7,7 +9,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class ButtonDevice : DeviceBase<Action<object>>
+    public class ButtonDevice : DeviceBase<ActionPort>
     {
         [SerializeField] private Transform button;
         [SerializeField, Range(0, 2.0f)] private float minPos;
@@ -15,7 +17,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         private Coroutine animClick;
 
-        private void OnClick(object sender)
+        private void OnClick()
         {
             if(animClick == null)
             {
@@ -23,10 +25,10 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             }
         }
 
-        public override void Init(IStructure structure, IBlock block)
+        public override void Init(IGraph graph, IBlock block)
         {
-            base.Init(structure, block);
-            port.Value += OnClick;
+            base.Init(graph, block);
+            Port.AddRegisterAction(OnClick);
         }
 
         private IEnumerator AnimButtonClick()
@@ -36,5 +38,8 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             button.localPosition = Vector3.zero;
             animClick = null;
         }
+
+        public override ActionPort Port => port;
+        private ActionPort port = new ActionPort();
     }
 }

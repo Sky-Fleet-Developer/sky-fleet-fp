@@ -1,4 +1,5 @@
 using Core.Data.GameSettings;
+using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
@@ -51,13 +52,12 @@ namespace Core.Structure.Rigging.Control
         [SerializeField, DrawWithUnity] private PortType portType = PortType.Thrust;
 
         [ShowInInspector]
-        public IDevice Device { get => _device; set => _device = (DeviceBase<float>)value; }
+        public IDevice Device { get => _device; set => _device = (DeviceBase<Port<float>>)value; }
 
-        public void Init(IStructure structure, IControl block)
+        public void Init(IGraph graph, IControl block)
         {
             GetPort();
             AxisTick();
-            //structure.ConnectPorts(port, _device.port);
         }
 
         [SerializeField] protected InputButtons keyPositive;
@@ -85,7 +85,7 @@ namespace Core.Structure.Rigging.Control
 
 
         [SerializeField, HideInInspector]
-        private DeviceBase<float> _device;
+        private DeviceBase<Port<float>> _device;
 
         private float GetLogicValue()
         {
@@ -217,7 +217,7 @@ namespace Core.Structure.Rigging.Control
         {
             logicValue = GetLogicValue();
             port.Value = logicValue;
-            _device.port.Value = logicValue;
+            _device.Port.Value = logicValue;
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using Core.Data.GameSettings;
+using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
@@ -40,15 +41,14 @@ namespace Core.Structure.Rigging.Control
         public string computerInput;
         
         [ShowInInspector]
-        public IDevice Device { get => _device; set => _device = (DeviceBase<bool>)value; }
+        public IDevice Device { get => _device; set => _device = (DeviceBase<Port<bool>>)value; }
 
-        public void Init(IStructure structure, IControl block)
+        public void Init(IGraph graph, IControl block)
         {
-            //structure.ConnectPorts(port, _device.port);
         }
 
         [SerializeField, HideInInspector]
-        private DeviceBase<bool> _device;
+        private DeviceBase<Port<bool>> _device;
 
         [SerializeField] protected InputButtons keyDetected;
 
@@ -60,7 +60,7 @@ namespace Core.Structure.Rigging.Control
             {
                 isOn = !isOn;
                 port.Value = isOn;
-                _device.port.Value = isOn;
+                _device.Port.Value = isOn;
             }
         }
     }

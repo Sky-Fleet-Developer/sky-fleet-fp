@@ -1,9 +1,10 @@
+using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class HelmDevice : DeviceBase<float>, IArrowDevice
+    public class HelmDevice : DeviceBase<Port<float>>, IArrowDevice
     {
         public Transform Arrow => lever;
         [SerializeField] private Transform lever;
@@ -18,5 +19,8 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         {
             lever.localRotation = Quaternion.Euler(eulerStart) * Quaternion.AngleAxis(port.Value * mul + trim, axe);
         }
+
+        public override Port<float> Port => port;
+        private Port<float> port = new Port<float>(PortType.Thrust);
     }
 }

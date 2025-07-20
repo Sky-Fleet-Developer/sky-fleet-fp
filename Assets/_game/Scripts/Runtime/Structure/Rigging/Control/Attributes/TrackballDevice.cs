@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
@@ -7,8 +8,10 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class TrackballDevice : DeviceBase<Vector2>
+    public class TrackballDevice : DeviceBase<Port<Vector2>>
     {
+        public override Port<Vector2> Port => port;
+        private Port<Vector2> port = new(PortType.Thrust);
         [SerializeField] private Transform ball;
         public float mul = 30;
         public Vector2 trim;

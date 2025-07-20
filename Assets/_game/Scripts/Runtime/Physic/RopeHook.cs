@@ -7,25 +7,23 @@ namespace Runtime.Physic
     {
         [SerializeField] private Rope rope;
         [SerializeField] private Vector3 connectedAnchor;
-        private bool _connected = false;
         private void Awake()
         {
             rope.OnInitialize.Subscribe(() =>
             {
-                rope.Connect(GetComponent<Rigidbody>(), connectedAnchor);
+                rope.ConnectAsHook(GetComponent<Rigidbody>(), connectedAnchor);
             });
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (_connected)
+            if (rope.IsConnected)
             {
                 return;
             }
             var anchor = other.GetComponent<RopeHookAnchor>();
             if (anchor)
             {
-                _connected = true;
                 rope.Connect(anchor.Body, anchor.GetConnectedAnchor());
             }
             /*var anchors = other.GetComponentsInChildren<RopeHookAnchor>();

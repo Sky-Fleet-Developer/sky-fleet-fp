@@ -1,3 +1,5 @@
+using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
@@ -5,8 +7,10 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class LampIndicator : DeviceBase<bool>
+    public class LampIndicator : DeviceBase<Port<bool>>
     {
+        public override Port<bool> Port => port;
+        private Port<bool> port = new (PortType.Thrust);
         [SerializeField] private Color active;
         [SerializeField] private Color inactive;
 
@@ -22,9 +26,9 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             render.material.SetColor(emissive, inactive);
         }
 
-        public override void Init(IStructure structure, IBlock block)
+        public override void Init(IGraph graph, IBlock block)
         {
-            base.Init(structure, block);
+            base.Init(graph, block);
             oldValue = false;
             render.material.color = inactive;
             render.material.SetColor(emissive, inactive);

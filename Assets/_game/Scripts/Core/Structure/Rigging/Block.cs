@@ -35,6 +35,8 @@ namespace Core.Structure.Rigging
             set => mountingType = value;
         }
 
+        public bool IsActive => gameObject && gameObject.activeSelf && enabled;
+
         public float Mass { get => mass; }
 
         [SerializeField]

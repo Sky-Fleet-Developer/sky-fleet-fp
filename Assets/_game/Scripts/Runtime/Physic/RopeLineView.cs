@@ -11,7 +11,7 @@ namespace Runtime.Physic
         private void Awake()
         {
             enabled = false;
-            Bootstrapper.OnLoadComplete.Subscribe(() =>
+            rope.OnInitialize.Subscribe(() =>
             {
                 enabled = true;
                 lineRenderer.positionCount = rope.LinksCount;

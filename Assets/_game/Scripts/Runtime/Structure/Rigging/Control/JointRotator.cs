@@ -24,8 +24,7 @@ namespace Runtime.Structure.Rigging.Control
         private Port<float> targetSpeed = new Port<float>(PortType.Signal);
         private Transform _bodyA;
         private Transform _bodyB;
-        [ShowInInspector] private float _torque;
-        [ShowInInspector] private float _speed;
+        [ShowInInspector] private float _input;
         [ShowInInspector] private float _targetAngle;
         [ShowInInspector] private float _currentAngle;
         [ShowInInspector] private float _currentDelta;
@@ -34,9 +33,9 @@ namespace Runtime.Structure.Rigging.Control
         {
             get
             {
-                _speed = targetSpeed.GetValue() * speedMul;
-                _torque = Mathf.Min(Mathf.Abs(_speed * torqueMul), maxTorque);
-                return consumptionPerTorque.Evaluate(_torque / maxTorque);
+                _input = targetSpeed.GetValue();
+                float torque = Mathf.Min(Mathf.Abs(_input * torqueMul), maxTorque);
+                return consumptionPerTorque.Evaluate(torque / maxTorque);
             }
         }
         
@@ -60,7 +59,7 @@ namespace Runtime.Structure.Rigging.Control
         {
             if (IsWork)
             {
-                _targetAngle += _speed.DeltaTime();
+                _targetAngle += _input.DeltaTime() * speedMul;
                 _currentAngle = GetCurrentAngle();
                 _currentDelta = _targetAngle - _currentAngle;
                 if (_currentDelta > 180)
@@ -75,7 +74,7 @@ namespace Runtime.Structure.Rigging.Control
                 _targetAngle = _currentAngle + _currentDelta;
                 var motor = joint.motor;
                 motor.targetVelocity = _currentDelta * tensionMul;
-                motor.force = maxTorque * idleTorquePercent + (1 - idleTorquePercent) * _torque;
+                motor.force = (idleTorquePercent + (1 - idleTorquePercent) * Mathf.Abs(_input)) * maxTorque;
                 joint.motor = motor;
             }
             else

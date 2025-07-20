@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core;
 using Core.Utilities;
+using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 namespace Runtime.Physic
@@ -27,7 +29,7 @@ namespace Runtime.Physic
                     float linkLength = length / (linksCount - 1);
                     for (var i = 1; i < _links.Length; i++)
                     {
-                        _links[i].parentAnchorPosition = Vector3.down * linkLength;
+                        _links[i].anchorPosition = Vector3.up * linkLength;
                     }
                 }
             }
@@ -35,15 +37,17 @@ namespace Runtime.Physic
         private ArticulationBody[] _links;
         private HingeJoint _mainJoint;
         private HingeJoint _connectedJoint;
+        private HingeJoint _hook;
         public int LinksCount => linksCount;
         public LateEvent OnInitialize = new LateEvent();
+        public bool IsConnected => _connectedJoint != null;
 
 
         private void Awake()
         {
             Bootstrapper.OnLoadComplete.Subscribe(async () =>
             {
-                await Task.Delay(10);
+                await new WaitForSeconds(0.1f);
                 bool isKinematic = connectedBody.isKinematic;
                 connectedBody.isKinematic = true;
                 _links = new ArticulationBody[linksCount];
@@ -54,18 +58,18 @@ namespace Runtime.Physic
                     _links[i].jointType = ArticulationJointType.SphericalJoint;
                     _links[i].SnapAnchorToClosestContact();
                     _links[i].matchAnchors = false;
-                    _links[i].transform.position = transform.position + Vector3.down * i * linkLength;
+                    _links[i].transform.position = transform.position + Vector3.down * (i * linkLength);
                     if (i > 0)
                     {
                         _links[i].transform.SetParent(_links[i-1].transform);
-                        _links[i].parentAnchorPosition = Vector3.down * linkLength;
+                        _links[i].anchorPosition = Vector3.up * linkLength;
                     }
                     else
                     {
-                        _links[i].transform.SetParent(transform);
+                        //_links[i].transform.SetParent(connectedBody.transform);
                     }
 
-                    _links[i].anchorPosition = Vector3.zero;
+                    _links[i].parentAnchorPosition = Vector3.zero;
                     _links[i].linearDamping = linkDrag;
                     _links[i].angularDamping = linkDrag;
                     _links[i].WakeUp();
@@ -76,7 +80,7 @@ namespace Runtime.Physic
                 _mainJoint.autoConfigureConnectedAnchor = false;
                 _mainJoint.anchor = connectedBody.transform.InverseTransformPoint(transform.position);
                 _mainJoint.connectedAnchor = Vector3.zero;
-                await Task.Delay(15);
+                await new WaitForSeconds(0.1f);
                 connectedBody.isKinematic = isKinematic;
                 OnInitialize.Invoke();
             });
@@ -84,13 +88,9 @@ namespace Runtime.Physic
 
         public IEnumerable<Vector3> GetJointsPoints()
         {
-            Vector3 vector = Vector3.zero;
-            Quaternion rotation = Quaternion.identity;
             for (var i = 0; i < _links.Length; i++)
             {
-                rotation *= _links[i].transform.localRotation;
-                vector += rotation * _links[i].transform.localPosition;
-                yield return vector;
+                yield return transform.InverseTransformPoint(_links[i].transform.position);
             }
         }
 
@@ -112,32 +112,49 @@ namespace Runtime.Physic
             return result;
         }
 
-        private const float _massScaleFactor = 0.0015f;
+        private const float _massScaleFactor = 0.002f;
         private const float _massScaleFactorInv = 1 - _massScaleFactor;
         public void Connect(Rigidbody target, Vector3 connectedAnchor)
         {
-            _mainJoint.massScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
-            _mainJoint.connectedMassScale = _massScaleFactorInv + target.mass * _massScaleFactor;
-            target.transform.position += _links[^1].transform.position - target.transform.TransformPoint(connectedAnchor);
-            _connectedJoint = target.gameObject.AddComponent<HingeJoint>();
-            _connectedJoint.connectedArticulationBody = _links[^1];
-            _connectedJoint.autoConfigureConnectedAnchor = false;
-            _connectedJoint.anchor = connectedAnchor;
-            _connectedJoint.connectedAnchor = Vector3.zero;
-            _connectedJoint.massScale = _massScaleFactorInv + target.mass * _massScaleFactor;
-            _connectedJoint.connectedMassScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
-            TakeEasy(target);
+            _connectedJoint = ConnectPrivate(target, connectedAnchor);
         }
 
-        private async void TakeEasy(Rigidbody target)
+        public void ConnectAsHook(Rigidbody target, Vector3 connectedAnchor)
+        {
+            _hook = ConnectPrivate(target, connectedAnchor);
+        }
+
+        public void Detach()
+        {
+            Destroy(_connectedJoint);
+            _mainJoint.massScale = 1;
+            _mainJoint.connectedMassScale = 1;
+        }
+        
+        private HingeJoint ConnectPrivate(Rigidbody target, Vector3 connectedAnchor)
+        {
+            _mainJoint.massScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
+            _mainJoint.connectedMassScale = _massScaleFactorInv + target.mass * _massScaleFactor;
+            var joint = target.gameObject.AddComponent<HingeJoint>();
+            joint.connectedArticulationBody = _links[^1];
+            joint.autoConfigureConnectedAnchor = false;
+            joint.anchor = connectedAnchor;
+            joint.connectedAnchor = Vector3.zero;
+            joint.massScale = _massScaleFactorInv + target.mass * _massScaleFactor;
+            joint.connectedMassScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
+            TakeEasy(target, joint);
+            return joint;
+        }
+
+        private async void TakeEasy(Rigidbody target, HingeJoint joint)
         {
             for (int i = 0; i < 100; i++)
             {
                 var delta = _links[^1].transform.position -
-                            target.transform.TransformPoint(_connectedJoint.anchor);
+                            target.transform.TransformPoint(joint.anchor);
                 target.transform.position += delta;
                 target.velocity = _links[^1].velocity;
-                await Task.Delay(1);
+                await new WaitForEndOfFrame();
             }
         }
     }

@@ -54,10 +54,12 @@ namespace Core.Graph.Wires
             foreach (IGrouping<string, PortPointer> portPointers in group)
             {
                 PortPointer[] array = portPointers.ToArray();
-                if (array.Length == 1)
+                if (string.IsNullOrEmpty(portPointers.Key))
                 {
-                    string portName = GetNameOf(array[0].Port);
-                    yield return new PortInfo(array[0], $"{portPointers.Key}: {portName}");
+                    foreach (var portPointer in array)
+                    {
+                        yield return new PortInfo(portPointer, $"{portPointers.Key}: {GetNameOf(portPointer.Port)}");
+                    }
                 }
                 else
                 {

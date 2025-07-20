@@ -191,8 +191,11 @@ namespace Core.Environment
                 this.interactiveBlock = interactiveBlock;
                 foreach (IInteractiveDevice interactiveDevice in interactiveBlock.GetInteractiveDevices())
                 {
-                    DeviceRayCastingProfile profile = new DeviceRayCastingProfile(interactiveDevice);
-                    devices.Add(profile);
+                    if (interactiveDevice.Root)
+                    {
+                        DeviceRayCastingProfile profile = new DeviceRayCastingProfile(interactiveDevice);
+                        devices.Add(profile);
+                    }
                 }
             }
 

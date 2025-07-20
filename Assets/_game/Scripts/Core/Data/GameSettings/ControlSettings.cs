@@ -238,6 +238,7 @@ namespace Core.Data.GameSettings
     [System.Serializable]
     public struct ButtonCodes
     {
+        [DrawWithUnity]
         public KeyCode[] KeyCodes;
 
         public ButtonCodes(KeyCode[] keys)

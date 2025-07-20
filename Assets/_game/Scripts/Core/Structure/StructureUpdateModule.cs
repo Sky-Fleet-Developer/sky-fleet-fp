@@ -83,7 +83,7 @@ namespace Core.Structure
             foreach (IControl t in Controls)
             {
                 IStructure str = t.Structure;
-                if (str.Active && t.IsUnderControl)
+                if (str.Active && t.IsUnderControl && t.IsActive)
                 {
                     t.ReadInput();
                 }
@@ -93,7 +93,7 @@ namespace Core.Structure
             foreach (IPowerUser t in PowerUsers)
             {
                 IStructure str = t.Structure;
-                if (str.Active)
+                if (str.Active && t.IsActive)
                 {
                     t.ConsumptionTick();
                 }
@@ -103,7 +103,7 @@ namespace Core.Structure
             foreach (IPowerUser t in PowerUsers)
             {
                 IStructure str = t.Structure;
-                if (str.Active)
+                if (str.Active && t.IsActive)
                 {
                     t.PowerTick();
                 }
@@ -111,7 +111,7 @@ namespace Core.Structure
             foreach (IFuelUser t in FuelUsers)
             {
                 IStructure str = t.Structure;
-                if (str.Active)
+                if (str.Active && t.IsActive)
                 {
                     t.FuelTick();
                 }
@@ -119,7 +119,7 @@ namespace Core.Structure
             foreach (IUpdatableBlock t in Updatables)
             {
                 IStructure str = t.Structure;
-                if (str.Active)
+                if (str.Active && t.IsActive)
                 {
                     t.UpdateBlock(0);
                 }
@@ -134,7 +134,7 @@ namespace Core.Structure
             for (int i = 0; i < ForceUsers.Count; i++)
             {
                 IStructure str = ForceUsers[i].Structure;
-                if (str.Active)
+                if (str.Active && FuelUsers[i].IsActive)
                 {
                     ForceUsers[i].ApplyForce();
                 }

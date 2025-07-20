@@ -1,9 +1,10 @@
+using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class ArrowIndicator : DeviceBase<float>
+    public class ArrowIndicator : DeviceBase<Port<float>>
     {
         public Vector3 arrowAxe = Vector3.up;
         [System.Serializable]
@@ -25,7 +26,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 
         public override void UpdateDevice()
         {
-            float value = port.Value;
+            float value = Port.Value;
             for (int i = 0; i < arrows.Length; i++)
             {
                 float currValue = value * arrows[i].multiple;
@@ -34,5 +35,8 @@ namespace Runtime.Structure.Rigging.Control.Attributes
                 arrows[i].arrow.transform.localEulerAngles = arrows[i].startAngle + arrowAxe * angle;
             }
         }
+
+        public override Port<float> Port => port;
+        private Port<float> port = new (PortType.Signal);
     }
 }

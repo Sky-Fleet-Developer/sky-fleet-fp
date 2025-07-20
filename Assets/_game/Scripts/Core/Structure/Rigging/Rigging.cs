@@ -72,7 +72,7 @@ namespace Core.Structure.Rigging
         void PushToPort(float amount);
     }
 
-    public interface IControl : IInteractiveBlock, IUpdatableBlock
+    public interface IControl : IInteractiveBlock, IUpdatableBlock, IGraphNode
     {
         bool IsUnderControl { get; }
         List<ControlAxis> Axes { get; }

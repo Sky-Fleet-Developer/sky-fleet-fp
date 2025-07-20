@@ -11,6 +11,7 @@ namespace Runtime.Structure.Rigging.Control
     public class Winch : PowerUserBlock, IUpdatableBlock
     {
         private Port<float> input = new Port<float>(PortType.Signal);
+        private ActionPort detach = new ();
         [SerializeField] private Rope rope;
         [SerializeField] private float minLength;
         [SerializeField] private float maxLength;
@@ -28,6 +29,15 @@ namespace Runtime.Structure.Rigging.Control
             {
                 _currentLength = _wantedLength = rope.GetLength();
             });
+            detach.AddRegisterAction(Detach);
+        }
+
+        private void Detach()
+        {
+            if (rope.IsConnected)
+            {
+                rope.Detach();
+            }
         }
 
         public override float Consumption
