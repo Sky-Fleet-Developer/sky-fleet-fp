@@ -37,15 +37,15 @@ namespace Core.Graph.Wires
         {
             if (port.Port is Port<float> f)
             {
-                return portTColors.FirstOrDefault(x => x.type == f.ValueType).color;
+                return portTColors.FirstOrDefault(x => x.type == f.ValueType)?.color ?? Color.magenta;
             }
             if (port.Port is Port<Vector2> f2)
             {
-                return portTColors.FirstOrDefault(x => x.type == f2.ValueType).color;
+                return portTColors.FirstOrDefault(x => x.type == f2.ValueType)?.color ?? Color.magenta;
             }
             if (port.Port is Port<Vector3> f3)
             {
-                return portTColors.FirstOrDefault(x => x.type == f3.ValueType).color;
+                return portTColors.FirstOrDefault(x => x.type == f3.ValueType)?.color ?? Color.magenta;
             }
             if (port.Port is ActionPort)
             {
@@ -61,7 +61,7 @@ namespace Core.Graph.Wires
             }
             if (port.Port is StoragePort stp)
             {
-                return storagePortColors.FirstOrDefault(x => x.type == stp.serializedTypeShort).color;
+                return storagePortColors.FirstOrDefault(x => x.type == stp.serializedTypeShort)?.color ?? Color.magenta;
             }
             return Color.white;
         }

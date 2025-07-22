@@ -9,6 +9,7 @@ namespace Core.Graph.Wires
 
         public string Id => _id;
         private string _id;
+        private string _localId;
         private string _group;
 
         public PortPointer(IGraphNode node, Port port, string id, string group)
@@ -20,6 +21,7 @@ namespace Core.Graph.Wires
             }
             Port = port;
             _group = group;
+            _localId = id;
             _id = $"{node.NodeId}_{id}";
         }
 
@@ -52,7 +54,7 @@ namespace Core.Graph.Wires
         public Port GetPort() => Port;
 
         public string GetGroup() => _group;
-        public string GetName() => _id;
+        public string GetName() => _localId;
         public bool IsNull() => node == null;
     }
 }

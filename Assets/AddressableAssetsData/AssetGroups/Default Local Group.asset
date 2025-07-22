@@ -172,6 +172,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 69fb808f0b12bea4599794e24b59a1dc
+    m_Address: Assets/_game/Prefabs/Blocks/Emgracopter/CopterControl_3axis.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 559f97fa9e9482247ba86d12f15c48ab
+    m_Address: Assets/_game/Prefabs/Blocks/Emgracopter/ElevonsDistributor.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6089aed05677e8245b41cfd7d4a2ffce, type: 2}
   m_SchemaSet:

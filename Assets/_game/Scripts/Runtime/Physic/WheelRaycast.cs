@@ -1,4 +1,5 @@
 using Core.Data;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Physic
@@ -32,7 +33,7 @@ namespace Runtime.Physic
         public LayerMask groundLayer;
 
         private float Force;
-        private float RPM;
+        [ShowInInspector][ReadOnly] private float RPM;
         private float turns;
         public Vector3 localPosition { get; private set; }
         public Quaternion localRotation { get; private set; }
@@ -94,7 +95,7 @@ namespace Runtime.Physic
 
             if (grounded)
             {
-                current_spring = (suspension_position * Spring + Mathf.Clamp(-suspension_delta, 0, 1) * Dumper) * deltaTime;
+                current_spring = (suspension_position * Spring + Mathf.Clamp(-suspension_delta, 0, 1) * Dumper);
                 Vector3 impulse = groundHit.normal * current_spring;
                 rigidbody.AddForceAtPosition(impulse, groundHit.point);
                 Rigidbody otherRB = groundHit.rigidbody;
@@ -107,8 +108,6 @@ namespace Runtime.Physic
 
         private void DoFriction(float deltaTime)
         {
-            RPM *= (1 - BreakForce);
-
             if (grounded)
             {
                 Vector3 fwd = Vector3.Cross(groundHit.normal, transform.right);
@@ -162,6 +161,7 @@ namespace Runtime.Physic
                     float deltaRpm = RPM - lastRpm;
                     RPM = lastRpm + deltaRpm * 0.3f;
                 }
+                ApplyBrake(BreakForce, deltaTime);
 
                 if (float.IsNaN(RPM)) RPM = 0;
 
@@ -181,15 +181,16 @@ namespace Runtime.Physic
                         sliding = true;
                 }
 
-                rigidbody.AddForceAtPosition(force * deltaTime, groundHit.point);
+                rigidbody.AddForceAtPosition(force, groundHit.point);
                 Rigidbody otherRB = groundHit.rigidbody;
                 if (otherRB != null)
                 {
-                    otherRB.AddForceAtPosition(-force * deltaTime, groundHit.point);
+                    otherRB.AddForceAtPosition(-force, groundHit.point);
                 }
             }
             else
             {
+                ApplyBrake(BreakForce, deltaTime);
                 sliding = false;
                 sideVelocity = 0f;
                 sideDelta = 0f;
@@ -199,6 +200,11 @@ namespace Runtime.Physic
             localPosition = transform.InverseTransformPoint(groundHit.point) + Vector3.up * Radius;
             turns += RPM / 60 * deltaTime;
             localRotation = Quaternion.AxisAngle(Vector3.right, turns * Mathf.PI);
+        }
+
+        private void ApplyBrake(float breakForce, float deltaTime)
+        {
+            RPM = Mathf.MoveTowards(RPM, 0, breakForce * wheelMass * deltaTime);
         }
 
         public void AddForce(float force)

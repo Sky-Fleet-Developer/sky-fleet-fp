@@ -19,7 +19,8 @@ namespace Core.Structure.Rigging.Control
 
         public string GetName()
         {
-            if (keyDetected.IsNone())
+            return computerInput;
+/*            if (keyDetected.IsNone())
             {
                 return computerInput;
             }
@@ -32,7 +33,7 @@ namespace Core.Structure.Rigging.Control
                     res += keyDetected.Keys[i].ToString();
                 }
                 return res;
-            }
+            }*/
         }
         
         [SerializeField, ShowInInspector]

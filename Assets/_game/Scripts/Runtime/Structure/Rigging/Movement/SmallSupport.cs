@@ -5,6 +5,7 @@ using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 using static Core.Structure.StructureUpdateModule;
 
 namespace Runtime.Structure.Rigging.Movement
@@ -21,16 +22,19 @@ namespace Runtime.Structure.Rigging.Movement
         [SerializeField] private bool zIsFree;
 
         [Header("Forces")] [Tooltip("Сила, при которой происходит срыв потока")] [SerializeField]
-        private float disruptionForce;
+        private float disruptionPercent;
 
         [Tooltip("Сила, при которой прекращается срыв потока")] [SerializeField]
-        private float disruptionMinForce;
+        private float recoveryPercent;
 
-        [Tooltip("Сила возврата при расхождении q = qMax")] [SerializeField]
-        private float returnForce;
+        
+        [FormerlySerializedAs("returnForce")] [SerializeField]
+        private float mainForce;
+        [Tooltip("Сила возврата при расхождении q = qMax")]
+        [SerializeField] private float returnPercent;
 
         [Tooltip("Сила остановки")] [SerializeField]
-        private float dragForce;
+        private float dragPercent;
 
         [Tooltip("Максимальное отклонение")] [SerializeField]
         private float qMax;
@@ -42,13 +46,14 @@ namespace Runtime.Structure.Rigging.Movement
         [Space(20), Header("Power")] [SerializeField]
         private float consumption;
 
-        public Port<float> powerHandle = new Port<float>(PortType.Thrust);
+        [SerializeField] private Port<float> powerHandle = new Port<float>(PortType.Thrust);
         public AnimationCurve powerPerHandle;
-        public PowerPort powerInput = new PowerPort();
+        private PowerPort powerInput = new PowerPort();
 
-        public Port<float> pitch = new Port<float>(PortType.Thrust);
-        public Port<float> roll = new Port<float>(PortType.Thrust);
-        
+        private Port<float> pitch = new Port<float>(PortType.Thrust);
+        private Port<float> roll = new Port<float>(PortType.Thrust);
+        [SerializeField] private Port<Vector3> localForce = new (PortType.Signal);
+
         [ShowInInspector, ReadOnly] private float power;
         [ShowInInspector, ReadOnly] private Vector3 p;
         private Vector3 lastPosition;
@@ -127,16 +132,16 @@ namespace Runtime.Structure.Rigging.Movement
 
             Vector3 deltaQ = (p - position).ClampDistance(0f, qMax * power);
             p = position + deltaQ;
-            force = deltaQ * returnForce / qMax;
-            force -= velocity * (dragForce * power);
+            force = deltaQ * (returnPercent / qMax);
+            force -= velocity * (dragPercent * power);
 
             if (disruption == false)
             {
-                if (force.magnitude > disruptionForce) disruption = true;
+                if (force.magnitude > disruptionPercent) disruption = true;
             }
             else
             {
-                if (force.magnitude < disruptionMinForce) disruption = false;
+                if (force.magnitude < recoveryPercent) disruption = false;
 
                 p = Vector3.Lerp(p, position, Time.deltaTime * qMax);
                 force *= disruptionForceMP;
@@ -147,7 +152,9 @@ namespace Runtime.Structure.Rigging.Movement
             if (float.IsNaN(force.x))
                 force = Vector3.zero;
 
-            root.AddForce(force * Time.deltaTime, position);
+            force *= mainForce;
+            localForce.Value = force;
+            root.AddForce(force, position);
         }
 
 #if UNITY_EDITOR

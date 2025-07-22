@@ -68,7 +68,7 @@ namespace Runtime.Environment.AirDrag
             Debug.DrawRay(position, normal.normalized * 2, Color.blue);
             Debug.DrawRay(position, drag * 0.001f, Color.red);
             
-            structure.AddForce(drag.DeltaTime(), position);
+            structure.AddForce(drag, position);
         }
 
         private void CalculateDragFor(IStructure structure)

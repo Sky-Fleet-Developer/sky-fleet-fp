@@ -15,8 +15,8 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: 2295622ad19dd674d88604459e44f4c4, type: 2}
   pixelsToNormalsShader: {fileID: 7200000, guid: 7026c6f87744a7048b130e50fe6e8c73, type: 3}
   resolution: 256
-  turbulenceImpact: 1
-  normalForceImpact: 5
+  turbulenceImpact: 0.1
+  normalForceImpact: 0.5
   mask:
     serializedVersion: 2
     m_Bits: 2048

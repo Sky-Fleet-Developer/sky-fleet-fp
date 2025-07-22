@@ -1,6 +1,7 @@
 using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using static Core.Structure.StructureUpdateModule;
 using Utilities = Core.Structure.Rigging.Utilities;
@@ -23,7 +24,7 @@ namespace Runtime.Structure.Rigging.Storage
             output.Value -= clamp;
         }
         
-        [SerializeField] private StorageMode mode;
+        [SerializeField, DrawWithUnity] private StorageMode mode;
 
         [SerializeField] private float maxInput;
         [SerializeField] private float maxOutput;

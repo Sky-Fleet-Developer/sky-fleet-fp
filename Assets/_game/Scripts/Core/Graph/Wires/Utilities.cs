@@ -58,7 +58,7 @@ namespace Core.Graph.Wires
                 {
                     foreach (var portPointer in array)
                     {
-                        yield return new PortInfo(portPointer, $"{portPointers.Key}: {GetNameOf(portPointer.Port)}");
+                        yield return new PortInfo(portPointer, $"{portPointer.GetName()}: {GetNameOf(portPointer.Port)}");
                     }
                 }
                 else

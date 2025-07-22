@@ -23,11 +23,13 @@ namespace Core.Structure.Rigging.Control
 
         public string GetName()
         {
+            return computerInput;
+/*
             string keysDescr = string.Empty;
             if (!axisX.IsNone()) keysDescr += axisX.Axis.ToString();
             if (!axisY.IsNone()) keysDescr += "," + axisY.Axis.ToString();
 
-            return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
+            return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";*/
         }
 
         

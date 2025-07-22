@@ -17,6 +17,8 @@ namespace Core.Structure.Rigging.Control
         [SerializeField] private bool enableInteraction;
         public string GetName()
         {
+            return computerInput;
+            /*
             if (keyDetected.IsNone())
             {
                 return computerInput;
@@ -30,7 +32,7 @@ namespace Core.Structure.Rigging.Control
                     res += keyDetected.Keys[i].ToString();                 
                 }
                 return res;
-            }
+            }*/
         }
         public Transform Root => _device ? _device.transform : null;
 

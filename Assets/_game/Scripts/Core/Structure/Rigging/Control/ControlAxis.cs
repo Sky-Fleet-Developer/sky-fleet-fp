@@ -25,6 +25,8 @@ namespace Core.Structure.Rigging.Control
         }
         public string GetName()
         {
+            return computerInput;
+            /*
             string keysDescr = string.Empty;
             if (!keyPositive.IsNone())
             {
@@ -43,9 +45,9 @@ namespace Core.Structure.Rigging.Control
             }
             if (!axe.IsNone()) keysDescr += "," + axe.Axis.ToString();
 
-            return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";
+            return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";*/
         }
-        public Transform Root => _device.transform;
+        public Transform Root => _device?.transform;
 
         private Port<float> port;
 
@@ -217,7 +219,10 @@ namespace Core.Structure.Rigging.Control
         {
             logicValue = GetLogicValue();
             port.Value = logicValue;
-            _device.Port.Value = logicValue;
+            if (_device)
+            {
+                _device.Port.Value = logicValue;
+            }
         }
     }
 

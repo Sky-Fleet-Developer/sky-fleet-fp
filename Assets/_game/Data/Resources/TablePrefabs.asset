@@ -279,6 +279,24 @@ MonoBehaviour:
     tags:
     - block
     - common
+  - reference:
+      m_AssetGUID: 69fb808f0b12bea4599794e24b59a1dc
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 85e503a8-b2ea-4b5e-9a64-e59d190115ff
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: 559f97fa9e9482247ba86d12f15c48ab
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 6033ed0c-0604-490b-a38b-b47267c1f9c5
+    tags:
+    - block
+    - emgracopter
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:
