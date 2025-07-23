@@ -86,20 +86,13 @@ namespace Runtime.Physic
 
         private void ComputeLift(AerodynamicZone zone)
         {
-            // локальная скорость зоны относительно глобального движения объекта
-            var relativeVelocity = parentRigidbody.GetPointVelocity(transform.TransformPoint(zone.LocalPosition)) -
-                                   parentRigidbody.velocity;
-            var localRelativeVelocity = transform.InverseTransformDirection(relativeVelocity);
+            var localRelativeVelocity = transform.InverseTransformDirection( parentRigidbody.GetPointVelocity(transform.TransformPoint(zone.LocalPosition)));
 
-            // компоненты скорости вдоль осей
-
-            // угол атаки - угол между направлением потока воздуха и плоскостью крыла
             var angleOfAttack = Mathf.Asin(localRelativeVelocity.normalized.y);
 
-            // коэффициент подъёмной силы зависит от угла атаки и продольной скорости
             var liftFactorByAngle = angleOfAttackInfluenceCurve.Evaluate(angleOfAttack);
-            var liftForceMagnitude = -Mathf.Abs(localRelativeVelocity.y) * liftFactorFromForwardSpeed * liftFactorByAngle * zone.Area;
-            // применение силы в центре зоны
+            var liftForceMagnitude = -localRelativeVelocity.y * liftFactorFromForwardSpeed * liftFactorByAngle * zone.Area;
+
             var forceWorldSpace = transform.TransformVector(Vector3.up * liftForceMagnitude);
             Debug.DrawRay(transform.TransformPoint(zone.LocalPosition), forceWorldSpace * 0.1f, Color.red);
             if (float.IsNaN(forceWorldSpace.x))

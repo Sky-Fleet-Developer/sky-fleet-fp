@@ -152,5 +152,13 @@ namespace Runtime.Structure.Rigging.Control
                 device.UpdateDevice();
             }
         }
+        
+        private void OnGUI()
+        {
+            if (IsActive && isUnderControl && Structure is IDynamicStructure dynamic)
+            {
+                GUILayout.Label($"<size=25>Speed: {dynamic.Velocity.magnitude * 3.6f : 000.0}km/h</size>");
+            }
+        }
     }
 }

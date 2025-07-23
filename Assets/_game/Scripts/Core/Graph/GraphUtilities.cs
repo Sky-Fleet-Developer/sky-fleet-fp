@@ -51,8 +51,6 @@ namespace Core.Graph
             Type type = typeof(IList);
             Type elementType = typeof(IPortUser);
 
-            string log = $"Ports lists for type {blockType.Name}:\n";
-
             FieldInfo[] allFields = blockType.GetFields(BindingFlags.Instance | BindingFlags.Public);
             
             foreach (FieldInfo field in allFields)
@@ -60,11 +58,8 @@ namespace Core.Graph
                 if (field.FieldType.InheritsFrom(type) && field.FieldType.GetGenericArguments().Any(x => x.InheritsFrom(elementType)))
                 {
                     fields.Add(field);
-                    log += $"{field.Name},";
                 }
             }
-
-            Debug.Log(log);
 
             infos = fields.ToArray();
             
