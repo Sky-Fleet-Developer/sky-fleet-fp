@@ -9,6 +9,7 @@ using Core.Utilities;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Core.TerrainGenerator
 {
@@ -21,16 +22,31 @@ namespace Core.TerrainGenerator
         protected List<DataT> deformationLayersCache = new List<DataT>();
         protected Dictionary<int, List<TModule>> deformers = new  Dictionary<int, List<TModule>>();
         protected Dictionary<int, List<TModule>> dirtyDeformers = new  Dictionary<int, List<TModule>>();
-        protected int maxDeformerLayer;
+        protected int maxDeformerLayer = -1;
+        private int i;
+        public int I
+        {
+            get
+            {
+                if (i == 0)
+                {
+                    i = Random.Range(0, 1000);
+                }
+
+                return i;
+            }
+        }
         
         protected DeformationChannel(Vector2Int coordinates, float chunkSize) : base(coordinates, chunkSize)
         {
+            Debug.Log($"DC: Created channel {GetType().Name}-{I}({coordinates})");
         }
         
         protected DataT GetLastLayer() => deformationLayersCache[deformationLayersCache.Count - 1];
         public DataT GetSourceLayer(IDeformer deformer)
         {
             int l = GetPreviousLayerIdx(deformer.Layer);
+            Debug.Log($"DC: Deformer {GetType().Name}-{I}({deformer.Position}) requests layer {l}/{deformationLayersCache.Count}");
             var dlc = deformationLayersCache;
             try
             {
@@ -48,6 +64,7 @@ namespace Core.TerrainGenerator
             int prev = GetPreviousLayerIdx(deformer.Layer);
             if (deformationLayersCache.Count == prev + 1)
             {
+                Debug.Log($"DC: Deformer {GetType().Name}-{I}({deformer.Position}) adds d-layer. Prev = {prev}. Count = {deformationLayersCache.Count + 1}");
                 deformationLayersCache.Add(GetLayerCopy(deformationLayersCache[prev]));   
             }
 
@@ -83,7 +100,7 @@ namespace Core.TerrainGenerator
             }
             dirtyDeformers[layer].Add(deformer);
             IsDirty = true;
-            deformer.Core.OnSetDirty(deformer.GetType());
+            deformer.Core.OnSetDirty(deformer);
         }
 
         public override void RegisterDeformer(IDeformer deformer)
@@ -117,7 +134,7 @@ namespace Core.TerrainGenerator
         {
             Rect rect = deformer.AxisAlignedRect;
             Type changedModuleType = typeof(TModule);
-            int layerToRecalculate = deformer.Layer + 1;
+            int layerToRecalculate = deformer.Layer;
             if (layerToRecalculate > maxDeformerLayer) return;
 
             if (!dirtyDeformers.ContainsKey(layerToRecalculate))
@@ -135,7 +152,7 @@ namespace Core.TerrainGenerator
                     if (dRect.Overlaps(rect))
                     {
                         layer.Add(d);
-                        d.Core.OnSetDirty(changedModuleType);
+                        d.Core.OnSetDirty(d);
                     }
                 }
             }

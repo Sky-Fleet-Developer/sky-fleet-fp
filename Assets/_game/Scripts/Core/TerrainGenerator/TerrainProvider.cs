@@ -151,15 +151,6 @@ namespace Core.TerrainGenerator
                     DeformationChannel channel =
                         layerSettings.MakeDeformationChannel(this, coord, settings.directory.FullName);
 
-                    if (deformersByChunk.TryGetValue(coord, out HashSet<IDeformer> deformers))
-                    {
-                        foreach (IDeformer deformer in deformers)
-                        {
-                            channel.RegisterDeformer(deformer);
-                        }
-                        channel.ApplyDirtyToCache();
-                    }
-
                     if (channel != null) channels[coord].Add(channel);
                 }
             }
@@ -187,6 +178,14 @@ namespace Core.TerrainGenerator
             if (channel.IsDirty)
             {
                 await channel.LoadingTask;
+                if (deformersByChunk.TryGetValue(channel.Coordinates, out HashSet<IDeformer> deformers))
+                {
+                    foreach (IDeformer deformer in deformers)
+                    {
+                        channel.RegisterDeformer(deformer);
+                    }
+                    channel.ApplyDirtyToCache();
+                }
                 await channel.Apply();
             }
         }

@@ -26,6 +26,6 @@ namespace Core.TerrainGenerator
         /// <summary>
         /// Changes was applied to channel layer only, but not to landscape
         /// </summary>
-        void OnSetDirty(Type changedModuleType);
+        void OnSetDirty(IDeformerModule dirtyModule);
     }
 }

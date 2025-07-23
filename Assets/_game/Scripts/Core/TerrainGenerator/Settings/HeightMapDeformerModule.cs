@@ -13,6 +13,7 @@ namespace Core.TerrainGenerator.Settings
     {
         public float[] Heights;
         public Vector2Int Resolution;
+        public bool alignWithTerrain = true;
         //public Dictionary<DeformationChannel, Dictionary<Vector2Int, HeightCache>> cache;
         
         [JsonIgnore] public IDeformer Core { get; set; }
@@ -148,6 +149,15 @@ EditorUtility.SetDirty(terrain.terrainData);
             float remainsX = xPos - minX;
             float remainsY = yPos - minY;
 
+            if (Heights == null || Heights.Length == 0)
+            {
+                return 0;
+            }
+
+            if (Heights.Length == 1)
+            {
+                return Heights[0];
+            }
             float topValue = Mathf.LerpUnclamped(Heights[minX * Resolution.y + minY],
                 Heights[minX * Resolution.y + Resolution.y + minY], remainsX);
             float bottomValue = Mathf.LerpUnclamped(Heights[minX * Resolution.y + minY + 1],

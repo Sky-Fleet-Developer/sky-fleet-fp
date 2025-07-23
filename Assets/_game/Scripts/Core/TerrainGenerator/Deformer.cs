@@ -21,6 +21,7 @@ namespace Core.TerrainGenerator
             Type t = typeof(T);
             foreach (SerializedDeformerModule module in modules)
             {
+                module.Module.Init(this);
                 if(module.GetLayerType() == t) return module.Module as T;
             }
 
@@ -181,9 +182,9 @@ namespace Core.TerrainGenerator
 
         public Vector3 InverseTransformPoint(Vector3 worldPos) => transform.InverseTransformPoint(worldPos + WorldOffset.Offset);
         public Vector3 TransformPoint(Vector3 localPos) => transform.TransformPoint(localPos - WorldOffset.Offset);
-        public virtual void OnSetDirty(Type changedModuleType)
+        public virtual void OnSetDirty(IDeformerModule dirtyModule)
         {
-            if (changedModuleType == typeof(HeightMapDeformerModule))
+            if (dirtyModule is HeightMapDeformerModule heightMapDeformerModule && heightMapDeformerModule.alignWithTerrain)
             {
                 AlignWithTerrain();
             }
