@@ -1,3 +1,4 @@
+using Core.Character;
 using Core.Data.GameSettings;
 using Core.Graph;
 using Core.Graph.Wires;
@@ -48,6 +49,10 @@ namespace Core.Structure.Rigging.Control
             return keysDescr.Length == 0 ? computerInput : $"{computerInput} ({keysDescr})";*/
         }
         public Transform Root => _device?.transform;
+        public (bool canInteract, string data) RequestInteractive(ICharacterController character)
+        {
+            return (true, string.Empty);
+        }
 
         private Port<float> port;
 

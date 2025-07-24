@@ -55,17 +55,36 @@ namespace Core.Environment
             out StructureHit hit)
         {
             hit = default;
-            foreach (IStructure structure in Instance.Profiles.Keys)
+
+            if (!Physics.Raycast(ray, out RaycastHit raycastHit, maxDistance, layerMask))
             {
-                if (Cast(structure, ray, interactiveCast, maxDistance, layerMask, out hit))
+                return false;
+            }
+            hit.RaycastHit = raycastHit;
+
+            var io = interactiveCast ? raycastHit.collider.GetComponentInParent<IInteractiveObject>() : null;
+            if (io != null)
+            {
+                hit.InteractiveObject = io;
+                if (io is IInteractiveBlock interactiveBlock)
                 {
-                    return true;
+                    hit.InteractiveBlock = interactiveBlock;
+                    hit.Block = interactiveBlock;
                 }
             }
-
-            hit = default;
-            return false;
+            else
+            {
+                var block = raycastHit.collider.GetComponentInParent<IBlock>();
+                if (block != null)
+                {
+                    hit.Block = block;
+                    hit.Structure = block.Structure;
+                }
+            }
+            
+            return true;
         }
+        
 
         public static bool Cast(IStructure structure, Ray ray, bool interactiveCast, float maxDistance,
             LayerMask layerMask, out StructureHit hit)
@@ -169,7 +188,7 @@ namespace Core.Environment
                 if (!localBounds.IntersectRay(_localRay, out float distance)) return false;
                 if (!(distance < maxDistance)) return false;
                 hitInfo.Block = block;
-                hitInfo.HitInBlockBounds = true;
+                //hitInfo.HitInBlockBounds = true;
                 if (!Physics.Raycast(_localRay, out RaycastHit hit, maxDistance, layerMask)) return false;
                 
                 hitInfo.RaycastHit = hit;
@@ -205,7 +224,7 @@ namespace Core.Environment
                 hitInfo.InteractiveBlock = interactiveBlock;
                 if (!_interactiveCast) return preliminaryResult;
                 
-                if (!hitInfo.HitInBlockBounds) return false;
+                //if (!hitInfo.HitInBlockBounds) return false;
 
                 float angle = 20f;
                 DeviceRayCastingProfile selectedDevice = null;
@@ -219,7 +238,7 @@ namespace Core.Environment
                     }
                 }
 
-                hitInfo.Device = selectedDevice?.InteractiveDevice;
+                //hitInfo.Device = selectedDevice?.InteractiveDevice;
                 return true;
             }
         }
@@ -254,9 +273,9 @@ namespace Core.Environment
     {
         public IStructure Structure;
         public IBlock Block;
-        public bool HitInBlockBounds;
+        //public bool HitInBlockBounds;
         public IInteractiveBlock InteractiveBlock;
-        public IInteractiveDevice Device;
+        public IInteractiveObject InteractiveObject;
         public RaycastHit RaycastHit;
 
     }

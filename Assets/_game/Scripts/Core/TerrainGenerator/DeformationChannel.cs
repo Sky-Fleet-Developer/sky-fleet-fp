@@ -39,14 +39,12 @@ namespace Core.TerrainGenerator
         
         protected DeformationChannel(Vector2Int coordinates, float chunkSize) : base(coordinates, chunkSize)
         {
-            Debug.Log($"DC: Created channel {GetType().Name}-{I}({coordinates})");
         }
         
         protected DataT GetLastLayer() => deformationLayersCache[deformationLayersCache.Count - 1];
         public DataT GetSourceLayer(IDeformer deformer)
         {
             int l = GetPreviousLayerIdx(deformer.Layer);
-            Debug.Log($"DC: Deformer {GetType().Name}-{I}({deformer.Position}) requests layer {l}/{deformationLayersCache.Count}");
             var dlc = deformationLayersCache;
             try
             {
@@ -64,7 +62,6 @@ namespace Core.TerrainGenerator
             int prev = GetPreviousLayerIdx(deformer.Layer);
             if (deformationLayersCache.Count == prev + 1)
             {
-                Debug.Log($"DC: Deformer {GetType().Name}-{I}({deformer.Position}) adds d-layer. Prev = {prev}. Count = {deformationLayersCache.Count + 1}");
                 deformationLayersCache.Add(GetLayerCopy(deformationLayersCache[prev]));   
             }
 

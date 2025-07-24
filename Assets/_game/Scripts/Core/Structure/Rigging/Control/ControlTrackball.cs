@@ -1,4 +1,5 @@
 using System;
+using Core.Character;
 using Core.Data.GameSettings;
 using Core.Graph;
 using Core.Graph.Wires;
@@ -14,7 +15,11 @@ namespace Core.Structure.Rigging.Control
         public bool EnableInteraction => enableInteraction;
         [SerializeField] private bool enableInteraction;
         public Transform Root => _device.transform;
-
+        public (bool canInteract, string data) RequestInteractive(ICharacterController character)
+        {
+            return (true, string.Empty);
+        }
+        
         public enum TypeTrackballLimit
         {
             Rect = 0,

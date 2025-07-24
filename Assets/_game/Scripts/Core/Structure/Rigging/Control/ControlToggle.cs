@@ -1,4 +1,5 @@
 using System;
+using Core.Character;
 using Core.Data.GameSettings;
 using Core.Graph;
 using Core.Graph.Wires;
@@ -16,7 +17,10 @@ namespace Core.Structure.Rigging.Control
         [SerializeField] private bool enableInteraction;
         public Port GetPort() => port;
         public Transform Root => _device.transform;
-
+        public (bool canInteract, string data) RequestInteractive(ICharacterController character)
+        {
+            return (true, string.Empty);
+        }
         public string GetName()
         {
             return computerInput;

@@ -18,6 +18,16 @@ using UnityEngine;
 
 namespace Core.Character
 {
+    [Serializable]
+    public class CharacterDragObjectsSettings
+    {
+        public float maxPullForce;
+        public float maxPullDistance;
+        public float disruptionDistance;
+        public AnimationCurve pullCurve;
+        public float breakForce;
+    }
+    
     [RequireComponent(typeof(CharacterMotor))]
     public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster
     {
@@ -30,6 +40,13 @@ namespace Core.Character
         [FoldoutGroup("Links")]
         public Collider collider;
         
+        [FoldoutGroup("Input")] public float verticalSpeed;
+        [FoldoutGroup("Input")] public float horizontalSpeed;
+        [FoldoutGroup("View")] public float horizontalBorders;
+        [FoldoutGroup("View")] public float verticalBorders;
+        [SerializeField] private CharacterDragObjectsSettings dragObjectsSettings;
+        public event Action StateChanged;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {
@@ -57,18 +74,18 @@ namespace Core.Character
             }
         }
 #endif
-        [FoldoutGroup("Input")] public float verticalSpeed;
-        [FoldoutGroup("Input")] public float horizontalSpeed;
-        [FoldoutGroup("View")] public float horizontalBorders;
-        [FoldoutGroup("View")] public float verticalBorders;
 
         public IControl AttachedControl => attachedControl;
         private IControl attachedControl;
 
-        public State CurrentState
+        public IState CurrentState
         {
             get => currentInteractionState;
-            set => currentInteractionState = (InteractionState)value;
+            set
+            {
+                currentInteractionState = (InteractionState)value;
+                StateChanged?.Invoke();
+            }
         }
 
         private InteractionState currentInteractionState;
@@ -153,7 +170,7 @@ namespace Core.Character
         private void Update()
         {
             if (PauseGame.Instance.IsPause) return;
-            CurrentState.Update();
+            CurrentState.Run();
         }
         
         
@@ -174,10 +191,12 @@ namespace Core.Character
             }
         }
 
-        private class InteractionState : State<FirstPersonController>
+        public class InteractionState : IState<FirstPersonController>
         {
-            public InteractionState(FirstPersonController master) : base(master)
+            public FirstPersonController Master { get; }
+            public InteractionState(FirstPersonController master)
             {
+                Master = master;
             }
 
             public virtual void OnWorldOffsetChange(Vector3 offset)
@@ -196,35 +215,51 @@ namespace Core.Character
                     GameData.Data.interactionDistance, GameData.Data.interactiveLayer,
                     out StructureHit hit))
                 {
-                    if(hit.InteractiveBlock == null) return;
+                    if (hit.InteractiveBlock == null)
+                    {
+                        if (hit.InteractiveObject is IInteractiveDynamicObject interactiveDynamicObject && Master.attachedControl == null)
+                        {
+                            if (Input.GetButtonDown("Interaction") || Input.GetKeyDown(KeyCode.Mouse0))
+                            {
+                                (bool canInteract, string _) = interactiveDynamicObject.RequestInteractive(Master);
+                                if (canInteract)
+                                {
+                                    SwitchToDynamic(interactiveDynamicObject, hit.RaycastHit);
+                                }
+                            }
+                        }
+                        return;
+                    }
 
                     if (Master.attachedControl == null)
                     {
-                        (bool canInteractive, string data) request = hit.InteractiveBlock.RequestInteractive(Master);
-                        if (request.canInteractive)
+                        (bool canInteract, string _) = hit.InteractiveBlock.RequestInteractive(Master);
+                        if (canInteract)
                         {
                             //TODO: write text to HUD
                             if (Input.GetButtonDown("Interaction"))
                             {
                                 hit.InteractiveBlock.Interaction(Master);
+                                return;
                             }
                         }
                     }
 
                     if (!CursorBehaviour.RotationLocked) return;
 
-                    if(hit.Device == null) return;
+                    if(hit.InteractiveObject == null) return;
+
                     if (Input.GetKey(KeyCode.Mouse0))
                     {
-                        if (hit.Device.EnableInteraction)
+                        if (hit.InteractiveObject.EnableInteraction && hit.InteractiveObject is IInteractiveDevice device)
                         {
-                            SwitchToDevice(hit.Device);
+                            SwitchToDevice(device);
                         }
                     }
                 }
             }
 
-            public override void Update()
+            public virtual void Run()
             {
                 
             }
@@ -238,6 +273,91 @@ namespace Core.Character
                         Master.CurrentState = new ControlAxisState(Master, axis, this);                        
                         break;
                 }
+            }
+
+            private void SwitchToDynamic(IInteractiveDynamicObject interactiveDynamicObject, RaycastHit hitInfo)
+            {
+                Master.CurrentState = new InteractWithDynamicObjectState(interactiveDynamicObject, hitInfo, Master, this);                     
+
+            }
+        }
+        
+        public class InteractWithDynamicObjectState : FreeWalkState
+        {
+            private IInteractiveDynamicObject _target;
+            private InteractionState _lastState;
+            private RaycastHit _initialHitInfo;
+            private Vector3 _localHitPoint;
+            private float _distance;
+            private Vector3 _wantedPoint;
+            private Vector3 _currentPoint;
+            private float _pullTension;
+            public Vector3 WantedPoint => _wantedPoint;
+            public Vector3 CurrentPoint => _currentPoint;
+            public float PullTension => _pullTension;
+
+            public InteractWithDynamicObjectState(IInteractiveDynamicObject target, RaycastHit initialHitInfo, FirstPersonController master, InteractionState lastState) : base(master)
+            {
+                _initialHitInfo = initialHitInfo;
+                _lastState = lastState;
+                _target = target;
+                _localHitPoint = target.Rigidbody.transform.InverseTransformPoint(initialHitInfo.point);
+                _distance = initialHitInfo.distance;
+            }
+
+            public override void LateUpdate() { }
+
+            public override void Run()
+            {
+                base.Run();
+                if (!Input.GetButton("Interaction") && !Input.GetKey(KeyCode.Mouse0))
+                {
+                    Exit();
+                    return;
+                }
+                
+                Ray ray;
+                if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
+
+                _wantedPoint = ray.GetPoint(_distance);
+                _currentPoint = _target.Rigidbody.transform.TransformPoint(_localHitPoint);
+                Vector3 delta = _wantedPoint - _currentPoint;
+                _pullTension = delta.magnitude;
+                if (_pullTension > Master.dragObjectsSettings.disruptionDistance)
+                {
+                    Exit();
+                    return;
+                }
+
+                if (!_target.ProcessPull(_pullTension))
+                {
+                    Exit();
+                    return;
+                }
+                
+                _pullTension /= Master.dragObjectsSettings.maxPullDistance;
+
+                Vector3 alignForce = delta * (Master.dragObjectsSettings.maxPullForce * Master.dragObjectsSettings.pullCurve.Evaluate(Mathf.Max(_pullTension, 1)));
+                Vector3 deltaVelocity = Master.rigidbody.velocity - _target.Rigidbody.velocity;
+                Vector3 breakForce = deltaVelocity * Master.dragObjectsSettings.breakForce;
+                if (_target.MoveTransitional)
+                {
+                    _target.Rigidbody.AddForce(alignForce + breakForce);
+                }
+                else
+                {
+                    _target.Rigidbody.AddForceAtPosition(alignForce + breakForce, _currentPoint);
+                }
+                Master.rigidbody.AddForce(-alignForce - breakForce);
+            }
+
+            private void Exit()
+            {
+                Master.CurrentState = _lastState;
+                _lastState = null;
+                _target = null;
+                _initialHitInfo = default;
             }
         }
         
@@ -255,7 +375,7 @@ namespace Core.Character
             {
             }
 
-            public override void Update()
+            public override void Run()
             {
                 axis.MoveValueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
 
@@ -266,7 +386,7 @@ namespace Core.Character
             }
         }
         
-        private class FreeWalkState : InteractionState
+        public class FreeWalkState : InteractionState
         {
 
             public FreeWalkState(FirstPersonController master) : base(master)
@@ -284,9 +404,9 @@ namespace Core.Character
                 Debug.Log($"FIRST_PERSON_CONTROLLER: Moved by world offset to {Master.transform.position}");
                 base.OnWorldOffsetChange(offset);
             }
-            public override void Update()
+            public override void Run()
             {
-                base.Update();
+                base.Run();
                 if (!Master.CanMove) return;
                 
                 Master.Move();
@@ -303,9 +423,9 @@ namespace Core.Character
                     AimingInterface = aiming;
                 }
             }
-            public override void Update()
+            public override void Run()
             {
-                base.Update();
+                base.Run();
                 if (Input.GetButtonDown("Interaction"))
                 {
                     Master.attachedControl.LeaveControl(Master);
@@ -339,7 +459,7 @@ namespace Core.Character
                 AimingInterface.SetState(AimingInterfaceState.Aiming);
             }
 
-            public override void Update()
+            public override void Run()
             {
                 if (!Input.GetKey(KeyCode.LeftShift))
                 {

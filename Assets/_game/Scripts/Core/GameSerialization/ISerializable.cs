@@ -5,12 +5,12 @@ namespace Core.GameSerialization
 {
     public interface ISerializable
     {
-        void PrepareForGameSerialization(State state);
+        void PrepareForGameSerialization(IState state);
         /// <summary>
         /// format: serialization id, self, data
         /// </summary>
         event Action OnDataWasSerialized;
 
-        void Deserialize(State state);
+        void Deserialize(IState state);
     }
 }

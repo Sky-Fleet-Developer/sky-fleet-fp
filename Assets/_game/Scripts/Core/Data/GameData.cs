@@ -52,7 +52,7 @@ namespace Core.Data
         [Header("Character")]
         public LayerMask interactiveLayer;
         public float interactionDistance = 1f;
-        public string controlFailText = "Control is alredy used";
+        public string controlFailText = "Control is already used";
         [Header("Physics")]
         public LayerMask walkableLayer;
         public LayerMask terrainLayer;

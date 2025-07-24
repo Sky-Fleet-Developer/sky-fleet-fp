@@ -12,8 +12,10 @@ namespace Core.Game
     {
         public static CursorBehaviour Instance;
         public static bool RotationLocked;
-        public State CurrentState { get; set; }
-        public void SetStatePrivate(State value)
+        public IState CurrentState { get; set; }
+        public event Action StateChanged;
+
+        public void SetStatePrivate(IState value)
         {
             CurrentState = value;
         }
@@ -27,7 +29,7 @@ namespace Core.Game
 
         private void Update()
         {
-            CurrentState.Update();
+            CurrentState.Run();
         }
 
         private static void LockCursor()
@@ -44,7 +46,7 @@ namespace Core.Game
 
         public static void SetAimingState()
         {
-            Instance.CurrentState = new AimingCursorState(Instance, (State<CursorBehaviour>)Instance.CurrentState);
+            Instance.CurrentState = new AimingCursorState(Instance, (IState<CursorBehaviour>)Instance.CurrentState);
         }
 
         public static void ExitAimingState()
@@ -58,13 +60,16 @@ namespace Core.Game
         }
 
 
-        public class FreeCursorState : State<CursorBehaviour>
+        public class FreeCursorState : IState<CursorBehaviour>
         {
-            public FreeCursorState(CursorBehaviour master) : base(master)
+            public CursorBehaviour Master { get; }
+
+            public FreeCursorState(CursorBehaviour master)
             {
+                Master = master;
             }
             
-            public override void Update()
+            public void Run()
             {
                 if (Input.GetKeyDown(KeyCode.LeftControl))
                 {
@@ -80,12 +85,14 @@ namespace Core.Game
             }
         }
 
-        public class AimingCursorState : State<CursorBehaviour>
+        public class AimingCursorState : IState<CursorBehaviour>
         {
-            private State<CursorBehaviour> _lastState;
+            private IState<CursorBehaviour> _lastState;
+            public CursorBehaviour Master { get; }
 
-            public AimingCursorState(CursorBehaviour master, State<CursorBehaviour> lastState) : base(master)
+            public AimingCursorState(CursorBehaviour master, IState<CursorBehaviour> lastState)
             {
+                Master = master;
                 _lastState = lastState;
                 RotationLocked = true;
                 LockCursor();
@@ -97,9 +104,8 @@ namespace Core.Game
                 Master.CurrentState = _lastState;
             }
             
-            public override void Update()
+            public void Run()
             {
-                
             }
         }
 

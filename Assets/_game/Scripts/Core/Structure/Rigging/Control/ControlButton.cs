@@ -1,4 +1,5 @@
 using System;
+using Core.Character;
 using Core.Data.GameSettings;
 using Core.Graph;
 using Core.Graph.Wires;
@@ -35,6 +36,10 @@ namespace Core.Structure.Rigging.Control
             }*/
         }
         public Transform Root => _device ? _device.transform : null;
+        public (bool canInteract, string data) RequestInteractive(ICharacterController character)
+        {
+            return (true, string.Empty);
+        }
 
         public Port GetPort() => port;
 

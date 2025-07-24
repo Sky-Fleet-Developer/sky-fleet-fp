@@ -47,17 +47,29 @@ namespace Core.Structure.Rigging
         void UpdateBlock(int lod);
     }
 
-    public interface IInteractiveBlock : IBlock
+    public interface IInteractiveBlock : IBlock, IInteractiveObject
     {
         IEnumerable<IInteractiveDevice> GetInteractiveDevices();
-        (bool canInteractive, string data) RequestInteractive(ICharacterController character);
         void Interaction(ICharacterController character);
     }
 
-    public interface IInteractiveDevice
+    public interface IInteractiveDevice : IInteractiveObject
+    {
+    }
+
+    public interface IInteractiveDynamicObject : IInteractiveObject
+    {
+        Rigidbody Rigidbody { get; }
+        bool MoveTransitional { get; }
+        void StartPull();
+        bool ProcessPull(float tension);
+    }
+
+    public interface IInteractiveObject
     {
         bool EnableInteraction { get; }
         Transform Root { get; }
+        (bool canInteract, string data) RequestInteractive(ICharacterController character);
     }
 
 

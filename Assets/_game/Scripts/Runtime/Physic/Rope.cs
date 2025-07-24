@@ -36,8 +36,8 @@ namespace Runtime.Physic
         }
         private ArticulationBody[] _links;
         private HingeJoint _mainJoint;
-        private HingeJoint _connectedJoint;
-        private HingeJoint _hook;
+        private ConfigurableJoint _connectedJoint;
+        private ConfigurableJoint _hook;
         public int LinksCount => linksCount;
         public LateEvent OnInitialize = new LateEvent();
         public bool IsConnected => _connectedJoint != null;
@@ -131,30 +131,41 @@ namespace Runtime.Physic
             _mainJoint.connectedMassScale = 1;
         }
         
-        private HingeJoint ConnectPrivate(Rigidbody target, Vector3 connectedAnchor)
+        private ConfigurableJoint ConnectPrivate(Rigidbody target, Vector3 connectedAnchor)
         {
             _mainJoint.massScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
             _mainJoint.connectedMassScale = _massScaleFactorInv + target.mass * _massScaleFactor;
-            var joint = target.gameObject.AddComponent<HingeJoint>();
+            var joint = target.gameObject.AddComponent<ConfigurableJoint>();
             joint.connectedArticulationBody = _links[^1];
             joint.autoConfigureConnectedAnchor = false;
             joint.anchor = connectedAnchor;
-            joint.connectedAnchor = Vector3.zero;
+            joint.xMotion = ConfigurableJointMotion.Locked;
+            joint.yMotion = ConfigurableJointMotion.Locked;
+            joint.zMotion = ConfigurableJointMotion.Locked;
             joint.massScale = _massScaleFactorInv + target.mass * _massScaleFactor;
             joint.connectedMassScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
             TakeEasy(target, joint);
             return joint;
         }
 
-        private async void TakeEasy(Rigidbody target, HingeJoint joint)
+        private async void TakeEasy(Rigidbody target, ConfigurableJoint joint)
         {
+            Vector3 v = target.velocity + _links[0].velocity;
+            v *= 0.5f;
             for (int i = 0; i < 100; i++)
             {
-                var delta = _links[^1].transform.position -
-                            target.transform.TransformPoint(joint.anchor);
-                target.transform.position += delta;
-                target.velocity = _links[^1].velocity;
-                await new WaitForEndOfFrame();
+                if (!joint)
+                {
+                    return;
+                }
+
+                for (var ii = 0; ii < _links.Length; ii++)
+                {
+                    _links[ii].angularVelocity = Vector3.zero;
+                    _links[ii].velocity = v;
+                }
+                target.velocity = v;
+                await new WaitForFixedUpdate();
             }
         }
     }

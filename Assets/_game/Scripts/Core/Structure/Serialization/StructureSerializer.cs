@@ -16,7 +16,7 @@ namespace Core.Structure.Serialization
     {
         public string ServiceId => "STRUCTURES";
         
-        public void PrepareForGameSerialization(State state)
+        public void PrepareForGameSerialization(IState state)
         {
             IEnumerable<BaseStructure> structures = CollectStructures();
 
@@ -27,7 +27,7 @@ namespace Core.Structure.Serialization
         }
 
         public event Action OnDataWasSerialized;
-        public void Deserialize(State state)
+        public void Deserialize(IState state)
         {
         }
         

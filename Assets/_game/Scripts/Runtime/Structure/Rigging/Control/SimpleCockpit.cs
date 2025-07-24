@@ -101,7 +101,7 @@ namespace Runtime.Structure.Rigging.Control
             return controlElementsCache;
         }
 
-        (bool canInteractive, string data) IInteractiveBlock.RequestInteractive(ICharacterController character)
+        (bool canInteract, string data) IInteractiveObject.RequestInteractive(ICharacterController character)
         {
             if (isUnderControl) return (false, GameData.Data.controlFailText);
 
@@ -110,7 +110,7 @@ namespace Runtime.Structure.Rigging.Control
 
         void IInteractiveBlock.Interaction(ICharacterController character)
         {
-            if (((IInteractiveBlock)this).RequestInteractive(character).canInteractive)
+            if (((IInteractiveBlock)this).RequestInteractive(character).canInteract)
             {
                 StartCoroutine(InteractionRoutine(character));
             }
@@ -160,5 +160,8 @@ namespace Runtime.Structure.Rigging.Control
                 GUILayout.Label($"<size=25>Speed: {dynamic.Velocity.magnitude * 3.6f : 000.0}km/h</size>");
             }
         }
+
+        public bool EnableInteraction => IsActive;
+        public Transform Root { get; }
     }
 }
