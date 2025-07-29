@@ -1,13 +1,17 @@
+using Core.Graph;
 using Core.Graph.Wires;
+using Core.Structure;
 using Core.Structure.Rigging.Control.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control.Attributes
 {
-    public class HelmDevice : DeviceBase<Port<float>>, IArrowDevice
+    public class HelmDevice : SingleDevice, IArrowDevice
     {
         public Transform Arrow => lever;
         [SerializeField] private Transform lever;
+        [SerializeField][DrawWithUnity] private PortType portType;
         
         public float mul = 30;
         public float trim;
@@ -21,6 +25,16 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         }
 
         public override Port<float> Port => port;
-        private Port<float> port = new Port<float>(PortType.Thrust);
+        [ShowInInspector, ReadOnly] private Port<float> port;
+
+        public override void Init(IGraphHandler graph, IBlock block)
+        {
+            if (port == null || portType != port.ValueType)
+            {
+                port = new(portType);
+            }
+
+            base.Init(graph, block);
+        }
     }
 }

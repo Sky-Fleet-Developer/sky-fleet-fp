@@ -14,7 +14,7 @@ namespace Runtime.Physic
             rope.OnInitialize.Subscribe(() =>
             {
                 enabled = true;
-                lineRenderer.positionCount = rope.LinksCount;
+                lineRenderer.positionCount = 2;
             });
         }
 

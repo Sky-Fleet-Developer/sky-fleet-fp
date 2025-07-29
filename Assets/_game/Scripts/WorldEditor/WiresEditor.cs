@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
@@ -148,19 +149,20 @@ namespace WorldEditor
             selectedPorts = new List<IPortsContainer>();
         }
 
-        private void CreateButton()
+        private async void CreateButton()
         {
             GUILayout.Space(20);
             EditorGUILayout.ObjectField(currentGraphTransform, typeof(Transform), true);
 
             if (GUILayout.Button("Edit configuration", GUILayout.Width(200)))
             {
+                var structure = currentGraphTransform.GetComponent<IStructure>();
+                structure.Init(true);
+                await configHolder.graphConfiguration.Apply(selectedGraph);
+                structure.Init(true);
                 currentGraph = selectedGraph;
 
-                currentGraphTransform.GetComponent<IStructure>().Init(true);
-                currentGraph.InitGraph(true);
-
-                nodes = currentGraph.Nodes.ToList();
+                nodes = selectedGraph.Nodes.ToList();
 
                 CreateArrays();
 

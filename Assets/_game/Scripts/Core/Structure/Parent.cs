@@ -41,5 +41,24 @@ namespace Core.Structure
             }
         }
 
+        public bool IsPatchMatch(string value)
+        {
+            if (value == path) return true;
+            if (path.Length - value.Length == 1 && path[^1] == '\\' || path[^1] == '/')
+            {
+                int matches = 0;
+                int wantedMatches = value.Length;
+                for (var i = 0; i < wantedMatches; i++)
+                {
+                    if (value[i] == path[i])
+                    {
+                        matches++;
+                    }
+                }
+
+                return matches == wantedMatches;
+            }
+            return false;
+        }
     }
 }

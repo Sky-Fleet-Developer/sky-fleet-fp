@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
@@ -31,7 +32,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
 
-        public IGraph Graph => _graph;
+        public IGraphHandler Graph => _graph;
         public IBlock Block => _block;
 
         [SerializeField] private Transform bubble_pitch;
@@ -39,10 +40,10 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         [SerializeField] private Transform compass;
 
         private IBlock _block;
-        private IGraph _graph;
+        private IGraphHandler _graph;
 
 
-        public void Init(IGraph graph, IBlock block)
+        public void Init(IGraphHandler graph, IBlock block)
         {
             _block = block;
             _graph = graph;
@@ -56,5 +57,9 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             bubble_roll.localRotation = Quaternion.Euler(0, 0, roll);
             compass.localEulerAngles = new Vector3(0, -transform.eulerAngles.y, 0);
         }
+
+        public Port GetPort() => null;
+
+        public string GetName() => null;
     }
 }

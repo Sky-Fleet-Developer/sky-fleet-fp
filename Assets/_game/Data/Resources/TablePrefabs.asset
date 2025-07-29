@@ -284,7 +284,7 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    guid: 85e503a8-b2ea-4b5e-9a64-e59d190115ff
+    guid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
     tags:
     - block
     - emgracopter
@@ -294,6 +294,15 @@ MonoBehaviour:
       m_SubObjectType: 
       m_EditorAssetChanged: 0
     guid: 6033ed0c-0604-490b-a38b-b47267c1f9c5
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: 2977a920f267beb46af8277b14e0d7a3
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: cac79dce-7556-4756-9de2-fbc1791456d9
     tags:
     - block
     - emgracopter

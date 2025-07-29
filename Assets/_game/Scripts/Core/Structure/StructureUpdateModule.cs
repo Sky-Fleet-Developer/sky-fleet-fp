@@ -38,6 +38,10 @@ namespace Core.Structure
 
         public static void RegisterStructure(IStructure structure)
         {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
             Structures.Add(structure);
             Controls.AddRange(structure.GetBlocksByType<IControl>());
             Updatables.AddRange(structure.GetBlocksByType<IUpdatableBlock>());

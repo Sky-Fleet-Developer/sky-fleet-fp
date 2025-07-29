@@ -46,8 +46,10 @@ namespace Runtime.Structure.Rigging.Control
 
         public CharacterAttachData attachData;
         public CharacterDetachhData detachData;
+        [SerializeField] private bool canAttachController = true;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
         private List<IControlElement> controlElementsCache;
+        public List<IDeviceWithPort> singleDevices = new ();
         
         public override void InitBlock(IStructure structure, Parent parent)
         {
@@ -68,6 +70,7 @@ namespace Runtime.Structure.Rigging.Control
             {
                 controlElement.Init(Graph, this);
             }
+            singleDevices = devices.OfType<IDeviceWithPort>().Where(x => controlElementsCache.Count(v => v.Device == x) == 0).ToList();
         }
         
         private void CollectControlElements()
@@ -96,15 +99,21 @@ namespace Runtime.Structure.Rigging.Control
             return controlElementsCache.Select(x => new PortPointer(this, x.GetPort()));
         }*/
 
-        IEnumerable<IInteractiveDevice> IInteractiveBlock.GetInteractiveDevices()
+        /*IEnumerable<IInteractiveDevice> IInteractiveBlock.GetInteractiveDevices()
         {
             return controlElementsCache;
-        }
+        }*/
 
         (bool canInteract, string data) IInteractiveObject.RequestInteractive(ICharacterController character)
         {
-            if (isUnderControl) return (false, GameData.Data.controlFailText);
-
+            if (isUnderControl)
+            {
+                return (false, GameData.Data.controlFailText);
+            }
+            if (!canAttachController)
+            {
+                return (false, string.Empty);
+            }
             return (true, string.Empty);
         }
 

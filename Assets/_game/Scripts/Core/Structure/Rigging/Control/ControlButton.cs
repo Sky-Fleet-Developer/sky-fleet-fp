@@ -50,7 +50,7 @@ namespace Core.Structure.Rigging.Control
         [ShowInInspector]
         public IDevice Device { get => _device; set => _device = (DeviceBase<ActionPort>)value; }
 
-        public void Init(IGraph graph, IControl block)
+        public void Init(IGraphHandler graph, IControl block)
         {
             //graph.ConnectPorts(new PortPointer(block, _device.Port, GetName(), nameof(port)), );
         }

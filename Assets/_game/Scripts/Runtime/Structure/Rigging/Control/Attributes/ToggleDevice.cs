@@ -14,6 +14,25 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         private Port<bool> port = new (PortType.Thrust);
         [SerializeField] private Transform ball;
         [SerializeField, Range(0, 2.0f)] private float minPos;
+        [SerializeField] private float sensitivity;
+        private bool _valueChangedOnInteractive;
+        public override void MoveValueInteractive(float val)
+        {
+            if (Mathf.Abs(val) > sensitivity)
+            {
+                _valueChangedOnInteractive = true;
+                Port.Value = val > 0;
+            }
+        }
+
+        public override void ExitControl()
+        {
+            if (!_valueChangedOnInteractive)
+            {
+                Port.Value = !Port.Value;
+            }
+            _valueChangedOnInteractive = false;
+        }
 
         public override void UpdateDevice()
         {

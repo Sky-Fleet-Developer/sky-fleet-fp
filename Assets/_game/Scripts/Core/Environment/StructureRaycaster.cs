@@ -14,27 +14,27 @@ namespace Core.Environment
     {
         public static StructureRaycaster Instance;
 
-        [ShowInInspector]
+        /*[ShowInInspector]
         public Dictionary<IStructure, StructureRayCastingProfile> Profiles =
-            new Dictionary<IStructure, StructureRayCastingProfile>();
+            new Dictionary<IStructure, StructureRayCastingProfile>();*/
 
 
         public Task Load()
         {
             Instance = this;
 
-            foreach (IStructure structure in StructureUpdateModule.Structures)
+            /*foreach (IStructure structure in StructureUpdateModule.Structures)
             {
                 OnRegisterStructure(structure);
-            }
+            }*/
 
-            StructureUpdateModule.OnStructureInitialized += OnRegisterStructure;
-            StructureUpdateModule.OnStructureDestroy += OnDestroyStructure;
+            //StructureUpdateModule.OnStructureInitialized += OnRegisterStructure;
+            //StructureUpdateModule.OnStructureDestroy += OnDestroyStructure;
 
             return Task.CompletedTask;
         }
 
-        private void OnDestroy()
+        /*private void OnDestroy()
         {
             StructureUpdateModule.OnStructureInitialized -= OnRegisterStructure;
             StructureUpdateModule.OnStructureDestroy -= OnDestroyStructure;
@@ -49,7 +49,7 @@ namespace Core.Environment
         private void OnDestroyStructure(IStructure structure)
         {
             Profiles.Remove(structure);
-        }
+        }*/
 
         public static bool Cast(Ray ray, bool interactiveCast, float maxDistance, LayerMask layerMask,
             out StructureHit hit)
@@ -62,7 +62,7 @@ namespace Core.Environment
             }
             hit.RaycastHit = raycastHit;
 
-            var io = interactiveCast ? raycastHit.collider.GetComponentInParent<IInteractiveObject>() : null;
+            var io = interactiveCast ? (raycastHit.collider.GetComponent<IInteractiveObject>() ?? raycastHit.collider.GetComponentInParent<IInteractiveObject>()) : null;
             if (io != null)
             {
                 hit.InteractiveObject = io;
@@ -70,11 +70,14 @@ namespace Core.Environment
                 {
                     hit.InteractiveBlock = interactiveBlock;
                     hit.Block = interactiveBlock;
+                }else if (io is IInteractiveDevice interactiveDevice)
+                {
+                    hit.InteractiveBlock = interactiveDevice.Block;
                 }
             }
             else
             {
-                var block = raycastHit.collider.GetComponentInParent<IBlock>();
+                var block = raycastHit.collider.GetComponent<IBlock>() ?? raycastHit.collider.GetComponentInParent<IBlock>();
                 if (block != null)
                 {
                     hit.Block = block;
@@ -86,7 +89,7 @@ namespace Core.Environment
         }
         
 
-        public static bool Cast(IStructure structure, Ray ray, bool interactiveCast, float maxDistance,
+        /*public static bool Cast(IStructure structure, Ray ray, bool interactiveCast, float maxDistance,
             LayerMask layerMask, out StructureHit hit)
         {
             _globalRay = ray;
@@ -94,7 +97,7 @@ namespace Core.Environment
             hit = new StructureHit();
             _lastRaySpace = null;
             return Instance.Profiles[structure].Cast(maxDistance, layerMask, ref hit);
-        }
+        }*/
 
         private static bool _interactiveCast;
         private static Ray _globalRay;
@@ -109,7 +112,7 @@ namespace Core.Environment
                 transform.InverseTransformDirection(_globalRay.direction));
         }
 
-        [ShowInInspector]
+        /*[ShowInInspector]
         public class StructureRayCastingProfile
         {
             public Bounds LocalBounds;
@@ -167,7 +170,7 @@ namespace Core.Environment
                 return false;
             }
         }
-
+*/
         [ShowInInspector]
         public class BlockRayCastingProfile
         {
@@ -197,7 +200,7 @@ namespace Core.Environment
             }
         }
 
-        [ShowInInspector]
+        /*[ShowInInspector]
         public class InteractiveBlockProfile : BlockRayCastingProfile
         {
             [ShowInInspector]
@@ -242,7 +245,7 @@ namespace Core.Environment
                 return true;
             }
         }
-
+*/
         [ShowInInspector]
         public class DeviceRayCastingProfile
         {

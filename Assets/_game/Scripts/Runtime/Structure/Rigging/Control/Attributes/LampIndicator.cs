@@ -26,7 +26,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             render.material.SetColor(emissive, inactive);
         }
 
-        public override void Init(IGraph graph, IBlock block)
+        public override void Init(IGraphHandler graph, IBlock block)
         {
             base.Init(graph, block);
             oldValue = false;
@@ -51,5 +51,17 @@ namespace Runtime.Structure.Rigging.Control.Attributes
                 }
             }
         }
+        
+        public override void MoveValueInteractive(float val)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void ExitControl()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override bool EnableInteraction => false;
     }
 }

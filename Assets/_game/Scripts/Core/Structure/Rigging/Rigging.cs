@@ -49,12 +49,15 @@ namespace Core.Structure.Rigging
 
     public interface IInteractiveBlock : IBlock, IInteractiveObject
     {
-        IEnumerable<IInteractiveDevice> GetInteractiveDevices();
+        //IEnumerable<IInteractiveDevice> GetInteractiveDevices();
         void Interaction(ICharacterController character);
     }
 
     public interface IInteractiveDevice : IInteractiveObject
     {
+        void MoveValueInteractive(float val);
+        void ExitControl();
+        IInteractiveBlock Block { get; }
     }
 
     public interface IInteractiveDynamicObject : IInteractiveObject

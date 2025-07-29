@@ -12,19 +12,27 @@ namespace Runtime.Physic
         [SerializeField] private float maxPullTensionToDetach;
         private Rigidbody _rigidbody;
         private bool _connectionStateOnStartPull;
+        private float _lastDetachTime;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
             rope.OnInitialize.Subscribe(() =>
             {
-                rope.ConnectAsHook(GetComponent<Rigidbody>(), connectedAnchor);
-            });
+                var rb = GetComponent<Rigidbody>();
+                rope.ConnectAsHook(rb, connectedAnchor);
+            }, 100);
+            rope.OnDetached += OnDetached;
+        }
+
+        private void OnDetached()
+        {
+            _lastDetachTime = Time.time;
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (rope.IsConnected)
+            if (rope.IsConnected || Time.time < _lastDetachTime + 1f)
             {
                 return;
             }

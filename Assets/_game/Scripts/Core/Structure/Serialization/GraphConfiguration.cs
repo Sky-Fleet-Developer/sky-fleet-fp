@@ -13,7 +13,7 @@ namespace Core.Structure.Serialization
     public class GraphConfiguration : Configuration<IGraph>
     {
         public List<WireConfiguration> wires = new List<WireConfiguration>();
-        [SerializeField] private bool autoConnectPowerWires;
+        public bool autoConnectPowerWires;
         [Button]
         public void CopyToClipboard()
         {
@@ -35,31 +35,8 @@ namespace Core.Structure.Serialization
         
         public override Task Apply(IGraph graph)
         {
-            graph.InitGraph();
-            foreach (WireConfiguration wire in wires)
-            {
-                if (wire.ports.Count == 0)
-                {
-                    continue;
-                }
-                PortPointer[] portsToConnect = new PortPointer[wire.ports.Count];
-
-                for (var i = 0; i < wire.ports.Count; i++)
-                {
-                    portsToConnect[i] = graph.GetPort(wire.ports[i]);
-                }
-
-                graph.ConnectPorts(portsToConnect);
-            }
-
-            if (autoConnectPowerWires)
-            {
-                PortPointer[] powerPorts = graph.Ports.Where(x => x.Port is PowerPort).ToArray();
-                if (powerPorts.Length > 0)
-                {
-                    graph.ConnectPorts(powerPorts);
-                }
-            }
+            graph.SetConfiguration(this);
+            graph.InitGraph(true);
             return Task.CompletedTask;
         }
 

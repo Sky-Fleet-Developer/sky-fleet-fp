@@ -78,7 +78,7 @@ namespace Core.Structure.Rigging
             itemsCache ??= ConvertItems();
             if (!itemsCache.TryGetValue(guid, out var value))
             {
-                throw new KeyNotFoundException($"Cant find guid {guid}");
+                Debug.LogException(new KeyNotFoundException($"Cant find guid {guid}"));
             }
             return value;
         }

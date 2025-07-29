@@ -11,12 +11,14 @@ namespace Runtime.Structure.Rigging.Control
 {
     public abstract class AbstractRotator : PowerUserBlock, IUpdatableBlock
     {
-        private Port<float> targetAngle = new Port<float>(PortType.Signal);
+        [SerializeField] private PortType controlPortType;
+        private Port<float> targetAngle;
         private Port<float> currentAngle = new Port<float>(PortType.Signal);
         private Port<float> velocity = new Port<float>(PortType.Signal);
         [SerializeField] private bool isCycled;
         [SerializeField] private float rotationForce;
         [SerializeField] private float dragForce;
+        [SerializeField] private float inputSignalMultiplier = 1;
         [SerializeField] private AnimationCurve consumptionPerDelta;
         [SerializeField, ConstantField, HideIf("isCycled")] private Vector2 minMaxAngle;
 
@@ -27,9 +29,10 @@ namespace Runtime.Structure.Rigging.Control
         private float _acceleration;
         
         [SerializeField] private float maxConsumption;
-        public override float Consumption => consumptionPerDelta.Evaluate(Mathf.Abs(_acceleration)) * maxConsumption;
+        public override float Consumption => (IsWork ? 0.001f : 0) + consumptionPerDelta.Evaluate(Mathf.Abs(_acceleration)) * maxConsumption;
         public override void InitBlock(IStructure structure, Parent parent)
         {
+            targetAngle ??= new(controlPortType);
             base.InitBlock(structure, parent);
             structure.OnInitComplete.Subscribe(OnInitComplete);
         }
@@ -129,7 +132,7 @@ namespace Runtime.Structure.Rigging.Control
         private void Rotate()
         {
             _currentAngle += _velocity * StructureUpdateModule.DeltaTime;
-            _currentAngle = TryApplyRotation(_currentAngle);
+            _currentAngle = TryApplyRotation(_currentAngle * inputSignalMultiplier) / inputSignalMultiplier;
         }
 
         protected abstract float TryApplyRotation(float angle);

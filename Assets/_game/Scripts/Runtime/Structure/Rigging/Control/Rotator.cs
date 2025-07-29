@@ -12,14 +12,15 @@ namespace Runtime.Structure.Rigging.Control
 {
     public class Rotator : AbstractRotator
     {
-        [SerializeField, ConstantField] private string targetParent;
+        [SerializeField][ConstantField]
+        private string targetParent;
         [SerializeField] private Vector3 rotationAxis = Vector3.up;
 
         private Parent _targetParent;
         [ShowInInspector]
         private Transform TargetParent
         {
-            get => this.GetParentByPath(ref _targetParent, targetParent).Transform;
+            get => this.GetParentByPath(ref _targetParent, targetParent)?.Transform;
             set
             {
                 this.SetParentByPath(value, ref targetParent);

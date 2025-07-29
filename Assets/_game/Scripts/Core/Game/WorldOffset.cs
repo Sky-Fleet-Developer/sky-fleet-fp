@@ -15,17 +15,20 @@ namespace Core.Game
         public static Vector3 Offset { get; set; }
 
         public static event Action<Vector3> OnWorldOffsetChange;
+        public static event Action<Vector3> OnWorldOffsetPreChanged;
 
         [SerializeField] private float limit = 1000;
         [SerializeField] private bool moveY = false;
         private float limit_i;
 
         private Transform anchor;
+        private bool _isEnabled = false;
 
-        bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
+        bool ILoadAtStart.enabled => enabled && _isEnabled;
 
         protected override void Setup()
         {
+            _isEnabled = gameObject.activeInHierarchy;
             gameObject.SetActive(false);
         }
 
@@ -94,7 +97,8 @@ namespace Core.Game
             {
                 offset[i] = Mathf.Ceil(offset[i] * limit_i) * limit;
             }
-            
+
+            OnWorldOffsetPreChanged?.Invoke(offset);
             Offset += offset;
             Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);

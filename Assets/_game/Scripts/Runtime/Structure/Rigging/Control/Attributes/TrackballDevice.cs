@@ -10,6 +10,16 @@ namespace Runtime.Structure.Rigging.Control.Attributes
 {
     public class TrackballDevice : DeviceBase<Port<Vector2>>
     {
+        public override void MoveValueInteractive(float val)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ExitControl()
+        {
+            throw new NotImplementedException();
+        }
+
         public override Port<Vector2> Port => port;
         private Port<Vector2> port = new(PortType.Thrust);
         [SerializeField] private Transform ball;

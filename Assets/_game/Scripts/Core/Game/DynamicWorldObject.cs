@@ -14,10 +14,7 @@ namespace Core.Game
             {
                 kinematicFlags[i] = _rigidbodies[i].isKinematic;
                 _rigidbodies[i].isKinematic = true;
-                if (!_rigidbodies[i].TryGetComponent(out WorldOffsetAnchor anchor))
-                {
-                    _rigidbodies[i].gameObject.AddComponent<WorldOffsetAnchor>();
-                }
+                _rigidbodies[i].AddWorldOffsetAnchor();
             }
 
             Bootstrapper.OnLoadComplete.Subscribe(() =>

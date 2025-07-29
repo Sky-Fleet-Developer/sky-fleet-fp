@@ -1,14 +1,18 @@
 using System.Collections.Generic;
 using Core.Graph.Wires;
+using Core.Structure.Serialization;
 
 namespace Core.Graph
 {
-    public interface IGraph
+    public interface IGraph : IGraphHandler
     {
+        void SetConfiguration(GraphConfiguration value);
         void InitGraph(bool force = false);
-        void AddWire(Wire wire);
+    }
+    public interface IGraphHandler
+    {
+        void AddNewWire(Wire wire);
         PortPointer GetPort(string id);
-        void ConnectPorts(params PortPointer[] ports);
         IEnumerable<IGraphNode> Nodes { get; }
         IEnumerable<Wire> Wires { get; }
         IEnumerable<PortPointer> Ports { get; }
@@ -16,7 +20,7 @@ namespace Core.Graph
 
     public interface IGraphNode
     {
-        void InitNode(IGraph graph);
+        void InitNode(IGraphHandler graph);
         string NodeId { get; }
     }
 }

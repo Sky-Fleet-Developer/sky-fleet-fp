@@ -88,10 +88,9 @@ namespace Runtime.Physic
             else
                 suspension_distance = SuspensionDisnatce;
 
-            suspension_delta = Mathf.Clamp((suspension_distance - lastD) / deltaTime, -SuspensionDumping.x,
-                SuspensionDumping.y);
+            suspension_delta = (suspension_distance - lastD) / deltaTime;
 
-            suspension_position = 1 - (lastD + suspension_delta * deltaTime) / SuspensionDisnatce;
+            suspension_position = Mathf.MoveTowards(suspension_position, 1 - (lastD + suspension_delta * deltaTime) / SuspensionDisnatce, deltaTime * (suspension_delta > 0 ? SuspensionDumping.y : SuspensionDumping.x));
 
             if (grounded)
             {

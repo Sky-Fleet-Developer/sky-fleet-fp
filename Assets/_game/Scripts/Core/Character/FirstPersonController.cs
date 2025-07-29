@@ -266,13 +266,14 @@ namespace Core.Character
 
             private void SwitchToDevice(IInteractiveDevice device)
             {
-                switch (device)
+                /*switch (device)
                 {
                     case ControlAxis axis:
                         Debug.Log("Select device " + axis.computerInput);
                         Master.CurrentState = new ControlAxisState(Master, axis, this);                        
                         break;
-                }
+                }*/
+                Master.CurrentState = new ControlAxisState(Master, device, this);                        
             }
 
             private void SwitchToDynamic(IInteractiveDynamicObject interactiveDynamicObject, RaycastHit hitInfo)
@@ -363,11 +364,12 @@ namespace Core.Character
         
         private class ControlAxisState : InteractionState
         {
-            private ControlAxis axis;
             private InteractionState lastState;
-            public ControlAxisState(FirstPersonController master, ControlAxis axis, InteractionState lastState) : base(master)
+            private IInteractiveDevice _device;
+
+            public ControlAxisState(FirstPersonController master, IInteractiveDevice device, InteractionState lastState) : base(master)
             {
-                this.axis = axis;
+                _device = device;
                 this.lastState = lastState;
             }
 
@@ -377,11 +379,14 @@ namespace Core.Character
 
             public override void Run()
             {
-                axis.MoveValueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
+                _device.MoveValueInteractive(Input.GetAxis("Mouse Y") * Time.deltaTime);
 
                 if (!Input.GetKey(KeyCode.Mouse0))
                 {
+                    _device.ExitControl();
+                    _device = null;
                     Master.CurrentState = lastState;
+                    lastState = null;
                 }
             }
         }

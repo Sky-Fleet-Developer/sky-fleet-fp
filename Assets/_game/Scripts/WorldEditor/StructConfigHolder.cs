@@ -93,8 +93,7 @@ namespace WorldEditor
             }
             foreach (Configuration config in GetAllConfigs())
             {
-                Type genericType = config.GetType().BaseType.GenericTypeArguments[0];
-                await config.TryApply(root.GetComponent(genericType));
+                await config.TryApply(root);
             }
             
             root.GetComponent<IStructure>().Init();

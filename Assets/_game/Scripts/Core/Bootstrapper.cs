@@ -33,6 +33,7 @@ namespace Core
                     {
                         Debug.LogError(e);
                     }
+                    Debug.Log($"BOOTSTRAPPER: Begin load {load}");
                     await load.Load();
                 }
             }

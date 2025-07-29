@@ -1,22 +1,28 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Core.Utilities
 {
     public class LateEvent
     {
-        public event Action action;
+        private List<(Action, int)> actions = new ();
         public bool alredyInvoked { get; private set; }
 
-        public void Subscribe(Action method)
+        public void Subscribe(Action method, int order = 0)
         {
             if (alredyInvoked) method?.Invoke();
-            else action += method;
+            else actions.Add((method, order));
         }
 
         public void Invoke()
         {
             alredyInvoked = true;
-            action?.Invoke();
+            foreach (var valueTuple in actions.OrderBy(x => -x.Item2))
+            {
+                valueTuple.Item1?.Invoke();
+            }
+            actions.Clear();
         }
 
         public void Reset()
@@ -26,21 +32,24 @@ namespace Core.Utilities
     }
     public class LateEvent<T>
     {
-        public event Action<T> action;
+        private List<(Action<T>, int)> actions = new ();
         public bool alredyInvoked { get; private set; }
         public T value;
 
-        public void Subscribe(Action<T> method)
+        public void Subscribe(Action<T> method, int order = 0)
         {
             if (alredyInvoked) method?.Invoke(value);
-            else action += method;
+            else actions.Add((method, order));
         }
 
         public void Invoke(T argument)
         {
             value = argument;
             alredyInvoked = true;
-            action?.Invoke(argument);
+            foreach (var valueTuple in actions.OrderBy(x => -x.Item2))
+            {
+                valueTuple.Item1?.Invoke(argument);
+            }
         }
 
         public void Reset()

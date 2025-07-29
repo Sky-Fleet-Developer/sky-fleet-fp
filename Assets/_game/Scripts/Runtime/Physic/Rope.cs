@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core;
+using Core.Game;
 using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.OdinInspector;
@@ -13,9 +15,7 @@ namespace Runtime.Physic
     public class Rope : MonoBehaviour
     {
         [SerializeField, HideInInspector] private float length;
-        [SerializeField] private int linksCount;
         [SerializeField] private Rigidbody connectedBody;
-        [SerializeField] private float linkDrag;
 
         [ShowInInspector]
         public float Length
@@ -24,83 +24,56 @@ namespace Runtime.Physic
             set
             {
                 length = value;
-                if (_links != null)
-                {
-                    float linkLength = length / (linksCount - 1);
-                    for (var i = 1; i < _links.Length; i++)
-                    {
-                        _links[i].anchorPosition = Vector3.up * linkLength;
-                    }
-                }
+                var joint = _mainJoint ?? _hook;
+                var limit = joint.linearLimit;
+                limit.limit = value;
+                joint.linearLimit = limit;
             }
         }
-        private ArticulationBody[] _links;
-        private HingeJoint _mainJoint;
-        private ConfigurableJoint _connectedJoint;
+        private ConfigurableJoint _mainJoint;
         private ConfigurableJoint _hook;
-        public int LinksCount => linksCount;
         public LateEvent OnInitialize = new LateEvent();
-        public bool IsConnected => _connectedJoint != null;
+        public event Action OnDetached;
+        public bool IsConnected => _mainJoint != null;
 
 
         private void Awake()
         {
-            Bootstrapper.OnLoadComplete.Subscribe(async () =>
+            Bootstrapper.OnLoadComplete.Subscribe(() =>
             {
-                await new WaitForSeconds(0.1f);
                 bool isKinematic = connectedBody.isKinematic;
-                connectedBody.isKinematic = true;
-                _links = new ArticulationBody[linksCount];
-                float linkLength = length / (linksCount - 1);
-                for (var i = 0; i < _links.Length; i++)
-                {
-                    _links[i] = new GameObject($"Rope_Link_{i}").AddComponent<ArticulationBody>();
-                    _links[i].jointType = ArticulationJointType.SphericalJoint;
-                    _links[i].SnapAnchorToClosestContact();
-                    _links[i].matchAnchors = false;
-                    _links[i].transform.position = transform.position + Vector3.down * (i * linkLength);
-                    if (i > 0)
-                    {
-                        _links[i].transform.SetParent(_links[i-1].transform);
-                        _links[i].anchorPosition = Vector3.up * linkLength;
-                    }
-                    else
-                    {
-                        //_links[i].transform.SetParent(connectedBody.transform);
-                    }
-
-                    _links[i].parentAnchorPosition = Vector3.zero;
-                    _links[i].linearDamping = linkDrag;
-                    _links[i].angularDamping = linkDrag;
-                    _links[i].WakeUp();
-                }
-
-                _mainJoint = connectedBody.gameObject.AddComponent<HingeJoint>();
-                _mainJoint.connectedArticulationBody = _links[0];
-                _mainJoint.autoConfigureConnectedAnchor = false;
-                _mainJoint.anchor = connectedBody.transform.InverseTransformPoint(transform.position);
-                _mainJoint.connectedAnchor = Vector3.zero;
-                await new WaitForSeconds(0.1f);
+                
                 connectedBody.isKinematic = isKinematic;
                 OnInitialize.Invoke();
             });
+            
+            WorldOffset.OnWorldOffsetChange += WorldOffsetChanged;
+        }
+        
+        private void OnDestroy()
+        {
+            WorldOffset.OnWorldOffsetChange -= WorldOffsetChanged;
+        }
+        
+        private void WorldOffsetChanged(Vector3 offset)
+        {
+            
         }
 
         public IEnumerable<Vector3> GetJointsPoints()
         {
-            for (var i = 0; i < _links.Length; i++)
-            {
-                yield return transform.InverseTransformPoint(_links[i].transform.position);
-            }
+            var joint = _mainJoint ?? _hook;
+            yield return Vector3.zero;
+            yield return transform.InverseTransformPoint(joint.transform.TransformPoint(joint.anchor));
         }
 
         public float GetLength()
         {
-            float result = 0;// Vector3.Distance(_mainJoint.transform.position + _mainJoint.transform.TransformDirection(_mainJoint.anchor), _links[0].transform.position);
+            /*float result = 0;// Vector3.Distance(_mainJoint.transform.position + _mainJoint.transform.TransformDirection(_mainJoint.anchor), _links[0].transform.position);
             for (var i = 1; i < _links.Length; i++)
             {
                 result += Vector3.Distance(_links[i].transform.position, _links[i - 1].transform.position);
-            }
+            }*/
 
             /*if (_connectedJoint)
             {
@@ -109,64 +82,56 @@ namespace Runtime.Physic
                     _links[^1].transform.position);
             }*/
 
-            return result;
+            var joint = _mainJoint ?? _hook;
+            return length = Vector3.Distance(joint.transform.TransformPoint(joint.anchor), transform.position);
         }
 
-        private const float _massScaleFactor = 0.002f;
-        private const float _massScaleFactorInv = 1 - _massScaleFactor;
         public void Connect(Rigidbody target, Vector3 connectedAnchor)
         {
-            _connectedJoint = ConnectPrivate(target, connectedAnchor);
+            _mainJoint = ConnectPrivate(target, connectedAnchor, out length);
+            if (_hook)
+            {
+                _hook.connectedBody = target;
+                _hook.connectedAnchor = _mainJoint.anchor;
+                var limit = _hook.linearLimit;
+                limit.limit = 0;
+                _hook.linearLimit = limit;
+            }
         }
 
         public void ConnectAsHook(Rigidbody target, Vector3 connectedAnchor)
         {
-            _hook = ConnectPrivate(target, connectedAnchor);
+            _hook = ConnectPrivate(target, connectedAnchor, out length);
         }
 
         public void Detach()
         {
-            Destroy(_connectedJoint);
-            _mainJoint.massScale = 1;
-            _mainJoint.connectedMassScale = 1;
+            _hook.connectedBody = connectedBody;
+            _hook.connectedAnchor = connectedBody.transform.InverseTransformPoint(transform.position);
+            var limit = _hook.linearLimit;
+            limit.limit = length;
+            _hook.linearLimit = limit;
+            Destroy(_mainJoint);
+            _mainJoint = null;
+            OnDetached?.Invoke();
         }
         
-        private ConfigurableJoint ConnectPrivate(Rigidbody target, Vector3 connectedAnchor)
+        private ConfigurableJoint ConnectPrivate(Rigidbody target, Vector3 connectedAnchor, out float length)
         {
-            _mainJoint.massScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
-            _mainJoint.connectedMassScale = _massScaleFactorInv + target.mass * _massScaleFactor;
             var joint = target.gameObject.AddComponent<ConfigurableJoint>();
-            joint.connectedArticulationBody = _links[^1];
+            joint.connectedBody = connectedBody;
             joint.autoConfigureConnectedAnchor = false;
+            joint.connectedAnchor = connectedBody.transform.InverseTransformPoint(transform.position);
             joint.anchor = connectedAnchor;
-            joint.xMotion = ConfigurableJointMotion.Locked;
-            joint.yMotion = ConfigurableJointMotion.Locked;
-            joint.zMotion = ConfigurableJointMotion.Locked;
-            joint.massScale = _massScaleFactorInv + target.mass * _massScaleFactor;
-            joint.connectedMassScale = _massScaleFactorInv + connectedBody.mass * _massScaleFactor;
-            TakeEasy(target, joint);
+            joint.xMotion = ConfigurableJointMotion.Limited;
+            joint.yMotion = ConfigurableJointMotion.Limited;
+            joint.zMotion = ConfigurableJointMotion.Limited;
+            joint.enableCollision = true;
+            var limit = joint.linearLimit;
+            length = Vector3.Distance(target.transform.TransformPoint(connectedAnchor), transform.position);
+            limit.limit = length;
+            joint.linearLimit = limit;
             return joint;
-        }
-
-        private async void TakeEasy(Rigidbody target, ConfigurableJoint joint)
-        {
-            Vector3 v = target.velocity + _links[0].velocity;
-            v *= 0.5f;
-            for (int i = 0; i < 100; i++)
-            {
-                if (!joint)
-                {
-                    return;
-                }
-
-                for (var ii = 0; ii < _links.Length; ii++)
-                {
-                    _links[ii].angularVelocity = Vector3.zero;
-                    _links[ii].velocity = v;
-                }
-                target.velocity = v;
-                await new WaitForFixedUpdate();
-            }
         }
     }
 }

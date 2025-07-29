@@ -36,6 +36,18 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             }
         }
 
+        public override void MoveValueInteractive(float val)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void ExitControl()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override bool EnableInteraction => false;
+
         public override Port<float> Port => port;
         private Port<float> port = new (PortType.Signal);
     }

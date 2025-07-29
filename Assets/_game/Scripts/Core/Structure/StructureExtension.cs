@@ -28,7 +28,7 @@ namespace Core.Structure
         {
             foreach (var structureParent in structure.Parents)
             {
-                if (structureParent.Path == path)
+                if (structureParent.IsPatchMatch(path))
                 {
                     return structureParent;
                 }

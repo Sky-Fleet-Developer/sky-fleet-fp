@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Graph.Wires;
 using Core.Structure;
+using Core.Structure.Serialization;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -20,10 +21,17 @@ namespace Core.Graph
         public IEnumerable<Wire> Wires => wires;
         public IEnumerable<PortPointer> Ports => portsPointers;
         private bool _isInitialized = false;
+        private GraphConfiguration _configuration;
+
         private void Awake()
         {
             structure ??= GetComponent<IStructure>();
-            structure.OnInitComplete.Subscribe(() => InitGraph(true));
+            structure.OnInitComplete.Subscribe(() => InitGraph(true), -1);
+        }
+
+        public void SetConfiguration(GraphConfiguration value)
+        {
+            _configuration = value;
         }
 
         public void InitGraph(bool force = false)
@@ -48,12 +56,49 @@ namespace Core.Graph
                     node.InitNode(this);
                 }
             }
-            portsPointers ??= GetAllPorts();
+
+            if (force || portsPointers == null)
+            {
+                portsPointers = GetAllPorts();
+            }
+            
+            foreach (WireConfiguration wire in _configuration.wires)
+            {
+                if (wire.ports.Count == 0)
+                {
+                    continue;
+                }
+                PortPointer[] portsToConnect = new PortPointer[wire.ports.Count];
+
+                int notNullCounter = 0;
+                for (var i = 0; i < wire.ports.Count; i++)
+                {
+                    portsToConnect[i] = GetPort(wire.ports[i]);
+                    if (!portsToConnect[i].IsNull())
+                    {
+                        notNullCounter++;
+                    }
+                }
+
+                if (notNullCounter > 1)
+                {
+                    ConnectPorts(portsToConnect);
+                }
+            }
+
+            if (_configuration.autoConnectPowerWires)
+            {
+                PortPointer[] powerPorts = Ports.Where(x => x.Port is PowerPort).ToArray();
+                if (powerPorts.Length > 0)
+                {
+                    ConnectPorts(powerPorts);
+                }
+            }
 
             _isInitialized = true;
         }
 
-        public void AddWire(Wire wire)
+        public void AddNewWire(Wire wire)
         {
             wires.Add(wire);
         }
@@ -70,8 +115,8 @@ namespace Core.Graph
             }
             return port;
         }
-
-        public void ConnectPorts(params PortPointer[] ports)
+        
+        private void ConnectPorts(params PortPointer[] ports)
         {
             Wire existWire = null;
 
@@ -101,7 +146,7 @@ namespace Core.Graph
                 
             Wire newWire = zero.Port.CreateWire();
             Graph.Wires.Utilities.AddPortsToWire(newWire, ports);
-            AddWire(newWire);
+            AddNewWire(newWire);
         }
 
         private List<PortPointer> GetAllPorts()

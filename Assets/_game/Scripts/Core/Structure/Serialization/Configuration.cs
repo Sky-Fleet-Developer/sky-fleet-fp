@@ -1,11 +1,13 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Graph.Wires;
 using UnityEngine;
 
 namespace Core.Structure.Serialization
 {
     public abstract class Configuration
     {
-        public abstract Task TryApply<T>(T target) where T : class;
+        public abstract Task TryApply(GameObject target);
     }
     public abstract class Configuration<T> : Configuration where T : class
     {
@@ -14,12 +16,11 @@ namespace Core.Structure.Serialization
         {
         }
         public abstract Task Apply(T target);
-        public T GetTFromGameObject(GameObject root) => root.GetComponent<T>();
-        public override Task TryApply<T1>(T1 target)
+        public override Task TryApply(GameObject target)
         {
-            if (target is T converted)
+            if (target.TryGetComponent(out T component))
             {
-                return Apply(converted);
+                return Apply(component);
             }
             return Task.CompletedTask;
         }

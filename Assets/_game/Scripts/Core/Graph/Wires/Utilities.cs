@@ -106,7 +106,7 @@ namespace Core.Graph.Wires
             return string.Empty;
         }
         
-        public static void CreateWireForPorts(IGraph master, params PortPointer[] ports)
+        public static void CreateWireForPorts(IGraphHandler master, params PortPointer[] ports)
         {
             int canConnect = 0;
             PortPointer zero = ports[0];
@@ -119,7 +119,7 @@ namespace Core.Graph.Wires
                 
             Wire newWire = zero.Port.CreateWire();
             AddPortsToWire(newWire, ports);
-            master.AddWire(newWire);
+            master.AddNewWire(newWire);
         }
 
         public static void AddPortsToWire(Wire wire, params PortPointer[] ports)
