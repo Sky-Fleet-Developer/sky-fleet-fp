@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class Winch : PowerUserBlock, IUpdatableBlock
+    public class Winch : PowerUserBlock,IForceUser
     {
         private Port<float> input = new Port<float>(PortType.Signal);
         private ActionPort detach = new ();
@@ -27,7 +27,7 @@ namespace Runtime.Structure.Rigging.Control
         {
             rope.OnInitialize.Subscribe(() =>
             {
-                _currentLength = _wantedLength = rope.GetLength();
+                _currentLength = _wantedLength = rope.GetDistance();
             });
             detach.AddRegisterAction(Detach);
         }
@@ -49,14 +49,19 @@ namespace Runtime.Structure.Rigging.Control
             }
         }
 
-        public void UpdateBlock(int lod)
+        public void ApplyForce()
         {
             if (!rope.OnInitialize.alredyInvoked)
             {
                 return;
             }
-            _currentLength = rope.GetLength();
-            _wantedLength = Mathf.MoveTowards(_currentLength, _wantedLength + _driveMotor.DeltaTime(), maxTension);
+            _currentLength = rope.GetDistance();
+            _wantedLength += _driveMotor * winchSpeed.DeltaTime();
+            if (_currentLength > _wantedLength)
+            {
+                _wantedLength = Mathf.MoveTowards(_currentLength, _wantedLength, maxTension);
+            }
+
             rope.Length = Mathf.Clamp(_wantedLength, minLength, maxLength);
         }
     }

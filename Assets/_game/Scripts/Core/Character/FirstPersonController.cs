@@ -25,7 +25,8 @@ namespace Core.Character
         public float maxPullDistance;
         public float disruptionDistance;
         public AnimationCurve pullCurve;
-        public float breakForce;
+        public float pullUpRate;
+        public float breakForceRate;
     }
     
     [RequireComponent(typeof(CharacterMotor))]
@@ -172,8 +173,11 @@ namespace Core.Character
             if (PauseGame.Instance.IsPause) return;
             CurrentState.Run();
         }
-        
-        
+
+        private void FixedUpdate()
+        {
+            currentInteractionState.FixedUpdate();
+        }
 
         private class DefaultState : InteractionState
         {
@@ -204,6 +208,8 @@ namespace Core.Character
                 /*var cam = CinemachineBrain.SoloCamera;
                 cam.OnTargetObjectWarped(Master.cameraRoot, offset);*/
             }
+
+            public virtual void FixedUpdate() {}
 
             public virtual void LateUpdate()
             {
@@ -296,6 +302,7 @@ namespace Core.Character
             public Vector3 WantedPoint => _wantedPoint;
             public Vector3 CurrentPoint => _currentPoint;
             public float PullTension => _pullTension;
+            private bool _initialized;
 
             public InteractWithDynamicObjectState(IInteractiveDynamicObject target, RaycastHit initialHitInfo, FirstPersonController master, InteractionState lastState) : base(master)
             {
@@ -304,24 +311,16 @@ namespace Core.Character
                 _target = target;
                 _localHitPoint = target.Rigidbody.transform.InverseTransformPoint(initialHitInfo.point);
                 _distance = initialHitInfo.distance;
+                _initialized = false;
             }
 
             public override void LateUpdate() { }
-
-            public override void Run()
+            public override void FixedUpdate()
             {
-                base.Run();
-                if (!Input.GetButton("Interaction") && !Input.GetKey(KeyCode.Mouse0))
+                if (!_initialized)
                 {
-                    Exit();
                     return;
                 }
-                
-                Ray ray;
-                if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
-
-                _wantedPoint = ray.GetPoint(_distance);
                 _currentPoint = _target.Rigidbody.transform.TransformPoint(_localHitPoint);
                 Vector3 delta = _wantedPoint - _currentPoint;
                 _pullTension = delta.magnitude;
@@ -338,19 +337,42 @@ namespace Core.Character
                 }
                 
                 _pullTension /= Master.dragObjectsSettings.maxPullDistance;
-
                 Vector3 alignForce = delta * (Master.dragObjectsSettings.maxPullForce * Master.dragObjectsSettings.pullCurve.Evaluate(Mathf.Max(_pullTension, 1)));
-                Vector3 deltaVelocity = Master.rigidbody.velocity - _target.Rigidbody.velocity;
-                Vector3 breakForce = deltaVelocity * Master.dragObjectsSettings.breakForce;
+                Vector3 pullUpForce = Mathf.Min(_target.Rigidbody.mass * 9.81f * Master.dragObjectsSettings.pullUpRate, Master.dragObjectsSettings.maxPullForce * 0.5f) * Vector3.up;
+                Vector3 breakForce = (Master.rigidbody.velocity - _target.Rigidbody.velocity) * (_target.Rigidbody.mass * Master.dragObjectsSettings.breakForceRate);
+                if (Vector3.Dot(breakForce, alignForce) < 0)
+                {
+                    breakForce *= 0.2f;
+                }
+                Vector3 commonForce = alignForce + breakForce + pullUpForce;
+                float forceRate = Mathf.Min(commonForce.magnitude, Master.dragObjectsSettings.maxPullForce);
+                commonForce = commonForce.normalized * forceRate;
                 if (_target.MoveTransitional)
                 {
-                    _target.Rigidbody.AddForce(alignForce + breakForce);
+                    _target.Rigidbody.AddForce(commonForce);
                 }
                 else
                 {
-                    _target.Rigidbody.AddForceAtPosition(alignForce + breakForce, _currentPoint);
+                    _target.Rigidbody.AddForceAtPosition(commonForce, _currentPoint);
                 }
-                Master.rigidbody.AddForce(-alignForce - breakForce);
+                Master.rigidbody.AddForce(-commonForce);
+            }
+
+            public override void Run()
+            {
+                base.Run();
+                if (!Input.GetButton("Interaction") && !Input.GetKey(KeyCode.Mouse0))
+                {
+                    Exit();
+                    return;
+                }
+                
+                Ray ray;
+                if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
+
+                _wantedPoint = ray.GetPoint(_distance);
+                _initialized = true;
             }
 
             private void Exit()

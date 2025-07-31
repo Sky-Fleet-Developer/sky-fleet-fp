@@ -20,11 +20,7 @@ namespace Runtime.Physic
 
         private void Update()
         {
-            int pointer = 0;
-            foreach (var point in rope.GetJointsPoints())
-            {
-                lineRenderer.SetPosition(pointer++, point);
-            }
+            lineRenderer.SetPosition(1, rope.GetHookPoint());
         }
     }
 }

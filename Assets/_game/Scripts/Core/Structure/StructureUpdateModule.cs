@@ -138,7 +138,7 @@ namespace Core.Structure
             for (int i = 0; i < ForceUsers.Count; i++)
             {
                 IStructure str = ForceUsers[i].Structure;
-                if (str.Active && FuelUsers[i].IsActive)
+                if (str.Active && ForceUsers[i].IsActive)
                 {
                     ForceUsers[i].ApplyForce();
                 }

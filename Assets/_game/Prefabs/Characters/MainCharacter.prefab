@@ -127,7 +127,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    breakForce: 45
+    pullUpRate: 0.95
+    breakForceRate: 10
 --- !u!54 &9102070319755283119
 Rigidbody:
   m_ObjectHideFlags: 0

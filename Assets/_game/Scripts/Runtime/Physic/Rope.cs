@@ -46,44 +46,18 @@ namespace Runtime.Physic
                 connectedBody.isKinematic = isKinematic;
                 OnInitialize.Invoke();
             });
-            
-            WorldOffset.OnWorldOffsetChange += WorldOffsetChanged;
         }
         
-        private void OnDestroy()
-        {
-            WorldOffset.OnWorldOffsetChange -= WorldOffsetChanged;
-        }
-        
-        private void WorldOffsetChanged(Vector3 offset)
-        {
-            
-        }
-
-        public IEnumerable<Vector3> GetJointsPoints()
+        public Vector3 GetHookPoint()
         {
             var joint = _mainJoint ?? _hook;
-            yield return Vector3.zero;
-            yield return transform.InverseTransformPoint(joint.transform.TransformPoint(joint.anchor));
+            return transform.InverseTransformPoint(joint.transform.TransformPoint(joint.anchor));
         }
 
-        public float GetLength()
+        public float GetDistance()
         {
-            /*float result = 0;// Vector3.Distance(_mainJoint.transform.position + _mainJoint.transform.TransformDirection(_mainJoint.anchor), _links[0].transform.position);
-            for (var i = 1; i < _links.Length; i++)
-            {
-                result += Vector3.Distance(_links[i].transform.position, _links[i - 1].transform.position);
-            }*/
-
-            /*if (_connectedJoint)
-            {
-                result += Vector3.Distance(
-                    _connectedJoint.transform.position + _connectedJoint.transform.TransformDirection(_connectedJoint.anchor),
-                    _links[^1].transform.position);
-            }*/
-
             var joint = _mainJoint ?? _hook;
-            return length = Vector3.Distance(joint.transform.TransformPoint(joint.anchor), transform.position);
+            return Vector3.Distance(joint.transform.TransformPoint(joint.anchor), transform.position);
         }
 
         public void Connect(Rigidbody target, Vector3 connectedAnchor)
