@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Core.Graph;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -60,16 +59,5 @@ namespace Core.Structure.Rigging
         {
             return boundsCash;
         }
-    }
-
-    public abstract class BlockWithNode : Block, IGraphNode
-    {
-        public IGraphHandler Graph { get; private set; }
-        public void InitNode(IGraphHandler graph)
-        {
-            Graph = graph;
-        }
-
-        public string NodeId => transform.name;
     }
 }

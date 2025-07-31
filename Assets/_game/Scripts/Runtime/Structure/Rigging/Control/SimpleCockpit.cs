@@ -45,7 +45,7 @@ namespace Runtime.Structure.Rigging.Control
         private IDevice[] devices;
 
         public CharacterAttachData attachData;
-        public CharacterDetachhData detachData;
+        public CharacterDetachData detachData;
         [SerializeField] private bool canAttachController = true;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
         private List<IControlElement> controlElementsCache;

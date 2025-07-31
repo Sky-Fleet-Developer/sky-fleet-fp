@@ -576,7 +576,7 @@ namespace Core.Character
             CurrentState = new SeatState(this);
         }
 
-        public IEnumerator LeaveControl(CharacterDetachhData detachData)
+        public IEnumerator LeaveControl(CharacterDetachData detachData)
         {
             if (CanMove)
             {

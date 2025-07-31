@@ -7,6 +7,6 @@ namespace Core.Character
     {
         IControl AttachedControl { get; }
         IEnumerator AttachToControl(IControl control);
-        IEnumerator LeaveControl(CharacterDetachhData detachData);
+        IEnumerator LeaveControl(CharacterDetachData detachData);
     }
 }
