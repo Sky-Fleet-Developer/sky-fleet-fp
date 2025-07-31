@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Character;
+﻿using Core.Character;
 using Core.Character.Interface;
 using Core.Patterns.State;
 using UnityEngine;

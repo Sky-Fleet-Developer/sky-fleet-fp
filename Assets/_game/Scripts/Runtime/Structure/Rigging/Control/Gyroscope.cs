@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using UnityEngine;
-using static Core.Structure.StructureUpdateModule;
-using Utilities = Core.Structure.Rigging.Utilities;
 
 namespace Runtime.Structure.Rigging.Control
 {

@@ -61,7 +61,7 @@ namespace Core.Structure.Rigging.Control
         [ShowInInspector]
         public IDevice Device { get => _device; set => _device = (DeviceBase<Port<float>>)value; }
 
-        public void Init(IGraphHandler graph, IControl block)
+        public void Init(IGraphHandler graph, ICharacterInterface block)
         {
             GetPort();
             AxisTick();

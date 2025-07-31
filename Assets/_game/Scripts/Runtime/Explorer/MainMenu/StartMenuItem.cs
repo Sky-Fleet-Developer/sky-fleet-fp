@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.UiStructure;
 using Core.UIStructure;
-using Core.UIStructure.Utilities;
 using Runtime.UI;
 using Sirenix.OdinInspector;
 using UnityEngine;

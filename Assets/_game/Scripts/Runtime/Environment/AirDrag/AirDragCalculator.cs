@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using Core.Utilities;
 using Sirenix.OdinInspector;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 
 namespace Runtime.Environment.AirDrag

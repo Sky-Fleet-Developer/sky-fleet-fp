@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 using Core.Utilities;
 using Core;
-using Core.UIStructure.Utilities;
 using Runtime.UI;
 
 namespace Runtime.Explorer.SessionViewer

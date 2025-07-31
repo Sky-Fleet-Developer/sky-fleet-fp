@@ -1,11 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
-using Core.SessionManager;
-using Core.UiStructure;
 using Core.UIStructure;
-using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.UI;
 using Core.SessionManager.GameProcess;
 using Core.Boot_strapper;
 using System.Threading.Tasks;

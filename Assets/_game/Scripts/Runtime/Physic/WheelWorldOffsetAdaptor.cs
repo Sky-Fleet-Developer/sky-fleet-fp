@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Game;
+﻿using Core.Game;
 using NWH.WheelController3D;
 using UnityEngine;
 

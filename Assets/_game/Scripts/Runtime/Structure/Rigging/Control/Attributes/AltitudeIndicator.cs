@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure;
-using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;

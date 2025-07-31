@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using Core.Character;
-using Core.Graph;
-using Core.Structure.Rigging.Control;
+using Core.Character.Interaction;
 
 namespace Core.Structure.Rigging
 {
-    public interface IControl : IInteractiveBlock, IUpdatableBlock, IGraphNode
+    public interface ICharacterInterface : IInteractiveBlock
     {
-        bool IsUnderControl { get; }
-        List<ControlAxis> Axes { get; }
+        int GetAttachedControllersCount { get; }
         CharacterAttachData GetAttachData();
         void ReadInput();
         void LeaveControl(ICharacterController controller);
+        IEnumerable<ICharacterHandler> GetHandlers();
     }
 }

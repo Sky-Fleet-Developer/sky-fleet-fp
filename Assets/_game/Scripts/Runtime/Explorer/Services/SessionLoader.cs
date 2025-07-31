@@ -5,7 +5,6 @@ using Core.Explorer.Content;
 using Core.SessionManager;
 using Core.SessionManager.SaveService;
 using Core.UiStructure;
-using Core.UIStructure.Utilities;
 using Core.Utilities;
 using Runtime.Explorer.SessionViewer;
 using Runtime.UI;

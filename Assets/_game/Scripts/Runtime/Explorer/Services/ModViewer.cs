@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Core.Explorer.Content;
 using Core.UiStructure;
-using Core.UIStructure.Utilities;
 using Core.Utilities;
 using Runtime.Explorer.ModContent;
 using Runtime.UI;

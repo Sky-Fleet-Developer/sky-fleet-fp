@@ -1,5 +1,4 @@
 ﻿using Core.Graph.Wires;
-using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
 using UnityEngine;
 

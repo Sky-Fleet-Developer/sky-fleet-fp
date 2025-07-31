@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
 using Core.Graph.Wires;
-using Core.Structure;
-using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control.Attributes;
 using UnityEngine;
 

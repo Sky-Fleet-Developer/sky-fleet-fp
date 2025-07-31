@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Character;
+﻿using Core.Character;
 using Core.Structure.Rigging;
 using UnityEngine;
 

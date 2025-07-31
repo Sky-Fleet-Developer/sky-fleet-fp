@@ -2,40 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
+using Core.Character.Interaction;
 using Core.Data;
-using Core.Graph;
-using Core.Graph.Wires;
-using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class SimpleCockpit : BlockWithNode, IControl
+    public class SimpleCockpit : BlockWithNode, ICharacterInterface, IUpdatableBlock
     {
-        //public float Durability => durability;
-        //public ArmorData Armor => armor;
-        public List<ControlAxis> Axes => axes;
-        public List<ControlButton> Buttons => buttons;
-        public List<ControlToggle> Toggles => toggles;
-        public List<ControlTrackball> Trackballs => trackballs;
-
-        public bool IsUnderControl => isUnderControl;
-
-        //[SerializeField] private float durability;
-        //[SerializeField]  private ArmorData armor;
-
-        [PlayerProperty]
-        public float SomeProperty
-        {
-            get => 1f;
-            set => Debug.Log("Set property: " + value);
-        }
+        public int GetAttachedControllersCount => isUnderControl ? 1 : 0;
 
         [ReadOnly, ShowInInspector] private bool isUnderControl;
         public List<ControlAxis> axes;
@@ -138,6 +118,11 @@ namespace Runtime.Structure.Rigging.Control
             {
                 StartCoroutine(LeaveControlRoutine(character));
             }
+        }
+
+        public IEnumerable<ICharacterHandler> GetHandlers()
+        {
+            yield break;
         }
 
         private IEnumerator LeaveControlRoutine(ICharacterController character)

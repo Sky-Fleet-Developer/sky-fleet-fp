@@ -76,8 +76,8 @@ namespace Core.Character
         }
 #endif
 
-        public IControl AttachedControl => attachedControl;
-        private IControl attachedControl;
+        public ICharacterInterface AttachedICharacterInterface => _attachedICharacterInterface;
+        private ICharacterInterface _attachedICharacterInterface;
 
         public IState CurrentState
         {
@@ -223,7 +223,7 @@ namespace Core.Character
                 {
                     if (hit.InteractiveBlock == null)
                     {
-                        if (hit.InteractiveObject is IInteractiveDynamicObject interactiveDynamicObject && Master.attachedControl == null)
+                        if (hit.InteractiveObject is IInteractiveDynamicObject interactiveDynamicObject && Master._attachedICharacterInterface == null)
                         {
                             if (Input.GetButtonDown("Interaction") || Input.GetKeyDown(KeyCode.Mouse0))
                             {
@@ -237,7 +237,7 @@ namespace Core.Character
                         return;
                     }
 
-                    if (Master.attachedControl == null)
+                    if (Master._attachedICharacterInterface == null)
                     {
                         (bool canInteract, string _) = hit.InteractiveBlock.RequestInteractive(Master);
                         if (canInteract)
@@ -445,7 +445,7 @@ namespace Core.Character
             protected IAimingInterface AimingInterface { get; private set; }
             public SeatState(FirstPersonController master) : base(master)
             {
-                if (master.attachedControl is IAimingInterface aiming)
+                if (master._attachedICharacterInterface is IAimingInterface aiming)
                 {
                     AimingInterface = aiming;
                 }
@@ -455,7 +455,7 @@ namespace Core.Character
                 base.Run();
                 if (Input.GetButtonDown("Interaction"))
                 {
-                    Master.attachedControl.LeaveControl(Master);
+                    Master._attachedICharacterInterface.LeaveControl(Master);
                     return;
                 }
 
@@ -553,9 +553,9 @@ namespace Core.Character
         }
 
 
-        public IEnumerator AttachToControl(IControl control)
+        public IEnumerator AttachToControl(ICharacterInterface iCharacterInterface)
         {
-            CharacterAttachData attachData = control.GetAttachData();
+            CharacterAttachData attachData = iCharacterInterface.GetAttachData();
 
             if (attachData.attachAndLock)
             {
@@ -572,7 +572,7 @@ namespace Core.Character
             }
 
             yield return new WaitForEndOfFrame();
-            attachedControl = control;
+            _attachedICharacterInterface = iCharacterInterface;
             CurrentState = new SeatState(this);
         }
 
@@ -592,9 +592,9 @@ namespace Core.Character
                 CanMove = true;
                 collider.isTrigger = false;
 
-                ScyncVelocity(attachedControl.Structure);
+                ScyncVelocity(_attachedICharacterInterface.Structure);
             }
-            attachedControl = null;
+            _attachedICharacterInterface = null;
             CurrentState = new FreeWalkState(this);
         }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Graph.Wires;
+﻿using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;

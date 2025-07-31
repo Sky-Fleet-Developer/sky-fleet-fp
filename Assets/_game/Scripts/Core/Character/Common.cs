@@ -5,8 +5,8 @@ namespace Core.Character
 {
     public interface ICharacterController
     {
-        IControl AttachedControl { get; }
-        IEnumerator AttachToControl(IControl control);
+        ICharacterInterface AttachedICharacterInterface { get; }
+        IEnumerator AttachToControl(ICharacterInterface iCharacterInterface);
         IEnumerator LeaveControl(CharacterDetachData detachData);
     }
 }
