@@ -9,8 +9,21 @@ namespace Core.Trading
     {
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
-        [SerializeField] private string name;
+        [SerializeField] private int basicCost;
         public string Id => id;
         public IEnumerable<string> Tags => tags;
+
+        public bool HasTag(string tag)
+        {
+            for (var i = 0; i < tags.Length; i++)
+            {
+                if (tags[i] == tag)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public int BasicCost => basicCost;
     }
 }

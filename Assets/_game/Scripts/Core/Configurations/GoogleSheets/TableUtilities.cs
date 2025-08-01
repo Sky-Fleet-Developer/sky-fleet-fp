@@ -107,7 +107,14 @@ namespace Core.Configurations.GoogleSheets
 
                     if (fieldType.IsPrimitive || fieldType == typeof(string))
                     {
-                        field.SetValue(result[rowIndex - 1], GetValue(field.FieldType, cellValue));
+                        try
+                        {
+                            field.SetValue(result[rowIndex - 1], GetValue(field.FieldType, cellValue));
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
                     }
                     else if (fieldType.IsArray && fieldType.GetElementType() != null &&
                              (fieldType.GetElementType().IsPrimitive || fieldType.GetElementType() == typeof(string)))
@@ -130,7 +137,7 @@ namespace Core.Configurations.GoogleSheets
 
         private static object GetValue(Type fieldType, string value)
         {
-            switch (fieldType.FullName)
+            switch (fieldType.Name)
             {
                 case nameof(Int32):
                     if (Int32.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out int iVal))

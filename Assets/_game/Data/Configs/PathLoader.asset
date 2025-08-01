@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PathLoader
   m_EditorClassIdentifier: 
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRbyAFCzvQECCKOZZD9DuqXjgQblLlCygq2Ka3q0xNt0Dfr8F-nZgPo6yH9h-hNRPxnZS_vozrXBp39/pub?gid=450555623&single=true&output=tsv
-  separator: 92
   arraySeparator: 44
   tables:
-  - {fileID: 11400000, guid: 73196a2e3fbb8f8469c88eafa379c3fe, type: 2}
+  - {fileID: -4195173841857350580, guid: d81f0b5af9e5a864d9759da4705093b6, type: 2}
+  - {fileID: -4838933943100615771, guid: d81f0b5af9e5a864d9759da4705093b6, type: 2}

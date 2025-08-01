@@ -1,5 +1,66 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4838933943100615771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15a99940c5b54c1592f92015066238d2, type: 3}
+  m_Name: ShopTable
+  m_EditorClassIdentifier: 
+  data:
+  - id: iron_mine
+    rules: []
+    includeTags:
+    - tags:
+      - ore
+      - iron
+    excludeTags: []
+  - id: iron_refinery
+    rules:
+    - value: 1.15
+      tags:
+        tags:
+        - ore
+    includeTags:
+    - tags:
+      - iron
+    - tags:
+      - ore
+    - tags:
+      - iron
+      - ingot
+    excludeTags:
+    - tags: []
+--- !u!114 &-4195173841857350580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d930d271c17493ebdc5cbb220176593, type: 3}
+  m_Name: ItemsTable
+  m_EditorClassIdentifier: 
+  items:
+  - id: iron_ore
+    tags:
+    - basic
+    - ore
+    - iron
+    basicCost: 5
+  - id: iron_ingot
+    tags:
+    - basic
+    - refined
+    - iron
+    basicCost: 8
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14,6 +75,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   children:
   - {fileID: 5893292968165454084}
+  - {fileID: -4195173841857350580}
+  - {fileID: -4838933943100615771}
   serializedSharedData:
     serializationVersion: 0.0.1
     interactiveLayer:
