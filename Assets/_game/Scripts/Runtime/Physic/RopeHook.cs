@@ -66,9 +66,10 @@ namespace Runtime.Physic
 
         public bool EnableInteraction => gameObject.activeInHierarchy && enabled;
         public Transform Root => transform;
-        (bool canInteract, string data) IInteractiveObject.RequestInteractive(ICharacterController character)
+        public bool RequestInteractive(ICharacterController character, out string data)
         {
-            return (true, string.Empty);
+            data = string.Empty;
+            return true;
         }
         Rigidbody IInteractiveDynamicObject.Rigidbody => _rigidbody;
         bool IInteractiveDynamicObject.MoveTransitional => true;

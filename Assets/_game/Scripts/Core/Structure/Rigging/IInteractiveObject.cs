@@ -7,6 +7,6 @@ namespace Core.Structure.Rigging
     {
         bool EnableInteraction { get; }
         Transform Root { get; }
-        (bool canInteract, string data) RequestInteractive(ICharacterController character);
+        bool RequestInteractive(ICharacterController character, out string data);
     }
 }

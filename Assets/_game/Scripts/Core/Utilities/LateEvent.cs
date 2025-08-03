@@ -50,6 +50,7 @@ namespace Core.Utilities
             {
                 valueTuple.Item1?.Invoke(argument);
             }
+            actions.Clear();
         }
 
         public void Reset()

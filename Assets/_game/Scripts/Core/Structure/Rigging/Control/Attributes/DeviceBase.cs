@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Core.Character;
 using Core.Graph;
@@ -59,9 +60,10 @@ namespace Core.Structure.Rigging.Control.Attributes
         string IPortUser.GetName() => name;
         public virtual bool EnableInteraction => true;
         public Transform Root => transform;
-        public virtual (bool canInteract, string data) RequestInteractive(ICharacterController character)
+        public virtual bool RequestInteractive(ICharacterController character, out string data)
         {
-            return (true, string.Empty);
+            data = string.Empty;
+            return true;
         }
     }
 }

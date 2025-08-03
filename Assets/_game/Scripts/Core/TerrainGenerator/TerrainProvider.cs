@@ -79,7 +79,6 @@ namespace Core.TerrainGenerator
             MaxWorldHeight = Mathf.Max(MaxWorldHeight, settings.Height);
             
             if (settings.directory == null) throw new System.Exception("Wrong directory!");
-
             await LoadPropsForCurrentPosition();
             OnInitialize.Invoke(this);
             refreshTicker?.TryRun();
@@ -350,6 +349,14 @@ namespace Core.TerrainGenerator
         private Vector3 GetPropCenter(Vector2Int position)
         {
             return new Vector3(position.x + 0.5f, 0, position.y + 0.5f) * settings.ChunkSize;
+        }
+
+        private void OnDestroy()
+        {
+            channels.Clear();
+            chunks.Clear(); 
+            deformersByChunk.Clear();               
+            deformersQueue.Clear();             
         }
     }
 }

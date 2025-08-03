@@ -62,6 +62,7 @@ namespace Runtime.Structure.Rigging.Control
             controlElementsCache.AddRange(trackballs);
         }
 
+
         public void ReadInput()
         {
             foreach (IControlElement controlElement in controlElementsCache)
@@ -69,73 +70,44 @@ namespace Runtime.Structure.Rigging.Control
                 controlElement.Tick();
             }
         }
-
-       /* public IEnumerable<PortPointer> GetPorts()
-        {
-            if (controlElementsCache == null)
-            {
-                CollectControlElements();
-            }
-            return controlElementsCache.Select(x => new PortPointer(this, x.GetPort()));
-        }*/
-
-        /*IEnumerable<IInteractiveDevice> IInteractiveBlock.GetInteractiveDevices()
-        {
-            return controlElementsCache;
-        }*/
-
-        (bool canInteract, string data) IInteractiveObject.RequestInteractive(ICharacterController character)
+        public bool RequestInteractive(ICharacterController character, out string data)
         {
             if (isUnderControl)
             {
-                return (false, GameData.Data.controlFailText);
+                data = GameData.Data.controlFailText;
+                return false;
             }
+            data = string.Empty;
             if (!canAttachController)
             {
-                return (false, string.Empty);
+                return false;
             }
-            return (true, string.Empty);
+            return true;
         }
 
         void IInteractiveBlock.Interaction(ICharacterController character)
         {
-            if (((IInteractiveBlock)this).RequestInteractive(character).canInteract)
+            if (((IInteractiveBlock)this).RequestInteractive(character, out _))
             {
-                StartCoroutine(InteractionRoutine(character));
+                character.AttachToControl(this);
             }
         }
 
-        private IEnumerator InteractionRoutine(ICharacterController character)
+        void ICharacterInterface.OnCharacterEnter(ICharacterController character)
         {
-            yield return character.AttachToControl(this);
             isUnderControl = true;
             controller = character;
         }
 
-        public void LeaveControl(ICharacterController character)
+        void ICharacterInterface.OnCharacterLeave(ICharacterController character)
         {
-            if (isUnderControl && character == controller)
-            {
-                StartCoroutine(LeaveControlRoutine(character));
-            }
-        }
-
-        public IEnumerable<ICharacterHandler> GetHandlers()
-        {
-            yield break;
-        }
-
-        private IEnumerator LeaveControlRoutine(ICharacterController character)
-        {
-            yield return character.LeaveControl(detachData);
             isUnderControl = false;
             controller = null;
         }
 
-        public CharacterAttachData GetAttachData()
-        {
-            return attachData;
-        }
+        public CharacterAttachData GetAttachData() => attachData;
+        public CharacterDetachData GetDetachData() => detachData;
+
 
         public virtual void UpdateBlock(int lod)
         {

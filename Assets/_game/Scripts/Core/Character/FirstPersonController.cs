@@ -227,8 +227,7 @@ namespace Core.Character
                         {
                             if (Input.GetButtonDown("Interaction") || Input.GetKeyDown(KeyCode.Mouse0))
                             {
-                                (bool canInteract, string _) = interactiveDynamicObject.RequestInteractive(Master);
-                                if (canInteract)
+                                if (interactiveDynamicObject.RequestInteractive(Master, out _))
                                 {
                                     SwitchToDynamic(interactiveDynamicObject, hit.RaycastHit);
                                 }
@@ -239,8 +238,7 @@ namespace Core.Character
 
                     if (Master._attachedICharacterInterface == null)
                     {
-                        (bool canInteract, string _) = hit.InteractiveBlock.RequestInteractive(Master);
-                        if (canInteract)
+                        if (hit.InteractiveBlock.RequestInteractive(Master, out _))
                         {
                             //TODO: write text to HUD
                             if (Input.GetButtonDown("Interaction"))
@@ -455,7 +453,7 @@ namespace Core.Character
                 base.Run();
                 if (Input.GetButtonDown("Interaction"))
                 {
-                    Master._attachedICharacterInterface.LeaveControl(Master);
+                    Master.LeaveControl();
                     return;
                 }
 
@@ -553,10 +551,19 @@ namespace Core.Character
         }
 
 
-        public IEnumerator AttachToControl(ICharacterInterface iCharacterInterface)
+        public void AttachToControl(ICharacterInterface iCharacterInterface)
+        {
+            StartCoroutine(AttachToControlRoutine(iCharacterInterface));
+        }
+
+        public void LeaveControl()
+        {
+            StartCoroutine(LeaveControlRoutine());
+        }
+        
+        private IEnumerator AttachToControlRoutine(ICharacterInterface iCharacterInterface)
         {
             CharacterAttachData attachData = iCharacterInterface.GetAttachData();
-
             if (attachData.attachAndLock)
             {
                 CanMove = false;
@@ -573,11 +580,12 @@ namespace Core.Character
 
             yield return new WaitForEndOfFrame();
             _attachedICharacterInterface = iCharacterInterface;
+            _attachedICharacterInterface.OnCharacterEnter(this);
             CurrentState = new SeatState(this);
         }
-
-        public IEnumerator LeaveControl(CharacterDetachData detachData)
+        private IEnumerator LeaveControlRoutine()
         {
+            var detachData = _attachedICharacterInterface.GetDetachData();
             if (CanMove)
             {
                 detachData.transition.Setup(detachData.anchor.position, transform.DOMove);
@@ -594,6 +602,7 @@ namespace Core.Character
 
                 ScyncVelocity(_attachedICharacterInterface.Structure);
             }
+            _attachedICharacterInterface.OnCharacterLeave(this);
             _attachedICharacterInterface = null;
             CurrentState = new FreeWalkState(this);
         }

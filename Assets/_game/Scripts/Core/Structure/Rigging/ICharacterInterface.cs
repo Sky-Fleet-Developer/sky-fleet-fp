@@ -4,12 +4,13 @@ using Core.Character.Interaction;
 
 namespace Core.Structure.Rigging
 {
-    public interface ICharacterInterface : IInteractiveBlock
+    public interface ICharacterInterface : IInteractiveBlock, ICharacterHandler
     {
         int GetAttachedControllersCount { get; }
         CharacterAttachData GetAttachData();
+        CharacterDetachData GetDetachData();
         void ReadInput();
-        void LeaveControl(ICharacterController controller);
-        IEnumerable<ICharacterHandler> GetHandlers();
+        void OnCharacterEnter(ICharacterController controller);
+        void OnCharacterLeave(ICharacterController controller);
     }
 }
