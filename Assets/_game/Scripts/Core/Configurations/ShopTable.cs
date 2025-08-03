@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Core.Configurations.GoogleSheets;
 using Core.Trading;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Core.Configurations
         private struct TagCombination
         {
             public string[] tags;
-
+            public bool IsEmpty => tags.Length == 0;
             public bool IsItemMatch(ItemSign item)
             {
                 for (var i = 0; i < tags.Length; i++)
@@ -54,6 +55,7 @@ namespace Core.Configurations
             {
                 includeTags[i].tags = includeItemsTags[i].Split(_combinationSeparators, StringSplitOptions.RemoveEmptyEntries);
             }
+
             excludeTags = excludeItemsTags == null ? Array.Empty<TagCombination>() :  new TagCombination[excludeItemsTags.Length];
             for (var i = 0; i < excludeTags.Length; i++)
             {
@@ -90,7 +92,7 @@ namespace Core.Configurations
             
             for (var i = 0; i < excludeTags.Length; i++)
             {
-                if (excludeTags[i].IsItemMatch(item))
+                if (!excludeTags[i].IsEmpty && excludeTags[i].IsItemMatch(item))
                 {
                     return false;
                 }
@@ -117,6 +119,7 @@ namespace Core.Configurations
     {
         public override string TableName => "Shop";
         [SerializeField] private ShopSettings[] data;
+        private Dictionary<string, ShopSettings> _dictionary;
         public override ShopSettings[] Data
         {
             get => data;
@@ -128,6 +131,12 @@ namespace Core.Configurations
                     item.Postprocess();
                 }
             }
+        }
+
+        public bool TryGetSettings(string id, out ShopSettings settings)
+        {
+            _dictionary ??= data.ToDictionary(v => v.Id);
+            return _dictionary.TryGetValue(id, out settings);
         }
     }
 }

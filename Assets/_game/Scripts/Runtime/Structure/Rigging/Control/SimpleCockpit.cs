@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class SimpleCockpit : BlockWithNode, ICharacterInterface, IUpdatableBlock
+    public class SimpleCockpit : BlockWithNode, IDriveInterface, IUpdatableBlock
     {
         public int GetAttachedControllersCount => isUnderControl ? 1 : 0;
 
@@ -84,22 +84,14 @@ namespace Runtime.Structure.Rigging.Control
             }
             return true;
         }
-
-        void IInteractiveBlock.Interaction(ICharacterController character)
-        {
-            if (((IInteractiveBlock)this).RequestInteractive(character, out _))
-            {
-                character.AttachToControl(this);
-            }
-        }
-
-        void ICharacterInterface.OnCharacterEnter(ICharacterController character)
+        
+        void IDriveInterface.OnCharacterEnter(ICharacterController character)
         {
             isUnderControl = true;
             controller = character;
         }
 
-        void ICharacterInterface.OnCharacterLeave(ICharacterController character)
+        void IDriveInterface.OnCharacterLeave(ICharacterController character)
         {
             isUnderControl = false;
             controller = null;

@@ -356,7 +356,8 @@ namespace Core.TerrainGenerator
             channels.Clear();
             chunks.Clear(); 
             deformersByChunk.Clear();               
-            deformersQueue.Clear();             
+            deformersQueue.Clear();       
+            OnInitialize.Reset();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Core.Patterns.State;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Character.Interface
 {
@@ -11,10 +12,12 @@ namespace Core.Character.Interface
         private FirstPersonInterfacePresenter _interfacePresenter;
         private FirstPersonController.InteractionState _currentTargetState;
         public FirstPersonController.InteractionState TargetState => _currentTargetState;
+        [Inject] private DiContainer _diContainer;
         private void Start()
         {
             target.StateChanged += OnStateChanged;
             _interfacePresenter = Instantiate(presenterPrefab);
+            _diContainer.Inject(_interfacePresenter);
             _interfacePresenter.Init(this);
             UpdateState((FirstPersonController.InteractionState)target.CurrentState);
         }

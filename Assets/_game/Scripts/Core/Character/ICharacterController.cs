@@ -1,12 +1,11 @@
 using System.Collections;
+using Core.Character.Interaction;
 using Core.Structure.Rigging;
 
 namespace Core.Character
 {
     public interface ICharacterController
     {
-        ICharacterInterface AttachedICharacterInterface { get; }
-        void AttachToControl(ICharacterInterface iCharacterInterface);
-        void LeaveControl();
+        void EnterHandler(ICharacterHandler handler);
     }
 }

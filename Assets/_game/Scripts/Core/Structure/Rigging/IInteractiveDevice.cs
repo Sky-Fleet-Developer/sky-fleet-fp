@@ -4,6 +4,6 @@
     {
         void MoveValueInteractive(float val);
         void ExitControl();
-        IInteractiveBlock Block { get; }
+        IDriveInterface Block { get; }
     }
 }

@@ -32,13 +32,13 @@ namespace Core.Game
             CurrentState.Run();
         }
 
-        private static void LockCursor()
+        public static void LockCursor()
         {
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = false;
         }
 
-        private static void UnlockCursor()
+        public static void UnlockCursor()
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;

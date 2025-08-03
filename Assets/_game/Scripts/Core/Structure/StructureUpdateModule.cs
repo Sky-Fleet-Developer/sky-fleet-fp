@@ -16,7 +16,7 @@ namespace Core.Structure
         public static event Action<IStructure> OnStructureDestroy;
         
         public static List<IStructure> Structures = new List<IStructure>();
-        public static List<ICharacterInterface> Controls = new List<ICharacterInterface>();
+        public static List<IDriveInterface> Controls = new List<IDriveInterface>();
         public static List<IUpdatableBlock> Updatables = new List<IUpdatableBlock>();
         public static List<IPowerUser> PowerUsers = new List<IPowerUser>();
         public static List<IFuelUser> FuelUsers = new List<IFuelUser>();
@@ -43,7 +43,7 @@ namespace Core.Structure
                 return;
             }
             Structures.Add(structure);
-            Controls.AddRange(structure.GetBlocksByType<ICharacterInterface>());
+            Controls.AddRange(structure.GetBlocksByType<IDriveInterface>());
             Updatables.AddRange(structure.GetBlocksByType<IUpdatableBlock>());
             PowerUsers.AddRange(structure.GetBlocksByType<IPowerUser>());
             FuelUsers.AddRange(structure.GetBlocksByType<IFuelUser>());
@@ -55,7 +55,7 @@ namespace Core.Structure
         {
             OnStructureDestroy?.Invoke(structure);
             Structures.Remove(structure);
-            Controls.RemoveAll(x => structure.GetBlocksByType<ICharacterInterface>().Contains(x));
+            Controls.RemoveAll(x => structure.GetBlocksByType<IDriveInterface>().Contains(x));
             Updatables.RemoveAll(x => structure.GetBlocksByType<IUpdatableBlock>().Contains(x));
             PowerUsers.RemoveAll(x => structure.GetBlocksByType<IPowerUser>().Contains(x));
             FuelUsers.RemoveAll(x => structure.GetBlocksByType<IFuelUser>().Contains(x));
@@ -84,7 +84,7 @@ namespace Core.Structure
                 }
 
             }*/
-            foreach (ICharacterInterface t in Controls)
+            foreach (IDriveInterface t in Controls)
             {
                 IStructure str = t.Structure;
                 if (str.Active && t.GetAttachedControllersCount > 0 && t.IsActive)

@@ -61,7 +61,7 @@ namespace Core.Structure.Rigging.Control
         [ShowInInspector]
         public IDevice Device { get => _device; set => _device = (DeviceBase<Port<float>>)value; }
 
-        public void Init(IGraphHandler graph, ICharacterInterface block)
+        public void Init(IGraphHandler graph, IDriveInterface block)
         {
             GetPort();
             AxisTick();
@@ -229,7 +229,5 @@ namespace Core.Structure.Rigging.Control
                 _device.Port.Value = logicValue;
             }
         }
-
-        public IInteractiveBlock Block { get; }
     }
 }

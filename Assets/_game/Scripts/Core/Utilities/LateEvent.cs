@@ -56,6 +56,7 @@ namespace Core.Utilities
         public void Reset()
         {
             alredyInvoked = false;
+            actions.Clear();
         }
     }
     

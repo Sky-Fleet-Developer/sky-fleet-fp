@@ -103,5 +103,11 @@ namespace Core.Game
             Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);
         }
+
+        private void OnDestroy()
+        {
+            OnWorldOffsetChange = null;
+            OnWorldOffsetPreChanged = null;
+        }
     }
 }

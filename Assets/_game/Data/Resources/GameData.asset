@@ -29,11 +29,10 @@ MonoBehaviour:
     includeTags:
     - tags:
       - iron
-    - tags:
       - ore
     - tags:
       - iron
-      - ingot
+      - refined
     excludeTags:
     - tags: []
 --- !u!114 &-4195173841857350580

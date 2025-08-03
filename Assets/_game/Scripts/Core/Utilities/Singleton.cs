@@ -13,7 +13,7 @@ namespace Core.Utilities
         {
             get
             {
-                if (_instance == null)
+                if (!_instance)
                 {
                     Instantiate();
                 }

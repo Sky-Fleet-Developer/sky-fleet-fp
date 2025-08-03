@@ -8988,6 +8988,57 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1182192650}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1184186622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1184186624}
+  - component: {fileID: 1184186623}
+  m_Layer: 0
+  m_Name: Mine_Config
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1184186623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184186622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0772be7108f9e194595f742880fc02b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blocksConfiguration:
+    bodyGuid: 
+    blocks: []
+  graphConfiguration:
+    wires: []
+    autoConnectPowerWires: 0
+--- !u!4 &1184186624
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184186622}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5027.1, y: 747.44, z: 5002.09}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1550521876}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1193468636
 GameObject:
   m_ObjectHideFlags: 0
@@ -11746,13 +11797,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1550521874}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5027.1, y: 747.44, z: 5002.09}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2006567181}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1184186624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1555265297
 GameObject:
@@ -14628,7 +14679,7 @@ MonoBehaviour:
   tags: []
   mass: 10
   mountingType: 
-  shopId: 
+  shopId: iron_refinery
 --- !u!1 &2013410473
 GameObject:
   m_ObjectHideFlags: 1
@@ -16467,4 +16518,4 @@ SceneRoots:
   - {fileID: 1222475062}
   - {fileID: 1857941094}
   - {fileID: 1454207576}
-  - {fileID: 1550521876}
+  - {fileID: 1184186624}

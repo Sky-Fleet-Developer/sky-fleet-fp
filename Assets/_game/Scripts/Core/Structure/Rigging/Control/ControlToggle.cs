@@ -48,7 +48,7 @@ namespace Core.Structure.Rigging.Control
         [ShowInInspector]
         public IDevice Device { get => _device; set => _device = (DeviceBase<Port<bool>>)value; }
 
-        public void Init(IGraphHandler graph, ICharacterInterface block)
+        public void Init(IGraphHandler graph, IDriveInterface block)
         {
         }
 

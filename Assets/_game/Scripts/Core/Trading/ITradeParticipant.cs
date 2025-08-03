@@ -2,6 +2,6 @@
 {
     public interface ITradeParticipant
     {
-        
+        public int GetCost(ItemSign itemSign);
     }
 }

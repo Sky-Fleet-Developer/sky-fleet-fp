@@ -41,8 +41,8 @@ namespace Core.Data.GameSettings
             moveCategory.AddAxisInput("Axis forward/back");
             moveCategory.AddAxisInput("Axis left/right");
             InputCategory cameraCategory = control.AddCategory("Camera");
-            cameraCategory.AddAxisInput("Axis up/down");
-            cameraCategory.AddAxisInput("Axis left/right");
+            cameraCategory.AddAxisInput("Axis up/down").SetAbsolute(false);
+            cameraCategory.AddAxisInput("Axis left/right").SetAbsolute(false);
 
             InputCategory generalCategory = control.AddCategory("General");
             generalCategory.AddInputButtons("Fast save");
@@ -169,7 +169,7 @@ namespace Core.Data.GameSettings
         [SerializeField, HideInInspector]
         private string _name;
 
-        public bool IsAbsolute { get; private set; }
+        public bool IsAbsolute { get; set; }
 
         public bool Inverse;
 
@@ -222,6 +222,11 @@ namespace Core.Data.GameSettings
         public void SetInverse(bool val)
         {
             axis.Inverse = val;
+        }
+        
+        public void SetAbsolute(bool val)
+        {
+            axis.IsAbsolute = val;
         }
 
         public override bool IsNone()

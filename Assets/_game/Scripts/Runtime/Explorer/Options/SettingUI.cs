@@ -167,7 +167,7 @@ namespace Runtime.Explorer.Options
 
         private void CallAddInputButton(InputButtons input, ItemPointer pointerUI)
         {
-            InputReader reader = ServiceIssue.Instance.GetOrMakeService<InputReader>();
+            InputReader reader = ServiceIssue.Instance.CreateService<InputReader>();
             reader.Window.RectTransform.Fullscreen();
             reader.GetInputButtons(x => { OnAddInputButton(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;
@@ -175,7 +175,7 @@ namespace Runtime.Explorer.Options
 
         private void CallAddInputAxis(InputAxis input, ItemPointer pointerUI)
         {
-            InputReader reader = ServiceIssue.Instance.GetOrMakeService<InputReader>();
+            InputReader reader = ServiceIssue.Instance.CreateService<InputReader>();
             reader.Window.RectTransform.Fullscreen();
             reader.GetInputAxis(x => { OnAddInputAxis(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;

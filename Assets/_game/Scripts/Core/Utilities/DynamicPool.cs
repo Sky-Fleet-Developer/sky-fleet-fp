@@ -27,7 +27,7 @@ namespace Core.Utilities
                     if (remuve)
                     {
                         (GameObject, Component) value = pool[i];
-                        pool.RemoveRange(i, 1);
+                        pool.RemoveAt(i);
                         return value;
                     }
                     return pool[i];
@@ -83,21 +83,12 @@ namespace Core.Utilities
                     component.transform.SetParent(Instance.transform);
                     component.gameObject.SetActive(false);
                     pool.Add(free[i]);
-                    free.RemoveRange(i, 1);
+                    free.RemoveAt(i);
                     return;
                 }
             }
 
-            if (Application.isPlaying)
-            {
-                Destroy(component.gameObject);
-            }
-            else
-            {
-                DestroyImmediate(component.gameObject);
-            }
-
-            Debug.LogError($"Has no component {component} in pool!");
+            pool.Add((component.gameObject, component));
         }
     }
 }

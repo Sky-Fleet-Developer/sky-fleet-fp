@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Cinemachine;
+using Core.Character.Interaction;
 using Core.Data;
 using Core.Data.GameSettings;
 using Core.Environment;
@@ -15,6 +17,7 @@ using Runtime;
 using Runtime.Character;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Character
 {
@@ -43,9 +46,10 @@ namespace Core.Character
         
         [FoldoutGroup("Input")] public float verticalSpeed;
         [FoldoutGroup("Input")] public float horizontalSpeed;
-        [FoldoutGroup("View")] public float horizontalBorders;
+        [FoldoutGroup("View")] public float horizontalBorders; // Not implemented
         [FoldoutGroup("View")] public float verticalBorders;
         [SerializeField] private CharacterDragObjectsSettings dragObjectsSettings;
+        
         public event Action StateChanged;
 
 #if UNITY_EDITOR
@@ -76,8 +80,8 @@ namespace Core.Character
         }
 #endif
 
-        public ICharacterInterface AttachedICharacterInterface => _attachedICharacterInterface;
-        private ICharacterInterface _attachedICharacterInterface;
+        public IDriveInterface AttachedIIDriveInterface => _attachedIIDriveInterface;
+        private IDriveInterface _attachedIIDriveInterface;
 
         public IState CurrentState
         {
@@ -221,9 +225,9 @@ namespace Core.Character
                     GameData.Data.interactionDistance, GameData.Data.interactiveLayer,
                     out StructureHit hit))
                 {
-                    if (hit.InteractiveBlock == null)
+                    if (hit.CharacterHandler == null)
                     {
-                        if (hit.InteractiveObject is IInteractiveDynamicObject interactiveDynamicObject && Master._attachedICharacterInterface == null)
+                        if (hit.InteractiveObject is IInteractiveDynamicObject interactiveDynamicObject && Master._attachedIIDriveInterface == null)
                         {
                             if (Input.GetButtonDown("Interaction") || Input.GetKeyDown(KeyCode.Mouse0))
                             {
@@ -236,14 +240,14 @@ namespace Core.Character
                         return;
                     }
 
-                    if (Master._attachedICharacterInterface == null)
+                    if (Master._attachedIIDriveInterface == null)
                     {
-                        if (hit.InteractiveBlock.RequestInteractive(Master, out _))
+                        if (hit.InteractiveObject.RequestInteractive(Master, out _))
                         {
                             //TODO: write text to HUD
                             if (Input.GetButtonDown("Interaction"))
                             {
-                                hit.InteractiveBlock.Interaction(Master);
+                                Master.EnterHandler(hit.CharacterHandler);
                                 return;
                             }
                         }
@@ -438,30 +442,116 @@ namespace Core.Character
             }
         }
         
+        public class TradeState : InteractionState
+        {
+            private InteractionState _prevState;
+            private ITradeHandler _handler;
+            private bool _canMove;
+            private bool _rotationLocked;
+            public ITradeHandler Handler => _handler;
+
+            public TradeState(FirstPersonController master, InteractionState prevState, ITradeHandler handler) : base(master)
+            {
+                _handler = handler;
+                _prevState = prevState;
+                _canMove = Master.CanMove;
+                Master.CanMove = false;
+                _rotationLocked = CursorBehaviour.RotationLocked;
+                CursorBehaviour.UnlockCursor();
+                CursorBehaviour.RotationLocked = true;
+            }
+
+            public void LeaveState()
+            {
+                CursorBehaviour.RotationLocked = _rotationLocked;
+                CursorBehaviour.LockCursor();
+                Master.CanMove = _canMove;
+                Master.CurrentState = _prevState;
+            }
+        }
+        
         private class SeatState : InteractionState
         {
-            protected IAimingInterface AimingInterface { get; private set; }
-            public SeatState(FirstPersonController master) : base(master)
+            private IAimingInterface _aimingInterface;
+            private bool _attachProcess;
+            private InteractionState _prevState;
+
+            public SeatState(FirstPersonController master, InteractionState prevState, IDriveInterface iIDriveInterface) : base(master)
             {
-                if (master._attachedICharacterInterface is IAimingInterface aiming)
+                _prevState = prevState;
+                if (master._attachedIIDriveInterface is IAimingInterface aiming)
                 {
-                    AimingInterface = aiming;
+                    _aimingInterface = aiming;
                 }
+                
+                Master.StartCoroutine(AttachToControlRoutine(iIDriveInterface));
             }
+            
+            private IEnumerator AttachToControlRoutine(IDriveInterface iIDriveInterface)
+            {
+                _attachProcess = true;
+                CharacterAttachData attachData = iIDriveInterface.GetAttachData();
+                if (attachData.attachAndLock)
+                {
+                    Master.CanMove = false;
+                    Master.transform.SetParent(attachData.anchor);
+                    Master.collider.isTrigger = true;
+                    attachData.transition.Setup(Vector3.zero, Master.transform.DOLocalMove);
+                    yield return attachData.transition.Setup(Quaternion.identity, Master.transform.DOLocalRotateQuaternion).WaitForCompletion();
+                }
+                else
+                {
+                    attachData.transition.Setup(attachData.anchor.position, Master.transform.DOMove);
+                    yield return attachData.transition.Setup(attachData.anchor.rotation, Master.transform.DORotateQuaternion).WaitForCompletion();
+                }
+
+                yield return new WaitForEndOfFrame();
+                Master._attachedIIDriveInterface = iIDriveInterface;
+                Master._attachedIIDriveInterface.OnCharacterEnter(Master);
+                _attachProcess = false;
+            }
+            
+            private IEnumerator LeaveControlRoutine()
+            {
+                var detachData = Master._attachedIIDriveInterface.GetDetachData();
+                if (Master.CanMove)
+                {
+                    detachData.transition.Setup(detachData.anchor.position, Master.transform.DOMove);
+                    yield return detachData.transition.Setup(detachData.anchor.rotation, Master.transform.DORotateQuaternion).WaitForCompletion();
+                }
+                else
+                {
+                    Master.transform.SetParent(detachData.anchor);
+                    detachData.transition.Setup(Vector3.zero, Master.transform.DOLocalMove);
+                    yield return detachData.transition.Setup(Quaternion.identity, Master.transform.DOLocalRotateQuaternion).WaitForCompletion();
+                    Master.transform.SetParent(null);
+                    Master.CanMove = true;
+                    Master.collider.isTrigger = false;
+
+                    Master.ScyncVelocity(Master._attachedIIDriveInterface.Structure);
+                }
+                Master._attachedIIDriveInterface.OnCharacterLeave(Master);
+                Master._attachedIIDriveInterface = null;
+                Master.CurrentState = _prevState;
+            }
+            
             public override void Run()
             {
-                base.Run();
+                if (_attachProcess)
+                {
+                    return;
+                }
                 if (Input.GetButtonDown("Interaction"))
                 {
-                    Master.LeaveControl();
+                    Master.StartCoroutine(LeaveControlRoutine());
                     return;
                 }
 
-                if (AimingInterface != null)
+                if (_aimingInterface != null)
                 {
                     if (Input.GetKey(KeyCode.LeftShift))
                     {
-                        Master.CurrentState = new SeatAimingState(Master, this);
+                        Master.CurrentState = new SeatAimingState(Master, _aimingInterface, this);
                         CursorBehaviour.SetAimingState();
                         return;
                     }
@@ -469,16 +559,18 @@ namespace Core.Character
             }
         }
 
-        private class SeatAimingState : SeatState
+        private class SeatAimingState : InteractionState
         {
+            protected IAimingInterface AimingInterface { get; private set; }
             private SeatState _lastState;
             private Vector2 _initialInput;
             private Vector2 _input;
             private AimingInterfaceState _initialAimingState;
 
-            public SeatAimingState(FirstPersonController master, SeatState lastState) : base(master)
+            public SeatAimingState(FirstPersonController master, IAimingInterface aimingInterface, SeatState lastState) : base(master)
             {
                 _lastState = lastState;
+                AimingInterface = aimingInterface;
                 _initialInput = AimingInterface.Input;
                 _initialAimingState = AimingInterface.CurrentState;
                 AimingInterface.SetState(AimingInterfaceState.Aiming);
@@ -550,62 +642,19 @@ namespace Core.Character
             }
         }
 
-
-        public void AttachToControl(ICharacterInterface iCharacterInterface)
+        public void EnterHandler(ICharacterHandler handler)
         {
-            StartCoroutine(AttachToControlRoutine(iCharacterInterface));
-        }
-
-        public void LeaveControl()
-        {
-            StartCoroutine(LeaveControlRoutine());
+            switch (handler)
+            {
+                case IDriveInterface characterInterface:
+                    CurrentState = new SeatState(this, currentInteractionState, characterInterface);
+                    break;
+                case ITradeHandler tradeHandler:
+                    CurrentState = new TradeState(this, currentInteractionState, tradeHandler);
+                    break;
+            }
         }
         
-        private IEnumerator AttachToControlRoutine(ICharacterInterface iCharacterInterface)
-        {
-            CharacterAttachData attachData = iCharacterInterface.GetAttachData();
-            if (attachData.attachAndLock)
-            {
-                CanMove = false;
-                transform.SetParent(attachData.anchor);
-                collider.isTrigger = true;
-                attachData.transition.Setup(Vector3.zero, transform.DOLocalMove);
-                yield return attachData.transition.Setup(Quaternion.identity, transform.DOLocalRotateQuaternion).WaitForCompletion();
-            }
-            else
-            {
-                attachData.transition.Setup(attachData.anchor.position, transform.DOMove);
-                yield return attachData.transition.Setup(attachData.anchor.rotation, transform.DORotateQuaternion).WaitForCompletion();
-            }
-
-            yield return new WaitForEndOfFrame();
-            _attachedICharacterInterface = iCharacterInterface;
-            _attachedICharacterInterface.OnCharacterEnter(this);
-            CurrentState = new SeatState(this);
-        }
-        private IEnumerator LeaveControlRoutine()
-        {
-            var detachData = _attachedICharacterInterface.GetDetachData();
-            if (CanMove)
-            {
-                detachData.transition.Setup(detachData.anchor.position, transform.DOMove);
-                yield return detachData.transition.Setup(detachData.anchor.rotation, transform.DORotateQuaternion).WaitForCompletion();
-            }
-            else
-            {
-                transform.SetParent(detachData.anchor);
-                detachData.transition.Setup(Vector3.zero, transform.DOLocalMove);
-                yield return detachData.transition.Setup(Quaternion.identity, transform.DOLocalRotateQuaternion).WaitForCompletion();
-                transform.SetParent(null);
-                CanMove = true;
-                collider.isTrigger = false;
-
-                ScyncVelocity(_attachedICharacterInterface.Structure);
-            }
-            _attachedICharacterInterface.OnCharacterLeave(this);
-            _attachedICharacterInterface = null;
-            CurrentState = new FreeWalkState(this);
-        }
 
         private void ScyncVelocity(IStructure structure)
         {

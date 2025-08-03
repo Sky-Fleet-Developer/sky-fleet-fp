@@ -8,6 +8,7 @@ using Cinemachine;
 using Core;
 using Core.Character;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Character
 {
@@ -21,7 +22,7 @@ namespace Runtime.Character
         private FirstPersonController player;
         [SerializeField] private FirstPersonController source;
         bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
-
+        [Inject] private DiContainer _diContainer;
         private void Start()
         {
             CinemachineVirtualCamera camHolder = GetComponentInChildren<CinemachineVirtualCamera>();
@@ -38,6 +39,7 @@ namespace Runtime.Character
                     if (!rule.TryGetSpawnPoint(out var spawnPosition)) continue;
                     
                     player = Instantiate(source, spawnPosition, transform.rotation);
+                    _diContainer.InjectGameObject(player.gameObject);
                     player.gameObject.SetActive(false);
                     OnPlayerWasLoaded.Invoke();
                     Bootstrapper.OnLoadComplete.Subscribe(() =>
@@ -48,6 +50,11 @@ namespace Runtime.Character
                 }
                 await Task.Delay((int)(1000f / rulesSurveyFrequency));
             }
+        }
+
+        private void OnDestroy()
+        {
+            OnPlayerWasLoaded.Reset();
         }
     }
 }

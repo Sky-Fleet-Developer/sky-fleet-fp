@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
+using Core.Character.Interaction;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
@@ -66,13 +67,13 @@ namespace Core.Environment
             if (io != null)
             {
                 hit.InteractiveObject = io;
-                if (io is IInteractiveBlock interactiveBlock)
+                if (io is IBlock interactiveBlock)
                 {
-                    hit.InteractiveBlock = interactiveBlock;
                     hit.Block = interactiveBlock;
-                }else if (io is IInteractiveDevice interactiveDevice)
+                }
+                if (io is ICharacterHandler characterHandler)
                 {
-                    hit.InteractiveBlock = interactiveDevice.Block;
+                    hit.CharacterHandler = characterHandler;
                 }
             }
             else
@@ -277,7 +278,7 @@ namespace Core.Environment
         public IStructure Structure;
         public IBlock Block;
         //public bool HitInBlockBounds;
-        public IInteractiveBlock InteractiveBlock;
+        public ICharacterHandler CharacterHandler;
         public IInteractiveObject InteractiveObject;
         public RaycastHit RaycastHit;
 

@@ -54,7 +54,7 @@ namespace Core.Structure.Rigging.Control.Attributes
         public abstract void MoveValueInteractive(float val);
         public abstract void ExitControl();
 
-        IInteractiveBlock IInteractiveDevice.Block => (IInteractiveBlock)base.Block;
+        IDriveInterface IInteractiveDevice.Block => (IDriveInterface)base.Block;
         public abstract T Port { get; }
         Port IPortUser.GetPort() => Port;
         string IPortUser.GetName() => name;

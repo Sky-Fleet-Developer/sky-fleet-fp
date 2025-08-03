@@ -7,13 +7,23 @@ namespace Core.Trading
     [Serializable]
     public class TradeItem : IDisposable
     {
-        [SerializeField] private int amount;
-        [SerializeField] private ItemSign sign;
-        [SerializeField] private int cost;
+        public int amount;
+        public ItemSign sign;
+        public int cost;
+        public TradeItem(){}
 
-        public int Cost => cost;
-        public ItemSign Sign => sign;
-        public int Amount => amount;
+        public TradeItem(ItemSign itemSign)
+        {
+            sign = itemSign;
+        }
+        public TradeItem(ItemSign itemSign, int amount, int cost)
+        {
+            sign = itemSign;
+            this.amount = amount;
+            this.cost = cost;
+        }
+
+
         public void Dispose()
         {
             sign = null;

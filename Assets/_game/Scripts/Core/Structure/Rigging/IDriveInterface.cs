@@ -4,7 +4,7 @@ using Core.Character.Interaction;
 
 namespace Core.Structure.Rigging
 {
-    public interface ICharacterInterface : IInteractiveBlock, ICharacterHandler
+    public interface IDriveInterface : IInteractiveObject, IBlock, IDriveHandler
     {
         int GetAttachedControllersCount { get; }
         CharacterAttachData GetAttachData();

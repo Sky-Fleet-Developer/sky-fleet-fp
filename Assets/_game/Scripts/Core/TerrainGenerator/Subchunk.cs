@@ -12,7 +12,7 @@ namespace Core.TerrainGenerator
         {
             public Mesh Mesh
             {
-                get => meshFilter.sharedMesh;
+                get => meshFilter?.sharedMesh;
                 set
                 {
                     meshFilter.sharedMesh = value;
