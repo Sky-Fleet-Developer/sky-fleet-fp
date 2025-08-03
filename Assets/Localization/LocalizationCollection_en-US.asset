@@ -22,7 +22,15 @@ MonoBehaviour:
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
+  - m_Id: 98984842653696
+    m_Localized: Iron ore
+    m_Metadata:
+      m_Items: []
   - m_Id: 13346525048832
+    m_Localized: Iron ingot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98984842653697
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []

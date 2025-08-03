@@ -41,7 +41,7 @@ namespace Runtime.Character.Interface
             gameObject.SetActive(false);
         }
 
-        public void Redraw()
+        public void Update()
         {
             Vector2 screenStart = _mainCamera.WorldToScreenPoint(_data.CurrentPoint);
             Vector2 screenEnd = _mainCamera.WorldToScreenPoint(_data.WantedPoint);

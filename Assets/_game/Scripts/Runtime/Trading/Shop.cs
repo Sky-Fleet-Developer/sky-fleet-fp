@@ -18,25 +18,27 @@ namespace Runtime.Trading
 
         public bool EnableInteraction => IsActive;
         public Transform Root => transform;
-        private List<TradeItem> _assortment = new();
-        public IEnumerable<TradeItem> GetItems() => _assortment;
+        public Inventory Inventory => _inventory;
         public event Action ItemsChanged;
         [Inject] private ShopTable _shopTable;
         [Inject] private ItemsTable _itemsTable;
+        private Inventory _inventory;
 
         public override void InitBlock(IStructure structure, Parent parent)
         {
-            _assortment.Clear();
+            List<TradeItem> assortment = new List<TradeItem>();
             if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
             {
                 for (var i = 0; i < _itemsTable.Data.Length; i++)
                 {
                     if (settings.IsItemMatch(_itemsTable.Data[i]))
                     {
-                        _assortment.Add(new TradeItem(_itemsTable.Data[i], 3, settings.GetCost(_itemsTable.Data[i])));
+                        assortment.Add(new TradeItem(_itemsTable.Data[i], 3, settings.GetCost(_itemsTable.Data[i])));
                     }
                 }
             }
+
+            _inventory = new Inventory(assortment);
             base.InitBlock(structure, parent);
         }
 

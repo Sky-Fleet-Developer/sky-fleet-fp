@@ -7,7 +7,6 @@ namespace Core.Character.Interface
     {
         void Init(FirstPersonInterfaceInstaller master);
         bool IsMatch(IState state);
-        void Redraw();
         void Show();
         void Hide();
     }

@@ -6,7 +6,7 @@ namespace Core.Character.Interaction
 {
     public interface ITradeHandler : ICharacterHandler
     {
-        IEnumerable<TradeItem> GetItems();
+        Inventory Inventory { get; }
         event Action ItemsChanged;
         bool TryMakeDeal(TradeDeal deal, out Transaction transaction);
     }

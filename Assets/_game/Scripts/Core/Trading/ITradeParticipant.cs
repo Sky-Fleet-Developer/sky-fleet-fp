@@ -1,7 +1,11 @@
-﻿namespace Core.Trading
+﻿using System.Collections.Generic;
+
+namespace Core.Trading
 {
     public interface ITradeParticipant
     {
-        public int GetCost(ItemSign itemSign);
+        IEnumerable<TradeItem> GetItems();
+        IEnumerable<TradeItem> GetItems(string id);
+        
     }
 }

@@ -11,31 +11,6 @@ namespace Core.Configurations
     [Serializable]
     public class ShopSettings
     {
-        [Serializable]
-        private struct TagCombination
-        {
-            public string[] tags;
-            public bool IsEmpty => tags.Length == 0;
-            public bool IsItemMatch(ItemSign item)
-            {
-                for (var i = 0; i < tags.Length; i++)
-                {
-                    if (!item.HasTag(tags[i]))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-
-        [Serializable]
-        private struct CostRule
-        {
-            public float value;
-            public TagCombination tags;
-        }
-
         private readonly char[] _combinationSeparators = new[] { '&', ' ' };
         private readonly char[] _ruleSeparators = new[] { ':' };
         // Table values
@@ -113,6 +88,8 @@ namespace Core.Configurations
             }
             return Mathf.RoundToInt(item.BasicCost * mul);
         }
+
+        public IEnumerable<CostRule> GetCostRules() => rules;
     }
     [CreateAssetMenu(menuName = "Configs/Shops")]
     public class ShopTable : Table<ShopSettings>

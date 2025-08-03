@@ -106,13 +106,5 @@ namespace Core.Character.Interface
                 }
             }
         }
-
-        public void RunCurrent()
-        {
-            for (var i = 0; i < _currentStates.Count; i++)
-            {
-                _currentStates[i].Redraw();   
-            }
-        }
     }
 }

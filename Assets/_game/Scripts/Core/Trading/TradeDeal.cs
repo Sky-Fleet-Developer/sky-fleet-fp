@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Core.Trading
 {
@@ -18,29 +19,37 @@ namespace Core.Trading
             _itemsToSell = new();
         }
 
-        public void AddToPurchase(ItemSign item, int amount)
+        public bool TryAddToCart(TradeItem item, int amount, int existAmount)
         {
             for (var i = 0; i < _itemsToPurchase.Count; i++)
             {
-                if (_itemsToPurchase[i].sign == item)
+                if (_itemsToPurchase[i].sign == item.sign)
                 {
-                    _itemsToPurchase[i].amount += amount;
-                    return;
+                    if (_itemsToPurchase[i].amount < existAmount)
+                    {
+                        _itemsToPurchase[i].amount += amount;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
 
             var tradeItem = new TradeItem();
-            tradeItem.sign = item;
-            tradeItem.cost = _seller.GetCost(item);
-            tradeItem.amount = amount;
-            _itemsToPurchase.Add(tradeItem);            
+            tradeItem.sign = item.sign;
+            tradeItem.cost = item.cost;
+            tradeItem.amount = Mathf.Min(existAmount, amount);
+            _itemsToPurchase.Add(tradeItem);
+            return true;
         }
 
-        public void AddToSell(ItemSign item, int amount)
+        public void AddToSell(TradeItem item, int amount)
         {
             for (var i = 0; i < _itemsToSell.Count; i++)
             {
-                if (_itemsToSell[i].sign == item)
+                if (_itemsToSell[i].sign == item.sign)
                 {
                     _itemsToSell[i].amount += amount;
                     return;
@@ -48,8 +57,8 @@ namespace Core.Trading
             }
 
             var tradeItem = new TradeItem();
-            tradeItem.sign = item;
-            tradeItem.cost = _seller.GetCost(item);
+            tradeItem.sign = item.sign;
+            tradeItem.cost = item.cost;
             tradeItem.amount = amount;
             _itemsToSell.Add(tradeItem);            
         }
@@ -69,9 +78,6 @@ namespace Core.Trading
             return counter;
         }
 
-        public void Accept()
-        {
-        }
 
         public void Dispose()
         {

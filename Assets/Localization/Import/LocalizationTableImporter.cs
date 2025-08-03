@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Configurations.GoogleSheets;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEditor.Localization;
 using UnityEngine;
 using UnityEngine.Localization.Tables;
@@ -28,12 +29,12 @@ namespace Localization.Import
             protected set
             {
                 data = value;
-                Test(value);
+                ApplyToLocalizationAssets(value);
             } 
         }
 
         [Button]
-        public void Test(LocalizationItem[] data)
+        public void ApplyToLocalizationAssets(LocalizationItem[] data)
         {
             foreach (var tableCollectionTable in tableCollection.Tables)
             {
@@ -53,6 +54,9 @@ namespace Localization.Import
                         }
                     }
                 }
+                #if UNITY_EDITOR
+                EditorUtility.SetDirty(tableCollectionTable.asset);
+                #endif
             }
         }
     }

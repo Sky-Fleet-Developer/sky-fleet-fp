@@ -12,6 +12,7 @@ using Core.SessionManager.GameProcess;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
+using Core.Trading;
 using DG.Tweening;
 using Runtime;
 using Runtime.Character;
@@ -21,17 +22,6 @@ using Zenject;
 
 namespace Core.Character
 {
-    [Serializable]
-    public class CharacterDragObjectsSettings
-    {
-        public float maxPullForce;
-        public float maxPullDistance;
-        public float disruptionDistance;
-        public AnimationCurve pullCurve;
-        public float pullUpRate;
-        public float breakForceRate;
-    }
-    
     [RequireComponent(typeof(CharacterMotor))]
     public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster
     {
@@ -49,6 +39,8 @@ namespace Core.Character
         [FoldoutGroup("View")] public float horizontalBorders; // Not implemented
         [FoldoutGroup("View")] public float verticalBorders;
         [SerializeField] private CharacterDragObjectsSettings dragObjectsSettings;
+        private Inventory _inventory;
+        public Inventory GetInventory() => _inventory;
         
         public event Action StateChanged;
 
@@ -117,6 +109,7 @@ namespace Core.Character
         {
             currentInteractionState = new DefaultState(this);
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+            _inventory = new Inventory(new List<TradeItem>());
         }
 
         private void Start()

@@ -32,10 +32,5 @@ namespace Core.Character.Interface
             _currentTargetState = state;
             _interfacePresenter.UpdateState(state);
         }
-
-        private void Update()
-        {
-            _interfacePresenter.RunCurrent();
-        }
     }
 }
