@@ -53,13 +53,42 @@ MonoBehaviour:
     - basic
     - ore
     - iron
+    - small
     basicCost: 5
+    mass: 2
   - id: iron_ingot
     tags:
     - basic
     - refined
     - iron
+    - small
     basicCost: 8
+    mass: 2
+  - id: iron_ore_crate
+    tags:
+    - basic
+    - ore
+    - iron
+    - large
+    - crate
+    basicCost: 2500
+    mass: 1000
+  - id: iron_ingot_crate
+    tags:
+    - basic
+    - refined
+    - iron
+    - large
+    - crate
+    basicCost: 4000
+    mass: 1000
+  crates:
+  - sourceId: iron_ore_crate
+    crateId: iron_ore
+    capacity: 500
+  - sourceId: iron_ingot_crate
+    crateId: iron_ingot
+    capacity: 500
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

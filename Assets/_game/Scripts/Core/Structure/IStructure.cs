@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Configurations;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using UnityEngine;
 
 namespace Core.Structure
 {
-    public interface IStructure : ITablePrefab, IEventSystem
+    public interface IStructure : ITablePrefab, IItemInstanceHandle, IEventSystem
     {
         bool Active { get; }
         // ReSharper disable once InconsistentNaming

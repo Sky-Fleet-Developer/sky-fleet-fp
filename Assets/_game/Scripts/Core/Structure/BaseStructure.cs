@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Configurations;
 using Core.Game;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
+using Core.Trading;
 using Core.Utilities;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
@@ -63,7 +65,13 @@ namespace Core.Structure
         private List<Parent> parents = null;
         private bool initialized = false;
         
-
+        private ItemSign _sourceItem;
+        ItemSign IItemInstance.SourceItem => _sourceItem;
+        void IItemInstanceHandle.SetSourceItem(ItemSign sign)
+        {
+            _sourceItem = sign;
+        }
+        
         protected virtual void Awake()
         {
             initialized = false;

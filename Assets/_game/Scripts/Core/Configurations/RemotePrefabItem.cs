@@ -2,12 +2,13 @@
 using System.Threading.Tasks;
 using Core.ContentSerializer.Bundles;
 using Core.Explorer.Content;
+using Core.Structure;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Core.Structure.Rigging
+namespace Core.Configurations
 {
     [System.Serializable]
     public class RemotePrefabItem
@@ -26,7 +27,7 @@ namespace Core.Structure.Rigging
             var prefabGameObject = (reference.editorAsset as GameObject);
             if (prefabGameObject)
             {
-                var block = prefabGameObject.GetComponent<IBlock>();
+                var block = prefabGameObject.GetComponent<ITablePrefab>();
                 if (block != null)
                 {
                     guid = block.Guid;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Core.Configurations;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Core.Utilities;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace Core.Structure
 {
-    public interface IBlock : ITablePrefab, IMass
+    public interface IBlock : ITablePrefab, IItemInstanceHandle, IMass
     {
         // ReSharper disable once InconsistentNaming
         Vector3 localPosition { get; }

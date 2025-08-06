@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.Structure
+namespace Core.Configurations
 {
     public interface ITablePrefab
     {

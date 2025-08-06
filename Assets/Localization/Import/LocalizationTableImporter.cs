@@ -23,10 +23,9 @@ namespace Localization.Import
         [SerializeField] private StringTableCollection tableCollection;
         public override string TableName => "Localization";
 
-        public override LocalizationItem[] Data
+        protected override LocalizationItem[] Data
         {
-            get => data;
-            protected set
+            set
             {
                 data = value;
                 ApplyToLocalizationAssets(value);

@@ -97,10 +97,9 @@ namespace Core.Configurations
         public override string TableName => "Shop";
         [SerializeField] private ShopSettings[] data;
         private Dictionary<string, ShopSettings> _dictionary;
-        public override ShopSettings[] Data
+        protected override ShopSettings[] Data
         {
-            get => data;
-            protected set
+            set
             {
                 data = value;
                 foreach (var item in data)

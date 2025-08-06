@@ -1,4 +1,5 @@
-﻿using Core.Graph;
+﻿using Core.Configurations;
+using Core.Graph;
 
 namespace Core.Structure.Rigging.Control.Attributes
 {

@@ -10,8 +10,20 @@ namespace Core.Trading
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;
+        [SerializeField] private float mass;
         public string Id => id;
         public IEnumerable<string> Tags => tags;
+        public int BasicCost => basicCost;
+        public float Mass => mass;
+
+        public ItemSign(){}
+        public ItemSign(string id, string[] tags, int basicCost, float mass)
+        {
+            this.id = id;
+            this.tags = tags;
+            this.basicCost = basicCost;
+            this.mass = mass;
+        }
 
         public bool HasTag(string tag)
         {
@@ -24,6 +36,5 @@ namespace Core.Trading
             }
             return false;
         }
-        public int BasicCost => basicCost;
     }
 }

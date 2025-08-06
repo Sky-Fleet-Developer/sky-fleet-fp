@@ -52,7 +52,7 @@ namespace Runtime.Trading.Ui
             }
             else if (paymentAmount > 0)
             {
-                dealCostText.text = $"<color=red>-{paymentAmount:C}</color>";
+                dealCostText.text = $"<color=yellow>-{paymentAmount:C}</color>";
             }
             else
             {

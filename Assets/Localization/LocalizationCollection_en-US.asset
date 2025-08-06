@@ -22,7 +22,15 @@ MonoBehaviour:
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 98984842653696
+  - m_Id: 1246999578046464
+    m_Localized: Iron ore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1246999649349632
+    m_Localized: Iron ore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1246999649349633
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
@@ -30,7 +38,15 @@ MonoBehaviour:
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []
-  - m_Id: 98984842653697
+  - m_Id: 1246999649349634
+    m_Localized: Iron ingot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1246999649349635
+    m_Localized: Iron ingot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1246999649349636
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []

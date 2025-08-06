@@ -29,11 +29,11 @@ namespace Runtime.Trading
             List<TradeItem> assortment = new List<TradeItem>();
             if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
             {
-                for (var i = 0; i < _itemsTable.Data.Length; i++)
+                for (var i = 0; i < _itemsTable.Items.Length; i++)
                 {
-                    if (settings.IsItemMatch(_itemsTable.Data[i]))
+                    if (settings.IsItemMatch(_itemsTable.Items[i]))
                     {
-                        assortment.Add(new TradeItem(_itemsTable.Data[i], 3, settings.GetCost(_itemsTable.Data[i])));
+                        assortment.Add(new TradeItem(_itemsTable.Items[i], 3, settings.GetCost(_itemsTable.Items[i])));
                     }
                 }
             }

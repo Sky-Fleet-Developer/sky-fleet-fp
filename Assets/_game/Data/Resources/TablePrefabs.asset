@@ -306,6 +306,14 @@ MonoBehaviour:
     tags:
     - block
     - emgracopter
+  - reference:
+      m_AssetGUID: 32392e7850e5f4942814cddad09851ff
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 32392e7850e5f4942814cddad09851ff
+    tags:
+    - item
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:
@@ -319,3 +327,6 @@ MonoBehaviour:
   - pathToSearchFolder: Assets/_game/Prefabs/Structures
     tags:
     - structure
+  - pathToSearchFolder: Assets/_game/Prefabs/Items
+    tags:
+    - item

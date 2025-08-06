@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Configurations;
 using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;

@@ -12,7 +12,7 @@ namespace Core.Configurations.GoogleSheets
     }
     public abstract class Table<T> : Table where T : new()
     {
-        public virtual T[] Data { get; protected set; }
+        protected abstract T[] Data { set; }
 
         public override void LoadData(string url, char separator, char arraySeparator)
         {

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Core.Configurations;
+using Core.Trading;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -58,6 +60,13 @@ namespace Core.Structure.Rigging
         public Bounds GetBounds()
         {
             return boundsCash;
+        }
+
+        private ItemSign _sourceItem;
+        ItemSign IItemInstance.SourceItem => _sourceItem;
+        void IItemInstanceHandle.SetSourceItem(ItemSign sign)
+        {
+            _sourceItem = sign;
         }
     }
 }

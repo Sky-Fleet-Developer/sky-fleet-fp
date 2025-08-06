@@ -5,13 +5,12 @@ using Core.ContentSerializer.Bundles;
 using Core.Data;
 using Core.Explorer.Content;
 using Core.Utilities;
-using Runtime;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Core.Structure.Rigging
+namespace Core.Configurations
 {
     [CreateAssetMenu(menuName = "Tables/Prefabs table")]
     public class TablePrefabs : SingletonAsset<TablePrefabs>
