@@ -87,8 +87,8 @@ namespace Core.Utilities
                     return;
                 }
             }
-
             pool.Add((component.gameObject, component));
+            component.gameObject.SetActive(false);
         }
     }
 }

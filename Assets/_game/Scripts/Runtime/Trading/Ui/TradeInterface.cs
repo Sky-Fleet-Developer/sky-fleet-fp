@@ -9,6 +9,7 @@ using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Runtime.Trading.Ui
@@ -16,29 +17,65 @@ namespace Runtime.Trading.Ui
     public class TradeInterface : Service, IFirstPersonInterface, ISelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
-        [SerializeField] private TradeItemsListView purchaserItemsView;
+        [SerializeField] private TradeItemsListView cartItemsView;
         [SerializeField] private TradeItemDescriptionView descriptionView;
-        [SerializeField] private Button actionButton;
+        [SerializeField] private Button addToCartButton;
+        [SerializeField] private Button removeFromCartButton;
         [SerializeField] private Button acceptButton;
         [SerializeField] private TextMeshProUGUI dealCostText;
         private ITradeHandler _handler;
         private FirstPersonController.TradeState _targetState;
         private FirstPersonInterfaceInstaller _master;
         private TradeDeal _deal;
-        
+
         protected override void Awake()
         {
             base.Awake();
             sellerItemsView.SelectionHandler.AddListener(this);
-            actionButton.onClick.AddListener(ActionClick);
+            cartItemsView.SelectionHandler.AddListener(this);
+            addToCartButton.onClick.AddListener(AddToCartClick);
+            removeFromCartButton.onClick.AddListener(RemoveFromCartClick);
             acceptButton.onClick.AddListener(AcceptClick);
         }
+
+        public void Init(FirstPersonInterfaceInstaller master)
+        {
+            _master = master;
+            _targetState = ((FirstPersonController.TradeState)_master.TargetState);
+            _handler = _targetState.Handler;
+            _deal = new TradeDeal(_targetState.Master.GetInventory(), _handler.Inventory);
+        }
         
-        private void ActionClick()
+        private void AddToCartClick()
         {
             if (sellerItemsView.SelectionHandler.Selected)
             {
-                _deal.TryAddToCart(sellerItemsView.SelectionHandler.Selected.Data, 1, sellerItemsView.SelectionHandler.Selected.Data.amount);
+                int amountToAdd = 1;
+                if (_deal.TryAddToCart(sellerItemsView.SelectionHandler.Selected.Data, amountToAdd, sellerItemsView.SelectionHandler.Selected.Data.amount, out var innerItem))
+                {
+                    cartItemsView.AddItem(innerItem);
+                    if (innerItem.amount == amountToAdd)
+                    {
+                        cartItemsView.Select(innerItem);
+                    }
+                    RefreshCostView();
+                }
+            }
+        }
+        
+        private void RemoveFromCartClick()
+        {
+            if (cartItemsView.SelectionHandler.Selected)
+            {
+                _deal.RemoveFromCart(cartItemsView.SelectionHandler.Selected.Data, 1, out bool isItemCompletelyRemoved);
+                if (isItemCompletelyRemoved)
+                {
+                    cartItemsView.RemoveItem(cartItemsView.SelectionHandler.Selected.Data);
+                }
+                else
+                {
+                    cartItemsView.RefreshItem(cartItemsView.SelectionHandler.Selected.Data);
+                }
                 RefreshCostView();
             }
         }
@@ -66,15 +103,9 @@ namespace Runtime.Trading.Ui
             {
                 _deal = new TradeDeal(_targetState.Master.GetInventory(), _handler.Inventory);
                 dealCostText.text = "0";
+                cartItemsView.Clear();
+                sellerItemsView.SetItems(_handler.Inventory.GetItems());
             }
-        }
-
-        public void Init(FirstPersonInterfaceInstaller master)
-        {
-            _master = master;
-            _targetState = ((FirstPersonController.TradeState)_master.TargetState);
-            _handler = _targetState.Handler;
-            _deal = new TradeDeal(_targetState.Master.GetInventory(), _handler.Inventory);
         }
 
         public bool IsMatch(IState state)
@@ -104,6 +135,7 @@ namespace Runtime.Trading.Ui
             if (next)
             {
                 descriptionView.SetData(next.Data.sign);
+                //bool isSellerItem = next.transform.IsChildOf(sellerItemsView.transform);
             }
             else
             {

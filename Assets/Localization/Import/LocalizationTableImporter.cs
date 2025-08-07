@@ -21,6 +21,7 @@ namespace Localization.Import
     {
         [SerializeField] private LocalizationItem[] data;
         [SerializeField] private StringTableCollection tableCollection;
+        [SerializeField] private SharedTableData sharedTableData;
         public override string TableName => "Localization";
 
         protected override LocalizationItem[] Data
@@ -35,6 +36,7 @@ namespace Localization.Import
         [Button]
         public void ApplyToLocalizationAssets(LocalizationItem[] data)
         {
+            sharedTableData.Clear();
             foreach (var tableCollectionTable in tableCollection.Tables)
             {
                 if (tableCollectionTable.asset is StringTable stringTable)
@@ -42,6 +44,7 @@ namespace Localization.Import
                     stringTable.Clear();
                     foreach (var localizationItem in data)
                     {
+                        sharedTableData.AddKey(localizationItem.key);
                         switch (stringTable.LocaleIdentifier.Code)
                         {
                             case "ru-RU":
@@ -57,6 +60,10 @@ namespace Localization.Import
                 EditorUtility.SetDirty(tableCollectionTable.asset);
                 #endif
             }
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(tableCollection);
+            EditorUtility.SetDirty(sharedTableData);
+#endif
         }
     }
 }

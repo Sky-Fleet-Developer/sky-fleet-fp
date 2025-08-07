@@ -14,6 +14,11 @@ namespace Core.Trading
             _items = items;
         }
 
+        public void PutItem(TradeItem item)
+        {
+            _items.Add(item);
+        }
+
         public IEnumerable<TradeItem> GetItems()
         {
             return _items;
@@ -28,6 +33,40 @@ namespace Core.Trading
                     yield return _items[i];
                 }
             }
+        }
+
+        public Inventory GetInventory()
+        {
+            return this;
+        }
+
+        public bool TryPullItem(TradeItem tradeItem)
+        {
+            for (var i = 0; i < _items.Count; i++)
+            {
+                if (_items[i].Equals(tradeItem))
+                {
+                    bool enough = _items[i].amount >= tradeItem.amount;
+                    if (!enough)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (_items[i].amount == tradeItem.amount)
+                        {
+                            _items.RemoveAt(i);
+                        }
+                        else
+                        {
+                            _items[i].amount -= tradeItem.amount;
+                        }
+
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

@@ -11,9 +11,10 @@ namespace Runtime.Trading.Ui
     public class TradeItemsListView : MonoBehaviour, ISelectionListener<TradeItemView>
     {
         [SerializeField] private Transform itemsContainer;
-        private List<TradeItemView> views = new ();
+        private List<TradeItemView> _views = new ();
         private TradeItemView _itemPrefab;
         public readonly ListSelectionHandler<TradeItemView> SelectionHandler = new ();
+        private List<TradeItem> _items = new();
         
         private void Awake()
         {
@@ -24,44 +25,68 @@ namespace Runtime.Trading.Ui
 
         public void SetItems(IEnumerable<TradeItem> items)
         {
+            _items.Clear();
             int counter = 0;
             foreach (var item in items)
             {
-                if (views.Count == counter)
+                if (_views.Count == counter)
                 {
-                    views.Add(DynamicPool.Instance.Get(_itemPrefab, itemsContainer));
-                    SelectionHandler.AddTarget(views[counter]);
+                    _views.Add(DynamicPool.Instance.Get(_itemPrefab, itemsContainer));
+                    SelectionHandler.AddTarget(_views[counter]);
                 }
-                views[counter++].SetData(item);
+                _views[counter++].SetData(item);
+                _items.Add(item);
             }
 
-            for (int i = counter; i < views.Count; i++)
+            for (int i = counter; i < _views.Count; i++)
             {
-                SelectionHandler.RemoveTarget(views[i]);
-                DynamicPool.Instance.Return(views[i]);
+                SelectionHandler.RemoveTarget(_views[i]);
+                DynamicPool.Instance.Return(_views[i]);
             }
 
-            views.RemoveRange(counter, views.Count - counter);
+            _views.RemoveRange(counter, _views.Count - counter);
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < _views.Count; i++)
+            {
+                SelectionHandler.RemoveTarget(_views[i]);
+                DynamicPool.Instance.Return(_views[i]);
+            }
+            _items.Clear();
+            _views.Clear();
         }
 
         public void AddItem(TradeItem item)
         {
+            var index = _items.FindIndex(x => x.sign.Id == item.sign.Id);
+            if (index != -1)
+            {
+                _items[index].amount = item.amount;
+                _views[index].RefreshView();
+                return;
+            }
             var instance = DynamicPool.Instance.Get(_itemPrefab, itemsContainer);
             instance.SetData(item);
-            views.Add(instance);
+            _views.Add(instance);
+            _items.Add(item);
             SelectionHandler.AddTarget(instance);
         }
+        
         public void RemoveItem(TradeItem item)
         {
-            var index = views.FindIndex(x => x.Data.sign.Id == item.sign.Id);
-            SelectionHandler.RemoveTarget(views[index]);
-            DynamicPool.Instance.Return(views[index]);
+            var index = _items.FindIndex(x => x == item);
+            SelectionHandler.RemoveTarget(_views[index]);
+            DynamicPool.Instance.Return(_views[index]);
+            _items.RemoveAt(index);
+            _views.RemoveAt(index);
         }
 
         public void RefreshItem(TradeItem item)
         {
-            var view = views.First(x => x.Data.sign.Id == item.sign.Id);
-            view.SetData(item);
+            var view = _views.First(x => x.Data.sign.Id == item.sign.Id);
+            view.RefreshView();
         }
 
         public void OnSelectionChanged(TradeItemView prev, TradeItemView next)
@@ -75,6 +100,12 @@ namespace Runtime.Trading.Ui
             {
                 next.SetSelectionState(true);
             }
+        }
+
+        public void Select(TradeItem item)
+        {
+            var view = _views.First(x => x.Data.sign.Id == item.sign.Id);
+            view.OnSelect(null);
         }
 
         private void OnDestroy()

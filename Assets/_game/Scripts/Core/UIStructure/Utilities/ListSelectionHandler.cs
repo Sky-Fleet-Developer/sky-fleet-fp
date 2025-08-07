@@ -15,18 +15,22 @@ namespace Core.UIStructure.Utilities
             target.OnSelected += OnSelected;
         }
 
-        public void RemoveTarget(TTarget target)
+        public void RemoveTarget(TTarget target, bool deselectIfSelected = true)
         {
+            if (deselectIfSelected && Equals(_selected, target))
+            {
+                OnSelected(null);
+            }
             _targets.Remove(target);
             target.OnSelected -= OnSelected;
         }
         
         private void OnSelected(ISelectionTarget value)
         {
+            var prev = _selected;
+            _selected = (TTarget)value;
             for (var i = 0; i < _listeners.Count; i++)
             {
-                var prev = _selected;
-                _selected = (TTarget)value;
                 _listeners[i].OnSelectionChanged(prev, _selected);
             }
         }

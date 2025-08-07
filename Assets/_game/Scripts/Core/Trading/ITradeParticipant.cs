@@ -6,6 +6,6 @@ namespace Core.Trading
     {
         IEnumerable<TradeItem> GetItems();
         IEnumerable<TradeItem> GetItems(string id);
-        
+        Inventory GetInventory();
     }
 }

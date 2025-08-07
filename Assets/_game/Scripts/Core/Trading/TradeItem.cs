@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Core.Trading
 {
     [Serializable]
-    public class TradeItem : IDisposable
+    public class TradeItem : IEquatable<TradeItem>, IDisposable
     {
         public int amount;
         public ItemSign sign;
@@ -23,6 +23,13 @@ namespace Core.Trading
             this.cost = cost;
         }
 
+        public bool Equals(TradeItem other)
+        {
+            if (other == null) return false;
+            if (!sign.Equals(other.sign)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return cost == other.cost;
+        }
 
         public void Dispose()
         {

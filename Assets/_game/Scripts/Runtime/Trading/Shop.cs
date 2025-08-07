@@ -22,18 +22,26 @@ namespace Runtime.Trading
         public event Action ItemsChanged;
         [Inject] private ShopTable _shopTable;
         [Inject] private ItemsTable _itemsTable;
+        [Inject] private DiContainer _diContainer;
         private Inventory _inventory;
-
+        private List<IProductDeliveryService> _deliveryServices = new ();
+        
         public override void InitBlock(IStructure structure, Parent parent)
         {
+            GetComponentsInChildren(_deliveryServices);
+            _deliveryServices.Sort();
+            for (var i = 0; i < _deliveryServices.Count; i++)
+            {
+                _diContainer.Inject(_deliveryServices[i]);
+            }
             List<TradeItem> assortment = new List<TradeItem>();
             if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
             {
-                for (var i = 0; i < _itemsTable.Items.Length; i++)
+                foreach (var itemSign in _itemsTable.GetItems())
                 {
-                    if (settings.IsItemMatch(_itemsTable.Items[i]))
+                    if (settings.IsItemMatch(itemSign))
                     {
-                        assortment.Add(new TradeItem(_itemsTable.Items[i], 3, settings.GetCost(_itemsTable.Items[i])));
+                        assortment.Add(new TradeItem(itemSign, 3, settings.GetCost(itemSign)));
                     }
                 }
             }
@@ -44,7 +52,32 @@ namespace Runtime.Trading
 
         public bool TryMakeDeal(TradeDeal deal, out Transaction transaction)
         {
-            transaction = null;
+            var deliverySettings = new ProductDeliverySettings { PurchaserInventory = deal.GetPurchaser().GetInventory() };
+            List<DeliveredProductInfo> deliveredProductInfo = new ();
+            foreach (var tradeItem in deal.GetPurchases())
+            {
+                if (!deal.GetSeller().GetInventory().TryPullItem(tradeItem))
+                {
+                    Debug.LogError($"Cant pull item. Id:{tradeItem.sign.Id}");
+                    continue;
+                }
+                bool isDelivered = false;
+                for (var i = 0; i < _deliveryServices.Count; i++)
+                {
+                    if (_deliveryServices[i].TryDeliver(tradeItem, deliverySettings, out DeliveredProductInfo info))
+                    {
+                        deliveredProductInfo.Add(info);
+                        isDelivered = true;
+                        break;
+                    }
+                }
+
+                if (!isDelivered)
+                {
+                    Debug.LogError($"Item was not delivered. Id:{tradeItem.sign.Id}");
+                }
+            }
+            transaction = new Transaction(deal, deliveredProductInfo);
             return true;
         }
 

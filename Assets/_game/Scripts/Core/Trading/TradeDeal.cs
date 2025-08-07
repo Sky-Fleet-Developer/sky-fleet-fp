@@ -11,6 +11,11 @@ namespace Core.Trading
         private ITradeParticipant _seller;
         private ITradeParticipant _purchaser;
 
+        public IEnumerable<TradeItem> GetPurchases() => _itemsToPurchase;
+        public IEnumerable<TradeItem> GetSells() => _itemsToSell;
+        public ITradeParticipant GetPurchaser() => _purchaser;
+        public ITradeParticipant GetSeller() => _seller;
+        
         public TradeDeal(ITradeParticipant purchaser, ITradeParticipant seller)
         {
             _purchaser = purchaser;
@@ -19,7 +24,7 @@ namespace Core.Trading
             _itemsToSell = new();
         }
 
-        public bool TryAddToCart(TradeItem item, int amount, int existAmount)
+        public bool TryAddToCart(TradeItem item, int amountToAdd, int existAmount, out TradeItem innerItem)
         {
             for (var i = 0; i < _itemsToPurchase.Count; i++)
             {
@@ -27,11 +32,13 @@ namespace Core.Trading
                 {
                     if (_itemsToPurchase[i].amount < existAmount)
                     {
-                        _itemsToPurchase[i].amount += amount;
+                        _itemsToPurchase[i].amount += amountToAdd;
+                        innerItem = _itemsToPurchase[i];
                         return true;
                     }
                     else
                     {
+                        innerItem = null;
                         return false;
                     }
                 }
@@ -40,9 +47,32 @@ namespace Core.Trading
             var tradeItem = new TradeItem();
             tradeItem.sign = item.sign;
             tradeItem.cost = item.cost;
-            tradeItem.amount = Mathf.Min(existAmount, amount);
+            tradeItem.amount = Mathf.Min(existAmount, amountToAdd);
             _itemsToPurchase.Add(tradeItem);
+            innerItem = tradeItem;
             return true;
+        }
+
+        public void RemoveFromCart(TradeItem item, int amountToRemove, out bool isItemCompletelyRemoved)
+        {
+            isItemCompletelyRemoved = false;
+            for (var i = 0; i < _itemsToPurchase.Count; i++)
+            {
+                if (_itemsToPurchase[i] == item)
+                {
+                    if (_itemsToPurchase[i].amount > amountToRemove)
+                    {
+                        _itemsToPurchase[i].amount -= amountToRemove;
+                        isItemCompletelyRemoved = false;
+                    }
+                    else
+                    {
+                        _itemsToPurchase.RemoveAt(i);
+                        isItemCompletelyRemoved = true;
+                    }
+                    break;
+                }
+            }
         }
 
         public void AddToSell(TradeItem item, int amount)

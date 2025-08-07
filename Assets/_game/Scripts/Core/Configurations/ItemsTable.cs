@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.Configurations.GoogleSheets;
 using Core.Trading;
 using UnityEngine;
@@ -17,23 +18,45 @@ namespace Core.Configurations
             public int BasicCost;
             public string TablePrefab;
         }
+        [System.Serializable]
+        private class PrefabLink
+        {
+            public string signId;
+            public string prefabGuid;
+        }
         
-        [SerializeField] private ItemSign[] items;
-        [SerializeField] private CrateInfo[] crates;
-        public override string TableName => "Items";
-        public ItemSign[] Items => items;
-
         private static readonly char[] EntityTagParameterSeparators = new [] {':', '='};
         private const string IsCrateTag = "crate";
         private const string MassParameter = "mass";
         private const float MinimalMass = 0.01f;
+        
+        [SerializeField] private List<ItemSign> items;
+        [SerializeField] private List<CrateInfo> crates;
+        [SerializeField] private List<PrefabLink> linksToPrefabs;
+        private Dictionary<string, ItemSign> _itemById;
+        private Dictionary<string, PrefabLink> _prefabLinkById;
+        public override string TableName => "Items";
+        public IEnumerable<ItemSign> GetItems() => items;
+
+        public string GetItemPrefabGuid(string itemId)
+        {
+            _prefabLinkById ??= linksToPrefabs.ToDictionary(x => x.signId);
+            return _prefabLinkById[itemId].prefabGuid;
+        }
+        public ItemSign GetItem(string id)
+        {
+            _itemById ??= items.ToDictionary(x => x.Id);
+            return _itemById[id];
+        }
+        
         protected override RawItemSign[] Data
         {
             set
             {
                 List<string> tags = new List<string>();
-                List<CrateInfo> crates = new List<CrateInfo>();
-                items = new ItemSign[value.Length];
+                crates = new List<CrateInfo>();
+                items = new List<ItemSign>(value.Length);
+                linksToPrefabs = new List<PrefabLink>();
                 for (int i = 0; i < value.Length; i++)
                 {
                     var rawItemSign = value[i];
@@ -68,10 +91,9 @@ namespace Core.Configurations
                         }
                     }
                     ItemSign newItem = new ItemSign(rawItemSign.Id, tags.ToArray(), rawItemSign.BasicCost, mass < MinimalMass ? MinimalMass : mass);
-                    items[i] = newItem;
+                    linksToPrefabs.Add(new PrefabLink{ signId = newItem.Id, prefabGuid = rawItemSign.TablePrefab });
+                    items.Add(newItem);
                 }
-
-                this.crates = crates.ToArray();
             }
         }
     }

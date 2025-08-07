@@ -15,12 +15,68 @@ MonoBehaviour:
   m_TableCollectionName: LocalizationCollection
   m_TableCollectionNameGuidString: a105491da5422b944bf6c229541308ec
   m_Entries:
-  - m_Id: 13346520854528
+  - m_Id: 1579187821506560
     m_Key: iron_ore_name
     m_Metadata:
       m_Items: []
-  - m_Id: 13346525048832
+  - m_Id: 1579187829895168
+    m_Key: iron_ore_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089472
+    m_Key: iron_ore_crate_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089473
+    m_Key: iron_ore_crate_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089474
     m_Key: iron_ingot_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089475
+    m_Key: iron_ingot_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089476
+    m_Key: iron_ingot_crate_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089477
+    m_Key: iron_ingot_crate_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089478
+    m_Key: iron_ore_name 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089479
+    m_Key: iron_ore_description 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089480
+    m_Key: iron_ore_crate_name 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089481
+    m_Key: iron_ore_crate_description 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089482
+    m_Key: iron_ingot_name 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089483
+    m_Key: iron_ingot_description 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089484
+    m_Key: iron_ingot_crate_name 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1579187834089485
+    m_Key: iron_ingot_crate_description 1
     m_Metadata:
       m_Items: []
   m_Metadata:

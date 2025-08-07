@@ -5,8 +5,9 @@ using UnityEngine;
 namespace Core.Trading
 {
     [Serializable]
-    public class ItemSign
+    public class ItemSign : IEquatable<ItemSign>
     {
+        public const string LargeTag = "large";
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;
@@ -35,6 +36,26 @@ namespace Core.Trading
                 }
             }
             return false;
+        }
+
+        public bool Equals(ItemSign other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return id == other.id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((ItemSign)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (id != null ? id.GetHashCode() : 0);
         }
     }
 }

@@ -52,3 +52,4 @@ MonoBehaviour:
       \u0436\u0435\u043B\u0435\u0437\u0430, \u0431\u0435\u0437 \u043F\u0440\u0438\u043C\u0435\u0441\u0435\u0439"
     en: Iron ingot
   tableCollection: {fileID: 11400000, guid: f201bb2fb50e5fb4fb28397e44f98256, type: 2}
+  sharedTableData: {fileID: 11400000, guid: a105491da5422b944bf6c229541308ec, type: 2}

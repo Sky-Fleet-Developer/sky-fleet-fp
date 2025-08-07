@@ -89,6 +89,15 @@ MonoBehaviour:
   - sourceId: iron_ingot_crate
     crateId: iron_ingot
     capacity: 500
+  linksToPrefabs:
+  - signId: iron_ore
+    prefabGuid: 
+  - signId: iron_ingot
+    prefabGuid: 
+  - signId: iron_ore_crate
+    prefabGuid: 32392e7850e5f4942814cddad09851ff
+  - signId: iron_ingot_crate
+    prefabGuid: 32392e7850e5f4942814cddad09851ff
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
