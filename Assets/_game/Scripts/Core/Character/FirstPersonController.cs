@@ -507,6 +507,7 @@ namespace Core.Character
             private IEnumerator LeaveControlRoutine()
             {
                 var detachData = Master._attachedIIDriveInterface.GetDetachData();
+                Master._attachedIIDriveInterface.OnCharacterLeave(Master);
                 if (Master.CanMove)
                 {
                     detachData.transition.Setup(detachData.anchor.position, Master.transform.DOMove);
@@ -523,7 +524,6 @@ namespace Core.Character
 
                     Master.ScyncVelocity(Master._attachedIIDriveInterface.Structure);
                 }
-                Master._attachedIIDriveInterface.OnCharacterLeave(Master);
                 Master._attachedIIDriveInterface = null;
                 Master.CurrentState = _prevState;
             }

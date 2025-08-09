@@ -75,6 +75,11 @@ namespace Core.Environment
                 {
                     hit.CharacterHandler = characterHandler;
                 }
+
+                if (io is IInteractiveDevice interactiveDevice)
+                {
+                    hit.CharacterHandler = interactiveDevice.Block;
+                }
             }
             else
             {

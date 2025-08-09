@@ -30,23 +30,28 @@ namespace Runtime.Trading
         {
             GetComponentsInChildren(_deliveryServices);
             _deliveryServices.Sort();
-            for (var i = 0; i < _deliveryServices.Count; i++)
+            if (_diContainer != null)
             {
-                _diContainer.Inject(_deliveryServices[i]);
-            }
-            List<TradeItem> assortment = new List<TradeItem>();
-            if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
-            {
-                foreach (var itemSign in _itemsTable.GetItems())
+                for (var i = 0; i < _deliveryServices.Count; i++)
                 {
-                    if (settings.IsItemMatch(itemSign))
+                    _diContainer.Inject(_deliveryServices[i]);
+                }
+
+                List<TradeItem> assortment = new List<TradeItem>();
+                if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
+                {
+                    foreach (var itemSign in _itemsTable.GetItems())
                     {
-                        assortment.Add(new TradeItem(itemSign, 3, settings.GetCost(itemSign)));
+                        if (settings.IsItemMatch(itemSign))
+                        {
+                            assortment.Add(new TradeItem(itemSign, 3, settings.GetCost(itemSign)));
+                        }
                     }
                 }
+
+                _inventory = new Inventory(assortment);
             }
 
-            _inventory = new Inventory(assortment);
             base.InitBlock(structure, parent);
         }
 

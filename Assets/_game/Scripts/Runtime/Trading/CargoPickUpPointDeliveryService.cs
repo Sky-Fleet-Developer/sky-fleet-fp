@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Configurations;
 using Core.Game;
@@ -48,10 +49,26 @@ namespace Runtime.Trading
         private Vector3 GetNextSpawnPoint()
         {
             int zone = _spawnCounter++ % (spawnZoneSize.x * spawnZoneSize.y);
-            float x = zone % spawnZoneSize.y - spawnZoneSize.x * 0.5f;
-            float y = zone / spawnZoneSize.y - spawnZoneSize.y * 0.5f;
-
-            return new Vector3(x * spawnPlaceSize.x, 0, y * spawnZoneSize.y);
+            return GetSpawnPoint(zone % spawnZoneSize.x, zone / spawnZoneSize.x);
         }
+
+        private Vector3 GetSpawnPoint(int x, int y)
+        {
+            return new Vector3((x - (spawnZoneSize.x - 1) * 0.5f) * spawnPlaceSize.x, 0,
+                (y - (spawnZoneSize.y - 1) * 0.5f) * spawnPlaceSize.y);
+        }
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.matrix = transform.localToWorldMatrix;
+            for (int i = 0; i < spawnZoneSize.x * spawnZoneSize.y; i++)
+            {
+                int x = i % spawnZoneSize.x;
+                int y = i / spawnZoneSize.x;
+                Gizmos.DrawWireCube(GetSpawnPoint(x, y), new Vector3(spawnPlaceSize.x, 0.5f, spawnPlaceSize.y));
+            }
+            
+        }
+#endif
     }
 }

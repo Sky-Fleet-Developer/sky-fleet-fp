@@ -25,7 +25,7 @@ namespace Core.Structure
             path = transform.GetPath(structure.transform);
             Blocks = new List<IBlock>();
             mass = 0;
-            bounds = new Bounds(Vector3.zero, Vector3.zero);
+            bounds = transform.GetBounds();
             if (structure.Blocks == null)
             {
                 return;
@@ -36,7 +36,6 @@ namespace Core.Structure
                 {
                     Blocks.Add(block);
                     mass += block.Mass;
-                    bounds.Encapsulate(block.GetBounds());
                 }
             }
         }
