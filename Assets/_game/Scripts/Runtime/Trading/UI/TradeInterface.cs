@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Core.Character;
 using Core.Character.Interaction;
 using Core.Character.Interface;
@@ -9,10 +8,9 @@ using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Runtime.Trading.Ui
+namespace Runtime.Trading.UI
 {
     public class TradeInterface : Service, IFirstPersonInterface, ISelectionListener<TradeItemView>
     {
@@ -24,7 +22,7 @@ namespace Runtime.Trading.Ui
         [SerializeField] private Button acceptButton;
         [SerializeField] private TextMeshProUGUI dealCostText;
         private ITradeHandler _handler;
-        private FirstPersonController.TradeState _targetState;
+        private FirstPersonController.UIInteractionState _interactionState;
         private FirstPersonInterfaceInstaller _master;
         private TradeDeal _deal;
 
@@ -41,9 +39,9 @@ namespace Runtime.Trading.Ui
         public void Init(FirstPersonInterfaceInstaller master)
         {
             _master = master;
-            _targetState = ((FirstPersonController.TradeState)_master.TargetState);
-            _handler = _targetState.Handler;
-            _deal = new TradeDeal(_targetState.Master.GetInventory(), _handler.Inventory);
+            _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
+            _handler = (ITradeHandler)_interactionState.Handler;
+            _deal = new TradeDeal(_interactionState.Master.GetInventory(), _handler.Inventory);
         }
         
         private void AddToCartClick()
@@ -101,7 +99,7 @@ namespace Runtime.Trading.Ui
         {
             if (_handler.TryMakeDeal(_deal, out Transaction transaction))
             {
-                _deal = new TradeDeal(_targetState.Master.GetInventory(), _handler.Inventory);
+                _deal = new TradeDeal(_interactionState.Master.GetInventory(), _handler.Inventory);
                 dealCostText.text = "0";
                 cartItemsView.Clear();
                 sellerItemsView.SetItems(_handler.Inventory.GetItems());
@@ -110,7 +108,7 @@ namespace Runtime.Trading.Ui
 
         public bool IsMatch(IState state)
         {
-            return state is FirstPersonController.TradeState;
+            return state is FirstPersonController.UIInteractionState { Handler: ITradeHandler };
         }
 
         void IFirstPersonInterface.Show()
@@ -126,7 +124,7 @@ namespace Runtime.Trading.Ui
 
         public override IEnumerator Hide(BlockSequenceSettings settings = null)
         {
-            _targetState.LeaveState();
+            _interactionState.LeaveState();
             return base.Hide(settings);
         }
 

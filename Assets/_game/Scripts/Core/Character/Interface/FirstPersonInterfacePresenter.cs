@@ -16,7 +16,7 @@ namespace Core.Character.Interface
         private List<IFirstPersonInterface> _childInterfaces;
         private List<IFirstPersonInterface> _prefabInterfaces = new ();
         private readonly List<IFirstPersonInterface> _currentStates = new();
-        private readonly List<Component> _fromPool = new();
+        private readonly Dictionary<IFirstPersonInterface, Component> _fromPool = new();
         private readonly List<IFirstPersonInterface> _services = new();
         private FirstPersonInterfaceInstaller _master;
         [Inject] private ServiceIssue _serviceIssue;
@@ -67,6 +67,10 @@ namespace Core.Character.Interface
                 if (!_currentStates[i].IsMatch(state))
                 {
                     _currentStates[i].Hide();
+                    if (_fromPool.TryGetValue(_currentStates[i], out var component))
+                    {
+                        DynamicPool.Instance.Return(component);
+                    }
                     _currentStates.RemoveAt(i);
                 }
             }
@@ -89,7 +93,7 @@ namespace Core.Character.Interface
                     _diContainer.Inject(instance);
                     var instanceAsInterface = (IFirstPersonInterface)instance;
                     _currentStates.Add(instanceAsInterface);
-                    _fromPool.Add(instance);
+                    _fromPool.Add(instanceAsInterface, instance);
                     instanceAsInterface.Init(_master);
                     instanceAsInterface.Show();
                 }

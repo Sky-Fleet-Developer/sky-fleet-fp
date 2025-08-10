@@ -3,7 +3,7 @@ using Core.Trading;
 using TMPro;
 using UnityEngine;
 
-namespace Runtime.Trading.Ui
+namespace Runtime.Trading.UI
 {
     public class TradeItemDescriptionView : MonoBehaviour
     {

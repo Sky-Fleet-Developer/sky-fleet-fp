@@ -17,6 +17,8 @@ namespace Core.Utilities
             {
                 bound.Encapsulate(hit.bounds);
             }
+
+            bound.center = root.InverseTransformPoint(bound.center);
             /*Debug.DrawLine(bound.min, bound.max, Color.red, 10);
             Debug.DrawLine(bound.min + Vector3.up * bound.size.y, bound.max - Vector3.up * bound.size.y, Color.red, 10);
             Debug.DrawLine(bound.min + Vector3.right * bound.size.x, bound.max - Vector3.right * bound.size.x, Color.red, 10);

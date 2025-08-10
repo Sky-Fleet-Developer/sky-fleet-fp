@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using Core.Cargo;
 using Core.Character.Interaction;
 using Core.Data;
 using Core.Data.GameSettings;
@@ -435,15 +436,15 @@ namespace Core.Character
             }
         }
         
-        public class TradeState : InteractionState
+        public class UIInteractionState : InteractionState
         {
             private InteractionState _prevState;
-            private ITradeHandler _handler;
+            private ICharacterHandler _handler;
             private bool _canMove;
             private bool _rotationLocked;
-            public ITradeHandler Handler => _handler;
+            public ICharacterHandler Handler => _handler;
 
-            public TradeState(FirstPersonController master, InteractionState prevState, ITradeHandler handler) : base(master)
+            public UIInteractionState(FirstPersonController master, InteractionState prevState, ICharacterHandler handler) : base(master)
             {
                 _handler = handler;
                 _prevState = prevState;
@@ -642,8 +643,8 @@ namespace Core.Character
                 case IDriveInterface characterInterface:
                     CurrentState = new SeatState(this, currentInteractionState, characterInterface);
                     break;
-                case ITradeHandler tradeHandler:
-                    CurrentState = new TradeState(this, currentInteractionState, tradeHandler);
+                case ITradeHandler: case ICargoLoadingHandler:
+                    CurrentState = new UIInteractionState(this, currentInteractionState, handler);
                     break;
             }
         }

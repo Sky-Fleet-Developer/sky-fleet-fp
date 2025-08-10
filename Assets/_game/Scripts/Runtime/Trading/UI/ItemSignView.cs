@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
-namespace Runtime.Trading.Ui
+namespace Runtime.Trading.UI
 {
     public class ItemSignView : MonoBehaviour
     {

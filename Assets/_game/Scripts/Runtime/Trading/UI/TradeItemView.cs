@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Runtime.Trading.Ui
+namespace Runtime.Trading.UI
 {
     public class TradeItemView : MonoBehaviour, ISelectionTarget, ISelectHandler
     {
@@ -19,6 +19,15 @@ namespace Runtime.Trading.Ui
         private TradeItem _data;
         public TradeItem Data => _data;
         public Action<ISelectionTarget> OnSelected { get; set; }
+        public void Selected()
+        {
+            selectionFrame.gameObject.SetActive(true);
+        }
+
+        public void Deselected()
+        {
+            selectionFrame.gameObject.SetActive(false);
+        }
 
         public void SetData(TradeItem data)
         {
@@ -36,11 +45,6 @@ namespace Runtime.Trading.Ui
         public void OnSelect(BaseEventData eventData)
         {
             OnSelected?.Invoke(this);
-        }
-
-        public void SetSelectionState(bool state)
-        {
-            selectionFrame.gameObject.SetActive(state);
         }
     }
 }

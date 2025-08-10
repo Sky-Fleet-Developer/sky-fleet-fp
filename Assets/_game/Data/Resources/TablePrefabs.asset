@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b4e31263ade4064a9558bd30a92a864, type: 3}
   m_Name: TablePrefabs
   m_EditorClassIdentifier: 
+  preprocessors:
+  - {fileID: 11400000, guid: 15534fe94936fea4f8124e4508988108, type: 2}
   items:
   - reference:
       m_AssetGUID: 48a371fc77a91fe4098ec1d5f2fcd654
@@ -314,6 +316,8 @@ MonoBehaviour:
     guid: 32392e7850e5f4942814cddad09851ff
     tags:
     - item
+    - cargo
+    - large
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:

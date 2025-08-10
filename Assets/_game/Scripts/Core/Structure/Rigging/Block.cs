@@ -38,7 +38,8 @@ namespace Core.Structure.Rigging
 
         public bool IsActive => gameObject && gameObject.activeSelf && enabled;
 
-        public float Mass { get => mass; }
+        public virtual float Mass { get => mass; }
+        public virtual Vector3 LocalCenterOfMass => Vector3.zero;
 
         [SerializeField]
         private float mass = 10;

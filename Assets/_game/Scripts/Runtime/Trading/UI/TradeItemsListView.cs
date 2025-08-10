@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
 using UnityEngine;
 
-namespace Runtime.Trading.Ui
+namespace Runtime.Trading.UI
 {
-    public class TradeItemsListView : MonoBehaviour, ISelectionListener<TradeItemView>
+    public class TradeItemsListView : MonoBehaviour
     {
         [SerializeField] private Transform itemsContainer;
         private List<TradeItemView> _views = new ();
@@ -20,7 +19,6 @@ namespace Runtime.Trading.Ui
         {
             _itemPrefab = itemsContainer.GetComponentInChildren<TradeItemView>();
             DynamicPool.Instance.Return(_itemPrefab);
-            SelectionHandler.AddListener(this);
         }
 
         public void SetItems(IEnumerable<TradeItem> items)
@@ -89,18 +87,6 @@ namespace Runtime.Trading.Ui
             view.RefreshView();
         }
 
-        public void OnSelectionChanged(TradeItemView prev, TradeItemView next)
-        {
-            if (prev)
-            {
-                prev.SetSelectionState(false);
-            }
-
-            if (next)
-            {
-                next.SetSelectionState(true);
-            }
-        }
 
         public void Select(TradeItem item)
         {

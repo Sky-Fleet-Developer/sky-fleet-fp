@@ -12,11 +12,20 @@ using UnityEngine.AddressableAssets;
 
 namespace Core.Configurations
 {
-    [CreateAssetMenu(menuName = "Tables/Prefabs table")]
+    [CreateAssetMenu(menuName = "Configs/Prefabs table")]
     public class TablePrefabs : SingletonAsset<TablePrefabs>
     {
+        [SerializeField] private PrefabProcessor[] preprocessors;
         public List<RemotePrefabItem> items;
         private Dictionary<string, RemotePrefabItem> itemsCache;
+        [Button]
+        public void MakePrefabsPreprocess()
+        {
+            foreach (var prefabProcessDataStore in preprocessors)
+            {
+                prefabProcessDataStore.ProcessPrefabs(items);
+            }
+        }
 #if UNITY_EDITOR
         [Space(20), SerializeField] private AddPrefabSettings[] autoSearchSettings;
 

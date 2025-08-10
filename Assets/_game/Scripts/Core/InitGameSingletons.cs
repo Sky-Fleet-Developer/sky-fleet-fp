@@ -14,16 +14,24 @@ namespace Core
     public class InitGameSingletons : MonoInstaller, ILoadAtStart
     {
         [SerializeField] private GameData gameData;
+        [SerializeField] ScriptableObject[] injectTargets;
         public Task Load()
         {
             gameData.Initialize();
+            for (var i = 0; i < injectTargets.Length; i++)
+            {
+                Container.Inject(injectTargets[i]);
+            }
             return Task.CompletedTask;
         }
 
         public override void InstallBindings()
         {
-            Container.Bind<GameData>().FromInstance(gameData);
             Container.Bind<StructureUpdateModule>().FromInstance(StructureUpdateModule.Instance);
+            for (var i = 0; i < injectTargets.Length; i++)
+            {
+                Container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
+            }
             gameData.InstallChildren(Container);
         }
     }

@@ -300,6 +300,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameData: {fileID: 11400000, guid: d81f0b5af9e5a864d9759da4705093b6, type: 2}
+  injectTargets:
+  - {fileID: 11400000, guid: fda9b72727448dd44a65fbfd77470a23, type: 2}
+  - {fileID: 11400000, guid: d81f0b5af9e5a864d9759da4705093b6, type: 2}
+  - {fileID: 11400000, guid: 65421e073bc4929429153b097ec740c0, type: 2}
+  - {fileID: 11400000, guid: ceb1915d0b5bbba46aa4ddbd106f7413, type: 2}
+  - {fileID: 11400000, guid: 15534fe94936fea4f8124e4508988108, type: 2}
 --- !u!1 &2718442238776304254
 GameObject:
   m_ObjectHideFlags: 0
