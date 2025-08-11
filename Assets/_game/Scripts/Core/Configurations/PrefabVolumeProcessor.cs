@@ -109,7 +109,7 @@ namespace Core.Configurations
                     {
                         var current = new Vector3Int(x, y, z);
 
-                        bool result = Physics.CheckBox(spawnPoint + current, halfExtents);
+                        bool result = Physics.CheckBox(spawnPoint + (Vector3)current * particleSize, halfExtents);
                         if (result)
                         {
                             volume.Add(current);

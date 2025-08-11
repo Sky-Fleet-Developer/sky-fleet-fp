@@ -5,6 +5,7 @@ using Core.Configurations;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
+using Runtime.Cargo;
 using UnityEngine;
 using Zenject;
 
@@ -15,6 +16,8 @@ namespace Runtime.Structure.Rigging.Cargo
         [SerializeField] private BoundsInt[] volumeAnchors;
         [SerializeField] private BoundsInt[] excludeVolumeAnchors;
         [SerializeField] private CinemachineVirtualCamera placementCamera;
+        [SerializeField] private TrunkVolumeView trunkVolumeView;
+        [SerializeField] private CargoVolumeView cargoVolumeView;
         [Inject] private PrefabVolumeProcessor _prefabVolumes;
         private Dictionary<Vector3Int, ITablePrefab> _content = new();
         private HashSet<Vector3Int> _space = new();
@@ -34,6 +37,7 @@ namespace Runtime.Structure.Rigging.Cargo
         private void Awake()
         {
             placementCamera.gameObject.SetActive(false);
+            trunkVolumeView.gameObject.SetActive(false);
             _acceptHandler = new PlaceCargoHandler { PlaceAction = PlaceLast };
         }
 
@@ -131,14 +135,27 @@ namespace Runtime.Structure.Rigging.Cargo
             return false;
         }
 
-        void ICargoTrunkPlayerInterface.EnterPlacement()
+        private Vector3Int _cargoViewPosition;
+        void ICargoTrunkPlayerInterface.EnterPlacement(ITablePrefab cargo)
         {
             placementCamera.gameObject.SetActive(true);
+            trunkVolumeView.gameObject.SetActive(true);
+            trunkVolumeView.SetVolume(volumeAnchors[0], _prefabVolumes.ParticleSize);
+            cargoVolumeView.SetVolume(_prefabVolumes.GetProfile(cargo).GetVolume(), _prefabVolumes.ParticleSize);
+            _cargoViewPosition = Vector3Int.zero;
+        }
+
+        void ICargoTrunkPlayerInterface.MoveTo(Vector3Int position)
+        {
+            cargoVolumeView.Move(position - _cargoViewPosition);
+            _cargoViewPosition = position;
         }
 
         void ICargoTrunkPlayerInterface.ExitPlacement()
         {
             placementCamera.gameObject.SetActive(false);
+            trunkVolumeView.gameObject.SetActive(false);
+            cargoVolumeView.Clear();
         }
     }
 }

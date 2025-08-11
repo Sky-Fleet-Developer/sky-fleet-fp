@@ -102,7 +102,7 @@ namespace Runtime.Cargo.UI
         {
             if (_cargoSelection.Selected && _trunkSelection.Selected)
             {
-                _trunkSelection.Selected.Data.EnterPlacement();
+                _trunkSelection.Selected.Data.EnterPlacement(_cargoSelection.Selected.Data);
                 foreach (var target in _cargoSelection.Targets)
                 {
                     target.gameObject.SetActive(false);
