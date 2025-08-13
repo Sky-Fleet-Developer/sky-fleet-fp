@@ -106,5 +106,13 @@ namespace Core.Structure.Rigging.Control
             port.Value = currentPos;
             _device.Port.Value = currentPos;
         }
+        
+        public void Enable()
+        {
+        }
+
+        public void Disable()
+        {
+        }
     }
 }

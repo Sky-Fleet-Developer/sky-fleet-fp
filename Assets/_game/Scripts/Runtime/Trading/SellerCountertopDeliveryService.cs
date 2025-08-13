@@ -1,4 +1,5 @@
 ﻿using Core.Configurations;
+using Core.Items;
 using Core.Trading;
 using UnityEngine;
 using Zenject;

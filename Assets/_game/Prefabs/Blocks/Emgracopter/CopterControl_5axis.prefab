@@ -53,158 +53,222 @@ MonoBehaviour:
   mass: 30
   mountingType: 
   axes:
-  - enableInteraction: 0
+  - computerInput: Pitch
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 5fbabfe4-3697-4345-a6e9-9544ae4b3e38
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: Keyboard
+        m_Id: cd23d8a2-e91a-40a0-be61-e80f7d9053c8
+        m_Path: MyAxis(increaseSensitivity=2,decreaseSensitivity=2,moveToZeroSensitivityModifier=0.7)
+        m_Interactions: 
+        m_Processors: Invert
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 4
+      - m_Name: Negative
+        m_Id: 620566cd-f230-4b35-ac6b-8ba4ff045e76
+        m_Path: <Keyboard>/w
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: Positive
+        m_Id: 71683096-c3fa-4cdc-8b1c-d089a125f11b
+        m_Path: <Keyboard>/s
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: 
+        m_Id: 5803b9da-caf7-4494-b1ac-de12f5188424
+        m_Path: <Joystick>/stick/y
+        m_Interactions: 
+        m_Processors: StickDeadzone(min=1.401298E-45,max=1)
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 0
+      m_Flags: 0
     portType: 0
-    keyPositive:
-      keys:
-      - KeyCodes: 77000000
-    keyNegative:
-      keys:
-      - KeyCodes: 73000000
-    axe:
-      Axis:
-        _name: 
-        Inverse: 0
-        Multiply: 0
-    keyActiveAxis:
-      keys: []
-    computerInput: Pitch
-    inputValue: 0
-    realValue: 0
-    logicValue: 0
-    multiply: 1
-    sensitivity: 3
-    gravity: 1
-    power: 1.5
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
     _device: {fileID: 4406161331807477076}
-  - enableInteraction: 0
+  - computerInput: Roll
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 5fbabfe4-3697-4345-a6e9-9544ae4b3e38
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: Keyboard
+        m_Id: cd23d8a2-e91a-40a0-be61-e80f7d9053c8
+        m_Path: MyAxis(increaseSensitivity=2,decreaseSensitivity=2,moveToZeroSensitivityModifier=0.7)
+        m_Interactions: 
+        m_Processors: Invert
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 4
+      - m_Name: Negative
+        m_Id: 620566cd-f230-4b35-ac6b-8ba4ff045e76
+        m_Path: <Keyboard>/a
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: Positive
+        m_Id: 71683096-c3fa-4cdc-8b1c-d089a125f11b
+        m_Path: <Keyboard>/d
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: 
+        m_Id: 5803b9da-caf7-4494-b1ac-de12f5188424
+        m_Path: <Joystick>/stick/x
+        m_Interactions: 
+        m_Processors: StickDeadzone(min=1.401298E-45,max=1),Invert
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 0
+      m_Flags: 0
     portType: 0
-    keyPositive:
-      keys:
-      - KeyCodes: 61000000
-    keyNegative:
-      keys:
-      - KeyCodes: 64000000
-    axe:
-      Axis:
-        _name: 
-        Inverse: 0
-        Multiply: 0
-    keyActiveAxis:
-      keys: []
-    computerInput: Roll
-    inputValue: 0
-    realValue: 0
-    logicValue: -0
-    multiply: 1
-    sensitivity: 3
-    gravity: 1
-    power: 1.5
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
     _device: {fileID: 1731100135611814391}
-  - enableInteraction: 0
+  - computerInput: Yaw
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 5fbabfe4-3697-4345-a6e9-9544ae4b3e38
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: Keyboard
+        m_Id: cd23d8a2-e91a-40a0-be61-e80f7d9053c8
+        m_Path: MyAxis(increaseSensitivity=1.5,decreaseSensitivity=1.5,moveToZeroSensitivityModifier=0.7)
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 4
+      - m_Name: Negative
+        m_Id: 620566cd-f230-4b35-ac6b-8ba4ff045e76
+        m_Path: <Keyboard>/q
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: Positive
+        m_Id: 71683096-c3fa-4cdc-8b1c-d089a125f11b
+        m_Path: <Keyboard>/e
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: 
+        m_Id: 5803b9da-caf7-4494-b1ac-de12f5188424
+        m_Path: <HID::Thrustmaster T.16000M>/rz
+        m_Interactions: 
+        m_Processors: StickDeadzone(min=1.401298E-45,max=1)
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 0
+      m_Flags: 0
     portType: 0
-    keyPositive:
-      keys: []
-    keyNegative:
-      keys: []
-    axe:
-      Axis:
-        _name: Yaw
-        Inverse: 0
-        Multiply: 20
-    keyActiveAxis:
-      keys: []
-    computerInput: Yaw
-    inputValue: 0
-    realValue: 0
-    logicValue: 0
-    multiply: 1
-    sensitivity: 2.5
-    gravity: 2.5
-    power: 1.5
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
     _device: {fileID: 542935956795494550}
-  - enableInteraction: 0
+  - computerInput: Thrust
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 5fbabfe4-3697-4345-a6e9-9544ae4b3e38
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 5803b9da-caf7-4494-b1ac-de12f5188424
+        m_Path: <HID::Thrustmaster T.16000M>/slider
+        m_Interactions: 
+        m_Processors: Invert
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 4
+      - m_Name: RelativeKeyboard
+        m_Id: c92274a2-1a22-4125-92c6-53e10535df4c
+        m_Path: MyAxis(axisType=1,minOutputValue=0)
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 4
+      - m_Name: Negative
+        m_Id: faeb5cea-d6da-46a6-a5ce-979d7a7a9b0f
+        m_Path: <Keyboard>/ctrl
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: Positive
+        m_Id: 3ea0942a-c713-484a-a438-cb9e24be4a80
+        m_Path: <Keyboard>/shift
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      m_Flags: 0
     portType: 0
-    keyPositive:
-      keys:
-      - KeyCodes: 30010000
-    keyNegative:
-      keys:
-      - KeyCodes: 32010000
-    axe:
-      Axis:
-        _name: 
-        Inverse: 0
-        Multiply: 0
-    keyActiveAxis:
-      keys: []
-    computerInput: Thrust
-    inputValue: 0
-    realValue: 0
-    logicValue: 0
-    multiply: 1
-    sensitivity: 1
-    gravity: 1
-    power: 1
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 1
-    fromZeroToOne: 1
     _device: {fileID: 0}
-  - enableInteraction: 0
+  - computerInput: SupportPower
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 5fbabfe4-3697-4345-a6e9-9544ae4b3e38
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: RelativeKeyboard
+        m_Id: 60634f2c-714f-4774-9e0c-4e52379091c0
+        m_Path: MyAxis(axisType=1,minOutputValue=0)
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 4
+      - m_Name: Negative
+        m_Id: 2782a54f-a015-46f3-87e5-e3074aff2e78
+        m_Path: <Keyboard>/z
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      - m_Name: Positive
+        m_Id: acf552e4-c87b-4c12-9fc5-d8bc8e1b4654
+        m_Path: <Keyboard>/x
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 8
+      m_Flags: 0
     portType: 0
-    keyPositive:
-      keys:
-      - KeyCodes: 7a000000
-    keyNegative:
-      keys:
-      - KeyCodes: 78000000
-    axe:
-      Axis:
-        _name: 
-        Inverse: 0
-        Multiply: 0
-    keyActiveAxis:
-      keys: []
-    computerInput: SupportPower
-    inputValue: 0
-    realValue: 0
-    logicValue: 0
-    multiply: 1
-    sensitivity: 1
-    gravity: 1
-    power: 1
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 1
-    fromZeroToOne: 1
     _device: {fileID: 0}
   buttons:
   - enableInteraction: 0
@@ -628,7 +692,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 47be4dbb-998a-4c73-a8cd-8b1da9c44fd0
   tags: []
+  minValue: 0
+  maxValue: 0
+  sensitivity: 0
+  setDefaultOnExitControl: 0
+  defaultValue: 0
   lever: {fileID: 6271502143319044231}
+  portType: 0
   mul: -30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -658,7 +728,7 @@ Transform:
   m_GameObject: {fileID: 5011057069942656338}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.7654419, z: -0.8}
+  m_LocalPosition: {x: 0.194, y: -0.5845996, z: -0.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -712,7 +782,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 832eeda0-8168-41af-858f-f750702b2948
   tags: []
+  minValue: 0
+  maxValue: 0
+  sensitivity: 0
+  setDefaultOnExitControl: 0
+  defaultValue: 0
   lever: {fileID: 3485295026361672446}
+  portType: 0
   mul: 30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -961,7 +1037,7 @@ Transform:
   m_GameObject: {fileID: 8558987893137223539}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: -0.7654419, z: -0.8}
+  m_LocalPosition: {x: -0, y: -0.73, z: -0.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.Items;
 using Core.Trading;
 
 namespace Core.Configurations

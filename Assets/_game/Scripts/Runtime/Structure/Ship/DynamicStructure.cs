@@ -1,13 +1,16 @@
+using System.Collections.Generic;
 using Core.Structure;
+using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Structure.Ship
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class DynamicStructure : BaseStructure, IDynamicStructure
+    public class DynamicStructure : Structure, IDynamicStructure
     {
         [SerializeField] private float emptyMass;
+        [SerializeField] private Vector3 localCenterOfMass;
         public float Mass => emptyMass;
         
         public Vector3 Velocity => rigidbody.velocity;
@@ -15,13 +18,14 @@ namespace Runtime.Structure.Ship
         [ShowInInspector, ReadOnly]
         public float TotalMass { get; private set; }
 
-        [ShowInInspector, ReadOnly]
+        [ShowInInspector]
         public Vector3 LocalCenterOfMass { get; private set; }
 
         public Rigidbody Physics => rigidbody;
 
         private Rigidbody rigidbody;
 
+        private List<IMass> _registeredMass = new ();
         public override void Init(bool force)
         {
             rigidbody = GetComponent<Rigidbody>();
@@ -41,15 +45,16 @@ namespace Runtime.Structure.Ship
 
         public void RecalculateMass()
         {
-            float mass = 0;
-            Vector3 pos = Vector3.zero;
+            float totalMass = Mass;
+            Vector3 pos = transform.TransformPoint(localCenterOfMass) * Mass;
             Blocks.ForEach(x =>
             {
-                mass += x.Mass;
-                pos += x.transform.localPosition * x.Mass;
+                totalMass += x.Mass;
+                pos += x.transform.TransformPoint(x.LocalCenterOfMass) * x.Mass;
             });
-            TotalMass = mass + Mass;
-            LocalCenterOfMass = pos / (mass + Mass);
+
+            TotalMass = totalMass;
+            LocalCenterOfMass = transform.InverseTransformPoint(pos / totalMass);
             rigidbody.mass = TotalMass;
             rigidbody.centerOfMass = LocalCenterOfMass;
         }

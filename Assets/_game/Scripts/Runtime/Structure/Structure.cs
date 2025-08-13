@@ -1,44 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Core.Configurations;
 using Core.Game;
-using Core.Graph;
-using Core.Graph.Wires;
-using Core.SessionManager.SaveService;
+using Core.Items;
+using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Trading;
 using Core.Utilities;
-using Newtonsoft.Json;
+using Runtime.Items;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
-namespace Core.Structure
+namespace Runtime.Structure
 {
-    public abstract class BaseStructure : MonoBehaviour, IStructure
+    public class Structure : ItemInstance, IStructure
     {
-        [ShowInInspector]
-        public string Guid
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(guid))
-                {
-                    guid = System.Guid.NewGuid().ToString();
-#if UNITY_EDITOR
-                 UnityEditor.EditorUtility.SetDirty(this);   
-#endif
-                }
-                return guid;
-            }
-            set => guid = value;
-        }
-        [SerializeField, HideInInspector] private string guid;
-
-        public List<string> Tags => tags;
-        [SerializeField] private List<string> tags;
         bool IStructure.Active => gameObject.activeSelf;
 
         Bounds IStructure.Bounds { get; } //TODO: constant updateing structure

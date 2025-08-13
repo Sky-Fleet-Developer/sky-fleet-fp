@@ -55,6 +55,14 @@ namespace Core.Structure.Rigging.Control
             //graph.ConnectPorts(new PortPointer(block, _device.Port, GetName(), nameof(port)), );
         }
 
+        public void Enable()
+        {
+        }
+
+        public void Disable()
+        {
+        }
+
         [SerializeField, HideInInspector]
         private DeviceBase<ActionPort> _device;
 

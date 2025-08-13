@@ -66,8 +66,8 @@ namespace WorldEditor
         [Button]
         public void EditConfiguration()
         {
-            BaseStructure instance = GetComponentInChildren<BaseStructure>();
-            if (!instance)
+            IStructure instance = GetComponentInChildren<IStructure>();
+            if (instance == null)
             {
                 Debug.LogError("Instantiate prefab at first!");
                 return;

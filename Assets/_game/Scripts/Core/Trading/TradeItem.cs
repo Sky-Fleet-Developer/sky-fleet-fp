@@ -1,5 +1,6 @@
 ﻿
 using System;
+using Core.Items;
 using UnityEngine;
 
 namespace Core.Trading

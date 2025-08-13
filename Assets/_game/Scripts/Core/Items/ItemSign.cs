@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.Trading
+namespace Core.Items
 {
     [Serializable]
     public class ItemSign : IEquatable<ItemSign>

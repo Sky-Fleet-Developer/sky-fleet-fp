@@ -89,12 +89,20 @@ namespace Runtime.Structure.Rigging.Control
         {
             isUnderControl = true;
             controller = character;
+            foreach (IControlElement controlElement in controlElementsCache)
+            {
+                controlElement.Enable();
+            }
         }
 
         void IDriveInterface.OnCharacterLeave(ICharacterController character)
         {
             isUnderControl = false;
             controller = null;
+            foreach (IControlElement controlElement in controlElementsCache)
+            {
+                controlElement.Disable();
+            }
         }
 
         public CharacterAttachData GetAttachData() => attachData;

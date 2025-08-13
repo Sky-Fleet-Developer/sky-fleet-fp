@@ -73,7 +73,7 @@ namespace Core.SessionManager.SaveService
             List<Task> waiting = new List<Task>();
             foreach (StructureBundle structureBundle in state.structuresCache)
             {
-                Task<BaseStructure> task = structureBundle.ConstructStructure(deserializer);
+                Task<IStructure> task = structureBundle.ConstructStructure(deserializer);
                 waiting.Add(task);
             }
 

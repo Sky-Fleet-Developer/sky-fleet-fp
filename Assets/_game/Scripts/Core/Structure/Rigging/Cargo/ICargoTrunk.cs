@@ -11,7 +11,8 @@ namespace Core.Structure.Rigging.Cargo
     public interface ICargoTrunkPlayerInterface : ICargoTrunk
     {
         void EnterPlacement(ITablePrefab cargo);
-        void MoveTo(Vector3Int position);
+        void Move(Vector3Int delta);
         void ExitPlacement();
+        bool Confirm();
     }
 }

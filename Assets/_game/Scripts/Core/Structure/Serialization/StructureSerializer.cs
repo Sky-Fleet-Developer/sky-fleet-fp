@@ -18,12 +18,11 @@ namespace Core.Structure.Serialization
         
         public void PrepareForGameSerialization(IState state)
         {
-            IEnumerable<BaseStructure> structures = CollectStructures();
+            IEnumerable<IStructure> structures = CollectStructures();
 
             Serializer serializer = StructureProvider.GetSerializer();
 
             List<StructureBundle> bundles = structures.Select(x => new StructureBundle(x, serializer)).ToList();
-
         }
 
         public event Action OnDataWasSerialized;
@@ -31,25 +30,22 @@ namespace Core.Structure.Serialization
         {
         }
         
-        private IEnumerable<BaseStructure> CollectStructures()
+        private IEnumerable<IStructure> CollectStructures()
         {
             return Application.isPlaying ? CollectInRuntime() : CollectInEditor();
         }
 
-        private IEnumerable<BaseStructure> CollectInRuntime()
+        private IEnumerable<IStructure> CollectInRuntime()
         {
             for (int i = 0; i < StructureUpdateModule.Structures.Count; i++)
             {
-                if (StructureUpdateModule.Structures[i] is BaseStructure baseStructure)
-                {
-                    yield return baseStructure;
-                }
+                yield return StructureUpdateModule.Structures[i];
             }
         }
 
-        private IEnumerable<BaseStructure> CollectInEditor()
+        private IEnumerable<IStructure> CollectInEditor()
         {
-            return Object.FindObjectsOfType<BaseStructure>();
+            return Object.FindObjectsOfType<MonoBehaviour>().OfType<IStructure>();
         }
     }
 }

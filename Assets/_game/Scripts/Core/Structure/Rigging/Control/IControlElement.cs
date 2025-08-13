@@ -11,5 +11,7 @@ namespace Core.Structure.Rigging.Control
         
         IDevice Device { get; set; }
         void Init(IGraphHandler graph, IDriveInterface block);
+        void Enable();
+        void Disable();
     }
 }

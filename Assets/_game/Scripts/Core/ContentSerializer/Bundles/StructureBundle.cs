@@ -54,13 +54,13 @@ namespace Core.ContentSerializer.Bundles
             }
         }
 
-        public async Task<BaseStructure> ConstructStructure(ISerializationContext context)
+        public async Task<IStructure> ConstructStructure(ISerializationContext context)
         {
             RemotePrefabItem item = TablePrefabs.Instance.GetItem(guid);
             GameObject prefab = await item.LoadPrefab();
             if (prefab == null) return null;
 
-            BaseStructure instance = Object.Instantiate(prefab).GetComponent<BaseStructure>();
+            IStructure instance = Object.Instantiate(prefab).GetComponent<IStructure>();
             instance.transform.name = name;
             if (Application.isPlaying)
             {

@@ -7,8 +7,10 @@ using Core.Structure.Rigging.Cargo;
 using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
+using Runtime.Cargo.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Runtime.Cargo.UI
@@ -19,18 +21,29 @@ namespace Runtime.Cargo.UI
         [SerializeField] private TrunkButton trunkButtonPrefab;
         [SerializeField] private Button loadButton;
         [SerializeField] private Button exitButton;
+        private CargoPlacementInput _placementInput;
         private ListSelectionHandler<CargoButton> _cargoSelection = new(); 
         private ListSelectionHandler<TrunkButton> _trunkSelection = new(); 
         private ICargoLoadingPlayerHandler _handler;
         private FirstPersonController.UIInteractionState _interactionState;
         private FirstPersonInterfaceInstaller _master;
+        private bool _isInPlacementMode;
+
+        private void Awake()
+        {
+            _placementInput = new CargoPlacementInput();
+            _placementInput.WASD.Cancel.performed += OnPressCancel;
+            _placementInput.WASD.Confirm.performed += OnPressConfirm;
+            _placementInput.WASD.Movement.performed += OnMovement;
+            _placementInput.Disable();
+        }
 
         public void Init(FirstPersonInterfaceInstaller master)
         {
             _master = master;
             _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
             _handler = (ICargoLoadingPlayerHandler)_interactionState.Handler;
-            exitButton.onClick.AddListener(Exit);
+            exitButton.onClick.AddListener(OnExitClick);
             _cargoSelection.AddListener(this);
             _trunkSelection.AddListener(this);
             //loadButton.onClick.AddListener(OnClick);
@@ -38,6 +51,10 @@ namespace Runtime.Cargo.UI
 
         private void OnDestroy()
         {
+            _placementInput.WASD.Cancel.performed -= OnPressCancel;
+            _placementInput.WASD.Confirm.performed -= OnPressConfirm;
+            _placementInput.WASD.Movement.performed -= OnMovement;
+            _placementInput.Dispose();
             _cargoSelection.Dispose();
             _trunkSelection.Dispose();
             //loadButton.onClick.RemoveListener(OnClick);
@@ -84,9 +101,16 @@ namespace Runtime.Cargo.UI
             _trunkSelection.ClearTargets();   
         }
 
-        private void Exit()
+        private void OnExitClick()
         {
-            _interactionState.LeaveState();
+            if (_isInPlacementMode)
+            {
+                ExitPlacement();
+            }
+            else
+            {
+                _interactionState.LeaveState();
+            }
         }
 
         public void OnSelectionChanged(CargoButton prev, CargoButton next)
@@ -102,7 +126,10 @@ namespace Runtime.Cargo.UI
         {
             if (_cargoSelection.Selected && _trunkSelection.Selected)
             {
+                _isInPlacementMode = true;
                 _trunkSelection.Selected.Data.EnterPlacement(_cargoSelection.Selected.Data);
+                _placementInput.Enable();
+
                 foreach (var target in _cargoSelection.Targets)
                 {
                     target.gameObject.SetActive(false);
@@ -112,6 +139,31 @@ namespace Runtime.Cargo.UI
                     target.gameObject.SetActive(false);
                 }
             }
+        }
+        
+        private void OnPressCancel(InputAction.CallbackContext obj)
+        {
+            ExitPlacement();
+        }
+        private void OnPressConfirm(InputAction.CallbackContext obj)
+        {
+            if (_trunkSelection.Selected.Data.Confirm())
+            {
+                ExitPlacement();
+            }
+        }
+
+        private void ExitPlacement()
+        {
+            _isInPlacementMode = false;
+            _trunkSelection.Selected.Data.ExitPlacement();
+            _placementInput.Disable();
+        }
+        
+        private void OnMovement(InputAction.CallbackContext obj)
+        {
+            var direction = obj.ReadValue<Vector2>();
+            _trunkSelection.Selected.Data.Move(new Vector3Int(Mathf.RoundToInt(direction.x), 0, Mathf.RoundToInt(direction.y)));
         }
     }
     

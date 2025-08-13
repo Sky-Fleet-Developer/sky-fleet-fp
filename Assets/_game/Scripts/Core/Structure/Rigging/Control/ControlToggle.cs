@@ -68,5 +68,13 @@ namespace Core.Structure.Rigging.Control
                 _device.Port.Value = isOn;
             }
         }
+        
+        public void Enable()
+        {
+        }
+
+        public void Disable()
+        {
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Core.Trading
+namespace Core.Items
 {
     [System.Serializable]
     public class CrateInfo

@@ -11,7 +11,7 @@ namespace Runtime.Cargo
         public void SetVolume(BoundsInt volume, float particleSize)
         {
             transform.localScale = (Vector3)volume.size * particleSize;
-            transform.localPosition = (Vector3)volume.position * particleSize;
+            transform.localPosition = volume.center * particleSize;
             meshRenderer.material.SetVector(Size, (Vector3)volume.size * 0.5f);
         }
     }

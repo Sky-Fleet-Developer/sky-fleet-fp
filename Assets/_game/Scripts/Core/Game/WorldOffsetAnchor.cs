@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Core.Game
 {
@@ -39,6 +40,13 @@ namespace Core.Game
         public static void AddWorldOffsetAnchor(this Component target)
         {
             if (!target.TryGetComponent(out WorldOffsetAnchor _)) target.gameObject.AddComponent<WorldOffsetAnchor>();
+        }
+        public static void RemoveWorldOffsetAnchor(this Component target)
+        {
+            if (target.TryGetComponent(out WorldOffsetAnchor worldOffsetAnchor))
+            {
+                Object.Destroy(worldOffsetAnchor);
+            } 
         }
         public static void AddWorldOffsetAnchor(this GameObject target)
         {

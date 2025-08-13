@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Configurations;
 using Core.Game;
+using Core.Items;
 using Core.Structure;
 using Core.Structure.Rigging.Cargo;
 using Core.Trading;
