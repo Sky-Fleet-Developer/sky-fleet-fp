@@ -15,10 +15,7 @@ namespace Runtime.Trading.UI
     public class TradeInterface : Service, IFirstPersonInterface, ISelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
-        [SerializeField] private TradeItemsListView cartItemsView;
         [SerializeField] private TradeItemDescriptionView descriptionView;
-        [SerializeField] private Button addToCartButton;
-        [SerializeField] private Button removeFromCartButton;
         [SerializeField] private Button acceptButton;
         [SerializeField] private TextMeshProUGUI dealCostText;
         private ITradeHandler _handler;
@@ -30,10 +27,23 @@ namespace Runtime.Trading.UI
         {
             base.Awake();
             sellerItemsView.SelectionHandler.AddListener(this);
-            cartItemsView.SelectionHandler.AddListener(this);
-            addToCartButton.onClick.AddListener(AddToCartClick);
-            removeFromCartButton.onClick.AddListener(RemoveFromCartClick);
             acceptButton.onClick.AddListener(AcceptClick);
+            sellerItemsView.OnItemInCardAmountChanged += OnSellerItemInCardAmountChanged;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            acceptButton.onClick.RemoveListener(AcceptClick);
+            sellerItemsView.OnItemInCardAmountChanged -= OnSellerItemInCardAmountChanged;
+        }
+
+        private void OnSellerItemInCardAmountChanged(TradeItem item, int amount)
+        {
+            if (_deal.SetInCartItemAmount(item, amount, out var innerItem))
+            {
+                RefreshCostView();
+            }
         }
 
         public void Init(FirstPersonInterfaceInstaller master)
@@ -44,24 +54,20 @@ namespace Runtime.Trading.UI
             _deal = new TradeDeal(_interactionState.Master.GetInventory(), _handler.Inventory);
         }
         
-        private void AddToCartClick()
+        /*private void AddToCartClick()
         {
             if (sellerItemsView.SelectionHandler.Selected)
             {
                 int amountToAdd = 1;
                 if (_deal.TryAddToCart(sellerItemsView.SelectionHandler.Selected.Data, amountToAdd, sellerItemsView.SelectionHandler.Selected.Data.amount, out var innerItem))
                 {
-                    cartItemsView.AddItem(innerItem);
-                    if (innerItem.amount == amountToAdd)
-                    {
-                        cartItemsView.Select(innerItem);
-                    }
+                    sellerItemsView.SelectionHandler.Selected.SetInCardAmount(innerItem.amount);
                     RefreshCostView();
                 }
             }
-        }
+        }*/
         
-        private void RemoveFromCartClick()
+        /*private void RemoveFromCartClick()
         {
             if (cartItemsView.SelectionHandler.Selected)
             {
@@ -76,7 +82,7 @@ namespace Runtime.Trading.UI
                 }
                 RefreshCostView();
             }
-        }
+        }*/
 
         private void RefreshCostView()
         {
@@ -101,7 +107,6 @@ namespace Runtime.Trading.UI
             {
                 _deal = new TradeDeal(_interactionState.Master.GetInventory(), _handler.Inventory);
                 dealCostText.text = "0";
-                cartItemsView.Clear();
                 sellerItemsView.SetItems(_handler.Inventory.GetItems());
             }
         }

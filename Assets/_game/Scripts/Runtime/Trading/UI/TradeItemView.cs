@@ -14,11 +14,69 @@ namespace Runtime.Trading.UI
     {
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI costLabel;
-        [FormerlySerializedAs("countLabel")] [SerializeField] private TextMeshProUGUI amountLabel;
+        [SerializeField] private TextMeshProUGUI amountLabel;
+        [SerializeField] private Button addToCartButton;
+        [SerializeField] private Transform selectAmountGroup;
+        [SerializeField] private Button moreButton;
+        [SerializeField] private Button lessButton;
+        [SerializeField] private TMP_InputField inCartAmountInputField;
         [SerializeField] private Image selectionFrame;
         private TradeItem _data;
+        private int _amount;
+        private Action<TradeItem, int> _inCardAmountChangedCallback;
         public TradeItem Data => _data;
         public Action<ISelectionTarget> OnSelected { get; set; }
+
+        private void Awake()
+        {
+            addToCartButton.onClick.AddListener(AddToCart);
+            moreButton.onClick.AddListener(OnMoreClick);
+            lessButton.onClick.AddListener(OnLessClick);
+            inCartAmountInputField.onEndEdit.AddListener(OnAmountInputSubmit);
+        }
+
+        private void OnDestroy()
+        {
+            addToCartButton.onClick.RemoveListener(AddToCart);
+            moreButton.onClick.RemoveListener(OnMoreClick);
+            lessButton.onClick.RemoveListener(OnLessClick);
+            inCartAmountInputField.onEndEdit.RemoveListener(OnAmountInputSubmit);
+        }
+
+        private void OnAmountInputSubmit(string text)
+        {
+            if (int.TryParse(text, out int value))
+            {
+                SetInCardAmount(value);
+            }
+            else
+            {
+                inCartAmountInputField.text = _amount.ToString();
+            }
+        }
+        
+        private void AddToCart()
+        {
+            SetInCardAmount(1);
+        }
+
+        private void OnMoreClick()
+        {
+            SetInCardAmount(_amount + 1);
+        }
+        
+        private void OnLessClick()
+        {
+            SetInCardAmount(_amount - 1);
+        }
+
+        private void SetInCardAmount(int value)
+        {
+            _amount = Mathf.Clamp(value, 0, _data.amount);
+            RefreshView();
+            _inCardAmountChangedCallback.Invoke(_data, _amount);
+        }
+
         public void Selected()
         {
             selectionFrame.gameObject.SetActive(true);
@@ -32,14 +90,24 @@ namespace Runtime.Trading.UI
         public void SetData(TradeItem data)
         {
             _data = data;
+            _amount = 0;
             signView.SetData(data.sign);
             RefreshView();
         }
 
+        public void SetInCardAmountChangedCallback(Action<TradeItem, int> callback)
+        {
+            _inCardAmountChangedCallback = callback;
+        }
+        
         public void RefreshView()
         {
             costLabel.text = _data.cost.ToString("C", CultureInfo.InvariantCulture);
+            inCartAmountInputField.text = _amount.ToString();
             amountLabel.text = _data.amount.ToString();
+            moreButton.interactable = _amount < _data.amount;
+            addToCartButton.gameObject.SetActive(_amount == 0);
+            selectAmountGroup.gameObject.SetActive(_amount > 0);
         }
 
         public void OnSelect(BaseEventData eventData)

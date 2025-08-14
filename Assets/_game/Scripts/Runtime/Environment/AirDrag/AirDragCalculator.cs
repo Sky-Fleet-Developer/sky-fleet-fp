@@ -27,7 +27,7 @@ namespace Runtime.Environment.AirDrag
             this.data = data;
             current = target;
             Bounds bounds = target.GetBounds();
-            center = bounds.center;
+            center = bounds.center + target.position;
             radius = Vector3.Magnitude(bounds.center - bounds.min);
 
             data.Cam.orthographicSize = radius;

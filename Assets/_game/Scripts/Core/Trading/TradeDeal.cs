@@ -24,36 +24,33 @@ namespace Core.Trading
             _itemsToSell = new();
         }
 
-        public bool TryAddToCart(TradeItem item, int amountToAdd, int existAmount, out TradeItem innerItem)
+        public bool SetInCartItemAmount(TradeItem item, int amount, out TradeItem innerItem)
         {
+            if (amount > item.amount)
+            {
+                innerItem = null;
+                return false;
+            }
             for (var i = 0; i < _itemsToPurchase.Count; i++)
             {
-                if (_itemsToPurchase[i].sign == item.sign)
+                if (_itemsToPurchase[i].sign.Equals(item.sign))
                 {
-                    if (_itemsToPurchase[i].amount < existAmount)
-                    {
-                        _itemsToPurchase[i].amount += amountToAdd;
-                        innerItem = _itemsToPurchase[i];
-                        return true;
-                    }
-                    else
-                    {
-                        innerItem = null;
-                        return false;
-                    }
+                    _itemsToPurchase[i].amount = amount;
+                    innerItem = _itemsToPurchase[i];
+                    return true;
                 }
             }
 
             var tradeItem = new TradeItem();
             tradeItem.sign = item.sign;
             tradeItem.cost = item.cost;
-            tradeItem.amount = Mathf.Min(existAmount, amountToAdd);
+            tradeItem.amount = amount;
             _itemsToPurchase.Add(tradeItem);
             innerItem = tradeItem;
             return true;
         }
 
-        public void RemoveFromCart(TradeItem item, int amountToRemove, out bool isItemCompletelyRemoved)
+        /*public void RemoveFromCart(TradeItem item, int amountToRemove, out bool isItemCompletelyRemoved)
         {
             isItemCompletelyRemoved = false;
             for (var i = 0; i < _itemsToPurchase.Count; i++)
@@ -73,7 +70,7 @@ namespace Core.Trading
                     break;
                 }
             }
-        }
+        }*/
 
         public void AddToSell(TradeItem item, int amount)
         {

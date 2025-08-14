@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Core.Trading;
 using Core.UIStructure.Utilities;
@@ -14,6 +15,7 @@ namespace Runtime.Trading.UI
         private TradeItemView _itemPrefab;
         public readonly ListSelectionHandler<TradeItemView> SelectionHandler = new ();
         private List<TradeItem> _items = new();
+        public event Action<TradeItem, int> OnItemInCardAmountChanged; 
         
         private void Awake()
         {
@@ -31,6 +33,7 @@ namespace Runtime.Trading.UI
                 {
                     _views.Add(DynamicPool.Instance.Get(_itemPrefab, itemsContainer));
                     SelectionHandler.AddTarget(_views[counter]);
+                    _views[counter].SetInCardAmountChangedCallback(ItemInCardAmountChanged);
                 }
                 _views[counter++].SetData(item);
                 _items.Add(item);
@@ -43,6 +46,11 @@ namespace Runtime.Trading.UI
             }
 
             _views.RemoveRange(counter, _views.Count - counter);
+        }
+
+        private void ItemInCardAmountChanged(TradeItem item, int amount)
+        {
+            OnItemInCardAmountChanged?.Invoke(item, amount);
         }
 
         public void Clear()

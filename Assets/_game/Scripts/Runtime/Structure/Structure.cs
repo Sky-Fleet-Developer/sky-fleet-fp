@@ -40,13 +40,6 @@ namespace Runtime.Structure
         private List<Parent> parents = null;
         private bool initialized = false;
         
-        private ItemSign _sourceItem;
-        ItemSign IItemInstance.SourceItem => _sourceItem;
-        void IItemInstanceHandle.SetSourceItem(ItemSign sign)
-        {
-            _sourceItem = sign;
-        }
-        
         protected virtual void Awake()
         {
             initialized = false;

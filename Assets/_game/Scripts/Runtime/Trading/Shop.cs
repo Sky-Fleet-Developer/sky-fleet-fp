@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Character;
 using Core.Character.Interaction;
 using Core.Configurations;
+using Core.Items;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Trading;
@@ -15,6 +16,7 @@ namespace Runtime.Trading
     public class Shop : Block, IInteractiveObject, ITradeHandler
     {
         [SerializeField] private string shopId;
+        [SerializeField] private ItemsTrigger itemsTrigger;
 
         public bool EnableInteraction => IsActive;
         public Transform Root => transform;
@@ -25,7 +27,22 @@ namespace Runtime.Trading
         [Inject] private DiContainer _diContainer;
         private Inventory _inventory;
         private List<IProductDeliveryService> _deliveryServices = new ();
-        
+
+        private void Awake()
+        {
+            itemsTrigger.OnItemEnter += OnItemEntersTrigger;
+            itemsTrigger.OnItemExit += OnItemExitTrigger;
+        }
+
+        private void OnItemEntersTrigger(IItemInstance item)
+        {
+            ItemsChanged?.Invoke();
+        }
+        private void OnItemExitTrigger(IItemInstance item)
+        {
+            ItemsChanged?.Invoke();
+        }
+
         public override void InitBlock(IStructure structure, Parent parent)
         {
             GetComponentsInChildren(_deliveryServices);
@@ -84,6 +101,11 @@ namespace Runtime.Trading
             }
             transaction = new Transaction(deal, deliveredProductInfo);
             return true;
+        }
+
+        public IEnumerable<IItemInstance> GetItemsInSellZone()
+        {
+            return itemsTrigger.GetItems;
         }
 
         public bool RequestInteractive(ICharacterController character, out string data)
