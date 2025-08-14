@@ -158,6 +158,14 @@ namespace Runtime.Cargo.UI
             _isInPlacementMode = false;
             _trunkSelection.Selected.Data.ExitPlacement();
             _placementInput.Disable();
+            foreach (var target in _trunkSelection.Targets)
+            {
+                target.gameObject.SetActive(true);
+            }
+            foreach (var target in _cargoSelection.Targets)
+            {
+                target.gameObject.SetActive(true);
+            }
         }
         
         private void OnMovement(InputAction.CallbackContext obj)

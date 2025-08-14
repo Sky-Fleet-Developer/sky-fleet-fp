@@ -54,6 +54,7 @@ namespace Runtime.Cargo
             {
                 DynamicPool.Instance.Return(views[i]);
             }
+            views.Clear();
         }
 
         public void Move(Vector3Int position)

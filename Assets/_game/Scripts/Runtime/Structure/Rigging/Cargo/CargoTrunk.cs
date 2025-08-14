@@ -82,7 +82,7 @@ namespace Runtime.Structure.Rigging.Cargo
             foreach (var point in volume)
             {
                 var p = point + position;
-                if (!_space.Contains(p) || _content.ContainsKey(p))
+                if (!_space.Contains(p) || _content.TryGetValue(p, out ITablePrefab content) && content != cargo)
                 {
                     return false;
                 }
@@ -109,13 +109,15 @@ namespace Runtime.Structure.Rigging.Cargo
             }
             _cargoToPlace.transform.SetParent(transform);
             _cargoToPlace.transform.localPosition = (Vector3)_positionToPlace * _prefabVolumes.ParticleSize;
-            var cargoRigidbody = _cargoToPlace.transform.GetComponent<Rigidbody>();
-            cargoRigidbody.isKinematic = true;
-            _cargo.Add(_cargoToPlace);
-            RefreshMass();
+            bool isNewElement = !_cargo.Contains(_cargoToPlace);
+            if (isNewElement)
+            {
+                _cargo.Add(_cargoToPlace);
+            }
+            RefreshMass(isNewElement);
         }
 
-        private void RefreshMass()
+        private void RefreshMass(bool isNewElement)
         {
             _localCenterOfMass = transform.position * base.Mass;
             _cargoMass = base.Mass;
@@ -132,7 +134,10 @@ namespace Runtime.Structure.Rigging.Cargo
                     var massParams = rb.GetMass();
                     _cargoMass += massParams.w;
                     _localCenterOfMass += _cargoToPlace.transform.TransformPoint(massParams) * massParams.w;
-                    rb.ConvertToStatic();
+                    if (isNewElement)
+                    {
+                        rb.ConvertToStatic();
+                    }
                 }
             }
             
@@ -199,9 +204,16 @@ namespace Runtime.Structure.Rigging.Cargo
                 {
                     yield return (point, 1);
                 }
-                else if(_content.ContainsKey(p))
+                else if(_content.TryGetValue(p, out ITablePrefab content))
                 {
-                    yield return (point, 2);
+                    if (content == _cargoToPlace)
+                    {
+                        yield return (point, 3);
+                    }
+                    else
+                    {
+                        yield return (point, 2);
+                    }
                 }
                 else
                 {

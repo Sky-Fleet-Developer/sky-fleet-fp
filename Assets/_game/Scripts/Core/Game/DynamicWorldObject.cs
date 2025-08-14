@@ -7,9 +7,11 @@ namespace Core.Game
     {
         private Rigidbody[] _rigidbodies;
         private float[] _masses;
-        
+        private Vector4 _massCache;
+        private bool _isStatic;
         private void Awake()
         {
+            _isStatic = false;
             _rigidbodies = GetComponentsInChildren<Rigidbody>();
             bool[] kinematicFlags = new bool[_rigidbodies.Length];
             for (var i = 0; i < _rigidbodies.Length; i++)
@@ -36,6 +38,8 @@ namespace Core.Game
 
         public void ConvertToStatic()
         {
+            _isStatic = true;
+            CacheMass();
             for (var i = 0; i < _rigidbodies.Length; i++)
             {
                 _rigidbodies[i].RemoveWorldOffsetAnchor();
@@ -45,18 +49,28 @@ namespace Core.Game
 
         public Vector4 GetMass()
         {
+            if (!_isStatic)
+            {
+                CacheMass();
+            }
+
+            return _massCache;
+        }
+
+        private void CacheMass()
+        {
             float totalMass = 0;
             Vector3 center = Vector3.zero;
-            
+
             for (var i = 0; i < _rigidbodies.Length; i++)
             {
-                center += _rigidbodies[i].transform.TransformPoint(_rigidbodies[i].centerOfMass) * _rigidbodies[i].mass;
+                center += _rigidbodies[i].transform.TransformPoint(_rigidbodies[i].centerOfMass) *
+                          _rigidbodies[i].mass;
                 totalMass += _rigidbodies[i].mass;
             }
 
             center = transform.InverseTransformPoint(center / totalMass);
-
-            return new Vector4(center.x, center.y, center.z, totalMass);
+            _massCache = new Vector4(center.x, center.y, center.z, totalMass);
         }
     }
 }

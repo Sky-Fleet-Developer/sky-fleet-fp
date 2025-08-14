@@ -51,7 +51,10 @@ namespace Core.UIStructure.Utilities
         {
             Vector3 position = _mainCamera.WorldToScreenPoint(target.position);
             transform.position = position;
-            gameObject.SetActive(position.z > 0);
+            if (position.z < 0)
+            {
+                transform.position = Vector3.up * (Screen.height * 2);
+            }
         }
     }
 }

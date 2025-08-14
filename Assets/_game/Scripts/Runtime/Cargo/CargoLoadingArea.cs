@@ -77,7 +77,7 @@ namespace Runtime.Cargo
         
         public bool RequestInteractive(ICharacterController character, out string data)
         {
-            data = string.Empty;
+            data = "Cargo loading service";
             return true;
         }
         
