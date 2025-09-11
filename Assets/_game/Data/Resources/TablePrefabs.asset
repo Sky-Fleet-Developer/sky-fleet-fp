@@ -316,8 +316,31 @@ MonoBehaviour:
     guid: 32392e7850e5f4942814cddad09851ff
     tags:
     - item
-    - cargo
-    - large
+  - reference:
+      m_AssetGUID: 0639fd06f28c0634084d26aa212e0fe2
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 0639fd06f28c0634084d26aa212e0fe2
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: fbafd38309706bf4ea7d07ea2da55d08
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: fbafd38309706bf4ea7d07ea2da55d08
+    tags:
+    - item
+  - reference:
+      m_AssetGUID: 77dff4da645eda9439685b2c5e3bbaf7
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    guid: 77dff4da645eda9439685b2c5e3bbaf7
+    tags:
+    - item
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:

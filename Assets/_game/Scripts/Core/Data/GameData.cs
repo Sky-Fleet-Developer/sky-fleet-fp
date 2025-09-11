@@ -13,6 +13,15 @@ namespace Core.Data
         [InlineProperty(LabelWidth = 160), SerializeField] private PrivateGameData serializedPrivateData;
         public static SharedGameData Data;
         internal static PrivateGameData PrivateData;
+
+        [Inject]
+        private void InjectChildren(DiContainer diContainer)
+        {
+            foreach (var child in children)
+            {
+                diContainer.Inject(child);
+            }
+        }
         
         public void Initialize()
         {
@@ -58,6 +67,7 @@ namespace Core.Data
         public LayerMask terrainLayer;
         [Header("Logistics")] 
         public float fuelTransitionAmount = 5;
+        public float shopMaxAmountToInventoryDelivery = 10;
         [Header("Lod")]
         public float[] lodDistances;
         [HideInInspector]

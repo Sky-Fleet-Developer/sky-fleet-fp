@@ -18,36 +18,92 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 1579187821506560
+  - m_Id: 13922568635576320
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187829895168
+  - m_Id: 13922568639770624
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187834089472
-    m_Localized: Iron ore
+  - m_Id: 13922568639770625
+    m_Localized: Crate of iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187834089473
-    m_Localized: Iron ore
+  - m_Id: 13922568639770626
+    m_Localized: Crate of iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187834089474
+  - m_Id: 13922568639770627
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187834089475
+  - m_Id: 13922568639770628
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187834089476
-    m_Localized: Iron ingot
+  - m_Id: 13922568639770629
+    m_Localized: Crate iron ingots
     m_Metadata:
       m_Items: []
-  - m_Id: 1579187834089477
-    m_Localized: Iron ingot
+  - m_Id: 13922568639770630
+    m_Localized: Crate of iron ingots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770631
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770632
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770633
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770634
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770635
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770636
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770637
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770638
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770639
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770640
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770641
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770642
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770643
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13922568639770644
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Game;
-using Core.Items;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
@@ -12,7 +11,7 @@ using UnityEngine;
 
 namespace Runtime.Structure
 {
-    public class Structure : ItemInstance, IStructure
+    public class Structure : ItemObject, IStructure
     {
         bool IStructure.Active => gameObject.activeSelf;
 

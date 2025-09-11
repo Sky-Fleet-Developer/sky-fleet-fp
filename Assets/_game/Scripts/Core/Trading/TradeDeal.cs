@@ -24,7 +24,7 @@ namespace Core.Trading
             _itemsToSell = new();
         }
 
-        public bool SetInCartItemAmount(TradeItem item, int amount, out TradeItem innerItem)
+        public bool SetInCartItemAmount(TradeItem item, float amount, out TradeItem innerItem)
         {
             if (amount > item.amount)
             {
@@ -95,11 +95,11 @@ namespace Core.Trading
             int counter = 0;
             for (var i = 0; i < _itemsToPurchase.Count; i++)
             {
-                counter += _itemsToPurchase[i].cost * _itemsToPurchase[i].amount;
+                counter += Mathf.CeilToInt(_itemsToPurchase[i].cost * _itemsToPurchase[i].amount + 0.5f);
             }
             for (var i = 0; i < _itemsToSell.Count; i++)
             {
-                counter -= _itemsToSell[i].cost * _itemsToSell[i].amount;
+                counter -= Mathf.FloorToInt(_itemsToSell[i].cost * _itemsToSell[i].amount);
             }
 
             return counter;

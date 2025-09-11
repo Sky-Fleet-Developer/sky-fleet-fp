@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Core.Configurations.GoogleSheets;
 using Core.Items;
@@ -15,7 +16,7 @@ namespace Core.Configurations
         {
             public string Id;
             public string[] TradeTags;
-            public string[] EntityTags;
+            public string[] Properties;
             public int BasicCost;
             public string TablePrefab;
         }
@@ -26,13 +27,9 @@ namespace Core.Configurations
             public string prefabGuid;
         }
         
-        private static readonly char[] EntityTagParameterSeparators = new [] {':', '='};
-        private const string IsCrateTag = "crate";
-        private const string MassParameter = "mass";
-        private const float MinimalMass = 0.01f;
+        private static readonly char[] EntityTagParameterSeparators = new [] {':', '=', ' ', ';'};
         
         [SerializeField] private List<ItemSign> items;
-        [SerializeField] private List<CrateInfo> crates;
         [SerializeField] private List<PrefabLink> linksToPrefabs;
         private Dictionary<string, ItemSign> _itemById;
         private Dictionary<string, PrefabLink> _prefabLinkById;
@@ -54,44 +51,44 @@ namespace Core.Configurations
         {
             set
             {
-                List<string> tags = new List<string>();
-                crates = new List<CrateInfo>();
                 items = new List<ItemSign>(value.Length);
                 linksToPrefabs = new List<PrefabLink>();
+                List<ItemProperty> properties = new List<ItemProperty>();
+                List<string> tags = new List<string>();
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
                 for (int i = 0; i < value.Length; i++)
                 {
                     var rawItemSign = value[i];
-                    tags.Clear();
 
-                    float mass = 0;
+                    properties.Clear();
+                    tags.Clear();
                     tags.AddRange(rawItemSign.TradeTags);
-                    foreach (string entityTag in rawItemSign.EntityTags)
+                    foreach (string entityTag in rawItemSign.Properties)
                     {
                         var parameters = entityTag.Split(EntityTagParameterSeparators, StringSplitOptions.RemoveEmptyEntries);
+                        tags.Add(parameters[0]);
                         if (parameters.Length == 1)
                         {
-                            tags.Add(parameters[0]);
+                            continue;
                         }
-                        else if (parameters[0] == IsCrateTag)
+                        var property = new ItemProperty{name = parameters[0], values = new ItemPropertyValue[parameters.Length - 1]};
+                        
+                        for (var p = 1; p < parameters.Length; p++)
                         {
-                            int capacity = parameters.Length == 3 && int.TryParse(parameters[2], out int val) ? val : 1;
-                            crates.Add(new CrateInfo(rawItemSign.Id, parameters[1], capacity));
-                            tags.Add(IsCrateTag);
-                            for (int j = i - 1; j >= 0; j--)
+                            if (int.TryParse(parameters[p], out int intValue))
                             {
-                                if (items[j].Id == parameters[1])
-                                {
-                                    mass = items[j].Mass * capacity;
-                                    break;
-                                }
+                                property.values[p-1].intValue = intValue;
                             }
+                            if (float.TryParse(parameters[p], out float floatValue))
+                            {
+                                property.values[p-1].floatValue = floatValue;
+                            }
+                            property.values[p-1].stringValue = parameters[p];
                         }
-                        else if (parameters[0] == MassParameter)
-                        {
-                            float.TryParse(parameters[1], out mass);
-                        }
+
+                        properties.Add(property);
                     }
-                    ItemSign newItem = new ItemSign(rawItemSign.Id, tags.ToArray(), rawItemSign.BasicCost, mass < MinimalMass ? MinimalMass : mass);
+                    ItemSign newItem = new ItemSign(rawItemSign.Id, tags.ToArray(), properties.ToArray(), rawItemSign.BasicCost);
                     linksToPrefabs.Add(new PrefabLink{ signId = newItem.Id, prefabGuid = rawItemSign.TablePrefab });
                     items.Add(newItem);
                 }

@@ -22,8 +22,8 @@ namespace Runtime.Trading.UI
         [SerializeField] private TMP_InputField inCartAmountInputField;
         [SerializeField] private Image selectionFrame;
         private TradeItem _data;
-        private int _amount;
-        private Action<TradeItem, int> _inCardAmountChangedCallback;
+        private float _amount;
+        private Action<TradeItem, float> _inCardAmountChangedCallback;
         public TradeItem Data => _data;
         public Action<ISelectionTarget> OnSelected { get; set; }
 
@@ -45,32 +45,42 @@ namespace Runtime.Trading.UI
 
         private void OnAmountInputSubmit(string text)
         {
-            if (int.TryParse(text, out int value))
+            if (_data.IsConstantMass)
             {
-                SetInCardAmount(value);
+                if (int.TryParse(text, out int value))
+                {
+                    SetInCartAmount(value);
+                    return;
+                }
             }
             else
             {
-                inCartAmountInputField.text = _amount.ToString();
+                if (float.TryParse(text, out float value))
+                {
+                    SetInCartAmount(value);
+                    return;
+                }
             }
+
+            inCartAmountInputField.text = _amount.ToString(new NumberFormatInfo());
         }
-        
+
         private void AddToCart()
         {
-            SetInCardAmount(1);
+            SetInCartAmount(1);
         }
 
         private void OnMoreClick()
         {
-            SetInCardAmount(_amount + 1);
+            SetInCartAmount(_amount + 1);
         }
         
         private void OnLessClick()
         {
-            SetInCardAmount(_amount - 1);
+            SetInCartAmount(_amount - 1);
         }
 
-        private void SetInCardAmount(int value)
+        private void SetInCartAmount(float value)
         {
             _amount = Mathf.Clamp(value, 0, _data.amount);
             RefreshView();
@@ -95,7 +105,7 @@ namespace Runtime.Trading.UI
             RefreshView();
         }
 
-        public void SetInCardAmountChangedCallback(Action<TradeItem, int> callback)
+        public void SetInCardAmountChangedCallback(Action<TradeItem, float> callback)
         {
             _inCardAmountChangedCallback = callback;
         }
@@ -103,7 +113,10 @@ namespace Runtime.Trading.UI
         public void RefreshView()
         {
             costLabel.text = _data.cost.ToString("C", CultureInfo.InvariantCulture);
-            inCartAmountInputField.text = _amount.ToString();
+            inCartAmountInputField.contentType = _data.IsConstantMass
+                ? TMP_InputField.ContentType.IntegerNumber
+                : TMP_InputField.ContentType.DecimalNumber;
+            inCartAmountInputField.text = _amount.ToString(new NumberFormatInfo());
             amountLabel.text = _data.amount.ToString();
             moreButton.interactable = _amount < _data.amount;
             addToCartButton.gameObject.SetActive(_amount == 0);

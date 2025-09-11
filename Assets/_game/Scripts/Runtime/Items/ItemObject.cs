@@ -6,23 +6,23 @@ using UnityEngine;
 
 namespace Runtime.Items
 {
-    public class ItemInstance : MonoBehaviour, IItemInstanceHandle
+    public class ItemObject : MonoBehaviour, IItemObjectHandle
     {
         [SerializeField] private string guid;
         [SerializeField] private List<string> tags;
         public string Guid => guid;
         public List<string> Tags => tags;
-        private ItemSign _sourceItem;
+        private ItemInstance _sourceItem;
         private string _ownerId;
-        ItemSign IItemInstance.SourceItem => _sourceItem;
+        ItemInstance IItemObject.SourceItem => _sourceItem;
         public string OwnerId => _ownerId;
 
-        void IItemInstanceHandle.SetSourceItem(ItemSign sign)
+        void IItemObjectHandle.SetSourceItem(ItemInstance sign)
         {
             _sourceItem = sign;
         }
 
-        void IItemInstanceHandle.SetOwnership(string ownerId)
+        void IItemObjectHandle.SetOwnership(string ownerId)
         {
             _ownerId = ownerId;
         }

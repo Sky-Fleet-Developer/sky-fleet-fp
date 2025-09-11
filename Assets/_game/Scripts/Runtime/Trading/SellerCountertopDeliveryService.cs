@@ -1,4 +1,5 @@
 ﻿using Core.Configurations;
+using Core.Data;
 using Core.Items;
 using Core.Trading;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Runtime.Trading
 
         public bool TryDeliver(TradeItem item, ProductDeliverySettings deliverySettings, out DeliveredProductInfo deliveredProductInfo)
         {
-            if (item.sign.HasTag(ItemSign.LargeTag))
+            if (item.sign.HasTag(ItemSign.LiquidTag) || item.GetVolume() > GameData.Data.shopMaxAmountToInventoryDelivery)
             {
                 deliveredProductInfo = null;
                 return false;

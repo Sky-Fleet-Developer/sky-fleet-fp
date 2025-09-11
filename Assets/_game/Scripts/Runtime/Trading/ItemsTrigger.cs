@@ -7,15 +7,15 @@ namespace Runtime.Trading
 {
     public class ItemsTrigger : MonoBehaviour
     {
-        private Dictionary<IItemInstance, HashSet<Collider>> _items = new();
+        private Dictionary<IItemObject, HashSet<Collider>> _items = new();
 
-        public event Action<IItemInstance> OnItemEnter;
-        public event Action<IItemInstance> OnItemExit;
-        public IEnumerable<IItemInstance> GetItems => _items.Keys;
+        public event Action<IItemObject> OnItemEnter;
+        public event Action<IItemObject> OnItemExit;
+        public IEnumerable<IItemObject> GetItems => _items.Keys;
         
         private void OnTriggerEnter(Collider other)
         {
-            var item = other.GetComponentInParent<IItemInstance>();
+            var item = other.GetComponentInParent<IItemObject>();
             if (item != null)
             {
                 if (!_items.TryGetValue(item, out HashSet<Collider> colliders))
@@ -30,7 +30,7 @@ namespace Runtime.Trading
 
         private void OnTriggerExit(Collider other)
         {
-            var item = other.GetComponentInParent<IItemInstance>();
+            var item = other.GetComponentInParent<IItemObject>();
             if (item != null && _items.TryGetValue(item, out HashSet<Collider> colliders))
             {
                 colliders.Remove(other);

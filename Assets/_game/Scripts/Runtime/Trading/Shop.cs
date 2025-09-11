@@ -34,11 +34,11 @@ namespace Runtime.Trading
             itemsTrigger.OnItemExit += OnItemExitTrigger;
         }
 
-        private void OnItemEntersTrigger(IItemInstance item)
+        private void OnItemEntersTrigger(IItemObject iItem)
         {
             ItemsChanged?.Invoke();
         }
-        private void OnItemExitTrigger(IItemInstance item)
+        private void OnItemExitTrigger(IItemObject iItem)
         {
             ItemsChanged?.Invoke();
         }
@@ -61,7 +61,7 @@ namespace Runtime.Trading
                     {
                         if (settings.IsItemMatch(itemSign))
                         {
-                            assortment.Add(new TradeItem(itemSign, 3, settings.GetCost(itemSign)));
+                            assortment.Add(new TradeItem(itemSign, 100, settings.GetCost(itemSign)));
                         }
                     }
                 }
@@ -100,10 +100,11 @@ namespace Runtime.Trading
                 }
             }
             transaction = new Transaction(deal, deliveredProductInfo);
+            transaction.FinilizeAsync();
             return true;
         }
 
-        public IEnumerable<IItemInstance> GetItemsInSellZone()
+        public IEnumerable<IItemObject> GetItemsInSellZone()
         {
             return itemsTrigger.GetItems;
         }

@@ -10,6 +10,6 @@ namespace Core.Character.Interaction
         Inventory Inventory { get; }
         event Action ItemsChanged;
         bool TryMakeDeal(TradeDeal deal, out Transaction transaction);
-        IEnumerable<IItemInstance> GetItemsInSellZone(); // TODO: replace to infinite list interface
+        IEnumerable<IItemObject> GetItemsInSellZone(); // TODO: replace to infinite list interface
     }
 }

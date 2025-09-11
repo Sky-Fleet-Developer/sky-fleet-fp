@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Core.Structure
 {
-    public interface IStructure : IItemInstanceHandle, IEventSystem
+    public interface IStructure : IItemObjectHandle, IEventSystem
     {
         bool Active { get; }
         // ReSharper disable once InconsistentNaming

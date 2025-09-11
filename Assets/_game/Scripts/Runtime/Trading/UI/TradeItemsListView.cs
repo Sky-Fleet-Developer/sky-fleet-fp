@@ -15,7 +15,7 @@ namespace Runtime.Trading.UI
         private TradeItemView _itemPrefab;
         public readonly ListSelectionHandler<TradeItemView> SelectionHandler = new ();
         private List<TradeItem> _items = new();
-        public event Action<TradeItem, int> OnItemInCardAmountChanged; 
+        public event Action<TradeItem, float> OnItemInCardAmountChanged; 
         
         private void Awake()
         {
@@ -48,7 +48,7 @@ namespace Runtime.Trading.UI
             _views.RemoveRange(counter, _views.Count - counter);
         }
 
-        private void ItemInCardAmountChanged(TradeItem item, int amount)
+        private void ItemInCardAmountChanged(TradeItem item, float amount)
         {
             OnItemInCardAmountChanged?.Invoke(item, amount);
         }

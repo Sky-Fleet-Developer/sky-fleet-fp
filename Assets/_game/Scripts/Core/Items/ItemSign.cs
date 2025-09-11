@@ -7,23 +7,25 @@ namespace Core.Items
     [Serializable]
     public class ItemSign : IEquatable<ItemSign>
     {
-        public const string LargeTag = "large";
+        public const string LiquidTag = "liquid";
+        public const string MassTag = "mass";
+        public const string ResizableTag = "resizable";
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;
-        [SerializeField] private float mass;
+        [SerializeField] private ItemProperty[] properties;
+        
         public string Id => id;
         public IEnumerable<string> Tags => tags;
         public int BasicCost => basicCost;
-        public float Mass => mass;
 
         public ItemSign(){}
-        public ItemSign(string id, string[] tags, int basicCost, float mass)
+        public ItemSign(string id, string[] tags, ItemProperty[] properties, int basicCost)
         {
             this.id = id;
             this.tags = tags;
+            this.properties = properties;
             this.basicCost = basicCost;
-            this.mass = mass;
         }
 
         public bool HasTag(string tag)
@@ -38,6 +40,48 @@ namespace Core.Items
             return false;
         }
 
+        public bool TryGetProperty(string propertyName, out ItemProperty property)
+        {
+            for (var i = 0; i < properties.Length; i++)
+            {
+                if (properties[i].name == propertyName)
+                {
+                    property = properties[i];
+                    return true;
+                }
+            }
+            property = default;
+            return false;
+        }
+
+        public float GetStackSize()
+        {
+            if (TryGetProperty(MassTag, out ItemProperty massProperty))
+            {
+                return massProperty.values[ItemProperty.Mass_StackSize].floatValue;
+            }
+            else if (TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
+            {
+                return resizableProperty.values[ItemProperty.Resizable_StackSize].floatValue;
+            }
+            Debug.LogError($"Has no volume properties on ItemSign {Id}");
+            return 1;
+        }
+
+        public float GetSingleVolume()
+        {
+            if (TryGetProperty(MassTag, out ItemProperty massProperty))
+            {
+                return massProperty.values[1].floatValue;
+            }
+            else if(TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
+            {
+                return resizableProperty.values[0].floatValue;
+            }
+            Debug.LogError($"Has no volume properties on ItemSign {Id}");
+            return 1;
+        }
+        
         public bool Equals(ItemSign other)
         {
             if (other is null) return false;

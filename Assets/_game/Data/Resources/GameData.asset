@@ -17,7 +17,7 @@ MonoBehaviour:
     rules: []
     includeTags:
     - tags:
-      - ore
+      - T0
       - iron
     excludeTags: []
   - id: iron_refinery
@@ -25,14 +25,14 @@ MonoBehaviour:
     - value: 1.15
       tags:
         tags:
-        - ore
+        - T0
     includeTags:
     - tags:
       - iron
-      - ore
+      - T0
     - tags:
       - iron
-      - refined
+      - T1
     excludeTags:
     - tags: []
 --- !u!114 &-4195173841857350580
@@ -50,54 +50,299 @@ MonoBehaviour:
   items:
   - id: iron_ore
     tags:
-    - basic
-    - ore
+    - T0
     - iron
-    - small
+    - resizable
     basicCost: 5
-    mass: 2
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 3.9
+        intValue: 0
+        floatValue: 3.9
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
   - id: iron_ingot
     tags:
-    - basic
-    - refined
+    - T1
     - iron
-    - small
+    - steel-industry
+    - mass
     basicCost: 8
-    mass: 2
-  - id: iron_ore_crate
+    properties:
+    - name: mass
+      values:
+      - stringValue: 15.6
+        intValue: 0
+        floatValue: 15.6
+      - stringValue: 2
+        intValue: 2
+        floatValue: 2
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+  - id: cyan_crystal
     tags:
-    - basic
-    - ore
-    - iron
-    - large
-    - crate
-    basicCost: 2500
-    mass: 1000
-  - id: iron_ingot_crate
+    - chemistry
+    - T0
+    - special
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 3.1
+        intValue: 0
+        floatValue: 3.1
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+  - id: catalith_ore
     tags:
-    - basic
-    - refined
-    - iron
-    - large
-    - crate
-    basicCost: 4000
-    mass: 1000
-  crates:
-  - sourceId: iron_ore_crate
-    crateId: iron_ore
-    capacity: 500
-  - sourceId: iron_ingot_crate
-    crateId: iron_ingot
-    capacity: 500
+    - chemistry
+    - T0
+    - catalith
+    - fuel-industry
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 2.5
+        intValue: 0
+        floatValue: 2.5
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+  - id: catazyne-1_liquid
+    tags:
+    - fuel
+    - T1
+    - consumers
+    - liquid
+    basicCost: 1
+    properties:
+    - name: liquid
+      values:
+      - stringValue: 0.95
+        intValue: 0
+        floatValue: 0.95
+  - id: catazyne-2_liquid
+    tags:
+    - fuel
+    - T2
+    - consumers
+    - liquid
+    basicCost: 1
+    properties:
+    - name: liquid
+      values:
+      - stringValue: 0.92
+        intValue: 0
+        floatValue: 0.92
+  - id: cyanides-shell
+    tags:
+    - chemistry
+    - T0
+    - hunt
+    - medium_rare
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 150
+        intValue: 150
+        floatValue: 150
+      - stringValue: 100
+        intValue: 100
+        floatValue: 100
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: chitirenin_raw
+    tags:
+    - chemistry
+    - T1
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 1.05
+        intValue: 0
+        floatValue: 1.05
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+  - id: chitirenin_affinated
+    tags:
+    - chemistry
+    - T2
+    - steel-industry
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 1.2
+        intValue: 0
+        floatValue: 1.2
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+  - id: copper_ore
+    tags:
+    - T0
+    - copper
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 3.5
+        intValue: 0
+        floatValue: 3.5
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+  - id: copper_ingot
+    tags:
+    - T1
+    - copper
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 15.6
+        intValue: 0
+        floatValue: 15.6
+      - stringValue: 2
+        intValue: 2
+        floatValue: 2
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+  - id: copper_wire
+    tags:
+    - T2
+    - copper
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 2
+        intValue: 2
+        floatValue: 2
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+  - id: stone
+    tags:
+    - T0
+    - concrete
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 2.6
+        intValue: 0
+        floatValue: 2.6
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+  - id: cement_bag
+    tags:
+    - T1
+    - concrete
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+  - id: concrete_block
+    tags:
+    - T2
+    - concrete
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 1000
+        intValue: 1000
+        floatValue: 1000
+      - stringValue: 500
+        intValue: 500
+        floatValue: 500
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: hard_coil
+    tags:
+    - T0
+    - coil
+    - fuel
+    - resizable
+    basicCost: 1
+    properties:
+    - name: resizable
+      values:
+      - stringValue: 1.3
+        intValue: 0
+        floatValue: 1.3
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
   linksToPrefabs:
   - signId: iron_ore
     prefabGuid: 
   - signId: iron_ingot
+    prefabGuid: 77dff4da645eda9439685b2c5e3bbaf7
+  - signId: cyan_crystal
     prefabGuid: 
-  - signId: iron_ore_crate
-    prefabGuid: 32392e7850e5f4942814cddad09851ff
-  - signId: iron_ingot_crate
-    prefabGuid: 32392e7850e5f4942814cddad09851ff
+  - signId: catalith_ore
+    prefabGuid: 
+  - signId: catazyne-1_liquid
+    prefabGuid: 
+  - signId: catazyne-2_liquid
+    prefabGuid: 
+  - signId: cyanides-shell
+    prefabGuid: 
+  - signId: chitirenin_raw
+    prefabGuid: 
+  - signId: chitirenin_affinated
+    prefabGuid: 
+  - signId: copper_ore
+    prefabGuid: 
+  - signId: copper_ingot
+    prefabGuid: 66a42df53344cb3468d5d36f8bf84f63
+  - signId: copper_wire
+    prefabGuid: 
+  - signId: stone
+    prefabGuid: 
+  - signId: cement_bag
+    prefabGuid: 
+  - signId: concrete_block
+    prefabGuid: 
+  - signId: hard_coil
+    prefabGuid: 
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,6 +359,7 @@ MonoBehaviour:
   - {fileID: 5893292968165454084}
   - {fileID: -4195173841857350580}
   - {fileID: -4838933943100615771}
+  - {fileID: 3767645840742298613}
   serializedSharedData:
     serializationVersion: 0.0.1
     interactiveLayer:
@@ -128,6 +374,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 196608
     fuelTransitionAmount: 2
+    shopMaxAmountToInventoryDelivery: 10
     lodDistances:
     - 50
     - 100
@@ -142,6 +389,18 @@ MonoBehaviour:
     remotePrefabsTags:
     - Structure
     - Block
+--- !u!114 &3767645840742298613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5338996deca4b29a9f8f6d841edbf92, type: 3}
+  m_Name: ItemFactory
+  m_EditorClassIdentifier: 
 --- !u!114 &5893292968165454084
 MonoBehaviour:
   m_ObjectHideFlags: 0

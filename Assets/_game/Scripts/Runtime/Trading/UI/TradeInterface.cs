@@ -38,7 +38,7 @@ namespace Runtime.Trading.UI
             sellerItemsView.OnItemInCardAmountChanged -= OnSellerItemInCardAmountChanged;
         }
 
-        private void OnSellerItemInCardAmountChanged(TradeItem item, int amount)
+        private void OnSellerItemInCardAmountChanged(TradeItem item, float amount)
         {
             if (_deal.SetInCartItemAmount(item, amount, out var innerItem))
             {
