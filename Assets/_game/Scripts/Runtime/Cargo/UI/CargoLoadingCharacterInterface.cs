@@ -15,7 +15,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Cargo.UI
 {
-    public class CargoLoadingCharacterInterface : MonoBehaviour, IFirstPersonInterface, ISelectionListener<CargoButton>, ISelectionListener<TrunkButton>
+    public class CargoLoadingCharacterInterface : FirstPersonInterfaceBase, ISelectionListener<CargoButton>, ISelectionListener<TrunkButton>
     {
         [SerializeField] private CargoButton cargoButtonPrefab;
         [SerializeField] private TrunkButton trunkButtonPrefab;
@@ -60,13 +60,14 @@ namespace Runtime.Cargo.UI
             //loadButton.onClick.RemoveListener(OnClick);
         }
 
-        public bool IsMatch(IState state)
+        public override bool IsMatch(IState state)
         {
             return state is FirstPersonController.UIInteractionState { Handler: ICargoLoadingPlayerHandler };
         }
 
-        public void Show()
+        public override void Show()
         {
+            base.Show();
             gameObject.SetActive(true);
             _handler.Enter();
             foreach (var trunk in _handler.AvailableTrunks)
@@ -85,8 +86,9 @@ namespace Runtime.Cargo.UI
             }
         }
 
-        public void Hide()
+        public override void Hide()
         {
+            base.Hide();
             gameObject.SetActive(false);
             _handler?.Exit();
             foreach (var target in _cargoSelection.Targets)
@@ -100,7 +102,7 @@ namespace Runtime.Cargo.UI
             _cargoSelection.ClearTargets();
             _trunkSelection.ClearTargets();   
         }
-
+        
         private void OnExitClick()
         {
             if (_isInPlacementMode)

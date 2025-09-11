@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Character.Interface
 {
-    public class InteractDynamicInterface : MonoBehaviour, IFirstPersonInterface
+    public class InteractDynamicInterface : FirstPersonInterfaceBase
     {
         [SerializeField] private Image pointMark;
         [SerializeField] private Image path;
@@ -15,29 +15,25 @@ namespace Runtime.Character.Interface
         private RectTransform _rectTransform;
         private FirstPersonController.InteractWithDynamicObjectState _data;
         private Camera _mainCamera;
-        private FirstPersonInterfaceInstaller _master;
 
-        public void Init(FirstPersonInterfaceInstaller master)
-        {
-            _master = master;
-        }
-
-        public bool IsMatch(IState state) => state is FirstPersonController.InteractWithDynamicObjectState;
+        public override bool IsMatch(IState state) => state is FirstPersonController.InteractWithDynamicObjectState;
 
         private void Awake()
         {
             _rectTransform = (RectTransform)transform;
         }
 
-        public void Show()
+        public override void Show()
         {
+            base.Show();
             gameObject.SetActive(true);
             _mainCamera = Camera.main;
-            _data = (FirstPersonController.InteractWithDynamicObjectState)_master.TargetState;
+            _data = (FirstPersonController.InteractWithDynamicObjectState)Master.TargetState;
         }
 
-        public void Hide()
+        public override void Hide()
         {
+            base.Hide();
             gameObject.SetActive(false);
         }
 

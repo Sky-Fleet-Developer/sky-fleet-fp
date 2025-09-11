@@ -13,7 +13,7 @@ using Zenject;
 
 namespace Runtime.Trading.UI
 {
-    public class TradeInterface : Service, IFirstPersonInterface, ISelectionListener<TradeItemView>
+    public class TradeInterface : FirstPersonService, ISelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
         [SerializeField] private TradeItemDescriptionView descriptionView;
@@ -48,7 +48,7 @@ namespace Runtime.Trading.UI
             }
         }
 
-        public void Init(FirstPersonInterfaceInstaller master)
+        public override void Init(FirstPersonInterfaceInstaller master)
         {
             _master = master;
             _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
@@ -113,20 +113,15 @@ namespace Runtime.Trading.UI
             }
         }
 
-        public bool IsMatch(IState state)
+        public override bool IsMatch(IState state)
         {
             return state is FirstPersonController.UIInteractionState { Handler: ITradeHandler };
         }
 
-        void IFirstPersonInterface.Show()
+        public override void Show()
         {
-            Window.Open();
+            base.Show();
             sellerItemsView.SetItems(_handler.GetTradeItems());
-        }
-
-        void IFirstPersonInterface.Hide()
-        {
-            Window.Close();
         }
 
         public override IEnumerator Hide(BlockSequenceSettings settings = null)

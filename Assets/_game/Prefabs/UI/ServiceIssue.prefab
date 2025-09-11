@@ -51,6 +51,7 @@ MonoBehaviour:
   - {fileID: 1218950300239512291, guid: 548ee015773b72d47883c9ba77789f7f, type: 3}
   - {fileID: 4389175326201299809, guid: 79de38af520e0d242a1658ad1b68aed9, type: 3}
   - {fileID: 1408242509321300105, guid: a96ca68a58cbb6741adb2b2237679b06, type: 3}
+  - {fileID: -4571109052574661342, guid: 82c62aad0da0fcd448dc985d734f787e, type: 3}
   availableFrames:
   - {fileID: 8920528271748704027, guid: 1b26d55f9fc53ae4dbec2d804426fe4b, type: 3}
   - {fileID: 8920528271748704027, guid: 80ab92d49ba15674fa4c3df2859f4dd9, type: 3}
