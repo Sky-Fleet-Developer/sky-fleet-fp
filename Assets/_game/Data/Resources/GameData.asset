@@ -35,6 +35,18 @@ MonoBehaviour:
       - T1
     excludeTags:
     - tags: []
+--- !u!114 &-4455120187770695450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82941b992ebc4e8db34bf360e5ab6184, type: 3}
+  m_Name: BankSystem
+  m_EditorClassIdentifier: 
 --- !u!114 &-4195173841857350580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,7 +371,7 @@ MonoBehaviour:
   - {fileID: 5893292968165454084}
   - {fileID: -4195173841857350580}
   - {fileID: -4838933943100615771}
-  - {fileID: 3767645840742298613}
+  - {fileID: -4455120187770695450}
   serializedSharedData:
     serializationVersion: 0.0.1
     interactiveLayer:
@@ -389,18 +401,6 @@ MonoBehaviour:
     remotePrefabsTags:
     - Structure
     - Block
---- !u!114 &3767645840742298613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5338996deca4b29a9f8f6d841edbf92, type: 3}
-  m_Name: ItemFactory
-  m_EditorClassIdentifier: 
 --- !u!114 &5893292968165454084
 MonoBehaviour:
   m_ObjectHideFlags: 0

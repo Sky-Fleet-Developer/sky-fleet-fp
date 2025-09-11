@@ -17,17 +17,16 @@ namespace Runtime.Trading
     {
         [SerializeField] private string shopId;
         [SerializeField] private ItemsTrigger itemsTrigger;
-
         public bool EnableInteraction => IsActive;
         public Transform Root => transform;
-        public Inventory Inventory => _inventory;
+        public string InventoryKey => shopId;
         public event Action ItemsChanged;
         [Inject] private ShopTable _shopTable;
-        [Inject] private ItemsTable _itemsTable;
+        [Inject] private BankSystem _bankSystem;
         [Inject] private DiContainer _diContainer;
-        private Inventory _inventory;
         private List<IProductDeliveryService> _deliveryServices = new ();
-
+        private IInventoryReadonly _inventory;
+        private ShopSettings _shopSettings;
         private void Awake()
         {
             itemsTrigger.OnItemEnter += OnItemEntersTrigger;
@@ -54,19 +53,12 @@ namespace Runtime.Trading
                     _diContainer.Inject(_deliveryServices[i]);
                 }
 
-                List<TradeItem> assortment = new List<TradeItem>();
-                if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
+                _bankSystem.InitializeShop(shopId, this);
+                _inventory = _bankSystem.GetOrCreateInventory(this);
+                if (!_shopTable.TryGetSettings(shopId, out _shopSettings))
                 {
-                    foreach (var itemSign in _itemsTable.GetItems())
-                    {
-                        if (settings.IsItemMatch(itemSign))
-                        {
-                            assortment.Add(new TradeItem(itemSign, 100, settings.GetCost(itemSign)));
-                        }
-                    }
+                    Debug.LogError($"Shop {shopId} does not exists!");
                 }
-
-                _inventory = new Inventory(assortment);
             }
 
             base.InitBlock(structure, parent);
@@ -74,19 +66,20 @@ namespace Runtime.Trading
 
         public bool TryMakeDeal(TradeDeal deal, out Transaction transaction)
         {
-            var deliverySettings = new ProductDeliverySettings { PurchaserInventory = deal.GetPurchaser().GetInventory() };
+            var deliverySettings = new ProductDeliverySettings { Purchaser = deal.GetPurchaser() };
             List<DeliveredProductInfo> deliveredProductInfo = new ();
             foreach (var tradeItem in deal.GetPurchases())
             {
-                if (!deal.GetSeller().GetInventory().TryPullItem(tradeItem))
+                if (!_bankSystem.TryPullItem(this, tradeItem.Sign, tradeItem.amount, out ItemInstance result))
                 {
-                    Debug.LogError($"Cant pull item. Id:{tradeItem.sign.Id}");
+                    Debug.LogError($"Cant pull item. Id:{tradeItem.Sign.Id}");
                     continue;
                 }
+
                 bool isDelivered = false;
                 for (var i = 0; i < _deliveryServices.Count; i++)
                 {
-                    if (_deliveryServices[i].TryDeliver(tradeItem, deliverySettings, out DeliveredProductInfo info))
+                    if (_deliveryServices[i].TryDeliver(result, deliverySettings, out DeliveredProductInfo info))
                     {
                         deliveredProductInfo.Add(info);
                         isDelivered = true;
@@ -96,12 +89,21 @@ namespace Runtime.Trading
 
                 if (!isDelivered)
                 {
-                    Debug.LogError($"Item was not delivered. Id:{tradeItem.sign.Id}");
+                    Debug.LogError($"Item was not delivered. Id:{tradeItem.Sign.Id}");
                 }
             }
+
             transaction = new Transaction(deal, deliveredProductInfo);
             transaction.FinilizeAsync();
             return true;
+        }
+
+        public IEnumerable<TradeItem> GetTradeItems()
+        {
+            foreach (var itemInstance in _inventory.GetItems())
+            {
+                yield return new TradeItem(itemInstance.Sign, itemInstance.Amount, _shopSettings.GetCost(itemInstance.Sign));
+            }
         }
 
         public IEnumerable<IItemObject> GetItemsInSellZone()

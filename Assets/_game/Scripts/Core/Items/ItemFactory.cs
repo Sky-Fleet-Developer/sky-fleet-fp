@@ -7,29 +7,27 @@ using Zenject;
 
 namespace Core.Items
 {
-    [CreateAssetMenu(menuName = "Factories/ItemFactory", fileName = "ItemFactory")]
-    public class ItemFactory : ScriptableObject
+    public class ItemFactory : MonoInstaller, IFactory<ItemInstance, Task<List<GameObject>>>
     {
-        [Inject] private TablePrefabs _tablePrefabs;
-        [Inject] private ItemsTable _tableItems;
-
-        public async Task<List<GameObject>> ConstructItem(TradeItem item)
+        [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
+        [Inject(Optional = true)] private ItemsTable _tableItems;
+        
+        public override void InstallBindings()
         {
-            var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.sign.Id)).LoadPrefab();
-            List<GameObject> instances = new List<GameObject>((int)item.amount);
-            foreach (var makeInstance in item.MakeInstances())
+            Container.Bind<IFactory<ItemInstance, Task<List<GameObject>>>>().To<ItemFactory>().FromInstance(this);
+        }
+
+        public async Task<List<GameObject>> Create(ItemInstance item)
+        {
+            var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
+            List<GameObject> instances = new List<GameObject>((int)item.Amount);
+            foreach (var makeInstance in item.DetachStacks(item.Sign.GetStackSize()))
             {
                 var instance = ConstructItemPrivate(makeInstance, prefab);
                 instances.Add(instance);
             }
 
             return instances;
-        }
-
-        public async Task<GameObject> ConstructItem(ItemInstance item)
-        {
-            var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
-            return ConstructItemPrivate(item, prefab);
         }
 
         private GameObject ConstructItemPrivate(ItemInstance item, GameObject source)

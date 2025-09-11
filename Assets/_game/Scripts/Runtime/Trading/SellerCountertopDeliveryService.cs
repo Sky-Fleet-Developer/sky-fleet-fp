@@ -9,22 +9,27 @@ namespace Runtime.Trading
 {
     public class SellerCountertopDeliveryService : MonoBehaviour, IProductDeliveryService
     {
-        [Inject] private ItemsTable _tableItems;
+        [Inject] private BankSystem _bankSystem;
 
         public int Order => transform.GetSiblingIndex();
 
-        public bool TryDeliver(TradeItem item, ProductDeliverySettings deliverySettings, out DeliveredProductInfo deliveredProductInfo)
+        public bool TryDeliver(ItemInstance item, ProductDeliverySettings deliverySettings, out DeliveredProductInfo deliveredProductInfo)
         {
-            if (item.sign.HasTag(ItemSign.LiquidTag) || item.GetVolume() > GameData.Data.shopMaxAmountToInventoryDelivery)
+            if (item.Sign.HasTag(ItemSign.LiquidTag) || item.GetVolume() > GameData.Data.shopMaxAmountToInventoryDelivery)
             {
                 deliveredProductInfo = null;
                 return false;
             }
 
-            deliveredProductInfo = new DeliveredProductInfo();
-            deliverySettings.PurchaserInventory.PutItem(item);
-            deliveredProductInfo.IsPlacedInInventory = true;
-            return true;
+            if (_bankSystem.TryPutItem(deliverySettings.Purchaser, item))
+            {
+                deliveredProductInfo = new DeliveredProductInfo();
+                deliveredProductInfo.IsPlacedInInventory = true;
+                return true;
+            }
+            
+            deliveredProductInfo = null;
+            return false;
         }
     }
 }

@@ -20,19 +20,23 @@ namespace Core
 
         private async Task RunAsync()
         {
+            var monoBehaviours = GetComponentsInChildren<MonoBehaviour>();
+            foreach (var monoBehaviour in monoBehaviours)
+            {
+                try
+                {
+                    Container.Inject(monoBehaviour);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+            }
             var interfaces = GetComponentsInChildren<ILoadAtStart>(true);
             foreach (ILoadAtStart load in interfaces)
             {
                 if (load.enabled)
                 {
-                    try
-                    {
-                        Container.Inject(load);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(e);
-                    }
                     Debug.Log($"BOOTSTRAPPER: Begin load {load}");
                     await load.Load();
                 }

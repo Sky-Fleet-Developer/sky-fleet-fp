@@ -7,62 +7,71 @@ using UnityEngine.Serialization;
 
 namespace Core.Trading
 {
-    [Serializable]
     public class TradeItem : IEquatable<TradeItem>, IDisposable
     {
         public float amount;
-        public ItemSign sign;
+        [SerializeField] private ItemSign _sign;
+        public ItemSign Sign => _sign;
         public int cost;
-        public bool IsConstantMass => sign.HasTag(ItemSign.MassTag);
-        public TradeItem(){}
+        public bool IsConstantMass => Sign.HasTag(ItemSign.MassTag);
 
-        public TradeItem(ItemSign itemSign)
-        {
-            sign = itemSign;
-        }
         public TradeItem(ItemSign itemSign, float amount, int cost)
         {
-            sign = itemSign;
+            _sign = itemSign;
             this.amount = IsConstantMass ? Mathf.CeilToInt(amount) : amount;
             this.cost = cost;
         }
 
         public float GetVolume()
         {
-            return sign.GetSingleVolume() * amount;
+            return Sign.GetSingleVolume() * amount;
         }
         
         public bool Equals(TradeItem other)
         {
             if (other == null) return false;
-            if (!sign.Equals(other.sign)) return false;
+            if (!Sign.Equals(other.Sign)) return false;
             if (ReferenceEquals(this, other)) return true;
             return cost == other.cost;
         }
 
         public void Dispose()
         {
-            sign = null;
+            _sign = null;
         }
     }
 
-    public static class TradeItemExtension
+    public static class ItemExtension
     {
-        public static IEnumerable<ItemInstance> MakeInstances(this TradeItem tradeItem)
+        public static IEnumerable<ItemInstance> MakeInstances(this TradeItem tradeItem, float maxStackSize)
         {
-            if (!tradeItem.sign.HasTag(ItemSign.LiquidTag))
+            if (!tradeItem.Sign.HasTag(ItemSign.LiquidTag))
             {
-                float stackSize = tradeItem.sign.GetStackSize();
-                int loops = (int)(tradeItem.amount / stackSize);
+                int loops = (int)(tradeItem.amount / maxStackSize);
                 for (int i = 0; i < loops; i++)
                 {
-                    yield return new ItemInstance(tradeItem.sign, stackSize);
+                    yield return new ItemInstance(tradeItem.Sign, maxStackSize);
                 }
-                yield return new ItemInstance(tradeItem.sign, tradeItem.amount - loops * stackSize);
+                yield return new ItemInstance(tradeItem.Sign, tradeItem.amount - loops * maxStackSize);
             }
             else
             {
-                yield return new ItemInstance(tradeItem.sign, tradeItem.amount);
+                yield return new ItemInstance(tradeItem.Sign, tradeItem.amount);
+            }
+        }
+        public static IEnumerable<ItemInstance> DetachStacks(this ItemInstance tradeItem, float stackSize)
+        {
+            if (!tradeItem.Sign.HasTag(ItemSign.LiquidTag))
+            {
+                while (tradeItem.Amount > stackSize)
+                {
+                    yield return tradeItem.Detach(stackSize);
+                }
+                yield return tradeItem;
+            }
+            else
+            {
+                yield return tradeItem;
             }
         }
     }

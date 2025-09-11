@@ -5,8 +5,6 @@ using Core.Configurations;
 using Core.Data;
 using Core.Game;
 using Core.Items;
-using Core.Structure;
-using Core.Structure.Rigging.Cargo;
 using Core.Trading;
 using UnityEngine;
 using Zenject;
@@ -18,15 +16,15 @@ namespace Runtime.Trading
         [SerializeField] private Transform spawnAnchor;
         [SerializeField] private Vector2 spawnPlaceSize;
         [SerializeField] private Vector2Int spawnZoneSize;
-        [Inject] private ItemFactory _itemFactory;
+        [Inject] private IFactory<ItemInstance, Task<List<GameObject>>> _itemFactory;
         [Inject] private TablePrefabs _tablePrefabs;
         private int _spawnCounter;
         public int Order => transform.GetSiblingIndex();
 
-        public bool TryDeliver(TradeItem item, ProductDeliverySettings deliverySettings,
+        public bool TryDeliver(ItemInstance item, ProductDeliverySettings deliverySettings,
             out DeliveredProductInfo deliveredProductInfo)
         {
-            if (item.sign.HasTag(ItemSign.LiquidTag))
+            if (item.Sign.HasTag(ItemSign.LiquidTag))
             {
                 deliveredProductInfo = null;
                 return false;
@@ -37,10 +35,10 @@ namespace Runtime.Trading
             return true;
         }
 
-        private async Task<List<GameObject>> LoadAndInstantiatePrefab(TradeItem item,
+        private async Task<List<GameObject>> LoadAndInstantiatePrefab(ItemInstance item,
             ProductDeliverySettings deliverySettings)
         {
-            var instances = await _itemFactory.ConstructItem(item);
+            var instances = await _itemFactory.Create(item);
             for (var i = 0; i < instances.Count; i++)
             {
                 instances[i].transform.position = spawnAnchor.TransformPoint(GetNextSpawnPoint());

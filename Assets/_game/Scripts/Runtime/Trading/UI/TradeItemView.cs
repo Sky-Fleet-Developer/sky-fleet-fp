@@ -101,7 +101,7 @@ namespace Runtime.Trading.UI
         {
             _data = data;
             _amount = 0;
-            signView.SetData(data.sign);
+            signView.SetData(data.Sign);
             RefreshView();
         }
 

@@ -5,11 +5,11 @@ using Core.Trading;
 
 namespace Core.Character.Interaction
 {
-    public interface ITradeHandler : ICharacterHandler
+    public interface ITradeHandler : ICharacterHandler, IInventoryOwner
     {
-        Inventory Inventory { get; }
         event Action ItemsChanged;
         bool TryMakeDeal(TradeDeal deal, out Transaction transaction);
+        IEnumerable<TradeItem> GetTradeItems();
         IEnumerable<IItemObject> GetItemsInSellZone(); // TODO: replace to infinite list interface
     }
 }

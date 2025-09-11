@@ -2,7 +2,7 @@
 {
     public struct ProductDeliverySettings
     {
-        public Inventory PurchaserInventory;
+        public IInventoryOwner Purchaser;
         public bool NeedPackInBox;
     }
 }

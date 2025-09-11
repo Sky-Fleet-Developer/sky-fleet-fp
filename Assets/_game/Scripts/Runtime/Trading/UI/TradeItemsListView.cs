@@ -66,7 +66,7 @@ namespace Runtime.Trading.UI
 
         public void AddItem(TradeItem item)
         {
-            var index = _items.FindIndex(x => x.sign.Id == item.sign.Id);
+            var index = _items.FindIndex(x => x.Sign.Id == item.Sign.Id);
             if (index != -1)
             {
                 _items[index].amount = item.amount;
@@ -91,14 +91,14 @@ namespace Runtime.Trading.UI
 
         public void RefreshItem(TradeItem item)
         {
-            var view = _views.First(x => x.Data.sign.Id == item.sign.Id);
+            var view = _views.First(x => x.Data.Sign.Id == item.Sign.Id);
             view.RefreshView();
         }
 
 
         public void Select(TradeItem item)
         {
-            var view = _views.First(x => x.Data.sign.Id == item.sign.Id);
+            var view = _views.First(x => x.Data.Sign.Id == item.Sign.Id);
             view.OnSelect(null);
         }
 

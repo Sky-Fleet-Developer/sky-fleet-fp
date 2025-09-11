@@ -13,20 +13,13 @@ namespace Runtime.Items
         public string Guid => guid;
         public List<string> Tags => tags;
         private ItemInstance _sourceItem;
-        private string _ownerId;
         ItemInstance IItemObject.SourceItem => _sourceItem;
-        public string OwnerId => _ownerId;
 
         void IItemObjectHandle.SetSourceItem(ItemInstance sign)
         {
             _sourceItem = sign;
         }
 
-        void IItemObjectHandle.SetOwnership(string ownerId)
-        {
-            _ownerId = ownerId;
-        }
-        
 #if UNITY_EDITOR
         private void Reset()
         {

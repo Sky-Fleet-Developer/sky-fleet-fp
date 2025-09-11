@@ -8,15 +8,15 @@ namespace Core.Trading
     {
         private List<TradeItem> _itemsToPurchase;
         private List<TradeItem> _itemsToSell;
-        private ITradeParticipant _seller;
-        private ITradeParticipant _purchaser;
+        private IInventoryOwner _seller;
+        private IInventoryOwner _purchaser;
 
         public IEnumerable<TradeItem> GetPurchases() => _itemsToPurchase;
         public IEnumerable<TradeItem> GetSells() => _itemsToSell;
-        public ITradeParticipant GetPurchaser() => _purchaser;
-        public ITradeParticipant GetSeller() => _seller;
+        public IInventoryOwner GetPurchaser() => _purchaser;
+        public IInventoryOwner GetSeller() => _seller;
         
-        public TradeDeal(ITradeParticipant purchaser, ITradeParticipant seller)
+        public TradeDeal(IInventoryOwner purchaser, IInventoryOwner seller)
         {
             _purchaser = purchaser;
             _seller = seller;
@@ -33,7 +33,7 @@ namespace Core.Trading
             }
             for (var i = 0; i < _itemsToPurchase.Count; i++)
             {
-                if (_itemsToPurchase[i].sign.Equals(item.sign))
+                if (_itemsToPurchase[i].Sign.Equals(item.Sign))
                 {
                     _itemsToPurchase[i].amount = amount;
                     innerItem = _itemsToPurchase[i];
@@ -41,10 +41,7 @@ namespace Core.Trading
                 }
             }
 
-            var tradeItem = new TradeItem();
-            tradeItem.sign = item.sign;
-            tradeItem.cost = item.cost;
-            tradeItem.amount = amount;
+            var tradeItem = new TradeItem(item.Sign, amount, item.cost);
             _itemsToPurchase.Add(tradeItem);
             innerItem = tradeItem;
             return true;
@@ -76,17 +73,14 @@ namespace Core.Trading
         {
             for (var i = 0; i < _itemsToSell.Count; i++)
             {
-                if (_itemsToSell[i].sign == item.sign)
+                if (_itemsToSell[i].Sign.Equals(item.Sign))
                 {
                     _itemsToSell[i].amount += amount;
                     return;
                 }
             }
 
-            var tradeItem = new TradeItem();
-            tradeItem.sign = item.sign;
-            tradeItem.cost = item.cost;
-            tradeItem.amount = amount;
+            var tradeItem = new TradeItem(item.Sign, amount, item.cost);
             _itemsToSell.Add(tradeItem);            
         }
 

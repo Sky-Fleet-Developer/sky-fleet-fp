@@ -1,0 +1,18 @@
+﻿using System.Collections.Generic;
+using Core.Items;
+
+namespace Core.Trading
+{
+    public interface IInventoryMasterHandler : IInventoryReadonly
+    {
+        void PutItem(ItemInstance item);
+        bool TryPullItem(ItemSign sign, float amount, out ItemInstance result);
+    }
+
+    public interface IInventoryReadonly
+    {
+        string Key { get; }
+        IEnumerable<ItemInstance> GetItems();
+        IEnumerable<ItemInstance> GetItems(string id);
+    }
+}

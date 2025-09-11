@@ -9,6 +9,7 @@ using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace Runtime.Trading.UI
 {
@@ -22,6 +23,7 @@ namespace Runtime.Trading.UI
         private FirstPersonController.UIInteractionState _interactionState;
         private FirstPersonInterfaceInstaller _master;
         private TradeDeal _deal;
+        [Inject] private BankSystem _bankSystem;
 
         protected override void Awake()
         {
@@ -51,7 +53,7 @@ namespace Runtime.Trading.UI
             _master = master;
             _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
             _handler = (ITradeHandler)_interactionState.Handler;
-            _deal = new TradeDeal(_interactionState.Master.GetInventory(), _handler.Inventory);
+            _deal = new TradeDeal(_interactionState.Master, _handler);
         }
         
         /*private void AddToCartClick()
@@ -105,9 +107,9 @@ namespace Runtime.Trading.UI
         {
             if (_handler.TryMakeDeal(_deal, out Transaction transaction))
             {
-                _deal = new TradeDeal(_interactionState.Master.GetInventory(), _handler.Inventory);
+                _deal = new TradeDeal(_interactionState.Master, _handler);
                 dealCostText.text = "0";
-                sellerItemsView.SetItems(_handler.Inventory.GetItems());
+                sellerItemsView.SetItems(_handler.GetTradeItems());
             }
         }
 
@@ -119,7 +121,7 @@ namespace Runtime.Trading.UI
         void IFirstPersonInterface.Show()
         {
             Window.Open();
-            sellerItemsView.SetItems(_handler.Inventory.GetItems());
+            sellerItemsView.SetItems(_handler.GetTradeItems());
         }
 
         void IFirstPersonInterface.Hide()
@@ -137,7 +139,7 @@ namespace Runtime.Trading.UI
         {
             if (next)
             {
-                descriptionView.SetData(next.Data.sign);
+                descriptionView.SetData(next.Data.Sign);
                 //bool isSellerItem = next.transform.IsChildOf(sellerItemsView.transform);
             }
             else

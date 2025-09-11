@@ -24,7 +24,7 @@ using Zenject;
 namespace Core.Character
 {
     [RequireComponent(typeof(CharacterMotor))]
-    public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster
+    public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster, IInventoryOwner
     {
         [FoldoutGroup("Links")]
         public Transform cameraRoot;
@@ -40,8 +40,6 @@ namespace Core.Character
         [FoldoutGroup("View")] public float horizontalBorders; // Not implemented
         [FoldoutGroup("View")] public float verticalBorders;
         [SerializeField] private CharacterDragObjectsSettings dragObjectsSettings;
-        private Inventory _inventory;
-        public Inventory GetInventory() => _inventory;
         
         public event Action StateChanged;
 
@@ -110,7 +108,6 @@ namespace Core.Character
         {
             currentInteractionState = new DefaultState(this);
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
-            _inventory = new Inventory(new List<TradeItem>());
         }
 
         private void Start()
@@ -661,5 +658,7 @@ namespace Core.Character
                 rigidbody.velocity = Vector3.zero;
             }
         }
+
+        public string InventoryKey => "Player_Inventory";
     }
 }
