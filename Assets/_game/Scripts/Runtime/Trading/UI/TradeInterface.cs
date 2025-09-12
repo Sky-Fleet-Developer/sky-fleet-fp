@@ -8,6 +8,7 @@ using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Zenject;
 
@@ -16,7 +17,7 @@ namespace Runtime.Trading.UI
     public class TradeInterface : FirstPersonService, ISelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
-        [SerializeField] private TradeItemDescriptionView descriptionView;
+        [FormerlySerializedAs("descriptionView")] [SerializeField] private ItemSignDescriptionView signDescriptionView;
         [SerializeField] private Button acceptButton;
         [SerializeField] private TextMeshProUGUI dealCostText;
         private ITradeHandler _handler;
@@ -134,12 +135,12 @@ namespace Runtime.Trading.UI
         {
             if (next)
             {
-                descriptionView.SetData(next.Data.Sign);
+                signDescriptionView.SetData(next.Data.Sign);
                 //bool isSellerItem = next.transform.IsChildOf(sellerItemsView.transform);
             }
             else
             {
-                descriptionView.Clear();
+                signDescriptionView.Clear();
             }
         }
     }

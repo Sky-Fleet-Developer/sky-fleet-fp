@@ -38,6 +38,7 @@ namespace Runtime.Character.Interface
             }
             _playerInventoryInterface = (PlayerInventoryInterface)_serviceIssue.CreateService(typeof(PlayerInventoryInterface), typeof(FramedWindow), Window.LayoutType.None);
             _diContainer.Inject(_playerInventoryInterface);
+            _playerInventoryInterface.Init(Master);
             ShowInterface(_playerInventoryInterface);
         }
 

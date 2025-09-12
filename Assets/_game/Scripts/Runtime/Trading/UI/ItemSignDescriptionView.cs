@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Runtime.Trading.UI
 {
-    public class TradeItemDescriptionView : MonoBehaviour
+    public class ItemSignDescriptionView : MonoBehaviour
     {
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI description;

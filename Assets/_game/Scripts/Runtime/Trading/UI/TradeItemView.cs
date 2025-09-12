@@ -5,12 +5,11 @@ using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Runtime.Trading.UI
 {
-    public class TradeItemView : MonoBehaviour, ISelectionTarget, ISelectHandler
+    public class TradeItemView : ThingView<TradeItem>, ISelectHandler
     {
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI costLabel;
@@ -24,8 +23,7 @@ namespace Runtime.Trading.UI
         private TradeItem _data;
         private float _amount;
         private Action<TradeItem, float> _inCardAmountChangedCallback;
-        public TradeItem Data => _data;
-        public Action<ISelectionTarget> OnSelected { get; set; }
+        public override TradeItem Data => _data;
 
         private void Awake()
         {
@@ -87,17 +85,17 @@ namespace Runtime.Trading.UI
             _inCardAmountChangedCallback.Invoke(_data, _amount);
         }
 
-        public void Selected()
+        public override void Selected()
         {
             selectionFrame.gameObject.SetActive(true);
         }
 
-        public void Deselected()
+        public override void Deselected()
         {
             selectionFrame.gameObject.SetActive(false);
         }
 
-        public void SetData(TradeItem data)
+        public override void SetData(TradeItem data)
         {
             _data = data;
             _amount = 0;
@@ -110,7 +108,7 @@ namespace Runtime.Trading.UI
             _inCardAmountChangedCallback = callback;
         }
         
-        public void RefreshView()
+        public override void RefreshView()
         {
             costLabel.text = _data.cost.ToString("C", CultureInfo.InvariantCulture);
             inCartAmountInputField.contentType = _data.IsConstantMass
@@ -124,6 +122,16 @@ namespace Runtime.Trading.UI
         }
 
         public void OnSelect(BaseEventData eventData)
+        {
+            OnSelectPrivate();
+        }
+
+        public override void EmitSelection()
+        {
+            OnSelectPrivate();
+        }
+
+        private void OnSelectPrivate()
         {
             OnSelected?.Invoke(this);
         }
