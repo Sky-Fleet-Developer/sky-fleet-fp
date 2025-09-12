@@ -24,7 +24,7 @@ namespace Core.Trading
         {
             for (var i = 0; i < _items.Count; i++)
             {
-                if (_items[i].Sign.Equals(item))
+                if (_items[i].Sign.Equals(item.Sign))
                 {
                     _items[i].Merge(item);
                     return;

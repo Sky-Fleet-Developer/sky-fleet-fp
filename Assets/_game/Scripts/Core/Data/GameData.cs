@@ -60,7 +60,10 @@ namespace Core.Data
         public string serializationVersion = "0.0.1";
         [Header("Character")]
         public LayerMask interactiveLayer;
+        public LayerMask rayScanLayer;
+        public int interactiveLayerIndex;
         public float interactionDistance = 1f;
+        public int maxCollidersToScan = 20;
         public string controlFailText = "Control is already used";
         [Header("Physics")]
         public LayerMask walkableLayer;
@@ -72,6 +75,7 @@ namespace Core.Data
         public float[] lodDistances;
         [HideInInspector]
         public float[] sqrLodDistances;
+
     }
 
     [System.Serializable]

@@ -2,12 +2,13 @@
 using System.Threading.Tasks;
 using Core.Configurations;
 using Core.Trading;
+using Core.Utilities;
 using UnityEngine;
 using Zenject;
 
 namespace Core.Items
 {
-    public class ItemFactory : MonoInstaller, IFactory<ItemInstance, Task<List<GameObject>>>
+    public class ItemFactory : MonoInstaller, IFactory<ItemInstance, Task<List<GameObject>>>, IItemDestructor
     {
         [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
         [Inject(Optional = true)] private ItemsTable _tableItems;
@@ -15,6 +16,7 @@ namespace Core.Items
         public override void InstallBindings()
         {
             Container.Bind<IFactory<ItemInstance, Task<List<GameObject>>>>().To<ItemFactory>().FromInstance(this);
+            Container.Bind<IItemDestructor>().To<ItemFactory>().FromInstance(this);
         }
 
         public async Task<List<GameObject>> Create(ItemInstance item)
@@ -32,13 +34,19 @@ namespace Core.Items
 
         private GameObject ConstructItemPrivate(ItemInstance item, GameObject source)
         {
-            var instance = Instantiate(source);
+            var instance = DynamicPool.Instance.Get(source.transform).gameObject;
             if (instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
             {
                 itemObjectHandle.SetSourceItem(item);
+                Container.InjectGameObject(instance);
             }
 
             return instance;
+        }
+
+        public void Deconstruct(IItemObjectHandle itemObject)
+        {
+            DynamicPool.Instance.Return(itemObject.transform);
         }
     }
 }

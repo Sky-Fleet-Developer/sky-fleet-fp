@@ -8,6 +8,7 @@ using Core.Data;
 using Core.Data.GameSettings;
 using Core.Environment;
 using Core.Game;
+using Core.Items;
 using Core.Patterns.State;
 using Core.SessionManager.GameProcess;
 using Core.Structure;
@@ -40,6 +41,7 @@ namespace Core.Character
         [FoldoutGroup("View")] public float horizontalBorders; // Not implemented
         [FoldoutGroup("View")] public float verticalBorders;
         [SerializeField] private CharacterDragObjectsSettings dragObjectsSettings;
+        private NearObjectsScanner _nearObjectsScanner;
         
         public event Action StateChanged;
 
@@ -107,6 +109,7 @@ namespace Core.Character
         private void Awake()
         {
             currentInteractionState = new DefaultState(this);
+            _nearObjectsScanner = new();
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
         }
 
@@ -212,9 +215,7 @@ namespace Core.Character
                 if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
                 
-                if (StructureRaycaster.Cast(ray, true,
-                    GameData.Data.interactionDistance, GameData.Data.interactiveLayer,
-                    out StructureHit hit))
+                if (StructureRaycaster.Cast(ray, true, out StructureHit hit))
                 {
                     if (hit.CharacterHandler == null)
                     {
@@ -253,9 +254,30 @@ namespace Core.Character
                         if (hit.InteractiveObject.EnableInteraction && hit.InteractiveObject is IInteractiveDevice device)
                         {
                             SwitchToDevice(device);
+                            return;
                         }
                     }
                 }
+                /*Master._nearObjectsScanner.ScanThisFrame(Master.transform.position);
+                float cosineA = 0.5f;
+                IItemObject nearest = null;
+                foreach (var itemObject in Master._nearObjectsScanner.GetResults<IItemObject>())
+                {
+                    float cosA = Vector3.Dot(ray.direction, (itemObject.transform.position - ray.origin).normalized);
+                    if (cosA > cosineA)
+                    {
+                        cosineA = cosA;
+                        nearest = itemObject;
+                    }
+                }
+
+                if (nearest != null)
+                {
+                    if (Input.GetButtonDown("Interaction"))
+                    {
+                        
+                    }
+                }*/
             }
 
             public virtual void Run()
@@ -642,6 +664,9 @@ namespace Core.Character
                     break;
                 case ITradeHandler: case ICargoLoadingHandler:
                     CurrentState = new UIInteractionState(this, currentInteractionState, handler);
+                    break;
+                case IPickUpHandler pickUpHandler:
+                    pickUpHandler.PickUpTo(this);
                     break;
             }
         }

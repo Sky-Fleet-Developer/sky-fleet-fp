@@ -26,7 +26,6 @@ namespace Runtime.Cargo.UI
         private ListSelectionHandler<TrunkButton> _trunkSelection = new(); 
         private ICargoLoadingPlayerHandler _handler;
         private FirstPersonController.UIInteractionState _interactionState;
-        private FirstPersonInterfaceInstaller _master;
         private bool _isInPlacementMode;
 
         private void Awake()
@@ -38,10 +37,10 @@ namespace Runtime.Cargo.UI
             _placementInput.Disable();
         }
 
-        public void Init(FirstPersonInterfaceInstaller master)
+        public override void Init(FirstPersonInterfaceInstaller master)
         {
-            _master = master;
-            _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
+            base.Init(master);
+            _interactionState = ((FirstPersonController.UIInteractionState)Master.TargetState);
             _handler = (ICargoLoadingPlayerHandler)_interactionState.Handler;
             exitButton.onClick.AddListener(OnExitClick);
             _cargoSelection.AddListener(this);

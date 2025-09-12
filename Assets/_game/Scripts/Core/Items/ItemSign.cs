@@ -74,11 +74,20 @@ namespace Core.Items
             {
                 return massProperty.values[1].floatValue;
             }
+            return 1;
+        }
+        
+        public float GetSingleMass()
+        {
+            if (TryGetProperty(MassTag, out ItemProperty massProperty))
+            {
+                return massProperty.values[0].floatValue;
+            }
             else if(TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
             {
                 return resizableProperty.values[0].floatValue;
             }
-            Debug.LogError($"Has no volume properties on ItemSign {Id}");
+            Debug.LogError($"Has no mass properties on ItemSign {Id}");
             return 1;
         }
         

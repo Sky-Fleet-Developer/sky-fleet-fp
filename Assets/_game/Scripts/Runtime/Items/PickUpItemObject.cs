@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
-using Core.Character;
-using Core.Configurations;
+using Core.Character.Interaction;
 using Core.Items;
-using Core.Structure.Rigging;
+using Core.Trading;
+using Runtime.Physic;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Items
 {
-    public class ItemObject : MonoBehaviour, IItemObjectHandle
+    public class PickUpItemObject : InteractiveDynamicObject, IPickUpHandler, IItemObjectHandle
     {
         [SerializeField] private ItemObjectHandleImplementation itemObjectHandleImplementation;
-
-        public ItemObject()
+        [Inject] private BankSystem _bankSystem;
+        [Inject] private IItemDestructor _itemDestructor;
+        
+        private PickUpItemObject()
         {
             itemObjectHandleImplementation = new ItemObjectHandleImplementation(this);
         }
@@ -28,6 +31,13 @@ namespace Runtime.Items
         void IItemObjectHandle.SetSourceItem(ItemInstance item)
         {
             itemObjectHandleImplementation.SetSourceItem(item);
+            Rigidbody.mass = item.GetMass();
+        }
+
+        public void PickUpTo(IInventoryOwner inventoryOwner)
+        {
+            _bankSystem.TryPutItem(inventoryOwner, itemObjectHandleImplementation.SourceItem);
+            _itemDestructor.Deconstruct(this);
         }
     }
 }

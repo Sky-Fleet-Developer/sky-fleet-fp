@@ -376,8 +376,13 @@ MonoBehaviour:
     serializationVersion: 0.0.1
     interactiveLayer:
       serializedVersion: 2
+      m_Bits: 64
+    rayScanLayer:
+      serializedVersion: 2
       m_Bits: 65
-    interactionDistance: 2
+    interactiveLayerIndex: 6
+    interactionDistance: 2.3
+    maxCollidersToScan: 20
     controlFailText: Control is alredy used
     walkableLayer:
       serializedVersion: 2

@@ -22,6 +22,11 @@ namespace Core.Items
             return Sign.GetSingleVolume() * _amount;
         }
         
+        public float GetMass()
+        {
+            return Sign.GetSingleMass() * _amount;
+        }
+        
         public ItemInstance Detach(float amountToDetach)
         {
             if (Sign.HasTag(ItemSign.MassTag))

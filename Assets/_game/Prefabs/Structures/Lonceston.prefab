@@ -15995,11 +15995,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: ac9e9048-8002-4f14-8101-cc9993b06b44
-  tags: []
+  itemObjectHandleImplementation:
+    guid: ac9e9048-8002-4f14-8101-cc9993b06b44
+    tags: []
   parentsObjects:
   - {fileID: 8595622348168803572}
   - {fileID: 8753659776608864603}
   emptyMass: 150000
+  localCenterOfMass: {x: 0, y: 0, z: 0}
 --- !u!114 &4633510688379587135
 MonoBehaviour:
   m_ObjectHideFlags: 0

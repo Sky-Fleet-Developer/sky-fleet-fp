@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
 using Core.Character.Interaction;
+using Core.Data;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
@@ -52,12 +53,12 @@ namespace Core.Environment
             Profiles.Remove(structure);
         }*/
 
-        public static bool Cast(Ray ray, bool interactiveCast, float maxDistance, LayerMask layerMask,
+        public static bool Cast(Ray ray, bool interactiveCast,
             out StructureHit hit)
         {
             hit = default;
 
-            if (!Physics.Raycast(ray, out RaycastHit raycastHit, maxDistance, layerMask))
+            if (!Physics.Raycast(ray, out RaycastHit raycastHit, GameData.Data.interactionDistance, GameData.Data.rayScanLayer) || raycastHit.collider.gameObject.layer != GameData.Data.interactiveLayerIndex)
             {
                 return false;
             }
