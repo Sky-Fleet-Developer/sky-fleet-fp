@@ -27,12 +27,14 @@ namespace Core.Configurations
             public string prefabGuid;
         }
         
-        private static readonly char[] EntityTagParameterSeparators = new [] {':', '=', ' ', ';'};
+        private static readonly char[] EntityTagParameterSeparators = new [] {':', '=', ';'};
         
         [SerializeField] private List<ItemSign> items;
         [SerializeField] private List<PrefabLink> linksToPrefabs;
+        [SerializeField] private List<ContainerInfo> containerInfos;
         private Dictionary<string, ItemSign> _itemById;
         private Dictionary<string, PrefabLink> _prefabLinkById;
+        private Dictionary<string, ContainerInfo> _containerById;
         public override string TableName => "Items";
         public IEnumerable<ItemSign> GetItems() => items;
 
@@ -46,6 +48,12 @@ namespace Core.Configurations
             _itemById ??= items.ToDictionary(x => x.Id);
             return _itemById[id];
         }
+
+        public ContainerInfo GetContainer(string id)
+        {
+            _containerById ??= containerInfos.ToDictionary(x => x.SignId);
+            return _containerById[id];
+        }
         
         protected override RawItemSign[] Data
         {
@@ -53,6 +61,10 @@ namespace Core.Configurations
             {
                 items = new List<ItemSign>(value.Length);
                 linksToPrefabs = new List<PrefabLink>();
+                containerInfos = new List<ContainerInfo>();
+                _containerById?.Clear();
+                _itemById?.Clear();
+                _prefabLinkById?.Clear();
                 List<ItemProperty> properties = new List<ItemProperty>();
                 List<string> tags = new List<string>();
                 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -66,24 +78,26 @@ namespace Core.Configurations
                     foreach (string entityTag in rawItemSign.Properties)
                     {
                         var parameters = entityTag.Split(EntityTagParameterSeparators, StringSplitOptions.RemoveEmptyEntries);
-                        tags.Add(parameters[0]);
+                        string nameTrim = parameters[0].Trim();
+                        tags.Add(nameTrim);
                         if (parameters.Length == 1)
                         {
                             continue;
                         }
-                        var property = new ItemProperty{name = parameters[0], values = new ItemPropertyValue[parameters.Length - 1]};
+                        var property = new ItemProperty{name = nameTrim, values = new ItemPropertyValue[parameters.Length - 1]};
                         
                         for (var p = 1; p < parameters.Length; p++)
                         {
-                            if (int.TryParse(parameters[p], out int intValue))
+                            string pTrim = parameters[p].Trim();
+                            if (int.TryParse(pTrim, out int intValue))
                             {
                                 property.values[p-1].intValue = intValue;
                             }
-                            if (float.TryParse(parameters[p], out float floatValue))
+                            if (float.TryParse(pTrim, out float floatValue))
                             {
                                 property.values[p-1].floatValue = floatValue;
                             }
-                            property.values[p-1].stringValue = parameters[p];
+                            property.values[p-1].stringValue = pTrim;
                         }
 
                         properties.Add(property);
@@ -91,6 +105,13 @@ namespace Core.Configurations
                     ItemSign newItem = new ItemSign(rawItemSign.Id, tags.ToArray(), properties.ToArray(), rawItemSign.BasicCost);
                     linksToPrefabs.Add(new PrefabLink{ signId = newItem.Id, prefabGuid = rawItemSign.TablePrefab });
                     items.Add(newItem);
+
+                    if (newItem.TryGetProperty(ItemSign.ContainerTag, out ItemProperty containerProperty))
+                    {
+                        containerInfos.Add(new ContainerInfo(newItem.Id, containerProperty.values[0].floatValue,
+                        containerProperty.values[1].stringValue,
+                        containerProperty.values.Length > 2 ? containerProperty.values[2].stringValue : null));
+                    }
                 }
             }
         }

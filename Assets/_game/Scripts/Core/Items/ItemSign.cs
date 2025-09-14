@@ -10,6 +10,7 @@ namespace Core.Items
         public const string LiquidTag = "liquid";
         public const string MassTag = "mass";
         public const string ResizableTag = "resizable";
+        public const string ContainerTag = "container";
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;

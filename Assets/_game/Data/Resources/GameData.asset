@@ -322,6 +322,32 @@ MonoBehaviour:
       - stringValue: 20
         intValue: 20
         floatValue: 20
+  - id: cube_box
+    tags:
+    - storage
+    - mass
+    - container
+    basicCost: 25
+    properties:
+    - name: mass
+      values:
+      - stringValue: 8
+        intValue: 8
+        floatValue: 8
+      - stringValue: 1000
+        intValue: 1000
+        floatValue: 1000
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+    - name: container
+      values:
+      - stringValue: 970
+        intValue: 970
+        floatValue: 970
+      - stringValue: resizable | mass
+        intValue: 0
+        floatValue: 0
   linksToPrefabs:
   - signId: iron_ore
     prefabGuid: 
@@ -355,6 +381,17 @@ MonoBehaviour:
     prefabGuid: 
   - signId: hard_coil
     prefabGuid: 
+  - signId: cube_box
+    prefabGuid: 32392e7850e5f4942814cddad09851ff
+  containerInfos:
+  - signId: cube_box
+    includeTags:
+    - tags:
+      - resizable
+    - tags:
+      - mass
+    excludeTags: []
+    maxVolume: 970
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

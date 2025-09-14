@@ -5,6 +5,9 @@ using Core.Trading;
 namespace Core.Configurations
 {
     [Serializable]
+    /// <summary>
+    /// "OR" operator for item search
+    /// </summary> 
     public struct TagCombination
     {
         public string[] tags;
