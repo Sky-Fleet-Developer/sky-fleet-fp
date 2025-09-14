@@ -47,6 +47,7 @@ Assets/Plugins/Editor.meta
 *.mdb
 *.opendb
 *.VC.db
+*.dwlt
 
 # Unity3D generated meta files
 *.pidb.meta
