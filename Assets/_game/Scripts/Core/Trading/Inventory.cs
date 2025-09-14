@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Core.Configurations;
 using Core.Items;
@@ -11,13 +12,45 @@ namespace Core.Trading
         private string _key;
         private List<ItemInstance> _items;
         private CostRule[] _costRules;
-
+        private HashSet<IInventoryStateListener> _stateListeners = new();
         public string Key => _key;
         
         public Inventory(string key)
         {
             _key = key;
             _items = new List<ItemInstance>();
+        }
+        
+        public void AddListener(IInventoryStateListener listener)
+        {
+            _stateListeners.Add(listener);
+        }
+
+        public void RemoveListener(IInventoryStateListener listener)
+        {
+            _stateListeners.Remove(listener);
+        }
+
+        private void ItemAdded(ItemInstance item)
+        {
+            foreach (var listener in _stateListeners)
+            {
+                listener.ItemAdded(item);
+            }
+        }
+        private void ItemMutated(ItemInstance item)
+        {
+            foreach (var listener in _stateListeners)
+            {
+                listener.ItemMutated(item);
+            }
+        }
+        private void ItemRemoved(ItemInstance item)
+        {
+            foreach (var listener in _stateListeners)
+            {
+                listener.ItemRemoved(item);
+            }
         }
 
         void IInventoryMasterHandler.PutItem(ItemInstance item)
@@ -27,14 +60,16 @@ namespace Core.Trading
                 if (_items[i].Sign.Equals(item.Sign))
                 {
                     _items[i].Merge(item);
+                    ItemMutated(_items[i]);
                     return;
                 }
             }
-
+            
             _items.Add(item);
+            ItemAdded(item);
         }
 
-        public IEnumerable<ItemInstance> GetItems()
+        public IReadOnlyList<ItemInstance> GetItems()
         {
             return _items;
         }
@@ -66,12 +101,14 @@ namespace Core.Trading
                     {
                         if (Mathf.Approximately(_items[i].Amount, amount))
                         {
-                            _items.RemoveAt(i);
                             result = _items[i];
+                            _items.RemoveAt(i);
+                            ItemRemoved(result);
                         }
                         else
                         {
                             result = _items[i].Detach(amount);
+                            ItemMutated(_items[i]);
                         }
 
                         return true;

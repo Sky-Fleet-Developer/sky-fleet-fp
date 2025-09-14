@@ -1,10 +1,11 @@
 ﻿using System;
+using Core.Character.Interaction;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 
 namespace Runtime.Trading.UI
 {
-    public class TradeItemsListView : ThingsListView<TradeItem, TradeItemView>
+    public class TradeItemsListView : ThingsListView<TradeItem, TradeItemView>, ITradeItemsStateListener
     {
         public event Action<TradeItem, float> OnItemInCardAmountChanged;
 
@@ -28,6 +29,21 @@ namespace Runtime.Trading.UI
                 return;
             }
             base.AddItem(item);
+        }
+
+        public void ItemAdded(TradeItem item)
+        {
+            AddItem(item);
+        }
+
+        public void ItemMutated(TradeItem item)
+        {
+            RefreshItem(item);
+        }
+
+        public void ItemRemoved(TradeItem item)
+        {
+            RemoveItem(item);
         }
     }
 }

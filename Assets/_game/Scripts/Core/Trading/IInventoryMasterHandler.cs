@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Items;
 
 namespace Core.Trading
@@ -8,11 +9,14 @@ namespace Core.Trading
         void PutItem(ItemInstance item);
         bool TryPullItem(ItemSign sign, float amount, out ItemInstance result);
     }
+    
 
     public interface IInventoryReadonly
     {
         string Key { get; }
-        IEnumerable<ItemInstance> GetItems();
+        IReadOnlyList<ItemInstance> GetItems();
         IEnumerable<ItemInstance> GetItems(string id);
+        void AddListener(IInventoryStateListener listener);
+        void RemoveListener(IInventoryStateListener listener);
     }
 }

@@ -17,7 +17,7 @@ namespace Runtime.Trading.UI
     public class TradeInterface : FirstPersonService, ISelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
-        [FormerlySerializedAs("descriptionView")] [SerializeField] private ItemSignDescriptionView signDescriptionView;
+        [SerializeField] private ItemSignDescriptionView signDescriptionView;
         [SerializeField] private Button acceptButton;
         [SerializeField] private TextMeshProUGUI dealCostText;
         private ITradeHandler _handler;
@@ -38,6 +38,7 @@ namespace Runtime.Trading.UI
         {
             base.OnDestroy();
             acceptButton.onClick.RemoveListener(AcceptClick);
+            _handler?.RemoveListener(sellerItemsView);
             sellerItemsView.OnItemInCardAmountChanged -= OnSellerItemInCardAmountChanged;
         }
 
@@ -54,6 +55,7 @@ namespace Runtime.Trading.UI
             _master = master;
             _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
             _handler = (ITradeHandler)_interactionState.Handler;
+            _handler.AddListener(sellerItemsView);
             _deal = new TradeDeal(_interactionState.Master, _handler);
         }
         
@@ -128,6 +130,7 @@ namespace Runtime.Trading.UI
         public override IEnumerator Hide(BlockSequenceSettings settings = null)
         {
             _interactionState.LeaveState();
+            _handler?.RemoveListener(sellerItemsView);
             return base.Hide(settings);
         }
 

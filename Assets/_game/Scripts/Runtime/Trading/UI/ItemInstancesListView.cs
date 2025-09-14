@@ -5,7 +5,7 @@ using Core.UIStructure.Utilities;
 
 namespace Runtime.Trading.UI
 {
-    public class ItemInstancesListView : ThingsListView<ItemInstance, ItemInstanceView>
+    public class ItemInstancesListView : ThingsListView<ItemInstance, ItemInstanceView>, IInventoryStateListener
     {
         public override void AddItem(ItemInstance item)
         {
@@ -17,6 +17,21 @@ namespace Runtime.Trading.UI
                 return;
             }
             base.AddItem(item);
+        }
+
+        public void ItemAdded(ItemInstance item)
+        {
+            AddItem(item);
+        }
+
+        public void ItemMutated(ItemInstance item)
+        {
+            RefreshItem(item);
+        }
+
+        public void ItemRemoved(ItemInstance item)
+        {
+            RemoveItem(item);
         }
     }
 }

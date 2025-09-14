@@ -63,18 +63,18 @@ namespace Core.Structure
 
             Type attribute = typeof(PlayerPropertyAttribute);
 
-            string log = $"Properties for type {type.Name}:\n";
+            //string log = $"Properties for type {type.Name}:\n";
 
             foreach (PropertyInfo property in type.GetProperties())
             {
                 if (property.GetCustomAttributes().FirstOrDefault(x => x.GetType() == attribute) != null)
                 {
                     properties.Add(property);
-                    log += $"{property.Name},";
+                    //log += $"{property.Name},";
                 }
             }
 
-            Debug.Log(log);
+            //Debug.Log(log);
 
             return properties.ToArray();
         }

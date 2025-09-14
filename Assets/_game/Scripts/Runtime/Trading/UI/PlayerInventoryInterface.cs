@@ -28,20 +28,28 @@ namespace Runtime.Trading.UI
 
         protected override void OnDestroy()
         {
-            base.OnDestroy();
+            _inventory?.RemoveListener(itemInstancesListView);
             itemInstancesListView.SelectionHandler.RemoveListener(this);
+            base.OnDestroy();
         }
 
         public override void Init(FirstPersonInterfaceInstaller master)
         {
             base.Init(master);
             _inventory = _bankSystem.GetOrCreateInventory(Master.TargetState.Master);
+            _inventory.AddListener(itemInstancesListView);
         }
 
         public override void Show()
         {
             base.Show();
             RefreshView();
+        }
+
+        public override void Hide()
+        {
+            _inventory?.RemoveListener(itemInstancesListView);
+            base.Hide();
         }
 
         private void RefreshView()
