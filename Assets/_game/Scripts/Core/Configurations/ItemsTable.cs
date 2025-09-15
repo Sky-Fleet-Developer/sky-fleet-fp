@@ -108,9 +108,9 @@ namespace Core.Configurations
 
                     if (newItem.TryGetProperty(ItemSign.ContainerTag, out ItemProperty containerProperty))
                     {
-                        containerInfos.Add(new ContainerInfo(newItem.Id, containerProperty.values[0].floatValue,
-                        containerProperty.values[1].stringValue,
-                        containerProperty.values.Length > 2 ? containerProperty.values[2].stringValue : null));
+                        containerInfos.Add(new ContainerInfo(newItem.Id, containerProperty.values[ItemProperty.Container_Volume].floatValue,
+                        containerProperty.values[ItemProperty.Container_IncludeRules].stringValue,
+                        containerProperty.values.Length > 2 ? containerProperty.values[ItemProperty.Container_ExcludeRules].stringValue : null));
                     }
                 }
             }

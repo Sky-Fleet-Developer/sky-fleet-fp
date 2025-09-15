@@ -11,6 +11,7 @@ namespace Core.Items
         public const string MassTag = "mass";
         public const string ResizableTag = "resizable";
         public const string ContainerTag = "container";
+        public const string IdentifiableTag = "identifiable";
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;
@@ -73,7 +74,7 @@ namespace Core.Items
         {
             if (TryGetProperty(MassTag, out ItemProperty massProperty))
             {
-                return massProperty.values[1].floatValue;
+                return massProperty.values[ItemProperty.Mass_VolumeByOne].floatValue;
             }
             return 1;
         }
@@ -82,11 +83,11 @@ namespace Core.Items
         {
             if (TryGetProperty(MassTag, out ItemProperty massProperty))
             {
-                return massProperty.values[0].floatValue;
+                return massProperty.values[ItemProperty.Mass_MassByOne].floatValue;
             }
             else if(TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
             {
-                return resizableProperty.values[0].floatValue;
+                return resizableProperty.values[ItemProperty.Resizable_MassByrLiter].floatValue;
             }
             Debug.LogError($"Has no mass properties on ItemSign {Id}");
             return 1;

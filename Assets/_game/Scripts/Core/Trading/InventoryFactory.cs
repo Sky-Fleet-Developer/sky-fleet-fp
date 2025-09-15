@@ -3,16 +3,16 @@ using Zenject;
 
 namespace Core.Trading
 {
-    public class InventoryFactory : MonoInstaller, IFactory<string, IInventoryMasterHandler>
+    public class InventoryFactory : MonoInstaller, IFactory<string, IItemsContainerMasterHandler>
     {
-        public IInventoryMasterHandler Create(string key)
+        public IItemsContainerMasterHandler Create(string key)
         {
             return new Inventory(key);
         }
 
         public override void InstallBindings()
         {
-            Container.Bind<IFactory<string, IInventoryMasterHandler>>().To<InventoryFactory>().FromInstance(this);
+            Container.Bind<IFactory<string, IItemsContainerMasterHandler>>().To<InventoryFactory>().FromInstance(this);
         }
     }
 }

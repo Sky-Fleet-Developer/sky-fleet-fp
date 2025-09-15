@@ -8,36 +8,27 @@ using Zenject;
 
 namespace Runtime.Items
 {
-    public class PickUpItemObject : InteractiveDynamicObject, IPickUpHandler, IItemObjectHandle
+    [RequireComponent(typeof(ItemObject))]
+    public class PickUpItemObject : InteractiveDynamicObject, IPickUpHandler
     {
-        [SerializeField] private ItemObjectHandleImplementation itemObjectHandleImplementation;
         [Inject] private BankSystem _bankSystem;
-        [Inject] private IItemDestructor _itemDestructor;
-        
-        private PickUpItemObject()
+        private ItemObject _itemObject;
+        protected override void Awake()
         {
-            itemObjectHandleImplementation = new ItemObjectHandleImplementation(this);
+            base.Awake();
+            _itemObject = GetComponent<ItemObject>();
+            _itemObject.OnItemInitialized.Subscribe(OnItemInit);
         }
-
-#if UNITY_EDITOR
-        private void Reset()
+        
+        private void OnItemInit()
         {
-            itemObjectHandleImplementation.Reset();
-        } 
-#endif
-        public string Guid => itemObjectHandleImplementation.Guid;
-        public List<string> Tags => itemObjectHandleImplementation.Tags;
-        ItemInstance IItemObject.SourceItem => itemObjectHandleImplementation.SourceItem;
-        void IItemObjectHandle.SetSourceItem(ItemInstance item)
-        {
-            itemObjectHandleImplementation.SetSourceItem(item);
-            Rigidbody.mass = item.GetMass();
+            Rigidbody.mass = _itemObject.SourceItem.GetMass();
         }
 
         public void PickUpTo(IInventoryOwner inventoryOwner)
         {
-            _bankSystem.TryPutItem(inventoryOwner, itemObjectHandleImplementation.SourceItem);
-            _itemDestructor.Deconstruct(this);
+            _bankSystem.TryPutItem(inventoryOwner, _itemObject.SourceItem);
+            _itemObject.Deconstruct();
         }
     }
 }

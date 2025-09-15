@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Core.Items
@@ -7,7 +9,7 @@ namespace Core.Items
     {
         private ItemSign _sign;
         private float _amount;
-        
+        private List<ItemProperty> _properties = new();
         public ItemSign Sign => _sign;
         public float Amount => _amount;
         public ItemInstance(){}
@@ -15,6 +17,24 @@ namespace Core.Items
         {
             _amount = amount;
             _sign = sign;
+            if (sign.HasTag(ItemSign.IdentifiableTag))
+            {
+                _properties.Add(new ItemProperty{name = ItemSign.IdentifiableTag, values = new []{new ItemPropertyValue{stringValue = GUID.Generate().ToString()}}});
+            }
+        }
+        
+        public bool TryGetProperty(string propertyName, out ItemProperty property)
+        {
+            for (var i = 0; i < _properties.Count; i++)
+            {
+                if (_properties[i].name == propertyName)
+                {
+                    property = _properties[i];
+                    return true;
+                }
+            }
+            property = default;
+            return false;
         }
         
         public float GetVolume()

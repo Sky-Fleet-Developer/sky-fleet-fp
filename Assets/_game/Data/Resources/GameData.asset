@@ -19,6 +19,8 @@ MonoBehaviour:
     - tags:
       - T0
       - iron
+    - tags:
+      - container
     excludeTags: []
   - id: iron_refinery
     rules:
@@ -33,6 +35,8 @@ MonoBehaviour:
     - tags:
       - iron
       - T1
+    - tags:
+      - container
     excludeTags:
     - tags: []
 --- !u!114 &-4455120187770695450
@@ -327,13 +331,13 @@ MonoBehaviour:
     - storage
     - mass
     - container
-    basicCost: 25
+    basicCost: 120
     properties:
     - name: mass
       values:
-      - stringValue: 8
-        intValue: 8
-        floatValue: 8
+      - stringValue: 25
+        intValue: 25
+        floatValue: 25
       - stringValue: 1000
         intValue: 1000
         floatValue: 1000
@@ -370,7 +374,7 @@ MonoBehaviour:
   - signId: copper_ore
     prefabGuid: 
   - signId: copper_ingot
-    prefabGuid: 66a42df53344cb3468d5d36f8bf84f63
+    prefabGuid: fbafd38309706bf4ea7d07ea2da55d08
   - signId: copper_wire
     prefabGuid: 
   - signId: stone

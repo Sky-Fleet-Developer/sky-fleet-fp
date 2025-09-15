@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Core.Trading
 {
-    public class Inventory : IInventoryMasterHandler
+    public class Inventory : IItemsContainerMasterHandler
     {
         private string _key;
         private List<ItemInstance> _items;
@@ -53,7 +53,7 @@ namespace Core.Trading
             }
         }
 
-        void IInventoryMasterHandler.PutItem(ItemInstance item)
+        void IItemsContainerMasterHandler.PutItem(ItemInstance item)
         {
             for (var i = 0; i < _items.Count; i++)
             {
@@ -85,7 +85,7 @@ namespace Core.Trading
             }
         }
 
-        bool IInventoryMasterHandler.TryPullItem(ItemSign item, float amount, out ItemInstance result)
+        bool IItemsContainerMasterHandler.TryPullItem(ItemSign item, float amount, out ItemInstance result)
         {
             for (var i = 0; i < _items.Count; i++)
             {

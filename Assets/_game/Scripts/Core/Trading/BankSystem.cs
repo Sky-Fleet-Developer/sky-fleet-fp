@@ -9,19 +9,19 @@ namespace Core.Trading
     [CreateAssetMenu(menuName = "Game/BankSystem")]
     public class BankSystem : ScriptableObject
     {
-        [Inject] private IFactory<string, IInventoryMasterHandler> _inventoryFactory;
+        [Inject] private IFactory<string, IItemsContainerMasterHandler> _inventoryFactory;
         [Inject] private ShopTable _shopTable;
         [Inject] private ItemsTable _itemsTable;
-        private readonly Dictionary<string, IInventoryMasterHandler> _inventories = new ();
+        private readonly Dictionary<string, IItemsContainerMasterHandler> _inventories = new ();
         
-        public IInventoryReadonly GetOrCreateInventory(IInventoryOwner owner)
+        public IItemsContainerReadonly GetOrCreateInventory(IInventoryOwner owner)
         {
             return GetOrCreateInventoryHandler(owner);
         }
 
-        private IInventoryMasterHandler GetOrCreateInventoryHandler(IInventoryOwner owner)
+        private IItemsContainerMasterHandler GetOrCreateInventoryHandler(IInventoryOwner owner)
         {
-            if (!_inventories.TryGetValue(owner.InventoryKey, out IInventoryMasterHandler inventory))
+            if (!_inventories.TryGetValue(owner.InventoryKey, out IItemsContainerMasterHandler inventory))
             {
                 inventory = _inventoryFactory.Create(owner.InventoryKey);
                 _inventories.Add(owner.InventoryKey, inventory);

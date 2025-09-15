@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Configurations;
+using Core.Items;
 using Core.Trading;
 using Core.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace Core.Items
+namespace Runtime.Items
 {
     public class ItemFactory : MonoInstaller, IFactory<ItemInstance, Task<List<GameObject>>>, IItemDestructor
     {
@@ -39,6 +40,19 @@ namespace Core.Items
             {
                 itemObjectHandle.SetSourceItem(item);
                 Container.InjectGameObject(instance);
+            }
+
+            if (item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) && item.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
+            {
+                if (!instance.TryGetComponent(out Container containerComponent))
+                {
+                    containerComponent = instance.AddComponent<Container>();
+                }
+                var container = _tableItems.GetContainer(item.Sign.Id);
+                containerComponent.Init(
+                    identifiableProperty.values[ItemProperty.IdentifiableInstance_Identifier].stringValue,
+                    container,
+                    containerProperty.values[ItemProperty.Container_Volume].floatValue);
             }
 
             return instance;

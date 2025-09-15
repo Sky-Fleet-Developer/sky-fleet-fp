@@ -25,7 +25,7 @@ namespace Runtime.Trading
         [Inject] private BankSystem _bankSystem;
         [Inject] private DiContainer _diContainer;
         private List<IProductDeliveryService> _deliveryServices = new ();
-        private IInventoryReadonly _inventory;
+        private IItemsContainerReadonly _inventory;
         private ShopSettings _shopSettings;
         private Dictionary<string, TradeItem> _assortment = new();
         private HashSet<ITradeItemsStateListener> _itemsListeners = new();

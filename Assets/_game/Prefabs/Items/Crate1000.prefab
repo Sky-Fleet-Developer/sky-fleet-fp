@@ -1336,10 +1336,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576e915dd8a644bf92df9acf178a9328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 32392e7850e5f4942814cddad09851ff
   itemObjectHandleImplementation:
-    guid: 32392e7850e5f4942814cddad09851ff
+    guid: 
     tags: []
+  guid: 32392e7850e5f4942814cddad09851ff
+  tags: []
 --- !u!1 &7955140483976750303
 GameObject:
   m_ObjectHideFlags: 0

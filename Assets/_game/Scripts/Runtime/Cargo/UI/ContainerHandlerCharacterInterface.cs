@@ -1,0 +1,29 @@
+﻿using Core.Character;
+using Core.Character.Interaction;
+using Core.Character.Interface;
+using Core.Patterns.State;
+using Runtime.Trading.UI;
+using UnityEngine;
+
+namespace Runtime.Cargo.UI
+{
+    public class ContainerHandlerCharacterInterface : FirstPersonInterfaceBase
+    {
+        [SerializeField] private ItemInstancesListView itemInstancesListView;
+        [SerializeField] private ItemSignDescriptionView itemSignDescriptionView;
+        private IContainerHandler _containerHandler;
+        private FirstPersonController.UIInteractionState _interactionState;
+
+        public override bool IsMatch(IState state)
+        {
+            return state is FirstPersonController.UIInteractionState { Handler: IContainerHandler };
+        }
+        
+        public override void Init(FirstPersonInterfaceInstaller master)
+        {
+            base.Init(master);
+            _interactionState = ((FirstPersonController.UIInteractionState)Master.TargetState);
+            _containerHandler = (IContainerHandler)_interactionState.Handler;
+        }
+    }
+}

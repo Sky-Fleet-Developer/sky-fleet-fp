@@ -13,7 +13,7 @@ namespace Runtime.Trading.UI
         [SerializeField] private ItemInstancesListView itemInstancesListView;
         [SerializeField] private ItemSignDescriptionView itemSignDescriptionView;
         [Inject] private BankSystem _bankSystem;
-        private IInventoryReadonly _inventory;
+        private IItemsContainerReadonly _inventory;
 
         public override bool IsMatch(IState state)
         {

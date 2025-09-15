@@ -1,5 +1,6 @@
 ﻿using Core.Character;
 using Core.Structure.Rigging;
+using Runtime.Items;
 using UnityEngine;
 
 namespace Runtime.Physic
@@ -10,9 +11,13 @@ namespace Runtime.Physic
         [SerializeField] private bool moveTransitional;
         private Rigidbody _rigidbody;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
+            if (TryGetComponent(out ItemObject itemObject))
+            {
+                itemObject.OnItemInitialized.Subscribe(() => _rigidbody.mass = itemObject.SourceItem.GetMass());
+            }
         }
 
         public bool EnableInteraction => gameObject.activeInHierarchy && enabled;

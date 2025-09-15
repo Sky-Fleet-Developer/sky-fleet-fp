@@ -1,33 +1,44 @@
-﻿using System.Collections.Generic;
-using Core.Character;
-using Core.Configurations;
+﻿using System;
+using System.Collections.Generic;
 using Core.Items;
-using Core.Structure.Rigging;
+using Core.Utilities;
+using UnityEditor;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Items
 {
     public class ItemObject : MonoBehaviour, IItemObjectHandle
     {
-        [SerializeField] private ItemObjectHandleImplementation itemObjectHandleImplementation;
+        [SerializeField] private string guid;
+        [SerializeField] private List<string> tags;
+        [Inject] private IItemDestructor _itemDestructor;
+        public string Guid => guid;
+        public List<string> Tags => tags;
+        private ItemInstance _sourceItem;
+        public ItemInstance SourceItem => _sourceItem;
+        public LateEvent OnItemInitialized = new ();
 
-        public ItemObject()
+        void IItemObjectHandle.SetSourceItem(ItemInstance sign)
         {
-            itemObjectHandleImplementation = new ItemObjectHandleImplementation(this);
+            _sourceItem = sign;
+            OnItemInitialized.Invoke();
         }
 
 #if UNITY_EDITOR
-        private void Reset()
+        public void Reset()
         {
-            itemObjectHandleImplementation.Reset();
+            if (PrefabUtility.IsPartOfAnyPrefab(gameObject))
+            {
+                var path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(gameObject);
+                guid = AssetDatabase.GUIDFromAssetPath(path).ToString();
+            }
         } 
 #endif
-        public string Guid => itemObjectHandleImplementation.Guid;
-        public List<string> Tags => itemObjectHandleImplementation.Tags;
-        ItemInstance IItemObject.SourceItem => itemObjectHandleImplementation.SourceItem;
-        void IItemObjectHandle.SetSourceItem(ItemInstance item)
+
+        public void Deconstruct()
         {
-            itemObjectHandleImplementation.SetSourceItem(item);
+            _itemDestructor.Deconstruct(this);
         }
     }
 }

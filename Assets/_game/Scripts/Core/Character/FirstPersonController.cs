@@ -662,7 +662,7 @@ namespace Core.Character
                 case IDriveInterface characterInterface:
                     CurrentState = new SeatState(this, currentInteractionState, characterInterface);
                     break;
-                case ITradeHandler: case ICargoLoadingHandler:
+                case ITradeHandler: case ICargoLoadingHandler: case IContainerHandler:
                     CurrentState = new UIInteractionState(this, currentInteractionState, handler);
                     break;
                 case IPickUpHandler pickUpHandler:
