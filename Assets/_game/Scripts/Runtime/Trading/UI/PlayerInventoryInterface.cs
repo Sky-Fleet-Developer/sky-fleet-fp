@@ -8,12 +8,13 @@ using Zenject;
 
 namespace Runtime.Trading.UI
 {
-    public class PlayerInventoryInterface : FirstPersonService, ISelectionListener<ItemInstanceView>
+    public class PlayerInventoryInterface : FirstPersonService, IMultipleSelectionListener<ItemInstanceView>
     {
         [SerializeField] private ItemInstancesListView itemInstancesListView;
         [SerializeField] private ItemSignDescriptionView itemSignDescriptionView;
         [Inject] private BankSystem _bankSystem;
         private IItemsContainerReadonly _inventory;
+        private ItemInstanceView _selected;
 
         public override bool IsMatch(IState state)
         {
@@ -57,9 +58,19 @@ namespace Runtime.Trading.UI
             itemInstancesListView.SetItems(_inventory.GetItems());
         }
 
-        public void OnSelectionChanged(ItemInstanceView prev, ItemInstanceView next)
+        public void OnSelected(ItemInstanceView target) { }
+
+        public void OnDeselected(ItemInstanceView target)
         {
-            itemSignDescriptionView.SetData(next.Data.Sign);
+            if (_selected == target)
+            {
+                itemSignDescriptionView.Clear();
+            }
+        }
+        public void OnFinalSelected(ItemInstanceView target)
+        {
+            _selected = target;
+            itemSignDescriptionView.SetData(target.Data.Sign);
         }
     }
 }

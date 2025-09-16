@@ -80,17 +80,4 @@ namespace Core.UIStructure.Utilities
             _listeners = null;
         }
     }
-
-    
-    public interface ISelectionTarget
-    {
-        Action<ISelectionTarget> OnSelected { get; set; }
-        void Selected();
-        void Deselected();
-    }
-    
-    public interface ISelectionListener<in TTarget>  where TTarget : ISelectionTarget
-    {
-        void OnSelectionChanged(TTarget prev, TTarget next);
-    }
 }

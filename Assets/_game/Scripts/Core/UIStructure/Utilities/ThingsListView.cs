@@ -9,7 +9,7 @@ namespace Core.UIStructure.Utilities
         [SerializeField] private Transform itemsContainer;
         protected List<TView> _views = new ();
         private TView _thingViewPrefab;
-        public readonly ListSelectionHandler<TView> SelectionHandler = new ();
+        public readonly MultipleSelectionHandler<TView> SelectionHandler = new ();
         protected List<TData> _thingsData = new();
         
         protected virtual void Awake()

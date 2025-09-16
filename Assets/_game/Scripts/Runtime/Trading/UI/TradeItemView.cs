@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Runtime.Trading.UI
 {
-    public class TradeItemView : ThingView<TradeItem>, ISelectHandler
+    public class TradeItemView : ThingView<TradeItem>, IPointerClickHandler
     {
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI costLabel;
@@ -121,11 +121,14 @@ namespace Runtime.Trading.UI
             selectAmountGroup.gameObject.SetActive(_amount > 0);
         }
 
-        public void OnSelect(BaseEventData eventData)
+        /*public void OnSelect(BaseEventData eventData)
+        {
+            OnSelectPrivate();
+        }*/
+        public void OnPointerClick(PointerEventData eventData)
         {
             OnSelectPrivate();
         }
-
         public override void EmitSelection()
         {
             OnSelectPrivate();
@@ -133,7 +136,7 @@ namespace Runtime.Trading.UI
 
         private void OnSelectPrivate()
         {
-            OnSelected?.Invoke(this);
+            OnInput?.Invoke(this, MultipleSelectionModifiers.None);
         }
     }
 }

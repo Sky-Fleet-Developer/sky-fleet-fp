@@ -14,7 +14,7 @@ using Zenject;
 
 namespace Runtime.Trading.UI
 {
-    public class TradeInterface : FirstPersonService, ISelectionListener<TradeItemView>
+    public class TradeInterface : FirstPersonService, IMultipleSelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
         [SerializeField] private ItemSignDescriptionView signDescriptionView;
@@ -25,6 +25,7 @@ namespace Runtime.Trading.UI
         private FirstPersonInterfaceInstaller _master;
         private TradeDeal _deal;
         [Inject] private BankSystem _bankSystem;
+        private TradeItemView _selectedTarget;
 
         protected override void Awake()
         {
@@ -133,18 +134,24 @@ namespace Runtime.Trading.UI
             _handler?.RemoveListener(sellerItemsView);
             return base.Hide(settings);
         }
-
-        public void OnSelectionChanged(TradeItemView prev, TradeItemView next)
+        
+        public void OnSelected(TradeItemView target)
         {
-            if (next)
+        }
+
+        public void OnDeselected(TradeItemView target)
+        {
+            if (_selectedTarget == target)
             {
-                signDescriptionView.SetData(next.Data.Sign);
-                //bool isSellerItem = next.transform.IsChildOf(sellerItemsView.transform);
-            }
-            else
-            {
+                _selectedTarget = null;
                 signDescriptionView.Clear();
             }
+        }
+
+        public void OnFinalSelected(TradeItemView target)
+        {
+            _selectedTarget = target;
+            signDescriptionView.SetData(target.Data.Sign);
         }
     }
 }

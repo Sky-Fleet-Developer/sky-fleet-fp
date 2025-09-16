@@ -10,13 +10,12 @@ using UnityEngine.UI;
 
 namespace Runtime.Trading.UI
 {
-    public class ItemInstanceView : ThingView<ItemInstance>, ISelectHandler
+    public class ItemInstanceView : ThingView<ItemInstance>, IPointerClickHandler
     {
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI amountLabel;
         [SerializeField] private Image selectionFrame;
         private ItemInstance _data;
-        private float _amount;
         public override ItemInstance Data => _data;
 
         private void Awake()
@@ -40,7 +39,6 @@ namespace Runtime.Trading.UI
         public override void SetData(ItemInstance data)
         {
             _data = data;
-            _amount = 0;
             signView.SetData(data.Sign);
             RefreshView();
         }
@@ -50,19 +48,25 @@ namespace Runtime.Trading.UI
             amountLabel.text = _data.Amount.ToString(NumberFormatInfo.CurrentInfo);
         }
 
-        public void OnSelect(BaseEventData eventData)
+        /*public void OnSelect(BaseEventData eventData)
         {
-            OnSelectPrivate();
-        }
+            OnClickPrivate();
+        }*/
 
         public override void EmitSelection()
         {
-            OnSelectPrivate();
+            OnClickPrivate();
         }
 
-        private void OnSelectPrivate()
+        private void OnClickPrivate()
         {
             OnSelected?.Invoke(this);
+            OnInput(this, MultipleSelectionModifiers.None.GetFromInput());
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            OnClickPrivate();
         }
     }
 }

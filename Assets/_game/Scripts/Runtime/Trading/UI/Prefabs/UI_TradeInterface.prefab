@@ -592,7 +592,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   sellerItemsView: {fileID: 55416299456349108}
-  descriptionView: {fileID: 6185022291975788154}
+  signDescriptionView: {fileID: 6185022291975788154}
   acceptButton: {fileID: 4838135652050527647}
   dealCostText: {fileID: 729579820074482029}
 --- !u!1 &7313045759050496918
