@@ -31,10 +31,9 @@ namespace Core
             for (var i = 0; i < injectTargets.Length; i++)
             {
                 Container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
-                if (injectTargets[i] is IInstallerWithContainer { IsEnabled: true } installer)
+                if (injectTargets[i] is IInstallerWithContainer installer)
                 {
-                    installer.DiContainer = Container;
-                    installer.InstallBindings();
+                    installer.InstallBindings(Container);
                 }
             }
             gameData.InstallChildren(Container);

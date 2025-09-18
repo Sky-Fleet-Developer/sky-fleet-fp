@@ -18,6 +18,7 @@ namespace Core.UIStructure.Utilities
         private TTarget LastInput => _lastInput;
 
         public IEnumerable<TTarget> Targets => _targets;
+        public IReadOnlyList<TTarget> Selected => OtherBuffer;
         
         public void AddTarget(TTarget target)
         {

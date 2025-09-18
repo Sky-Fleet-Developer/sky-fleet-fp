@@ -1230,7 +1230,6 @@ GameObject:
   - component: {fileID: 1335264767851519429}
   - component: {fileID: 1774056772500953769}
   - component: {fileID: 1468617214648641711}
-  - component: {fileID: 3741808497232693510}
   - component: {fileID: -3018615592195754149}
   m_Layer: 0
   m_Name: Crate1000
@@ -1292,7 +1291,7 @@ Rigidbody:
     serializedVersion: 2
     m_Bits: 0
   m_ImplicitCom: 1
-  m_ImplicitTensor: 0
+  m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -1310,20 +1309,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aba59985a18405eb39678750315470e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3741808497232693510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7553976077839709021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e66cf84af2a2409491a7e730de42e586, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  disruptionTension: 2
-  moveTransitional: 0
 --- !u!114 &-3018615592195754149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1336,9 +1321,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576e915dd8a644bf92df9acf178a9328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemObjectHandleImplementation:
-    guid: 
-    tags: []
   guid: 32392e7850e5f4942814cddad09851ff
   tags: []
 --- !u!1 &7955140483976750303

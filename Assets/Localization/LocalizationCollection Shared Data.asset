@@ -15,179 +15,179 @@ MonoBehaviour:
   m_TableCollectionName: LocalizationCollection
   m_TableCollectionNameGuidString: a105491da5422b944bf6c229541308ec
   m_Entries:
-  - m_Id: 15687260320198656
+  - m_Id: 16820991982465024
     m_Key: iron_ore_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336000
+  - m_Id: 16820992024408064
     m_Key: iron_ore_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336001
+  - m_Id: 16820992024408065
     m_Key: iron_ore_crate_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336002
+  - m_Id: 16820992024408066
     m_Key: iron_ore_crate_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336003
+  - m_Id: 16820992024408067
     m_Key: iron_ingot_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336004
+  - m_Id: 16820992024408068
     m_Key: iron_ingot_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336005
+  - m_Id: 16820992024408069
     m_Key: iron_ingot_crate_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336006
+  - m_Id: 16820992024408070
     m_Key: iron_ingot_crate_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336007
+  - m_Id: 16820992024408071
     m_Key: cyan_crystal_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336008
+  - m_Id: 16820992024408072
     m_Key: cyan_crystal_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336009
+  - m_Id: 16820992024408073
     m_Key: catalith_ore_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336010
+  - m_Id: 16820992024408074
     m_Key: catalith_ore_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336011
+  - m_Id: 16820992024408075
     m_Key: catazyne-1_liquid_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336012
+  - m_Id: 16820992024408076
     m_Key: catazyne-1_liquid_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336013
+  - m_Id: 16820992024408077
     m_Key: catazyne-2_liquid_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336014
+  - m_Id: 16820992024408078
     m_Key: catazyne-2_liquid_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336015
+  - m_Id: 16820992024408079
     m_Key: cyanides-shell_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336016
+  - m_Id: 16820992024408080
     m_Key: cyanides-shell_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336017
+  - m_Id: 16820992024408081
     m_Key: chitirenin_raw_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336018
+  - m_Id: 16820992024408082
     m_Key: chitirenin_raw_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336019
+  - m_Id: 16820992024408083
     m_Key: chitirenin_affinated_name
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336020
+  - m_Id: 16820992024408084
     m_Key: chitirenin_affinated_description
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336021
+  - m_Id: 16820992028602368
     m_Key: iron_ore_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336022
+  - m_Id: 16820992028602369
     m_Key: iron_ore_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336023
+  - m_Id: 16820992028602370
     m_Key: iron_ore_crate_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336024
+  - m_Id: 16820992028602371
     m_Key: iron_ore_crate_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336025
+  - m_Id: 16820992028602372
     m_Key: iron_ingot_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336026
+  - m_Id: 16820992028602373
     m_Key: iron_ingot_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336027
+  - m_Id: 16820992028602374
     m_Key: iron_ingot_crate_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336028
+  - m_Id: 16820992028602375
     m_Key: iron_ingot_crate_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336029
+  - m_Id: 16820992028602376
     m_Key: cyan_crystal_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336030
+  - m_Id: 16820992028602377
     m_Key: cyan_crystal_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336031
+  - m_Id: 16820992028602378
     m_Key: catalith_ore_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336032
+  - m_Id: 16820992028602379
     m_Key: catalith_ore_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336033
+  - m_Id: 16820992028602380
     m_Key: catazyne-1_liquid_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336034
+  - m_Id: 16820992028602381
     m_Key: catazyne-1_liquid_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336035
+  - m_Id: 16820992028602382
     m_Key: catazyne-2_liquid_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336036
+  - m_Id: 16820992028602383
     m_Key: catazyne-2_liquid_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336037
+  - m_Id: 16820992028602384
     m_Key: cyanides-shell_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336038
+  - m_Id: 16820992028602385
     m_Key: cyanides-shell_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336039
+  - m_Id: 16820992028602386
     m_Key: chitirenin_raw_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336040
+  - m_Id: 16820992028602387
     m_Key: chitirenin_raw_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336041
+  - m_Id: 16820992028602388
     m_Key: chitirenin_affinated_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 15687260366336042
+  - m_Id: 16820992028602389
     m_Key: chitirenin_affinated_description 1
     m_Metadata:
       m_Items: []

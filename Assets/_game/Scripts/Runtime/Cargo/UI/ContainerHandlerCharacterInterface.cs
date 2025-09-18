@@ -5,6 +5,7 @@ using Core.Character.Interface;
 using Core.Patterns.State;
 using Runtime.Trading.UI;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Cargo.UI
 {
@@ -15,6 +16,12 @@ namespace Runtime.Cargo.UI
         private IContainerHandler _containerHandler;
         private FirstPersonController.UIInteractionState _interactionState;
 
+        [Inject]
+        private void Inject(DiContainer diContainer)
+        {
+            diContainer.Inject(itemInstancesListView);
+        }
+        
         public override bool IsMatch(IState state)
         {
             return state is FirstPersonController.UIInteractionState { Handler: IContainerHandler };

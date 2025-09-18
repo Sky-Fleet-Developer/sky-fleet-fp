@@ -16,6 +16,12 @@ namespace Runtime.Trading.UI
         private IItemsContainerReadonly _inventory;
         private ItemInstanceView _selected;
 
+        [Inject]
+        private void Inject(DiContainer diContainer)
+        {
+            diContainer.Inject(itemInstancesListView);
+        }
+
         public override bool IsMatch(IState state)
         {
             return true;

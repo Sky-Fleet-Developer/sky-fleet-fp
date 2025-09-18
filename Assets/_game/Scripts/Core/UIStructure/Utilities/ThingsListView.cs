@@ -1,17 +1,21 @@
 ﻿using System.Collections.Generic;
 using Core.Utilities;
 using UnityEngine;
+using Zenject;
 
 namespace Core.UIStructure.Utilities
 {
-    public abstract class ThingsListView<TData, TView> : MonoBehaviour where TView : ThingView<TData>
+    public abstract class ThingsListView<TData, TView> : MonoBehaviour, IDragCallbacks<ThingView<TData>> where TView : ThingView<TData>
     {
+        [Inject] private DragAndDropService _dragAndDropService;
         [SerializeField] private Transform itemsContainer;
         protected List<TView> _views = new ();
         private TView _thingViewPrefab;
         public readonly MultipleSelectionHandler<TView> SelectionHandler = new ();
         protected List<TData> _thingsData = new();
-        
+        private Vector2 _dragPosition;
+        private bool _isDragNow;
+
         protected virtual void Awake()
         {
             _thingViewPrefab = itemsContainer.GetComponentInChildren<TView>();
@@ -29,6 +33,7 @@ namespace Core.UIStructure.Utilities
                 {
                     _views.Add(DynamicPool.Instance.Get(_thingViewPrefab, itemsContainer));
                     SelectionHandler.AddTarget(_views[counter]);
+                    _views[counter].SetDragCallbacks(this);
                     InitItem(_views[counter]);
                 }
                 _views[counter++].SetData(item);
@@ -88,6 +93,30 @@ namespace Core.UIStructure.Utilities
         protected virtual void OnDestroy()
         {
             SelectionHandler.Dispose();
+        }
+
+        public void OnChildDragStart(ThingView<TData> view, Vector2 position)
+        {
+            _dragPosition = position;
+            if (view.IsSelected)
+            {
+                _dragAndDropService.BeginDrag(position, SelectionHandler.Selected);
+            }
+            else
+            {
+                _dragAndDropService.BeginDrag(position, view);
+            }
+        }
+
+        public void OnChildDragEnd(ThingView<TData> view)
+        {
+            _dragAndDropService.Drop();
+        }
+
+        public void OnChildDragContinue(ThingView<TData> view, Vector2 delta)
+        {
+            _dragPosition += delta;
+            _dragAndDropService.Move(_dragPosition);
         }
     }
 }

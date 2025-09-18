@@ -55,6 +55,11 @@ namespace Core
                 Container.Inject(monoInstaller);
                 monoInstaller.InstallBindings();
             }
+
+            foreach (var installerWithContainer in GetComponentsInChildren<IInstallerWithContainer>())
+            {
+                installerWithContainer.InstallBindings(Container);
+            }
         }
     }
 }

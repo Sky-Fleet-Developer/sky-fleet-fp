@@ -2,8 +2,8 @@
 
 namespace Core
 {
-    public interface IInstallerWithContainer : IInstaller
+    public interface IInstallerWithContainer
     {
-        public DiContainer DiContainer { get; set; }
+        void InstallBindings(DiContainer container);
     }
 }

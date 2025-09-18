@@ -7,6 +7,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Zenject;
+using IDropHandler = Core.UIStructure.Utilities.IDropHandler;
 
 namespace Runtime.Trading.UI
 {
@@ -28,11 +30,13 @@ namespace Runtime.Trading.UI
 
         public override void Selected()
         {
+            base.Selected();
             selectionFrame.gameObject.SetActive(true);
         }
 
         public override void Deselected()
         {
+            base.Deselected();
             selectionFrame.gameObject.SetActive(false);
         }
 

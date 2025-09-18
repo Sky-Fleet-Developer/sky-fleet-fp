@@ -1641,9 +1641,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
-  itemObjectHandleImplementation:
-    guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
-    tags: []
+  tags: []
   parentsObjects:
   - {fileID: 1557928122}
   emptyMass: 400
@@ -6546,9 +6544,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
-  itemObjectHandleImplementation:
-    guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
-    tags: []
+  tags: []
   parentsObjects:
   - {fileID: 1124183930}
   - {fileID: 20835801}
@@ -17568,9 +17564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guid: 95914a30-cf1f-474b-b29d-4fbcbd93f1e0
-  itemObjectHandleImplementation:
-    guid: 95914a30-cf1f-474b-b29d-4fbcbd93f1e0
-    tags: []
+  tags: []
   parentsObjects:
   - {fileID: 32941980}
   - {fileID: 272349599}
@@ -23974,7 +23968,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4518376856425908888, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000030517578
+      value: -324.04636
       objectReference: {fileID: 0}
     - target: {fileID: 4741305466409360151, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalScale.x

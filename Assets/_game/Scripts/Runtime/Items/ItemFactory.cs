@@ -39,14 +39,14 @@ namespace Runtime.Items
             if (instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
             {
                 itemObjectHandle.SetSourceItem(item);
-                Container.InjectGameObject(instance);
             }
-
+            
             if (item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) && item.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
                 if (!instance.TryGetComponent(out Container containerComponent))
                 {
                     containerComponent = instance.AddComponent<Container>();
+                    Container.Inject(containerComponent);
                 }
                 var container = _tableItems.GetContainer(item.Sign.Id);
                 containerComponent.Init(
