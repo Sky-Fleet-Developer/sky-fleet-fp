@@ -65,6 +65,12 @@ namespace Runtime.Cargo.UI
             _dragAndDropItemsMediator.DeregisterContainerView(itemInstancesListView);
         }
 
+        public override void OnDisable()
+        {
+            base.OnDisable();
+            _interactionState.LeaveState();
+        }
+
         private void OnDropContent(DropEventData eventData)
         {
             foreach (IDraggable draggable in eventData.Content)

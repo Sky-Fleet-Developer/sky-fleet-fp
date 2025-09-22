@@ -41,7 +41,7 @@ namespace Core.Character.Interface
             State = FirstPersonInterfaceState.Close;
         }
 
-        private void OnDisable()
+        public virtual void OnDisable()
         {
             if (_state == FirstPersonInterfaceState.Open)
             {
