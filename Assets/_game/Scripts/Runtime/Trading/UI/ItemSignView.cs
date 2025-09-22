@@ -1,4 +1,5 @@
-﻿using Core.Items;
+﻿using System;
+using Core.Items;
 using Core.Localization;
 using Core.Trading;
 using TMPro;
@@ -18,7 +19,14 @@ namespace Runtime.Trading.UI
         {
             _data = data;
             nameLabel.text = LocalizationService.Localize($"{data.Id}_name");
-            LoadSpriteAsync();
+            try
+            {
+                LoadSpriteAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
         }
 
         private async void LoadSpriteAsync()

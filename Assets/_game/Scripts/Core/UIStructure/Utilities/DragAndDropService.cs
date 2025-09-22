@@ -13,22 +13,25 @@ namespace Core.UIStructure.Utilities
     public interface IDraggable
     {
         RectTransform RectTransform { get; }
-        void OnDropTo(IDropHandler destination);
+        object Entity { get; }
+        IDragAndDropContainer MyContainer { get; }
     }
 
-    public interface IDropHandler : IEventSystemHandler
+    public interface IDragAndDropContainer : IEventSystemHandler
     {
         void OnDropContent(DropEventData eventData);
     }
 
     public class DropEventData : BaseEventData
     {
-        public DropEventData(EventSystem eventSystem, IReadOnlyList<IDraggable> content) : base(eventSystem)
+        public DropEventData(EventSystem eventSystem, IDragAndDropContainer source, IReadOnlyList<IDraggable> content) : base(eventSystem)
         {
             Content = content;
+            Source = source;
         }
 
-        public IReadOnlyList<IDraggable> Content;
+        public readonly IReadOnlyList<IDraggable> Content;
+        public readonly IDragAndDropContainer Source;
     }
     
     public class DragAndDropService : MonoBehaviour, ILoadAtStart, IInstallerWithContainer
@@ -41,16 +44,17 @@ namespace Core.UIStructure.Utilities
         private List<RaycastResult> _raycastResults = new ();
         private Vector2 _initPosition;
         private Vector2 _position;
+        private IDragAndDropContainer _source;
         public bool IsDragNow => _cache.Count > 0;
 
-        public void BeginDrag(Vector2 initPosition, IEnumerable<IDraggable> draggables)
+        public void BeginDrag(Vector2 initPosition, IDragAndDropContainer source, IEnumerable<IDraggable> draggables)
         {
             if (_cache.Count > 0)
             {
                 _cache.Clear();
             }
             _cache.AddRange(draggables);
-            BeginDragPrivate(initPosition);
+            BeginDragPrivate(source, initPosition);
         }
         
         public void BeginDrag(Vector2 initPosition, IDraggable draggable)
@@ -60,7 +64,7 @@ namespace Core.UIStructure.Utilities
                 _cache.Clear();
             }
             _cache.Add(draggable);
-            BeginDragPrivate(initPosition);
+            BeginDragPrivate(draggable.MyContainer, initPosition);
         }
         
         public void Move(Vector2 position)
@@ -91,8 +95,9 @@ namespace Core.UIStructure.Utilities
             cancelDragInput.Dispose();
         }
 
-        private void BeginDragPrivate(Vector2 initPosition)
+        private void BeginDragPrivate(IDragAndDropContainer source, Vector2 initPosition)
         {
+            _source = source;
             _position = initPosition;
             _initPosition = initPosition;
             cancelDragInput.Enable();
@@ -112,21 +117,24 @@ namespace Core.UIStructure.Utilities
         private void RaycastAndTryDrop()
         {
             EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position = _position}, _raycastResults);
-            var eventData = new DropEventData(EventSystem.current, _cache);
+            var eventData = new DropEventData(EventSystem.current, _source, _cache);
             foreach (var raycastResult in _raycastResults)
             {
-                if (raycastResult.gameObject.TryGetComponent(out IDropHandler dropHandler))
+                ExecuteEvents.ExecuteHierarchy<IDragAndDropContainer>(raycastResult.gameObject, eventData,
+                    (a, b) => a.OnDropContent(b as DropEventData));
+                /*if (raycastResult.gameObject.TryGetComponent(out IDragAndDropContainer dropHandler))
                 {
                     dropHandler.OnDropContent(eventData);
                     if (eventData.used)
                     {
-                        foreach (var draggable in _cache)
-                        {
-                            draggable.OnDropTo(dropHandler);
-                        }
-
-                        break;
+                        _source = null;
+                        return;
                     }
+                }*/
+                if (eventData.used)
+                {
+                    _source = null;
+                    return;
                 }
             }
         }

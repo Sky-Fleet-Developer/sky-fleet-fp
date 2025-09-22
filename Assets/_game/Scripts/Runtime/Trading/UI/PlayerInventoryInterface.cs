@@ -13,6 +13,7 @@ namespace Runtime.Trading.UI
         [SerializeField] private ItemInstancesListView itemInstancesListView;
         [SerializeField] private ItemSignDescriptionView itemSignDescriptionView;
         [Inject] private BankSystem _bankSystem;
+        [Inject] private DragAndDropItemsMediator _dragAndDropItemsMediator;
         private IItemsContainerReadonly _inventory;
         private ItemInstanceView _selected;
 
@@ -31,12 +32,14 @@ namespace Runtime.Trading.UI
         {
             base.Awake();
             itemInstancesListView.SelectionHandler.AddListener(this);
+            itemInstancesListView.OnDropContentEvent += OnDropContent;
         }
 
         protected override void OnDestroy()
         {
             _inventory?.RemoveListener(itemInstancesListView);
             itemInstancesListView.SelectionHandler.RemoveListener(this);
+            itemInstancesListView.OnDropContentEvent -= OnDropContent;
             base.OnDestroy();
         }
 
@@ -51,6 +54,7 @@ namespace Runtime.Trading.UI
         {
             base.Show();
             RefreshView();
+            _dragAndDropItemsMediator.RegisterContainerView(itemInstancesListView, Master.TargetState.Master);
         }
 
         public override void Hide()
@@ -77,6 +81,19 @@ namespace Runtime.Trading.UI
         {
             _selected = target;
             itemSignDescriptionView.SetData(target.Data.Sign);
+        }
+        
+        private void OnDropContent(DropEventData eventData)
+        {
+            foreach (IDraggable draggable in eventData.Content)
+            {
+                if (ReferenceEquals(draggable.MyContainer, this))
+                {
+                    return;
+                }
+            }
+            eventData.Use();
+            _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, itemInstancesListView, eventData.Content);
         }
     }
 }

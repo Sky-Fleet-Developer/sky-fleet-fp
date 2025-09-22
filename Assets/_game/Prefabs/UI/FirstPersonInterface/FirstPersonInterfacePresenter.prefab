@@ -111,6 +111,7 @@ MonoBehaviour:
   container: {fileID: 6389349477209104038}
   interfacesPrefabs:
   - {fileID: 6130376048655415481, guid: 4693f02a01a378b40b20c91fa94ed53e, type: 3}
+  - {fileID: 6130376048655415481, guid: 12b57c26c65e58c4a8dc73590c776e47, type: 3}
 --- !u!1001 &2750853731033412881
 PrefabInstance:
   m_ObjectHideFlags: 0

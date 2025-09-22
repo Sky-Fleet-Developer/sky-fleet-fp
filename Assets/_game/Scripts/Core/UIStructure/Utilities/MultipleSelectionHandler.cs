@@ -32,7 +32,7 @@ namespace Core.UIStructure.Utilities
             if (deselectIfSelected)
             {
                 var selected = CurrentSelected.IndexOf(target);
-                if (selected <= 0)
+                if (selected >= 0)
                 {
                     target.Deselected();
                     CurrentSelected.RemoveAt(selected);

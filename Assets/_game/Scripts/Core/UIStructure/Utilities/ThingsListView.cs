@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Utilities;
 using UnityEngine;
 using Zenject;
 
 namespace Core.UIStructure.Utilities
 {
-    public abstract class ThingsListView<TData, TView> : MonoBehaviour, IDragCallbacks<ThingView<TData>> where TView : ThingView<TData>
+    public abstract class ThingsListView<TData, TView> : MonoBehaviour, IDragAndDropContainer, IDragCallbacks<ThingView<TData>> where TView : ThingView<TData>
     {
         [Inject] private DragAndDropService _dragAndDropService;
         [SerializeField] private Transform itemsContainer;
@@ -15,6 +16,7 @@ namespace Core.UIStructure.Utilities
         protected List<TData> _thingsData = new();
         private Vector2 _dragPosition;
         private bool _isDragNow;
+        public Action<DropEventData> OnDropContentEvent;
 
         protected virtual void Awake()
         {
@@ -31,13 +33,14 @@ namespace Core.UIStructure.Utilities
             {
                 if (_views.Count == counter)
                 {
-                    _views.Add(DynamicPool.Instance.Get(_thingViewPrefab, itemsContainer));
-                    SelectionHandler.AddTarget(_views[counter]);
-                    _views[counter].SetDragCallbacks(this);
-                    InitItem(_views[counter]);
+                    AddItem(item);
                 }
-                _views[counter++].SetData(item);
-                _thingsData.Add(item);
+                else
+                {
+                    AddItem(item, _views[counter]);
+                }
+
+                counter++;
             }
 
             for (int i = counter; i < _views.Count; i++)
@@ -62,13 +65,21 @@ namespace Core.UIStructure.Utilities
 
         public virtual void AddItem(TData data)
         {
-            var instance = DynamicPool.Instance.Get(_thingViewPrefab, itemsContainer);
-            instance.SetData(data);
-            _views.Add(instance);
-            _thingsData.Add(data);
-            SelectionHandler.AddTarget(instance);
+            var view = DynamicPool.Instance.Get(_thingViewPrefab, itemsContainer);
+            _views.Add(view);
+            AddItem(data, view);
         }
-        
+
+        private void AddItem(TData data, TView view)
+        {
+            view.SetData(data);
+            InitItem(view);
+            view.SetDragCallbacks(this);
+            view.SetContainer(this);
+            _thingsData.Add(data);
+            SelectionHandler.AddTarget(view);
+        }
+
         public virtual void RemoveItem(TData data)
         {
             var index = _thingsData.FindIndex(x => ReferenceEquals(x, data));
@@ -100,7 +111,7 @@ namespace Core.UIStructure.Utilities
             _dragPosition = position;
             if (view.IsSelected)
             {
-                _dragAndDropService.BeginDrag(position, SelectionHandler.Selected);
+                _dragAndDropService.BeginDrag(position, this, SelectionHandler.Selected);
             }
             else
             {
@@ -117,6 +128,11 @@ namespace Core.UIStructure.Utilities
         {
             _dragPosition += delta;
             _dragAndDropService.Move(_dragPosition);
+        }
+
+        void IDragAndDropContainer.OnDropContent(DropEventData eventData)
+        {
+            OnDropContentEvent?.Invoke(eventData);
         }
     }
 }

@@ -8,7 +8,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
-using IDropHandler = Core.UIStructure.Utilities.IDropHandler;
 
 namespace Runtime.Trading.UI
 {

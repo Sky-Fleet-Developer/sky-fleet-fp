@@ -15,6 +15,9 @@ namespace Core.UIStructure.Utilities
         private RectTransform _rectTransform;
         private IDragCallbacks<ThingView<T>> _dragCallbacks;
 
+        public object Entity => Data;
+        public IDragAndDropContainer MyContainer { get; private set; }
+
         public RectTransform RectTransform
         {
             get
@@ -24,6 +27,10 @@ namespace Core.UIStructure.Utilities
             }
         }
 
+        public void SetContainer(IDragAndDropContainer container)
+        {
+            MyContainer = container;
+        }
         public void SetDragCallbacks(IDragCallbacks<ThingView<T>> callbacks)
         {
             _dragCallbacks = callbacks;
@@ -59,10 +66,6 @@ namespace Core.UIStructure.Utilities
         public void OnDrag(PointerEventData eventData)
         {
             _dragCallbacks.OnChildDragContinue(this, eventData.delta);
-        }
-
-        public void OnDropTo(IDropHandler destination)
-        {
         }
     }
 }

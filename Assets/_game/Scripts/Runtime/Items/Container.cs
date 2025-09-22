@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
+using Core.Character;
 using Core.Character.Interaction;
 using Core.Configurations;
 using Core.Items;
+using Core.Structure.Rigging;
 using Core.Trading;
 using UnityEngine;
 using Zenject;
 
 namespace Runtime.Items
 {
-    public class Container : MonoBehaviour, IContainerHandler
+    public class Container : MonoBehaviour, IContainerHandler, IInteractiveObject
     {
         [Inject] private BankSystem _bankSystem;
         private string _inventoryKey;
@@ -66,6 +68,14 @@ namespace Runtime.Items
         public void RemoveListener(IInventoryStateListener listener)
         {
             _inventory.RemoveListener(listener);
+        }
+
+        public bool EnableInteraction => true;
+        public Transform Root => transform;
+        public bool RequestInteractive(ICharacterController character, out string data)
+        {
+            data = string.Empty;
+            return true;
         }
     }
 }
