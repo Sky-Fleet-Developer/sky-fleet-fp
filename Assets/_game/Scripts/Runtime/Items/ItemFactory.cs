@@ -53,8 +53,13 @@ namespace Runtime.Items
                     identifiableProperty.values[ItemProperty.IdentifiableInstance_Identifier].stringValue,
                     container,
                     containerProperty.values[ItemProperty.Container_Volume].floatValue);
+                instance.AddComponent<ContainerItemMass>();
             }
 
+            if (instance.TryGetComponent(out Rigidbody rigidbody))
+            {
+                rigidbody.mass = item.GetMass();
+            }
             return instance;
         }
 

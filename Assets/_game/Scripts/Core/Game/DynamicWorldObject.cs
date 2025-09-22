@@ -3,12 +3,25 @@ using UnityEngine;
 
 namespace Core.Game
 {
-    public class DynamicWorldObject : MonoBehaviour
+    public interface IMassCombinator
+    {
+        public void SetMassDirty(IMassModifier massModifier);
+    }
+    public interface IMassModifier
+    {
+        float Mass { get; }
+        void AddListener(IMassCombinator massCombinator);
+        void RemoveListener(IMassCombinator massCombinator);
+    }
+    public class DynamicWorldObject : MonoBehaviour, IMassCombinator
     {
         private Rigidbody[] _rigidbodies;
         private float[] _masses;
         private Vector4 _massCache;
         private bool _isStatic;
+        private IMassModifier[] _massModifiers;
+        private float _initialTotalMass;
+
         private void Awake()
         {
             _isStatic = false;
@@ -28,12 +41,24 @@ namespace Core.Game
                     _rigidbodies[i].isKinematic = kinematicFlags[i];
                 }
             });
+        }
 
+        private void Start()
+        {
             _masses = new float[_rigidbodies.Length];
             for (var i = 0; i < _rigidbodies.Length; i++)
             {
                 _masses[i] = _rigidbodies[i].mass;
+                _initialTotalMass += _masses[i];
             }
+            
+            _massModifiers = GetComponents<IMassModifier>();
+            foreach (var massModifier in _massModifiers)
+            {
+                massModifier.AddListener(this);
+            }
+
+            CacheMass();
         }
 
         public void ConvertToStatic()
@@ -59,18 +84,29 @@ namespace Core.Game
 
         private void CacheMass()
         {
-            float totalMass = 0;
             Vector3 center = Vector3.zero;
 
-            for (var i = 0; i < _rigidbodies.Length; i++)
+            float totalMass = _initialTotalMass;
+            foreach (var massModifier in _massModifiers)
             {
-                center += _rigidbodies[i].transform.TransformPoint(_rigidbodies[i].centerOfMass) *
-                          _rigidbodies[i].mass;
-                totalMass += _rigidbodies[i].mass;
+                totalMass += massModifier.Mass;
             }
 
+            float mul = totalMass / _initialTotalMass;
+            for (var i = 0; i < _rigidbodies.Length; i++)
+            {
+                float partMass = _masses[i] * mul;
+                _rigidbodies[i].mass = partMass;
+                center += _rigidbodies[i].transform.TransformPoint(_rigidbodies[i].centerOfMass) * partMass;
+            }
+            
             center = transform.InverseTransformPoint(center / totalMass);
             _massCache = new Vector4(center.x, center.y, center.z, totalMass);
+        }
+
+        public void SetMassDirty(IMassModifier _)
+        {
+            CacheMass();
         }
     }
 }
