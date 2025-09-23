@@ -68,6 +68,11 @@ namespace Core.UIStructure.Utilities
             _listeners.Remove(listener);
         }
 
+        public void Deselect()
+        {
+            OnSelected(null);
+        }
+        
         public void Dispose()
         {
             for (var i = 0; i < _targets.Count; i++)

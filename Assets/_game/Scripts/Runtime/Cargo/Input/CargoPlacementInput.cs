@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-namespace Runtime.Cargo.Input
+namespace Runtime.Cargo
 {
     public partial class @CargoPlacementInput: IInputActionCollection2, IDisposable
     {

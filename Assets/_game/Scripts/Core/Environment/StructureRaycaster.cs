@@ -53,8 +53,7 @@ namespace Core.Environment
             Profiles.Remove(structure);
         }*/
 
-        public static bool Cast(Ray ray, bool interactiveCast,
-            out StructureHit hit)
+        public static bool Cast(Ray ray, out StructureHit hit)
         {
             hit = default;
 
@@ -62,9 +61,16 @@ namespace Core.Environment
             {
                 return false;
             }
+            
             hit.RaycastHit = raycastHit;
 
-            var io = interactiveCast ? (raycastHit.collider.GetComponent<IInteractiveObject>() ?? raycastHit.collider.GetComponentInParent<IInteractiveObject>()) : null;
+            IInteractiveObject io = null;
+            Transform temp = raycastHit.collider.transform;
+            while (io == null && temp)
+            {
+                io = temp.GetComponent<IInteractiveObject>();
+                temp = temp.parent;
+            }
             if (io != null)
             {
                 hit.InteractiveObject = io;

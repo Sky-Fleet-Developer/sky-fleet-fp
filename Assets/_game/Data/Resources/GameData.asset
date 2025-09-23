@@ -414,6 +414,9 @@ MonoBehaviour:
   - {fileID: -4455120187770695450}
   serializedSharedData:
     serializationVersion: 0.0.1
+    cargoCheckLayer:
+      serializedVersion: 2
+      m_Bits: 65553
     interactiveLayer:
       serializedVersion: 2
       m_Bits: 64
@@ -426,7 +429,7 @@ MonoBehaviour:
     controlFailText: Control is alredy used
     walkableLayer:
       serializedVersion: 2
-      m_Bits: 65601
+      m_Bits: 65537
     terrainLayer:
       serializedVersion: 2
       m_Bits: 196608

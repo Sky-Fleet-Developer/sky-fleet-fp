@@ -44,8 +44,13 @@ namespace Runtime.Cargo
         {
             foreach ((Vector3Int point, int collisionCode) in intersections)
             {
-                materials[point].SetColor(ColorProperty, colorsMap[collisionCode]);
+                SetCollisionItem(point, collisionCode);
             }
+        }
+
+        public void SetCollisionItem(Vector3Int point, int collisionCode)
+        {
+            materials[point].SetColor(ColorProperty, colorsMap[collisionCode]);
         }
         
         public void Clear()

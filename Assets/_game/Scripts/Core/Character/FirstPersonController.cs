@@ -215,7 +215,7 @@ namespace Core.Character
                 if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
                 
-                if (StructureRaycaster.Cast(ray, true, out StructureHit hit))
+                if (StructureRaycaster.Cast(ray, out StructureHit hit))
                 {
                     if (hit.CharacterHandler == null)
                     {
@@ -662,7 +662,7 @@ namespace Core.Character
                 case IDriveInterface characterInterface:
                     CurrentState = new SeatState(this, currentInteractionState, characterInterface);
                     break;
-                case ITradeHandler: case ICargoLoadingHandler: case IContainerHandler:
+                case ITradeHandler: case ICargoLoadingHandler: case ICargoUnloadingPlayerHandler: case IContainerHandler:
                     CurrentState = new UIInteractionState(this, currentInteractionState, handler);
                     break;
                 case IPickUpHandler pickUpHandler:

@@ -26,6 +26,7 @@ namespace Core.Configurations
             #endif
             [SerializeField] private string prefabGuid;
             [SerializeField] private List<Vector3Int> volume;
+            [SerializeField] private Bounds bounds;
             public string PrefabGuid => prefabGuid;
 
             public PrefabVolumeProfile()
@@ -42,6 +43,16 @@ namespace Core.Configurations
             public void SetVolume(List<Vector3Int> value)
             {
                 volume = value;
+            }
+
+            public void SetBounds(Bounds value)
+            {
+                bounds = value;
+            }
+
+            public Bounds GetBounds()
+            {
+                return bounds;
             }
         }
 
@@ -118,6 +129,7 @@ namespace Core.Configurations
                 }
             }
             profile.SetVolume(volume);
+            profile.SetBounds(bounds);
 
             if (!target.gameObject.activeInHierarchy)
             {

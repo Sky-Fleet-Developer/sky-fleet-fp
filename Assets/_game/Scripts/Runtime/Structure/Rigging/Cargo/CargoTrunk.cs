@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cinemachine;
+using Core.Cargo;
+using Core.Character;
 using Core.Configurations;
+using Core.Data;
 using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
 using Runtime.Cargo;
-using Runtime.Cargo.Input;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,18 +17,20 @@ using Zenject;
 
 namespace Runtime.Structure.Rigging.Cargo
 {
-    public class CargoTrunk : Block, ICargoTrunkPlayerInterface
+    public class CargoTrunk : Block, ICargoTrunkPlayerInterface, ICargoUnloadingPlayerHandler, IInteractiveObject
     {
         [SerializeField] private BoundsInt[] volumeAnchors;
         [SerializeField] private BoundsInt[] excludeVolumeAnchors;
         [SerializeField] private CinemachineVirtualCamera placementCamera;
+        [SerializeField] private CinemachineVirtualCamera unloadCamera;
         [SerializeField] private TrunkVolumeView trunkVolumeView;
         [SerializeField] private CargoVolumeView cargoVolumeView;
         [Inject] private PrefabVolumeProcessor _prefabVolumes;
         private Dictionary<Vector3Int, ITablePrefab> _content = new();
         private HashSet<Vector3Int> _space = new();
         private PlaceCargoHandler _rejectHandler = PlaceCargoHandler.Empty;
-        private PlaceCargoHandler _acceptHandler;
+        private PlaceCargoHandler _loadAcceptHandler;
+        private PlaceCargoHandler _unloadAcceptHandler;
         private uint _placeCounter = 1;
         private uint _placeToken = 0;
         private ITablePrefab _cargoToPlace;
@@ -35,14 +39,20 @@ namespace Runtime.Structure.Rigging.Cargo
         private float _cargoMass;
         private Vector3 _localCenterOfMass;
         private readonly List<ITablePrefab> _cargo = new ();
+        private bool _visualizeUnloadCargo;
+        private Vector3 _cargoVolumeViewInitialPosition;
         [ShowInInspector] public override float Mass => base.Mass + _cargoMass;
         [ShowInInspector] public override Vector3 LocalCenterOfMass => _localCenterOfMass;
+        IEnumerable<ITablePrefab> ICargoUnloadingHandler.AvailableCargo => _cargo;
 
         private void Awake()
         {
             placementCamera.gameObject.SetActive(false);
+            unloadCamera.gameObject.SetActive(false);
             trunkVolumeView.gameObject.SetActive(false);
-            _acceptHandler = new PlaceCargoHandler { PlaceAction = PlaceLast };
+            _loadAcceptHandler = new PlaceCargoHandler { PlaceAction = PlaceLast };
+            _unloadAcceptHandler = new PlaceCargoHandler { PlaceAction = UnloadLast };
+            _cargoVolumeViewInitialPosition = cargoVolumeView.transform.localPosition;
         }
         
         public override void InitBlock(IStructure structure, Parent parent)
@@ -90,7 +100,7 @@ namespace Runtime.Structure.Rigging.Cargo
 
             _placeToken = _placeCounter;
             _positionToPlace = position;
-            handler = _acceptHandler;
+            handler = _loadAcceptHandler;
             return true;
         }
 
@@ -137,12 +147,18 @@ namespace Runtime.Structure.Rigging.Cargo
                     if (isNewElement)
                     {
                         rb.ConvertToStatic();
+                        rb.OnMassChanged += OnCargoMassChanged;
                     }
                 }
             }
             
             _localCenterOfMass = transform.InverseTransformPoint(_localCenterOfMass / _cargoMass);
             (Structure as IDynamicStructure)?.RecalculateMass();
+        }
+
+        private void OnCargoMassChanged()
+        {
+            RefreshMass(false);
         }
 
         private bool IsCellExcluded(Vector3Int cell)
@@ -159,10 +175,15 @@ namespace Runtime.Structure.Rigging.Cargo
         }
 
         private Vector3Int _cargoViewPosition;
+        private ITablePrefab _lastUnloadCandidatae;
+        private Vector3 _unloadWorldPoint;
+        private Quaternion _unloadRotation;
+
         void ICargoTrunkPlayerInterface.EnterPlacement(ITablePrefab cargo)
         {
             placementCamera.gameObject.SetActive(true);
             trunkVolumeView.gameObject.SetActive(true);
+            cargoVolumeView.transform.localPosition = _cargoVolumeViewInitialPosition;
             trunkVolumeView.SetVolume(volumeAnchors[0], _prefabVolumes.ParticleSize);
             var volume = _prefabVolumes.GetProfile(cargo).GetVolume();
             int bottom = volume[0].y;
@@ -204,7 +225,7 @@ namespace Runtime.Structure.Rigging.Cargo
                 {
                     yield return (point, 1);
                 }
-                else if(_content.TryGetValue(p, out ITablePrefab content))
+                else if(_content.TryGetValue(p, out ITablePrefab content) && content != null)
                 {
                     if (content == _cargoToPlace)
                     {
@@ -227,6 +248,136 @@ namespace Runtime.Structure.Rigging.Cargo
             placementCamera.gameObject.SetActive(false);
             trunkVolumeView.gameObject.SetActive(false);
             cargoVolumeView.Clear();
+        }
+
+        void ICargoUnloadingPlayerHandler.Enter()
+        {
+            unloadCamera.gameObject.SetActive(true);
+            _visualizeUnloadCargo = true;
+        }
+
+        void ICargoUnloadingPlayerHandler.Exit()
+        {
+            unloadCamera.gameObject.SetActive(false);
+            _visualizeUnloadCargo = false;
+        }
+
+        public void BeginPlacement(ITablePrefab cargo)
+        {
+            cargoVolumeView.SetVolume(_prefabVolumes.GetProfile(cargo).GetVolume(), Vector3Int.zero, _prefabVolumes.ParticleSize);   
+        }
+        public void EndPlacement()
+        {
+            cargoVolumeView.Clear();
+            cargoVolumeView.transform.localPosition = _cargoVolumeViewInitialPosition;
+        }
+
+        public bool TryUnload(ITablePrefab cargo, Vector3 targetGroundPoint, Quaternion targetRotation, out PlaceCargoHandler handler)
+        {
+            _placeCounter++;
+            if (_content.ContainsValue(cargo))
+            {
+                var profile = _prefabVolumes.GetProfile(cargo);
+                IReadOnlyList<Vector3Int> volume = profile.GetVolume();
+                Bounds bounds = profile.GetBounds();
+
+                _unloadWorldPoint = targetGroundPoint - targetRotation * (bounds.min.y * 1.1f * Vector3.up);
+                _unloadRotation = targetRotation;
+                if (_visualizeUnloadCargo)
+                {
+                    cargoVolumeView.transform.position = _unloadWorldPoint;
+                }
+                Vector3 halfExtents = Vector3.one * (_prefabVolumes.ParticleSize * 0.5f);
+                
+                bool condition = true;
+                foreach (var center in volume)
+                {
+                    Vector3 worldCellPoint = targetRotation * center * _prefabVolumes.ParticleSize + _unloadWorldPoint;
+                    bool result = Physics.CheckBox(worldCellPoint, halfExtents, targetRotation, GameData.Data.cargoCheckLayer);
+                    if (result)
+                    {
+                        condition = false;
+                        if (_visualizeUnloadCargo)
+                        {
+                            cargoVolumeView.SetCollisionItem(center, 2);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (_visualizeUnloadCargo)
+                        {
+                            cargoVolumeView.SetCollisionItem(center, 0);
+                        }
+                    }
+                }
+
+                if (condition)
+                {
+                    _placeToken = _placeCounter;
+                    _lastUnloadCandidatae = cargo;
+                    handler = _unloadAcceptHandler;
+                    return true;
+                }
+            }
+
+            _lastUnloadCandidatae = null;
+            handler = PlaceCargoHandler.Empty;
+            return false;
+        }
+
+        private void UnloadLast()
+        {
+            if (_placeToken != _placeCounter)
+            {
+                Debug.LogError("CargoTrunk: PlaceToken was expired");
+                return;
+            }
+            _placeToken = 0;
+
+            var rb = DetachPrivate();
+            rb.transform.position = _unloadWorldPoint;
+            rb.transform.rotation = _unloadRotation;
+        }
+
+        private DynamicWorldObject DetachPrivate()
+        {
+            var rb = _lastUnloadCandidatae.transform.GetComponent<DynamicWorldObject>();
+            rb.OnMassChanged -= OnCargoMassChanged;
+            rb.ConvertToDynamic();
+            int volumeAmount = _prefabVolumes.GetProfile(_lastUnloadCandidatae).GetVolume().Count;
+            Vector3Int[] toRemove = new Vector3Int[volumeAmount];
+            
+            foreach (var kv in _content)
+            {
+                if (kv.Value == _lastUnloadCandidatae)
+                {
+                    toRemove[--volumeAmount] = kv.Key;
+                }
+            }
+            foreach (var key in toRemove)
+            {
+                _content[key] = null;
+            }
+
+            _cargo.Remove(_lastUnloadCandidatae);
+            return rb;
+        }
+
+        public void Detach(ITablePrefab cargo)
+        {
+            DetachPrivate();
+        }
+
+        public bool EnableInteraction => true;
+        public Transform Root => transform;
+        public bool RequestInteractive(ICharacterController character, out string data)
+        {
+            data = string.Empty;
+            return true;
         }
     }
 }

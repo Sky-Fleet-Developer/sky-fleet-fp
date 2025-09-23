@@ -59,6 +59,7 @@ namespace Core.Data
         [Header("Management")] 
         public string serializationVersion = "0.0.1";
         [Header("Character")]
+        public LayerMask cargoCheckLayer;
         public LayerMask interactiveLayer;
         public LayerMask rayScanLayer;
         public int interactiveLayerIndex;

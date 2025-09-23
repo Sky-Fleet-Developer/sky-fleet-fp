@@ -7,7 +7,6 @@ using Core.Structure.Rigging.Cargo;
 using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
-using Runtime.Cargo.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
