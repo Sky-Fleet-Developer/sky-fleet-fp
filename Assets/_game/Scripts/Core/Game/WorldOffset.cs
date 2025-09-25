@@ -91,6 +91,13 @@ namespace Core.Game
         }
 
         [Button]
+        private void MakeOffsetDebug(Vector3 offset)
+        {
+            OnWorldOffsetPreChanged?.Invoke(offset);
+            Offset += offset;
+            Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");
+            OnWorldOffsetChange?.Invoke(offset);
+        }
         private void MakeOffset(Vector3 offset)
         {
             for (int i = 0; i < 3; i++)

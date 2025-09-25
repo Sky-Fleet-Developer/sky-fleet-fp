@@ -11,6 +11,9 @@ scopes = {
 	"last_search.E8DA15E5" = ""
 	"OpenInspectorPreview.E8DA15E5" = "0"
 	"currentGroup.E8DA15E5" = "asset"
+	"last_search.E8DA1663" = ""
+	"OpenInspectorPreview.E8DA1663" = "0"
+	"currentGroup.E8DA1663" = "asset"
 }
 providers = {
 	asset = {
@@ -58,10 +61,21 @@ providers = {
 		priority = 100
 		defaultAction = null
 	}
+	st = {
+		active = true
+		priority = 100
+		defaultAction = null
+	}
+	at = {
+		active = true
+		priority = 100
+		defaultAction = null
+	}
 }
 objectSelectors = {
 }
 recentSearches = [
+	"cl"
 ]
 searchItemFavorites = [
 ]
@@ -72,7 +86,7 @@ expandedQueries = [
 ]
 queryBuilder = false
 ignoredProperties = "id;name;classname;imagecontentshash"
-helperWidgetCurrentArea = "all"
+helperWidgetCurrentArea = "pkg:"
 disabledIndexers = ""
 minIndexVariations = 2
 findProviderIndexHelper = true

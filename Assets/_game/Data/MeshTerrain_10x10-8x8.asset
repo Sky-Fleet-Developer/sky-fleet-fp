@@ -50,15 +50,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetDirectory: 10x10-8x8
   material: {fileID: 2100000, guid: 8c7157b6424ca0b4fa88c766adc1682e, type: 2}
-  chunkSize: 1800
-  height: 2625
+  chunkSize: 3600
+  height: 5250
   heightmapResolution: 256
   alphamapResolution: 257
-  visibleDistance: 400
-  chunksRefreshDistance: 50
+  visibleDistance: 4000
+  chunksRefreshDistance: 1000
   settings:
   - {fileID: -7671948353902161526}
   - {fileID: -1368039965201892930}
+  blitArrayToTexShader: {fileID: 0}
 --- !u!114 &4259751407393431562
 MonoBehaviour:
   m_ObjectHideFlags: 0
