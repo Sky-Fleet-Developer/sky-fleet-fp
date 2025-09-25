@@ -392,7 +392,7 @@ namespace NWH.WheelController3D
 
             // Check for high vertical velocity and enable the collider if above one frame travel distance
             float thresholdVelocity = spring.maxLength < 1e-5f ? -Mathf.Infinity : -spring.maxLength / _dt;
-            float relativeYVelocity = transform.InverseTransformVector(targetRigidbody.velocity).y;
+            float relativeYVelocity = transform.InverseTransformVector(targetRigidbody.linearVelocity).y;
             if (relativeYVelocity < thresholdVelocity)
             {
                 bottomMeshColliderEnabled = true;

@@ -1,7 +1,7 @@
-﻿using Cinemachine;
-using Core.Graph.Wires;
+﻿using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control

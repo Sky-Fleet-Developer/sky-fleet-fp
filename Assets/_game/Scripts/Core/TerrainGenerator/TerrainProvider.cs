@@ -8,13 +8,13 @@ using Paterns;
 using Core.Utilities;
 using Core.Boot_strapper;
 using System.Threading.Tasks;
-using Cinemachine;
 using Core.Game;
 using Core.SessionManager;
 using Core.TerrainGenerator.Settings;
 using Sirenix.OdinInspector;
 using Core.TerrainGenerator.Utility;
 using Sirenix.Serialization;
+using Unity.Cinemachine;
 using UnityEditor;
 
 namespace Core.TerrainGenerator
@@ -245,7 +245,7 @@ namespace Core.TerrainGenerator
             }
             else
             {
-                pos  = activeVirtualCamera.VirtualCameraGameObject.transform.position - WorldOffset.Offset;
+                pos  = activeVirtualCamera.State.GetFinalPosition() - WorldOffset.Offset;
             }
             pos.y = 0;
             return pos;

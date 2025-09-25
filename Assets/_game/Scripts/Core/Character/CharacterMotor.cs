@@ -156,7 +156,7 @@ namespace Runtime.Character
                 //to world
 
                 worldVelocity = platform.rotation * (platformPoint - lastPlatformPoint) * idt;
-                Vector3 selfVelocity = rigidbody.velocity - platformVelocity;
+                Vector3 selfVelocity = rigidbody.linearVelocity - platformVelocity;
 
                 //to local
 
@@ -218,7 +218,7 @@ namespace Runtime.Character
                 {
                     selfVelocity = Vector3.ProjectOnPlane(selfVelocity, groundHit.normal) +
                                    groundHit.normal * jumpImpulse;
-                    rigidbody.velocity = selfVelocity + platformVelocity;
+                    rigidbody.linearVelocity = selfVelocity + platformVelocity;
                 }
 
                 rigidbody.AddForceAtPosition(force * deltaTime, groundHit.point);

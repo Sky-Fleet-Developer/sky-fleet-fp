@@ -49,7 +49,7 @@ namespace Runtime.Structure.Rigging.Control
         {
             if (!IsWork) return;
             
-            Vector3 localSpeed = root.transform.InverseTransformVector(root.Physics.velocity);
+            Vector3 localSpeed = root.transform.InverseTransformVector(root.Physics.linearVelocity);
             Vector3 localAngleSpeed = root.transform.InverseTransformVector(root.Physics.angularVelocity);
             pitch.Value = Mathf.Asin(root.transform.forward.y) * Mathf.Rad2Deg;
             roll.Value = -Mathf.Atan2(root.transform.right.y, root.transform.up.y) * Mathf.Rad2Deg;

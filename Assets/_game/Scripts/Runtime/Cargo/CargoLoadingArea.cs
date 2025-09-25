@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Cinemachine;
 using Core;
 using Core.Cargo;
 using Core.Character;
@@ -8,6 +7,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
 using Runtime.Trading;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Runtime.Cargo

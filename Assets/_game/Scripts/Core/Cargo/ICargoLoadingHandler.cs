@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Cinemachine;
 using Core.Character.Interaction;
 using Core.Configurations;
 using Core.Structure.Rigging.Cargo;

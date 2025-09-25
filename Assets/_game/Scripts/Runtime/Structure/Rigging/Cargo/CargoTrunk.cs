@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cinemachine;
 using Core.Cargo;
 using Core.Character;
 using Core.Configurations;
@@ -11,6 +10,7 @@ using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
 using Runtime.Cargo;
 using Sirenix.OdinInspector;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Zenject;

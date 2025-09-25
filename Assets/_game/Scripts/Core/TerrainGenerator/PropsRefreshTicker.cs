@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Cinemachine;
 using Core.Game;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Core.TerrainGenerator
@@ -84,7 +84,7 @@ namespace Core.TerrainGenerator
                 }
                 else
                 {
-                    pos  = activeVirtualCamera.VirtualCameraGameObject.transform.position - WorldOffset.Offset;
+                    pos  = activeVirtualCamera.State.GetFinalPosition() - WorldOffset.Offset;
                 }
                 pos.y = 0;
                 return pos;

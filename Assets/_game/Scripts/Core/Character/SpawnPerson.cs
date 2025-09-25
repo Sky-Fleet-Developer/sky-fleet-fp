@@ -4,9 +4,9 @@ using Core.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Cinemachine;
 using Core;
 using Core.Character;
+using Unity.Cinemachine;
 using UnityEngine;
 using Zenject;
 

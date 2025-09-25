@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Cinemachine;
 using Core.Cargo;
 using Core.Character.Interaction;
 using Core.Data;
@@ -19,8 +18,10 @@ using DG.Tweening;
 using Runtime;
 using Runtime.Character;
 using Sirenix.OdinInspector;
+using Unity.Cinemachine;
 using UnityEngine;
 using Zenject;
+using InputAxis = Core.Data.GameSettings.InputAxis;
 
 namespace Core.Character
 {
@@ -354,7 +355,7 @@ namespace Core.Character
                 _pullTension /= Master.dragObjectsSettings.maxPullDistance;
                 Vector3 alignForce = delta * (Master.dragObjectsSettings.maxPullForce * Master.dragObjectsSettings.pullCurve.Evaluate(Mathf.Max(_pullTension, 1)));
                 Vector3 pullUpForce = Mathf.Min(_target.Rigidbody.mass * 9.81f * Master.dragObjectsSettings.pullUpRate, Master.dragObjectsSettings.maxPullForce * 0.5f) * Vector3.up;
-                Vector3 breakForce = (Master.rigidbody.velocity - _target.Rigidbody.velocity) * (_target.Rigidbody.mass * Master.dragObjectsSettings.breakForceRate);
+                Vector3 breakForce = (Master.rigidbody.linearVelocity - _target.Rigidbody.linearVelocity) * (_target.Rigidbody.mass * Master.dragObjectsSettings.breakForceRate);
                 if (Vector3.Dot(breakForce, alignForce) < 0)
                 {
                     breakForce *= 0.2f;
@@ -676,11 +677,11 @@ namespace Core.Character
         {
             if (structure is IDynamicStructure dynamicStructure)
             {
-                rigidbody.velocity = dynamicStructure.GetVelocityForPoint(transform.position);
+                rigidbody.linearVelocity = dynamicStructure.GetVelocityForPoint(transform.position);
             }
             else
             {
-                rigidbody.velocity = Vector3.zero;
+                rigidbody.linearVelocity = Vector3.zero;
             }
         }
 

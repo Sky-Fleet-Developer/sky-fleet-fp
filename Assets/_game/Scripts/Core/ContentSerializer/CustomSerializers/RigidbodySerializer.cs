@@ -14,15 +14,15 @@ namespace Core.ContentSerializer.CustomSerializers
             switch (idx)
             {
                 default:
-                    return JsonConvert.SerializeObject(rb.velocity, new VectorConverter());
+                    return JsonConvert.SerializeObject(rb.linearVelocity, new VectorConverter());
                 case 1:
                     return JsonConvert.SerializeObject(rb.angularVelocity, new VectorConverter());
                 case 2:
                     return JsonConvert.SerializeObject(rb.mass);
                 case 3:
-                    return JsonConvert.SerializeObject(rb.drag);
+                    return JsonConvert.SerializeObject(rb.linearDamping);
                 case 4:
-                    return JsonConvert.SerializeObject(rb.angularDrag);
+                    return JsonConvert.SerializeObject(rb.angularDamping);
             }
         }
 
@@ -31,11 +31,11 @@ namespace Core.ContentSerializer.CustomSerializers
         public Task Deserialize(string prefix, object source, Dictionary<string, string> cache, ISerializationContext context)
         {
             Rigidbody rb = (Rigidbody) source;
-            rb.velocity = JsonConvert.DeserializeObject<Vector3>(cache[prefix]);
+            rb.linearVelocity = JsonConvert.DeserializeObject<Vector3>(cache[prefix]);
             rb.angularVelocity = JsonConvert.DeserializeObject<Vector3>(cache[prefix + "_1"]);
             rb.mass = JsonConvert.DeserializeObject<float>(cache[prefix + "_2"]);
-            rb.drag = JsonConvert.DeserializeObject<float>(cache[prefix + "_3"]);
-            rb.angularDrag = JsonConvert.DeserializeObject<float>(cache[prefix + "_4"]);
+            rb.linearDamping = JsonConvert.DeserializeObject<float>(cache[prefix + "_3"]);
+            rb.angularDamping = JsonConvert.DeserializeObject<float>(cache[prefix + "_4"]);
             return Task.CompletedTask;
         }
     }

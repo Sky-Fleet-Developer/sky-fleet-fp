@@ -1,14 +1,12 @@
-﻿using System;
-using Core.Cargo;
+﻿using Core.Cargo;
 using Core.Character;
 using Core.Character.Interface;
 using Core.Patterns.State;
 using Core.Structure.Rigging.Cargo;
-using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
+using Runtime.Cargo.Input;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 

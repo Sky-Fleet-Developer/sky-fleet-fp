@@ -13,7 +13,7 @@ namespace Runtime.Structure.Ship
         [SerializeField] private Vector3 localCenterOfMass;
         public float Mass => emptyMass;
         
-        public Vector3 Velocity => rigidbody.velocity;
+        public Vector3 Velocity => rigidbody.linearVelocity;
 
         [ShowInInspector, ReadOnly]
         public float TotalMass { get; private set; }

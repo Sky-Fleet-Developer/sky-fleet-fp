@@ -54,7 +54,7 @@ MonoBehaviour:
   height: 5250
   heightmapResolution: 256
   alphamapResolution: 257
-  visibleDistance: 4000
+  visibleDistance: 5000
   chunksRefreshDistance: 1000
   settings:
   - {fileID: -7671948353902161526}

@@ -72,14 +72,14 @@ namespace Runtime.Cargo.UI
         {
             if (_isPlacementMode)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Ray ray = Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit raycastHit, 6, GameData.Data.walkableLayer))
                 {
                     if (_handler.TryUnload(_currentSelection.Data, raycastHit.point,
                             Quaternion.LookRotation(raycastHit.normal, _currentSelection.Data.transform.forward) *
                             Quaternion.Euler(90, 0, 0), out _placeCargoHandler))
                     {
-                        if (Input.GetKeyDown(KeyCode.Return))
+                        if (UnityEngine.Input.GetKeyDown(KeyCode.Return))
                         {
                             _placeCargoHandler.PlaceAction?.Invoke();
                             var selection = _currentSelection;
