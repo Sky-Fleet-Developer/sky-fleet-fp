@@ -10,6 +10,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Serialization;
 using Core.Utilities;
+using Core.World;
 using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using UnityEditor;

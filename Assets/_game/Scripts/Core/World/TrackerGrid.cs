@@ -1,0 +1,62 @@
+﻿
+using UnityEngine;
+
+namespace Core.World
+{
+    public struct TrackerGrid
+    {
+        private readonly float _size;
+        private readonly bool _useY;
+        private readonly float _sizeInv;
+        private Vector3Int _cell;
+        private float _tolerance;
+        private Bounds _toleranceBounds;
+
+        public float Size => _size;
+        
+        public TrackerGrid(Vector3 startPosition, float cellSize, bool useY) : this()
+        {
+            _size = cellSize;
+            _useY = useY;
+            _sizeInv = 1 / _size;
+            _tolerance = 0;
+            _toleranceBounds = default;
+            _cell = PositionToCell(startPosition);
+        }
+
+        public void SetBorderTolerance(float value)
+        {
+            _tolerance = value;
+        }
+        
+        public bool Update(Vector3 position, out Vector3Int cell)
+        {
+            cell = PositionToCell(position);
+            if (cell != _cell)
+            {
+                if (_tolerance > 0)
+                {
+                    if (!_useY)
+                    {
+                        position.y = 0;
+                    }
+                    if (_toleranceBounds.Contains(position))
+                    {
+                        return false;
+                    }
+                }
+
+                _cell = cell;
+                _toleranceBounds = new Bounds((Vector3)_cell * _size, Vector3.one * (_size + _tolerance));
+                return true;
+            }
+            return false;
+        }
+
+
+        public Vector3Int PositionToCell(Vector3 value)
+        {
+            return new Vector3Int(Mathf.RoundToInt(value.x * _sizeInv), _useY ? Mathf.RoundToInt(value.y * _sizeInv) : 0, Mathf.RoundToInt(value.z * _sizeInv));
+        }
+    }
+}

@@ -2,6 +2,7 @@ using Core.Game;
 using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.World;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;

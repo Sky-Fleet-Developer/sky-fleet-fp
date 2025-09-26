@@ -5,7 +5,6 @@ using Core.Cargo;
 using Core.Character.Interaction;
 using Core.Data;
 using Core.Data.GameSettings;
-using Core.Environment;
 using Core.Game;
 using Core.Items;
 using Core.Patterns.State;
@@ -14,6 +13,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
 using Core.Trading;
+using Core.World;
 using DG.Tweening;
 using Runtime;
 using Runtime.Character;
@@ -53,7 +53,7 @@ namespace Core.Character
             
             if (cameraRoot == null)
             {
-                CinemachineVirtualCamera cam = GetComponentInChildren<CinemachineVirtualCamera>();
+                CinemachineCamera cam = GetComponentInChildren<CinemachineCamera>();
                 if (cam) cameraRoot = cam.transform;
             }
 

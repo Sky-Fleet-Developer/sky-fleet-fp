@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Core.Game
+namespace Core.World
 {
     public class DynamicWorldObject : MonoBehaviour, IMassCombinator
     {

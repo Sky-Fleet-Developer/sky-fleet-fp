@@ -13,7 +13,7 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private float rotationSpeed;
         private AimingInterfacePort aimingInterfacePort;
         private Port<Vector3> targetPoint = new (PortType.Signal);
-        [SerializeField] private CinemachineVirtualCamera camera;
+        [SerializeField] private CinemachineCamera camera;
         private AimingInterfaceState currentState = AimingInterfaceState.Default;
 
         public Periscope()

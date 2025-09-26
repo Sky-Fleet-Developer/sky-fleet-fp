@@ -8,6 +8,7 @@ using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
+using Core.World;
 using Runtime.Cargo;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
@@ -21,8 +22,8 @@ namespace Runtime.Structure.Rigging.Cargo
     {
         [SerializeField] private BoundsInt[] volumeAnchors;
         [SerializeField] private BoundsInt[] excludeVolumeAnchors;
-        [SerializeField] private CinemachineVirtualCamera placementCamera;
-        [SerializeField] private CinemachineVirtualCamera unloadCamera;
+        [SerializeField] private CinemachineCamera placementCamera;
+        [SerializeField] private CinemachineCamera unloadCamera;
         [SerializeField] private TrunkVolumeView trunkVolumeView;
         [SerializeField] private CargoVolumeView cargoVolumeView;
         [Inject] private PrefabVolumeProcessor _prefabVolumes;

@@ -1,4 +1,4 @@
-namespace Core.Environment
+namespace Core.World
 {
     public interface IEnvironmentSystem
     {

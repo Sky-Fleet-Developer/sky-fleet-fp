@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
 using Core.Character.Interaction;
@@ -10,7 +8,7 @@ using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Core.Environment
+namespace Core.World
 {
     public class StructureRaycaster : MonoBehaviour, ILoadAtStart
     {

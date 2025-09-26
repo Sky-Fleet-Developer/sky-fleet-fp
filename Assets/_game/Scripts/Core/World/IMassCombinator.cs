@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core.Game
+namespace Core.World
 {
     public interface IMassCombinator
     {

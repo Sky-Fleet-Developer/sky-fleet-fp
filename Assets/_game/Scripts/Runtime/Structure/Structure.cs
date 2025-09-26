@@ -5,6 +5,7 @@ using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Utilities;
+using Core.World;
 using Runtime.Items;
 using Sirenix.OdinInspector;
 using UnityEngine;

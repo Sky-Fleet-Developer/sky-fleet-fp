@@ -21,7 +21,7 @@ namespace Runtime.Cargo
 
     public class CargoLoadingArea : Block, IInteractiveObject, ICargoLoadingPlayerHandler
     {
-        [SerializeField] private CinemachineVirtualCamera viewCamera;
+        [SerializeField] private CinemachineCamera viewCamera;
         private readonly Dictionary<IStructure, TrunkLink> _detectedTrunks = new();
         private readonly Dictionary<ITablePrefab, int> _detectedCargo = new();
         private Queue<Collider> _enterAtStart = new();

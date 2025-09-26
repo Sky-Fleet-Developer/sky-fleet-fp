@@ -1,8 +1,7 @@
-using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Core.Game
+namespace Core.World
 {
     public class WorldOffsetAnchor : MonoBehaviour
     {

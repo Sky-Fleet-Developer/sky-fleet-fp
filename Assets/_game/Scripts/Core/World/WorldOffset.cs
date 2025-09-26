@@ -7,9 +7,9 @@ using Runtime.Character;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Core.Game
+namespace Core.World
 {
-    public class WorldOffset : Singleton<WorldOffset>, ILoadAtStart
+    public class WorldOffset : MonoBehaviour, ILoadAtStart
     {
         [ShowInInspector]
         public static Vector3 Offset { get; set; }
@@ -19,43 +19,30 @@ namespace Core.Game
 
         [SerializeField] private float limit = 1000;
         [SerializeField] private bool moveY = false;
-        private float limit_i;
 
+        private TrackerGrid _grid;
         private Transform anchor;
         private bool _isEnabled = false;
 
         bool ILoadAtStart.enabled => enabled && _isEnabled;
 
-        protected override void Setup()
+        private void Awake()
         {
             _isEnabled = gameObject.activeInHierarchy;
             gameObject.SetActive(false);
         }
 
-        private void OnValidate()
-        {
-            if (limit != 0)
-            {
-                limit_i = 1f / limit;
-            }
-        }
-
         public Task Load()
         {
             Offset = Vector3.zero;
-
-            if (limit != 0)
-            {
-                limit_i = 1f / limit;
-                SpawnPerson.OnPlayerWasLoaded.Subscribe(OnPlayerWasLoaded);
-            }
-
+            SpawnPerson.OnPlayerWasLoaded.Subscribe(OnPlayerWasLoaded);
             return Task.CompletedTask;
         }
 
         private void OnPlayerWasLoaded()
         {
             gameObject.SetActive(true);
+            
             if (Session.hasInstance)
             {
                 anchor = Session.Instance.Player.transform;
@@ -65,29 +52,22 @@ namespace Core.Game
                 anchor = transform;
             }
 
+            if (limit != 0)
+            {
+                _grid = new TrackerGrid(Vector3.zero, limit, moveY);
+                _grid.SetBorderTolerance(limit * 0.3f);
+            }
+            
             FixedUpdate();
         }
         
         private void FixedUpdate()
         {
-            Vector3 pos = anchor.position;
-
-            Vector3 offset = Vector3.zero;            
-            
-            if (Mathf.Abs(pos.x) > limit)
+            if(_grid.Update(Offset - anchor.position, out Vector3Int cell))
             {
-                offset += Vector3.right * pos.x;
+                Vector3 offset = (Vector3)cell * _grid.Size - Offset;
+                MakeOffset(offset);
             }
-            if(moveY && Mathf.Abs(pos.y) > limit)
-            {
-                offset += Vector3.up * pos.y;
-            }
-            if(Mathf.Abs(pos.z) > limit)
-            {
-                offset += Vector3.forward * pos.z;
-            }
-
-            if(offset != Vector3.zero) MakeOffset(-offset);
         }
 
         [Button]
@@ -100,11 +80,6 @@ namespace Core.Game
         }
         private void MakeOffset(Vector3 offset)
         {
-            for (int i = 0; i < 3; i++)
-            {
-                offset[i] = Mathf.Ceil(offset[i] * limit_i) * limit;
-            }
-
             OnWorldOffsetPreChanged?.Invoke(offset);
             Offset += offset;
             Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");

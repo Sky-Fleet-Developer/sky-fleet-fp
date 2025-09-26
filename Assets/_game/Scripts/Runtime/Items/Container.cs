@@ -6,6 +6,7 @@ using Core.Game;
 using Core.Items;
 using Core.Structure.Rigging;
 using Core.Trading;
+using Core.World;
 using UnityEngine;
 using Zenject;
 

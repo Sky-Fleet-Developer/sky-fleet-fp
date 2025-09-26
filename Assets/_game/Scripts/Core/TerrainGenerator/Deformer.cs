@@ -7,6 +7,7 @@ using Core.Game;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
 using Core.Utilities;
+using Core.World;
 using UnityEditor;
 using UnityEngine;
 using Newtonsoft.Json;

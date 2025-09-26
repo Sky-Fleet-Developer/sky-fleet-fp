@@ -1,21 +1,14 @@
-using System;
-using System.IO;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Paterns;
 using Core.Utilities;
 using Core.Boot_strapper;
 using System.Threading.Tasks;
-using Core.Game;
-using Core.SessionManager;
 using Core.TerrainGenerator.Settings;
 using Sirenix.OdinInspector;
-using Core.TerrainGenerator.Utility;
-using Sirenix.Serialization;
-using Unity.Cinemachine;
-using UnityEditor;
+using Core.World;
+using Runtime.Character;
+using Zenject;
 
 namespace Core.TerrainGenerator
 {
@@ -36,8 +29,7 @@ namespace Core.TerrainGenerator
 
         private Dictionary<Vector2Int, HashSet<IDeformer>> deformersByChunk = new Dictionary<Vector2Int, HashSet<IDeformer>>();
         private List<IDeformer> deformersQueue = new List<IDeformer>();
-
-        private PropsRefreshTicker refreshTicker;
+        [Inject(Id = "Player")] private TransformTracker _playerTracker;
 
         public Chunk GetChunk(Vector2Int position)
         {
@@ -81,7 +73,6 @@ namespace Core.TerrainGenerator
             if (settings.directory == null) throw new System.Exception("Wrong directory!");
             await LoadPropsForCurrentPosition();
             OnInitialize.Invoke(this);
-            refreshTicker?.TryRun();
             if (deformersQueueTask != null)
             {
                 await deformersQueueTask;
@@ -219,34 +210,13 @@ namespace Core.TerrainGenerator
             return difference.x < settings.ChunkSize * 0.5f && difference.z < settings.ChunkSize * 0.5f;
         }
 
-        private bool isCameraInitialized;
-        private CinemachineBrain mainCamera;
-
         private Vector3 GetViewPosition()
         {
-            if (!isCameraInitialized)
+            /*if (!_playerTracker)
             {
-                Camera cam = Camera.main;
-                if (cam)
-                {
-                    mainCamera = cam.GetComponent<CinemachineBrain>();
-                    refreshTicker = new PropsRefreshTicker(mainCamera, settings.ChunksRefreshDistance, this);
-                    refreshTicker.TryRun();
-                    isCameraInitialized = true;
-                }
-                else return Vector3.zero;
-            }
-
-            Vector3 pos;
-            ICinemachineCamera activeVirtualCamera = mainCamera.ActiveVirtualCamera;
-            if (activeVirtualCamera == null)
-            {
-                pos = mainCamera.transform.position;
-            }
-            else
-            {
-                pos  = activeVirtualCamera.State.GetFinalPosition() - WorldOffset.Offset;
-            }
+                return FindAnyObjectByType<SpawnPerson>().transform.position;
+            }*/
+            Vector3 pos = _playerTracker.GetPredictedPosition(20) + WorldOffset.Offset;
             pos.y = 0;
             return pos;
         }

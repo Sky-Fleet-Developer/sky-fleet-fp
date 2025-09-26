@@ -6,15 +6,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core;
 using Core.Character;
+using Core.World;
 using Unity.Cinemachine;
 using UnityEngine;
 using Zenject;
 
 namespace Runtime.Character
 {
-    public class SpawnPerson : Singleton<SpawnPerson>, ILoadAtStart
+    public class SpawnPerson : Singleton<SpawnPerson>, ILoadAtStart, IInstallerWithContainer
     {
         [SerializeField] private int rulesSurveyFrequency;
+        [SerializeField] private GameObject playerCamera;
         public static LateEvent OnPlayerWasLoaded = new LateEvent();
 
         public FirstPersonController Player => player;
@@ -22,10 +24,11 @@ namespace Runtime.Character
         private FirstPersonController player;
         [SerializeField] private FirstPersonController source;
         bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
-        [Inject] private DiContainer _diContainer;
+        private DiContainer _diContainer;
+
         private void Start()
         {
-            CinemachineVirtualCamera camHolder = GetComponentInChildren<CinemachineVirtualCamera>();
+            CinemachineCamera camHolder = GetComponentInChildren<CinemachineCamera>();
             if (camHolder) camHolder.enabled = false;
         }
 
@@ -55,6 +58,12 @@ namespace Runtime.Character
         private void OnDestroy()
         {
             OnPlayerWasLoaded.Reset();
+        }
+
+        public void InstallBindings(DiContainer container)
+        {
+            _diContainer = container;
+            _diContainer.Bind<TransformTracker>().WithId("Player").FromInstance(playerCamera.GetComponent<TransformTracker>());
         }
     }
 }

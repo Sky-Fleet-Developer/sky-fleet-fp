@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Core.Boot_strapper;
 using UnityEngine;
 
-namespace Core.Environment
+namespace Core.World
 {
     public class EnvironmentBootstrapper : MonoBehaviour, ILoadAtStart
     {
