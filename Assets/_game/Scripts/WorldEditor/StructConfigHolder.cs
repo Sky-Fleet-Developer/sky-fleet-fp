@@ -11,12 +11,14 @@ using Core.Structure.Rigging;
 using Core.Structure.Serialization;
 using Core.Utilities;
 using Core.World;
+using Runtime.Structure;
 using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 using UnityEngine;
+using Zenject;
 
 namespace WorldEditor
 {
@@ -24,12 +26,8 @@ namespace WorldEditor
     {
         public StructureConfiguration blocksConfiguration;
         public GraphConfiguration graphConfiguration;
-        public IEnumerable<Configuration> GetAllConfigs()
-        {
-            yield return blocksConfiguration;
-            yield return graphConfiguration;
-        }
-        
+        [Inject] private WorldSpace _worldSpace;
+
 #if UNITY_EDITOR
         [MenuItem("Tools/Make config for structure")]
         public static void MakeConfigForStructure()
@@ -92,24 +90,26 @@ namespace WorldEditor
         [Button]
         private async void InstantiateStructure()
         {
-            GameObject root = await GetOrCreateRoot();
-            if (!root.GetComponent<DynamicWorldObject>())
+            if (_worldSpace)
             {
-                root.AddComponent<DynamicWorldObject>();
+                _worldSpace.RegisterStructure(blocksConfiguration, graphConfiguration);
             }
-            foreach (Configuration config in GetAllConfigs())
+            else
             {
-                await config.TryApply(root);
+#if UNITY_EDITOR
+                ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();
+                var structureFactory = new StructureFactory();
+
+                var info = new StructureCreationRuntimeInfo
+                    { parent = transform, localPosition = Vector3.zero, localRotaion = Quaternion.identity };
+                if (prefab != null)
+                {
+                    info.existRoot = prefab.transform.gameObject;
+                }
+
+                await structureFactory.Create(info, blocksConfiguration, graphConfiguration);
+#endif
             }
-            
-            root.GetComponent<IStructure>().Init();
-            //TODO move to other class
-          /*  IGraph graph = structure.transform.gameObject.GetComponent<IGraph>();
-            if (graph != null)
-            {
-                graph.InitGraph();
-                configuration.ApplyWires(graph);
-            }*/
         }
 
         private GameObject TryGetRoot()
@@ -120,36 +120,6 @@ namespace WorldEditor
                 return prefab.transform.gameObject;
             }
             return null;
-        }
-        
-        private async Task<GameObject> GetOrCreateRoot()
-        {
-            ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();
-            if (prefab == null)
-            {
-                RemotePrefabItem prefabItem = TablePrefabs.Instance.GetItem(blocksConfiguration.bodyGuid);
-                GameObject source = await prefabItem.LoadPrefab();
-                Transform instance;
-
-                if (Application.isPlaying)
-                {
-                    instance = DynamicPool.Instance.Get(source.transform, transform);
-                    instance.position += WorldOffset.Offset;
-                }
-                else
-                {
-#if UNITY_EDITOR
-                    instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
-                    instance.SetParent(transform, false);
-#else
-                    instance = Instantiate(source.transform, transform);
-#endif
-                }
-
-                prefab = instance.GetComponent<ITablePrefab>();
-            }
-
-            return prefab.transform.gameObject;
         }
     }
 }

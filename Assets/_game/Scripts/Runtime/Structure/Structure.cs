@@ -9,13 +9,13 @@ using Core.World;
 using Runtime.Items;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Structure
 {
     public class Structure : ItemObject, IStructure
     {
         bool IStructure.Active => gameObject.activeSelf;
-
         Bounds IStructure.Bounds { get; } //TODO: constant updateing structure
         public LateEvent OnInitComplete { get; } = new LateEvent();
         public List<Parent> Parents
@@ -32,11 +32,8 @@ namespace Runtime.Structure
         }
         
         public float Radius { get; private set; }
-
         [ShowInInspector] public List<IBlock> Blocks { get; private set; }
-
         public Transform[] parentsObjects;
-
         private List<Parent> parents = null;
         private bool initialized = false;
         
@@ -63,13 +60,12 @@ namespace Runtime.Structure
             this.AddBlocksCache();
             CalculateStructureRadius();
             OnInitComplete.Invoke();
-            StructureUpdateModule.RegisterStructure(this);
             initialized = true;
         }
 
         protected void OnDestroy()
         {
-            StructureUpdateModule.DestroyStructure(this);
+            StructureUpdateModule.UnregisterStructure(this);
             this.RemoveBlocksCache();
         }
 

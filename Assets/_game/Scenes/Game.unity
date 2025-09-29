@@ -6266,7 +6266,7 @@ GameObject:
   - component: {fileID: 612636517}
   - component: {fileID: 612636516}
   m_Layer: 0
-  m_Name: Cargo_Emgracopter_Config (1)
+  m_Name: Cargo_Emgracopter_Config
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6458,7 +6458,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 534788397}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2075940396}
   m_LocalEulerAnglesHint: {x: 0, y: 0.002, z: 0}
 --- !u!1 &633850060
 GameObject:
@@ -12885,7 +12885,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1550521876}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2075940396}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &1222475060
 GameObject:
@@ -21278,6 +21278,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8623109b8bc499c48959add53104864e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &2075940396 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+  m_PrefabInstance: {fileID: 4494832323326198457}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2077251579
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22392,7 +22397,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4518376856425908888, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000030517578
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8984863272464365300, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchorMax.x
@@ -22404,7 +22409,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 612636517}
+    - targetCorrespondingSourceObject: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1184186624}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
 --- !u!1001 &5173370110966124762
@@ -22477,6 +22488,4 @@ SceneRoots:
   - {fileID: 1969142584}
   - {fileID: 1222475062}
   - {fileID: 1857941094}
-  - {fileID: 612636517}
   - {fileID: 1454207576}
-  - {fileID: 1184186624}

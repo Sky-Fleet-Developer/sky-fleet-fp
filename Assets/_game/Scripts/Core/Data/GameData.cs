@@ -74,6 +74,7 @@ namespace Core.Data
         public float shopMaxAmountToInventoryDelivery = 10;
         [Header("Lod")]
         public float[] lodDistances;
+        public int worldEntitiesLoadCellDistance;
         [HideInInspector]
         public float[] sqrLodDistances;
 

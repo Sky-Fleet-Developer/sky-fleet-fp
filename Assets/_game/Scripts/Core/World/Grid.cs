@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Core.World
 {
-    public struct TrackerGrid
+    public struct Grid
     {
         private readonly float _size;
         private readonly bool _useY;
@@ -14,7 +14,7 @@ namespace Core.World
 
         public float Size => _size;
         
-        public TrackerGrid(Vector3 startPosition, float cellSize, bool useY) : this()
+        public Grid(Vector3 startPosition, float cellSize, bool useY) : this()
         {
             _size = cellSize;
             _useY = useY;

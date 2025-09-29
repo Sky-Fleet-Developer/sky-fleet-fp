@@ -2,7 +2,9 @@
     "name": "WorldEditor",
     "rootNamespace": "",
     "references": [
-        "GUID:66c5667974358a140a5745cc0c737b95"
+        "GUID:66c5667974358a140a5745cc0c737b95",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:83b6da7a6cf1dab46bac25cbc6b87910"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -51,7 +51,7 @@ namespace Core.Structure
             OnStructureInitialized?.Invoke(structure);
         }
 
-        public static void DestroyStructure(IStructure structure)
+        public static void UnregisterStructure(IStructure structure)
         {
             OnStructureDestroy?.Invoke(structure);
             Structures.Remove(structure);

@@ -20,7 +20,7 @@ namespace Core.World
         [SerializeField] private float limit = 1000;
         [SerializeField] private bool moveY = false;
 
-        private TrackerGrid _grid;
+        private Grid _grid;
         private Transform anchor;
         private bool _isEnabled = false;
 
@@ -54,7 +54,7 @@ namespace Core.World
 
             if (limit != 0)
             {
-                _grid = new TrackerGrid(Vector3.zero, limit, moveY);
+                _grid = new Grid(Vector3.zero, limit, moveY);
                 _grid.SetBorderTolerance(limit * 0.3f);
             }
             

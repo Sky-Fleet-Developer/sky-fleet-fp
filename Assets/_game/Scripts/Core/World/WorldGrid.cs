@@ -20,34 +20,6 @@ namespace Core.World
 
     public class WorldGrid : MonoBehaviour, ILoadAtStart, IInstallerWithContainer
     {
-        private struct WorldGridEntity
-        {
-            public Vector3 Position;
-            public Vector3Int Cell;
-            public bool IsDisposed;
-
-            public WorldGridEntity(Vector3 position, Vector3Int cell)
-            {
-                Position = position;
-                this.Cell = cell;
-                IsDisposed = false;
-            }
-            
-            public void SetPosition(Vector3 position)
-            {
-                Position = position;
-            }
-            public void Dispose()
-            {
-                IsDisposed = true;
-            }
-
-            public void SetCell(Vector3Int cell)
-            {
-                Cell = cell;
-            }
-        }
-        
         [SerializeField] private WorldGridProfile profile;
         [ShowInInspector] private WorldGridData Settings
         {
@@ -68,10 +40,10 @@ namespace Core.World
             }
         }
         [Inject(Id = "Player")] private TransformTracker _playerTracker;
-        private TrackerGrid _playerTrackerGrid;
-        private Dictionary<Vector3Int, LinkedList<int>> _entitiesGrid;
-        private List<WorldGridEntity> _entitiesList = new ();
-        private int _entitiesPointer;
+        private Grid _grid;
+        private Dictionary<Vector3Int, LinkedList<IWorldEntity>> _entitiesGrid = new ();
+        private List<IWorldEntity> _entitiesList = new ();
+        private List<Vector3Int> _coordinatesCache = new ();
         private int _refreshCounter;
 
         public void SetProfile(WorldGridProfile value)
@@ -88,7 +60,29 @@ namespace Core.World
 
         private void RefreshGrid()
         {
-            _playerTrackerGrid = new TrackerGrid(_playerTracker.Position, Settings.occlusionGridCellSize, true);
+            _grid = new Grid(_playerTracker.Position, Settings.occlusionGridCellSize, true);
+        }
+        
+        public void AddEntity(IWorldEntity entity)
+        {
+            var cell = _grid.PositionToCell(entity.Position);
+
+            _entitiesList.Add(entity);
+            _coordinatesCache.Add(cell);
+            
+            if (!_entitiesGrid.TryGetValue(cell, out var list))
+            {
+                list = new LinkedList<IWorldEntity>();
+                _entitiesGrid[cell] = list;
+            }
+            list.AddLast(entity);
+        }
+
+        public void RemoveEntity(IWorldEntity entity)
+        {
+            var cell = _grid.PositionToCell(entity.Position);
+            _entitiesGrid[cell].Remove(entity);
+            _entitiesList.Remove(entity);
         }
 
         public void Update()
@@ -96,61 +90,56 @@ namespace Core.World
             if (_refreshCounter++ >= Settings.refreshPeriod)
             {
                 _refreshCounter = 0;
-                for (int i = 0; i < _entitiesList.Count; i++)
+                Parallel.For(0, _entitiesList.Count, UpdateEntity);
+                /*for (int i = 0; i < _entitiesList.Count; i++)
                 {
-                    var entity = _entitiesList[i];
-                    var cell = _playerTrackerGrid.PositionToCell(entity.Position);
-                    if (entity.Cell != cell)
+                    UpdateEntity(i);
+                }*/
+            }
+        }
+
+        private void UpdateEntity(int i)
+        {
+            var entity = _entitiesList[i];
+            var cell = _grid.PositionToCell(entity.Position);
+            if (_coordinatesCache[i] != cell)
+            {
+                _entitiesGrid[_coordinatesCache[i]].Remove(entity);
+                _coordinatesCache[i] = cell;
+                _entitiesList[i] = entity;
+                _entitiesGrid[cell].AddLast(entity);
+            }
+        }
+
+        public IEnumerable<IWorldEntity> EnumerateRadius(IWorldEntity entity, float radius)
+        {
+            var range = _grid.PositionToCell(Vector3.one * radius);
+            var cell = _grid.PositionToCell(entity.Position) - range;
+            var max = cell + range;
+            for (; cell.x <= max.x; cell.x++)
+            {
+                for (; cell.y <= max.y; cell.y++)
+                {
+                    for (; cell.z <= max.z; cell.z++)
                     {
-                        _entitiesGrid[entity.Cell].Remove(i);
-                        entity.Cell = cell;
-                        _entitiesList[i] = entity;
-                        _entitiesGrid[entity.Cell].AddLast(i);
+                        foreach (var worldEntity in EnumerateCell(cell))
+                        {
+                            yield return worldEntity;
+                        }
                     }
-                }
+                }   
             }
         }
 
-        public int AddEntity(Vector3 position)
+        public IEnumerable<IWorldEntity> EnumerateCell(Vector3Int cell)
         {
-            int entityIndex = AddEntityPrivate(position);
-            var cell = _entitiesList[entityIndex].Cell;
-            if (!_entitiesGrid.TryGetValue(cell, out var list))
+            if (_entitiesGrid.TryGetValue(cell, out var list))
             {
-                list = new LinkedList<int>();
-                _entitiesGrid[cell] = list;
-            }
-            list.AddLast(entityIndex);
-            return entityIndex;
-        }
-        
-        private int AddEntityPrivate(Vector3 position)
-        {
-            var entity = new WorldGridEntity(position, _playerTrackerGrid.PositionToCell(position));
-            if (_entitiesList.Count == _entitiesPointer)
-            {
-                _entitiesList.Add(entity);
-                return _entitiesPointer++;
-            }
-            _entitiesList[_entitiesPointer] = entity;
-            for (; _entitiesPointer < _entitiesList.Count; _entitiesPointer++)
-            {
-                if (_entitiesList[_entitiesPointer].IsDisposed)
+                foreach (var worldEntity in list)
                 {
-                    break;
+                    yield return worldEntity;
                 }
             }
-
-            return _entitiesPointer;
-        }
-        
-        public void SetPosition(Vector3 worldPosition, int id) => _entitiesList[id].SetPosition(worldPosition);
-
-        public void DisposeEntity(int id)
-        {
-            _entitiesPointer = id;
-            _entitiesGrid[_entitiesList[id].Cell].Remove(id);
-            _entitiesList[id].Dispose();
         }
 
         public void InstallBindings(DiContainer container)
