@@ -53,7 +53,7 @@ namespace Runtime.Structure.Rigging.Control
             return Vector3.SignedAngle(bLocalToA, aLocalToA, joint.axis);
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             if (IsWork)
             {

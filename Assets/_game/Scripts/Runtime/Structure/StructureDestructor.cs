@@ -7,7 +7,7 @@ namespace Runtime.Structure
     {
         public void Destruct(IStructure structure)
         {
-            StructureUpdateModule.UnregisterStructure(structure);
+            CycleService.UnregisterStructure(structure);
             foreach (IBlock structureBlock in structure.Blocks)
             {
                 DynamicPool.Instance.Return(structureBlock.transform);

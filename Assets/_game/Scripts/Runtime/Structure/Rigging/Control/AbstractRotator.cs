@@ -19,7 +19,7 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private float dragForce;
         [SerializeField] private float inputSignalMultiplier = 1;
         [SerializeField] private AnimationCurve consumptionPerDelta;
-        [SerializeField, ConstantField, HideIf("isCycled")] private Vector2 minMaxAngle;
+        [SerializeField, SaveField, HideIf("isCycled")] private Vector2 minMaxAngle;
 
         [ShowInInspector, ReadOnly] private float _inertia;
         [ShowInInspector, ReadOnly] private float _velocity;
@@ -58,7 +58,7 @@ namespace Runtime.Structure.Rigging.Control
             base.PowerTick();
         }
        
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             if (IsWork)
             {
@@ -107,16 +107,16 @@ namespace Runtime.Structure.Rigging.Control
             {
                 if (Mathf.Abs(sSlowing) > Mathf.Abs(delta))
                 {
-                    _acceleration = slowingSign * maxAcceleration * StructureUpdateModule.DeltaTime;
+                    _acceleration = slowingSign * maxAcceleration * CycleService.DeltaTime;
                 }
                 else
                 {
-                    _acceleration = deltaSign * maxAcceleration * StructureUpdateModule.DeltaTime;
+                    _acceleration = deltaSign * maxAcceleration * CycleService.DeltaTime;
                 }
             }
             else
             {
-                _acceleration = slowingSign * maxAcceleration * StructureUpdateModule.DeltaTime;
+                _acceleration = slowingSign * maxAcceleration * CycleService.DeltaTime;
             }
 
             _velocity += _acceleration;
@@ -125,12 +125,12 @@ namespace Runtime.Structure.Rigging.Control
         private void Decelerate()
         {
             _acceleration = 0;
-            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertia) * Mathf.Sign(_velocity) * StructureUpdateModule.DeltaTime;
+            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertia) * Mathf.Sign(_velocity) * CycleService.DeltaTime;
         }
         
         private void Rotate()
         {
-            _currentAngle += _velocity * StructureUpdateModule.DeltaTime;
+            _currentAngle += _velocity * CycleService.DeltaTime;
             _currentAngle = TryApplyRotation(_currentAngle * inputSignalMultiplier) / inputSignalMultiplier;
         }
 

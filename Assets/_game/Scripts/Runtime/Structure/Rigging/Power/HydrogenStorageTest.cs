@@ -2,7 +2,7 @@ using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using UnityEngine;
-using static Core.Structure.StructureUpdateModule;
+using static Core.Structure.CycleService;
 using Utilities = Core.Structure.Rigging.Utilities;
 
 namespace Runtime.Structure.Rigging.Power

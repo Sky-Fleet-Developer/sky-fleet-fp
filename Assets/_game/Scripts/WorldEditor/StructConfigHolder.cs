@@ -101,10 +101,10 @@ namespace WorldEditor
                 var structureFactory = new StructureFactory();
 
                 var info = new StructureCreationRuntimeInfo
-                    { parent = transform, localPosition = Vector3.zero, localRotaion = Quaternion.identity };
+                    { Parent = transform, LocalPosition = Vector3.zero, LocalRotation = Quaternion.identity };
                 if (prefab != null)
                 {
-                    info.existRoot = prefab.transform.gameObject;
+                    info.ExistRoot = prefab.transform.gameObject;
                 }
 
                 await structureFactory.Create(info, blocksConfiguration, graphConfiguration);

@@ -11,7 +11,7 @@ namespace Runtime.Structure.Rigging.Control
 
         [SerializeField] private float trim = 0;
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             float delta = (portA.Value + portB.Value) * 0.5f + trim;
             portA.Value -= delta;

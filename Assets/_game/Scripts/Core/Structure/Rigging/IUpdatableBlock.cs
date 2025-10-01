@@ -2,6 +2,6 @@
 {
     public interface IUpdatableBlock : IBlock
     {
-        void UpdateBlock(int lod);
+        void UpdateBlock();
     }
 }

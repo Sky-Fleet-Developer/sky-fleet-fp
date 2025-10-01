@@ -19,8 +19,8 @@ namespace Runtime.Structure.Rigging.Power
 
         public void ConsumptionTick()
         {
-            storage.maxOutput = Mathf.Max(Mathf.Min(maxOutput, storedPower), 0) * StructureUpdateModule.DeltaTime;
-            storage.maxInput =  Mathf.Max(Mathf.Min(maxStoredPower - storedPower, maxInput * StructureUpdateModule.DeltaTime), 0);
+            storage.maxOutput = Mathf.Max(Mathf.Min(maxOutput, storedPower), 0) * CycleService.DeltaTime;
+            storage.maxInput =  Mathf.Max(Mathf.Min(maxStoredPower - storedPower, maxInput * CycleService.DeltaTime), 0);
             storage.charge = storedPower;
         }
         

@@ -3,5 +3,5 @@
 namespace Core.Structure
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class ConstantFieldAttribute : Attribute { }
+    public class SaveFieldAttribute : Attribute { }
 }

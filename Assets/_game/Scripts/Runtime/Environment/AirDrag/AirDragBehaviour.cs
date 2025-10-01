@@ -4,7 +4,7 @@ using Core.Structure;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
-using static Core.Structure.StructureUpdateModule;
+using static Core.Structure.CycleService;
 
 namespace Runtime.Environment.AirDrag
 {
@@ -26,7 +26,7 @@ namespace Runtime.Environment.AirDrag
         private RenderTexture texture;
         private Material[] materialArray;
 
-        [ShowInInspector, ReadOnly] private readonly Dictionary<IDynamicStructure, AirDragProfile> profiles = new Dictionary<IDynamicStructure, AirDragProfile>(10);
+        [ShowInInspector, ReadOnly] private readonly Dictionary<IDynamicStructure, AirDragProfile> profiles = new (10);
         private readonly AirDragCalculator calculator = new AirDragCalculator();
         
         private void OnEnable()
@@ -44,7 +44,7 @@ namespace Runtime.Environment.AirDrag
                 }
             }
             OnStructureInitialized += CalculateDragFor;
-            OnStructureDestroy += RemoveStructure;
+            OnStructureUnregistered += RemoveStructure;
             OnEndPhysicsTick += PhysicsTick;
         }
 
@@ -73,9 +73,9 @@ namespace Runtime.Environment.AirDrag
 
         private void CalculateDragFor(IStructure structure)
         {
-            if (!(structure is IDynamicStructure dynamicStructure)) return;
+            if (structure is not IDynamicStructure dynamicStructure) return;
             
-            if (Cam == null) CreateCamera();
+            if (!Cam) CreateCamera();
             RecreateBuffer();
             try
             {

@@ -10,10 +10,10 @@ using Runtime;
 
 namespace Core.Structure
 {
-    public class StructureUpdateModule : Singleton<StructureUpdateModule>
+    public class CycleService : Singleton<CycleService>
     {
         public static event Action<IStructure> OnStructureInitialized;
-        public static event Action<IStructure> OnStructureDestroy;
+        public static event Action<IStructure> OnStructureUnregistered;
         
         public static List<IStructure> Structures = new List<IStructure>();
         public static List<IDriveInterface> Controls = new List<IDriveInterface>();
@@ -53,7 +53,7 @@ namespace Core.Structure
 
         public static void UnregisterStructure(IStructure structure)
         {
-            OnStructureDestroy?.Invoke(structure);
+            OnStructureUnregistered?.Invoke(structure);
             Structures.Remove(structure);
             Controls.RemoveAll(x => structure.GetBlocksByType<IDriveInterface>().Contains(x));
             Updatables.RemoveAll(x => structure.GetBlocksByType<IUpdatableBlock>().Contains(x));
@@ -66,24 +66,6 @@ namespace Core.Structure
         private void Update()
         {
             DeltaTime = Time.deltaTime;
-            FirstPersonController player = Session.Instance.Player;
-            /*foreach (IStructure str in Structures)
-            {
-                float radius = str.Radius;
-                
-                float distToPlayer = (player.transform.position - str.transform.position).sqrMagnitude;
-                distToPlayer -= radius;
-                float[] distances = GameData.Data.sqrLodDistances;
-                for (int i = 0; i < distances.Length; i++)
-                {
-                    if (distToPlayer <= distances[i])
-                    {
-                        str.UpdateStructureLod(i, player.transform.position);
-                        break;
-                    }
-                }
-
-            }*/
             foreach (IDriveInterface t in Controls)
             {
                 IStructure str = t.Structure;
@@ -125,7 +107,7 @@ namespace Core.Structure
                 IStructure str = t.Structure;
                 if (str.Active && t.IsActive)
                 {
-                    t.UpdateBlock(0);
+                    t.UpdateBlock();
                 }
             }
             OnEndUpdateTick?.Invoke();
@@ -151,12 +133,12 @@ namespace Core.Structure
     {
         public static float DeltaTime(this float value)
         {
-            return value * StructureUpdateModule.DeltaTime;
+            return value * CycleService.DeltaTime;
         }
 
         public static Vector3 DeltaTime(this Vector3 value)
         {
-            return value * StructureUpdateModule.DeltaTime;
+            return value * CycleService.DeltaTime;
         }
     }
     

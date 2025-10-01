@@ -21,7 +21,7 @@ namespace Runtime.Structure.Rigging.Control
             aimingInterfacePort = new AimingInterfacePort(this);
         }
         
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             if (aimingInterfacePort.Initialized)
             {
@@ -32,8 +32,8 @@ namespace Runtime.Structure.Rigging.Control
                 
                 Quaternion horizontalRotation = Quaternion.Euler(Vector3.up * horizontalAngle);
                 Quaternion verticalRotation = Quaternion.Euler(Vector3.right * verticalAngle);
-                horizontalAxis.localRotation = Quaternion.RotateTowards(horizontalAxis.localRotation, horizontalRotation, rotationSpeed * StructureUpdateModule.DeltaTime);
-                verticalAxis.localRotation = Quaternion.RotateTowards(verticalAxis.localRotation, verticalRotation, rotationSpeed * StructureUpdateModule.DeltaTime);;
+                horizontalAxis.localRotation = Quaternion.RotateTowards(horizontalAxis.localRotation, horizontalRotation, rotationSpeed * CycleService.DeltaTime);
+                verticalAxis.localRotation = Quaternion.RotateTowards(verticalAxis.localRotation, verticalRotation, rotationSpeed * CycleService.DeltaTime);;
             }
         }
 

@@ -34,7 +34,7 @@ namespace Runtime.Structure.Rigging.Movement
             target = transformCurrent;
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             float angleRotate = Mathf.Lerp(limitRotate.x, limitRotate.y, Mathf.Sign(value.Value));
             target.localRotation = Quaternion.AngleAxis(angleRotate * value.Value, rotationAxis);

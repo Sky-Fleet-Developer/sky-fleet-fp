@@ -44,7 +44,6 @@ namespace Core.World
                 {
                     _position = _structure.transform.position - WorldOffset.Offset;
                     _rotation = _structure.transform.rotation;
-                    _destructor.Destruct(_structure);
                 }
             }
             else
@@ -59,7 +58,7 @@ namespace Core.World
         private async void ConstructStructure()
         {
             _isConstructInProgress = true;
-            var info = new StructureCreationRuntimeInfo { localRotaion = _rotation, localPosition = _position };
+            var info = new StructureCreationRuntimeInfo { LocalRotation = _rotation, LocalPosition = _position };
             await _constructor.Create(info, BlocksConfiguration, GraphConfiguration);
             _isConstructInProgress = false;
         }

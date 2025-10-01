@@ -28,7 +28,7 @@ namespace Core.Structure.Rigging.Control
             IsWork = this.CalculateConsumerTickB();
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             if (!IsWork) return;
 

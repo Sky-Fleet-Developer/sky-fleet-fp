@@ -28,7 +28,7 @@ namespace Runtime.Structure.Rigging.Control
             base.InitBlock(structure, parent);
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             float left = inputPitch.Value * pitchInfluence + inputRoll.Value * rollInfluence;
             float right = inputPitch.Value * pitchInfluence - inputRoll.Value * rollInfluence;

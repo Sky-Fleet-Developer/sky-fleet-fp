@@ -41,7 +41,7 @@ namespace Core.Structure.Rigging
         public static void CalculateConsumerTickA(this IConsumer consumer)
         {
             consumer.Power.charge = 0;
-            consumer.Power.maxInput = (0.1f + consumer.Consumption) * StructureUpdateModule.DeltaTime;
+            consumer.Power.maxInput = (0.1f + consumer.Consumption) * CycleService.DeltaTime;
             consumer.Power.maxOutput = 0;
         }
 

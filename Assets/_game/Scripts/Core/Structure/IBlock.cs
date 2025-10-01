@@ -83,7 +83,7 @@ namespace Core.Structure
         {
             List<FieldInfo> fields = new List<FieldInfo>();
 
-            Type attribute = typeof(ConstantFieldAttribute);
+            Type attribute = typeof(SaveFieldAttribute);
 
             string log = $"Fields for type {type.Name}:\n";
 

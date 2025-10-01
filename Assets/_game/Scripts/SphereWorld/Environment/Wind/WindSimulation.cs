@@ -187,7 +187,7 @@ namespace SphereWorld.Environment.Wind
 
             SetProperties();
 
-            StructureUpdateModule.OnEndUpdateTick += OnTick;
+            CycleService.OnEndUpdateTick += OnTick;
             _routine = TickSimulation();
 
             //TickSimulation();
@@ -331,9 +331,9 @@ namespace SphereWorld.Environment.Wind
                 Vector3 pNorm = arr[0].position / pMag;
                 double height = (pMag - 1d) * _worldProfile.rigidPlanetRadiusKilometers * 1000d;
                 double pressure = _atmosphereProfile.EvaluatePressurePercent(_worldProfile.gravity, height);
-                particle.verticalVelocity += (pressure - particle.balloonPressure) * particle.balloonVolume * _worldProfile.gravity / particle.balloonMass * StructureUpdateModule.DeltaTime;
-                particle.verticalVelocity -= particle.verticalVelocity * particle.verticalDrag * StructureUpdateModule.DeltaTime;
-                height += particle.verticalVelocity * StructureUpdateModule.DeltaTime;
+                particle.verticalVelocity += (pressure - particle.balloonPressure) * particle.balloonVolume * _worldProfile.gravity / particle.balloonMass * CycleService.DeltaTime;
+                particle.verticalVelocity -= particle.verticalVelocity * particle.verticalDrag * CycleService.DeltaTime;
+                height += particle.verticalVelocity * CycleService.DeltaTime;
                 particle.height = height;
                 Debug.DrawRay(arr[0].position, pNorm * 0.03f, Color.red);
                 arr[0].velocity = Vector3.ProjectOnPlane(arr[0].velocity, pNorm);

@@ -7,7 +7,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
-using static Core.Structure.StructureUpdateModule;
+using static Core.Structure.CycleService;
 using InputControl = Core.Data.GameSettings.InputControl;
 
 namespace Core.Structure.Rigging.Control

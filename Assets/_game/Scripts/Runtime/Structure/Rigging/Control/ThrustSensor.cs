@@ -19,7 +19,7 @@ namespace Runtime.Structure.Rigging.Control
             base.InitBlock(structure, parent);
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             output.SetValue(input.GetValue());
         }

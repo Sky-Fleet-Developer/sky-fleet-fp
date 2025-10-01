@@ -15,7 +15,7 @@ namespace Runtime.Structure.Rigging.Movement
             root.AddForce(nozzle.forward * thrust, nozzle.position);
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             nozzle.localRotation = Quaternion.Euler(Vector3.up * (Mathf.Clamp(vector.GetValue(), -1, 1) * maxInclinationAngle));
         }

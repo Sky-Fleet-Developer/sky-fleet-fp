@@ -15,7 +15,7 @@ namespace Runtime.Structure
         public async Task<IStructure> Create(StructureCreationRuntimeInfo runtimeInfo,
             StructureConfiguration structureConfiguration, GraphConfiguration graphConfiguration)
         {
-            var root = runtimeInfo.existRoot ?? await CreateRoot(runtimeInfo, structureConfiguration);
+            var root = runtimeInfo.ExistRoot ?? await CreateRoot(runtimeInfo, structureConfiguration);
             var structure = root.GetComponent<IStructure>();
             if (Application.isPlaying)
             {
@@ -30,7 +30,7 @@ namespace Runtime.Structure
             await graphConfiguration.TryApply(root);
 
             structure.Init();
-            StructureUpdateModule.RegisterStructure(structure);
+            CycleService.RegisterStructure(structure);
             return structure;
         }
 
@@ -42,13 +42,13 @@ namespace Runtime.Structure
 
             if (Application.isPlaying)
             {
-                instance = DynamicPool.Instance.Get(source.transform, runtimeInfo.parent);
+                instance = DynamicPool.Instance.Get(source.transform, runtimeInfo.Parent);
             }
             else
             {
 #if UNITY_EDITOR
                 instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
-                instance.SetParent(runtimeInfo.parent, false);
+                instance.SetParent(runtimeInfo.Parent, false);
 #else
                 instance = Object.Instantiate(source.transform, runtimeInfo.parent);
 #endif

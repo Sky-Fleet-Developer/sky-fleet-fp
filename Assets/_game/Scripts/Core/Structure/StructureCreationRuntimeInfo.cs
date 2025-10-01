@@ -2,11 +2,11 @@
 
 namespace Core.Structure
 {
-    public class StructureCreationRuntimeInfo
+    public struct StructureCreationRuntimeInfo
     {
-        public GameObject existRoot;
-        public Transform parent;
-        public Vector3 localPosition;
-        public Quaternion localRotaion;
+        public GameObject ExistRoot;
+        public Transform Parent;
+        public Vector3 LocalPosition;
+        public Quaternion LocalRotation;
     }
 }

@@ -52,9 +52,9 @@ namespace Runtime.Structure.Rigging.Control
         }
 
 
-        public override void UpdateBlock(int lod)
+        public override void UpdateBlock()
         {
-            base.UpdateBlock(lod);
+            base.UpdateBlock();
             //var rotation = Quaternion.Euler(inputAngles.y, inputAngles.x, 0);
             correction.SetValue(inputAngles);
         }

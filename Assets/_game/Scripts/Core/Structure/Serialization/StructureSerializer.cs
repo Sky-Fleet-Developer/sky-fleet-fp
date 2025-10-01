@@ -37,9 +37,9 @@ namespace Core.Structure.Serialization
 
         private IEnumerable<IStructure> CollectInRuntime()
         {
-            for (int i = 0; i < StructureUpdateModule.Structures.Count; i++)
+            for (int i = 0; i < CycleService.Structures.Count; i++)
             {
-                yield return StructureUpdateModule.Structures[i];
+                yield return CycleService.Structures[i];
             }
         }
 

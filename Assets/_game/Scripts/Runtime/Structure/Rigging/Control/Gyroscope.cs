@@ -45,7 +45,7 @@ namespace Runtime.Structure.Rigging.Control
             };*/
         }
 
-        public void UpdateBlock(int lod)
+        public void UpdateBlock()
         {
             if (!IsWork) return;
             

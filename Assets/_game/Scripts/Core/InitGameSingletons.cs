@@ -27,7 +27,7 @@ namespace Core
 
         public override void InstallBindings()
         {
-            Container.Bind<StructureUpdateModule>().FromInstance(StructureUpdateModule.Instance);
+            Container.Bind<CycleService>().FromInstance(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
                 Container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);

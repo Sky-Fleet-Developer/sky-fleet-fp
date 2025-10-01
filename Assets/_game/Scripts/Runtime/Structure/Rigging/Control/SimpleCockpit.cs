@@ -109,10 +109,8 @@ namespace Runtime.Structure.Rigging.Control
         public CharacterDetachData GetDetachData() => detachData;
 
 
-        public virtual void UpdateBlock(int lod)
+        public virtual void UpdateBlock()
         {
-            if (lod != 0) return;
-
             foreach (IDevice device in devices)
             {
                 device.UpdateDevice();

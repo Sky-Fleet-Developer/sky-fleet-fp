@@ -152,8 +152,8 @@ namespace Core.Graph.Wires
 
         public PowerWire()
         {
-            StructureUpdateModule.OnConsumptionTickEnd += DistributionTick;
-            StructureUpdateModule.OnBeginConsumptionTick += BeginConsumptionTick;
+            CycleService.OnConsumptionTickEnd += DistributionTick;
+            CycleService.OnBeginConsumptionTick += BeginConsumptionTick;
         }
 
         private void DistributionTick()
@@ -220,8 +220,8 @@ namespace Core.Graph.Wires
 
         public override void Dispose()
         {
-            StructureUpdateModule.OnConsumptionTickEnd -= DistributionTick;
-            StructureUpdateModule.OnBeginConsumptionTick -= BeginConsumptionTick;
+            CycleService.OnConsumptionTickEnd -= DistributionTick;
+            CycleService.OnBeginConsumptionTick -= BeginConsumptionTick;
         }
         
         public void AddPort(Port port)
