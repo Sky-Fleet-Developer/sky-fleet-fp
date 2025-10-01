@@ -65,7 +65,6 @@ namespace Runtime.Structure
 
         protected void OnDestroy()
         {
-            CycleService.UnregisterStructure(this);
             this.RemoveBlocksCache();
         }
 

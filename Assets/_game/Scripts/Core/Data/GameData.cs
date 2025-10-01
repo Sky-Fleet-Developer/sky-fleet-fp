@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using Core.Structure;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace Core.Data
@@ -27,7 +29,7 @@ namespace Core.Data
         {
             Data = serializedSharedData;
             PrivateData = serializedPrivateData;
-            SetSqrLodDistances();
+            Data.lodDistances.Init();
         }
 
         public void InstallChildren(DiContainer container)
@@ -38,18 +40,9 @@ namespace Core.Data
             }
         }
 
-        private void SetSqrLodDistances()
-        {
-            Data.sqrLodDistances = new float[Data.lodDistances.Length];
-            for(int i = 0; i < Data.sqrLodDistances.Length; i++)
-            {
-                Data.sqrLodDistances[i] = Data.lodDistances[i] * Data.lodDistances[i];
-            }
-        }
         private void OnValidate()
         {
-            Data = serializedSharedData;
-            SetSqrLodDistances();
+            Initialize();
         }
     }
     
@@ -73,11 +66,9 @@ namespace Core.Data
         public float fuelTransitionAmount = 5;
         public float shopMaxAmountToInventoryDelivery = 10;
         [Header("Lod")]
-        public float[] lodDistances;
-        public int worldEntitiesLoadCellDistance;
-        [HideInInspector]
-        public float[] sqrLodDistances;
-
+        public LodSettings lodDistances;
+        [Header("Miscellaneous")]
+        public int initialStructuresCacheCapacity;
     }
 
     [System.Serializable]

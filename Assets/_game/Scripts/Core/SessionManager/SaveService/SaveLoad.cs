@@ -34,7 +34,7 @@ namespace Core.SessionManager.SaveService
 
             
             
-            State state = new State(CycleService.Structures);
+            State state = new State(CycleService.Entities());
             
             
 

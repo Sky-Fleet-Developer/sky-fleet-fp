@@ -292,7 +292,7 @@ namespace WorldEditor
             {
                 configHolder.graphConfiguration.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
             }
-            configHolder.blocksConfiguration = new StructureConfiguration(structure);
+            configHolder.blocksConfiguration = new BlocksConfiguration(structure);
             EditorUtility.SetDirty(monobeh);
             configDirty = false;
         }

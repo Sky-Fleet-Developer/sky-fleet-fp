@@ -53,10 +53,18 @@ namespace Core.World
             return false;
         }
 
-
+        public int PositionToCell(float value)
+        {
+            return Mathf.RoundToInt(value * _sizeInv);
+        }
         public Vector3Int PositionToCell(Vector3 value)
         {
-            return new Vector3Int(Mathf.RoundToInt(value.x * _sizeInv), _useY ? Mathf.RoundToInt(value.y * _sizeInv) : 0, Mathf.RoundToInt(value.z * _sizeInv));
+            return new Vector3Int(PositionToCell(value.x), _useY ? PositionToCell(value.y) : 0, PositionToCell(value.z));
+        }
+
+        public int GetDistance(Vector3Int point)
+        {
+            return Mathf.Max(Mathf.Abs(point.x - _cell.x), Mathf.Abs(point.y - _cell.y), Mathf.Abs(point.z - _cell.z));
         }
     }
 }

@@ -5,23 +5,21 @@ using System.Threading.Tasks;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging;
+using Core.World;
 using UnityEngine;
 
 namespace Core.Structure.Serialization
 {
     [System.Serializable]
-    public class StructureConfiguration : Configuration<IStructure>
+    public class BlocksConfiguration : Configuration<IStructure>
     {
-        public string bodyGuid;
         public List<BlockConfiguration> blocks = new List<BlockConfiguration>();
 
         private Dictionary<string, BlockConfiguration> blocksCache;
 
-        public StructureConfiguration() : base(){}
-        public StructureConfiguration(IStructure structure) : base(structure)
+        public BlocksConfiguration() : base(){}
+        public BlocksConfiguration(IStructure structure) : base(structure)
         {
-            bodyGuid = structure.Guid;
-            
             for (int i = 0; i < structure.Blocks.Count; i++)
             {
                 IBlock block = structure.Blocks[i];
@@ -46,7 +44,7 @@ namespace Core.Structure.Serialization
                 Debug.LogError("Apply configuration only to instances!");
                 return;
             }
-
+            
             structure.RefreshBlocksAndParents();
 
             List<Task> waiting = new List<Task>();

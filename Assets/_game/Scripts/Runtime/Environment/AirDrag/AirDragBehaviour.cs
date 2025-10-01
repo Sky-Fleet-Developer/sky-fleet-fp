@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Core.Structure;
+using Core.World;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
@@ -16,8 +17,7 @@ namespace Runtime.Environment.AirDrag
         public int resolution = 256;
         [Space(15)] public float turbulenceImpact = 1f;
         [Space(15)] public float normalForceImpact = 1f;
-        [Space(15)]
-        [SerializeField] private LayerMask mask;
+        [Space(15)] [SerializeField] private LayerMask mask;
         [SerializeField] private int layer;
 
         [NonSerialized] public Camera Cam;
@@ -26,9 +26,9 @@ namespace Runtime.Environment.AirDrag
         private RenderTexture texture;
         private Material[] materialArray;
 
-        [ShowInInspector, ReadOnly] private readonly Dictionary<IDynamicStructure, AirDragProfile> profiles = new (10);
+        [ShowInInspector, ReadOnly] private readonly Dictionary<IDynamicStructure, AirDragProfile> profiles = new(10);
         private readonly AirDragCalculator calculator = new AirDragCalculator();
-        
+
         private void OnEnable()
         {
             materialArray = new Material[10];
@@ -36,16 +36,23 @@ namespace Runtime.Environment.AirDrag
             {
                 materialArray[i] = material;
             }
-            foreach (IStructure structure in Structures)
+
+            OnInitialize.Subscribe(InitializeEntities);
+
+            OnStructureInitialized += CalculateDragFor;
+            OnStructureUnregistered += RemoveStructure;
+            OnEndPhysicsTick += PhysicsTick;
+        }
+
+        private void InitializeEntities()
+        {
+            foreach (StructureEntity entity in Entities())
             {
-                if (structure is IDynamicStructure dynamicStructure)
+                if (entity.Structure is IDynamicStructure dynamicStructure)
                 {
                     CalculateDragFor(dynamicStructure);
                 }
             }
-            OnStructureInitialized += CalculateDragFor;
-            OnStructureUnregistered += RemoveStructure;
-            OnEndPhysicsTick += PhysicsTick;
         }
 
         private void PhysicsTick()
@@ -59,22 +66,23 @@ namespace Runtime.Environment.AirDrag
         private void ApplyWind(IDynamicStructure structure, AirDragProfile profile)
         {
             Vector3 windVelocity = -structure.Velocity;
-            (Vector3 drag, Vector3 normal, Vector3 position) = profile.CalculateForce(structure.transform.InverseTransformDirection(windVelocity));
+            (Vector3 drag, Vector3 normal, Vector3 position) =
+                profile.CalculateForce(structure.transform.InverseTransformDirection(windVelocity));
 
             drag = structure.transform.TransformDirection(drag);
             position = structure.transform.TransformPoint(position);
             normal = structure.transform.TransformDirection(normal);
-            
+
             Debug.DrawRay(position, normal.normalized * 2, Color.blue);
             Debug.DrawRay(position, drag * 0.001f, Color.red);
-            
+
             structure.AddForce(drag, position);
         }
 
         private void CalculateDragFor(IStructure structure)
         {
             if (structure is not IDynamicStructure dynamicStructure) return;
-            
+
             if (!Cam) CreateCamera();
             RecreateBuffer();
             try
@@ -95,7 +103,8 @@ namespace Runtime.Environment.AirDrag
 
         private void Process(IDynamicStructure structure)
         {
-            Dictionary<Renderer, (Material[] materials, int layer)> oldMaterials = new Dictionary<Renderer, (Material[] materials, int layer)>();
+            Dictionary<Renderer, (Material[] materials, int layer)> oldMaterials =
+                new Dictionary<Renderer, (Material[] materials, int layer)>();
 
             foreach (MeshRenderer renderer in structure.transform.GetComponentsInChildren<MeshRenderer>())
             {
@@ -107,7 +116,7 @@ namespace Runtime.Environment.AirDrag
                 }
             }
 
-            
+
             AirDragProfile result = new AirDragProfile(calculator.CalculateAirDrag(structure.transform, this), this);
             if (!profiles.ContainsKey(structure))
             {
@@ -140,10 +149,10 @@ namespace Runtime.Environment.AirDrag
             hd.volumeLayerMask = 0;
             hd.backgroundColorHDR = Color.clear;
             hd.clearColorMode = HDAdditionalCameraData.ClearColorMode.Color;
-            
+
             if (texture == null)
             {
-                texture = new RenderTexture(resolution, resolution, 0) {enableRandomWrite = true};
+                texture = new RenderTexture(resolution, resolution, 0) { enableRandomWrite = true };
                 texture.Create();
             }
 
@@ -153,7 +162,7 @@ namespace Runtime.Environment.AirDrag
             Cam.targetTexture = texture;
             Cam.nearClipPlane = 0;
         }
-        
+
         private void RecreateBuffer()
         {
             if (Buffer != null && Buffer.count != resolution * resolution)

@@ -3,6 +3,7 @@ using Core.ContentSerializer;
 using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;
 using Core.Structure;
+using Core.World;
 
 namespace Core.SessionManager.SaveService
 {
@@ -17,13 +18,13 @@ namespace Core.SessionManager.SaveService
         //TODO: characters
         //TODO: session settings
 
-        public State(List<IStructure> structures)
+        public State(IEnumerable<StructureEntity> structureEntities)
         {
-            structuresCache = new(structures.Count);
+            structuresCache = new();
             var serializer = new Serializer(new StructureProvider.StructureBehaviour());
-            foreach (var structure in structures)
+            foreach (var entity in structureEntities)
             {
-                structuresCache.Add(new StructureBundle(structure, serializer));
+                structuresCache.Add(new StructureBundle(entity.Structure, serializer));
             }
         }
     }

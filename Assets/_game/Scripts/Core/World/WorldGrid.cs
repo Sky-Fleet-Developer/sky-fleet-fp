@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
+using Core.Data;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Core.World
     public class WorldGridData
     {
         public float occlusionGridCellSize;
-        public float refreshEntitiesDistance;
+        public int maxRefreshLod;
         public int refreshPeriod;
     }
 
@@ -42,9 +43,11 @@ namespace Core.World
         [Inject(Id = "Player")] private TransformTracker _playerTracker;
         private Grid _grid;
         private Dictionary<Vector3Int, LinkedList<IWorldEntity>> _entitiesGrid = new ();
+        private Dictionary<IWorldEntity, int> _lods = new ();
         private List<IWorldEntity> _entitiesList = new ();
         private List<Vector3Int> _coordinatesCache = new ();
         private int _refreshCounter;
+        private int _refreshNeighboursRadius;
 
         public void SetProfile(WorldGridProfile value)
         {
@@ -61,6 +64,7 @@ namespace Core.World
         private void RefreshGrid()
         {
             _grid = new Grid(_playerTracker.Position, Settings.occlusionGridCellSize, true);
+            _refreshNeighboursRadius = Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f);
         }
         
         public void AddEntity(IWorldEntity entity)
@@ -76,6 +80,8 @@ namespace Core.World
                 _entitiesGrid[cell] = list;
             }
             list.AddLast(entity);
+            _lods[entity] = -1;
+            SetLodForEntity(entity);
         }
 
         public void RemoveEntity(IWorldEntity entity)
@@ -83,6 +89,12 @@ namespace Core.World
             var cell = _grid.PositionToCell(entity.Position);
             _entitiesGrid[cell].Remove(entity);
             _entitiesList.Remove(entity);
+            _lods[entity] = -1;
+        }
+
+        public int GetLod(IWorldEntity entity)
+        {
+            return _lods[entity];
         }
 
         public void Update()
@@ -96,6 +108,13 @@ namespace Core.World
                     UpdateEntity(i);
                 }*/
             }
+
+            _grid.Update(_playerTracker.Position, out _);
+
+            foreach (var entity in EnumerateNeighbours(_playerTracker.Position, _refreshNeighboursRadius))
+            {
+                SetLodForEntity(entity);
+            }
         }
 
         private void UpdateEntity(int i)
@@ -104,17 +123,48 @@ namespace Core.World
             var cell = _grid.PositionToCell(entity.Position);
             if (_coordinatesCache[i] != cell)
             {
+                if (_lods[entity] <= Settings.maxRefreshLod) // Sets the lod to the entities which leave the radius of update, which cant be updated in EnumerateNeighbours() enumeration
+                {
+                    if (_grid.GetDistance(cell) > _refreshNeighboursRadius)
+                    {
+                        _lods[entity] = Settings.maxRefreshLod + 1;
+                        entity.OnLodChanged(Settings.maxRefreshLod + 1);
+                    }
+                }
                 _entitiesGrid[_coordinatesCache[i]].Remove(entity);
                 _coordinatesCache[i] = cell;
-                _entitiesList[i] = entity;
                 _entitiesGrid[cell].AddLast(entity);
             }
         }
 
-        public IEnumerable<IWorldEntity> EnumerateRadius(IWorldEntity entity, float radius)
+        private void SetLodForEntity(IWorldEntity entity)
         {
-            var range = _grid.PositionToCell(Vector3.one * radius);
-            var cell = _grid.PositionToCell(entity.Position) - range;
+            float dSqr = Vector3.SqrMagnitude(entity.Position - _playerTracker.Position);
+            var lod = GameData.Data.lodDistances.GetLodSqr(dSqr);
+            if (_lods[entity] != lod)
+            {
+                _lods[entity] = lod;
+                entity.OnLodChanged(lod);
+            }
+        }
+
+        public IEnumerable<IWorldEntity> EnumerateRadius(Vector3 center, float radius)
+        {
+            var range = Mathf.RoundToInt(radius / _grid.Size + 0.5f);
+            float sqrRadius = radius * radius;
+            foreach (var worldEntity in EnumerateNeighbours(center, range))
+            {
+                if (Vector3.SqrMagnitude(worldEntity.Position - _playerTracker.Position) < sqrRadius)
+                {
+                    yield return worldEntity;
+                }
+            }
+        }
+        
+        public IEnumerable<IWorldEntity> EnumerateNeighbours(Vector3 center, int cellsRadius)
+        {
+            var range = Vector3Int.one * cellsRadius;
+            var cell = _grid.PositionToCell(center) - range;
             var max = cell + range;
             for (; cell.x <= max.x; cell.x++)
             {

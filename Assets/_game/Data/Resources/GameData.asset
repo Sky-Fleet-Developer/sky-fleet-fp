@@ -436,15 +436,17 @@ MonoBehaviour:
     fuelTransitionAmount: 2
     shopMaxAmountToInventoryDelivery: 10
     lodDistances:
-    - 50
-    - 100
-    - 400
-    - 1000
-    sqrLodDistances:
-    - 2500
-    - 10000
-    - 160000
-    - 1000000
+      lods:
+      - distance: 100
+        refreshPeriod: 1
+      - distance: 600
+        refreshPeriod: 5
+      - distance: 1200
+        refreshPeriod: 15
+      - distance: 3000
+        refreshPeriod: 30
+      hiddenLodRefreshPeriod: 120
+    initialStructuresCacheCapacity: 100
   serializedPrivateData:
     remotePrefabsTags:
     - Structure

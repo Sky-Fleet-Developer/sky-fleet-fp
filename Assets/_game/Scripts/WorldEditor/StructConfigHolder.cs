@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Core;
 using Core.Configurations;
-using Core.Game;
 using Core.Graph;
-using Core.SessionManager.SaveService;
 using Core.Structure;
-using Core.Structure.Rigging;
 using Core.Structure.Serialization;
-using Core.Utilities;
 using Core.World;
 using Runtime.Structure;
 using Sirenix.OdinInspector;
@@ -24,7 +17,8 @@ namespace WorldEditor
 {
     public class StructConfigHolder : MonoBehaviour
     {
-        public StructureConfiguration blocksConfiguration;
+        public StructureConfigurationHead configurationHead;
+        public BlocksConfiguration blocksConfiguration;
         public GraphConfiguration graphConfiguration;
         [Inject] private WorldSpace _worldSpace;
 
@@ -90,26 +84,33 @@ namespace WorldEditor
         [Button]
         private async void InstantiateStructure()
         {
-            if (_worldSpace)
+            IStructure structure = GetComponentInChildren<IStructure>();
+            
+            configurationHead.position = transform.position;
+            configurationHead.rotation = transform.rotation;
+            if (structure != null)
             {
-                _worldSpace.RegisterStructure(blocksConfiguration, graphConfiguration);
+                configurationHead.Root = structure.transform.gameObject;
+                await blocksConfiguration.ApplyGameObject(structure.transform.gameObject);
+                await graphConfiguration.ApplyGameObject(structure.transform.gameObject);
+                if (_worldSpace)
+                {
+                    _worldSpace.RegisterStructure(structure);
+                    return;
+                }
             }
             else
             {
-#if UNITY_EDITOR
-                ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();
-                var structureFactory = new StructureFactory();
-
-                var info = new StructureCreationRuntimeInfo
-                    { Parent = transform, LocalPosition = Vector3.zero, LocalRotation = Quaternion.identity };
-                if (prefab != null)
+                if (_worldSpace)
                 {
-                    info.ExistRoot = prefab.transform.gameObject;
+                    _worldSpace.RegisterStructure(configurationHead, new Configuration[] {blocksConfiguration, graphConfiguration});
+                    return;
                 }
-
-                await structureFactory.Create(info, blocksConfiguration, graphConfiguration);
-#endif
             }
+#if UNITY_EDITOR
+            var structureFactory = new StructureFactory();
+            await structureFactory.Create(configurationHead, new Configuration[] {blocksConfiguration, graphConfiguration});
+#endif
         }
 
         private GameObject TryGetRoot()

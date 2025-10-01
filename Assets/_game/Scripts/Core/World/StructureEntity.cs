@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Data;
 using Core.Graph;
 using Core.Items;
@@ -11,32 +12,34 @@ namespace Core.World
 {
     public class StructureEntity : IWorldEntity
     {
-        public StructureConfiguration BlocksConfiguration;
-        public GraphConfiguration GraphConfiguration;
-        private Vector3 _position;
-        private Quaternion _rotation;
-        private IStructure _structure;
         [Inject] private IStructureDestructor _destructor;
-        [Inject] private IFactory<StructureCreationRuntimeInfo, StructureConfiguration, GraphConfiguration, Task<IStructure>> _constructor;
-        public Vector3 Position => _position;
+        [Inject] private IFactory<StructureConfigurationHead, IEnumerable<Configuration>, Task<IStructure>> _constructor;
+        private IStructure _structure;
         private bool _isConstructInProgress;
+        private Configuration[] _configs;
+        private StructureConfigurationHead _head;
+        public Vector3 Position => _head.position;
+        public IStructure Structure => _structure;
 
-        public StructureEntity(StructureConfiguration blocksConfiguration, GraphConfiguration graphConfiguration)
+        public StructureEntity(StructureConfigurationHead head, Configuration[] configs)
         {
-            BlocksConfiguration = blocksConfiguration;
-            GraphConfiguration = graphConfiguration;
+            _head = head;
+            _configs = configs;
         }
-        public StructureEntity(IStructure structure)
+        public StructureEntity(IStructure structure, DiContainer diContainer)
         {
-            BlocksConfiguration = new StructureConfiguration(structure);
-            if (structure is IGraph graph)
-            {
-                GraphConfiguration = new GraphConfiguration(graph);
-            }
-            _position = structure.transform.position - WorldOffset.Offset;
+            _destructor = diContainer.Resolve<IStructureDestructor>();
+            _configs = _destructor.GetDefaultConfigurations(structure, out _head);
         }
         
-        public void OnDistanceToPlayerChanged(int cellsDistance, float realDistanceSqr)
+        public void OnLodChanged(int lod)
+        {
+            if (lod < GameData.Data.lodDistances.lods.Length)
+            {
+                ConstructStructure();
+            }
+        }
+        /*public void OnDistanceToPlayerChanged(int cellsDistance, float realDistanceSqr)
         {
             if (cellsDistance > GameData.Data.worldEntitiesLoadCellDistance)
             {
@@ -53,14 +56,20 @@ namespace Core.World
                     ConstructStructure();
                 }
             }
-        }
+        }*/
 
         private async void ConstructStructure()
         {
             _isConstructInProgress = true;
-            var info = new StructureCreationRuntimeInfo { LocalRotation = _rotation, LocalPosition = _position };
-            await _constructor.Create(info, BlocksConfiguration, GraphConfiguration);
+            _structure = await _constructor.Create(_head, _configs);
+            CycleService.RegisterEntity(this);
             _isConstructInProgress = false;
+        }
+
+        private void DestructStructure()
+        {
+            CycleService.UnregisterEntity(this);
+            _destructor.Destruct(_structure);
         }
     }
 }

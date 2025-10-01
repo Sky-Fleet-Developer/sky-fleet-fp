@@ -6284,8 +6284,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0772be7108f9e194595f742880fc02b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocksConfiguration:
+  configurationHead:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 0}
     bodyGuid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
+  blocksConfiguration:
     blocks:
     - path: FrontWheel_Parent/
       blockName: FrontWheel_Rotator
@@ -12849,8 +12852,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0772be7108f9e194595f742880fc02b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocksConfiguration:
+  configurationHead:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 0}
     bodyGuid: 95914a30-cf1f-474b-b29d-4fbcbd93f1e0
+  blocksConfiguration:
     blocks:
     - path: 
       blockName: CargoLoadingArea
@@ -19406,8 +19412,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0772be7108f9e194595f742880fc02b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  configurationHead:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    bodyGuid: 
   blocksConfiguration:
-    bodyGuid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
     blocks:
     - path: FrontWheel_Parent/
       blockName: FrontWheel_Rotator

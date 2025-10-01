@@ -7,7 +7,7 @@ namespace Core.Structure.Serialization
 {
     public abstract class Configuration
     {
-        public abstract Task TryApply(GameObject target);
+        public abstract Task ApplyGameObject(GameObject target);
     }
     public abstract class Configuration<T> : Configuration where T : class
     {
@@ -16,7 +16,7 @@ namespace Core.Structure.Serialization
         {
         }
         public abstract Task Apply(T target);
-        public override Task TryApply(GameObject target)
+        public override Task ApplyGameObject(GameObject target)
         {
             if (target.TryGetComponent(out T component))
             {

@@ -15,13 +15,15 @@ namespace Core
     {
         [SerializeField] private GameData gameData;
         [SerializeField] ScriptableObject[] injectTargets;
+        
         public Task Load()
         {
-            gameData.Initialize();
+            Container.Inject(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
                 Container.Inject(injectTargets[i]);
             }
+            gameData.Initialize();
             return Task.CompletedTask;
         }
 

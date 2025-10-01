@@ -37,9 +37,10 @@ namespace Core.Structure.Serialization
 
         private IEnumerable<IStructure> CollectInRuntime()
         {
-            for (int i = 0; i < CycleService.Structures.Count; i++)
+            foreach (var entity in CycleService.Entities())
             {
-                yield return CycleService.Structures[i];
+                yield return entity.Structure;
+
             }
         }
 

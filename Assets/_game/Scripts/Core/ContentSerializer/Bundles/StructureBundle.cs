@@ -30,7 +30,7 @@ namespace Core.ContentSerializer.Bundles
             
             Transform tr = structure.transform;
             
-            configuration = JsonConvert.SerializeObject(new StructureConfiguration(structure));
+            configuration = JsonConvert.SerializeObject(new BlocksConfiguration(structure));
             guid = structure.Guid;
             name = tr.name;
 
@@ -72,7 +72,7 @@ namespace Core.ContentSerializer.Bundles
                 //TODO: instantiate blocks from configuration
             }
 
-            StructureConfiguration config = JsonConvert.DeserializeObject<StructureConfiguration>(configuration);
+            BlocksConfiguration config = JsonConvert.DeserializeObject<BlocksConfiguration>(configuration);
             config?.Apply(instance);
             
             Transform tr = instance.transform;

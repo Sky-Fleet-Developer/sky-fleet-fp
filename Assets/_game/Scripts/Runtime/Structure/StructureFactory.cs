@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Configurations;
+using Core.Graph;
 using Core.Structure;
 using Core.Structure.Serialization;
 using Core.Utilities;
@@ -10,12 +12,14 @@ using Zenject;
 
 namespace Runtime.Structure
 {
-    public class StructureFactory : IFactory<StructureCreationRuntimeInfo, StructureConfiguration, GraphConfiguration, Task<IStructure>>
+    public class StructureFactory : IFactory<StructureConfigurationHead, IEnumerable<Configuration>, Task<IStructure>>, IStructureDestructor
     {
-        public async Task<IStructure> Create(StructureCreationRuntimeInfo runtimeInfo,
-            StructureConfiguration structureConfiguration, GraphConfiguration graphConfiguration)
+        public async Task<IStructure> Create(StructureConfigurationHead head, IEnumerable<Configuration> configurations)
         {
-            var root = runtimeInfo.ExistRoot ?? await CreateRoot(runtimeInfo, structureConfiguration);
+            var root = head.Root ?? await CreateRoot(head.bodyGuid);
+            root.transform.position = head.position;
+            root.transform.rotation = head.rotation;
+
             var structure = root.GetComponent<IStructure>();
             if (Application.isPlaying)
             {
@@ -26,35 +30,60 @@ namespace Runtime.Structure
                 root.AddComponent<DynamicWorldObject>();
             }
 
-            await structureConfiguration.TryApply(root);
-            await graphConfiguration.TryApply(root);
+            foreach (Configuration<IStructure> configuration in configurations)
+            {
+                await configuration.Apply(structure);
+            }
 
             structure.Init();
-            CycleService.RegisterStructure(structure);
             return structure;
         }
 
-        private async Task<GameObject> CreateRoot(StructureCreationRuntimeInfo runtimeInfo, StructureConfiguration structureConfiguration)
+        private async Task<GameObject> CreateRoot(string guid)
         {
-            RemotePrefabItem prefabItem = TablePrefabs.Instance.GetItem(structureConfiguration.bodyGuid);
+            RemotePrefabItem prefabItem = TablePrefabs.Instance.GetItem(guid);
             GameObject source = await prefabItem.LoadPrefab();
             Transform instance;
 
             if (Application.isPlaying)
             {
-                instance = DynamicPool.Instance.Get(source.transform, runtimeInfo.Parent);
+                instance = DynamicPool.Instance.Get(source.transform);
             }
             else
             {
 #if UNITY_EDITOR
                 instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
-                instance.SetParent(runtimeInfo.Parent, false);
 #else
                 instance = Object.Instantiate(source.transform, runtimeInfo.parent);
 #endif
             }
 
             return instance.gameObject;
+        }
+        
+        public void Destruct(IStructure structure)
+        {
+            foreach (IBlock structureBlock in structure.Blocks)
+            {
+                DynamicPool.Instance.Return(structureBlock.transform);
+            }
+            DynamicPool.Instance.Return(structure.transform);
+        }
+
+        public Configuration[] GetDefaultConfigurations(IStructure structure, out StructureConfigurationHead head)
+        {
+            head = new StructureConfigurationHead
+            {
+                bodyGuid = structure.Guid,
+                position = structure.transform.position - WorldOffset.Offset,
+                rotation = structure.transform.rotation,
+                Root = structure.transform.gameObject,
+            };
+            if (structure is IGraph graph)
+            {
+                return new Configuration[] { new BlocksConfiguration(structure), new GraphConfiguration(graph) };
+            }
+            return new Configuration[] { new BlocksConfiguration(structure) };
         }
     }
 }
