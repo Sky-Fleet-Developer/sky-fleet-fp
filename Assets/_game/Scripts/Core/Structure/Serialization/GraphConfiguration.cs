@@ -36,11 +36,8 @@ namespace Core.Structure.Serialization
         public override Task Apply(IGraph graph)
         {
             graph.SetConfiguration(this);
-            graph.InitGraph(true);
             return Task.CompletedTask;
         }
-
-
     }
     
     [System.Serializable]

@@ -27,7 +27,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         public override Port<float> Port => port;
         [ShowInInspector, ReadOnly] private Port<float> port;
 
-        public override void Init(IGraphHandler graph, IBlock block)
+        public override void Init(IGraph graph, IBlock block)
         {
             if (port == null || portType != port.ValueType)
             {

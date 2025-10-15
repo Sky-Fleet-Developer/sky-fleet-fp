@@ -150,13 +150,7 @@ namespace Core.Graph.Wires
             new List<PowerPort>()
         };
 
-        public PowerWire()
-        {
-            CycleService.OnConsumptionTickEnd += DistributionTick;
-            CycleService.OnBeginConsumptionTick += BeginConsumptionTick;
-        }
-
-        private void DistributionTick()
+        public void DistributionTick()
         {
             List<PowerPort> consumerPorts = _ports[(int) PortContentType.Consumer];
             List<PowerPort> generatorPorts = _ports[(int) PortContentType.Generator];
@@ -212,16 +206,6 @@ namespace Core.Graph.Wires
                     }
                 }
             }
-        }
-        
-        private void BeginConsumptionTick()
-        {
-        }
-
-        public override void Dispose()
-        {
-            CycleService.OnConsumptionTickEnd -= DistributionTick;
-            CycleService.OnBeginConsumptionTick -= BeginConsumptionTick;
         }
         
         public void AddPort(Port port)

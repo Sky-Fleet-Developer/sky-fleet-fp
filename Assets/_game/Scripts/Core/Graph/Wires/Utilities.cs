@@ -105,8 +105,16 @@ namespace Core.Graph.Wires
             }
             return string.Empty;
         }
-        
-        public static void CreateWireForPorts(IGraphHandler master, params PortPointer[] ports)
+
+        public static Wire CreateWireForPort(PortPointer port)
+        {
+            var wire = port.Port.CreateWire();
+            wire.ports.Add(port);
+            port.Port.SetWire(wire);
+            return wire;
+        }
+
+        public static Wire CreateWireForPorts(params PortPointer[] ports)
         {
             int canConnect = 0;
             PortPointer zero = ports[0];
@@ -115,11 +123,11 @@ namespace Core.Graph.Wires
                 if (zero.Port.CanConnect(ports[i].Port)) canConnect++;
             }
                 
-            if(canConnect == 0) return;
+            if(canConnect == 0) return null;
                 
             Wire newWire = zero.Port.CreateWire();
             AddPortsToWire(newWire, ports);
-            master.AddNewWire(newWire);
+            return newWire;
         }
 
         public static void AddPortsToWire(Wire wire, params PortPointer[] ports)
@@ -136,6 +144,15 @@ namespace Core.Graph.Wires
                 if(wire.ports.Contains(ports[i]) || ports[i].CanConnect(wire) == false) continue;
                 ports[i].Port.SetWire(wire);
                 wire.ports.Add(ports[i]);
+            }
+        }
+
+        public static void RemovePortFromWire(Wire wire, PortPointer port)
+        {
+            if (wire.ports.Contains(port))
+            {
+                wire.ports.Remove(port);
+                port.Port.SetWire(null);
             }
         }
     }

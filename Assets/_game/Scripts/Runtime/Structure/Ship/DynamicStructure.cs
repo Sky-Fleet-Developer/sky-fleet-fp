@@ -47,12 +47,11 @@ namespace Runtime.Structure.Ship
         {
             float totalMass = Mass;
             Vector3 pos = transform.TransformPoint(localCenterOfMass) * Mass;
-            Blocks.ForEach(x =>
+            foreach (var block in Blocks)
             {
-                totalMass += x.Mass;
-                pos += x.transform.TransformPoint(x.LocalCenterOfMass) * x.Mass;
-            });
-
+                totalMass += block.Mass;
+                pos += block.transform.TransformPoint(block.LocalCenterOfMass) * block.Mass;
+            }
             TotalMass = totalMass;
             LocalCenterOfMass = transform.InverseTransformPoint(pos / totalMass);
             rigidbody.mass = TotalMass;

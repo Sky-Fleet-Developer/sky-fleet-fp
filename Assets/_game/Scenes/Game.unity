@@ -1438,7 +1438,6 @@ GameObject:
   - component: {fileID: 95682614}
   - component: {fileID: 95682617}
   - component: {fileID: 95682616}
-  - component: {fileID: 95682615}
   - component: {fileID: 95682618}
   m_Layer: 0
   m_Name: Cargo_Emgracopter
@@ -1481,18 +1480,6 @@ Transform:
   - {fileID: 829486654}
   m_Father: {fileID: 1857941094}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &95682615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 95682613}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bdf5cb8289bf6244bb4d813f19ce91c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &95682616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1507,8 +1494,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
   tags: []
-  parentsObjects:
-  - {fileID: 1557928122}
   emptyMass: 400
   localCenterOfMass: {x: 0, y: 0, z: 0}
 --- !u!54 &95682617
@@ -5758,7 +5743,6 @@ GameObject:
   - component: {fileID: 534788397}
   - component: {fileID: 534788398}
   - component: {fileID: 534788401}
-  - component: {fileID: 534788400}
   - component: {fileID: 534788399}
   m_Layer: 0
   m_Name: Cargo_Emgracopter
@@ -5841,18 +5825,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   disruptionTension: 2
   moveTransitional: 0
---- !u!114 &534788400
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534788396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bdf5cb8289bf6244bb4d813f19ce91c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &534788401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5867,10 +5839,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
   tags: []
-  parentsObjects:
-  - {fileID: 1124183930}
-  - {fileID: 20835801}
-  - {fileID: 742356493}
   emptyMass: 400
   localCenterOfMass: {x: 0, y: 0, z: 0}
 --- !u!1 &544628343
@@ -16335,7 +16303,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1550521876}
   - component: {fileID: 1550521875}
-  - component: {fileID: 1550521877}
   m_Layer: 0
   m_Name: Mine
   m_TagString: Untagged
@@ -16357,7 +16324,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 95914a30-cf1f-474b-b29d-4fbcbd93f1e0
   tags: []
-  parentsObjects: []
 --- !u!4 &1550521876
 Transform:
   m_ObjectHideFlags: 0
@@ -16375,18 +16341,6 @@ Transform:
   - {fileID: 2006567181}
   m_Father: {fileID: 1184186624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1550521877
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1550521874}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bdf5cb8289bf6244bb4d813f19ce91c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1553333378
 GameObject:
   m_ObjectHideFlags: 0

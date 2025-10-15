@@ -5,9 +5,9 @@ namespace Core.Structure.Rigging.Control.Attributes
 {
     public interface IDevice : ITablePrefab
     {
-        IGraphHandler Graph { get; }
+        IGraph Graph { get; }
         IBlock Block { get; }
-        void Init(IGraphHandler graph, IBlock block);
+        void Init(IGraph graph, IBlock block);
         void UpdateDevice();
     }
 }

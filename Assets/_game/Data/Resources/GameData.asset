@@ -440,9 +440,9 @@ MonoBehaviour:
       - distance: 100
         refreshPeriod: 1
       - distance: 600
-        refreshPeriod: 5
+        refreshPeriod: 3
       - distance: 1200
-        refreshPeriod: 15
+        refreshPeriod: 10
       - distance: 3000
         refreshPeriod: 30
       hiddenLodRefreshPeriod: 120

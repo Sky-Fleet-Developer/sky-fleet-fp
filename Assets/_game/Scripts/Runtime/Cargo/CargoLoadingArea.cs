@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Core;
 using Core.Cargo;
 using Core.Character;
@@ -117,7 +118,7 @@ namespace Runtime.Cargo
             
             void ProcessStructure()
             {
-                var trunks = structure.GetBlocksByType<ICargoTrunk>();
+                var trunks = structure.GetBlocksByType<ICargoTrunk>().ToArray();
                 if (trunks.Length > 0)
                 {
                     if (!_detectedTrunks.TryGetValue(structure, out var link))

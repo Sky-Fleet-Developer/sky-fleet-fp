@@ -31,7 +31,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
 
-        public IGraphHandler Graph => _graph;
+        public IGraph Graph => _graph;
         public IBlock Block => _block;
 
         [SerializeField] private Transform bubble_pitch;
@@ -39,10 +39,10 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         [SerializeField] private Transform compass;
 
         private IBlock _block;
-        private IGraphHandler _graph;
+        private IGraph _graph;
 
 
-        public void Init(IGraphHandler graph, IBlock block)
+        public void Init(IGraph graph, IBlock block)
         {
             _block = block;
             _graph = graph;

@@ -23,7 +23,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             }
         }
 
-        public override void Init(IGraphHandler graph, IBlock block)
+        public override void Init(IGraph graph, IBlock block)
         {
             base.Init(graph, block);
             Port.AddRegisterAction(OnClick);

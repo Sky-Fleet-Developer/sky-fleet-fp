@@ -91,8 +91,9 @@ namespace WorldEditor
             if (structure != null)
             {
                 configurationHead.Root = structure.transform.gameObject;
-                await blocksConfiguration.ApplyGameObject(structure.transform.gameObject);
-                await graphConfiguration.ApplyGameObject(structure.transform.gameObject);
+                await blocksConfiguration.Apply(structure);
+                await graphConfiguration.Apply(structure.Graph);
+                structure.Init(true);
                 if (_worldSpace)
                 {
                     _worldSpace.RegisterStructure(structure);

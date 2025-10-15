@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Game;
+using Core.Graph;
 using Core.Structure;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using Core.Utilities;
 using Core.World;
 using Runtime.Items;
@@ -15,31 +17,23 @@ namespace Runtime.Structure
 {
     public class Structure : ItemObject, IStructure
     {
+        [ShowInInspector] private HashSet<IBlock> _blocks = new();
+        private List<Parent> _parents = new List<Parent>();
+        private bool _isInitialized = false;
+        private StructureGraph _graph = new StructureGraph();
+        private BlocksConfiguration _configuration;
+        public IGraph Graph => _graph;
         bool IStructure.Active => gameObject.activeSelf;
         Bounds IStructure.Bounds { get; } //TODO: constant updateing structure
+        public IEnumerable<IBlock> Blocks => _blocks;
         public LateEvent OnInitComplete { get; } = new LateEvent();
-        public List<Parent> Parents
-        {
-            get
-            {
-                if (parents == null)
-                {
-                    InitParents();
-                }
-
-                return parents;
-            }
-        }
+        public List<Parent> Parents => _parents;
         
         public float Radius { get; private set; }
-        [ShowInInspector] public List<IBlock> Blocks { get; private set; }
-        public Transform[] parentsObjects;
-        private List<Parent> parents = null;
-        private bool initialized = false;
         
         protected virtual void Awake()
         {
-            initialized = false;
+            _isInitialized = false;
             this.AddWorldOffsetAnchor();
         }
 
@@ -51,55 +45,86 @@ namespace Runtime.Structure
 
         public virtual void Init(bool force = false)
         {
-            if (initialized && !force)
+            if (_isInitialized && !force)
             {
                 return;
             }
-            RefreshBlocksAndParents();
-            InitBlocks();
-            this.AddBlocksCache();
+            _parents.Add(new Parent(transform, this));
+            _graph.Init();
+            RefreshBlocks();
             CalculateStructureRadius();
             OnInitComplete.Invoke();
-            initialized = true;
+            _isInitialized = true;
         }
 
-        protected void OnDestroy()
+        protected virtual void OnDestroy()
         {
-            this.RemoveBlocksCache();
+            _graph?.Dispose();
         }
 
-        [Button]
-        public void InitBlocks()
+        public void SetConfiguration(BlocksConfiguration configuration)
         {
-            foreach (IBlock block in Blocks)
+            _configuration = configuration;
+        }
+
+        public void AddBlock(IBlock block)
+        {
+            var parent = this.GetParentFor(block);
+            if (parent == null)
             {
-                block.InitBlock(this, this.GetParentFor(block));
+                parent = new Parent(block.transform.parent, this);
+                _parents.Add(parent);
             }
+            
+            parent.AddBlock(block);
+            _configuration.SetupBlock(block, this, parent);
+            block.InitBlock(this, parent);
+            _blocks.Add(block);
+            if (block is IGraphNode node)
+            {
+                _graph.AddNode(node);
+            }
+            OnBlockAddedEvent?.Invoke(block);
         }
-        
-        public void RefreshBlocksAndParents()
+
+        public void RemoveBlock(IBlock block)
         {
-            RefreshBlocks();
-            InitParents();
+            block.Remove();
+            _blocks.Remove(block);
+            block.Parent.RemoveBlock(block);
+            if (block is IGraphNode node)
+            {
+                _graph.RemoveNode(node);
+            }
+            OnBlockRemovedEvent?.Invoke(block);
         }
+
+        public event Action<IBlock> OnBlockAddedEvent;
+        public event Action<IBlock> OnBlockRemovedEvent;
 
         private void RefreshBlocks()
         {
-            this.TryClearBlocksCache();
-            Blocks = gameObject.GetComponentsInChildren<IBlock>().ToList();
-        }
-
-        private void InitParents()
-        {
-            if (parentsObjects != null)
+            IBlock[] childrenBlocks = gameObject.GetComponentsInChildren<IBlock>();
+            IEnumerable<IBlock> blocksToAdd = childrenBlocks.Except(_blocks);
+            IEnumerable<IBlock> blocksToRemove = _blocks.Except(childrenBlocks);
+            List<IBlock> cache = new List<IBlock>(childrenBlocks.Length + _blocks.Count);
+            foreach (var block in blocksToAdd)
             {
-                parents = new List<Parent>(parentsObjects.Length + 1);
-                foreach (Transform parentsObject in parentsObjects)
-                {
-                    parents.Add(new Parent(parentsObject, this));
-                }
+                cache.Add(block);
+            }
+            int addRange = cache.Count;
+            foreach (var block in blocksToRemove)
+            {
+                cache.Add(block);
+            }
 
-                parents.Add(new Parent(transform, this));
+            for (int i = 0; i < addRange; i++)
+            {
+                AddBlock(cache[i]);
+            }
+            for (int i = addRange; i < cache.Count; i++)
+            {
+                RemoveBlock(cache[i]);
             }
         }
 
@@ -107,7 +132,7 @@ namespace Runtime.Structure
         private void CalculateStructureRadius()
         {
             Bounds allB = new Bounds(transform.position, Vector3.zero);
-            foreach (IUpdatableBlock block in this.GetBlocksByType<IUpdatableBlock>())
+            foreach (IUpdatableBlock block in _blocks.OfType<IUpdatableBlock>())
             {
                 allB.Encapsulate(block.GetBounds());
             }

@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.Graph;
-using Core.Graph.Wires;
-using Core.Structure.Rigging;
-using Core.World;
+using Core.Utilities;
 using UnityEngine;
 
 namespace Core.Structure.Serialization
@@ -20,15 +17,13 @@ namespace Core.Structure.Serialization
         public BlocksConfiguration() : base(){}
         public BlocksConfiguration(IStructure structure) : base(structure)
         {
-            for (int i = 0; i < structure.Blocks.Count; i++)
+            foreach (var block in structure.Blocks)
             {
-                IBlock block = structure.Blocks[i];
-
                 blocks.Add(new BlockConfiguration(block));
             }
         }
         
-        public BlockConfiguration GetBlock(string path, string blockName)
+        public BlockConfiguration FindBlockConfig(string path, string blockName)
         {
             blocksCache ??= blocks.ToDictionary(block => $"{block.path}.{block.blockName}");
 
@@ -45,7 +40,7 @@ namespace Core.Structure.Serialization
                 return;
             }
             
-            structure.RefreshBlocksAndParents();
+            structure.SetConfiguration(this);
 
             List<Task> waiting = new List<Task>();
             
@@ -56,27 +51,28 @@ namespace Core.Structure.Serialization
             
             await Task.WhenAll(waiting);
 
-            
-            await Task.Yield();
-            structure.RefreshBlocksAndParents();
-            structure.InitBlocks();
-
-            foreach (IBlock block in structure.Blocks)
+            /*foreach (IBlock block in structure.Blocks)
             {
                 string path = block.GetPath();
-                BlockConfiguration blockConfig = GetBlock(path, block.transform.name);
+                BlockConfiguration blockConfig = FindBlockConfig(path, block.transform.name);
                 blockConfig?.ApplySetup(block);
-            }
+            }*/
+
 
             try
             {
-                structure.InitBlocks();
                 Debug.Log($"{structure.transform.name} configuration success!");
             }
             catch (Exception e)
             {
                 Debug.LogError("Error when init structure: " + e);
             }
+        }
+
+        public void SetupBlock(IBlock block, IStructure structure, Parent parent)
+        {
+            BlockConfiguration blockConfig = FindBlockConfig(parent.Transform.GetPath(structure.transform), block.transform.name);
+            blockConfig?.ApplySetup(block);
         }
     }
 }

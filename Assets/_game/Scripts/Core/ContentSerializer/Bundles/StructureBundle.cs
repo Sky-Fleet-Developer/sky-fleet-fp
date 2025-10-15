@@ -26,7 +26,7 @@ namespace Core.ContentSerializer.Bundles
         
         public StructureBundle(IStructure structure, ISerializationContext context)
         {
-            if(structure.Blocks == null || structure.Blocks.Count == 0) structure.RefreshBlocksAndParents();
+            structure.Init();
             
             Transform tr = structure.transform;
             
@@ -62,15 +62,7 @@ namespace Core.ContentSerializer.Bundles
 
             IStructure instance = Object.Instantiate(prefab).GetComponent<IStructure>();
             instance.transform.name = name;
-            if (Application.isPlaying)
-            {
-                instance.Init();
-            }
-            else
-            {
-                instance.RefreshBlocksAndParents();
-                //TODO: instantiate blocks from configuration
-            }
+            instance.Init();
 
             BlocksConfiguration config = JsonConvert.DeserializeObject<BlocksConfiguration>(configuration);
             config?.Apply(instance);

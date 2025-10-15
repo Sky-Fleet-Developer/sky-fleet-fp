@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Utilities;
 
 namespace Core.Structure
 {
@@ -10,18 +11,31 @@ namespace Core.Structure
         {
             if (path.Length == 0)
             {
-                return structure.Blocks.FirstOrDefault(x => x.transform.name == blockName);
+                var block = structure.Blocks.FirstOrDefault(x => x.transform.name == blockName);
+                if(block != null) return block;
+                
+                return structure.transform.Find(blockName).GetComponent<IBlock>();
             }
 
             for (int i = 0; i < structure.Parents.Count; i++)
             {
                 if (structure.Parents[i].Path == path)
                 {
-                    return structure.Parents[i].Blocks.FirstOrDefault(x => x.transform.name == blockName);
+                    var block = structure.Parents[i].Blocks.FirstOrDefault(x => x.transform.name == blockName);
+                    if (block != null)
+                    {
+                        return block;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
-            return null;
+            var parent = structure.transform.FindDeepChild(path);
+
+            return parent?.Find(blockName)?.GetComponent<IBlock>();
         }
 
         public static Parent GetParentByPath(this IStructure structure, string path)
@@ -50,7 +64,12 @@ namespace Core.Structure
             return null;
         }
 
-        private static Dictionary<IStructure, Dictionary<System.Type, IBlock[]>> blocksCache =
+        public static IEnumerable<T> GetBlocksByType<T>(this IStructure structure) where T : IBlock
+        {
+            return structure.Blocks.OfType<T>();
+        }
+
+        /*private static Dictionary<IStructure, Dictionary<System.Type, IBlock[]>> blocksCache =
             new Dictionary<IStructure, Dictionary<Type, IBlock[]>>();
 
 
@@ -64,7 +83,7 @@ namespace Core.Structure
             blocksCache.Remove(structure);
         }
 
-        public static void TryClearBlocksCache(this IStructure structure)
+        public static void EnsureCacheClear(this IStructure structure)
         {
             if (blocksCache.ContainsKey(structure))
             {
@@ -78,17 +97,17 @@ namespace Core.Structure
             if (blocksCache[structure].TryGetValue(type, out IBlock[] val)) return val as T[];
 
             List<T> selection = new List<T>();
-            for (int i = 0; i < structure.Blocks.Count; i++)
+            foreach (var block in structure.Blocks)
             {
-                if (structure.Blocks[i] is T block)
+                if (block is T blockT)
                 {
-                    selection.Add(block);
+                    selection.Add(blockT);
                 }
             }
 
             T[] arr = selection.ToArray();
             blocksCache[structure].Add(type, arr as IBlock[]);
             return arr;
-        }
+        }*/
     }
 }

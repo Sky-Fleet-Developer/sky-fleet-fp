@@ -10,7 +10,7 @@ namespace Core.Structure.Rigging.Control
         void Tick();
         
         IDevice Device { get; set; }
-        void Init(IGraphHandler graph, IDriveInterface block);
+        void Init(IGraph graph, IDriveInterface block);
         void Enable();
         void Disable();
     }

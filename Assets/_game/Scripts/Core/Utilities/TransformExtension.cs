@@ -46,5 +46,18 @@ namespace Core.Utilities
 
             return result;
         }
+
+        public static Transform FindDeepChild(this Transform parent, string path)
+        {
+            var pathSplit = path.Split('/');
+            Transform c = parent;
+            int i = 0;
+            while (c && i < pathSplit.Length)
+            {
+                c = c.Find(pathSplit[i++]);
+            }
+
+            return c;
+        }
     }
 }

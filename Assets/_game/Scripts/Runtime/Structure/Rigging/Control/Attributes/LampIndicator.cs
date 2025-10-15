@@ -25,7 +25,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             render.material.SetColor(emissive, inactive);
         }
 
-        public override void Init(IGraphHandler graph, IBlock block)
+        public override void Init(IGraph graph, IBlock block)
         {
             base.Init(graph, block);
             oldValue = false;

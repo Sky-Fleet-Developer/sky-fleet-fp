@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Cargo;
 using Core.Configurations;
+using Core.Graph;
 using Core.Items;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using Core.Utilities;
 using UnityEngine;
 
@@ -19,7 +21,8 @@ namespace Core.Structure
         float Radius { get; }
         //TODO: Visibility
         List<Parent> Parents { get; }
-        List<IBlock> Blocks { get; }
+        IEnumerable<IBlock> Blocks { get; }
+        IGraph Graph { get; }
         LateEvent OnInitComplete { get; }
         //TODO: Navigation
 
@@ -27,13 +30,10 @@ namespace Core.Structure
         /// make structure ready to work in runtime
         /// </summary>
         void Init(bool force = false);
-        /// <summary>
-        /// init current blocks from current structure
-        /// </summary>
-        void InitBlocks();
-        /// <summary>
-        /// check new blocks and parents in hierarchy and remove deleted items
-        /// </summary>
-        void RefreshBlocksAndParents();
+        void SetConfiguration(BlocksConfiguration configuration);
+        void AddBlock(IBlock block);
+        void RemoveBlock(IBlock block);
+        event Action<IBlock> OnBlockAddedEvent;
+        event Action<IBlock> OnBlockRemovedEvent;
     }
 }

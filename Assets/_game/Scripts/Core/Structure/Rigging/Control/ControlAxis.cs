@@ -42,7 +42,7 @@ namespace Core.Structure.Rigging.Control
             return (true, string.Empty);
         }
 
-        public void Init(IGraphHandler graph, IDriveInterface block)
+        public void Init(IGraph graph, IDriveInterface block)
         {
             GetPort();
         }

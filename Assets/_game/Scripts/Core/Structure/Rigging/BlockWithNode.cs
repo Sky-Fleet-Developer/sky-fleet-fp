@@ -4,8 +4,8 @@ namespace Core.Structure.Rigging
 {
     public abstract class BlockWithNode : Block, IGraphNode
     {
-        public IGraphHandler Graph { get; private set; }
-        public void InitNode(IGraphHandler graph)
+        public IGraph Graph { get; private set; }
+        public void InitNode(IGraph graph)
         {
             Graph = graph;
         }

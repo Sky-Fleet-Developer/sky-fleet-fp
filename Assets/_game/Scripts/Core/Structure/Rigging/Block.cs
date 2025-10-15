@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Core.Cargo;
 using Core.Configurations;
 using Core.Items;
+using Core.Structure.Serialization;
 using Core.Trading;
 using Core.Utilities;
 using Sirenix.OdinInspector;
@@ -54,6 +55,11 @@ namespace Core.Structure.Rigging
             Structure = structure;
             boundsCash = transform.GetBounds();
             boundsCash.center = parent.Transform.InverseTransformPoint(boundsCash.center);
+        }
+
+        public void Remove()
+        {
+            Structure = null;
         }
 
         private void Start()

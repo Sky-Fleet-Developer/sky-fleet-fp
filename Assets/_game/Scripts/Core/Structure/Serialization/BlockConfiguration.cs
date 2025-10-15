@@ -87,6 +87,7 @@ namespace Core.Structure.Serialization
             {
                 if (block.Guid != currentGuid)
                 {
+                    //structure.RemoveBlock(block);
                     if (Application.isPlaying)
                     {
                         DynamicPool.Instance.Return(block.transform);
@@ -95,15 +96,27 @@ namespace Core.Structure.Serialization
                     {
                         Object.DestroyImmediate(block.transform.gameObject);
                     }
+
                     block = await Instantiate(structure);
+                    //structure.AddBlock(block);
                 }
             }
             else
             {
                 block = await Instantiate(structure);
+                //structure.AddBlock(block);
             }
-            
-            ApplyPrimarySetup(block);
+
+            if (block == null)
+            {
+                return;
+            }
+            Transform transform = block.transform;
+            transform.localPosition = localPosition;
+            transform.localEulerAngles = localRotation;
+            transform.localScale = Vector3.one;
+            transform.name = blockName;
+            transform.SetSiblingIndex(sibilingIdx);
         }
 
         private async Task<IBlock> Instantiate(IStructure structure)

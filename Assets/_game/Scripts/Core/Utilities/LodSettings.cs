@@ -26,7 +26,7 @@ namespace Core.Utilities
             }
             return lods[lod].distance;
         }
-        public float GetLodRefreshPeriod(int lod)
+        public int GetLodRefreshPeriod(int lod)
         {
             if (lod >= lods.Length)
             {

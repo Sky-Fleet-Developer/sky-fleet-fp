@@ -32,13 +32,13 @@ namespace Core.Structure.Rigging.Control.Attributes
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;
 
-        public IGraphHandler Graph => _graph;
+        public IGraph Graph => _graph;
         public IBlock Block => _block;
 
-        private IGraphHandler _graph;
+        private IGraph _graph;
         private IBlock _block;
 
-        public virtual void Init(IGraphHandler graph, IBlock block)
+        public virtual void Init(IGraph graph, IBlock block)
         {
             _graph = graph;
             _block = block;

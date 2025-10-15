@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
 using Core.Data;
+using Core.Graph;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using UnityEngine;
@@ -31,23 +32,17 @@ namespace Core.Structure
         private class EntityContainer : IEquatable<EntityContainer>
         {
             public readonly StructureEntity Entity;
+            public readonly IGraph graph;
             public List<IDriveInterface> Controls;
             public List<IUpdatableBlock> Updatables;
             public List<IPowerUser> PowerUsers;
             public List<IFuelUser> FuelUsers;
             public List<IForceUser> ForceUsers;
 
-            public EntityContainer(StructureEntity entity, bool assignBlocks = true)
+            public EntityContainer(StructureEntity entity)
             {
                 Entity = entity;
-                if (assignBlocks)
-                {
-                    Controls = new(entity.Structure.GetBlocksByType<IDriveInterface>());
-                    Updatables = new(entity.Structure.GetBlocksByType<IUpdatableBlock>());
-                    PowerUsers = new(entity.Structure.GetBlocksByType<IPowerUser>());
-                    FuelUsers = new(entity.Structure.GetBlocksByType<IFuelUser>());
-                    ForceUsers = new(entity.Structure.GetBlocksByType<IForceUser>());
-                }
+                graph = entity.Structure.Graph;
             }
 
             public bool Equals(EntityContainer other)
@@ -66,30 +61,27 @@ namespace Core.Structure
         }
         private static HashSet<EntityContainer>[] _entitiesByLod;
         private static int[] _updateCycleCounters;
-        private static int[] _fixedUpdateCycleCounters;
+        //private static int[] _fixedUpdateCycleCounters;
         
         public static bool isConsumptionTick = false;
-        public static event Action OnConsumptionTickEnd;
-        public static event Action OnBeginConsumptionTick;
         public static event Action OnEndPhysicsTick;
         public static event Action OnEndUpdateTick;
         public static LateEvent OnInitialize = new LateEvent();
 
         public static float DeltaTime;
+        public static float Period;
         
         [Inject] private WorldGrid _worldGrid;
 
         protected override void Setup()
         {
-            OnConsumptionTickEnd = null;
-            OnBeginConsumptionTick = null;
             _entitiesByLod = new HashSet<EntityContainer>[GameData.Data.lodDistances.lods.Length+1];
             for (var i = 0; i < _entitiesByLod.Length; i++)
             {
                 _entitiesByLod[i] = new HashSet<EntityContainer>(GameData.Data.initialStructuresCacheCapacity);
             }
             _updateCycleCounters = new int[_entitiesByLod.Length];
-            _fixedUpdateCycleCounters = new int[_entitiesByLod.Length];
+            //_fixedUpdateCycleCounters = new int[_entitiesByLod.Length];
             OnInitialize.Invoke();
         }
 
@@ -111,18 +103,20 @@ namespace Core.Structure
             var structure = entity.Structure;
             OnStructureUnregistered?.Invoke(structure);
             var lod = Instance._worldGrid.GetLod(entity);
-            _entitiesByLod[lod].Remove(new EntityContainer(entity, false));
+            _entitiesByLod[lod].Remove(new EntityContainer(entity));
         }
 
 
         private void Update()
         {
-            DeltaTime = Time.deltaTime;
-            
-            for (var i = 0; i < _updateCycleCounters.Length; i++)
+            /*for (var i = 0; i < _updateCycleCounters.Length; i++)
             {
-                if (_updateCycleCounters[i]++ >= GameData.Data.lodDistances.GetLodRefreshPeriod(i))
+                int period = GameData.Data.lodDistances.GetLodRefreshPeriod(i);
+                if (_updateCycleCounters[i]++ >= period)
                 {
+                    DeltaTime = Time.deltaTime * period;
+                    Period = period;
+
                     _updateCycleCounters[i] = 0;
                     var structures = _entitiesByLod[i];
                     foreach (var entityContainer in structures)
@@ -138,7 +132,6 @@ namespace Core.Structure
                     }
 
                     isConsumptionTick = true;
-                    OnBeginConsumptionTick?.Invoke();
                     
                     foreach (var entityContainer in structures)
                     {
@@ -153,7 +146,6 @@ namespace Core.Structure
                         }
                     }
 
-                    OnConsumptionTickEnd?.Invoke();
                     isConsumptionTick = false;
                     
                     foreach (var entityContainer in structures)
@@ -196,35 +188,29 @@ namespace Core.Structure
                     }
                 }
             }
-            
+            */
             
         }
 
         private void FixedUpdate()
         {
             if(!Physics.autoSimulation) return;
-            DeltaTime = Time.deltaTime;
 
-            for (var i = 0; i < _fixedUpdateCycleCounters.Length; i++)
+            for (var i = 0; i < _entitiesByLod.Length; i++)
             {
-                if (_fixedUpdateCycleCounters[i]++ >= GameData.Data.lodDistances.GetLodRefreshPeriod(i))
+                DeltaTime = Time.deltaTime;
+                /*foreach (var entityContainer in _entitiesByLod[i])
                 {
-                    _fixedUpdateCycleCounters[i] = 0;
-                    
-                    foreach (var entityContainer in _entitiesByLod[i])
+                    foreach (var forceUser in entityContainer.ForceUsers)
                     {
-                        foreach (var forceUser in entityContainer.ForceUsers)
+                        IStructure str = forceUser.Structure;
+                        if (str.Active && forceUser.IsActive)
                         {
-                            IStructure str = forceUser.Structure;
-                            if (str.Active && forceUser.IsActive)
-                            {
-                                forceUser.ApplyForce();
-                            }
+                            forceUser.ApplyForce();
                         }
                     }
-                }
+                }*/
             }
-           
             OnEndPhysicsTick?.Invoke();
         }
     }
@@ -234,6 +220,11 @@ namespace Core.Structure
         public static float DeltaTime(this float value)
         {
             return value * CycleService.DeltaTime;
+        }
+        
+        public static float Period(this float value)
+        {
+            return value * CycleService.Period;
         }
 
         public static Vector3 DeltaTime(this Vector3 value)

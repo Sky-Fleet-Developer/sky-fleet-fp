@@ -26,23 +26,32 @@ namespace Core.Structure
             Blocks = new List<IBlock>();
             mass = 0;
             bounds = transform.GetBounds();
-            if (structure.Blocks == null)
-            {
-                return;
-            }
-            foreach (IBlock block in structure.Blocks)
-            {
-                if (block.transform.parent == transform)
-                {
-                    Blocks.Add(block);
-                    mass += block.Mass;
-                }
-            }
+        }
+
+        public void AddBlock(IBlock block)
+        {
+            Blocks.Add(block);
+            mass += block.Mass;
+        }
+
+        public void RemoveBlock(IBlock block)
+        {
+            Blocks.Remove(block);
+            mass -= block.Mass;
         }
 
         public bool IsPatchMatch(string value)
         {
             if (value == path) return true;
+            if (path.Length == 0)
+            {
+                if (value.Length == 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
             if (path.Length - value.Length == 1 && path[^1] == '\\' || path[^1] == '/')
             {
                 int matches = 0;

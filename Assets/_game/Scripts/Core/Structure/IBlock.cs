@@ -7,6 +7,7 @@ using Core.Configurations;
 using Core.Items;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
+using Core.Structure.Serialization;
 using Core.Utilities;
 using UnityEngine;
 
@@ -20,8 +21,8 @@ namespace Core.Structure
         IStructure Structure { get; }
         string MountingType { get; }
         bool IsActive { get; }
-
         void InitBlock(IStructure structure, Parent parent);
+        void Remove();
         Bounds GetBounds();
     }
 
@@ -30,7 +31,7 @@ namespace Core.Structure
         public static string GetPath(this IBlock block)
         {
             return block.Parent.Transform.GetPath(block.Structure.transform);
-        }
+        }        
 
         private static Dictionary<Type, PropertyInfo[]> _propertiesCache;
         private static Dictionary<Type, FieldInfo[]> _fieldsCache;
