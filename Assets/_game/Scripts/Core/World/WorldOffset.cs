@@ -30,6 +30,7 @@ namespace Core.World
         {
             _isEnabled = gameObject.activeInHierarchy;
             gameObject.SetActive(false);
+            Offset = Vector3.zero;
         }
 
         public Task Load()

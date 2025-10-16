@@ -27,6 +27,7 @@ namespace Core.World
         public void SetBorderTolerance(float value)
         {
             _tolerance = value;
+            _toleranceBounds = new Bounds((Vector3)_cell * _size, Vector3.one * (_size + _tolerance));
         }
         
         public bool Update(Vector3 position, out Vector3Int cell)

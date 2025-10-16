@@ -896,7 +896,7 @@ MonoBehaviour:
     delta: 0
   controlPortType: 0
   isCycled: 0
-  rotationForce: 30
+  rotationForce: 300
   dragForce: 5
   inputSignalMultiplier: 25
   consumptionPerDelta:
@@ -2425,7 +2425,7 @@ MonoBehaviour:
     delta: 0
   controlPortType: 0
   isCycled: 0
-  rotationForce: 30
+  rotationForce: 300
   dragForce: 5
   inputSignalMultiplier: -25
   consumptionPerDelta:

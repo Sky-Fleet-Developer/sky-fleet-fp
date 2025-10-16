@@ -33,16 +33,73 @@ namespace Core.Structure
         {
             public readonly StructureEntity Entity;
             public readonly IGraph graph;
-            public List<IDriveInterface> Controls;
-            public List<IUpdatableBlock> Updatables;
-            public List<IPowerUser> PowerUsers;
-            public List<IFuelUser> FuelUsers;
-            public List<IForceUser> ForceUsers;
+            public HashSet<IDriveInterface> Controls = new ();
+            public HashSet<IUpdatableBlock> Updatables = new ();
+            public HashSet<IPowerUser> PowerUsers = new ();
+            public HashSet<IFuelUser> FuelUsers = new ();
+            public HashSet<IForceUser> ForceUsers = new ();
+            public int Lod;
 
-            public EntityContainer(StructureEntity entity)
+            public EntityContainer(StructureEntity entity, bool needInitialize = true)
             {
                 Entity = entity;
+                if(!needInitialize) return;
                 graph = entity.Structure.Graph;
+                foreach (var structureBlock in entity.Structure.Blocks)
+                {
+                    AddBlock(structureBlock);
+                }
+
+                entity.Structure.OnBlockAddedEvent += AddBlock;
+                entity.Structure.OnBlockRemovedEvent += RemoveBlock;
+            }
+
+            private void AddBlock(IBlock block)
+            {
+                if (block is IDriveInterface driveInterface)
+                {
+                    Controls.Add(driveInterface);
+                }
+                if (block is IUpdatableBlock updatableBlock)
+                {
+                    Updatables.Add(updatableBlock);
+                }
+                if (block is IPowerUser powerUser)
+                {
+                    PowerUsers.Add(powerUser);
+                }
+                if (block is IFuelUser fuelUser)
+                {
+                    FuelUsers.Add(fuelUser);
+                }
+                if (block is IForceUser forceUser)
+                {
+                    ForceUsers.Add(forceUser);
+                }
+            }
+
+            private void RemoveBlock(IBlock block)
+            {
+                if (block is IDriveInterface driveInterface)
+                {
+                    Controls.Remove(driveInterface);
+                }
+                if (block is IUpdatableBlock updatableBlock)
+                {
+                    Updatables.Remove(updatableBlock);
+                }
+                if (block is IPowerUser powerUser)
+                {
+                    PowerUsers.Remove(powerUser);
+                }
+                if (block is IFuelUser fuelUser)
+                {
+                    FuelUsers.Remove(fuelUser);
+                }
+                if (block is IForceUser forceUser)
+                {
+                    ForceUsers.Remove(forceUser);
+                }
             }
 
             public bool Equals(EntityContainer other)
@@ -58,12 +115,69 @@ namespace Core.Structure
             {
                 return Entity.GetHashCode();
             }
+
+            public void Update()
+            {
+                Entity.Update();
+                foreach (IDriveInterface t in Controls)
+                {
+                    IStructure str = t.Structure;
+                    if (str.Active && t.GetAttachedControllersCount > 0 && t.IsActive)
+                    {
+                        t.ReadInput(); //TODO: continue to read input to times when axis released
+                    }
+                }
+                foreach (IPowerUser t in PowerUsers)
+                {
+                    IStructure str = t.Structure;
+                    if (str.Active && t.IsActive)
+                    {
+                        t.ConsumptionTick();
+                    }
+                }
+                graph.UpdateGraph();
+                foreach (IPowerUser t in PowerUsers)
+                {
+                    IStructure str = t.Structure;
+                    if (str.Active && t.IsActive)
+                    {
+                        t.PowerTick();
+                    }
+                }
+                foreach (IFuelUser t in FuelUsers)
+                {
+                    IStructure str = t.Structure;
+                    if (str.Active && t.IsActive)
+                    {
+                        t.FuelTick();
+                    }
+                }
+                foreach (IUpdatableBlock t in Updatables)
+                {
+                    IStructure str = t.Structure;
+                    if (str.Active && t.IsActive)
+                    {
+                        t.UpdateBlock();
+                    }
+                }
+            }
+
+            public void FixedUpdate()
+            {
+                foreach (var forceUser in ForceUsers)
+                {
+                    IStructure str = forceUser.Structure;
+                    if (str.Active && forceUser.IsActive)
+                    {
+                        forceUser.ApplyForce();
+                    }
+                }
+            }
         }
         private static HashSet<EntityContainer>[] _entitiesByLod;
+        private static Dictionary<StructureEntity, EntityContainer> _entities;
         private static int[] _updateCycleCounters;
-        //private static int[] _fixedUpdateCycleCounters;
         
-        public static bool isConsumptionTick = false;
         public static event Action OnEndPhysicsTick;
         public static event Action OnEndUpdateTick;
         public static LateEvent OnInitialize = new LateEvent();
@@ -76,12 +190,12 @@ namespace Core.Structure
         protected override void Setup()
         {
             _entitiesByLod = new HashSet<EntityContainer>[GameData.Data.lodDistances.lods.Length+1];
+            _entities = new();
             for (var i = 0; i < _entitiesByLod.Length; i++)
             {
                 _entitiesByLod[i] = new HashSet<EntityContainer>(GameData.Data.initialStructuresCacheCapacity);
             }
             _updateCycleCounters = new int[_entitiesByLod.Length];
-            //_fixedUpdateCycleCounters = new int[_entitiesByLod.Length];
             OnInitialize.Invoke();
         }
 
@@ -91,10 +205,13 @@ namespace Core.Structure
             {
                 return;
             }
-
+            entity.OnLodChangedEvent += SetEntityLod;
             var structure = entity.Structure;
             var lod = Instance._worldGrid.GetLod(entity);
-            _entitiesByLod[lod].Add(new EntityContainer(entity));
+            var container = new EntityContainer(entity);
+            container.Lod = lod;
+            _entities[entity] = container;
+            _entitiesByLod[lod].Add(container);
             OnStructureInitialized?.Invoke(structure);
         }
 
@@ -103,13 +220,21 @@ namespace Core.Structure
             var structure = entity.Structure;
             OnStructureUnregistered?.Invoke(structure);
             var lod = Instance._worldGrid.GetLod(entity);
-            _entitiesByLod[lod].Remove(new EntityContainer(entity));
+            _entities.Remove(entity);
+            _entitiesByLod[lod].Remove(new EntityContainer(entity, false));
         }
 
+        private static void SetEntityLod(StructureEntity entity, int lod)
+        {
+            var container = _entities[entity];
+            _entitiesByLod[container.Lod].Remove(container);
+            _entitiesByLod[lod].Add(container);
+            container.Lod = lod;
+        }    
 
         private void Update()
         {
-            /*for (var i = 0; i < _updateCycleCounters.Length; i++)
+            for (var i = 0; i < _updateCycleCounters.Length; i++)
             {
                 int period = GameData.Data.lodDistances.GetLodRefreshPeriod(i);
                 if (_updateCycleCounters[i]++ >= period)
@@ -121,75 +246,10 @@ namespace Core.Structure
                     var structures = _entitiesByLod[i];
                     foreach (var entityContainer in structures)
                     {
-                        foreach (IDriveInterface t in entityContainer.Controls)
-                        {
-                            IStructure str = t.Structure;
-                            if (str.Active && t.GetAttachedControllersCount > 0 && t.IsActive)
-                            {
-                                t.ReadInput(); //TODO: continue to read input to times when axis released
-                            }
-                        }
-                    }
-
-                    isConsumptionTick = true;
-                    
-                    foreach (var entityContainer in structures)
-                    {
-
-                        foreach (IPowerUser t in entityContainer.PowerUsers)
-                        {
-                            IStructure str = t.Structure;
-                            if (str.Active && t.IsActive)
-                            {
-                                t.ConsumptionTick();
-                            }
-                        }
-                    }
-
-                    isConsumptionTick = false;
-                    
-                    foreach (var entityContainer in structures)
-                    {
-
-                        foreach (IPowerUser t in entityContainer.PowerUsers)
-                        {
-                            IStructure str = t.Structure;
-                            if (str.Active && t.IsActive)
-                            {
-                                t.PowerTick();
-                            }
-                        }
-                    }
-
-                    foreach (var entityContainer in structures)
-                    {
-                        foreach (IFuelUser t in entityContainer.FuelUsers)
-                        {
-                            IStructure str = t.Structure;
-                            if (str.Active && t.IsActive)
-                            {
-                                t.FuelTick();
-                            }
-                        }
-                    }
-
-                    foreach (var entityContainer in structures)
-                    {
-                        foreach (IUpdatableBlock t in entityContainer.Updatables)
-                        {
-                            IStructure str = t.Structure;
-                            if (str.Active && t.IsActive)
-                            {
-                                t.UpdateBlock();
-                            }
-                        }
-
-                        OnEndUpdateTick?.Invoke();
+                        entityContainer.Update();
                     }
                 }
             }
-            */
-            
         }
 
         private void FixedUpdate()
@@ -199,17 +259,10 @@ namespace Core.Structure
             for (var i = 0; i < _entitiesByLod.Length; i++)
             {
                 DeltaTime = Time.deltaTime;
-                /*foreach (var entityContainer in _entitiesByLod[i])
+                foreach (var entityContainer in _entitiesByLod[i])
                 {
-                    foreach (var forceUser in entityContainer.ForceUsers)
-                    {
-                        IStructure str = forceUser.Structure;
-                        if (str.Active && forceUser.IsActive)
-                        {
-                            forceUser.ApplyForce();
-                        }
-                    }
-                }*/
+                    entityContainer.FixedUpdate();
+                }
             }
             OnEndPhysicsTick?.Invoke();
         }

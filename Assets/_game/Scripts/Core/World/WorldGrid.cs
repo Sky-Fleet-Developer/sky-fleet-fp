@@ -74,14 +74,19 @@ namespace Core.World
             _entitiesList.Add(entity);
             _coordinatesCache.Add(cell);
             
+            AddEntityToCell(cell, entity);
+            _lods[entity] = -1;
+            SetLodForEntity(entity);
+        }
+
+        private void AddEntityToCell(Vector3Int cell, IWorldEntity entity)
+        {
             if (!_entitiesGrid.TryGetValue(cell, out var list))
             {
                 list = new LinkedList<IWorldEntity>();
                 _entitiesGrid[cell] = list;
             }
             list.AddLast(entity);
-            _lods[entity] = -1;
-            SetLodForEntity(entity);
         }
 
         public void RemoveEntity(IWorldEntity entity)
@@ -133,7 +138,7 @@ namespace Core.World
                 }
                 _entitiesGrid[_coordinatesCache[i]].Remove(entity);
                 _coordinatesCache[i] = cell;
-                _entitiesGrid[cell].AddLast(entity);
+                AddEntityToCell(cell, entity);
             }
         }
 
@@ -164,13 +169,14 @@ namespace Core.World
         public IEnumerable<IWorldEntity> EnumerateNeighbours(Vector3 center, int cellsRadius)
         {
             var range = Vector3Int.one * cellsRadius;
-            var cell = _grid.PositionToCell(center) - range;
-            var max = cell + range;
-            for (; cell.x <= max.x; cell.x++)
+            var min = _grid.PositionToCell(center) - range;
+            var max = min + range * 2;
+            Vector3Int cell = min;
+            for (cell.x = min.x; cell.x <= max.x; cell.x++)
             {
-                for (; cell.y <= max.y; cell.y++)
+                for (cell.y = min.y; cell.y <= max.y; cell.y++)
                 {
-                    for (; cell.z <= max.z; cell.z++)
+                    for (cell.z = min.z; cell.z <= max.z; cell.z++)
                     {
                         foreach (var worldEntity in EnumerateCell(cell))
                         {

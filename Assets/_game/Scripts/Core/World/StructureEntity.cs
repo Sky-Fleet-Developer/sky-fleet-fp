@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Data;
 using Core.Graph;
@@ -18,6 +19,7 @@ namespace Core.World
         private bool _isConstructInProgress;
         private Configuration[] _configs;
         private StructureConfigurationHead _head;
+        public event Action<StructureEntity, int> OnLodChangedEvent;
         public Vector3 Position => _head.position;
         public IStructure Structure => _structure;
 
@@ -34,9 +36,18 @@ namespace Core.World
         
         public void OnLodChanged(int lod)
         {
-            if (lod < GameData.Data.lodDistances.lods.Length)
+            if (lod < GameData.Data.lodDistances.lods.Length && _structure == null)
             {
                 ConstructStructure();
+            }
+            OnLodChangedEvent?.Invoke(this, lod);
+        }
+
+        public void Update()
+        {
+            if (_structure != null)
+            {
+                _head.position = _structure.transform.position - WorldOffset.Offset;
             }
         }
         /*public void OnDistanceToPlayerChanged(int cellsDistance, float realDistanceSqr)

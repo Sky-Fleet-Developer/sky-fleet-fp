@@ -26,6 +26,7 @@ namespace Core.Graph
         private bool _isInitialized = false;
         private GraphConfiguration _configuration;
         private PortsAndWiresAddressBook _addressBook;
+        private Wire _mainPowerWire;
         public void SetConfiguration(GraphConfiguration value)
         {
             _configuration = value;
@@ -106,6 +107,21 @@ namespace Core.Graph
                         OnWireAdded?.Invoke(wire);
                     }
                 }
+
+                if (_configuration.autoConnectPowerWires && port.Port is PowerPort)
+                {
+                    if (_mainPowerWire == null)
+                    {
+                        _mainPowerWire = Core.Graph.Wires.Utilities.CreateWireForPort(port);
+                        _wires.Add(_mainPowerWire);
+                        OnWireAdded?.Invoke(_mainPowerWire);
+                    }
+                    else
+                    {
+                        _mainPowerWire.ports.Add(port);
+                        port.Port.SetWire(_mainPowerWire);
+                    }
+                }
             }
         }
 
@@ -122,6 +138,11 @@ namespace Core.Graph
                         wire.ports.Remove(port);
                         affectedWires.Add(wire);
                     }
+
+                    if (port.Port is PowerPort && _mainPowerWire.ports.Contains(port))
+                    {
+                        _mainPowerWire.ports.Remove(port);
+                    }
                 }
 
                 _addressBook.RemoveNode(node.NodeId);
@@ -133,6 +154,12 @@ namespace Core.Graph
                 {
                     RemoveWire(affectedWire);
                 }
+            }
+
+            if (_mainPowerWire.ports.Count == 0)
+            {
+                _mainPowerWire.Dispose();
+                _mainPowerWire = null;
             }
         }
 
