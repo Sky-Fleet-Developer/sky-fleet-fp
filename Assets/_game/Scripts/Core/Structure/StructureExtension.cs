@@ -14,43 +14,13 @@ namespace Core.Structure
                 var block = structure.Blocks.FirstOrDefault(x => x.transform.name == blockName);
                 if(block != null) return block;
                 
-                return structure.transform.Find(blockName).GetComponent<IBlock>();
+                return structure.transform.Find(blockName)?.GetComponent<IBlock>();
             }
 
-            for (int i = 0; i < structure.Parents.Count; i++)
-            {
-                if (structure.Parents[i].Path == path)
-                {
-                    var block = structure.Parents[i].Blocks.FirstOrDefault(x => x.transform.name == blockName);
-                    if (block != null)
-                    {
-                        return block;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            var parent = structure.transform.FindDeepChild(path);
-
-            return parent?.Find(blockName)?.GetComponent<IBlock>();
+            Parent parent = structure.GetOrFindParent(path);
+            return parent?.GetOrFindBlock(blockName);
         }
-
-        public static Parent GetParentByPath(this IStructure structure, string path)
-        {
-            foreach (var structureParent in structure.Parents)
-            {
-                if (structureParent.IsPatchMatch(path))
-                {
-                    return structureParent;
-                }
-            }
-
-            return null;
-        }
-
+        
         public static Parent GetParentFor(this IStructure structure, IBlock block)
         {
             for (int i = 0; i < structure.Parents.Count; i++)

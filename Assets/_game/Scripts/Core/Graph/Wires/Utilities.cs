@@ -49,7 +49,7 @@ namespace Core.Graph.Wires
         private static IEnumerable<IPortsContainer> GetPortsFromBlock(IGraphNode node)
         {
             List<PortPointer> pointers = new List<PortPointer>();
-            GraphUtilities.GetPorts(node, ref pointers); 
+            GraphUtilities.GetPorts(node, pointers); 
             IEnumerable<IGrouping<string, PortPointer>> group = pointers.GroupBy(x => x.GetGroup());
             foreach (IGrouping<string, PortPointer> portPointers in group)
             {

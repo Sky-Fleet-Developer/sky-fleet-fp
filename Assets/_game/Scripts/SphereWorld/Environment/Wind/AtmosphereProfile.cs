@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SphereWorld.Environment.Wind
 {
-    [CreateAssetMenu(menuName = "SphereWorld/Atmosphere", fileName = "SphereWorldAtmosphere")]
+    [CreateAssetMenu(menuName = "SF/SphereWorld/Atmosphere", fileName = "SphereWorldAtmosphere")]
     [System.Serializable]
     public class AtmosphereProfile : ScriptableObject
     {

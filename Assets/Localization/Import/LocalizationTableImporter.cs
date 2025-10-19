@@ -16,7 +16,7 @@ namespace Localization.Import
         public string ru;
         public string en;
     }
-    [CreateAssetMenu(menuName = "Configs/LocalizationTableImporter")]
+    [CreateAssetMenu(menuName = "SF/Configs/LocalizationTableImporter")]
     public class LocalizationTableImporter : Table<LocalizationItem>
     {
         [SerializeField] private LocalizationItem[] data;

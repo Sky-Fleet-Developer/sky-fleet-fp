@@ -12,7 +12,7 @@ using Application = UnityEngine.Application;
 #if UNITY_EDITOR
 namespace UnityEditor
 {
-    [CreateAssetMenu(menuName = "CombineCompiledAssemblies")]
+    [CreateAssetMenu(menuName = "SF/CombineCompiledAssemblies")]
     public class CombineCompiledAssemblies : ScriptableObject
     {
         public SerializedFilePath[] combinedFiles;

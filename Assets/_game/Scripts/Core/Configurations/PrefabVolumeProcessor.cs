@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Core.Configurations
 {
-    [CreateAssetMenu(menuName = "Configs/VolumePrefabsProcessor")]
+    [CreateAssetMenu(menuName = "SF/Configs/VolumePrefabsProcessor")]
     public class PrefabVolumeProcessor : PrefabProcessor
     {
         [Serializable]

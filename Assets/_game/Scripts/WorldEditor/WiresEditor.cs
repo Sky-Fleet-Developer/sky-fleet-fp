@@ -19,7 +19,7 @@ namespace WorldEditor
     {
         public static WiresEditor CurrentEditor;
 
-        [MenuItem("Factory/Wires Editor")]
+        [MenuItem("Window/SF/Wires Editor")]
         public static void OpenWindow()
         {
             CurrentEditor = GetWindow<WiresEditor>();
@@ -89,7 +89,7 @@ namespace WorldEditor
 
         public void GetFomSelection()
         {
-            if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out IGraph structure))
+            if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out IStructure structure))
             {
                 Transform parent = Selection.activeTransform.parent;
                 if (parent)
@@ -110,7 +110,7 @@ namespace WorldEditor
                 }
 
                 currentGraphTransform = Selection.activeTransform;
-                selectedGraph = structure;
+                selectedGraph = structure.Graph;
             }
         }
 
@@ -157,8 +157,8 @@ namespace WorldEditor
             if (GUILayout.Button("Edit configuration", GUILayout.Width(200)))
             {
                 var structure = currentGraphTransform.GetComponent<IStructure>();
-                structure.Init(true);
-                await configHolder.graphConfiguration.Apply(selectedGraph);
+                await configHolder.blocksConfiguration.Apply(structure);
+                await configHolder.graphConfiguration.Apply(structure);
                 structure.Init(true);
                 currentGraph = selectedGraph;
 

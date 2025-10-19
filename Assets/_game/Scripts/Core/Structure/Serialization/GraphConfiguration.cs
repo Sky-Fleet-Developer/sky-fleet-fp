@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Core.Structure.Serialization
 {
     [System.Serializable]
-    public class GraphConfiguration : Configuration<IGraph>
+    public class GraphConfiguration : Configuration<IStructure>
     {
         public List<WireConfiguration> wires = new List<WireConfiguration>();
         public bool autoConnectPowerWires;
@@ -25,17 +25,17 @@ namespace Core.Structure.Serialization
             wires = JsonConvert.DeserializeObject<List<WireConfiguration>>(GUIUtility.systemCopyBuffer);
         }
         
-        public GraphConfiguration(IGraph value) : base(value)
+        public GraphConfiguration(IStructure value) : base(value)
         {
-            foreach (Wire wire in value.Wires)
+            foreach (Wire wire in value.Graph.Wires)
             {
                 wires.Add(new WireConfiguration(wire.ports.Select(x => x.Id).ToList()));
             }
         }
         
-        public override Task Apply(IGraph graph)
+        public override Task Apply(IStructure structure)
         {
-            graph.SetConfiguration(this);
+            structure.Graph.SetConfiguration(this);
             return Task.CompletedTask;
         }
     }

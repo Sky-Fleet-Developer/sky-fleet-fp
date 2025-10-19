@@ -6,7 +6,7 @@ using Zenject;
 
 namespace Core.Trading
 {
-    [CreateAssetMenu(menuName = "Game/BankSystem")]
+    [CreateAssetMenu(menuName = "SF/Game/BankSystem")]
     public class BankSystem : ScriptableObject
     {
         [Inject] private IFactory<string, IItemsContainerMasterHandler> _inventoryFactory;

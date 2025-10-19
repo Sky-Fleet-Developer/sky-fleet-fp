@@ -92,7 +92,7 @@ namespace Core.Configurations
 
         public IEnumerable<CostRule> GetCostRules() => rules;
     }
-    [CreateAssetMenu(menuName = "Configs/Shops")]
+    [CreateAssetMenu(menuName = "SF/Configs/Shops")]
     public class ShopTable : Table<ShopSettings>
     {
         public override string TableName => "Shop";

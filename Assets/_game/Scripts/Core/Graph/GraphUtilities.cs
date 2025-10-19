@@ -107,7 +107,7 @@ namespace Core.Graph
             return infos;
         }
         
-        public static void GetPorts(IGraphNode node, ref List<PortPointer> result)
+        public static void GetPorts(IGraphNode node, List<PortPointer> result)
         {
             FieldInfo[] fields = GetPortsInfo(node); 
             foreach (FieldInfo field in fields)

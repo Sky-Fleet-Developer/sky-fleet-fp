@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Core.Configurations.GoogleSheets
 {
-    [CreateAssetMenu(menuName = "Configs/PathLoader")]
+    [CreateAssetMenu(menuName = "SF/Configs/PathLoader")]
     public class PathLoader : ScriptableObject
     {
         private class Link

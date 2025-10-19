@@ -62,13 +62,14 @@ namespace Core.Structure
         {
             List<PropertyInfo> properties = new List<PropertyInfo>();
 
-            Type attribute = typeof(PlayerPropertyAttribute);
+            Type attributeA = typeof(PlayerPropertyAttribute);
+            Type attributeB = typeof(SaveValueAttribute);
 
             //string log = $"Properties for type {type.Name}:\n";
 
             foreach (PropertyInfo property in type.GetProperties())
             {
-                if (property.GetCustomAttributes().FirstOrDefault(x => x.GetType() == attribute) != null)
+                if (property.GetCustomAttributes().Any(x => x.GetType() == attributeA || x.GetType() == attributeB))
                 {
                     properties.Add(property);
                     //log += $"{property.Name},";
@@ -84,7 +85,7 @@ namespace Core.Structure
         {
             List<FieldInfo> fields = new List<FieldInfo>();
 
-            Type attribute = typeof(SaveFieldAttribute);
+            Type attribute = typeof(SaveValueAttribute);
 
             string log = $"Fields for type {type.Name}:\n";
 
@@ -164,7 +165,7 @@ namespace Core.Structure
                 {
                     return null;
                 }
-                var parent = structure.GetParentByPath(path);
+                var parent = structure.GetOrFindParent(path);
                 if (parent != null)
                 {
                     cache = parent;

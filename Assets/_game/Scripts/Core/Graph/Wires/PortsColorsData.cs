@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Core.Graph.Wires
 {
-    [CreateAssetMenu(menuName = "Data/Ports colors data")]
+    [CreateAssetMenu(menuName = "SF/Data/Ports colors data")]
     public class PortsColorsData : SingletonAsset<PortsColorsData>
     {
         public PortTColor[] portTColors;

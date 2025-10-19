@@ -12,7 +12,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Core.Configurations
 {
-    [CreateAssetMenu(menuName = "Configs/Prefabs table")]
+    [CreateAssetMenu(menuName = "SF/Configs/Prefabs table")]
     public class TablePrefabs : SingletonAsset<TablePrefabs>
     {
         [SerializeField] private PrefabProcessor[] preprocessors;
@@ -30,8 +30,9 @@ namespace Core.Configurations
         [Space(20), SerializeField] private AddPrefabSettings[] autoSearchSettings;
 
         [Button]
-        private void SearchPrefabsInFolders()
+        public void SearchPrefabsInFolders()
         {
+            itemsCache = null;
             foreach (AddPrefabSettings autoSearchSetting in autoSearchSettings)
             {
                 foreach ((string fullName, List<string> tags) in autoSearchSetting.GetPaths())

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Core.World
 {
-    [CreateAssetMenu(menuName = "Game/WorldObjectsOcclusionProfile")]
+    [CreateAssetMenu(menuName = "SF/Game/WorldObjectsOcclusionProfile")]
     public class WorldGridProfile : ScriptableObject
     {
         [InlineProperty] public WorldGridData data;

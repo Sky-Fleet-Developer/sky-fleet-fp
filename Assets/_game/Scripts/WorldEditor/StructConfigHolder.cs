@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Core;
 using Core.Configurations;
 using Core.Graph;
@@ -23,7 +24,7 @@ namespace WorldEditor
         [Inject] private WorldSpace _worldSpace;
 
 #if UNITY_EDITOR
-        [MenuItem("Tools/Make config for structure")]
+        [MenuItem("Tools/MakeConfigForStructure")]
         public static void MakeConfigForStructure()
         {
             GameObject o = Selection.activeGameObject;
@@ -33,6 +34,64 @@ namespace WorldEditor
                 WiresEditor.OpenWindow();
                 WiresEditor.CurrentEditor.GetFomSelection();
             }
+        }
+        [MenuItem("Tools/ConvertBlocksToPrefabs")]
+        public static void ConvertBlocksToPrefabs()
+        {
+            GameObject o = Selection.activeGameObject;
+            var tempObject = new GameObject("temp");
+            List<(Transform, Transform)> parents = new();
+            if (o && o.activeInHierarchy)
+            {
+                var structure = Selection.activeGameObject.GetComponentInChildren<IStructure>();
+                if (structure != null)
+                {
+                    var root = (Component)structure;
+                    var blocks = root.GetComponentsInChildren<IBlock>();
+                    foreach (var block in blocks)
+                    {
+                        var gameObject = ((Component)block).gameObject;
+                        if (!IsTablePrefab(block))
+                        {
+                            gameObject = CreateAndReplacePrefab(gameObject);
+                        }
+                        parents.Add((gameObject.transform, gameObject.transform.parent));
+                        gameObject.transform.SetParent(tempObject.transform);
+                    }
+                }
+
+                if (!IsTablePrefab(structure))
+                {
+                    CreateAndReplacePrefab(((Component)structure).gameObject);
+                }
+                
+                foreach (var item in parents)
+                {
+                    item.Item1.SetParent(item.Item2);
+                }
+            }
+            DestroyImmediate(tempObject);
+        }
+
+        private static bool IsTablePrefab(ITablePrefab prefab)
+        {
+            return TablePrefabs.Instance.GetItem(prefab.Guid) != null;
+        }
+
+        private static GameObject CreateAndReplacePrefab(GameObject source)
+        {
+            var savePath = EditorUtility.SaveFilePanel($"Save {source.name}", Application.dataPath + "/Assets/_game/Prefabs/", source.name, "prefab");
+            if (!string.IsNullOrEmpty(savePath))
+            {
+                savePath = savePath.Replace(Application.dataPath + "/", "Assets/");
+                //var name = savePath.Split('/').Last();
+                savePath = AssetDatabase.GenerateUniqueAssetPath(savePath);
+                var result = PrefabUtility.SaveAsPrefabAssetAndConnect(source, savePath, InteractionMode.UserAction);
+                TablePrefabs.Instance.SearchPrefabsInFolders();
+                return result;
+            }
+
+            return null;
         }
 
         public static StructConfigHolder CreateForStructure(GameObject structure)
@@ -48,11 +107,7 @@ namespace WorldEditor
             structure.transform.SetParent(tr);
             EditorSceneManager.MarkSceneDirty(structure.scene);
             EditorUtility.SetDirty(structure.transform);
-            var graph = structure.GetComponent<IGraph>();
-            if (graph != null)
-            {
-                config.graphConfiguration = new GraphConfiguration(graph);
-            }
+            config.graphConfiguration = new GraphConfiguration(structure.GetComponent<IStructure>());
             return config;
         }
 
@@ -75,7 +130,7 @@ namespace WorldEditor
         {
             Bootstrapper.OnLoadComplete.Subscribe(InstantiateStructure);
             var existRoot = TryGetRoot();
-            if (!existRoot.GetComponent<DynamicWorldObject>())
+            if (existRoot && !existRoot.GetComponent<DynamicWorldObject>())
             {
                 existRoot.AddComponent<DynamicWorldObject>();
             }
@@ -92,7 +147,7 @@ namespace WorldEditor
             {
                 configurationHead.Root = structure.transform.gameObject;
                 await blocksConfiguration.Apply(structure);
-                await graphConfiguration.Apply(structure.Graph);
+                await graphConfiguration.Apply(structure);
                 structure.Init(true);
                 if (_worldSpace)
                 {
@@ -110,7 +165,8 @@ namespace WorldEditor
             }
 #if UNITY_EDITOR
             var structureFactory = new StructureFactory();
-            await structureFactory.Create(configurationHead, new Configuration[] {blocksConfiguration, graphConfiguration});
+            structure = await structureFactory.Create(configurationHead, new Configuration[] {blocksConfiguration, graphConfiguration});
+            structure.transform.SetParent(transform);
 #endif
         }
 

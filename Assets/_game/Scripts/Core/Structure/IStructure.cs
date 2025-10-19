@@ -33,6 +33,7 @@ namespace Core.Structure
         void SetConfiguration(BlocksConfiguration configuration);
         void AddBlock(IBlock block);
         void RemoveBlock(IBlock block);
+        Parent GetOrFindParent(string path);
         event Action<IBlock> OnBlockAddedEvent;
         event Action<IBlock> OnBlockRemovedEvent;
     }

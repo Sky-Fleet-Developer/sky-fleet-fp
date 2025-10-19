@@ -9,7 +9,7 @@ using static Core.Structure.CycleService;
 
 namespace Runtime.Environment.AirDrag
 {
-    [CreateAssetMenu(menuName = "Data/AirDrag")]
+    [CreateAssetMenu(menuName = "SF/Data/AirDrag")]
     public class AirDragBehaviour : ScriptableObject
     {
         public Material material;

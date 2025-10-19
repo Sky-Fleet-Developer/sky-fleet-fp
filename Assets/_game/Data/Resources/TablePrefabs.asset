@@ -19,6 +19,7 @@ MonoBehaviour:
       m_AssetGUID: 48a371fc77a91fe4098ec1d5f2fcd654
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
     tags:
@@ -28,6 +29,7 @@ MonoBehaviour:
       m_AssetGUID: d4ac0d39cf8e4a147a90d726ceb2f314
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
     tags:
@@ -37,6 +39,7 @@ MonoBehaviour:
       m_AssetGUID: f241b618a0db84543894629afe816ce2
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
     tags:
@@ -46,6 +49,7 @@ MonoBehaviour:
       m_AssetGUID: 72a701bdd11c43343a4c894c98cf6f97
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
     tags:
@@ -55,6 +59,7 @@ MonoBehaviour:
       m_AssetGUID: d0eb4b66315acbb4c8659a43f7ffe54c
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 93cbead4-d7c3-47fb-b271-510007e82fb3
     tags:
@@ -63,6 +68,7 @@ MonoBehaviour:
       m_AssetGUID: 47d5c998281a5a94483aa12a9a4e60cb
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: ad236af6-3feb-466c-8ce1-4cc6a8dad25a
     tags:
@@ -72,6 +78,7 @@ MonoBehaviour:
       m_AssetGUID: 0b735169160b97744aec9c8a4edc840c
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
     tags:
@@ -81,6 +88,7 @@ MonoBehaviour:
       m_AssetGUID: f16d3e7948dbe24408d78a6e2a5855cf
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 4ea266d0-fbd5-4023-b34e-662b30e2819e
     tags:
@@ -90,6 +98,7 @@ MonoBehaviour:
       m_AssetGUID: aa1b82e31421c4341a0a61590069ff38
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
     tags:
@@ -99,6 +108,7 @@ MonoBehaviour:
       m_AssetGUID: b249800ad0fa4ac49b0be7281b7690ff
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 40222abb-51cd-4887-8afb-92518f93a6cd
     tags:
@@ -108,6 +118,7 @@ MonoBehaviour:
       m_AssetGUID: 4ca2c25fe279e2140ac5867b9d14696b
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 0abe989d-931d-41aa-a81a-a68b1fbffbbf
     tags:
@@ -116,6 +127,7 @@ MonoBehaviour:
       m_AssetGUID: 404f02ccb3657464296220633d380584
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 70888b7d-6e60-4c6a-9b88-1e70f083270e
     tags:
@@ -124,6 +136,7 @@ MonoBehaviour:
       m_AssetGUID: b3b2a075259390140903f3b8e68ffdc9
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: e7852fc9-0d3e-4e2f-b09a-aad96cc09935
     tags:
@@ -132,6 +145,7 @@ MonoBehaviour:
       m_AssetGUID: 91903854c6e4aef468cded0d646113f5
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 02c3af31-0bf3-4deb-be13-c30462ccfe9c
     tags:
@@ -140,6 +154,7 @@ MonoBehaviour:
       m_AssetGUID: 12563a4c4a509c54a8156af71c274465
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 1c9d3541-c0fd-4287-beba-c575b73365af
     tags:
@@ -148,6 +163,7 @@ MonoBehaviour:
       m_AssetGUID: 3410f8851092e0e4daec79551b207db1
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: ef786cfb-cef3-4407-93b1-97700ea78123
     tags:
@@ -156,6 +172,7 @@ MonoBehaviour:
       m_AssetGUID: cebf0db46a0b9624ca1f26061c3818f7
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 5c66ac95-70cc-4833-9658-7a93a67d0324
     tags:
@@ -164,6 +181,7 @@ MonoBehaviour:
       m_AssetGUID: 327d9390f1204a34f84505e07d1325e6
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: fecefe4e-01cf-4bec-a2f3-8ab8dc7e6365
     tags:
@@ -172,6 +190,7 @@ MonoBehaviour:
       m_AssetGUID: 0fbd8324154f38445998d1fabd80ffb7
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: c1068a3d-6483-4a10-b9fa-b346bb6195bf
     tags:
@@ -181,6 +200,7 @@ MonoBehaviour:
       m_AssetGUID: 9822431ec0f4218409d7ac05beafca9f
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 34ff1dc2-8845-43a9-a144-83f9c1ab2d06
     tags:
@@ -190,6 +210,7 @@ MonoBehaviour:
       m_AssetGUID: 98c7dd88d4de1784a9289c0adbf25c0b
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: ac9e9048-8002-4f14-8101-cc9993b06b44
     tags:
@@ -198,6 +219,7 @@ MonoBehaviour:
       m_AssetGUID: d9d918a0c56d83449a1db5955cb4c0fc
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 7c45a38e-33e4-46b5-a199-b13d2f66c8c1
     tags:
@@ -207,6 +229,7 @@ MonoBehaviour:
       m_AssetGUID: d07231a1d6ec7d14897872f167f2694a
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 7fef03a6-e27b-4ba4-a9e8-a9c484f68f0f
     tags:
@@ -216,6 +239,7 @@ MonoBehaviour:
       m_AssetGUID: 62bc3763db5ca464a98fe961e3e3861c
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: aef848e4-90c9-4fde-8f74-f221591873c3
     tags:
@@ -225,6 +249,7 @@ MonoBehaviour:
       m_AssetGUID: 605b1e63956e177459a2770646853be7
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 4391cf4e-8e1a-416e-8f8b-0ed380b73c2b
     tags:
@@ -233,6 +258,7 @@ MonoBehaviour:
       m_AssetGUID: 02e05baff1bdc20449a234ed5944933f
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: d833a2c4-4c0c-46aa-9b51-608146a519f3
     tags:
@@ -241,6 +267,7 @@ MonoBehaviour:
       m_AssetGUID: ec0d4b078bd51b743a2ae251029d3dc3
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 4a760db3-ae15-4ff9-9526-fb4105a00d44
     tags:
@@ -250,6 +277,7 @@ MonoBehaviour:
       m_AssetGUID: d655fa3d876798c40bb238fbfe5ecd4f
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 6c5a69e4-0810-4ff3-b14a-98e5fa234e68
     tags:
@@ -258,6 +286,7 @@ MonoBehaviour:
       m_AssetGUID: 14493bb82bfdcb64f89a1372d1ad30ca
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 374f7a78-6083-44e8-9ad8-80d7e66f8ff5
     tags:
@@ -267,6 +296,7 @@ MonoBehaviour:
       m_AssetGUID: 2a9f47164af56f14fa84f64f359fdef1
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: f901a3f0-4cc2-4e9f-94e8-b5cf2f2cdbf7
     tags:
@@ -276,6 +306,7 @@ MonoBehaviour:
       m_AssetGUID: ca2e9211ebc228342b78d89e6b5a3660
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 85e503a8-b2ea-4b5e-9a64-e59d190115ff
     tags:
@@ -285,6 +316,7 @@ MonoBehaviour:
       m_AssetGUID: 69fb808f0b12bea4599794e24b59a1dc
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
     tags:
@@ -294,6 +326,7 @@ MonoBehaviour:
       m_AssetGUID: 559f97fa9e9482247ba86d12f15c48ab
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 6033ed0c-0604-490b-a38b-b47267c1f9c5
     tags:
@@ -303,6 +336,7 @@ MonoBehaviour:
       m_AssetGUID: 2977a920f267beb46af8277b14e0d7a3
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: cac79dce-7556-4756-9de2-fbc1791456d9
     tags:
@@ -312,6 +346,7 @@ MonoBehaviour:
       m_AssetGUID: 32392e7850e5f4942814cddad09851ff
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 32392e7850e5f4942814cddad09851ff
     tags:
@@ -320,6 +355,7 @@ MonoBehaviour:
       m_AssetGUID: 0639fd06f28c0634084d26aa212e0fe2
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 0639fd06f28c0634084d26aa212e0fe2
     tags:
@@ -329,6 +365,7 @@ MonoBehaviour:
       m_AssetGUID: fbafd38309706bf4ea7d07ea2da55d08
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: fbafd38309706bf4ea7d07ea2da55d08
     tags:
@@ -337,10 +374,60 @@ MonoBehaviour:
       m_AssetGUID: 77dff4da645eda9439685b2c5e3bbaf7
       m_SubObjectName: 
       m_SubObjectType: 
+      m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     guid: 77dff4da645eda9439685b2c5e3bbaf7
     tags:
     - item
+  - reference:
+      m_AssetGUID: 0e6dae452a353fa499523684254c5116
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: 13a1ed8c-e274-4eb8-8b8f-54bc25d252e0
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: 250bff99d49557f4194a3fb0f505fd48
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: a8ddd184-bed7-4a74-82c1-98c1279a03a0
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: cf34d1182ef2a164fa784c6808b516d5
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: 28459fdc-e3d7-4a70-b4e2-c8798caf7c4f
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: accdc2cc301f55449b7149659e20dba5
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: 61371496-4d96-44d1-bbec-8a0d64725edf
+    tags:
+    - block
+    - emgracopter
+  - reference:
+      m_AssetGUID: 9b1a814305bc6ca4f8c0fc8a154b8eb1
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
+    tags:
+    - structure
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:

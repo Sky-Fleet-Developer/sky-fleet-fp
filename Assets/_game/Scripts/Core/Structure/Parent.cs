@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using UnityEngine;
@@ -40,6 +41,15 @@ namespace Core.Structure
             mass -= block.Mass;
         }
 
+        public IBlock GetOrFindBlock(string blockName)
+        {
+            if (Blocks.Count > 0)
+            {
+                return Blocks.FirstOrDefault(x => x.transform.name == blockName);
+            }
+            return Transform.Find(blockName)?.GetComponent<IBlock>();
+        }
+
         public bool IsPatchMatch(string value)
         {
             if (value == path) return true;
@@ -52,7 +62,7 @@ namespace Core.Structure
 
                 return false;
             }
-            if (path.Length - value.Length == 1 && path[^1] == '\\' || path[^1] == '/')
+            if (path.Length - value.Length == 1 && (path[^1] == '\\' || path[^1] == '/'))
             {
                 int matches = 0;
                 int wantedMatches = value.Length;

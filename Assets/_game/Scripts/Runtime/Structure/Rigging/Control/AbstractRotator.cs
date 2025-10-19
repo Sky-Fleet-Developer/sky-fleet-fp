@@ -1,4 +1,5 @@
 ﻿using Core.Graph.Wires;
+using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Runtime.Physic;
@@ -19,8 +20,12 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private float dragForce;
         [SerializeField] private float inputSignalMultiplier = 1;
         [SerializeField] private AnimationCurve consumptionPerDelta;
-        [SerializeField, SaveField, HideIf("isCycled")] private Vector2 minMaxAngle;
-
+        [SerializeField, SaveValue, HideIf("isCycled")] public Vector2 minMaxAngle;
+        [PlayerProperty] public float InputSignalMultiplier
+        {
+            get => inputSignalMultiplier;
+            set => inputSignalMultiplier = value;
+        }
         [ShowInInspector, ReadOnly] private float _inertia;
         [ShowInInspector, ReadOnly] private float _velocity;
         [ShowInInspector, ReadOnly] private float _currentAngle;

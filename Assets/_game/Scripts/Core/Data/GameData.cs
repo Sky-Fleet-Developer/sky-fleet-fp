@@ -8,7 +8,7 @@ using Zenject;
 
 namespace Core.Data
 {
-    [CreateAssetMenu(menuName = "Management/GameData")]
+    [CreateAssetMenu(menuName = "SF/Data/GameData")]
     public class GameData : CompoundScriptableObject
     {
         [InlineProperty(LabelWidth = 160), SerializeField] private SharedGameData serializedSharedData;

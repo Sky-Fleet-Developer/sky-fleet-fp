@@ -30,9 +30,12 @@ namespace Runtime.Structure
                 root.AddComponent<DynamicWorldObject>();
             }
 
-            foreach (Configuration<IStructure> configuration in configurations)
+            foreach (Configuration configuration in configurations)
             {
-                await configuration.Apply(structure);
+                if (configuration is Configuration<IStructure> structureConfiguration)
+                {
+                    await structureConfiguration.Apply(structure);
+                }
             }
 
             structure.Init();
@@ -81,7 +84,7 @@ namespace Runtime.Structure
             };
             if (structure is IGraph graph)
             {
-                return new Configuration[] { new BlocksConfiguration(structure), new GraphConfiguration(graph) };
+                return new Configuration[] { new BlocksConfiguration(structure), new GraphConfiguration(structure) };
             }
             return new Configuration[] { new BlocksConfiguration(structure) };
         }

@@ -99,6 +99,27 @@ namespace Runtime.Structure
             OnBlockRemovedEvent?.Invoke(block);
         }
 
+        public Parent GetOrFindParent(string path)
+        {
+            foreach (var p in Parents)
+            {
+                if (p.IsPatchMatch(path))
+                {
+                    return p;
+                }
+            }
+            
+            var parent = transform.FindDeepChild(path);
+            if (parent)
+            {
+                var result = new Parent(parent, this);
+                Parents.Add(result);
+                return result;
+            }
+
+            return null;
+        }
+
         public event Action<IBlock> OnBlockAddedEvent;
         public event Action<IBlock> OnBlockRemovedEvent;
 

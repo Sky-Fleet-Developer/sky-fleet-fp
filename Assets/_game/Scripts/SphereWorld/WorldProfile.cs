@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 
 namespace SphereWorld
 {
-    [CreateAssetMenu(menuName = "SphereWorld/Profile", fileName = "SphereWorldProfile")]
+    [CreateAssetMenu(menuName = "SF/SphereWorld/Profile", fileName = "SphereWorldProfile")]
     public class WorldProfile : CompoundScriptableObject
     {
         public float rigidPlanetRadiusKilometers;

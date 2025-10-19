@@ -62,7 +62,7 @@ namespace Core.Structure.Serialization
                 setup = new Dictionary<string, string>();
                 for (var i = 0; i < setupKeys.Count; i++)
                 {
-                    setup.Add(setupKeys[i], setupValues[i]);
+                    setup[setupKeys[i]] = setupValues[i];
                 }
             }
 
@@ -124,7 +124,7 @@ namespace Core.Structure.Serialization
             Parent parent = null;
             for (int i = 0; i < 10; i++)
             {
-                parent = structure.Parents.FirstOrDefault(x => x.Path == path);
+                parent = structure.GetOrFindParent(path);
                 if (parent == null)
                 {
                     await Task.Yield();

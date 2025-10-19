@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Core.Configurations
 {
-    [CreateAssetMenu(menuName = "Configs/Items")]
+    [CreateAssetMenu(menuName = "SF/Configs/Items")]
     public class ItemsTable : Table<ItemsTable.RawItemSign>
     {
         public class RawItemSign

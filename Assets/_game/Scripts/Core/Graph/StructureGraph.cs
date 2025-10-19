@@ -12,8 +12,6 @@ namespace Core.Graph
 {
     public class StructureGraph : IGraph, IDisposable
     {
-        private Dictionary<string, PortPointer> _portsCache;
-        private List<PortPointer> _portsPointers;
         private List<IGraphNode> _nodes;
         private PowerPortProcessor _powerPortProcessor;
         [ShowInInspector] private List<Wire> _wires;
@@ -22,7 +20,6 @@ namespace Core.Graph
 
         public IEnumerable<IGraphNode> Nodes => _nodes;
         public IEnumerable<Wire> Wires => _wires;
-        public IEnumerable<PortPointer> Ports => _portsPointers;
         private bool _isInitialized = false;
         private GraphConfiguration _configuration;
         private PortsAndWiresAddressBook _addressBook;
@@ -37,7 +34,6 @@ namespace Core.Graph
         {
             if(_isInitialized) return;
             _powerPortProcessor = new PowerPortProcessor(this);
-            _portsCache = new Dictionary<string, PortPointer>();
             _nodes = new List<IGraphNode>();
             _wires = new List<Wire>();
             /*
@@ -85,7 +81,7 @@ namespace Core.Graph
             _nodes.Add(node);
             node.InitNode(this);
             List<PortPointer> ports = new List<PortPointer>();
-            GraphUtilities.GetPorts(node, ref ports);
+            GraphUtilities.GetPorts(node, ports);
             _addressBook.SetNodePorts(node.NodeId, ports);
             foreach (var port in ports)
             {
@@ -182,15 +178,7 @@ namespace Core.Graph
 
         public PortPointer GetPort(string id)
         {
-            if (_portsCache.TryGetValue(id, out PortPointer port)) return port;
-            
-            port = _portsPointers.FirstOrDefault(x => x.Id.Equals(id));
-
-            if (!port.IsNull())
-            {
-                _portsCache.Add(id, port);
-            }
-            return port;
+            return _addressBook.GetPort(id);
         }
         
         /*private void ConnectPorts(params PortPointer[] ports)
