@@ -7,82 +7,82 @@ using System.Text;
 
 namespace Core.ContentSerializer
 {
-    public class ExtensionStream
+    public static class ExtensionStream
     {
-        private byte[] intBuffer = new byte[sizeof(int)];
-        private byte[] shortBuffer = new byte[sizeof(short)];
-        private byte[] floatBuffer = new byte[sizeof(float)];
-        private byte[] charBuffer = new byte[sizeof(char)];
-        private byte[] byteBuffer = new byte[sizeof(byte)];
+        private static byte[] intBuffer = new byte[sizeof(int)];
+        private static byte[] shortBuffer = new byte[sizeof(short)];
+        private static byte[] floatBuffer = new byte[sizeof(float)];
+        private static byte[] charBuffer = new byte[sizeof(char)];
+        private static byte[] byteBuffer = new byte[sizeof(byte)];
 
-        public void WriteInt(int value, Stream stream)
+        public static void WriteInt(this Stream stream, int value)
         {
             intBuffer = BitConverter.GetBytes(value);
             stream.Write(intBuffer, 0, sizeof(int));
         }
 
-        public int ReadInt(Stream stream)
+        public static int ReadInt(this Stream stream)
         {
             stream.Read(intBuffer, 0, sizeof(int));
             return BitConverter.ToInt32(intBuffer, 0);
         }
 
-        public void WriteShort(short value, Stream stream)
+        public static void WriteShort(this Stream stream, short value)
         {
             shortBuffer = BitConverter.GetBytes(value);
             stream.Write(shortBuffer, 0, sizeof(short));
         }
 
-        public short ReadShort(Stream stream)
+        public static short ReadShort(this Stream stream)
         {
             stream.Read(shortBuffer, 0, sizeof(short));
             return BitConverter.ToInt16(shortBuffer, 0);
         }
 
-        public void WriteUShort(ushort value, Stream stream)
+        public static void WriteUShort(this Stream stream, ushort value)
         {
             shortBuffer = BitConverter.GetBytes(value);
             stream.Write(shortBuffer, 0, sizeof(ushort));
         }
 
-        public ushort ReadUShort(Stream stream)
+        public static ushort ReadUShort(this Stream stream)
         {
             stream.Read(shortBuffer, 0, sizeof(ushort));
             return BitConverter.ToUInt16(shortBuffer, 0);
         }
 
-        public void WriteFloat(float value, Stream stream)
+        public static void WriteFloat(this Stream stream, float value)
         {
             floatBuffer = BitConverter.GetBytes(value);
             stream.Write(floatBuffer, 0, sizeof(int));
         }
 
-        public float ReadFloat(Stream stream)
+        public static float ReadFloat(this Stream stream)
         {
             stream.Read(floatBuffer, 0, sizeof(float));
             return BitConverter.ToSingle(floatBuffer, 0);
         }
 
-        public void WriteChar(char value, Stream stream)
+        public static void WriteChar(this Stream stream, char value)
         {
             charBuffer = BitConverter.GetBytes(value);
             stream.Write(charBuffer, 0, sizeof(char));
         }
 
-        public char ReadChar(Stream stream)
+        public static char ReadChar(this Stream stream)
         {
             stream.Read(charBuffer, 0, sizeof(char));
             return BitConverter.ToChar(charBuffer, 0);
         }
 
-        public void WriteString(string value, Stream stream)
+        public static void WriteString(this Stream stream, string value)
         {
             byte[] buffer = Encoding.UTF8.GetBytes(value);
-            WriteInt(buffer.Length, stream);
+            WriteInt(stream, buffer.Length);
             stream.Write(buffer, 0, buffer.Length);
         }
 
-        public string ReadString(Stream stream)
+        public static string ReadString(this Stream stream)
         {
             int count = ReadInt(stream);
             byte[] buffer = new byte[count];
@@ -90,19 +90,19 @@ namespace Core.ContentSerializer
             return Encoding.UTF8.GetString(buffer);
         }
 
-        public void WriteByte(byte value, Stream stream)
+        public static void WriteByte(this Stream stream, byte value)
         {
             byteBuffer[0] = value;
             stream.Write(byteBuffer, 0, 1);
         }
 
-        public byte ReadByte(Stream stream)
+        public static byte ReadByte(this Stream stream)
         {
             stream.Read(byteBuffer, 0, 1);
             return byteBuffer[0];
         }
 
-        public void WriteBool(bool value, Stream stream)
+        public static void WriteBool(this Stream stream, bool value)
         {
             if (value)
                 byteBuffer[0] = 255;
@@ -111,7 +111,7 @@ namespace Core.ContentSerializer
             stream.Write(byteBuffer, 0, 1);
         }
 
-        public bool ReadBool(Stream stream)
+        public static bool ReadBool(this Stream stream)
         {
             stream.Read(byteBuffer, 0, 1);
             return byteBuffer[0] > 0;

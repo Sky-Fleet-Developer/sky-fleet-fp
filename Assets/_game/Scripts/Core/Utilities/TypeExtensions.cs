@@ -20,8 +20,7 @@ namespace Core.Utilities
                 {
                     foreach (Type type in assembly.GetTypes())
                     {
-                        if (TypesCache.ContainsKey(type.FullName)) continue;
-                        TypesCache.Add(type.FullName, type);
+                        if (type.FullName != null) TypesCache[type.FullName] = type;
                     }
                 }
             }

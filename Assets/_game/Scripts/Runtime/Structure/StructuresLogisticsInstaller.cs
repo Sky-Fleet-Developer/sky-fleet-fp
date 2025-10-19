@@ -18,7 +18,7 @@ namespace Runtime.Structure
         
         public override void InstallBindings()
         {
-            Container.Bind<IFactory<StructureConfigurationHead, IEnumerable<Configuration>, Task<IStructure>>>().FromInstance(_structureFactory);
+            Container.Bind<IFactory<StructureConfigurationHead, IEnumerable<Configuration<IStructure>>, Task<IStructure>>>().FromInstance(_structureFactory);
             Container.Bind<IStructureDestructor>().FromInstance(_structureFactory);
         }
     }

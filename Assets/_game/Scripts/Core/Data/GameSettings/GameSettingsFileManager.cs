@@ -23,8 +23,7 @@ namespace Core.Data.GameSettings
 
             using (FileStream file = File.Open(path, FileMode.Open))
             {
-                ExtensionStream extension = new ExtensionStream();
-                int count = extension.ReadInt(file);
+                int count = file.ReadInt();
                 for (int i = 0; i < count; i++)
                 {
                     InputCategory inputCategory = ReadCategory(file);
@@ -63,8 +62,7 @@ namespace Core.Data.GameSettings
             CorrectDirectory();
             using (FileStream file = File.Open(path, FileMode.OpenOrCreate))
             {
-                ExtensionStream extension = new ExtensionStream();
-                extension.WriteInt(settings.Categories.Count, file);
+                file.WriteInt(settings.Categories.Count);
                 for (int i = 0; i < settings.Categories.Count; i++)
                 {
                     WriteCategory(file, settings.Categories[i]);
@@ -74,9 +72,8 @@ namespace Core.Data.GameSettings
 
         private static void WriteCategory(Stream streamOpen, InputCategory inputCategory)
         {
-            ExtensionStream extension = new ExtensionStream();
-            extension.WriteString(inputCategory.Name, streamOpen);
-            extension.WriteInt(inputCategory.Elements.Count, streamOpen);
+            streamOpen.WriteString(inputCategory.Name);
+            streamOpen.WriteInt(inputCategory.Elements.Count);
             FactoryOptionSave factory = new FactoryOptionSave();
             for (int i = 0; i < inputCategory.Elements.Count; i++)
             {
@@ -87,14 +84,12 @@ namespace Core.Data.GameSettings
         private static InputCategory ReadCategory(Stream streamOpen)
         {
             InputCategory inputCategory = new InputCategory();
-            ExtensionStream extension = new ExtensionStream();
-            OptionLoadFactory optionLoadFactory = new OptionLoadFactory();
-            inputCategory.Name = extension.ReadString(streamOpen);
-            int countInput = extension.ReadInt(streamOpen);
+            inputCategory.Name = streamOpen.ReadString();
+            int countInput = streamOpen.ReadInt();
             for (int i = 0; i < countInput; i++)
             {
-                TypeSettingElement type = (TypeSettingElement)extension.ReadByte(streamOpen);
-                ElementControlSetting element = optionLoadFactory.Generate(new SettingDefine() { TypeElement = type, StreamOpen = streamOpen});
+                TypeSettingElement type = (TypeSettingElement)streamOpen.ReadByte();
+                ElementControlSetting element = new OptionLoadFactory().Generate(new SettingDefine() { TypeElement = type, StreamOpen = streamOpen});
                 inputCategory.Elements.Add(element);
             }
 
@@ -166,17 +161,16 @@ namespace Core.Data.GameSettings
 
             public override ElementControlSetting Generate(SettingDefine define)
             {
-                ExtensionStream extension = new ExtensionStream();
-                extension.WriteByte((byte)TypeSettingElement.Toogle, define.StreamOpen);
-                extension.WriteString(define.Element.Name, define.StreamOpen);
+                define.StreamOpen.WriteByte((byte)TypeSettingElement.Toogle);
+                define.StreamOpen.WriteString(define.Element.Name);
                 ToggleSetting toggle = (ToggleSetting)define.Element;
                 if (toggle.IsOn)
                 {
-                    extension.WriteByte(255, define.StreamOpen);
+                    define.StreamOpen.WriteByte(255);
                 }
                 else
                 {
-                    extension.WriteByte(0, define.StreamOpen);
+                    define.StreamOpen.WriteByte(0);
                 }
                 return define.Element;
             }
@@ -192,17 +186,16 @@ namespace Core.Data.GameSettings
 
             public override ElementControlSetting Generate(SettingDefine define)
             {
-                ExtensionStream extension = new ExtensionStream();
-                extension.WriteByte((byte)TypeSettingElement.InputButtons, define.StreamOpen);
-                extension.WriteString(define.Element.Name, define.StreamOpen);
+                define.StreamOpen.WriteByte((byte)TypeSettingElement.InputButtons);
+                define.StreamOpen.WriteString(define.Element.Name);
                 InputButtons inputButtons = (InputButtons)define.Element;
-                extension.WriteByte((byte)inputButtons.Keys.Count, define.StreamOpen);
+                define.StreamOpen.WriteByte((byte)inputButtons.Keys.Count);
                 for (int i = 0; i < inputButtons.Keys.Count; i++)
                 {
-                    extension.WriteByte((byte)inputButtons.Keys[i].KeyCodes.Length, define.StreamOpen);
+                    define.StreamOpen.WriteByte((byte)inputButtons.Keys[i].KeyCodes.Length);
                     for (int i2 = 0; i2 < inputButtons.Keys[i].KeyCodes.Length; i2++)
                     {
-                        extension.WriteShort((short)inputButtons.Keys[i].KeyCodes[i2], define.StreamOpen);
+                        define.StreamOpen.WriteShort((short)inputButtons.Keys[i].KeyCodes[i2]);
                     }
                 }
                 return define.Element;
@@ -219,13 +212,12 @@ namespace Core.Data.GameSettings
 
             public override ElementControlSetting Generate(SettingDefine define)
             {
-                ExtensionStream extension = new ExtensionStream();
-                extension.WriteByte((byte)TypeSettingElement.InputAxis, define.StreamOpen);
-                extension.WriteString(define.Element.Name, define.StreamOpen);
+                define.StreamOpen.WriteByte((byte)TypeSettingElement.InputAxis);
+                define.StreamOpen.WriteString(define.Element.Name);
                 InputAxis inputAxis = (InputAxis)define.Element;
-                extension.WriteString(inputAxis.GetAxis().Name, define.StreamOpen);
-                extension.WriteBool(inputAxis.GetAxis().Inverse, define.StreamOpen);
-                extension.WriteFloat(inputAxis.GetAxis().Multiply, define.StreamOpen);
+                define.StreamOpen.WriteString(inputAxis.GetAxis().Name);
+                define.StreamOpen.WriteBool(inputAxis.GetAxis().Inverse);
+                define.StreamOpen.WriteFloat(inputAxis.GetAxis().Multiply);
                 return define.Element;
             }
         }
@@ -242,9 +234,8 @@ namespace Core.Data.GameSettings
             public override ElementControlSetting Generate(SettingDefine define)
             {
                 ToggleSetting toggle = new ToggleSetting();
-                ExtensionStream extension = new ExtensionStream();
-                toggle.Name = extension.ReadString(define.StreamOpen);
-                byte isOn = extension.ReadByte(define.StreamOpen);
+                toggle.Name = define.StreamOpen.ReadString();
+                int isOn = define.StreamOpen.ReadByte();
                 if (isOn > 0)
                 {
                     toggle.IsOn = true;
@@ -268,17 +259,16 @@ namespace Core.Data.GameSettings
             public override ElementControlSetting Generate(SettingDefine define)
             {
                 InputButtons inputButtons = new InputButtons();
-                ExtensionStream extension = new ExtensionStream();
-                inputButtons.Name = extension.ReadString(define.StreamOpen);
-                byte countInput = extension.ReadByte(define.StreamOpen);
+                inputButtons.Name = define.StreamOpen.ReadString();
+                int countInput = define.StreamOpen.ReadByte();
                 for (int i = 0; i < countInput; i++)
                 {
                     ButtonCodes buttons = new ButtonCodes();
-                    byte countButtons = extension.ReadByte(define.StreamOpen);
+                    int countButtons = define.StreamOpen.ReadByte();
                     buttons.KeyCodes = new KeyCode[countButtons];
                     for (int i2 = 0; i2 < countButtons; i2++)
                     {
-                        buttons.KeyCodes[i2] = (KeyCode)extension.ReadShort(define.StreamOpen);
+                        buttons.KeyCodes[i2] = (KeyCode)define.StreamOpen.ReadShort();
                     }
                     inputButtons.AddKey(buttons);
 
@@ -297,11 +287,10 @@ namespace Core.Data.GameSettings
             public override ElementControlSetting Generate(SettingDefine define)
             {
                 InputAxis inputAxis = new InputAxis();
-                ExtensionStream extension = new ExtensionStream();
-                inputAxis.Name = extension.ReadString(define.StreamOpen);
-                AxisCode code = new AxisCode(extension.ReadString(define.StreamOpen));
-                code.Inverse = extension.ReadBool(define.StreamOpen);
-                code.Multiply = extension.ReadFloat(define.StreamOpen);
+                inputAxis.Name = define.StreamOpen.ReadString();
+                AxisCode code = new AxisCode(define.StreamOpen.ReadString());
+                code.Inverse = define.StreamOpen.ReadBool();
+                code.Multiply = define.StreamOpen.ReadFloat();
                 inputAxis.SetAxis(code);
                 
                 return inputAxis;

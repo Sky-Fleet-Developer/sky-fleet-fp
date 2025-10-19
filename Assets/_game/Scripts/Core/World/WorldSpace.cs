@@ -11,7 +11,7 @@ namespace Core.World
         [Inject] private WorldGrid _grid;
         private DiContainer _diContainer;
 
-        public void RegisterStructure(StructureConfigurationHead head, Configuration[] configs)
+        public void RegisterStructure(StructureConfigurationHead head, Configuration<IStructure>[] configs)
         {
             StructureEntity entity = new StructureEntity(head, configs);
             _diContainer.Inject(entity);

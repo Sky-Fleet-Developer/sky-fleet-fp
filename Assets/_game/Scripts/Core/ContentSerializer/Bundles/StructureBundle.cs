@@ -16,12 +16,17 @@ namespace Core.ContentSerializer.Bundles
         [JsonRequired] private Dictionary<string, string> blocksCache = new Dictionary<string, string>();
         [JsonRequired] private Dictionary<string, string> parentsCache = new Dictionary<string, string>();
         [JsonRequired] private Dictionary<string, string> dynamicsCache = new Dictionary<string, string>();
-        [JsonRequired] private string configuration;
-        [JsonRequired] private string guid;
+        [JsonRequired] private string _configuration;
+        [JsonRequired] private string _head;
         
         public StructureBundle()
         {
-            
+        }
+
+        public StructureBundle(StructureConfigurationHead head, IEnumerable<Configuration<IStructure>> configs, ISerializationContext context)
+        {
+            _head = JsonConvert.SerializeObject(head);
+            _configuration = JsonConvert.SerializeObject(configs);
         }
         
         public StructureBundle(IStructure structure, ISerializationContext context)
@@ -30,8 +35,7 @@ namespace Core.ContentSerializer.Bundles
             
             Transform tr = structure.transform;
             
-            configuration = JsonConvert.SerializeObject(new BlocksConfiguration(structure));
-            guid = structure.Guid;
+            _configuration = JsonConvert.SerializeObject(new BlocksConfiguration(structure));
             name = tr.name;
 
             
@@ -56,20 +60,25 @@ namespace Core.ContentSerializer.Bundles
 
         public async Task<IStructure> ConstructStructure(ISerializationContext context)
         {
-            RemotePrefabItem item = TablePrefabs.Instance.GetItem(guid);
+            var head = JsonConvert.DeserializeObject<StructureConfigurationHead>(_head);
+            RemotePrefabItem item = TablePrefabs.Instance.GetItem(head.bodyGuid);
             GameObject prefab = await item.LoadPrefab();
             if (prefab == null) return null;
 
             IStructure instance = Object.Instantiate(prefab).GetComponent<IStructure>();
             instance.transform.name = name;
+
+            List<Configuration<IStructure>> config = JsonConvert.DeserializeObject<List<Configuration<IStructure>>>(_configuration);
+            List<Task> waiting = new List<Task>();
+            foreach (Configuration<IStructure> configuration in config)
+            {
+                waiting.Add(configuration.Apply(instance));
+            }
+            
+            await Task.WhenAll(waiting);
             instance.Init();
 
-            BlocksConfiguration config = JsonConvert.DeserializeObject<BlocksConfiguration>(configuration);
-            config?.Apply(instance);
-            
             Transform tr = instance.transform;
-
-            List<Task> waiting = new List<Task>();
             Task tempTask;
             foreach (IBlock block in instance.Blocks)
             {

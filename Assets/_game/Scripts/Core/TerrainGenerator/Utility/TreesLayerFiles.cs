@@ -15,15 +15,14 @@ namespace Core.TerrainGenerator.Utility
         {
             using (FileStream file = File.Open(path, FileMode.OpenOrCreate))
             {
-                ExtensionStream extension = new ExtensionStream();
-                extension.WriteInt(trees.Count, file);
+                file.WriteInt(trees.Count);
                 for (int i = 0; i < trees.Count; i++)
                 {
-                    extension.WriteInt(trees[i].Layer, file);
-                    extension.WriteInt(trees[i].NumTree, file);
-                    extension.WriteByte((byte)(trees[i].Rotate * byte.MaxValue), file);
-                    extension.WriteFloat(trees[i].Pos.x, file);
-                    extension.WriteFloat(trees[i].Pos.y, file);
+                    file.WriteInt(trees[i].Layer);
+                    file.WriteInt(trees[i].NumTree);
+                    file.WriteByte((byte)(trees[i].Rotate * byte.MaxValue));
+                    file.WriteFloat(trees[i].Pos.x);
+                    file.WriteFloat(trees[i].Pos.y);
                 }
             }
         }
@@ -32,15 +31,14 @@ namespace Core.TerrainGenerator.Utility
         {
             using (FileStream file = File.Open(path, FileMode.Open))
             {
-                ExtensionStream extension = new ExtensionStream();
-                int count = extension.ReadInt(file);
+                int count = file.ReadInt();
                 for(int i = 0; i < count; i++)
                 {
                     TreePos pos = new TreePos();
-                    pos.Layer = extension.ReadInt(file);
-                    pos.NumTree = extension.ReadInt(file);
-                    pos.Rotate = (extension.ReadByte(file) / (float)byte.MaxValue);
-                    pos.Pos = new Vector2(extension.ReadFloat(file), extension.ReadFloat(file));
+                    pos.Layer = file.ReadInt();
+                    pos.NumTree = file.ReadInt();
+                    pos.Rotate = (file.ReadByte() / (float)byte.MaxValue);
+                    pos.Pos = new Vector2(file.ReadFloat(), file.ReadFloat());
                     layer.Add(pos);
                 }
             }

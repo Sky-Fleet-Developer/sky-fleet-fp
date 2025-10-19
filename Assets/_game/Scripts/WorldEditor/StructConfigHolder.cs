@@ -159,13 +159,13 @@ namespace WorldEditor
             {
                 if (_worldSpace)
                 {
-                    _worldSpace.RegisterStructure(configurationHead, new Configuration[] {blocksConfiguration, graphConfiguration});
+                    _worldSpace.RegisterStructure(configurationHead, new Configuration<IStructure>[] {blocksConfiguration, graphConfiguration});
                     return;
                 }
             }
 #if UNITY_EDITOR
             var structureFactory = new StructureFactory();
-            structure = await structureFactory.Create(configurationHead, new Configuration[] {blocksConfiguration, graphConfiguration});
+            structure = await structureFactory.Create(configurationHead, new Configuration<IStructure>[] {blocksConfiguration, graphConfiguration});
             structure.transform.SetParent(transform);
 #endif
         }

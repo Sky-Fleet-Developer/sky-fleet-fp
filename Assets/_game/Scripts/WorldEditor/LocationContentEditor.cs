@@ -1,17 +1,58 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Core.Data;
+using Core.World;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
+using Zenject;
 
 namespace WorldEditor
 {
-    
+    public class LocationChunkEditorLoadStrategy : ILocationChunkLoadStrategy
+    {
+        public Task Load(LocationChunkData data, Vector2Int coord)
+        {
+            List<Task> tasks = new List<Task>();
+            foreach (var worldEntity in data.Entities)
+            {
+                worldEntity.OnLodChanged(0);
+                var loadTask = worldEntity.GetAnyLoad();
+                if (loadTask != null)
+                {
+                    tasks.Add(loadTask);
+                }
+            }
+            
+            return Task.WhenAll(tasks);
+        }
+
+        public Task Unload(LocationChunkData data, Vector2Int coord)
+        {
+            List<Task> tasks = new List<Task>();
+            foreach (var worldEntity in data.Entities)
+            {
+                worldEntity.OnLodChanged(GameData.Data.lodDistances.lods.Length);
+                var loadTask = worldEntity.GetAnyLoad();
+                if (loadTask != null)
+                {
+                    tasks.Add(loadTask);
+                }
+            }
+            
+            return Task.WhenAll(tasks);
+        }
+    }
     public class LocationContentEditor : EditorWindow
     {
         private const string PrefsKey = nameof(LocationContentEditor);
-        private BoundsInt _currentContentRange;
-        private BoundsInt _rangeSettings;
-        
+        private RectInt _currentContentRange;
+        private RectInt _rangeSettings;
+        private LocationChunksSet _chunksSet;
+        private LocationInstaller _locationInstaller;
+        private Task _loading;
+
         [MenuItem("Window/SF/Location Content Editor")]
         public static void Open()
         {
@@ -20,8 +61,12 @@ namespace WorldEditor
 
         private void OnEnable()
         {
-            var rangeFromSave = JsonConvert.DeserializeObject<BoundsInt?>(PlayerPrefs.GetString(PrefsKey + "." + nameof(_currentContentRange), ""));
-            _currentContentRange = rangeFromSave ?? default;
+            _locationInstaller = FindAnyObjectByType<LocationInstaller>();
+            DiContainer diContainer = new DiContainer();
+            _locationInstaller.InstallBindings(diContainer);
+            _chunksSet = new LocationChunksSet(diContainer.Resolve<Location>(), new LocationChunkEditorLoadStrategy());
+            var rangeFromSave = JsonConvert.DeserializeObject<RectInt?>(PlayerPrefs.GetString(PrefsKey + "." + nameof(_currentContentRange), ""));
+            _currentContentRange = rangeFromSave ?? new RectInt(0, 0, 1, 1);
             _rangeSettings = _currentContentRange;
         }
 
@@ -30,6 +75,17 @@ namespace WorldEditor
             if (Event.current.type == EventType.Layout || Event.current.type == EventType.Repaint || Event.current.type == EventType.MouseDown  || Event.current.type == EventType.MouseUp)
             {
                 DrawHeader();
+                if (_loading != null)
+                {
+                    if (_loading.IsCompleted)
+                    {
+                        _loading.Wait();
+                        _loading = null;
+                    }
+                    GUILayout.Label("Loading...");
+                    return;
+                }
+
                 DrawContentRangeSettings();
             }
         }
@@ -38,18 +94,23 @@ namespace WorldEditor
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label("Content Range:");
-            _rangeSettings = EditorGUILayout.BoundsIntField(_rangeSettings);
+            _rangeSettings = EditorGUILayout.RectIntField(_rangeSettings);
             GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Load", GUILayout.Width(200), GUILayout.Height(40)))
+            if (_rangeSettings != _currentContentRange)
             {
-                _currentContentRange = _rangeSettings;
-                PlayerPrefs.SetString(PrefsKey + "." + nameof(_currentContentRange), JsonConvert.SerializeObject(_currentContentRange));
-                Load(_rangeSettings);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Load", GUILayout.Width(200), GUILayout.Height(40)))
+                {
+                    _currentContentRange = _rangeSettings;
+                    PlayerPrefs.SetString(PrefsKey + "." + nameof(_currentContentRange), 
+                        JsonConvert.SerializeObject(_currentContentRange));
+                    Load(_rangeSettings);
+                }
+
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
             }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
         }
 
         private static void DrawHeader()
@@ -72,9 +133,10 @@ namespace WorldEditor
             GUILayout.Space(20);
         }
 
-        private void Load(BoundsInt rangeSettings)
+        private void Load(RectInt rangeSettings)
         {
             Debug.Log($"Loading content range: {rangeSettings}");
+            _loading = _chunksSet.SetRange(rangeSettings);
         }
     }
 }

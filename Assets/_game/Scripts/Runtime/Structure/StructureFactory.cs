@@ -12,9 +12,9 @@ using Zenject;
 
 namespace Runtime.Structure
 {
-    public class StructureFactory : IFactory<StructureConfigurationHead, IEnumerable<Configuration>, Task<IStructure>>, IStructureDestructor
+    public class StructureFactory : IFactory<StructureConfigurationHead, IEnumerable<Configuration<IStructure>>, Task<IStructure>>, IStructureDestructor
     {
-        public async Task<IStructure> Create(StructureConfigurationHead head, IEnumerable<Configuration> configurations)
+        public async Task<IStructure> Create(StructureConfigurationHead head, IEnumerable<Configuration<IStructure>> configurations)
         {
             var root = head.Root ?? await CreateRoot(head.bodyGuid);
             root.transform.position = head.position;
@@ -30,12 +30,9 @@ namespace Runtime.Structure
                 root.AddComponent<DynamicWorldObject>();
             }
 
-            foreach (Configuration configuration in configurations)
+            foreach (Configuration<IStructure> configuration in configurations)
             {
-                if (configuration is Configuration<IStructure> structureConfiguration)
-                {
-                    await structureConfiguration.Apply(structure);
-                }
+                await configuration.Apply(structure);
             }
 
             structure.Init();
@@ -73,7 +70,8 @@ namespace Runtime.Structure
             DynamicPool.Instance.Return(structure.transform);
         }
 
-        public Configuration[] GetDefaultConfigurations(IStructure structure, out StructureConfigurationHead head)
+        public Configuration<IStructure>[] GetDefaultConfigurations(IStructure structure,
+            out StructureConfigurationHead head)
         {
             head = new StructureConfigurationHead
             {
@@ -82,11 +80,8 @@ namespace Runtime.Structure
                 rotation = structure.transform.rotation,
                 Root = structure.transform.gameObject,
             };
-            if (structure is IGraph graph)
-            {
-                return new Configuration[] { new BlocksConfiguration(structure), new GraphConfiguration(structure) };
-            }
-            return new Configuration[] { new BlocksConfiguration(structure) };
+            return new Configuration<IStructure>[]
+                { new BlocksConfiguration(structure), new GraphConfiguration(structure) };
         }
     }
 }

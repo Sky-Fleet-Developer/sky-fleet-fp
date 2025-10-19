@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -25,21 +26,21 @@ namespace Core.World
             return _correctedFormat;
         }
         
-        public void WriteChunk(LocationChunkData chunkData, int x, int y)
+        public async Task WriteChunk(LocationChunkData chunkData, int x, int y)
         {
             string path = GetDataFilePath(x, y);
             using FileStream stream = File.Open(path, FileMode.OpenOrCreate);
-            chunkData.Serialize(stream);
+            await chunkData.Serialize(stream);
         }
 
-        public LocationChunkData ReadChunk(int x, int y)
+        public async Task<LocationChunkData> ReadChunk(int x, int y)
         {
             if(_cache.TryGetValue(new Vector2Int(x, y), out LocationChunkData chunkData)) return chunkData;
             string path = GetDataFilePath(x, y);
             if(!File.Exists(path)) return null;
             chunkData = new LocationChunkData();
             using FileStream stream = File.Open(path, FileMode.Open);
-            chunkData.Deserialize(stream);
+            await chunkData.Deserialize(stream);
             _cache.Add(new Vector2Int(x, y), chunkData);
             return chunkData;
         }
