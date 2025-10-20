@@ -80,7 +80,7 @@ private  static int instanceCount = 0;
             var chunk = await _location.ReadChunk(coord.x, coord.y);
             foreach (var entity in chunk.GetEntities())
             {
-                _diContainer.Inject(entity);   
+                _diContainer.Inject(entity);
             }
             _chunks[coord] = chunk;
             Debug.Log($"Load chunk: {coord}");
@@ -93,7 +93,7 @@ private  static int instanceCount = 0;
         }
 
         private async Task Unload(Vector2Int coord)
-        { 
+        {
             await _loadStrategy.Unload(_chunks[coord], coord);
         }   
         
@@ -125,11 +125,13 @@ private  static int instanceCount = 0;
 
         public IEnumerable<IWorldEntity> GetEntities(Vector2Int cell)
         {
-            if (!_range.Contains(cell))
+            if (_chunks.TryGetValue(cell, out var chunk))
             {
-                throw new Exception("Entity is not in loaded range");
+                foreach (var worldEntity in chunk.GetEntities())
+                {
+                    yield return worldEntity;
+                }
             }
-            return _chunks[cell].GetEntities();
         }
 
         public bool IsInRange(Vector2Int cell)

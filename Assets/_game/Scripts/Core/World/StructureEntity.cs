@@ -24,6 +24,7 @@ namespace Core.World
         private Configuration<IStructure>[] _configs;
         private StructureConfigurationHead _head;
         private Task<IStructure> _loading;
+        private List<IWorldEntityDisposeListener> _disposeListeners = new (2);
         public event Action<StructureEntity, int> OnLodChangedEvent;
         public Vector3 Position => _head.position;
         public IStructure Structure => _structure;
@@ -119,6 +120,16 @@ namespace Core.World
             return Task.CompletedTask;
         }
 
+        public void RegisterDisposeListener(IWorldEntityDisposeListener listener)
+        {
+            _disposeListeners.Add(listener);   
+        }
+
+        public void UnregisterDisposeListener(IWorldEntityDisposeListener listener)
+        {
+            _disposeListeners.Remove(listener);   
+        }
+
         public void Update()
         {
             if (_structure != null)
@@ -169,6 +180,10 @@ namespace Core.World
 
         public void Dispose()
         {
+            foreach (var listener in _disposeListeners)
+            {
+                listener.OnEntityDisposed(this);
+            }
             if (_loading != null)
             {
                 _loading.Dispose();

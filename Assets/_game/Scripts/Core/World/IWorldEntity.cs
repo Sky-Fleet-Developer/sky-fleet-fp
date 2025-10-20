@@ -12,5 +12,7 @@ namespace Core.World
         Task GetAnyLoad();
         Task Serialize(Stream stream);
         Task Deserialize(Stream stream);
+        void RegisterDisposeListener(IWorldEntityDisposeListener listener);
+        void UnregisterDisposeListener(IWorldEntityDisposeListener listener);
     }
 }

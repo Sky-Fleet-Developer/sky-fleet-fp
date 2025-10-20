@@ -19,7 +19,7 @@ namespace Core.World
         public int refreshPeriod;
     }
 
-    public class WorldGrid : MonoBehaviour, ILoadAtStart, IInstallerWithContainer
+    public class WorldGrid : MonoBehaviour, ILoadAtStart, IInstallerWithContainer, IWorldEntityDisposeListener
     {
         [SerializeField] private WorldGridProfile profile;
         [ShowInInspector] private WorldGridData Settings
@@ -61,10 +61,13 @@ namespace Core.World
             return Task.CompletedTask;
         }
 
-        private void RefreshGrid()
+        private async void RefreshGrid()
         {
             _grid = new Grid(_playerTracker.WorldPosition, Settings.occlusionGridCellSize, true);
             _refreshNeighboursRadius = Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f);
+            var cell = _grid.PositionToCell(_playerTracker.WorldPosition);
+            await _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
+                _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
         }
         
         public void AddEntity(IWorldEntity entity)
@@ -77,10 +80,6 @@ namespace Core.World
             _chunksSet.AddEntityToChunk(new Vector2Int(cell.x, cell.z), entity);
             _lods[entity] = -1;
             SetLodForEntity(entity);
-        }
-
-        private void AddEntityToCell(Vector3Int cell, IWorldEntity entity)
-        {
         }
 
         public void RemoveEntity(IWorldEntity entity)
@@ -108,7 +107,11 @@ namespace Core.World
                 }*/
             }
 
-            _grid.Update(_playerTracker.WorldPosition, out _);
+            if (_grid.Update(_playerTracker.WorldPosition, out var cell))
+            {
+                _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
+                    _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
+            }
 
             foreach (var entity in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
             {
@@ -196,6 +199,11 @@ namespace Core.World
         public void InstallBindings(DiContainer container)
         {
             container.Bind<WorldGrid>().FromInstance(this);
+        }
+
+        public void OnEntityDisposed(IWorldEntity entity)
+        {
+            RemoveEntity(entity);
         }
     }
 }
