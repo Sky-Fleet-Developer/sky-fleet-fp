@@ -19,7 +19,12 @@ namespace Runtime.Structure
             var root = head.Root ?? await CreateRoot(head.bodyGuid);
             root.transform.position = head.position;
             root.transform.rotation = head.rotation;
-
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                root.hideFlags = HideFlags.DontSave;
+            }
+#endif
             var structure = root.GetComponent<IStructure>();
             if (Application.isPlaying)
             {
@@ -60,14 +65,29 @@ namespace Runtime.Structure
 
             return instance.gameObject;
         }
-        
+
         public void Destruct(IStructure structure)
         {
-            foreach (IBlock structureBlock in structure.Blocks)
+#if UNITY_EDITOR
+            if (Application.isPlaying)
             {
-                DynamicPool.Instance.Return(structureBlock.transform);
+#endif
+                foreach (IBlock structureBlock in structure.Blocks)
+                {
+                    DynamicPool.Instance.Return(structureBlock.transform);
+                }
+
+                DynamicPool.Instance.Return(structure.transform);
+#if UNITY_EDITOR
             }
-            DynamicPool.Instance.Return(structure.transform);
+            else
+            {
+                if (structure != null && structure.transform)
+                {
+                    Object.DestroyImmediate(structure.transform.gameObject);
+                }
+            }
+#endif
         }
 
         public Configuration<IStructure>[] GetDefaultConfigurations(IStructure structure,

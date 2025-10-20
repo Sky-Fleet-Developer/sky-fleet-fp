@@ -50,6 +50,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 224c86b27b861a940ad48c19615b6c2e
+    m_Address: MineShop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 250bff99d49557f4194a3fb0f505fd48
     m_Address: SupportTopCutoffModule
     m_ReadOnly: 0
@@ -100,6 +105,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4ca7a315dc9b1df46b4f7b3467189178
+    m_Address: CargoLoadingArea
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 559f97fa9e9482247ba86d12f15c48ab
     m_Address: Assets/_game/Prefabs/Blocks/Emgracopter/ElevonsDistributor.prefab
     m_ReadOnly: 0
@@ -147,6 +157,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9b1a814305bc6ca4f8c0fc8a154b8eb1
     m_Address: Cargo_Emgracopter
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a1db0336960bde847b305e2066f11d9b
+    m_Address: Mine
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

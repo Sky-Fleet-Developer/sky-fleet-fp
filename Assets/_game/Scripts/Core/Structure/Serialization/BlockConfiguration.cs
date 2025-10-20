@@ -23,7 +23,7 @@ namespace Core.Structure.Serialization
         private Dictionary<string, string> setup;//свойства помеченные [PlayerProperty] или [ConstantField]
         [SerializeField] private List<string> setupKeys = new List<string>();
         [SerializeField] private List<string> setupValues = new List<string>();
-        
+        public BlockConfiguration(){}
         public BlockConfiguration(IBlock block)
         {
             path = block.GetPath();

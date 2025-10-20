@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Core.World
 {
-    public class TransformTracker : MonoBehaviour
+    public class TransformTracker : MonoBehaviour, IDynamicPositionProvider
     {
         [SerializeField] private int historyLength = 50; 
         [SerializeField] private float cachePositionDelay = 1f;
@@ -14,8 +14,10 @@ namespace Core.World
         private Vector3 _storedVelocity;
         private int _historyPointer;
         [ShowInInspector] public Vector3 StoredVelocity => _storedVelocity;
-        [ShowInInspector] public Vector3 Position => _isInitialized ? _history[_historyPointer] + WorldOffset.Offset : Vector3.zero;
-        public Vector3 GetPredictedPosition(float time) => Position + _storedVelocity * time;
+        [ShowInInspector] public Vector3 WorldPosition => _isInitialized ? _history[_historyPointer] + WorldOffset.Offset : Vector3.zero;
+        public Vector3 SpacePosition => _isInitialized ? _history[_historyPointer] : Vector3.zero;
+        
+        public Vector3 GetPredictedWorldPosition(float time) => WorldPosition + _storedVelocity * time;
         private bool _isInitialized;
         public void Start()
         {

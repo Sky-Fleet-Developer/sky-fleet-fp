@@ -63,7 +63,7 @@ namespace Runtime.Character
         public void InstallBindings(DiContainer container)
         {
             _diContainer = container;
-            _diContainer.Bind<TransformTracker>().WithId("Player").FromInstance(playerCamera.GetComponent<TransformTracker>());
+            _diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(playerCamera.GetComponent<TransformTracker>());
         }
     }
 }

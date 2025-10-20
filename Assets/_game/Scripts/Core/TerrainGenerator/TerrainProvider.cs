@@ -29,7 +29,7 @@ namespace Core.TerrainGenerator
 
         private Dictionary<Vector2Int, HashSet<IDeformer>> deformersByChunk = new Dictionary<Vector2Int, HashSet<IDeformer>>();
         private List<IDeformer> deformersQueue = new List<IDeformer>();
-        [Inject(Id = "Player")] private TransformTracker _playerTracker;
+        [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
 
         public Chunk GetChunk(Vector2Int position)
         {
@@ -216,7 +216,7 @@ namespace Core.TerrainGenerator
             {
                 return FindAnyObjectByType<SpawnPerson>().transform.position;
             }*/
-            Vector3 pos = _playerTracker.GetPredictedPosition(20) + WorldOffset.Offset;
+            Vector3 pos = _playerTracker.GetPredictedWorldPosition(20);
             pos.y = 0;
             return pos;
         }

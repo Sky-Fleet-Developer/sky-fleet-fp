@@ -40,9 +40,9 @@ namespace Core.World
 #endif
             }
         }
-        [Inject(Id = "Player")] private TransformTracker _playerTracker;
+        [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
+        [Inject] private LocationChunksSet _chunksSet;
         private Grid _grid;
-        private Dictionary<Vector3Int, LinkedList<IWorldEntity>> _entitiesGrid = new ();
         private Dictionary<IWorldEntity, int> _lods = new ();
         private List<IWorldEntity> _entitiesList = new ();
         private List<Vector3Int> _coordinatesCache = new ();
@@ -63,7 +63,7 @@ namespace Core.World
 
         private void RefreshGrid()
         {
-            _grid = new Grid(_playerTracker.Position, Settings.occlusionGridCellSize, true);
+            _grid = new Grid(_playerTracker.WorldPosition, Settings.occlusionGridCellSize, true);
             _refreshNeighboursRadius = Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f);
         }
         
@@ -74,25 +74,19 @@ namespace Core.World
             _entitiesList.Add(entity);
             _coordinatesCache.Add(cell);
             
-            AddEntityToCell(cell, entity);
+            _chunksSet.AddEntityToChunk(new Vector2Int(cell.x, cell.z), entity);
             _lods[entity] = -1;
             SetLodForEntity(entity);
         }
 
         private void AddEntityToCell(Vector3Int cell, IWorldEntity entity)
         {
-            if (!_entitiesGrid.TryGetValue(cell, out var list))
-            {
-                list = new LinkedList<IWorldEntity>();
-                _entitiesGrid[cell] = list;
-            }
-            list.AddLast(entity);
         }
 
         public void RemoveEntity(IWorldEntity entity)
         {
             var cell = _grid.PositionToCell(entity.Position);
-            _entitiesGrid[cell].Remove(entity);
+            _chunksSet.RemoveEntityFromChunk(new Vector2Int(cell.x, cell.z), entity);
             _entitiesList.Remove(entity);
             _lods[entity] = -1;
         }
@@ -114,9 +108,9 @@ namespace Core.World
                 }*/
             }
 
-            _grid.Update(_playerTracker.Position, out _);
+            _grid.Update(_playerTracker.WorldPosition, out _);
 
-            foreach (var entity in EnumerateNeighbours(_playerTracker.Position, _refreshNeighboursRadius))
+            foreach (var entity in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
             {
                 SetLodForEntity(entity);
             }
@@ -136,15 +130,15 @@ namespace Core.World
                         entity.OnLodChanged(Settings.maxRefreshLod + 1);
                     }
                 }
-                _entitiesGrid[_coordinatesCache[i]].Remove(entity);
+                _chunksSet.RemoveEntityFromChunk(new Vector2Int(_coordinatesCache[i].x, _coordinatesCache[i].z), entity);
                 _coordinatesCache[i] = cell;
-                AddEntityToCell(cell, entity);
+                _chunksSet.AddEntityToChunk(new Vector2Int(cell.x, cell.z), entity);
             }
         }
 
         private void SetLodForEntity(IWorldEntity entity)
         {
-            float dSqr = Vector3.SqrMagnitude(entity.Position - _playerTracker.Position);
+            float dSqr = Vector3.SqrMagnitude(entity.Position - _playerTracker.WorldPosition);
             var lod = GameData.Data.lodDistances.GetLodSqr(dSqr);
             if (_lods[entity] != lod)
             {
@@ -159,7 +153,7 @@ namespace Core.World
             float sqrRadius = radius * radius;
             foreach (var worldEntity in EnumerateNeighbours(center, range))
             {
-                if (Vector3.SqrMagnitude(worldEntity.Position - _playerTracker.Position) < sqrRadius)
+                if (Vector3.SqrMagnitude(worldEntity.Position - _playerTracker.WorldPosition) < sqrRadius)
                 {
                     yield return worldEntity;
                 }
@@ -174,8 +168,8 @@ namespace Core.World
             Vector3Int cell = min;
             for (cell.x = min.x; cell.x <= max.x; cell.x++)
             {
-                for (cell.y = min.y; cell.y <= max.y; cell.y++)
-                {
+                //for (cell.y = min.y; cell.y <= max.y; cell.y++)
+                //{
                     for (cell.z = min.z; cell.z <= max.z; cell.z++)
                     {
                         foreach (var worldEntity in EnumerateCell(cell))
@@ -183,15 +177,16 @@ namespace Core.World
                             yield return worldEntity;
                         }
                     }
-                }   
+                //}   
             }
         }
 
         public IEnumerable<IWorldEntity> EnumerateCell(Vector3Int cell)
         {
-            if (_entitiesGrid.TryGetValue(cell, out var list))
+            var cell2d = new Vector2Int(cell.x, cell.z);
+            if (_chunksSet.IsInRange(cell2d))
             {
-                foreach (var worldEntity in list)
+                foreach (var worldEntity in _chunksSet.GetEntities(cell2d))
                 {
                     yield return worldEntity;
                 }

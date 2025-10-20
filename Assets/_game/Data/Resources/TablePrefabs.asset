@@ -428,6 +428,38 @@ MonoBehaviour:
     guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
     tags:
     - structure
+  - reference:
+      m_AssetGUID: 4ca7a315dc9b1df46b4f7b3467189178
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: dc699fe1-1174-454f-9f25-034c09e38ae6
+    tags:
+    - block
+    - city
+    - cargomaintance
+  - reference:
+      m_AssetGUID: 224c86b27b861a940ad48c19615b6c2e
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: adbcf898-3ade-4bb5-89d1-5e701e109c52
+    tags:
+    - block
+    - city
+    - trading
+  - reference:
+      m_AssetGUID: a1db0336960bde847b305e2066f11d9b
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: 95914a30-cf1f-474b-b29d-4fbcbd93f1e0
+    tags:
+    - structure
+    - city
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:

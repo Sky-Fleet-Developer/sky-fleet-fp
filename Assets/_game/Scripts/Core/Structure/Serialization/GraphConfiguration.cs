@@ -24,6 +24,7 @@ namespace Core.Structure.Serialization
         {
             wires = JsonConvert.DeserializeObject<List<WireConfiguration>>(GUIUtility.systemCopyBuffer);
         }
+        public GraphConfiguration() {}
         
         public GraphConfiguration(IStructure value) : base(value)
         {

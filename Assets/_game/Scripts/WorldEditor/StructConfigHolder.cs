@@ -38,38 +38,59 @@ namespace WorldEditor
         [MenuItem("Tools/ConvertBlocksToPrefabs")]
         public static void ConvertBlocksToPrefabs()
         {
-            GameObject o = Selection.activeGameObject;
+            var holder = Selection.activeGameObject.GetComponent<StructConfigHolder>();
+            if (holder == null)
+            {
+                holder = Selection.activeGameObject.GetComponentInParent<StructConfigHolder>();
+            }
+
+            if (holder != null)
+            {
+                holder.TryConvertToPrefab();
+            }
+        }
+
+        public void TryConvertToPrefab()
+        {
+            IStructure structure = GetComponentInChildren<IStructure>();
+            if (structure == null)
+            {
+                return;
+            }
+
+            if (!structure.transform.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            bool isStructurePrefab = IsTablePrefab(structure);
+
             var tempObject = new GameObject("temp");
             List<(Transform, Transform)> parents = new();
-            if (o && o.activeInHierarchy)
-            {
-                var structure = Selection.activeGameObject.GetComponentInChildren<IStructure>();
-                if (structure != null)
-                {
-                    var root = (Component)structure;
-                    var blocks = root.GetComponentsInChildren<IBlock>();
-                    foreach (var block in blocks)
-                    {
-                        var gameObject = ((Component)block).gameObject;
-                        if (!IsTablePrefab(block))
-                        {
-                            gameObject = CreateAndReplacePrefab(gameObject);
-                        }
-                        parents.Add((gameObject.transform, gameObject.transform.parent));
-                        gameObject.transform.SetParent(tempObject.transform);
-                    }
-                }
 
-                if (!IsTablePrefab(structure))
+            var root = (Component)structure;
+            var blocks = root.GetComponentsInChildren<IBlock>();
+            foreach (var block in blocks)
+            {
+                var gameObject = ((Component)block).gameObject;
+                if (!IsTablePrefab(block) && !PrefabUtility.IsPartOfAnyPrefab(gameObject))
                 {
-                    CreateAndReplacePrefab(((Component)structure).gameObject);
-                }
-                
-                foreach (var item in parents)
-                {
-                    item.Item1.SetParent(item.Item2);
+                    gameObject = CreateAndReplacePrefab(gameObject);
+                    parents.Add((gameObject.transform, gameObject.transform.parent));
+                    gameObject.transform.SetParent(tempObject.transform);
                 }
             }
+
+            if (!isStructurePrefab)
+            {
+                CreateAndReplacePrefab(((Component)structure).gameObject);
+            }
+
+            foreach (var item in parents)
+            {
+                item.Item1.SetParent(item.Item2);
+            }
+
             DestroyImmediate(tempObject);
         }
 

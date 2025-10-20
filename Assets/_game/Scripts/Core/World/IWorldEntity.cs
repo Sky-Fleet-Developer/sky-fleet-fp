@@ -1,10 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Core.World
 {
-    public interface IWorldEntity
+    public interface IWorldEntity : IDisposable
     {
         Vector3 Position { get; }
         void OnLodChanged(int lod);

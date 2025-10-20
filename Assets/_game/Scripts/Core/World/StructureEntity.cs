@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Core.ContentSerializer;
-using Core.ContentSerializer.Bundles;
-using Core.ContentSerializer.Providers;
 using Core.Data;
-using Core.Graph;
-using Core.Items;
 using Core.Structure;
 using Core.Structure.Serialization;
+using Core.Utilities;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using UnityEngine;
 using Zenject;
 
@@ -42,26 +42,80 @@ namespace Core.World
         
         public void OnLodChanged(int lod)
         {
-            if (lod < GameData.Data.lodDistances.lods.Length && _structure == null)
+            if (lod < GameData.Data.lodDistances.lods.Length)
             {
-                ConstructStructure();
+                if(_structure == null)
+                {
+                    ConstructStructure();
+                }
+            }
+            else
+            {
+                if (_structure != null)
+                {
+                    DestructStructure();
+                }
             }
             OnLodChangedEvent?.Invoke(this, lod);
         }
         
-        public Task GetAnyLoad() => _loading.IsCompleted ? Task.CompletedTask : _loading;
+        public Task GetAnyLoad() => _loading is { IsCompleted: true } ? Task.CompletedTask : _loading;
 
+        public static readonly JsonConverter[] Converters = new JsonConverter[]
+        {
+            new VectorConverter(),
+            new VectorConverter(),
+            new QuaternionConverter(),
+            new Matrix4x4Converter(),
+        };
         public Task Serialize(Stream stream)
         {
-            Serializer serializer = StructureProvider.GetSerializer();
-            var bundle = new StructureBundle(_head, _configs, serializer);
-            //TODO
+            try
+            {
+                string headString = JsonConvert.SerializeObject(_head, Converters);
+                stream.WriteString(headString);
+                stream.WriteInt(_configs.Length);
+                foreach (Configuration<IStructure> configuration in _configs)
+                {
+                    stream.WriteString(configuration.GetType().FullName);
+                    string configString = JsonConvert.SerializeObject(configuration, Converters);
+                    stream.WriteString(configString);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
             return Task.CompletedTask;
         }
 
         public Task Deserialize(Stream stream)
         {
-            //TODO
+            try
+            {
+                string headString = stream.ReadString();
+                _head = JsonConvert.DeserializeObject<StructureConfigurationHead>(headString);
+                
+                int configsCount = stream.ReadInt();
+                _configs = new Configuration<IStructure>[configsCount];
+                for (int i = 0; i < configsCount; i++)
+                {
+                    string typeName = stream.ReadString();
+                    var type = TypeExtensions.GetTypeByName(typeName);
+                    if (type == null)
+                    {
+                        continue;
+                    }
+
+                    var config = stream.ReadString();
+                    _configs[i] = (Configuration<IStructure>)JsonConvert.DeserializeObject(config, type);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
             return Task.CompletedTask;
         }
 
@@ -97,14 +151,34 @@ namespace Core.World
             _isConstructInProgress = true;
             _loading = _constructor.Create(_head, _configs);
             _structure = await _loading;
-            CycleService.RegisterEntity(this);
+            if (Application.isPlaying)
+            {
+                CycleService.RegisterEntity(this);
+            }
             _isConstructInProgress = false;
         }
 
         private void DestructStructure()
         {
-            CycleService.UnregisterEntity(this);
+            if (Application.isPlaying)
+            {
+                CycleService.UnregisterEntity(this);
+            }
             _destructor.Destruct(_structure);
+        }
+
+        public void Dispose()
+        {
+            if (_loading != null)
+            {
+                _loading.Dispose();
+                _loading = null;
+            }
+
+            if (_structure != null)
+            {
+                DestructStructure();
+            }
         }
     }
 }
