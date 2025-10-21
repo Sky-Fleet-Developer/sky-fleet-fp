@@ -6,57 +6,32 @@ using Core.ContentSerializer;
 using Core.Utilities;
 using Unity.Properties;
 using UnityEngine;
+using Zenject;
 
 namespace Core.World
 {
     public class LocationChunkData
     {
         private LinkedList<IWorldEntity> _entities = new LinkedList<IWorldEntity>();
-        
-        public async Task Serialize(FileStream stream)
+        private bool _locked;
+        public void Lock()
         {
-            stream.WriteInt(_entities.Count);
-            var e = _entities.First;
-            List<Task> tasks = new List<Task>(_entities.Count);
-            while (e != null)
-            {
-                stream.WriteString(e.Value.GetType().FullName);
-                tasks.Add(e.Value.Serialize(stream));
-                e = e.Next;
-            }
-            
-            await Task.WhenAll(tasks);
+            _locked = true;
         }
 
-        public async Task Deserialize(FileStream stream)
+        public void Unlock()
         {
-            var entitiesCount = stream.ReadInt();
-            List<Task> tasks = new List<Task>(entitiesCount);
-            for (var i = 0; i < entitiesCount; i++)
-            {
-                string structureType = stream.ReadString();
-                if (string.IsNullOrEmpty(structureType))
-                {
-                    continue;
-                }
-                Type type = TypeExtensions.GetTypeByName(structureType);
-                if (Activator.CreateInstance(type) is IWorldEntity instance)
-                {
-                    _entities.AddLast(instance);
-                    tasks.Add(instance.Deserialize(stream));
-                }
-            }
-            
-            await Task.WhenAll(tasks);
+            _locked = false;
         }
-
         public void AddEntity(IWorldEntity entity)
         {
+            if (_locked) return;
             _entities.AddLast(entity);
         }
 
         public void RemoveEntity(IWorldEntity entity)
         {
+            if (_locked) return;
             _entities.Remove(entity);
         }
 
@@ -68,6 +43,44 @@ namespace Core.World
                 var next = v.Next;
                 yield return v.Value;
                 v = next;
+            }
+        }
+
+        public class Serializer : ISerializer<LocationChunkData>
+        {
+            public void Serialize(LocationChunkData data, Stream stream)
+            {
+                stream.WriteInt(data._entities.Count);
+                var e = data._entities.First;
+                while (e != null)
+                {
+                    var typename = e.Value.GetType().FullName;
+                    stream.WriteString(typename);
+                    Serializers.GetSerializer(typename).Serialize(e.Value, stream);
+                    e = e.Next;
+                }
+            }
+
+            public LocationChunkData Deserialize(Stream stream)
+            {
+                var data = new LocationChunkData();
+                Populate(stream, ref data);
+                return data;
+            }
+
+            public void Populate(Stream stream, ref LocationChunkData data)
+            {
+                var entitiesCount = stream.ReadInt();
+                for (var i = 0; i < entitiesCount; i++)
+                {
+                    string typename = stream.ReadString();
+                    if (string.IsNullOrEmpty(typename))
+                    {
+                        continue;
+                    }
+                    var instance = (IWorldEntity)Serializers.GetSerializer(typename).Deserialize(stream);
+                    data._entities.AddLast(instance);
+                }
             }
         }
     }

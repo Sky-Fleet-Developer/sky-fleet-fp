@@ -35,7 +35,17 @@ namespace WorldEditor
             var window = GetWindow<LocationContentEditor>();
         }
 
-        private void OnEnable()
+        private async void OnEnable()
+        {
+            _dynamicPositionFromCamera = new DynamicPositionFromCamera();
+            while (!_dynamicPositionFromCamera.IsInitialized)
+            {
+                await Task.Yield();
+            }
+            Initialize();
+        }
+
+        private void Initialize()
         {
             _isInitialized = false;
             DiContainer diContainer = new DiContainer();
@@ -45,12 +55,13 @@ namespace WorldEditor
             if(!SetupWorldSpace(diContainer)) return;
             if(!SetupStructuresLogisticsInstaller(diContainer)) return;
             SetupTerrainProvider();
-            
-            _chunksSet = new LocationChunksSet(new LocationChunkEditorLoadStrategy());
+
+            var strategy = new LocationChunkEditorLoadStrategy();
+            _chunksSet = new LocationChunksSet(strategy);
             diContainer.BindInstance(_chunksSet);
-            _dynamicPositionFromCamera = new DynamicPositionFromCamera();
             diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(_dynamicPositionFromCamera);
             
+            diContainer.Inject(strategy);
             diContainer.Inject(_chunksSet);
             diContainer.Inject(_locationInstaller);
             diContainer.Inject(_worldGrid);
@@ -136,7 +147,7 @@ namespace WorldEditor
                     GUILayout.Label("Something went wrong, check console for details");
                     if (GUILayout.Button("Reload"))
                     {
-                        OnEnable();
+                        Initialize();
                     }
                     return;
                 }

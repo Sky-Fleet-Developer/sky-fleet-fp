@@ -28,10 +28,16 @@ namespace Core.World
         public event Action<StructureEntity, int> OnLodChangedEvent;
         public Vector3 Position => _head.position;
         public IStructure Structure => _structure;
+        private int instanceIndex;
+        private static int instanceCount = 0;
 
-        public StructureEntity() {}
+        public StructureEntity()
+        {
+            instanceIndex = instanceCount++;
+        }
         public StructureEntity(StructureConfigurationHead head, Configuration<IStructure>[] configs)
         {
+            instanceIndex = instanceCount++;
             _head = head;
             _configs = configs;
         }
@@ -62,63 +68,7 @@ namespace Core.World
         
         public Task GetAnyLoad() => _loading is { IsCompleted: true } ? Task.CompletedTask : _loading;
 
-        public static readonly JsonConverter[] Converters = new JsonConverter[]
-        {
-            new VectorConverter(),
-            new VectorConverter(),
-            new QuaternionConverter(),
-            new Matrix4x4Converter(),
-        };
-        public Task Serialize(Stream stream)
-        {
-            try
-            {
-                string headString = JsonConvert.SerializeObject(_head, Converters);
-                stream.WriteString(headString);
-                stream.WriteInt(_configs.Length);
-                foreach (Configuration<IStructure> configuration in _configs)
-                {
-                    stream.WriteString(configuration.GetType().FullName);
-                    string configString = JsonConvert.SerializeObject(configuration, Converters);
-                    stream.WriteString(configString);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task Deserialize(Stream stream)
-        {
-            try
-            {
-                string headString = stream.ReadString();
-                _head = JsonConvert.DeserializeObject<StructureConfigurationHead>(headString);
-                
-                int configsCount = stream.ReadInt();
-                _configs = new Configuration<IStructure>[configsCount];
-                for (int i = 0; i < configsCount; i++)
-                {
-                    string typeName = stream.ReadString();
-                    var type = TypeExtensions.GetTypeByName(typeName);
-                    if (type == null)
-                    {
-                        continue;
-                    }
-
-                    var config = stream.ReadString();
-                    _configs[i] = (Configuration<IStructure>)JsonConvert.DeserializeObject(config, type);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
-
-            return Task.CompletedTask;
-        }
+       
 
         public void RegisterDisposeListener(IWorldEntityDisposeListener listener)
         {
@@ -193,6 +143,65 @@ namespace Core.World
             if (_structure != null)
             {
                 DestructStructure();
+            }
+        }
+
+        public class Serializer : ISerializer<StructureEntity>
+        {
+            public static readonly JsonConverter[] Converters = new JsonConverter[]
+            {
+                new VectorConverter(),
+                new VectorConverter(),
+                new QuaternionConverter(),
+                new Matrix4x4Converter(),
+            };
+
+            public void Serialize(StructureEntity entity, Stream stream)
+            {
+                try
+                {
+                    string headString = JsonConvert.SerializeObject(entity._head, Converters);
+                    stream.WriteString(headString);
+                    stream.WriteInt(entity._configs.Length);
+                    foreach (Configuration<IStructure> configuration in entity._configs)
+                    {
+                        stream.WriteString(configuration.GetType().FullName);
+                        string configString = JsonConvert.SerializeObject(configuration, Converters);
+                        stream.WriteString(configString);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }
+
+            public StructureEntity Deserialize(Stream stream)
+            {
+                var entity = new StructureEntity();
+                Populate(stream, ref entity);
+                return entity;
+            }
+
+            public void Populate(Stream stream, ref StructureEntity entity)
+            {
+                string headString = stream.ReadString();
+                entity._head = JsonConvert.DeserializeObject<StructureConfigurationHead>(headString);
+
+                int configsCount = stream.ReadInt();
+                entity._configs = new Configuration<IStructure>[configsCount];
+                for (int i = 0; i < configsCount; i++)
+                {
+                    string typeName = stream.ReadString();
+                    var type = TypeExtensions.GetTypeByName(typeName);
+                    if (type == null)
+                    {
+                        continue;
+                    }
+
+                    var config = stream.ReadString();
+                    entity._configs[i] = (Configuration<IStructure>)JsonConvert.DeserializeObject(config, type);
+                }
             }
         }
     }

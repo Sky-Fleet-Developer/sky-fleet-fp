@@ -11,13 +11,17 @@ namespace WorldEditor
         public Vector3 SpacePosition => Camera.transform.position;
         public Vector3 StoredVelocity => Vector3.zero;
         private SceneView _sceneView;
-
+        public bool IsInitialized => EditorWindow.HasOpenInstances<SceneView>();
         private SceneView SceneView
         {
             get
             {
                 if (_sceneView == null)
                 {
+                    if (!IsInitialized)
+                    {
+                        return null;
+                    }
                     _sceneView = EditorWindow.GetWindow<SceneView>();
                 }
                 return _sceneView;

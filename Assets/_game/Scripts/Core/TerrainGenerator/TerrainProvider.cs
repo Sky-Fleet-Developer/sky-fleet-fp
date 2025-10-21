@@ -212,10 +212,10 @@ namespace Core.TerrainGenerator
 
         private Vector3 GetViewPosition()
         {
-            /*if (!_playerTracker)
+            if (_playerTracker == null)
             {
                 return FindAnyObjectByType<SpawnPerson>().transform.position;
-            }*/
+            }
             Vector3 pos = _playerTracker.GetPredictedWorldPosition(20);
             pos.y = 0;
             return pos;
@@ -292,7 +292,7 @@ namespace Core.TerrainGenerator
             deformersQueue.Clear();
         }
 
-        private void OnDrawGizmos()
+        private void OnDrawGizmosSelected()
         {
             if (!settings) return;
             DrawBoundsForProps(GetCurrentProps());

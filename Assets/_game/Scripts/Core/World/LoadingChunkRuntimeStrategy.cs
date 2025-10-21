@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.World;
 using UnityEngine;
 using Zenject;
 
-namespace WorldEditor
+namespace Core.World
 {
-    public class LocationChunkEditorLoadStrategy : ILocationChunkLoadStrategy
+    public class LoadingChunkRuntimeStrategy : ILocationChunkLoadStrategy
     {
         [Inject] private WorldGrid _worldGrid;
         [Inject] private WorldSpace _worldSpace;
@@ -17,7 +16,6 @@ namespace WorldEditor
             foreach (var worldEntity in data.GetEntities())
             {
                 _worldSpace.AddEntity(worldEntity);
-                worldEntity.OnLodChanged(0);
                 var loadTask = worldEntity.GetAnyLoad();
                 if (loadTask != null)
                 {

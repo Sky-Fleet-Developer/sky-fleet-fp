@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Core.ContentSerializer;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -29,19 +30,19 @@ namespace Core.World
         {
             string path = string.Format(GetDataFilePath(), x, y);
             await using FileStream stream = File.Open(path, FileMode.OpenOrCreate);
-            await chunkData.Serialize(stream);
+            Serializers.GetSerializer(typeof(LocationChunkData)).Serialize(chunkData, stream);
         }
 
-        public async Task<LocationChunkData> ReadChunk(int x, int y)
+        public async Task ReadChunk(LocationChunkData destination, int x, int y)
         {
             string path = string.Format(GetDataFilePath(), x, y);
-            var chunkData = new LocationChunkData();
             if (File.Exists(path))
             {
                 await using FileStream stream = File.Open(path, FileMode.Open);
-                await chunkData.Deserialize(stream);
+                var serializer = Serializers.GetSerializer(typeof(LocationChunkData));
+                object chunkDataRef = destination;
+                serializer?.Populate(stream, ref chunkDataRef);
             }
-            return chunkData;
         }
     }
 }

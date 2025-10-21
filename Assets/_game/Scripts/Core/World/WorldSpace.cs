@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.ContentSerializer;
 using Core.Structure;
 using Core.Structure.Serialization;
 using UnityEngine;
@@ -11,18 +12,25 @@ namespace Core.World
         [Inject] private WorldGrid _grid;
         private DiContainer _diContainer;
 
-        public void RegisterStructure(StructureConfigurationHead head, params Configuration<IStructure>[] configs)
+        public void AddEntity(IWorldEntity entity)
         {
-            StructureEntity entity = new StructureEntity(head, configs);
             _diContainer.Inject(entity);
             _grid.AddEntity(entity);
         }
 
+        public void RemoveEntity(IWorldEntity entity)
+        {
+            _grid.RemoveEntity(entity);
+        }
+
+        public void RegisterStructure(StructureConfigurationHead head, params Configuration<IStructure>[] configs)
+        {
+            AddEntity(new StructureEntity(head, configs));
+        }
+
         public void RegisterStructure(IStructure structure)
         {
-            StructureEntity entity = new StructureEntity(structure, _diContainer);
-            _diContainer.Inject(entity);
-            _grid.AddEntity(entity);
+            AddEntity(new StructureEntity(structure, _diContainer));
         }
         
         public void InstallBindings(DiContainer container)
