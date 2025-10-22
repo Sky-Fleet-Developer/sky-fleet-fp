@@ -27,6 +27,8 @@ namespace Core.World
             _chunks = new Dictionary<Vector2Int, LocationChunkData>();
         }
 
+        public RectInt GetRange() => _range;
+        
         public async Task SetRange(RectInt range)
         {
             var oldRange = _range;

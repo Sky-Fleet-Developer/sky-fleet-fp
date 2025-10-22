@@ -12,11 +12,19 @@ using Zenject;
 
 namespace Core.TerrainGenerator
 {
+    
     /// <summary>
     /// runtime generating terrain chunks by TerrainGenerationSettings
     /// </summary>
-    public class TerrainProvider : MonoBehaviour, ILoadAtStart
+    public class TerrainProvider : MonoBehaviour, ILoadAtStart, IInstallerWithContainer, TerrainProvider.ITerrainProviderHandler
     {
+        public interface ITerrainProviderHandler
+        {
+            Task Initialize();
+            Task LoadPropsForCurrentPosition();
+            Task Unload();
+        }
+        
         public static readonly LateEvent<TerrainProvider> OnInitialize = new LateEvent<TerrainProvider>();
         public static float MaxWorldHeight { get; private set; }
         public TerrainGenerationSettings settings;
@@ -65,7 +73,17 @@ namespace Core.TerrainGenerator
             deformersQueue = new List<IDeformer>();
         }
 
-        async Task ILoadAtStart.Load()
+        Task ILoadAtStart.Load()
+        {
+            return Initialize();
+        }
+
+        Task ITerrainProviderHandler.Initialize()
+        {
+            return Initialize();
+        }
+        
+        private async Task Initialize()
         {
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
             MaxWorldHeight = Mathf.Max(MaxWorldHeight, settings.Height);
@@ -76,12 +94,30 @@ namespace Core.TerrainGenerator
             if (deformersQueueTask != null)
             {
                 await deformersQueueTask;
-            }
+            } 
         }
 
+        Task ITerrainProviderHandler.LoadPropsForCurrentPosition()
+        {
+            return LoadPropsForCurrentPosition();
+        }
         private async Task LoadPropsForCurrentPosition()
         {
-            await Load(GetCurrentProps());
+            var props = GetCurrentProps();
+            await Load(props);
+        }
+
+        Task ITerrainProviderHandler.Unload()
+        {
+            return Unload();
+        }
+        private async Task Unload()
+        {
+            foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
+            {
+                chunk.Value.Destroy();
+            }
+            chunks.Clear();
         }
 
         private void OnWorldOffsetChange(Vector3 offset)
@@ -93,7 +129,7 @@ namespace Core.TerrainGenerator
             }
         }
 
-        private Task Load(IEnumerable<Vector2Int> props)
+        private async Task Load(IEnumerable<Vector2Int> props)
         {
             foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
             {
@@ -135,17 +171,26 @@ namespace Core.TerrainGenerator
             foreach (Vector2Int coord in toCreate)
             {
                 chunks[coord] = CreateTerrain(coord);
-                channels.Add(coord, new List<DeformationChannel>());
-                foreach (ChannelSettings layerSettings in settings.Settings)
+                if (channels.TryGetValue(coord, out List<DeformationChannel> channelsList))
                 {
-                    DeformationChannel channel =
-                        layerSettings.MakeDeformationChannel(this, coord, settings.directory.FullName);
+                    foreach (var deformationChannel in channelsList)
+                    {
+                        deformationChannel.SetChunk(chunks[coord]);
+                    }
+                }
+                else
+                {
+                    channels.Add(coord, new List<DeformationChannel>());
+                    foreach (ChannelSettings layerSettings in settings.Settings)
+                    {
+                        DeformationChannel channel =
+                            layerSettings.MakeDeformationChannel(this, coord, settings.directory.FullName);
 
-                    if (channel != null) channels[coord].Add(channel);
+                        if (channel != null) channels[coord].Add(channel);
+                    }
                 }
             }
-
-            return AwaitForReadyAndApply();
+            await AwaitForReadyAndApply();
         }
 
         public async void RefreshProps()
@@ -182,7 +227,7 @@ namespace Core.TerrainGenerator
 
         private IEnumerable<Vector2Int> GetCurrentProps()
         {
-            Vector3 viewPosition = GetViewPosition();
+            Vector3 viewPosition = GetViewPosition(); 
 
             float sI = 1f / settings.ChunkSize;
             Vector2 viewCell = new Vector2(viewPosition.x * sI, viewPosition.z * sI);
@@ -226,7 +271,7 @@ namespace Core.TerrainGenerator
         {
             Chunk chunk = new Chunk($"Terrain ({prop.x}, {prop.y})", transform, settings);
 
-            Vector3 selfPos = transform.position;
+            Vector3 selfPos = WorldOffset.Offset;
             chunk.Position = new Vector3(selfPos.x + prop.x * settings.ChunkSize, selfPos.y,
                 selfPos.z + prop.y * settings.ChunkSize);
 
@@ -328,6 +373,11 @@ namespace Core.TerrainGenerator
             deformersByChunk.Clear();               
             deformersQueue.Clear();       
             OnInitialize.Reset();
+        }
+
+        public void InstallBindings(DiContainer container)
+        {
+            container.Bind<ITerrainProviderHandler>().FromInstance(this);
         }
     }
 }

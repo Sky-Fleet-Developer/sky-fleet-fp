@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9170597444609979742}
   - component: {fileID: 5575782687632399716}
-  - component: {fileID: 5911994064280350621}
   m_Layer: 0
   m_Name: Aligner
   m_TagString: Untagged
@@ -51,18 +50,6 @@ MonoBehaviour:
   modules:
   - serializedData: '{"Heights":null,"Resolution":{"x":0,"y":0,"magnitude":0.0,"sqrMagnitude":0},"alignWithTerrain":false}'
     type: Core.TerrainGenerator.Settings.HeightMapDeformerModule
---- !u!114 &5911994064280350621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4042458985249889051}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7448c88323e76b45b038a800458b4a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5800638531028222630
 GameObject:
   m_ObjectHideFlags: 0

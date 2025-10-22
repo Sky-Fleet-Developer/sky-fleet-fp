@@ -41,6 +41,12 @@ namespace Core.TerrainGenerator
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
             new RectangleAffectSettings(chunk, Position, chunk.Resolution + 1, deformer);
 
+        public override void SetChunk(Chunk chunk)
+        {
+            IsDirty = true;
+            this.chunk = chunk;
+        }
+
         protected override Task ApplyToTerrain()
         {
             if(deformationLayersCache[0] == null) return Task.CompletedTask;

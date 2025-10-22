@@ -60,15 +60,6 @@ namespace Core.World
             RefreshGrid();
             return Task.CompletedTask;
         }
-
-        private async void RefreshGrid()
-        {
-            _grid = new Grid(_playerTracker.WorldPosition, Settings.occlusionGridCellSize, true);
-            _refreshNeighboursRadius = Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f);
-            var cell = _grid.PositionToCell(_playerTracker.WorldPosition);
-            await _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
-                _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
-        }
         
         public void AddEntity(IWorldEntity entity)
         {
@@ -95,6 +86,11 @@ namespace Core.World
             return _lods[entity];
         }
 
+        public float GetCellSize()
+        {
+            return _grid.Size;
+        }
+
         public void Update()
         {
             if (_refreshCounter++ >= Settings.refreshPeriod)
@@ -118,7 +114,16 @@ namespace Core.World
                 SetLodForEntity(entity);
             }
         }
-
+        
+        private async void RefreshGrid()
+        {
+            _grid = new Grid(_playerTracker.WorldPosition, Settings.occlusionGridCellSize, true);
+            _refreshNeighboursRadius = Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f);
+            var cell = _grid.PositionToCell(_playerTracker.WorldPosition);
+            await _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
+                _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
+        }
+        
         private void UpdateEntity(int i)
         {
             var entity = _entitiesList[i];

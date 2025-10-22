@@ -191,5 +191,7 @@ namespace Core.TerrainGenerator
         [ShowInInspector] public Task<bool> LoadingTask => loading.Task;
         private Task applyToTerrainTask = null;
         public abstract RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer);
+
+        public abstract void SetChunk(Chunk chunk);
     }
 }

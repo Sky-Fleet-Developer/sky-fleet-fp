@@ -26,10 +26,8 @@ namespace Runtime.Structure
             }
 #endif
             var structure = root.GetComponent<IStructure>();
-            if (Application.isPlaying)
-            {
-                root.transform.position += WorldOffset.Offset;
-            }
+
+            root.transform.position += WorldOffset.Offset;
             if (structure is IDynamicStructure && !root.GetComponent<DynamicWorldObject>())
             {
                 root.AddComponent<DynamicWorldObject>();

@@ -20,7 +20,7 @@ namespace Core.World
         private void OnOffsetChange(Vector3 offset)
         {
             Vector3 prev = transform.position;
-            if (_rigidbody)
+            if (_rigidbody && !_rigidbody.isKinematic)
             {
                 _rigidbody.position += offset;
                 transform.position = _rigidbody.position;

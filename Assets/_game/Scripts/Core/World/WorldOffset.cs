@@ -6,10 +6,12 @@ using Core.Utilities;
 using Runtime.Character;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zenject;
 
 namespace Core.World
 {
-    public class WorldOffset : MonoBehaviour, ILoadAtStart
+
+    public class WorldOffset : MonoBehaviour, ILoadAtStart, IInstallerWithContainer, WorldOffset.IWorldOffsetHandler
     {
         [ShowInInspector]
         public static Vector3 Offset { get; set; }
@@ -19,11 +21,11 @@ namespace Core.World
 
         [SerializeField] private float limit = 1000;
         [SerializeField] private bool moveY = false;
-
+        [Inject(Optional = true)] private IWorldOffsetHandler _worldOffsetHandler;
         private Grid _grid;
         private Transform anchor;
         private bool _isEnabled = false;
-
+        private bool _isManualControl = false;
         bool ILoadAtStart.enabled => enabled && _isEnabled;
 
         private void Awake()
@@ -64,6 +66,7 @@ namespace Core.World
         
         private void FixedUpdate()
         {
+            if(_isManualControl) return;
             if(_grid.Update(Offset - anchor.position, out Vector3Int cell))
             {
                 Vector3 offset = (Vector3)cell * _grid.Size - Offset;
@@ -76,14 +79,14 @@ namespace Core.World
         {
             OnWorldOffsetPreChanged?.Invoke(offset);
             Offset += offset;
-            Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");
+            Debug.Log($"WORLD_OFFSET: current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);
         }
         private void MakeOffset(Vector3 offset)
         {
             OnWorldOffsetPreChanged?.Invoke(offset);
             Offset += offset;
-            Debug.Log($"WORLD_OFFSET: Target pos: {anchor.position}, current offset: {Offset}, added value: {offset}");
+            Debug.Log($"WORLD_OFFSET: current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);
         }
 
@@ -91,6 +94,34 @@ namespace Core.World
         {
             OnWorldOffsetChange = null;
             OnWorldOffsetPreChanged = null;
+        }
+        
+        public interface IWorldOffsetHandler
+        {
+            void SetOffset(Vector3 offset);
+            void TakeControl();
+            void ReleaseControl();
+        }
+
+        void IWorldOffsetHandler.SetOffset(Vector3 offset)
+        {
+            var delta = offset - Offset;
+            if(delta != Vector3.zero) MakeOffset(delta);
+        }
+
+        void IWorldOffsetHandler.TakeControl()
+        {
+            _isManualControl = true;
+        }
+
+        void IWorldOffsetHandler.ReleaseControl()
+        {
+            _isManualControl = false;
+        }
+
+        public void InstallBindings(DiContainer container)
+        {
+            container.Bind<IWorldOffsetHandler>().FromInstance(this);
         }
     }
 }

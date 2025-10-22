@@ -20,14 +20,17 @@ namespace WorldEditor
         private RectInt _rangeSettings;
         private LocationChunksSet _chunksSet;
         private LocationInstaller _locationInstaller;
-        private DynamicPositionFromCamera _dynamicPositionFromCamera;
+        private DynamicPositionFromWorldRect _dynamicPositionFromWorldRect;
         private WorldGrid _worldGrid;
         private WorldSpace _worldSpace;
         private StructuresLogisticsInstaller _structuresLogisticsInstaller;
         private TerrainProvider _terrainProvider;
+        private WorldOffset _worldOffset;
 
         private Task _loading;
         private bool _isInitialized;
+        private WorldOffset.IWorldOffsetHandler _worldOffsetHandler;
+        private TerrainProvider.ITerrainProviderHandler _terrainProviderHandler;
 
         [MenuItem("Window/SF/Location Content Editor")]
         public static void Open()
@@ -35,31 +38,49 @@ namespace WorldEditor
             var window = GetWindow<LocationContentEditor>();
         }
 
-        private async void OnEnable()
+        private void OnEnable()
         {
-            _dynamicPositionFromCamera = new DynamicPositionFromCamera();
+            /*_dynamicPositionFromCamera = new DynamicPositionFromCamera();
             while (!_dynamicPositionFromCamera.IsInitialized)
             {
                 await Task.Yield();
-            }
+            } 
+            await Task.Delay(100);*/
             Initialize();
+            UnityEditor.Compilation.CompilationPipeline.compilationStarted += OnCompilation;
+            UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        private void OnPlayModeStateChanged(PlayModeStateChange obj)
+        {
+            switch (obj)
+            {
+                case PlayModeStateChange.EnteredEditMode:
+                    Initialize();
+                    break;
+                case PlayModeStateChange.ExitingEditMode:
+                    Load(RectInt.zero);
+                    _loading.Wait();
+                    break;
+            }
         }
 
         private void Initialize()
         {
-            _isInitialized = false;
+            _isInitialized = false; 
             DiContainer diContainer = new DiContainer();
 
             if (!SetupLocation(diContainer)) return;
             if(!SetupWorld(diContainer)) return;
             if(!SetupWorldSpace(diContainer)) return;
             if(!SetupStructuresLogisticsInstaller(diContainer)) return;
-            SetupTerrainProvider();
-
+            if(!SetupTerrainProvider(diContainer)) return;
+            SetupWorldOffset(diContainer);
             var strategy = new LocationChunkEditorLoadStrategy();
             _chunksSet = new LocationChunksSet(strategy);
+            _dynamicPositionFromWorldRect = new DynamicPositionFromWorldRect(_worldGrid, _chunksSet);
             diContainer.BindInstance(_chunksSet);
-            diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(_dynamicPositionFromCamera);
+            diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(_dynamicPositionFromWorldRect);
             
             diContainer.Inject(strategy);
             diContainer.Inject(_chunksSet);
@@ -67,13 +88,17 @@ namespace WorldEditor
             diContainer.Inject(_worldGrid);
             diContainer.Inject(_worldSpace);
             diContainer.Inject(_terrainProvider);
-            
+            _worldOffsetHandler = diContainer.TryResolve<WorldOffset.IWorldOffsetHandler>();
+            _worldOffsetHandler?.TakeControl();
+            _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
+
             _worldGrid.Load();
             
             var rangeFromSave = JsonConvert.DeserializeObject<RectInt?>(PlayerPrefs.GetString(PrefsKey + "." + nameof(_currentContentRange), ""));
-            _currentContentRange = rangeFromSave ?? new RectInt(0, 0, 1, 1);
-            _rangeSettings = _currentContentRange;
-            
+            bool isLoaded = PlayerPrefs.GetInt(PrefsKey + ".isLoaded", 0) == 1;
+            _rangeSettings = rangeFromSave ?? new RectInt(0, 0, 1, 1);
+            _currentContentRange = isLoaded ? _rangeSettings : RectInt.zero;
+
             Load(_currentContentRange);
             _isInitialized = true;
         }
@@ -81,8 +106,28 @@ namespace WorldEditor
         private void OnDestroy()
         {
             _chunksSet.Unload();
+            _worldOffsetHandler?.ReleaseControl();
+            UnityEditor.Compilation.CompilationPipeline.compilationStarted -= OnCompilation;
+            UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        }
+        
+        private void OnCompilation(object obj)
+        {
+            Load(RectInt.zero);
+            _loading.Wait();
         }
 
+        private bool SetupWorldOffset(DiContainer diContainer)
+        {
+            _worldOffset = FindAnyObjectByType<WorldOffset>();
+            if (!_worldOffset)
+            {
+                Debug.LogError("WorldOffset is not found");
+                return false;
+            }
+            _worldOffset.InstallBindings(diContainer);
+            return true;
+        }
         private bool SetupLocation(DiContainer diContainer)
         {
             _locationInstaller = FindAnyObjectByType<LocationInstaller>();
@@ -132,9 +177,16 @@ namespace WorldEditor
             return true;
         }
 
-        private void SetupTerrainProvider()
+        private bool SetupTerrainProvider(DiContainer diContainer)
         {
             _terrainProvider = FindAnyObjectByType<TerrainProvider>();
+            if (!_terrainProvider)
+            {
+                Debug.LogError("TerrainProvider is not found");
+                return false;
+            }
+            _terrainProvider.InstallBindings(diContainer);
+            return true;
         }
 
         private void OnGUI()
@@ -172,14 +224,13 @@ namespace WorldEditor
             {
                 await _loading;
             }
-
             _loading = null;
         }
 
         private void DrawEntities()
         {
             int entitiesCount = 0;
-            foreach (var entity in _worldGrid.EnumerateRadius(_dynamicPositionFromCamera.WorldPosition,
+            foreach (var entity in _worldGrid.EnumerateRadius(_dynamicPositionFromWorldRect.WorldPosition,
                          GameData.Data.lodDistances.GetLodDistance(GameData.Data.lodDistances.lods.Length - 1)))
             {
                 entitiesCount++;
@@ -201,9 +252,10 @@ namespace WorldEditor
                 if (GUILayout.Button("Load", GUILayout.Width(180), GUILayout.Height(30)))
                 {
                     _currentContentRange = _rangeSettings;
+                    PlayerPrefs.SetInt(PrefsKey + ".isLoaded", 1); 
                     PlayerPrefs.SetString(PrefsKey + "." + nameof(_currentContentRange), 
                         JsonConvert.SerializeObject(_currentContentRange));
-                    Load(_rangeSettings);
+                    Load(_currentContentRange);
                 }
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -216,6 +268,20 @@ namespace WorldEditor
                 if (GUILayout.Button("Refresh entities", GUILayout.Width(200), GUILayout.Height(25)))
                 {
                     ConvertEditorEntitiesToWorld();
+                }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+            }
+
+            if (_currentContentRange.size != Vector2Int.zero)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Unload", GUILayout.Width(180), GUILayout.Height(30)))
+                {
+                    PlayerPrefs.SetInt(PrefsKey + ".isLoaded", 0); 
+                    _currentContentRange = RectInt.zero;
+                    Load(_currentContentRange);
                 }
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -245,7 +311,27 @@ namespace WorldEditor
         private void Load(RectInt rangeSettings)
         {
             Debug.Log($"Loading content range: {rangeSettings}");
-            _loading = _chunksSet.SetRange(rangeSettings);
+            
+            if (_worldOffsetHandler != null)
+            {
+                Vector2 center = rangeSettings.center * _worldGrid.GetCellSize();
+                _worldOffsetHandler.SetOffset(new Vector3(-center.x, 0, -center.y));
+            }
+            
+            _loading = LoadProcess(rangeSettings);
+        }
+
+        private async Task LoadProcess(RectInt rangeSettings)
+        {
+            await _chunksSet.SetRange(rangeSettings);
+            if (rangeSettings.size != Vector2Int.zero)
+            {
+                await _terrainProviderHandler.LoadPropsForCurrentPosition();
+            }
+            else
+            {
+                await _terrainProviderHandler.Unload();
+            }
         }
 
         private void ConvertEditorEntitiesToWorld()

@@ -96,7 +96,11 @@ namespace Core.TerrainGenerator
         {
             return deformationLayersCache[layer][x, y, n];
         }*/
-
+        public override void SetChunk(Chunk chunk)
+        {
+            IsDirty = true;
+            Chunk = chunk;
+        }
         #region Loading
         private async void Load(List<string> paths)
         {

@@ -75,6 +75,12 @@ namespace Core.TerrainGenerator
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
             throw new NotImplementedException();
         // new RectangleAffectSettings(terrainData, Position, terrainData.detailResolution, deformer);
+        
+        public override void SetChunk(Chunk chunk)
+        {
+            IsDirty = true;
+            Chunk = chunk;
+        }
     }
 
     public struct TreePos : ICloneable
