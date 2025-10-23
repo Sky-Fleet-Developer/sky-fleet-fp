@@ -9,7 +9,7 @@ namespace Runtime.Trading
 {
     public class SellerCountertopDeliveryService : MonoBehaviour, IProductDeliveryService
     {
-        [Inject] private BankSystem _bankSystem;
+        [Inject(Optional = true)] private BankSystem _bankSystem;
 
         public int Order => transform.GetSiblingIndex();
 

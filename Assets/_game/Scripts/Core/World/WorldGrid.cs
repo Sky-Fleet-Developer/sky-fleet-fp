@@ -49,16 +49,15 @@ namespace Core.World
         private int _refreshCounter;
         private int _refreshNeighboursRadius;
 
-        public void SetProfile(WorldGridProfile value)
+        public Task SetProfile(WorldGridProfile value)
         {
             profile = value;
-            RefreshGrid();
+            return RefreshGrid();
         }
         
         public Task Load()
         {
-            RefreshGrid();
-            return Task.CompletedTask;
+            return RefreshGrid();
         }
         
         public void AddEntity(IWorldEntity entity)
@@ -115,10 +114,10 @@ namespace Core.World
             }
         }
         
-        private async void RefreshGrid()
+        private async Task RefreshGrid()
         {
             _grid = new Grid(_playerTracker.WorldPosition, Settings.occlusionGridCellSize, true);
-            _refreshNeighboursRadius = Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f);
+            _refreshNeighboursRadius = GameData.Data != null ? Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f) : (int)(_chunksSet.GetRange().size.magnitude * 0.5f);
             var cell = _grid.PositionToCell(_playerTracker.WorldPosition);
             await _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
                 _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));

@@ -16,8 +16,8 @@ namespace Runtime.Trading
         [SerializeField] private Transform spawnAnchor;
         [SerializeField] private Vector2 spawnPlaceSize;
         [SerializeField] private Vector2Int spawnZoneSize;
-        [Inject] private IFactory<ItemInstance, Task<List<GameObject>>> _itemFactory;
-        [Inject] private TablePrefabs _tablePrefabs;
+        [Inject(Optional = true)] private IFactory<ItemInstance, Task<List<GameObject>>> _itemFactory;
+        [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
         private int _spawnCounter;
         public int Order => transform.GetSiblingIndex();
 

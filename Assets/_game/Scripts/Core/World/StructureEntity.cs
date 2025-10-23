@@ -17,8 +17,7 @@ namespace Core.World
 {
     public class StructureEntity : IWorldEntity
     {
-        [Inject] private IStructureDestructor _destructor;
-        [Inject] private IFactory<StructureConfigurationHead, IEnumerable<Configuration<IStructure>>, Task<IStructure>> _constructor;
+        [Inject] private IStructureFactory _factory;
         private IStructure _structure;
         private bool _isConstructInProgress;
         private Configuration<IStructure>[] _configs;
@@ -29,6 +28,7 @@ namespace Core.World
         public Vector3 Position => _head.position;
         public IStructure Structure => _structure;
         private int instanceIndex;
+        private int _lod;
         private static int instanceCount = 0;
 
         public StructureEntity()
@@ -43,13 +43,29 @@ namespace Core.World
         }
         public StructureEntity(IStructure structure, DiContainer diContainer)
         {
-            _destructor = diContainer.Resolve<IStructureDestructor>();
-            _configs = _destructor.GetDefaultConfigurations(structure, out _head);
+            _factory = diContainer.Resolve<IStructureFactory>();
+            _configs = _factory.GetDefaultConfigurations(structure, out _head);
         }
-        
+
+        private bool _isLodDirty;
         public void OnLodChanged(int lod)
         {
-            if (lod < GameData.Data.lodDistances.lods.Length)
+            _lod = lod;
+            if (_isLodDirty) return;
+            _isLodDirty = true;
+            if (_loading == null)
+            {
+                ChangeLod();
+            }
+            else
+            {
+                _loading.ContinueWith(_ => ChangeLod());
+            }
+        }
+
+        private void ChangeLod()
+        {
+            if (_lod < GameData.Data.lodDistances.lods.Length)
             {
                 if(_structure == null)
                 {
@@ -63,12 +79,12 @@ namespace Core.World
                     DestructStructure();
                 }
             }
-            OnLodChangedEvent?.Invoke(this, lod);
+            OnLodChangedEvent?.Invoke(this, _lod);
+            _isLodDirty = false;
         }
         
         public Task GetAnyLoad() => _loading is { IsCompleted: true } ? Task.CompletedTask : _loading;
 
-       
 
         public void RegisterDisposeListener(IWorldEntityDisposeListener listener)
         {
@@ -106,11 +122,10 @@ namespace Core.World
             }
         }*/
 
-
         private async void ConstructStructure()
         {
             _isConstructInProgress = true;
-            _loading = _constructor.Create(_head, _configs);
+            _loading = _factory.Create(_head, _configs);
             _structure = await _loading;
             if (Application.isPlaying)
             {
@@ -125,7 +140,7 @@ namespace Core.World
             {
                 CycleService.UnregisterEntity(this);
             }
-            _destructor.Destruct(_structure);
+            _factory.Destruct(_structure);
         }
 
         public void Dispose()

@@ -49,30 +49,6 @@ namespace Core.TerrainGenerator
             get => enabled && gameObject.activeInHierarchy;
         }
 
-        [Button]
-        private void TestLoad()
-        {
-            Load(GetCurrentProps());
-            foreach (Deformer deformer in FindObjectsOfType<Deformer>())
-            {
-                deformer.Start();
-            }
-        }
-        [Button]
-        private void RemoveTest()
-        {
-            foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
-            {
-                chunk.Value?.Destroy();
-            }
-
-            chunks = new Dictionary<Vector2Int, Chunk>();
-            
-            channels = new Dictionary<Vector2Int, List<DeformationChannel>>();
-            deformersByChunk = new Dictionary<Vector2Int, HashSet<IDeformer>>();
-            deformersQueue = new List<IDeformer>();
-        }
-
         Task ILoadAtStart.Load()
         {
             return Initialize();
@@ -377,7 +353,18 @@ namespace Core.TerrainGenerator
 
         public void InstallBindings(DiContainer container)
         {
+            container.BindInstance(this);
             container.Bind<ITerrainProviderHandler>().FromInstance(this);
+        }
+
+        public bool IsDeformersClear()
+        {
+            return deformersQueue.Count == 0;
+        }
+
+        public Task ProcessDeformersTask()
+        {
+            return deformersQueueTask;
         }
     }
 }

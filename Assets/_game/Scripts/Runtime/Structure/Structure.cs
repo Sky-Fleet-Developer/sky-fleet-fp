@@ -28,6 +28,7 @@ namespace Runtime.Structure
         public IEnumerable<IBlock> Blocks => _blocks;
         public LateEvent OnInitComplete { get; } = new LateEvent();
         public List<Parent> Parents => _parents;
+        [Inject] private DiContainer _diContainer;
         
         public float Radius { get; private set; }
         
@@ -141,6 +142,8 @@ namespace Runtime.Structure
 
             for (int i = 0; i < addRange; i++)
             {
+                _diContainer?.Inject(cache[i]);
+
                 AddBlock(cache[i]);
             }
             for (int i = addRange; i < cache.Count; i++)

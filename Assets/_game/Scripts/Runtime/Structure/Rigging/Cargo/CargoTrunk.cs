@@ -93,7 +93,7 @@ namespace Runtime.Structure.Rigging.Cargo
             foreach (var point in volume)
             {
                 var p = point + position;
-                if (!_space.Contains(p) || _content.TryGetValue(p, out ITablePrefab content) && content != cargo)
+                if (!_space.Contains(p) || _content.TryGetValue(p, out ITablePrefab content) && content != null && content != cargo)
                 {
                     return false;
                 }

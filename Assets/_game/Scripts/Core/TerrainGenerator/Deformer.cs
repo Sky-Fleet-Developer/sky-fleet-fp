@@ -2,6 +2,8 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Core.Boot_strapper;
 using Core.Data;
 using Core.Game;
 using Core.TerrainGenerator.Settings;
@@ -12,10 +14,11 @@ using UnityEditor;
 using UnityEngine;
 using Newtonsoft.Json;
 using Runtime;
+using Zenject;
 
 namespace Core.TerrainGenerator
 {
-    public class Deformer : MonoBehaviour, IDeformer
+    public class Deformer : MonoBehaviour, IDeformer, ILoadAtStart
     {
         public T GetModules<T>() where T : class, IDeformerModule
         {
@@ -45,6 +48,7 @@ namespace Core.TerrainGenerator
 
         [ShowInInspector] private Rect axisAlignedRect;
         [ShowInInspector] private Dictionary<int, List<Vector2Int>> affectedChunks = new Dictionary<int, List<Vector2Int>>();
+        [Inject] private TerrainProvider _terrainProvider;
 
         /*[SerializeField, HideInInspector]
         private string[] typesInfo;
@@ -52,20 +56,19 @@ namespace Core.TerrainGenerator
         [SerializeField, HideInInspector]
         private string[] jsonConfig;*/
 
-        public void Start()
+
+        public Task Load()
         {
             CalculateAxisAlignedRect();
             foreach (SerializedDeformerModule module in modules)
             {
                 module.Init(this);
             }
-            TerrainProvider.OnInitialize.Subscribe(Register);
+            _terrainProvider.RegisterDeformer(this);
+            return _terrainProvider.ProcessDeformersTask();
         }
 
-        private void Register(TerrainProvider provider)
-        {
-            provider.RegisterDeformer(this);
-        }
+
 
         [Button]
         public void AddDeformerSettings(System.Type deformer)
@@ -215,7 +218,5 @@ namespace Core.TerrainGenerator
             Gizmos.color = Color.white;
             Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w) * (1 - fade));
         }
-        
-
     }
 }

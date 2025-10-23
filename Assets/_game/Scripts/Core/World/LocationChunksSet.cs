@@ -19,6 +19,8 @@ namespace Core.World
         [Inject] private Location _location;
         [Inject] private DiContainer _diContainer;
         private ILocationChunkLoadStrategy _loadStrategy;
+        private Task _setRangeTask;
+        public Task SetRangeTask => _setRangeTask;
 
 
         public LocationChunksSet(ILocationChunkLoadStrategy loadStrategy)
@@ -31,6 +33,8 @@ namespace Core.World
         
         public async Task SetRange(RectInt range)
         {
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            _setRangeTask = tcs.Task;
             var oldRange = _range;
             _range = range;
 
@@ -66,6 +70,8 @@ namespace Core.World
             {
                 await task;
             }
+            tcs.SetResult(true);
+            _setRangeTask = null;
         }
 
         public async Task Save()

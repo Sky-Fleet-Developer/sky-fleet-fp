@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Core.Boot_strapper;
 using Core.Data;
 using Core.Structure;
 using Core.TerrainGenerator;
 using Core.World;
 using Newtonsoft.Json;
+using Runtime.Items;
 using Runtime.Structure;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -23,9 +25,9 @@ namespace WorldEditor
         private DynamicPositionFromWorldRect _dynamicPositionFromWorldRect;
         private WorldGrid _worldGrid;
         private WorldSpace _worldSpace;
-        private StructuresLogisticsInstaller _structuresLogisticsInstaller;
         private TerrainProvider _terrainProvider;
         private WorldOffset _worldOffset;
+        private ItemFactory _itemFactory;
 
         private Task _loading;
         private bool _isInitialized;
@@ -46,6 +48,11 @@ namespace WorldEditor
                 await Task.Yield();
             } 
             await Task.Delay(100);*/
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                _isInitialized = false;
+                return;
+            }
             Initialize();
             UnityEditor.Compilation.CompilationPipeline.compilationStarted += OnCompilation;
             UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -73,9 +80,12 @@ namespace WorldEditor
             if (!SetupLocation(diContainer)) return;
             if(!SetupWorld(diContainer)) return;
             if(!SetupWorldSpace(diContainer)) return;
-            if(!SetupStructuresLogisticsInstaller(diContainer)) return;
             if(!SetupTerrainProvider(diContainer)) return;
+            if(!SetupItemFactory(diContainer)) return;
+            
             SetupWorldOffset(diContainer);
+            var structureFactory = new EditorStructureFactory();
+            diContainer.Bind<IStructureFactory>().FromInstance(structureFactory);
             var strategy = new LocationChunkEditorLoadStrategy();
             _chunksSet = new LocationChunksSet(strategy);
             _dynamicPositionFromWorldRect = new DynamicPositionFromWorldRect(_worldGrid, _chunksSet);
@@ -88,6 +98,7 @@ namespace WorldEditor
             diContainer.Inject(_worldGrid);
             diContainer.Inject(_worldSpace);
             diContainer.Inject(_terrainProvider);
+            diContainer.Inject(_itemFactory);
             _worldOffsetHandler = diContainer.TryResolve<WorldOffset.IWorldOffsetHandler>();
             _worldOffsetHandler?.TakeControl();
             _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
@@ -164,16 +175,15 @@ namespace WorldEditor
             return true;
         }
 
-        private bool SetupStructuresLogisticsInstaller(DiContainer diContainer)
+        private bool SetupItemFactory(DiContainer diContainer)
         {
-            _structuresLogisticsInstaller = FindAnyObjectByType<StructuresLogisticsInstaller>();
-            if (!_structuresLogisticsInstaller)
+            _itemFactory = FindAnyObjectByType<ItemFactory>();
+            if (!_itemFactory)
             {
-                Debug.LogError("StructuresLogisticsInstaller is not found");
+                Debug.LogError("ItemFactory is not found");
                 return false;
             }
-            diContainer.Inject(_structuresLogisticsInstaller);
-            _structuresLogisticsInstaller.InstallBindings();
+            _itemFactory.InstallBindings(diContainer);
             return true;
         }
 
@@ -196,10 +206,17 @@ namespace WorldEditor
                 DrawHeader();
                 if (!_isInitialized)
                 {
-                    GUILayout.Label("Something went wrong, check console for details");
-                    if (GUILayout.Button("Reload"))
+                    if (Application.isPlaying)
                     {
-                        Initialize();
+                        GUILayout.Label("Disabled in play mode");
+                    }
+                    else
+                    {
+                        GUILayout.Label("Something went wrong, check console for details");
+                        if (GUILayout.Button("Reload"))
+                        {
+                            Initialize();
+                        }
                     }
                     return;
                 }

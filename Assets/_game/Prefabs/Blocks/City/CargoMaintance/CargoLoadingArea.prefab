@@ -180,7 +180,7 @@ MonoBehaviour:
   tags: []
   mass: 10
   mountingType: 
-  viewCamera: {fileID: 0}
+  viewCamera: {fileID: 1407161751494273581}
 --- !u!65 &2248348257862689217
 BoxCollider:
   m_ObjectHideFlags: 0

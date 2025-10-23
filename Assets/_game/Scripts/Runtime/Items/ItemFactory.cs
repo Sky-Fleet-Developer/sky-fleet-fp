@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core;
 using Core.Configurations;
 using Core.Items;
 using Core.Trading;
@@ -9,15 +10,17 @@ using Zenject;
 
 namespace Runtime.Items
 {
-    public class ItemFactory : MonoInstaller, IFactory<ItemInstance, Task<List<GameObject>>>, IItemDestructor
+    public class ItemFactory : MonoBehaviour, IInstallerWithContainer, IFactory<ItemInstance, Task<List<GameObject>>>, IItemDestructor
     {
         [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
         [Inject(Optional = true)] private ItemsTable _tableItems;
-        
-        public override void InstallBindings()
+        private DiContainer _container;
+
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<IFactory<ItemInstance, Task<List<GameObject>>>>().To<ItemFactory>().FromInstance(this);
-            Container.Bind<IItemDestructor>().To<ItemFactory>().FromInstance(this);
+            _container = container;
+            _container.Bind<IFactory<ItemInstance, Task<List<GameObject>>>>().To<ItemFactory>().FromInstance(this);
+            _container.Bind<IItemDestructor>().To<ItemFactory>().FromInstance(this);
         }
 
         public async Task<List<GameObject>> Create(ItemInstance item)
@@ -46,7 +49,7 @@ namespace Runtime.Items
                 if (!instance.TryGetComponent(out Container containerComponent))
                 {
                     containerComponent = instance.AddComponent<Container>();
-                    Container.Inject(containerComponent);
+                    _container.Inject(containerComponent);
                 }
                 var container = _tableItems.GetContainer(item.Sign.Id);
                 containerComponent.Init(
