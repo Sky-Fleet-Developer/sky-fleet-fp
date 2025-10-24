@@ -6,6 +6,7 @@ using Core.Configurations.GoogleSheets;
 using Core.Items;
 using Core.Trading;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Core.Configurations
 {
@@ -19,8 +20,10 @@ namespace Core.Configurations
         private string[] includeItemsTags;
         private string[] excludeItemsTags;
         private string[] costRules;
+        private string[] buyoutCostRules;
         // Postprocessed values
-        [SerializeField] private CostRule[] rules;
+        [SerializeField] private CostRule[] costRulesProcessed;
+        [SerializeField] private CostRule[] buyoutCostRulesProcessed;
         [SerializeField] private TagCombination[] includeTags;
         [SerializeField] private TagCombination[] excludeTags;
 
@@ -37,16 +40,43 @@ namespace Core.Configurations
             {
                 excludeTags[i].tags = excludeItemsTags[i].Split(_combinationSeparators, StringSplitOptions.RemoveEmptyEntries);
             }
+            UnpackCostRules(out costRulesProcessed, costRules);
+            UnpackCostRules(out buyoutCostRulesProcessed, buyoutCostRules);
+        }
 
-            rules = costRules == null ? Array.Empty<CostRule>() : new CostRule[costRules.Length];
-            for (var i = 0; i < rules.Length; i++)
+        private void UnpackCostRules(out CostRule[] output, string[] input)
+        {
+            if (input == null)
             {
-                var ruleProperties = costRules[i].Split(_ruleSeparators, StringSplitOptions.RemoveEmptyEntries);
-                rules[i].tags.tags = ruleProperties[0].Split(_combinationSeparators, StringSplitOptions.RemoveEmptyEntries);
-                rules[i].value = float.Parse(ruleProperties[1], CultureInfo.InvariantCulture);
+                output = Array.Empty<CostRule>();
+                return;
+            }
+
+            int nonEmptyCounter = 0;
+            for (var i = 0; i < input.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(input[i]))
+                {
+                    nonEmptyCounter++;
+                }
+            }
+
+            if (nonEmptyCounter == 0)
+            {
+                output = Array.Empty<CostRule>();
+                return;
+            }
+            
+            output = new CostRule[input.Length];
+            for (var i = 0; i < output.Length; i++)
+            {
+                if(string.IsNullOrEmpty(input[i])) continue;
+                var ruleProperties = input[i].Split(_ruleSeparators, StringSplitOptions.RemoveEmptyEntries);
+                output[i].tags.tags = ruleProperties[0].Split(_combinationSeparators, StringSplitOptions.RemoveEmptyEntries);
+                output[i].value = float.Parse(ruleProperties[1], CultureInfo.InvariantCulture);
             }
         }
-        
+
         public string Id => id;
 
         public bool IsItemMatch(ItemSign item)
@@ -77,20 +107,40 @@ namespace Core.Configurations
             return true;
         }
 
-        public int GetCost(ItemSign item)
+        public int GetSellCost(ItemSign item)
         {
-            float mul = 1;
-            for (var i = 0; i < rules.Length; i++)
-            {
-                if (rules[i].tags.IsItemMatch(item))
-                {
-                    mul *= rules[i].value;
-                }
-            }
+            float mul = GetSellFactor(item);
             return Mathf.RoundToInt(item.BasicCost * mul);
         }
 
-        public IEnumerable<CostRule> GetCostRules() => rules;
+        private float GetSellFactor(ItemSign item)
+        {
+            float mul = 1;
+            for (var i = 0; i < costRulesProcessed.Length; i++)
+            {
+                if (costRulesProcessed[i].tags.IsItemMatch(item))
+                {
+                    mul *= costRulesProcessed[i].value;
+                }
+            }
+
+            return mul;
+        }
+
+        public int GetBuyoutCost(ItemInstance item)
+        {
+            float mul = GetSellFactor(item.Sign);
+            for (var i = 0; i < buyoutCostRulesProcessed.Length; i++)
+            {
+                if (buyoutCostRulesProcessed[i].tags.IsItemMatch(item.Sign))
+                {
+                    mul *= buyoutCostRulesProcessed[i].value;
+                }
+            }
+            return Mathf.RoundToInt(item.Sign.BasicCost * mul);
+        }
+
+        public IEnumerable<CostRule> GetSellCostRules() => costRulesProcessed;
     }
     [CreateAssetMenu(menuName = "SF/Configs/Shops")]
     public class ShopTable : Table<ShopSettings>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,20 @@ namespace Core.Items
             {
                 _properties.Add(new ItemProperty{name = ItemSign.IdentifiableTag, values = new []{new ItemPropertyValue{stringValue = GUID.Generate().ToString()}}});
             }
+        }
+
+        public void SetOwnership(string owner)
+        {
+            _properties.Add(new ItemProperty{name = ItemSign.OwnershipTag, values = new []{new ItemPropertyValue{stringValue = owner}}});
+        }
+
+        public string GetOwnership()
+        {
+            if (TryGetProperty(ItemSign.OwnershipTag, out var property))
+            {
+                return property.values[0].stringValue;
+            }
+            return null;
         }
         
         public bool TryGetProperty(string propertyName, out ItemProperty property)
@@ -60,7 +75,9 @@ namespace Core.Items
             }
 
             _amount -= amountToDetach;
-            return new ItemInstance(Sign, amountToDetach);
+            var newInstance = new ItemInstance(_sign, amountToDetach);
+            newInstance._properties = _properties.DeepClone();
+            return newInstance;
         }
 
         public void Merge(ItemInstance other)
@@ -83,6 +100,17 @@ namespace Core.Items
         public void Dispose()
         {
             _sign = null;
+        }
+
+        public bool IsCanMerge(ItemInstance other)
+        {
+            if (other == null) return false;
+            if(ReferenceEquals(this, other)) return true;
+            if(!_sign.Equals(other._sign)) return false;
+            if(GetOwnership() != other.GetOwnership()) return false;
+            if (TryGetProperty(ItemSign.IdentifiableTag, out var i1) ||
+                other.TryGetProperty(ItemSign.IdentifiableTag, out var i2)) return false;
+            return true;
         }
     }
 }

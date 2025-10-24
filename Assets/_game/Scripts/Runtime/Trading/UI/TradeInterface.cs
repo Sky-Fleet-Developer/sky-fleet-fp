@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Core.Character;
 using Core.Character.Interaction;
 using Core.Character.Interface;
@@ -17,6 +19,7 @@ namespace Runtime.Trading.UI
     public class TradeInterface : FirstPersonService, IMultipleSelectionListener<TradeItemView>
     {
         [SerializeField] private TradeItemsListView sellerItemsView;
+        [SerializeField] private TradeItemsListView myItemsView;
         [SerializeField] private ItemSignDescriptionView signDescriptionView;
         [SerializeField] private Button acceptButton;
         [SerializeField] private TextMeshProUGUI dealCostText;
@@ -26,13 +29,18 @@ namespace Runtime.Trading.UI
         private TradeDeal _deal;
         [Inject] private BankSystem _bankSystem;
         private TradeItemView _selectedTarget;
+        private List<TradeItem> myInventoryItems = new();
+        private IItemsContainerReadonly _myInventory;
+        private ItemInstanceToTradeAdapter _myInventoryAdapter;
 
         protected override void Awake()
         {
             base.Awake();
             sellerItemsView.SelectionHandler.AddListener(this);
+            myItemsView.SelectionHandler.AddListener(this);
             acceptButton.onClick.AddListener(AcceptClick);
             sellerItemsView.OnItemInCardAmountChanged += OnSellerItemInCardAmountChanged;
+            myItemsView.OnItemInCardAmountChanged += OnPurchaserItemInCardAmountChanged;
         }
 
         protected override void OnDestroy()
@@ -41,14 +49,22 @@ namespace Runtime.Trading.UI
             acceptButton.onClick.RemoveListener(AcceptClick);
             _handler?.RemoveListener(sellerItemsView);
             sellerItemsView.OnItemInCardAmountChanged -= OnSellerItemInCardAmountChanged;
+            myItemsView.OnItemInCardAmountChanged += OnPurchaserItemInCardAmountChanged;
         }
 
         private void OnSellerItemInCardAmountChanged(TradeItem item, float amount)
         {
-            if (_deal.SetInCartItemAmount(item, amount, out var innerItem))
+            if (_deal.SetPurchaseItemAmount(item, amount, out var innerItem))
             {
                 RefreshCostView();
             }
+        }
+        private void OnPurchaserItemInCardAmountChanged(TradeItem item, float amount)
+        {
+            /*if (_deal.SetSellItemAmount(item, amount, out var innerItem))
+            {
+                RefreshCostView();
+            }*/
         }
 
         public override void Init(FirstPersonInterfaceInstaller master)
@@ -58,6 +74,23 @@ namespace Runtime.Trading.UI
             _handler = (ITradeHandler)_interactionState.Handler;
             _handler.AddListener(sellerItemsView);
             _deal = new TradeDeal(_interactionState.Master, _handler);
+            _myInventory = _bankSystem.GetOrCreateInventory(_interactionState.Master);
+
+            sellerItemsView.SetDeliverySettings(new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices()));
+            myItemsView.SetDeliverySettings(new ProductDeliverySettings(_handler, new List<IItemDeliveryService>{new PutToInventoryDeliveryService()}));
+            foreach (var itemInstance in _myInventory.GetItems())
+            {
+                int price = _handler.GetBuyoutPrice(itemInstance);
+                myInventoryItems.Add(new TradeItem(itemInstance, price));
+            }
+
+            _myInventoryAdapter?.Dispose();
+            _myInventoryAdapter = _handler.GetAdapterToCustomerItems(_interactionState.Master);
+            var cargoZoneItemsSource = _handler.GetCargoZoneItemsSource();
+
+            myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(cargoZoneItemsSource.GetTradeItems()));
+            cargoZoneItemsSource.AddListener(myItemsView);
+            _myInventoryAdapter.AddListener(myItemsView);
         }
         
         /*private void AddToCartClick()
@@ -109,7 +142,7 @@ namespace Runtime.Trading.UI
 
         private void AcceptClick()
         {
-            if (_handler.TryMakeDeal(_deal, out Transaction transaction))
+            if (_bankSystem.TryMakeDeal(_deal))
             {
                 _deal = new TradeDeal(_interactionState.Master, _handler);
                 dealCostText.text = "0";

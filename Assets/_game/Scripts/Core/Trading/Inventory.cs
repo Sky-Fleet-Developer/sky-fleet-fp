@@ -20,7 +20,7 @@ namespace Core.Trading
             _key = key;
             _items = new List<ItemInstance>();
         }
-        
+
         public void AddListener(IInventoryStateListener listener)
         {
             _stateListeners.Add(listener);
@@ -83,6 +83,15 @@ namespace Core.Trading
                     yield return _items[i];
                 }
             }
+        }
+        
+        ItemInstance IItemInstancesSource.PullItem(ItemInstance item, float amount)
+        {
+            if (((IItemsContainerMasterHandler)this).TryPullItem(item.Sign, amount, out var result))
+            {
+                return result;
+            }
+            return null;
         }
 
         bool IItemsContainerMasterHandler.TryPullItem(ItemSign item, float amount, out ItemInstance result)

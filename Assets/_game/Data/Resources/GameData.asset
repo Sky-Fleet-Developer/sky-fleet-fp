@@ -14,20 +14,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data:
   - id: iron_mine
-    rules: []
+    costRulesProcessed: []
+    buyoutCostRulesProcessed:
+    - value: 0.85
+      tags:
+        tags:
+        - All
     includeTags:
     - tags:
       - T0
       - iron
     - tags:
       - container
-    excludeTags: []
+    excludeTags:
+    - tags: []
   - id: iron_refinery
-    rules:
+    costRulesProcessed:
     - value: 1.15
       tags:
         tags:
         - T0
+    buyoutCostRulesProcessed:
+    - value: 0.85
+      tags:
+        tags:
+        - All
+    - value: 0.7
+      tags:
+        tags:
+        - iron
+        - T1
+    - value: 1.15
+      tags:
+        tags:
+        - iron
+        - T0
+    - value: 0.7
+      tags:
+        tags:
+        - container
     includeTags:
     - tags:
       - iron
@@ -434,7 +459,6 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 196608
     fuelTransitionAmount: 2
-    shopMaxAmountToInventoryDelivery: 10
     lodDistances:
       lods:
       - distance: 100

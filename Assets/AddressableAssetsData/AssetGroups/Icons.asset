@@ -13,12 +13,20 @@ MonoBehaviour:
   m_Name: Icons
   m_EditorClassIdentifier: 
   m_GroupName: Icons
-  m_Data:
-    m_SerializedData: []
   m_GUID: 92152c4fd0b1d214db35a85dff8bd6da
   m_SerializeEntries:
+  - m_GUID: 4321ba0f34c15fb4ba9683809417f799
+    m_Address: ui_iron_ore_crate
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 47b8f62a1eee70048a4a13f53fd2ee27
     m_Address: ui_iron_ore
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4de8088635e4580478d535aa159da5ac
+    m_Address: ui_iron_ingot_crate
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -27,15 +35,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4321ba0f34c15fb4ba9683809417f799
-    m_Address: ui_iron_ore_crate
+  - m_GUID: cc8f437ef56ab6747a44e5564ea7ed5a
+    m_Address: ui_default-loading-icon
     m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4de8088635e4580478d535aa159da5ac
-    m_Address: ui_iron_ingot_crate
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - default
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6089aed05677e8245b41cfd7d4a2ffce, type: 2}

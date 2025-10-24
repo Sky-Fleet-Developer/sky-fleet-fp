@@ -5,38 +5,35 @@ using Core.Configurations;
 using Core.Data;
 using Core.Game;
 using Core.Items;
+using Core.Localization;
 using Core.Trading;
 using UnityEngine;
 using Zenject;
 
 namespace Runtime.Trading
 {
-    public class CargoPickUpPointDeliveryService : MonoBehaviour, IProductDeliveryService
+    public class CargoPickUpPointDeliveryService : MonoBehaviour, IItemDeliveryService
     {
         [SerializeField] private Transform spawnAnchor;
         [SerializeField] private Vector2 spawnPlaceSize;
         [SerializeField] private Vector2Int spawnZoneSize;
-        [Inject(Optional = true)] private IFactory<ItemInstance, Task<List<GameObject>>> _itemFactory;
+        [Inject(Optional = true)] private IItemFactory _itemFactory;
         [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
         private int _spawnCounter;
         public int Order => transform.GetSiblingIndex();
 
-        public bool TryDeliver(ItemInstance item, ProductDeliverySettings deliverySettings,
-            out DeliveredProductInfo deliveredProductInfo)
+        public void Deliver(ItemInstance item, IInventoryOwner destination)
         {
-            if (item.Sign.HasTag(ItemSign.LiquidTag))
-            {
-                deliveredProductInfo = null;
-                return false;
-            }
-
-            deliveredProductInfo = new DeliveredProductInfo();
-            deliveredProductInfo.PrefabLoading = LoadAndInstantiatePrefab(item, deliverySettings);
-            return true;
+            if(!IsCanDeliver(item.Sign, destination)) return;
+            LoadAndInstantiatePrefab(item, destination);
         }
 
-        private async Task<List<GameObject>> LoadAndInstantiatePrefab(ItemInstance item,
-            ProductDeliverySettings deliverySettings)
+        public bool IsCanDeliver(ItemSign item, IInventoryOwner destination)
+        {
+            return !item.HasTag(ItemSign.LiquidTag);
+        }
+
+        private async void LoadAndInstantiatePrefab(ItemInstance item, IInventoryOwner destination)
         {
             var instances = await _itemFactory.Create(item);
             for (var i = 0; i < instances.Count; i++)
@@ -44,7 +41,7 @@ namespace Runtime.Trading
                 instances[i].transform.position = spawnAnchor.TransformPoint(GetNextSpawnPoint());
                 instances[i].transform.rotation = spawnAnchor.rotation;
             }
-            return instances;
+            //return instances;
         }
 
         private Vector3 GetNextSpawnPoint()
@@ -71,5 +68,7 @@ namespace Runtime.Trading
             
         }
 #endif
+        public string NameToView => LocalizationService.Localize($"cargo-zone-delivery_name");
+        public string IconKey => "ui_cargo-zone-delivery_icon";
     }
 }

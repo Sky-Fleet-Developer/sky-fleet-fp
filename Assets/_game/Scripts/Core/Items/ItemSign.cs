@@ -11,7 +11,10 @@ namespace Core.Items
         public const string MassTag = "mass";
         public const string ResizableTag = "resizable";
         public const string ContainerTag = "container";
-        public const string IdentifiableTag = "identifiable";
+        public const string IdentifiableTag = "identifiable"; //usings for assign uniq id to item to recognize its inventory or etc
+        public const string OwnershipTag = "ownership"; //usings for assign owner to item
+        public const string AllTag = "All";
+        
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;
@@ -32,6 +35,10 @@ namespace Core.Items
 
         public bool HasTag(string tag)
         {
+            if (tag == AllTag)
+            {
+                return true;
+            }
             for (var i = 0; i < tags.Length; i++)
             {
                 if (tags[i] == tag)

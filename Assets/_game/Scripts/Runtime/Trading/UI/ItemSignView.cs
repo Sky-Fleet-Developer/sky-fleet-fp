@@ -32,7 +32,12 @@ namespace Runtime.Trading.UI
         private async void LoadSpriteAsync()
         {
             icon.gameObject.SetActive(true);
-            icon.sprite = await Addressables.LoadAssetAsync<Sprite>($"ui_{_data.Id}").Task;
+            var sprite = await Addressables.LoadAssetAsync<Sprite>($"ui_{_data.Id}").Task;
+            icon.sprite = sprite;
+            if (!sprite)
+            {
+                Debug.LogError($"Sprite (ui_{_data.Id}) was not found");
+            }
         }
 
         private void OnDestroy()

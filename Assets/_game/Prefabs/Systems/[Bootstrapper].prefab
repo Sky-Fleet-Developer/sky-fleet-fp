@@ -2225,7 +2225,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5956897814654944129}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5338996deca4b29a9f8f6d841edbf92, type: 3}
+  m_Script: {fileID: 11500000, guid: 8dee6c0dc2714d443a220e4577ffae5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6648269031810496733
@@ -3168,7 +3168,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5012899578813571034, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5651153240177143137, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_Pivot.x

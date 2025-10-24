@@ -10,17 +10,33 @@ namespace Core.Trading
     public class TradeItem : IEquatable<TradeItem>, IDisposable
     {
         public float amount;
-        [SerializeField] private ItemSign _sign;
-        public ItemSign Sign => _sign;
-        public int cost;
+        private ItemInstance _item;
+        private IItemDeliveryService _deliveryService;
+        private ITradeItemsSource _source;
+        private int _cost;
+        public ItemSign Sign => _item.Sign;
+        public ItemInstance Item => _item;
+        public int Cost => _cost;
+        public IItemDeliveryService GetDeliveryService() => _deliveryService;
+        public ITradeItemsSource GetSource() => _source;
         public bool IsConstantMass => Sign.HasTag(ItemSign.MassTag);
 
-        public TradeItem(ItemSign itemSign, float amount, int cost)
+        public TradeItem(ItemInstance itemInstance, float amount, int cost)
         {
-            _sign = itemSign;
+            _item = itemInstance;
             this.amount = IsConstantMass ? Mathf.CeilToInt(amount) : amount;
-            this.cost = cost;
+            this._cost = cost;
         }
+
+        public TradeItem(ItemInstance itemInstance, int cost)
+        {
+            _item = itemInstance;
+            amount = itemInstance.Amount;
+            this._cost = cost;
+        }
+        
+        public void SetDeliveryService(IItemDeliveryService deliveryService) => _deliveryService = deliveryService;
+        public void SetSource(ITradeItemsSource source) => _source = source;
 
         public float GetVolume()
         {
@@ -32,12 +48,13 @@ namespace Core.Trading
             if (other == null) return false;
             if (!Sign.Equals(other.Sign)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return cost == other.cost;
+            if(_item == other._item) return true;
+            return _cost == other._cost;
         }
 
         public void Dispose()
         {
-            _sign = null;
+            _item = null;
         }
     }
 

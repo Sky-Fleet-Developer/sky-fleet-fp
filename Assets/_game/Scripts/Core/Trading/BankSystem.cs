@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Configurations;
 using Core.Items;
 using UnityEngine;
@@ -38,7 +39,46 @@ namespace Core.Trading
         public bool TryPutItem(IInventoryOwner inventoryOwner, ItemInstance item)
         {
             var handler = GetOrCreateInventoryHandler(inventoryOwner);
+            inventoryOwner.TakeOwnership(item);
             handler.PutItem(item);
+            return true;
+        }
+
+        public bool TryMakeDeal(TradeDeal deal)
+        {
+            List<ItemInstance> pulledItems = new();
+            bool success = true;
+            var seller = deal.GetSeller();
+            var purchaser = deal.GetPurchaser();
+            foreach (var tradeItem in deal.GetPurchases())
+            {
+                if (tradeItem.Item != null)
+                {
+                    try
+                    {
+                        var result = tradeItem.GetSource().PullItem(tradeItem);
+                        pulledItems.Add(result);
+                        purchaser.TakeOwnership(result);
+                        tradeItem.GetDeliveryService().Deliver(result, purchaser);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                        success = false;
+                    }
+                }
+            }
+
+            if (!success)
+            {
+                foreach (ItemInstance item in pulledItems)
+                {
+                    seller.TakeOwnership(item);
+                    TryPutItem(seller, item);
+                }
+
+                return false;
+            }
             return true;
         }
 

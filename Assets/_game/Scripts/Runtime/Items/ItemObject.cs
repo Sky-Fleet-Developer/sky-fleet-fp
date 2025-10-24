@@ -12,7 +12,7 @@ namespace Runtime.Items
     {
         [SerializeField] private string guid;
         [SerializeField] private List<string> tags;
-        [Inject] private IItemDestructor _itemDestructor;
+        [Inject] private IItemFactory _iItemFactory;
         public string Guid => guid;
         public List<string> Tags => tags;
         private ItemInstance _sourceItem;
@@ -38,7 +38,7 @@ namespace Runtime.Items
 
         public void Deconstruct()
         {
-            _itemDestructor.Deconstruct(this);
+            _iItemFactory.Deconstruct(this);
         }
     }
 }

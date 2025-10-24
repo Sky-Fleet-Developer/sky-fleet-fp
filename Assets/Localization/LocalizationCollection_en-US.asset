@@ -18,92 +18,92 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 16820991982465024
+  - m_Id: 29840441379811328
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408064
+  - m_Id: 29840441438531584
     m_Localized: Iron ore
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408065
-    m_Localized: Crate of iron ore
-    m_Metadata:
-      m_Items: []
-  - m_Id: 16820992024408066
-    m_Localized: Crate of iron ore
-    m_Metadata:
-      m_Items: []
-  - m_Id: 16820992024408067
+  - m_Id: 29840441438531585
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408068
+  - m_Id: 29840441438531586
     m_Localized: Iron ingot
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408069
-    m_Localized: Crate iron ingots
+  - m_Id: 29840441438531587
+    m_Localized: Crate
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408070
-    m_Localized: Crate of iron ingots
+  - m_Id: 29840441438531588
+    m_Localized: The nice wood crate with volume of one tonn
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408071
+  - m_Id: 29840441438531589
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408072
+  - m_Id: 29840441438531590
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408073
+  - m_Id: 29840441438531591
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408074
+  - m_Id: 29840441438531592
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408075
+  - m_Id: 29840441438531593
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408076
+  - m_Id: 29840441438531594
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408077
+  - m_Id: 29840441438531595
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408078
+  - m_Id: 29840441438531596
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408079
+  - m_Id: 29840441438531597
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408080
+  - m_Id: 29840441438531598
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408081
+  - m_Id: 29840441438531599
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408082
+  - m_Id: 29840441438531600
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408083
+  - m_Id: 29840441438531601
     m_Localized: 
     m_Metadata:
       m_Items: []
-  - m_Id: 16820992024408084
+  - m_Id: 29840441438531602
     m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29840441438531603
+    m_Localized: Inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29840441438531604
+    m_Localized: Cargo zone
     m_Metadata:
       m_Items: []
   references:

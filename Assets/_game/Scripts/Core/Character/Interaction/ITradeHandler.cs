@@ -5,19 +5,26 @@ using Core.Trading;
 
 namespace Core.Character.Interaction
 {
+    [Flags]
+    public enum TradeItemKind
+    {
+        Sell = 1, Buyout = 2
+    }
     public interface ITradeItemsStateListener
     {
-        void ItemAdded(TradeItem item);
-        void ItemMutated(TradeItem item);
-        void ItemRemoved(TradeItem item);
+        void ItemAdded(TradeItem item, TradeItemKind kind);
+        void ItemMutated(TradeItem item, TradeItemKind kind);
+        void ItemRemoved(TradeItem item, TradeItemKind kind);
     }
     public interface ITradeHandler : ICharacterHandler, IInventoryOwner
     {
         //event Action ItemsChanged;
-        bool TryMakeDeal(TradeDeal deal, out Transaction transaction);
-        IEnumerable<TradeItem> GetTradeItems();
-        IEnumerable<IItemObject> GetItemsInSellZone(); // TODO: replace to infinite list interface
+        IEnumerable<TradeItem> GetTradeItems(); // TODO: replace to infinite list interface
+        ITradeItemsSource GetCargoZoneItemsSource();
+        ItemInstanceToTradeAdapter GetAdapterToCustomerItems(IInventoryOwner customer);
+        IReadOnlyList<IItemDeliveryService> GetDeliveryServices();
         void AddListener(ITradeItemsStateListener listener);
         void RemoveListener(ITradeItemsStateListener listener);
+        int GetBuyoutPrice(ItemInstance itemInstance);
     }
 }

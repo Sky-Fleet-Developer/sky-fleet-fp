@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Core.Character;
 using Core.Character.Interaction;
@@ -7,13 +8,15 @@ using Core.Items;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Trading;
+using Newtonsoft.Json;
 using UnityEngine;
 using Zenject;
 
 namespace Runtime.Trading
 {
+    
     [Serializable]
-    public class Shop : Block, IInteractiveObject, ITradeHandler, IInventoryStateListener
+    public class Shop : Block, IInteractiveObject, ITradeHandler, ITradeItemsStateListener
     {
         [SerializeField] private string shopId;
         [SerializeField] private ItemsTrigger itemsTrigger;
@@ -21,35 +24,21 @@ namespace Runtime.Trading
         public Transform Root => transform;
         public string InventoryKey => shopId;
         //public event Action ItemsChanged;
-        [Inject] private ShopTable _shopTable;
-        [Inject] private BankSystem _bankSystem;
+        [Inject(Optional = true)] private ShopTable _shopTable;
+        [Inject(Optional = true)] private BankSystem _bankSystem;
         [Inject] private DiContainer _diContainer;
-        private List<IProductDeliveryService> _deliveryServices = new ();
-        private IItemsContainerReadonly _inventory;
+        private ItemInstanceToTradeAdapter _inventoryTradeAdapter;
+        private ItemInstanceToTradeAdapter _sellZoneTradeAdapter;
+        private List<IItemDeliveryService> _deliveryServices = new ();
         private ShopSettings _shopSettings;
-        private Dictionary<string, TradeItem> _assortment = new();
         private HashSet<ITradeItemsStateListener> _itemsListeners = new();
-
-        private void Awake()
-        {
-            itemsTrigger.OnItemEnter += OnItemEntersTrigger;
-            itemsTrigger.OnItemExit += OnItemExitTrigger;
-        }
-
-        private void OnItemEntersTrigger(IItemObject iItem)
-        {
-            //ItemsChanged?.Invoke();
-        }
-        private void OnItemExitTrigger(IItemObject iItem)
-        {
-            //ItemsChanged?.Invoke();
-        }
-
+       
         public override void InitBlock(IStructure structure, Parent parent)
         {
             GetComponentsInChildren(_deliveryServices);
             _deliveryServices.Sort();
-            if (_diContainer != null && _inventory == null)
+            _deliveryServices.Insert(0, new PutToInventoryDeliveryService());
+            if (_diContainer != null)
             {
                 for (var i = 0; i < _deliveryServices.Count; i++)
                 {
@@ -57,16 +46,18 @@ namespace Runtime.Trading
                 }
 
                 _bankSystem.InitializeShop(shopId, this);
-                _inventory = _bankSystem.GetOrCreateInventory(this);
                 if (!_shopTable.TryGetSettings(shopId, out _shopSettings))
                 {
                     Debug.LogError($"Shop {shopId} does not exists!");
                 }
-                _inventory.AddListener(this);
-                foreach (var itemInstance in _inventory.GetItems())
-                {
-                    _assortment.Add(itemInstance.Sign.Id, new TradeItem(itemInstance.Sign, itemInstance.Amount, _shopSettings.GetCost(itemInstance.Sign)));
-                }
+                _diContainer.Inject(itemsTrigger);
+                _inventoryTradeAdapter = new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(this), TradeItemKind.Sell);
+                _diContainer.Inject(_inventoryTradeAdapter);
+                _inventoryTradeAdapter.Initialize();
+                _inventoryTradeAdapter.AddListener(this);
+                _sellZoneTradeAdapter = new ItemInstanceToTradeAdapter(shopId, itemsTrigger, TradeItemKind.Buyout);
+                _diContainer.Inject(_sellZoneTradeAdapter);
+                _sellZoneTradeAdapter.Initialize();
             }
 
             base.InitBlock(structure, parent);
@@ -74,51 +65,30 @@ namespace Runtime.Trading
 
         private void OnDestroy()
         {
-            _inventory?.RemoveListener(this);
-        }
-
-        public bool TryMakeDeal(TradeDeal deal, out Transaction transaction)
-        {
-            var deliverySettings = new ProductDeliverySettings { Purchaser = deal.GetPurchaser() };
-            List<DeliveredProductInfo> deliveredProductInfo = new ();
-            foreach (var tradeItem in deal.GetPurchases())
-            {
-                if (!_bankSystem.TryPullItem(this, tradeItem.Sign, tradeItem.amount, out ItemInstance result))
-                {
-                    Debug.LogError($"Cant pull item. Id:{tradeItem.Sign.Id}");
-                    continue;
-                }
-
-                bool isDelivered = false;
-                for (var i = 0; i < _deliveryServices.Count; i++)
-                {
-                    if (_deliveryServices[i].TryDeliver(result, deliverySettings, out DeliveredProductInfo info))
-                    {
-                        deliveredProductInfo.Add(info);
-                        isDelivered = true;
-                        break;
-                    }
-                }
-
-                if (!isDelivered)
-                {
-                    Debug.LogError($"Item was not delivered. Id:{tradeItem.Sign.Id}");
-                }
-            }
-
-            transaction = new Transaction(deal, deliveredProductInfo);
-            transaction.FinilizeAsync();
-            return true;
+            _inventoryTradeAdapter.Dispose();
         }
 
         public IEnumerable<TradeItem> GetTradeItems()
         {
-            return _assortment.Values;
+            foreach (var tradeItem in _inventoryTradeAdapter.GetTradeItems())
+            {
+                yield return tradeItem;
+            }
         }
 
-        public IEnumerable<IItemObject> GetItemsInSellZone()
+        public ITradeItemsSource GetCargoZoneItemsSource()
         {
-            return itemsTrigger.GetItems;
+            return _sellZoneTradeAdapter;
+        }
+
+        public ItemInstanceToTradeAdapter GetAdapterToCustomerItems(IInventoryOwner customer)
+        {
+            return new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(customer), TradeItemKind.Buyout);
+        }
+
+        public IReadOnlyList<IItemDeliveryService> GetDeliveryServices()
+        {
+            return _deliveryServices;
         }
 
         public void AddListener(ITradeItemsStateListener listener)
@@ -131,39 +101,38 @@ namespace Runtime.Trading
             _itemsListeners.Remove(listener);
         }
 
+        public int GetBuyoutPrice(ItemInstance itemInstance)
+        {
+            return _shopSettings.GetBuyoutCost(itemInstance);
+        }
+
         public bool RequestInteractive(ICharacterController character, out string data)
         {
             data = string.Empty;
             return true;
         }
 
-        void IInventoryStateListener.ItemAdded(ItemInstance item)
+        public void ItemAdded(TradeItem item, TradeItemKind kind)
         {
-            var tradeItem = new TradeItem(item.Sign, item.Amount, _shopSettings.GetCost(item.Sign));
-            _assortment[item.Sign.Id] = tradeItem;
             foreach (var tradeItemsListener in _itemsListeners)
             {
-                tradeItemsListener.ItemAdded(tradeItem);
+                tradeItemsListener.ItemAdded(item, kind);
             }
         }
 
-        void IInventoryStateListener.ItemMutated(ItemInstance item)
+        public void ItemMutated(TradeItem item, TradeItemKind kind)
         {
-            var tradeItem = _assortment[item.Sign.Id];
-            tradeItem.amount = item.Amount;
             foreach (var tradeItemsListener in _itemsListeners)
             {
-                tradeItemsListener.ItemMutated(tradeItem);
+                tradeItemsListener.ItemMutated(item, kind);
             }
         }
 
-        void IInventoryStateListener.ItemRemoved(ItemInstance item)
+        public void ItemRemoved(TradeItem item, TradeItemKind kind)
         {
-            var tradeItem = _assortment[item.Sign.Id];
-            _assortment.Remove(item.Sign.Id);
             foreach (var tradeItemsListener in _itemsListeners)
             {
-                tradeItemsListener.ItemRemoved(tradeItem);
+                tradeItemsListener.ItemRemoved(item, kind);
             }
         }
     }

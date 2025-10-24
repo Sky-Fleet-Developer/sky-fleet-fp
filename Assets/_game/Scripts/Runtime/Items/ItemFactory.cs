@@ -10,7 +10,7 @@ using Zenject;
 
 namespace Runtime.Items
 {
-    public class ItemFactory : MonoBehaviour, IInstallerWithContainer, IFactory<ItemInstance, Task<List<GameObject>>>, IItemDestructor
+    public class ItemFactory : MonoBehaviour, IInstallerWithContainer, IItemFactory
     {
         [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
         [Inject(Optional = true)] private ItemsTable _tableItems;
@@ -19,8 +19,7 @@ namespace Runtime.Items
         public void InstallBindings(DiContainer container)
         {
             _container = container;
-            _container.Bind<IFactory<ItemInstance, Task<List<GameObject>>>>().To<ItemFactory>().FromInstance(this);
-            _container.Bind<IItemDestructor>().To<ItemFactory>().FromInstance(this);
+            _container.Bind<IItemFactory>().To<ItemFactory>().FromInstance(this);
         }
 
         public async Task<List<GameObject>> Create(ItemInstance item)

@@ -64,7 +64,6 @@ namespace Core.Data
         public LayerMask terrainLayer;
         [Header("Logistics")] 
         public float fuelTransitionAmount = 5;
-        public float shopMaxAmountToInventoryDelivery = 10;
         [Header("Lod")]
         public LodSettings lodDistances;
         [Header("Miscellaneous")]
