@@ -23,6 +23,9 @@ namespace Core.World
         {
             _locked = false;
         }
+
+        public bool IsEmpty => _entities.Count == 0;
+        
         public void AddEntity(IWorldEntity entity)
         {
             if (_locked) return;

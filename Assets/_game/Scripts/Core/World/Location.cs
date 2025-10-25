@@ -29,6 +29,14 @@ namespace Core.World
         public async Task WriteChunk(LocationChunkData chunkData, int x, int y)
         {
             string path = string.Format(GetDataFilePath(), x, y);
+            if (chunkData.IsEmpty)
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                return;
+            }
             await using FileStream stream = File.Open(path, FileMode.OpenOrCreate);
             Serializers.GetSerializer(typeof(LocationChunkData)).Serialize(chunkData, stream);
         }
