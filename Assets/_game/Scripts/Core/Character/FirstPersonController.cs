@@ -26,7 +26,7 @@ using InputAxis = Core.Data.GameSettings.InputAxis;
 namespace Core.Character
 {
     [RequireComponent(typeof(CharacterMotor))]
-    public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster, IInventoryOwner
+    public class FirstPersonController : MonoBehaviour, ICharacterController, IStateMaster, ITradeParticipant
     {
         [FoldoutGroup("Links")]
         public Transform cameraRoot;
@@ -685,6 +685,8 @@ namespace Core.Character
             }
         }
 
-        public string InventoryKey => "Player_Inventory";
+        private string ManagementKey => "Player_Inventory";
+        string IInventoryOwner.InventoryKey => ManagementKey;
+        string IWalletOwner.WalletKey => ManagementKey;
     }
 }

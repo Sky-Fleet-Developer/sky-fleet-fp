@@ -22,7 +22,9 @@ namespace Runtime.Trading
         [SerializeField] private ItemsTrigger itemsTrigger;
         public bool EnableInteraction => IsActive;
         public Transform Root => transform;
-        public string InventoryKey => shopId;
+        string IInventoryOwner.InventoryKey => shopId;
+        string IWalletOwner.WalletKey => shopId;
+
         //public event Action ItemsChanged;
         [Inject(Optional = true)] private ShopTable _shopTable;
         [Inject(Optional = true)] private BankSystem _bankSystem;

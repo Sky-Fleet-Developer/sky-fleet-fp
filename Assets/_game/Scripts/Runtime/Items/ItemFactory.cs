@@ -45,6 +45,10 @@ namespace Runtime.Items
             
             if (item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) && item.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
+                foreach (var monoBehaviour in instance.GetComponents<MonoBehaviour>())
+                {
+                    _container.Inject(monoBehaviour);
+                }
                 if (!instance.TryGetComponent(out Container containerComponent))
                 {
                     containerComponent = instance.AddComponent<Container>();

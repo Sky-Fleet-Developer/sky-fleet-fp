@@ -8,14 +8,14 @@ namespace Core.Trading
     public class TradeDeal : IDisposable
     {
         private List<TradeItem> _itemsToPurchase;
-        private IInventoryOwner _seller;
-        private IInventoryOwner _purchaser;
+        private ITradeParticipant _seller;
+        private ITradeParticipant _purchaser;
 
         public IEnumerable<TradeItem> GetPurchases() => _itemsToPurchase;
-        public IInventoryOwner GetPurchaser() => _purchaser;
-        public IInventoryOwner GetSeller() => _seller;
+        public ITradeParticipant GetPurchaser() => _purchaser;
+        public ITradeParticipant GetSeller() => _seller;
         
-        public TradeDeal(IInventoryOwner purchaser, IInventoryOwner seller)
+        public TradeDeal(ITradeParticipant purchaser, ITradeParticipant seller)
         {
             _purchaser = purchaser;
             _seller = seller;

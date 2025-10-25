@@ -22,7 +22,11 @@ namespace Runtime.Trading.UI
         [SerializeField] private TradeItemsListView myItemsView;
         [SerializeField] private ItemSignDescriptionView signDescriptionView;
         [SerializeField] private Button acceptButton;
-        [SerializeField] private TextMeshProUGUI dealCostText;
+        [SerializeField] private CurrencyView dealCostView;
+        [SerializeField] private CurrencyView costumerCurrencyView;
+        [SerializeField] private Color purchaseColor;
+        [SerializeField] private Color sellColor;
+        [SerializeField] private Color notEnoughMoneyColor;
         private ITradeHandler _handler;
         private FirstPersonController.UIInteractionState _interactionState;
         private FirstPersonInterfaceInstaller _master;
@@ -97,6 +101,7 @@ namespace Runtime.Trading.UI
             myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(_cargoZoneItemsSource.GetTradeItems()));
             _cargoZoneItemsSource.AddListener(myItemsView);
             _myInventoryAdapter.AddListener(myItemsView);
+            RefreshCostView();
         }
         
         /*private void AddToCartClick()
@@ -131,33 +136,41 @@ namespace Runtime.Trading.UI
 
         private void RefreshCostView()
         {
-            int paymentAmount =  _purchase.GetPaymentAmount() - _sell.GetPaymentAmount();
-            if (paymentAmount == 0)
+            var balance = _bankSystem.GetWalletBalance(_interactionState.Master);
+            costumerCurrencyView.SetCurrency(balance);
+            int deltaCurrency = _sell.GetPaymentAmount() - _purchase.GetPaymentAmount();
+            costumerCurrencyView.SetColor(balance > -deltaCurrency ? Color.white : notEnoughMoneyColor);
+            if (deltaCurrency == 0)
             {
-                dealCostText.text = "0";
+                dealCostView.SetPrefix(string.Empty);
+                dealCostView.SetColor(Color.white);
+                dealCostView.SetCurrency(0);
             }
-            else if (paymentAmount > 0)
+            else if (deltaCurrency > 0)
             {
-                dealCostText.text = $"<color=#A88047>-{paymentAmount:C}</color>";
+                dealCostView.SetPrefix("+");
+                dealCostView.SetCurrency(deltaCurrency);
+                dealCostView.SetColor(sellColor);
             }
             else
             {
-                dealCostText.text = $"<color=#5FA847>+{-paymentAmount:C}</color>";
+                dealCostView.SetPrefix("-");
+                dealCostView.SetCurrency(-deltaCurrency);
+                dealCostView.SetColor(purchaseColor);
             }
         }
 
         private void AcceptClick()
         {
-            if (_bankSystem.TryMakeDeal(_purchase))
-            {
-                _purchase = new TradeDeal(_interactionState.Master, _handler);
-                sellerItemsView.SetItems(_handler.GetTradeItems());
-            }
-
             if (_bankSystem.TryMakeDeal(_sell))
             {
                 _sell = new TradeDeal(_handler, _interactionState.Master);
                 myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(_cargoZoneItemsSource.GetTradeItems()));
+            }
+            if (_bankSystem.TryMakeDeal(_purchase))
+            {
+                _purchase = new TradeDeal(_interactionState.Master, _handler);
+                sellerItemsView.SetItems(_handler.GetTradeItems());
             }
 
             RefreshCostView();

@@ -10,7 +10,7 @@ namespace Core.Character.Interaction
         void ItemMutated(TradeItem item, TradeKind kind);
         void ItemRemoved(TradeItem item, TradeKind kind);
     }
-    public interface ITradeHandler : ICharacterHandler, IInventoryOwner
+    public interface ITradeHandler : ICharacterHandler, ITradeParticipant
     {
         //event Action ItemsChanged;
         IEnumerable<TradeItem> GetTradeItems(); // TODO: replace to infinite list interface
