@@ -25,8 +25,13 @@ namespace Runtime.Trading
                 return null;
             }
 
-            if (obj.SourceItem.Amount < amount)
+            if (obj.SourceItem.Amount > amount)
             {
+                foreach (var listener in _listeners)
+                {
+                    listener.ItemMutated(obj.SourceItem);
+                }
+
                 return obj.SourceItem.Detach(amount);
             }
             else
@@ -34,6 +39,13 @@ namespace Runtime.Trading
                 if (obj is IItemObjectHandle itemHandle)
                 {
                     _itemFactory.Deconstruct(itemHandle);
+                }
+                _items[obj].Clear();
+                _items.Remove(obj);
+                _objectByInstance.Remove(item);
+                foreach (var listener in _listeners)
+                {
+                    listener.ItemRemoved(item);
                 }
                 return obj.SourceItem;
             }
@@ -81,11 +93,13 @@ namespace Runtime.Trading
 
         public void AddListener(IInventoryStateListener listener)
         {
+            Debug.Log($"Adding listener: {listener.GetType()}");
             _listeners.Add(listener);
         }
 
         public void RemoveListener(IInventoryStateListener listener)
         {
+            Debug.Log($"Removed listener: {listener.GetType()}");
             _listeners.Remove(listener);
         }
     }

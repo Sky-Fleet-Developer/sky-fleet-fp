@@ -26,12 +26,15 @@ namespace Runtime.Trading.UI
         private ITradeHandler _handler;
         private FirstPersonController.UIInteractionState _interactionState;
         private FirstPersonInterfaceInstaller _master;
-        private TradeDeal _deal;
+        private TradeDeal _purchase;
+        private TradeDeal _sell;
         [Inject] private BankSystem _bankSystem;
+        [Inject] private DiContainer _container;
         private TradeItemView _selectedTarget;
         private List<TradeItem> myInventoryItems = new();
         private IItemsContainerReadonly _myInventory;
         private ItemInstanceToTradeAdapter _myInventoryAdapter;
+        private ITradeItemsSource _cargoZoneItemsSource;
 
         protected override void Awake()
         {
@@ -54,17 +57,17 @@ namespace Runtime.Trading.UI
 
         private void OnSellerItemInCardAmountChanged(TradeItem item, float amount)
         {
-            if (_deal.SetPurchaseItemAmount(item, amount, out var innerItem))
+            if (_purchase.SetPurchaseItemAmount(item, amount, out var innerItem))
             {
                 RefreshCostView();
             }
         }
         private void OnPurchaserItemInCardAmountChanged(TradeItem item, float amount)
         {
-            /*if (_deal.SetSellItemAmount(item, amount, out var innerItem))
+            if (_sell.SetPurchaseItemAmount(item, amount, out var innerItem))
             {
                 RefreshCostView();
-            }*/
+            }
         }
 
         public override void Init(FirstPersonInterfaceInstaller master)
@@ -73,11 +76,14 @@ namespace Runtime.Trading.UI
             _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
             _handler = (ITradeHandler)_interactionState.Handler;
             _handler.AddListener(sellerItemsView);
-            _deal = new TradeDeal(_interactionState.Master, _handler);
+            _purchase = new TradeDeal(_interactionState.Master, _handler);
+            _sell = new TradeDeal(_handler, _interactionState.Master);
             _myInventory = _bankSystem.GetOrCreateInventory(_interactionState.Master);
 
             sellerItemsView.SetDeliverySettings(new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices()));
-            myItemsView.SetDeliverySettings(new ProductDeliverySettings(_handler, new List<IItemDeliveryService>{new PutToInventoryDeliveryService()}));
+            var deliveryService = new PutToInventoryDeliveryService();
+            _container.Inject(deliveryService);
+            myItemsView.SetDeliverySettings(new ProductDeliverySettings(_handler, new List<IItemDeliveryService>{deliveryService}));
             foreach (var itemInstance in _myInventory.GetItems())
             {
                 int price = _handler.GetBuyoutPrice(itemInstance);
@@ -86,10 +92,10 @@ namespace Runtime.Trading.UI
 
             _myInventoryAdapter?.Dispose();
             _myInventoryAdapter = _handler.GetAdapterToCustomerItems(_interactionState.Master);
-            var cargoZoneItemsSource = _handler.GetCargoZoneItemsSource();
+            _cargoZoneItemsSource = _handler.GetCargoZoneItemsSource();
 
-            myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(cargoZoneItemsSource.GetTradeItems()));
-            cargoZoneItemsSource.AddListener(myItemsView);
+            myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(_cargoZoneItemsSource.GetTradeItems()));
+            _cargoZoneItemsSource.AddListener(myItemsView);
             _myInventoryAdapter.AddListener(myItemsView);
         }
         
@@ -125,29 +131,36 @@ namespace Runtime.Trading.UI
 
         private void RefreshCostView()
         {
-            int paymentAmount =  _deal.GetPaymentAmount();
+            int paymentAmount =  _purchase.GetPaymentAmount() - _sell.GetPaymentAmount();
             if (paymentAmount == 0)
             {
                 dealCostText.text = "0";
             }
             else if (paymentAmount > 0)
             {
-                dealCostText.text = $"<color=yellow>-{paymentAmount:C}</color>";
+                dealCostText.text = $"<color=#A88047>-{paymentAmount:C}</color>";
             }
             else
             {
-                dealCostText.text = $"<color=green>+{-paymentAmount:C}</color>";
+                dealCostText.text = $"<color=#5FA847>+{-paymentAmount:C}</color>";
             }
         }
 
         private void AcceptClick()
         {
-            if (_bankSystem.TryMakeDeal(_deal))
+            if (_bankSystem.TryMakeDeal(_purchase))
             {
-                _deal = new TradeDeal(_interactionState.Master, _handler);
-                dealCostText.text = "0";
+                _purchase = new TradeDeal(_interactionState.Master, _handler);
                 sellerItemsView.SetItems(_handler.GetTradeItems());
             }
+
+            if (_bankSystem.TryMakeDeal(_sell))
+            {
+                _sell = new TradeDeal(_handler, _interactionState.Master);
+                myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(_cargoZoneItemsSource.GetTradeItems()));
+            }
+
+            RefreshCostView();
         }
 
         public override bool IsMatch(IState state)
@@ -163,6 +176,7 @@ namespace Runtime.Trading.UI
 
         public override IEnumerator Hide(BlockSequenceSettings settings = null)
         {
+            _cargoZoneItemsSource.RemoveListener(myItemsView);
             _interactionState.LeaveState();
             _handler?.RemoveListener(sellerItemsView);
             return base.Hide(settings);

@@ -13,6 +13,8 @@ namespace Core.Items
         private List<ItemProperty> _properties = new();
         public ItemSign Sign => _sign;
         public float Amount => _amount;
+        private static int _id = 0;
+        private int _instanceId = _id++;
         public ItemInstance(){}
         public ItemInstance(ItemSign sign, float amount)
         {
@@ -26,7 +28,15 @@ namespace Core.Items
 
         public void SetOwnership(string owner)
         {
-            _properties.Add(new ItemProperty{name = ItemSign.OwnershipTag, values = new []{new ItemPropertyValue{stringValue = owner}}});
+            if (!TryGetProperty(ItemSign.OwnershipTag, out var property))
+            {
+                property = new ItemProperty { name = ItemSign.OwnershipTag, values = new[] { new ItemPropertyValue { stringValue = owner } } };
+                _properties.Add(property);
+            }
+            else
+            {
+                property.values[0].stringValue = owner;
+            }
         }
 
         public string GetOwnership()

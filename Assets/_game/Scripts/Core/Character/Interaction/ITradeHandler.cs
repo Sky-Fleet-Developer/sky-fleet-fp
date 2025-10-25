@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Items;
 using Core.Trading;
 
 namespace Core.Character.Interaction
 {
-    [Flags]
-    public enum TradeItemKind
-    {
-        Sell = 1, Buyout = 2
-    }
     public interface ITradeItemsStateListener
     {
-        void ItemAdded(TradeItem item, TradeItemKind kind);
-        void ItemMutated(TradeItem item, TradeItemKind kind);
-        void ItemRemoved(TradeItem item, TradeItemKind kind);
+        void ItemAdded(TradeItem item, TradeKind kind);
+        void ItemMutated(TradeItem item, TradeKind kind);
+        void ItemRemoved(TradeItem item, TradeKind kind);
     }
     public interface ITradeHandler : ICharacterHandler, IInventoryOwner
     {

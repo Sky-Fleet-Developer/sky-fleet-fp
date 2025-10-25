@@ -12,18 +12,20 @@ namespace Core.Trading
     {
         [Inject] private ShopTable _shopTable;
         [Inject] private BankSystem _bankSystem;
-        private TradeItemKind _kind;
+        private TradeKind _kind;
         private IItemInstancesSource _itemsSource;
         private ShopSettings _shopSettings;
         private Dictionary<string, List<TradeItem>> _assortment = new();
         private List<ITradeItemsStateListener> _listeners = new();
         private string _sourceShop;
+        private bool _initialized;
 
-        public ItemInstanceToTradeAdapter(string sourceShop, IItemInstancesSource itemsSource, TradeItemKind kind)
+        public ItemInstanceToTradeAdapter(string sourceShop, IItemInstancesSource itemsSource, TradeKind kind)
         {
             _sourceShop = sourceShop;
             _kind = kind;
             _itemsSource = itemsSource;
+            _initialized = false;
         }
 
         public void Initialize()
@@ -37,10 +39,15 @@ namespace Core.Trading
             {
                 ItemAdded(itemInstance);
             }
+            _initialized = true;
         }
         
         public IEnumerable<TradeItem> GetTradeItems()
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("Adapter is not initialized!");
+            }
             foreach (List<TradeItem> assortmentValue in _assortment.Values)
             {
                 for (var i = 0; i < assortmentValue.Count; i++)
@@ -52,6 +59,10 @@ namespace Core.Trading
 
         public ItemInstance PullItem(TradeItem item)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("Adapter is not initialized!");
+            }
             foreach (var tradeItem in _assortment[item.Item.Sign.Id])
             {
                 if (tradeItem.Item == item.Item)
@@ -65,6 +76,7 @@ namespace Core.Trading
 
         public void AddListener(ITradeItemsStateListener listener)
         {
+            Debug.Log($"Adding listener: {listener.GetType()}");
             _listeners.Add(listener);   
         }
 
@@ -73,21 +85,25 @@ namespace Core.Trading
             _listeners.Remove(listener);   
         }
         
-        private TradeItem FindTradeItem(ItemInstance item)
+        private TradeItem FindTradeItem(ItemInstance item, out int inBucketIndex)
         {
+            inBucketIndex = -1;
             TradeItem result = null;
-            foreach (TradeItem tradeItem in _assortment[item.Sign.Id])
+            for (int i = 0; i < _assortment[item.Sign.Id].Count; i++)
             {
+                TradeItem tradeItem = _assortment[item.Sign.Id][i];
                 if (tradeItem.Item != null) // this is the item instance, we need to find its trade item
                 {
                     if (tradeItem.Item == item) // found!
                     {
+                        inBucketIndex = i;
                         result = tradeItem;
                         break;
                     }
                 }
                 else // this is a regular item
                 {
+                    inBucketIndex = i;
                     result = tradeItem;
                     break;
                 }
@@ -98,7 +114,7 @@ namespace Core.Trading
         
         public void ItemAdded(ItemInstance item)
         {
-            int cost = _kind == TradeItemKind.Sell
+            int cost = _kind == TradeKind.Sell
                 ? _shopSettings.GetSellCost(item.Sign)
                 : _shopSettings.GetBuyoutCost(item);
             TradeItem tradeItem = new TradeItem(item, cost);
@@ -117,7 +133,7 @@ namespace Core.Trading
 
         public void ItemMutated(ItemInstance item)
         {
-            var tradeItem = FindTradeItem(item);
+            var tradeItem = FindTradeItem(item, out _);
             tradeItem.amount = item.Amount;
             foreach (var listener in _listeners)
             {
@@ -127,8 +143,8 @@ namespace Core.Trading
 
         public void ItemRemoved(ItemInstance item)
         {
-            var tradeItem = FindTradeItem(item);
-            _assortment[item.Sign.Id].Remove(tradeItem);
+            var tradeItem = FindTradeItem(item, out var index);
+            _assortment[item.Sign.Id].RemoveAt(index);
             foreach (var listener in _listeners)
             {
                 listener.ItemRemoved(tradeItem, _kind);

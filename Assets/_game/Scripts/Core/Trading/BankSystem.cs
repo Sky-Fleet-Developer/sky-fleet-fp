@@ -52,11 +52,19 @@ namespace Core.Trading
             var purchaser = deal.GetPurchaser();
             foreach (var tradeItem in deal.GetPurchases())
             {
-                if (tradeItem.Item != null)
+                if (tradeItem.Item !=  null)
                 {
                     try
                     {
+                        if (tradeItem.amount <= 0)
+                        {
+                            continue;
+                        }
                         var result = tradeItem.GetSource().PullItem(tradeItem);
+                        if (result == null)
+                        {
+                            Debug.LogError("Item not found");
+                        }
                         pulledItems.Add(result);
                         purchaser.TakeOwnership(result);
                         tradeItem.GetDeliveryService().Deliver(result, purchaser);

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Core.Character.Interaction;
+using Core.Localization;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Runtime.Trading.UI
@@ -17,7 +20,8 @@ namespace Runtime.Trading.UI
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI costLabel;
         [SerializeField] private TextMeshProUGUI amountLabel;
-        [SerializeField] private Button addToCartButton;
+        [SerializeField] private TextMeshProUGUI addButtonLabel;
+        [SerializeField] private Button addButton;
         [SerializeField] private Transform selectAmountGroup;
         [SerializeField] private Button moreButton;
         [SerializeField] private Button lessButton;
@@ -33,7 +37,7 @@ namespace Runtime.Trading.UI
 
         private void Awake()
         {
-            addToCartButton.onClick.AddListener(AddToCart);
+            addButton.onClick.AddListener(AddToCart);
             moreButton.onClick.AddListener(OnMoreClick);
             lessButton.onClick.AddListener(OnLessClick);
             inCartAmountInputField.onEndEdit.AddListener(OnAmountInputSubmit);
@@ -50,7 +54,7 @@ namespace Runtime.Trading.UI
                     if (counter == index)
                     {
                         _data.SetDeliveryService(service);
-                        _inCardAmountChangedCallback.Invoke(_data, _amount);
+                        _inCardAmountChangedCallback?.Invoke(_data, _amount);
                     }
                     counter++;
                 }
@@ -59,7 +63,7 @@ namespace Runtime.Trading.UI
 
         private void OnDestroy()
         {
-            addToCartButton.onClick.RemoveListener(AddToCart);
+            addButton.onClick.RemoveListener(AddToCart);
             moreButton.onClick.RemoveListener(OnMoreClick);
             lessButton.onClick.RemoveListener(OnLessClick);
             inCartAmountInputField.onEndEdit.RemoveListener(OnAmountInputSubmit);
@@ -72,6 +76,11 @@ namespace Runtime.Trading.UI
             {
                 RefreshDeliveryServices();
             }
+        }
+
+        public void SetTradeItemKind(TradeKind kind)
+        {
+            addButtonLabel.text = LocalizationService.Localize(kind.GetAddButtonLocalizationKey());
         }
 
         private async void SetIconToDeliveryOption(TMP_Dropdown.OptionData data, int index, string spriteKey)
@@ -167,7 +176,7 @@ namespace Runtime.Trading.UI
             inCartAmountInputField.text = _amount.ToString(new NumberFormatInfo());
             amountLabel.text = _data.amount.ToString();
             moreButton.interactable = _amount < _data.amount;
-            addToCartButton.gameObject.SetActive(_amount == 0);
+            addButton.gameObject.SetActive(_amount == 0);
             selectAmountGroup.gameObject.SetActive(_amount > 0);
             if (_isDataDirtyForDeliverySettings)
             {
@@ -216,7 +225,8 @@ namespace Runtime.Trading.UI
                 }
             }
             deliverySelection.AddOptions(options);
-            deliverySelection.value = selectedIndex;
+            deliverySelection.SetValueWithoutNotify(selectedIndex);
+            DeliverySelected(selectedIndex);
         }
     }
 }

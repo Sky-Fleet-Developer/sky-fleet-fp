@@ -38,11 +38,13 @@ namespace Core.Trading
             if (amount == 0)
             {
                 itemsList.Remove(item);
+                innerItem = null;
+                return true;
             }
             
             for (var i = 0; i < itemsList.Count; i++)
             {
-                if (itemsList[i].Sign.Equals(item.Sign))
+                if (itemsList[i].Item == item.Item)
                 {
                     itemsList[i].amount = amount;
                     innerItem = itemsList[i];
@@ -87,7 +89,7 @@ namespace Core.Trading
             int counter = 0;
             for (var i = 0; i < _itemsToPurchase.Count; i++)
             {
-                counter += Mathf.CeilToInt(_itemsToPurchase[i].Cost * _itemsToPurchase[i].amount + 0.5f);
+                counter += Mathf.FloorToInt(_itemsToPurchase[i].Cost * _itemsToPurchase[i].amount + 0.5f);
             }
 
             return counter;

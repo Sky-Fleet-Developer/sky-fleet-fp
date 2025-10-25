@@ -8,13 +8,14 @@ namespace Runtime.Trading.UI
 {
     public class TradeItemsListView : ThingsListView<TradeItem, TradeItemView>, ITradeItemsStateListener
     {
-        public TradeItemKind kindFilter;
+        public TradeKind kindFilter;
         private ProductDeliverySettings _deliverySettings;
         public event Action<TradeItem, float> OnItemInCardAmountChanged;
 
         protected override void InitItem(TradeItemView item)
         {
             item.SetDeliverySettings(_deliverySettings);
+            item.SetTradeItemKind(kindFilter);
             item.SetInCardAmountChangedCallback(ItemInCardAmountChanged);
         }
 
@@ -40,24 +41,24 @@ namespace Runtime.Trading.UI
             base.AddItem(item);
         }*/
 
-        private bool IsKindValid(TradeItemKind kind)
+        private bool IsKindValid(TradeKind kind)
         {
             return kindFilter.HasFlag(kind);
         }
         
-        public void ItemAdded(TradeItem item, TradeItemKind kind)
+        public void ItemAdded(TradeItem item, TradeKind kind)
         {
             if(!IsKindValid(kind)) return;
             AddItem(item);
         }
 
-        public void ItemMutated(TradeItem item, TradeItemKind kind)
+        public void ItemMutated(TradeItem item, TradeKind kind)
         {
             if(!IsKindValid(kind)) return;
             RefreshItem(item);
         }
 
-        public void ItemRemoved(TradeItem item, TradeItemKind kind)
+        public void ItemRemoved(TradeItem item, TradeKind kind)
         {
             if(!IsKindValid(kind)) return;
             RemoveItem(item);

@@ -51,11 +51,11 @@ namespace Runtime.Trading
                     Debug.LogError($"Shop {shopId} does not exists!");
                 }
                 _diContainer.Inject(itemsTrigger);
-                _inventoryTradeAdapter = new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(this), TradeItemKind.Sell);
+                _inventoryTradeAdapter = new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(this), TradeKind.Sell);
                 _diContainer.Inject(_inventoryTradeAdapter);
                 _inventoryTradeAdapter.Initialize();
                 _inventoryTradeAdapter.AddListener(this);
-                _sellZoneTradeAdapter = new ItemInstanceToTradeAdapter(shopId, itemsTrigger, TradeItemKind.Buyout);
+                _sellZoneTradeAdapter = new ItemInstanceToTradeAdapter(shopId, itemsTrigger, TradeKind.Buyout);
                 _diContainer.Inject(_sellZoneTradeAdapter);
                 _sellZoneTradeAdapter.Initialize();
             }
@@ -83,7 +83,11 @@ namespace Runtime.Trading
 
         public ItemInstanceToTradeAdapter GetAdapterToCustomerItems(IInventoryOwner customer)
         {
-            return new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(customer), TradeItemKind.Buyout);
+            var adapter =
+                new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(customer), TradeKind.Buyout);
+            _diContainer.Inject(adapter);
+            adapter.Initialize();
+            return adapter;
         }
 
         public IReadOnlyList<IItemDeliveryService> GetDeliveryServices()
@@ -112,7 +116,7 @@ namespace Runtime.Trading
             return true;
         }
 
-        public void ItemAdded(TradeItem item, TradeItemKind kind)
+        public void ItemAdded(TradeItem item, TradeKind kind)
         {
             foreach (var tradeItemsListener in _itemsListeners)
             {
@@ -120,7 +124,7 @@ namespace Runtime.Trading
             }
         }
 
-        public void ItemMutated(TradeItem item, TradeItemKind kind)
+        public void ItemMutated(TradeItem item, TradeKind kind)
         {
             foreach (var tradeItemsListener in _itemsListeners)
             {
@@ -128,7 +132,7 @@ namespace Runtime.Trading
             }
         }
 
-        public void ItemRemoved(TradeItem item, TradeItemKind kind)
+        public void ItemRemoved(TradeItem item, TradeKind kind)
         {
             foreach (var tradeItemsListener in _itemsListeners)
             {

@@ -48,7 +48,7 @@ namespace Core.Trading
             if (other == null) return false;
             if (!Sign.Equals(other.Sign)) return false;
             if (ReferenceEquals(this, other)) return true;
-            if(_item == other._item) return true;
+            if(_item.Equals(other._item)) return true;
             return _cost == other._cost;
         }
 
