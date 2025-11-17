@@ -6,13 +6,15 @@ using UnityEngine;
 
 namespace Core.Items
 {
-    public class ItemInstance : IDisposable
+    public class ItemInstance : IDisposable, IEquatable<ItemInstance>
     {
         private ItemSign _sign;
         private float _amount;
         private List<ItemProperty> _properties = new();
         public ItemSign Sign => _sign;
         public float Amount => _amount;
+        public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[ItemProperty.IdentifiableInstance_Identifier].stringValue : null;
+
         private static int _id = 0;
         private int _instanceId = _id++;
         public ItemInstance(){}
@@ -112,7 +114,7 @@ namespace Core.Items
             _sign = null;
         }
 
-        public bool IsCanMerge(ItemInstance other)
+        public bool Equals(ItemInstance other)
         {
             if (other == null) return false;
             if(ReferenceEquals(this, other)) return true;

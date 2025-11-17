@@ -54,7 +54,7 @@ namespace Runtime.Items
                     containerComponent = instance.AddComponent<Container>();
                     _container.Inject(containerComponent);
                 }
-                var container = _tableItems.GetContainer(item.Sign.Id);
+                ContainerInfo container = _tableItems.GetContainer(item.Sign.Id);
                 containerComponent.Init(
                     identifiableProperty.values[ItemProperty.IdentifiableInstance_Identifier].stringValue,
                     container,

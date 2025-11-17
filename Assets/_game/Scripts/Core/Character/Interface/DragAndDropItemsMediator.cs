@@ -32,9 +32,9 @@ namespace Core.Character.Interface
             foreach (var draggable in items)
             {
                 var item = (ItemInstance)draggable.Entity;
-                if (_bankSystem.TryPullItem(sourceInventory, item.Sign, item.Amount, out item))
+                if (_bankSystem.TryPullItem(sourceInventory.InventoryKey, item.Sign, item.Amount, out item))
                 {
-                    _bankSystem.TryPutItem(destinationInventory, item);
+                    _bankSystem.TryPutItem(destinationInventory.InventoryKey, item);
                 }
             }
         }

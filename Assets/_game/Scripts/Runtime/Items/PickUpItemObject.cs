@@ -27,7 +27,7 @@ namespace Runtime.Items
 
         public void PickUpTo(IInventoryOwner inventoryOwner)
         {
-            _bankSystem.TryPutItem(inventoryOwner, _itemObject.SourceItem);
+            _bankSystem.TryPutItem(inventoryOwner.InventoryKey, _itemObject.SourceItem);
             _itemObject.Deconstruct();
         }
     }

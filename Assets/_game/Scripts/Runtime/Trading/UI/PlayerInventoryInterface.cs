@@ -46,7 +46,7 @@ namespace Runtime.Trading.UI
         public override void Init(FirstPersonInterfaceInstaller master)
         {
             base.Init(master);
-            _inventory = _bankSystem.GetOrCreateInventory(Master.TargetState.Master);
+            _inventory = _bankSystem.GetOrCreateInventory(((IInventoryOwner)Master.TargetState.Master).InventoryKey);
             _inventory.AddListener(itemInstancesListView);
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Items;
 using Sirenix.OdinInspector;
@@ -17,7 +18,7 @@ namespace Core.Trading
         [SerializeField] private bool needSaveChanges; 
         [ShowInInspector] private IEnumerable<Wallet> CurrentWallets => _wallets.Values;
 #endif
-        [Inject] private IFactory<string, IItemsContainerMasterHandler> _inventoryFactory;
+        [Inject] private IInventoryFactory _inventoryFactory;
         [Inject] private ShopTable _shopTable;
         [Inject] private ItemsTable _itemsTable;
         private readonly Dictionary<string, IItemsContainerMasterHandler> _inventories = new ();
@@ -65,9 +66,9 @@ namespace Core.Trading
             return GetOrCreateWallet(owner).GetBalance();
         }
         
-        public IItemsContainerReadonly GetOrCreateInventory(IInventoryOwner owner)
+        public IItemsContainerReadonly GetOrCreateInventory(string key)
         {
-            return GetOrCreateInventoryHandler(owner);
+            return GetOrCreateInventoryHandler(key);
         }
         
         public void InitializeShop(string shopId, IInventoryOwner inventoryOwner)
@@ -78,7 +79,7 @@ namespace Core.Trading
             }
             if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
             {
-                var inventory = GetOrCreateInventoryHandler(inventoryOwner);
+                var inventory = GetOrCreateInventoryHandler(inventoryOwner.InventoryKey);
                 foreach (var itemSign in _itemsTable.GetItems())
                 {
                     if (settings.IsItemMatch(itemSign))
@@ -90,16 +91,16 @@ namespace Core.Trading
             }
         }
         
-        public bool TryPullItem(IInventoryOwner inventoryOwner, ItemSign sign, float amount, out ItemInstance result)
+        public bool TryPullItem(string key, ItemSign sign, float amount, out ItemInstance result)
         {
-            var handler = GetOrCreateInventoryHandler(inventoryOwner);
+            var handler = GetOrCreateInventoryHandler(key);
             return handler.TryPullItem(sign, amount, out result);
         }
        
-        public bool TryPutItem(IInventoryOwner inventoryOwner, ItemInstance item)
+        public bool TryPutItem(string key, ItemInstance item)
         {
-            var handler = GetOrCreateInventoryHandler(inventoryOwner);
-            inventoryOwner.TakeOwnership(item);
+            var handler = GetOrCreateInventoryHandler(key);
+            item.SetOwnership(key);
             handler.PutItem(item);
             return true;
         }
@@ -127,9 +128,12 @@ namespace Core.Trading
                         {
                             Debug.LogError("Item not found");
                         }
-                        pulledItems.Add(result);
-                        purchaser.TakeOwnership(result);
-                        tradeItem.GetDeliveryService().Deliver(result, purchaser);
+                        else
+                        {
+                            pulledItems.Add(result);
+                            result.SetOwnership(purchaser.InventoryKey);
+                            tradeItem.GetDeliveryService().Deliver(result, purchaser);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -144,8 +148,8 @@ namespace Core.Trading
                 PutCurrencyToWallet(purchaser, paymentAmount);
                 foreach (ItemInstance item in pulledItems)
                 {
-                    seller.TakeOwnership(item);
-                    TryPutItem(seller, item);
+                    item.SetOwnership(seller.InventoryKey);
+                    TryPutItem(seller.InventoryKey, item);
                 }
 
                 return false;
@@ -154,12 +158,12 @@ namespace Core.Trading
             return true;
         }
         
-        private IItemsContainerMasterHandler GetOrCreateInventoryHandler(IInventoryOwner owner)
+        private IItemsContainerMasterHandler GetOrCreateInventoryHandler(string key)
         {
-            if (!_inventories.TryGetValue(owner.InventoryKey, out IItemsContainerMasterHandler inventory))
+            if (!_inventories.TryGetValue(key, out IItemsContainerMasterHandler inventory))
             {
-                inventory = _inventoryFactory.Create(owner.InventoryKey);
-                _inventories.Add(owner.InventoryKey, inventory);
+                inventory = _inventoryFactory.CreateInventory(key);
+                _inventories.Add(key, inventory);
             }
             return inventory;
         }

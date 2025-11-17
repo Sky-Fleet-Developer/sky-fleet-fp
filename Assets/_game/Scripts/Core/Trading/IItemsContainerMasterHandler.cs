@@ -14,7 +14,7 @@ namespace Core.Trading
     {
         string Key { get; }
         IEnumerable<ItemInstance> IItemInstancesSource.EnumerateItems() => GetItems();
-        IReadOnlyList<ItemInstance> GetItems();
-        IEnumerable<ItemInstance> GetItems(string id);
+        IEnumerable<ItemInstance> GetItems();
+        //IEnumerable<ItemInstance> GetItems(string id);
     }
 }

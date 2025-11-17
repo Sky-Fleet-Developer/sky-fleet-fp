@@ -78,10 +78,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walletSource:
     data:
-    - id: Player_Inventory
-      balance: 150
+    - id: Player_Inventory_c-slots
+      balance: 5000
     - id: iron_refinery
       balance: 100000
+  needSaveChanges: 0
 --- !u!114 &-4195173841857350580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,7 +101,7 @@ MonoBehaviour:
     - T0
     - iron
     - resizable
-    basicCost: 5
+    basicCost: 20
     properties:
     - name: resizable
       values:
@@ -363,7 +364,7 @@ MonoBehaviour:
     - mass
     - container
     - identifiable
-    basicCost: 120
+    basicCost: 1450
     properties:
     - name: mass
       values:
@@ -382,6 +383,39 @@ MonoBehaviour:
         intValue: 970
         floatValue: 970
       - stringValue: resizable | mass
+        intValue: 0
+        floatValue: 0
+  - id: small_bag
+    tags:
+    - cloth
+    - mass
+    - container
+    - identifiable
+    - equipable
+    basicCost: 2000
+    properties:
+    - name: mass
+      values:
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 25
+        intValue: 25
+        floatValue: 25
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+    - name: container
+      values:
+      - stringValue: 24
+        intValue: 24
+        floatValue: 24
+      - stringValue: resizable | mass
+        intValue: 0
+        floatValue: 0
+    - name: equipable
+      values:
+      - stringValue: bag
         intValue: 0
         floatValue: 0
   linksToPrefabs:
@@ -419,13 +453,25 @@ MonoBehaviour:
     prefabGuid: 
   - signId: cube_box
     prefabGuid: 32392e7850e5f4942814cddad09851ff
+  - signId: small_bag
+    prefabGuid: 
   containerInfos:
   - signId: cube_box
     includeTags:
     - tags:
-      - 970
+      - resizable
+    - tags:
+      - mass
     excludeTags: []
     maxVolume: 970
+  - signId: small_bag
+    includeTags:
+    - tags:
+      - resizable
+    - tags:
+      - mass
+    excludeTags: []
+    maxVolume: 24
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -443,6 +489,7 @@ MonoBehaviour:
   - {fileID: -4195173841857350580}
   - {fileID: -4838933943100615771}
   - {fileID: -4455120187770695450}
+  - {fileID: 8935232688312866269}
   serializedSharedData:
     serializationVersion: 0.0.1
     cargoCheckLayer:
@@ -494,3 +541,28 @@ MonoBehaviour:
   m_Name: ViewSettings
   m_EditorClassIdentifier: 
   viewRadius: 4000
+--- !u!114 &8935232688312866269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e313f953b87a4cff95cc15cc28d79b03, type: 3}
+  m_Name: StuffSlotsTable
+  m_EditorClassIdentifier: Core::Core.Character.Stuff.StuffSlotsTable
+  data:
+  - presetId: character_slots
+    slotId: bag
+    includeTags:
+    - tags:
+      - equipable
+    excludeTags: []
+  - presetId: character_slots
+    slotId: head
+    includeTags:
+    - tags:
+      - equipable
+    excludeTags: []

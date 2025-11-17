@@ -45,12 +45,12 @@ namespace Runtime.Structure
                     await configuration.Apply(structure);
                 }
 
-                _diContainer.Inject(structure);
+                _diContainer?.Inject(structure);
                 structure.Init();
                 List<Task> tasks = new List<Task>();
                 foreach (var load in root.GetComponentsInChildren<ILoadAtStart>())
                 {
-                    _diContainer.Inject(load);
+                    _diContainer?.Inject(load);
                     tasks.Add(load.Load());
                 }
 

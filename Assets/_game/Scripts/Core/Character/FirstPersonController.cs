@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Cargo;
 using Core.Character.Interaction;
+using Core.Character.Stuff;
 using Core.Data;
 using Core.Data.GameSettings;
 using Core.Game;
@@ -685,7 +686,7 @@ namespace Core.Character
             }
         }
 
-        private string ManagementKey => "Player_Inventory";
+        private string ManagementKey => "Player_Inventory_c-slots";
         string IInventoryOwner.InventoryKey => ManagementKey;
         string IWalletOwner.WalletKey => ManagementKey;
     }

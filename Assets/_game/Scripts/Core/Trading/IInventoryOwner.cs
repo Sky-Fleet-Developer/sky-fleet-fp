@@ -12,10 +12,5 @@ namespace Core.Trading
         {
             return item.GetOwnership() == InventoryKey;
         }
-
-        void TakeOwnership(ItemInstance item)
-        {
-            item.SetOwnership(InventoryKey);
-        }
     }
 }

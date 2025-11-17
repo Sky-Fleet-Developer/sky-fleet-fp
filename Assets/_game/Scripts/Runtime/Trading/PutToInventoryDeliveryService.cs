@@ -15,7 +15,7 @@ namespace Runtime.Trading
         public int Order => -1;
         public void Deliver(ItemInstance item, IInventoryOwner destination)
         {
-            if (!IsCanDeliver(item.Sign, destination) || !_bankSystem.TryPutItem(destination, item))
+            if (!IsCanDeliver(item.Sign, destination) || !_bankSystem.TryPutItem(destination.InventoryKey, item))
             {
                 throw new System.Exception("Can't put item to inventory");
             }

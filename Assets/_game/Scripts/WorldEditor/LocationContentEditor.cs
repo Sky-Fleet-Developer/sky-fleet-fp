@@ -116,7 +116,7 @@ namespace WorldEditor
 
         private void OnDestroy()
         {
-            _chunksSet.Unload();
+            _chunksSet?.Unload();
             _worldOffsetHandler?.ReleaseControl();
             UnityEditor.Compilation.CompilationPipeline.compilationStarted -= OnCompilation;
             UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;

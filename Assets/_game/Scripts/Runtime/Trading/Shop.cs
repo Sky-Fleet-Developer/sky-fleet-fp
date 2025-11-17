@@ -53,7 +53,7 @@ namespace Runtime.Trading
                     Debug.LogError($"Shop {shopId} does not exists!");
                 }
                 _diContainer.Inject(itemsTrigger);
-                _inventoryTradeAdapter = new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(this), TradeKind.Sell);
+                _inventoryTradeAdapter = new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(((IInventoryOwner)this).InventoryKey), TradeKind.Sell);
                 _diContainer.Inject(_inventoryTradeAdapter);
                 _inventoryTradeAdapter.Initialize();
                 _inventoryTradeAdapter.AddListener(this);
@@ -86,7 +86,7 @@ namespace Runtime.Trading
         public ItemInstanceToTradeAdapter GetAdapterToCustomerItems(IInventoryOwner customer)
         {
             var adapter =
-                new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(customer), TradeKind.Buyout);
+                new ItemInstanceToTradeAdapter(shopId, _bankSystem.GetOrCreateInventory(customer.InventoryKey), TradeKind.Buyout);
             _diContainer.Inject(adapter);
             adapter.Initialize();
             return adapter;

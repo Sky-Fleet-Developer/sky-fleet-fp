@@ -90,14 +90,14 @@ namespace Runtime.Items
             _inventoryKey = inventoryKey;
             _containerInfo = containerInfo;
             _maxVolume = maxVolume;
-            _inventory = _bankSystem.GetOrCreateInventory(this);
+            _inventory = _bankSystem.GetOrCreateInventory(_inventoryKey);
         }
         
         public bool TryPutItem(ItemInstance item)
         {
             if (_containerInfo.IsItemMatch(item, _volumeEmployed))
             {
-                if (_bankSystem.TryPutItem(this, item))
+                if (_bankSystem.TryPutItem(_inventoryKey, item))
                 {
                     _volumeEmployed += item.GetVolume();
                     return true;
@@ -109,7 +109,7 @@ namespace Runtime.Items
 
         public bool TryPullItem(ItemSign sign, float amount, out ItemInstance result)
         {
-            if (_bankSystem.TryPullItem(this, sign, amount, out result))
+            if (_bankSystem.TryPullItem(_inventoryKey, sign, amount, out result))
             {
                 _volumeEmployed -= result.GetVolume();
                 return true;
@@ -117,7 +117,7 @@ namespace Runtime.Items
             return false;
         }
 
-        public IReadOnlyList<ItemInstance> GetItems()
+        public IEnumerable<ItemInstance> GetItems()
         {
             return _inventory.GetItems();
         }

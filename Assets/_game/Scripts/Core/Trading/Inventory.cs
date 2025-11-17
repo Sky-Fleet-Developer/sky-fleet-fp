@@ -69,12 +69,12 @@ namespace Core.Trading
             ItemAdded(item);
         }
 
-        public IReadOnlyList<ItemInstance> GetItems()
+        public IEnumerable<ItemInstance> GetItems()
         {
             return _items;
         }
 
-        public IEnumerable<ItemInstance> GetItems(string id)
+        /*public IEnumerable<ItemInstance> GetItems(string id)
         {
             for (var i = 0; i < _items.Count; i++)
             {
@@ -83,7 +83,7 @@ namespace Core.Trading
                     yield return _items[i];
                 }
             }
-        }
+        }*/
         
         ItemInstance IItemInstancesSource.PullItem(ItemInstance item, float amount)
         {

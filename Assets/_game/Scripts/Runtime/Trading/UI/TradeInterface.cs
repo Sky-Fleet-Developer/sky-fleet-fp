@@ -82,7 +82,7 @@ namespace Runtime.Trading.UI
             _handler.AddListener(sellerItemsView);
             _purchase = new TradeDeal(_interactionState.Master, _handler);
             _sell = new TradeDeal(_handler, _interactionState.Master);
-            _myInventory = _bankSystem.GetOrCreateInventory(_interactionState.Master);
+            _myInventory = _bankSystem.GetOrCreateInventory(((IInventoryOwner)_interactionState.Master).InventoryKey);
 
             sellerItemsView.SetDeliverySettings(new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices()));
             var deliveryService = new PutToInventoryDeliveryService();

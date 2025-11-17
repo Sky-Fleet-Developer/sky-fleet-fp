@@ -94,7 +94,7 @@ namespace Core.Items
             }
             else if(TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
             {
-                return resizableProperty.values[ItemProperty.Resizable_MassByrLiter].floatValue;
+                return resizableProperty.values[ItemProperty.Resizable_MassByLiter].floatValue;
             }
             Debug.LogError($"Has no mass properties on ItemSign {Id}");
             return 1;

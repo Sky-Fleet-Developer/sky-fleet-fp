@@ -39,6 +39,12 @@ MonoBehaviour:
       \u044F\u0449\u0438\u043A \u043E\u0431\u044A\u0435\u043C\u043E\u043C \u0432
       \u043E\u0434\u043D\u0443 \u0442\u043E\u043D\u043D\u0443"
     en: The nice wood crate with volume of one tonn
+  - key: small_bag_name
+    ru: "\u0421\u0443\u043C\u043A\u0430"
+    en: 
+  - key: small_bag_description
+    ru: "\u0411\u0435\u0440\u0438, \u043A\u043B\u0430\u0434\u0438, \u043D\u0435\u0441\u0438"
+    en: 
   - key: cyan_crystal_name
     ru: "\u041A\u0440\u0438\u0441\u0442\u0430\u043B\u043B \u0446\u0438\u0430\u043D\u0430"
     en: 
