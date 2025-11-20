@@ -18,7 +18,11 @@ namespace Runtime.Trading.UI
         public void SetData(ItemSign data)
         {
             _data = data;
-            nameLabel.text = LocalizationService.Localize($"{data.Id}_name");
+            if (nameLabel)
+            {
+                nameLabel.text = LocalizationService.Localize($"{data.Id}_name");
+            }
+
             try
             {
                 LoadSpriteAsync();
@@ -49,7 +53,10 @@ namespace Runtime.Trading.UI
         {
             icon.gameObject.SetActive(false);
             _data = null;
-            nameLabel.text = string.Empty;
+            if (nameLabel)
+            {
+                nameLabel.text = string.Empty;
+            }
         }
     }
 }

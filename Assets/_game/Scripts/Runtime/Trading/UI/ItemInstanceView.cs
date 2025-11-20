@@ -30,13 +30,19 @@ namespace Runtime.Trading.UI
         public override void Selected()
         {
             base.Selected();
-            selectionFrame.gameObject.SetActive(true);
+            if (selectionFrame)
+            {
+                selectionFrame.gameObject.SetActive(true);
+            }
         }
 
         public override void Deselected()
         {
             base.Deselected();
-            selectionFrame.gameObject.SetActive(false);
+            if (selectionFrame)
+            {
+                selectionFrame.gameObject.SetActive(false);
+            }
         }
 
         public override void SetData(ItemInstance data)
@@ -48,6 +54,7 @@ namespace Runtime.Trading.UI
 
         public override void RefreshView()
         {
+            amountLabel.gameObject.SetActive(Mathf.Approximately(_data.Amount, 1));
             amountLabel.text = _data.Amount.ToString(NumberFormatInfo.CurrentInfo);
         }
 

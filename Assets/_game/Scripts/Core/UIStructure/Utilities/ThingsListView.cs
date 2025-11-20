@@ -6,7 +6,30 @@ using Zenject;
 
 namespace Core.UIStructure.Utilities
 {
-    public abstract class ThingsListView<TData, TView> : MonoBehaviour, IDragAndDropContainer, IDragCallbacks<ThingView<TData>> where TView : ThingView<TData>
+    public abstract class ThingsListView<TData> : MonoBehaviour, IDragAndDropContainer, IDragCallbacks<ThingView<TData>>
+    {
+        public Action<DropEventData> OnDropContentEvent;
+        
+        void IDragAndDropContainer.OnDropContent(DropEventData eventData)
+        {
+            OnDropContentEvent?.Invoke(eventData);
+        }
+
+        public abstract void SetItems(IEnumerable<TData> items);
+        public abstract void AddItem(TData data);
+        public abstract void RemoveItem(TData data);
+        public abstract void RefreshItem(TData data);
+        public abstract void Select(TData data);
+
+
+        public abstract void OnChildDragStart(ThingView<TData> view, Vector2 position);
+
+        public abstract void OnChildDragEnd(ThingView<TData> view);
+
+        public abstract void OnChildDragContinue(ThingView<TData> view, Vector2 delta);
+    }
+
+    public abstract class ThingsListView<TData, TView> : ThingsListView<TData> where TView : ThingView<TData>
     {
         [Inject] private DragAndDropService _dragAndDropService;
         [SerializeField] private Transform itemsContainer;
@@ -16,7 +39,6 @@ namespace Core.UIStructure.Utilities
         protected List<TData> _thingsData = new();
         private Vector2 _dragPosition;
         private bool _isDragNow;
-        public Action<DropEventData> OnDropContentEvent;
 
         protected virtual void Awake()
         {
@@ -25,7 +47,7 @@ namespace Core.UIStructure.Utilities
         }
 
         protected virtual void InitItem(TView item){}
-        public void SetItems(IEnumerable<TData> items)
+        public override void SetItems(IEnumerable<TData> items)
         {
             _thingsData.Clear();
             int counter = 0;
@@ -63,7 +85,7 @@ namespace Core.UIStructure.Utilities
             _views.Clear();
         }
 
-        public virtual void AddItem(TData data)
+        public override void AddItem(TData data)
         {
             var view = DynamicPool.Instance.Get(_thingViewPrefab, itemsContainer);
             _views.Add(view);
@@ -80,7 +102,7 @@ namespace Core.UIStructure.Utilities
             SelectionHandler.AddTarget(view);
         }
 
-        public virtual void RemoveItem(TData data)
+        public override void RemoveItem(TData data)
         {
             var index = _thingsData.FindIndex(x => ReferenceEquals(x, data));
             SelectionHandler.RemoveTarget(_views[index]);
@@ -89,13 +111,13 @@ namespace Core.UIStructure.Utilities
             _views.RemoveAt(index);
         }
 
-        public virtual void RefreshItem(TData data)
+        public override void RefreshItem(TData data)
         {
             var index = _thingsData.FindIndex(x => ReferenceEquals(x, data));
             _views[index].RefreshView();
         }
 
-        public virtual void Select(TData data)
+        public override void Select(TData data)
         {
             var index = _thingsData.FindIndex(x => ReferenceEquals(x, data));
             _views[index].EmitSelection();
@@ -105,8 +127,8 @@ namespace Core.UIStructure.Utilities
         {
             SelectionHandler.Dispose();
         }
-
-        public void OnChildDragStart(ThingView<TData> view, Vector2 position)
+        
+        public override void OnChildDragStart(ThingView<TData> view, Vector2 position)
         {
             _dragPosition = position;
             if (view.IsSelected)
@@ -118,21 +140,16 @@ namespace Core.UIStructure.Utilities
                 _dragAndDropService.BeginDrag(position, view);
             }
         }
-
-        public void OnChildDragEnd(ThingView<TData> view)
+        
+        public override void OnChildDragEnd(ThingView<TData> view)
         {
             _dragAndDropService.Drop();
         }
 
-        public void OnChildDragContinue(ThingView<TData> view, Vector2 delta)
+        public override void OnChildDragContinue(ThingView<TData> view, Vector2 delta)
         {
             _dragPosition += delta;
             _dragAndDropService.Move(_dragPosition);
-        }
-
-        void IDragAndDropContainer.OnDropContent(DropEventData eventData)
-        {
-            OnDropContentEvent?.Invoke(eventData);
         }
     }
 }

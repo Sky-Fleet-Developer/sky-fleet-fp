@@ -11,7 +11,9 @@ namespace Core.Character.Stuff
         private string _gridId;
         private string _inventoryKey;
         private SlotCell[] _slots;
-        private List<IInventoryStateListener> _listeners = new ();
+        private List<IInventoryStateListener> _listenersInventory = new ();
+        private List<ISlotsGridListener> _listenersSlots = new ();
+
         public string Key => _inventoryKey;
 
         public SlotsGrid(string gridId, SlotCell[] slots)
@@ -86,16 +88,17 @@ namespace Core.Character.Stuff
 
         public void AddListener(IInventoryStateListener listener)
         {
-            _listeners.Add(listener);
+            _listenersInventory.Add(listener);
         }
 
         public void RemoveListener(IInventoryStateListener listener)
         {
-            _listeners.Remove(listener);
+            _listenersInventory.Remove(listener);
         }
 
         public void PutItem(ItemInstance item)
         {
+            throw new NotImplementedException();
         }
 
         public bool TryPullItem(ItemSign sign, float amount, out ItemInstance result)
@@ -105,7 +108,7 @@ namespace Core.Character.Stuff
 
         public IEnumerable<SlotCell> EnumerateSlots()
         {
-            throw new NotImplementedException();
+            return _slots;
         }
 
         public ItemInstance PullItem(SlotCell slot, float amount)
@@ -115,12 +118,12 @@ namespace Core.Character.Stuff
 
         public void AddListener(ISlotsGridListener listener)
         {
-            throw new NotImplementedException();
+            _listenersSlots.Add(listener);
         }
 
         public void RemoveListener(ISlotsGridListener listener)
         {
-            throw new NotImplementedException();
+            _listenersSlots.Remove(listener);
         }
     }
 }

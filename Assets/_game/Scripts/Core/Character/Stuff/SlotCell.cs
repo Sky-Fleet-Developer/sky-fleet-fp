@@ -17,6 +17,7 @@ namespace Core.Character.Stuff
         private TagCombination[] _excludeTags;
         private List<IInventoryStateListener> _listeners = new();
         private IItemsContainerReadonly _attachedInventory;
+        public string SlotId => _slotId;
 
         public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags)
         {

@@ -18,7 +18,7 @@ namespace Runtime.Character.Interface
         [Inject] private DiContainer _diContainer;
 
         private List<IFirstPersonInterface> _children = new ();
-        private PlayerInventoryInterface _playerInventoryInterface;
+        private PlayerSlotsInterface _playerInventory;
         private void Awake()
         {
             showInventoryBinding.performed += ToggleInventory;
@@ -31,15 +31,15 @@ namespace Runtime.Character.Interface
         
         private void ToggleInventory(InputAction.CallbackContext context)
         {
-            if (_playerInventoryInterface != null)
+            if (_playerInventory != null)
             {
-                _playerInventoryInterface.Hide();
+                _playerInventory.Hide();
                 return;
             }
-            _playerInventoryInterface = (PlayerInventoryInterface)_serviceIssue.CreateService(typeof(PlayerInventoryInterface), typeof(FramedWindow), Window.LayoutType.None);
-            _diContainer.Inject(_playerInventoryInterface);
-            _playerInventoryInterface.Init(Master);
-            ShowInterface(_playerInventoryInterface);
+            _playerInventory = (PlayerSlotsInterface)_serviceIssue.CreateService(typeof(PlayerSlotsInterface), typeof(FramedWindow), Window.LayoutType.None);
+            _diContainer.Inject(_playerInventory);
+            _playerInventory.Init(Master);
+            ShowInterface(_playerInventory);
         }
 
         private void ShowInterface(IFirstPersonInterface instance)
@@ -55,9 +55,9 @@ namespace Runtime.Character.Interface
             {
                 _children.Remove(instance);
                 instance.OnStateChanged -= InstanceOnOnStateChanged;
-                if (ReferenceEquals(instance, _playerInventoryInterface))
+                if (ReferenceEquals(instance, _playerInventory))
                 {
-                    _playerInventoryInterface = null;
+                    _playerInventory = null;
                 }
             }
         }
