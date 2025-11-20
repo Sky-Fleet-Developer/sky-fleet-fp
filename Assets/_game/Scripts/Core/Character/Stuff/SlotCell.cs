@@ -44,6 +44,16 @@ namespace Core.Character.Stuff
                 _content = null;
                 return true;
             }
+
+            if (!content.Sign.TryGetProperty(ItemSign.EquipableTag, out var equipableProperty))
+            {
+                return false;
+            }
+
+            if (equipableProperty.values[ItemProperty.Equipable_SlotType].stringValue != _slotId)
+            {
+                return false;
+            }
             bool isMatch = false;
             foreach (var tag in _includeTags)
             {
@@ -67,11 +77,22 @@ namespace Core.Character.Stuff
             }
 
             _content = content;
+            if (_attachedInventory != null)
+            {
+                foreach (var listener in _listeners)
+                {
+                    _attachedInventory.RemoveListener(listener);
+                }
+            }
             if (_content.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) &&
                 _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
                 _attachedInventory = _bankSystem.GetOrCreateInventory(identifiableProperty
                     .values[ItemProperty.IdentifiableInstance_Identifier].stringValue);
+                foreach (var listener in _listeners)
+                {
+                    _attachedInventory.AddListener(listener);
+                }
             }
             else
             {
@@ -104,6 +125,15 @@ namespace Core.Character.Stuff
         public void RemoveListener(IInventoryStateListener listener)
         {
             _listeners.Remove(listener);
+        }
+
+        public bool TryPutItem(ItemInstance item)
+        {
+            if(_attachedInventory == null)
+            {
+                return false;
+            }
+            return _bankSystem.TryPutItem(_attachedInventory.Key, item);
         }
     }
 }

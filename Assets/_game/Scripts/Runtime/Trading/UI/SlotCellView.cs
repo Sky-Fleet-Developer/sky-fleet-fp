@@ -57,7 +57,6 @@ namespace Runtime.Trading.UI
             else
             {
                 thingView.gameObject.SetActive(false);
-                thingView.SetData(null);
             }
         }
         

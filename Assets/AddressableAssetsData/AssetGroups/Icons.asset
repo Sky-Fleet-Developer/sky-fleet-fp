@@ -30,6 +30,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 55f0dc11d3178454285d1db5c5ef61cb
+    m_Address: ui_small_bag
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 80975774b7a5f7e4993c6659895eec05
     m_Address: ui_iron_ingot
     m_ReadOnly: 0

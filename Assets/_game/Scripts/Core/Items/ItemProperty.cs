@@ -15,9 +15,11 @@ namespace Core.Items
         public const int Container_Volume = 0;
         public const int Container_IncludeRules = 1;
         public const int Container_ExcludeRules = 2;
+        public const int Equipable_SlotType = 0;
         public const int IdentifiableInstance_Identifier = 0;
         public string name;
         public ItemPropertyValue[] values;
+
         public object Clone()
         {
             return new ItemProperty {name = name, values = values.ToArray()};

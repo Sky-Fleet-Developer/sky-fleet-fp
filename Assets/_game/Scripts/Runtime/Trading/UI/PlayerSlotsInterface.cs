@@ -63,6 +63,7 @@ namespace Runtime.Trading.UI
                     _slots[slot.SlotId] = slotView;
                 }
                 slotView.Init(slot.SlotId, _slotContainerSource, slotContainersContainer);
+                slotView.Set(slot);
             }
         }
 

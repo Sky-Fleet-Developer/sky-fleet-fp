@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Configurations;
 using Core.Configurations.GoogleSheets;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Character.Stuff
 {
@@ -56,6 +57,7 @@ namespace Core.Character.Stuff
     [CreateAssetMenu(menuName = "SF/Configs/StuffSlots")]
     public class StuffSlotsTable : Table<SlotPreset>
     {
+        [Inject] private DiContainer _diContainer;
         public override string TableName => "StuffSlots";
         [SerializeField] private SlotPreset[] data;
         private Dictionary<string, SlotsGrid> _gridPresets = new ();
@@ -88,6 +90,7 @@ namespace Core.Character.Stuff
                 _gridPresets.Add(gridId, preset);
             }
             var result = (SlotsGrid)preset.Clone();
+            _diContainer.Inject(result);
             result.SetAsInventory(inventoryKey);
             return result;
         }

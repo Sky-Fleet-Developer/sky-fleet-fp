@@ -13,6 +13,7 @@ namespace Core.Items
         public const string ContainerTag = "container";
         public const string IdentifiableTag = "identifiable"; //usings for assign uniq id to item to recognize its inventory or etc
         public const string OwnershipTag = "ownership"; //usings for assign owner to item
+        public const string EquipableTag = "equipable";
         public const string AllTag = "All";
         
         [SerializeField] private string id;

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Items;
 using Core.Trading;
+using UnityEngine;
+using Zenject;
 
 namespace Core.Character.Stuff
 {
@@ -11,7 +13,6 @@ namespace Core.Character.Stuff
         private string _gridId;
         private string _inventoryKey;
         private SlotCell[] _slots;
-        private List<IInventoryStateListener> _listenersInventory = new ();
         private List<ISlotsGridListener> _listenersSlots = new ();
 
         public string Key => _inventoryKey;
@@ -20,6 +21,14 @@ namespace Core.Character.Stuff
         {
             _gridId = gridId;
             _slots = slots;
+        }
+
+        [Inject] private void Inject(DiContainer container)
+        {
+            foreach (var slotCell in _slots)
+            {
+                container.Inject(slotCell);
+            }
         }
         
         public void SetAsInventory(string inventoryKey) => _inventoryKey = inventoryKey;
@@ -88,32 +97,104 @@ namespace Core.Character.Stuff
 
         public void AddListener(IInventoryStateListener listener)
         {
-            _listenersInventory.Add(listener);
+            foreach (var slotCell in _slots)
+            {
+                slotCell.AddListener(listener);
+            }
         }
 
         public void RemoveListener(IInventoryStateListener listener)
         {
-            _listenersInventory.Remove(listener);
+            foreach (var slotCell in _slots)
+            {
+                slotCell.RemoveListener(listener);
+            }
         }
 
         public void PutItem(ItemInstance item)
         {
-            throw new NotImplementedException();
-        }
+            foreach (var slotCell in _slots)
+            {
+                if (!slotCell.HasItem)
+                {
+                    if (slotCell.TrySetItem(item))
+                    {
+                        foreach (var listener in _listenersSlots)
+                        {
+                            listener.SlotFilled(slotCell);
+                        }
+                        return;
+                    }
+                }
+            }
+            
+            foreach (var slotCell in _slots)
+            {
+                if (slotCell.HasItem && slotCell.IsContainer)
+                {
+                    if (slotCell.TryPutItem(item))
+                    {
 
+                        return;
+                    }
+                }
+            }
+        }
+        
         public bool TryPullItem(ItemSign sign, float amount, out ItemInstance result)
         {
-            throw new NotImplementedException();
+            foreach (var slotCell in _slots)
+            {
+                if (slotCell.HasItem && slotCell.Item.Sign.Equals(sign))
+                {
+                    if (Mathf.Approximately(slotCell.Item.Amount, amount))
+                    {
+                        result = slotCell.Item;
+                        slotCell.TrySetItem(null);
+                        result = slotCell.Item.Detach(amount);
+                        foreach (var listener in _listenersSlots)
+                        {
+                            listener.SlotEmptied(slotCell);
+                        }
+                        return true;
+                    }
+                    if (slotCell.Item.Amount > amount)
+                    {
+                        result = slotCell.Item.Detach(amount);
+                        foreach (var listener in _listenersSlots)
+                        {
+                            listener.SlotReplaced(slotCell);
+                        }
+                        return true;
+                    }
+                }
+            }
+
+            foreach (var slotCell in _slots)
+            {
+                if (!slotCell.HasItem || !slotCell.IsContainer) continue;
+                
+                foreach (var item in slotCell.EnumerateItems())
+                {
+                    if (item.Sign.Equals(sign))
+                    {
+                        var pulled = slotCell.PullItem(item, amount);
+                        if (pulled != null)
+                        {
+                            result = pulled;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         public IEnumerable<SlotCell> EnumerateSlots()
         {
             return _slots;
-        }
-
-        public ItemInstance PullItem(SlotCell slot, float amount)
-        {
-            throw new NotImplementedException();
         }
 
         public void AddListener(ISlotsGridListener listener)

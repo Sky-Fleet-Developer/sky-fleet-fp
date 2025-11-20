@@ -54,7 +54,7 @@ namespace Runtime.Trading.UI
 
         public override void RefreshView()
         {
-            amountLabel.gameObject.SetActive(Mathf.Approximately(_data.Amount, 1));
+            amountLabel.gameObject.SetActive(!Mathf.Approximately(_data.Amount, 1));
             amountLabel.text = _data.Amount.ToString(NumberFormatInfo.CurrentInfo);
         }
 
