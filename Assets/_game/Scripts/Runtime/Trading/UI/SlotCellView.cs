@@ -90,11 +90,13 @@ namespace Runtime.Trading.UI
                 {
                     _thingsListView = DynamicPool.Instance.Get(_thingsListViewSource, _thingsListContainer);
                 }
+                _thingsListView.SetItems(_cell.EnumerateItems());
                 _cell.AddListener(this);
             }
             else if (_thingsListView)
             {
                 DynamicPool.Instance.Return(_thingsListView);
+                _thingsListView = null;
             }
             Refresh();
         }

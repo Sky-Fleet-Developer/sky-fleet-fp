@@ -110,7 +110,7 @@ namespace Core.Character.Stuff
 
         public IEnumerable<ItemInstance> EnumerateItems()
         {
-            if (IsContainer) return Array.Empty<ItemInstance>();
+            if (!IsContainer) return Array.Empty<ItemInstance>();
             return _attachedInventory.EnumerateItems();
         }
 
@@ -132,11 +132,13 @@ namespace Core.Character.Stuff
         public void AddListener(IInventoryStateListener listener)
         {
             _listeners.Add(listener);
+            _attachedInventory?.AddListener(listener);
         }
 
         public void RemoveListener(IInventoryStateListener listener)
         {
             _listeners.Remove(listener);
+            _attachedInventory?.RemoveListener(listener);
         }
 
         /// <summary>
