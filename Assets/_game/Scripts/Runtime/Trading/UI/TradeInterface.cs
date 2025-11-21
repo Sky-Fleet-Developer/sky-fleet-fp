@@ -189,6 +189,7 @@ namespace Runtime.Trading.UI
 
         public override IEnumerator Hide(BlockSequenceSettings settings = null)
         {
+            _myInventoryAdapter.RemoveListener(myItemsView);
             _cargoZoneItemsSource.RemoveListener(myItemsView);
             _interactionState.LeaveState();
             _handler?.RemoveListener(sellerItemsView);

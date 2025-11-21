@@ -84,7 +84,7 @@ namespace Core.Character.Stuff
                 return true;
             }
             
-            if (_attachedInventory != null)
+            if (_attachedInventory != null) // remove listeners from old inventory
             {
                 foreach (var listener in _listeners)
                 {

@@ -17,6 +17,7 @@ namespace Runtime.Trading.UI
         [SerializeField] private ThingView<ItemInstance> thingView;
         [Inject] private DragAndDropService _dragAndDropService;
         [Inject] private DragAndDropItemsMediator _dragAndDropItemsMediator;
+        [Inject] private DiContainer _diContainer;
         private SlotCell _cell;
         public string SlotKey => _slotKey;
         private string _slotKey;
@@ -89,12 +90,17 @@ namespace Runtime.Trading.UI
                 if (!_thingsListView)
                 {
                     _thingsListView = DynamicPool.Instance.Get(_thingsListViewSource, _thingsListContainer);
+                    _dragAndDropItemsMediator.RegisterContainerView(_thingsListView, _cell);
+                    _thingsListView.OnDropContentEvent += OnDropContentToThingsList;
+                    _diContainer.Inject(_thingsListView);
                 }
                 _thingsListView.SetItems(_cell.EnumerateItems());
                 _cell.AddListener(this);
             }
             else if (_thingsListView)
             {
+                _dragAndDropItemsMediator.UnregisterContainerView(_thingsListView);
+                _thingsListView.OnDropContentEvent -= OnDropContentToThingsList;
                 DynamicPool.Instance.Return(_thingsListView);
                 _thingsListView = null;
             }
@@ -113,7 +119,20 @@ namespace Runtime.Trading.UI
                 thingView.gameObject.SetActive(false);
             }
         }
-        
+
+        private void OnDropContentToThingsList(DropEventData eventData)
+        {
+            foreach (IDraggable draggable in eventData.Content)
+            {
+                if (ReferenceEquals(draggable.MyContainer, _thingsListView))
+                {
+                    return;
+                }
+            }
+            eventData.Use();
+            _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, _thingsListView, eventData.Content);
+        }
+
         public void OnDropContent(DropEventData eventData)
         {
             foreach (IDraggable draggable in eventData.Content)
