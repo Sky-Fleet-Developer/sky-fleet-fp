@@ -38,20 +38,13 @@ namespace Core.Character.Stuff
             return result;
         }
 
-        public bool TrySetItem(ItemInstance content)
+        public bool CanSetItem(ItemInstance content)
         {
-            if (content == null)
-            {
-                _attachedInventory = null;
-                _content = null;
-                return true;
-            }
-
+            if(content == null) return true;
             if (!content.Sign.TryGetProperty(ItemSign.EquipableTag, out var equipableProperty))
             {
                 return false;
             }
-
             if (equipableProperty.values[ItemProperty.Equipable_SlotType].stringValue != _slotId)
             {
                 return false;
@@ -77,8 +70,20 @@ namespace Core.Character.Stuff
                     return false;
                 }
             }
+            return true;
+        }
+        
+        public bool TrySetItem(ItemInstance content)
+        {
+            if (!CanSetItem(content)) return false;
 
             _content = content;
+            if (_content == null)
+            {
+                _attachedInventory = null;
+                return true;
+            }
+            
             if (_attachedInventory != null)
             {
                 foreach (var listener in _listeners)

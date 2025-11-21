@@ -102,7 +102,10 @@ namespace Core.Character.Interface
                 var item = (ItemInstance)draggable.Entity;
                 if (sourceInventory.TryPullItem(item, item.Amount, out item))
                 {
-                    destinationInventory.TryPutItem(item);
+                    if (!destinationInventory.TryPutItem(item))
+                    {
+                        sourceInventory.TryPutItem(item);
+                    }
                 }
             }
         }

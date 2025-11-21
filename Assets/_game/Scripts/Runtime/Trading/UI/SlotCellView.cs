@@ -120,6 +120,11 @@ namespace Runtime.Trading.UI
                 {
                     return;
                 }
+
+                if (draggable is ThingView<ItemInstance> itemView && !_cell.CanSetItem(itemView.Data))
+                {
+                    return;
+                }
             }
             eventData.Use();
             _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, this, eventData.Content);
