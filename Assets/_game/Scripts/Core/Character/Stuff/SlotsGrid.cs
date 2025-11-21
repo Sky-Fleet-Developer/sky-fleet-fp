@@ -64,37 +64,6 @@ namespace Core.Character.Stuff
             }
         }
 
-        public ItemInstance PullItem(ItemInstance item, float amount)
-        {
-            var owner = item.GetOwnership();
-            foreach (var slotCell in _slots)
-            {
-                if (slotCell.HasItem)
-                {
-                    if (slotCell.Item.Equals(item))
-                    {
-                        if (amount < slotCell.Item.Amount)
-                        {
-                            return slotCell.Item.Detach(amount);
-                        }
-                        else
-                        {
-                            slotCell.TrySetItem(null);
-                            return item;
-                        }
-                    }
-                    if (slotCell.IsContainer)
-                    {
-                        if (owner == slotCell.Item.Identifier)
-                        {
-                            return slotCell.PullItem(item, amount);
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
         public void AddListener(IInventoryStateListener listener)
         {
             foreach (var slotCell in _slots)
@@ -111,7 +80,7 @@ namespace Core.Character.Stuff
             }
         }
 
-        public void PutItem(ItemInstance item)
+        public bool TryPutItem(ItemInstance item)
         {
             foreach (var slotCell in _slots)
             {
@@ -123,7 +92,7 @@ namespace Core.Character.Stuff
                         {
                             listener.SlotFilled(slotCell);
                         }
-                        return;
+                        return true;
                     }
                 }
             }
@@ -134,24 +103,42 @@ namespace Core.Character.Stuff
                 {
                     if (slotCell.TryPutItem(item))
                     {
-
-                        return;
+                        return true;
                     }
                 }
             }
+            return false;
         }
         
-        public bool TryPullItem(ItemSign sign, float amount, out ItemInstance result)
+        public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
         {
             foreach (var slotCell in _slots)
             {
-                if (slotCell.HasItem && slotCell.Item.Sign.Equals(sign))
+                if (!slotCell.HasItem)
+                {
+                    continue;
+                }
+
+                if (slotCell.IsContainer)
+                {
+                    foreach (var i in slotCell.EnumerateItems())
+                    {
+                        if (i.IsEqualsSignOrIdentity(item))
+                        {
+                            if (slotCell.TryPullItem(item, amount, out result))
+                            {
+                                return true; // Don't need to send info listeners, because it is already done in TryPullItem
+                            }
+                        }
+                    }
+                }
+                
+                if (slotCell.Item.IsEqualsSignOrIdentity(item))
                 {
                     if (Mathf.Approximately(slotCell.Item.Amount, amount))
                     {
                         result = slotCell.Item;
                         slotCell.TrySetItem(null);
-                        result = slotCell.Item.Detach(amount);
                         foreach (var listener in _listenersSlots)
                         {
                             listener.SlotEmptied(slotCell);
@@ -169,25 +156,7 @@ namespace Core.Character.Stuff
                     }
                 }
             }
-
-            foreach (var slotCell in _slots)
-            {
-                if (!slotCell.HasItem || !slotCell.IsContainer) continue;
-                
-                foreach (var item in slotCell.EnumerateItems())
-                {
-                    if (item.Sign.Equals(sign))
-                    {
-                        var pulled = slotCell.PullItem(item, amount);
-                        if (pulled != null)
-                        {
-                            result = pulled;
-                            return true;
-                        }
-                    }
-                }
-            }
-
+            
             result = null;
             return false;
         }

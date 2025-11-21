@@ -9,7 +9,7 @@ namespace Core.Character.Interaction
         float MaxVolume { get; }
         float VolumeRemains { get; }
         bool TryPutItem(ItemInstance item);
-        bool TryPullItem(ItemSign sign, float amount, out ItemInstance result);
+        bool TryPullItem(ItemInstance item, float amount, out ItemInstance result);
         IEnumerable<ItemInstance> GetItems();
         void AddListener(IInventoryStateListener listener);
         void RemoveListener(IInventoryStateListener listener);

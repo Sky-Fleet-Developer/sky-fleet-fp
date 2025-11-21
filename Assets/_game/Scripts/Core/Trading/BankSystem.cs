@@ -85,23 +85,23 @@ namespace Core.Trading
                     if (settings.IsItemMatch(itemSign))
                     {
                         var item = new ItemInstance(itemSign, 100);
-                        inventory.PutItem(item);
+                        inventory.TryPutItem(item);
                     }
                 }
             }
         }
         
-        public bool TryPullItem(string key, ItemSign sign, float amount, out ItemInstance result)
+        public bool TryPullItem(string key, ItemInstance item, float amount, out ItemInstance result)
         {
             var handler = GetOrCreateInventoryHandler(key);
-            return handler.TryPullItem(sign, amount, out result);
+            return handler.TryPullItem(item, amount, out result);
         }
        
         public bool TryPutItem(string key, ItemInstance item)
         {
             var handler = GetOrCreateInventoryHandler(key);
             item.SetOwnership(key);
-            handler.PutItem(item);
+            handler.TryPutItem(item);
             return true;
         }
 
@@ -123,16 +123,15 @@ namespace Core.Trading
                         {
                             continue;
                         }
-                        var result = tradeItem.GetSource().PullItem(tradeItem);
-                        if (result == null)
-                        {
-                            Debug.LogError("Item not found");
-                        }
-                        else
+                        if (tradeItem.GetSource().TryPullItem(tradeItem, out var result))
                         {
                             pulledItems.Add(result);
                             result.SetOwnership(purchaser.InventoryKey);
                             tradeItem.GetDeliveryService().Deliver(result, purchaser);
+                        }
+                        else
+                        {
+                            Debug.LogError("Item not found");
                         }
                     }
                     catch (Exception e)
@@ -149,7 +148,10 @@ namespace Core.Trading
                 foreach (ItemInstance item in pulledItems)
                 {
                     item.SetOwnership(seller.InventoryKey);
-                    TryPutItem(seller.InventoryKey, item);
+                    if (!TryPutItem(seller.InventoryKey, item))
+                    {
+                        Debug.LogError("Can't put item back");
+                    }
                 }
 
                 return false;

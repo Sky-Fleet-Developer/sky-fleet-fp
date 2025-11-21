@@ -4,10 +4,16 @@ using Core.Items;
 
 namespace Core.Trading
 {
-    public interface IItemsContainerMasterHandler : IItemsContainerReadonly
+    public interface IPullPutItem
     {
-        void PutItem(ItemInstance item);
-        bool TryPullItem(ItemSign sign, float amount, out ItemInstance result);
+        bool CanPutAnyItem { get => true; }
+        bool CanPullAnyItem { get => true; }
+        bool TryPutItem(ItemInstance item);
+        bool TryPullItem(ItemInstance item, float amount, out ItemInstance result);
+    }
+    
+    public interface IItemsContainerMasterHandler : IItemsContainerReadonly, IPullPutItem
+    {
     }
     
     public interface IItemsContainerReadonly : IItemInstancesSource

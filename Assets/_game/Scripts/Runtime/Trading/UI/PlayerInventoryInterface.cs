@@ -54,7 +54,7 @@ namespace Runtime.Trading.UI
         {
             base.Show();
             RefreshView();
-            _dragAndDropItemsMediator.RegisterContainerView(itemInstancesListView, Master.TargetState.Master);
+            _dragAndDropItemsMediator.RegisterContainerView(itemInstancesListView, ((IInventoryOwner)Master.TargetState.Master).InventoryKey);
         }
 
         public override void Hide()

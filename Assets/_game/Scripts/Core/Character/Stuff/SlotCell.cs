@@ -29,6 +29,7 @@ namespace Core.Character.Stuff
         public bool HasItem => _content != null;
         public ItemInstance Item => _content;
         public bool IsContainer => _attachedInventory != null;
+        public string ContainerKey => _attachedInventory.Key;
 
         public object Clone()
         {
@@ -41,6 +42,7 @@ namespace Core.Character.Stuff
         {
             if (content == null)
             {
+                _attachedInventory = null;
                 _content = null;
                 return true;
             }
@@ -107,14 +109,19 @@ namespace Core.Character.Stuff
             return _attachedInventory.EnumerateItems();
         }
 
-        public ItemInstance PullItem(ItemInstance item, float amount)
+        /// <summary>
+        /// Get the internal item from container inside of cell's item
+        /// </summary>
+        /// <returns>Returns item from container inside of cell's item</returns>
+        /// <exception cref="Exception">Item is null or has no inventory => exception</exception>
+        public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
         {
             if (_attachedInventory == null)
             {
                 throw new Exception("Has no attached inventory on cell");
             }
             
-            return _attachedInventory.PullItem(item, amount);
+            return _attachedInventory.TryPullItem(item, amount, out result);
         }
 
         public void AddListener(IInventoryStateListener listener)
@@ -127,6 +134,10 @@ namespace Core.Character.Stuff
             _listeners.Remove(listener);
         }
 
+        /// <summary>
+        /// Put item to container inside of cell's item
+        /// </summary>
+        /// <returns>False when cant put item inside cell's item container or when cell's item has no container</returns>
         public bool TryPutItem(ItemInstance item)
         {
             if(_attachedInventory == null)

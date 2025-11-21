@@ -53,7 +53,7 @@ namespace Core.Trading
             }
         }
 
-        void IItemsContainerMasterHandler.PutItem(ItemInstance item)
+        bool IPullPutItem.TryPutItem(ItemInstance item)
         {
             for (var i = 0; i < _items.Count; i++)
             {
@@ -61,12 +61,13 @@ namespace Core.Trading
                 {
                     _items[i].Merge(item);
                     ItemMutated(_items[i]);
-                    return;
+                    return true;
                 }
             }
             
             _items.Add(item);
             ItemAdded(item);
+            return true;
         }
 
         public IEnumerable<ItemInstance> GetItems()
@@ -84,21 +85,12 @@ namespace Core.Trading
                 }
             }
         }*/
-        
-        ItemInstance IItemInstancesSource.PullItem(ItemInstance item, float amount)
-        {
-            if (((IItemsContainerMasterHandler)this).TryPullItem(item.Sign, amount, out var result))
-            {
-                return result;
-            }
-            return null;
-        }
 
-        bool IItemsContainerMasterHandler.TryPullItem(ItemSign item, float amount, out ItemInstance result)
+        public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
         {
             for (var i = 0; i < _items.Count; i++)
             {
-                if (_items[i].Sign.Equals(item))
+                if (_items[i].IsEqualsSignOrIdentity(item))
                 {
                     bool enough = _items[i].Amount >= amount;
                     if (!enough)

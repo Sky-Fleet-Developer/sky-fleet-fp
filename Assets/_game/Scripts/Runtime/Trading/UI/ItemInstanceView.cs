@@ -71,11 +71,15 @@ namespace Runtime.Trading.UI
         private void OnClickPrivate()
         {
             OnSelected?.Invoke(this);
-            OnInput(this, MultipleSelectionModifiers.None.GetFromInput());
+            OnInput?.Invoke(this, MultipleSelectionModifiers.None.GetFromInput());
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (IsDragging)
+            {
+                return;
+            }
             OnClickPrivate();
         }
     }

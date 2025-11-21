@@ -25,11 +25,7 @@ namespace Runtime.Trading.UI
         private SlotCellView _slotSource;
         private ThingsListView<ItemInstance> _slotContainerSource;
         
-        [Inject]
-        private void Inject(DiContainer diContainer)
-        {
-            //diContainer.Inject(itemInstancesListView);
-        }
+        [Inject] private DiContainer _diContainer;
 
         public override bool IsMatch(IState state)
         {
@@ -60,13 +56,14 @@ namespace Runtime.Trading.UI
                 if (!_slots.TryGetValue(slot.SlotId, out var slotView))
                 {
                     slotView = DynamicPool.Instance.Get(_slotSource, slotsContainer);
+                    _diContainer.Inject(slotView);
                     _slots[slot.SlotId] = slotView;
                 }
-                slotView.Init(slot.SlotId, _slotContainerSource, slotContainersContainer);
+                slotView.Init(slot.SlotId, _slotContainerSource, slotContainersContainer, _inventory);
                 slotView.Set(slot);
             }
         }
-
+        
         public override void Show()
         {
             base.Show();

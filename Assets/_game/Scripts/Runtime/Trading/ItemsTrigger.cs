@@ -18,23 +18,33 @@ namespace Runtime.Trading
         public bool TryGetItem(ItemInstance instance, out IItemObject item) => _objectByInstance.TryGetValue(instance, out item);
         private List<IInventoryStateListener> _listeners = new();
         IEnumerable<ItemInstance> IItemInstancesSource.EnumerateItems() => _objectByInstance.Keys;
-        public ItemInstance PullItem(ItemInstance item, float amount)
+
+        public bool CanPutAnyItem => false;
+
+        public bool TryPutItem(ItemInstance item)
+        {
+            Debug.LogError("You trying to put item inside trigger");
+            return false;
+        }
+
+        public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
         {
             if (!_objectByInstance.TryGetValue(item, out var obj))
             {
-                return null;
+                result = null;
+                return false;
             }
 
             if (obj.SourceItem.Amount > amount)
             {
+                result = obj.SourceItem.Detach(amount);
                 foreach (var listener in _listeners)
                 {
                     listener.ItemMutated(obj.SourceItem);
                 }
-
-                return obj.SourceItem.Detach(amount);
+                return true;
             }
-            else
+            if(Mathf.Approximately(obj.SourceItem.Amount, amount))
             {
                 if (obj is IItemObjectHandle itemHandle)
                 {
@@ -43,12 +53,15 @@ namespace Runtime.Trading
                 _items[obj].Clear();
                 _items.Remove(obj);
                 _objectByInstance.Remove(item);
+                result = obj.SourceItem;
                 foreach (var listener in _listeners)
                 {
                     listener.ItemRemoved(item);
                 }
-                return obj.SourceItem;
+                return true;
             }
+            result = null;
+            return false;
         }
 
         private void OnTriggerEnter(Collider other)

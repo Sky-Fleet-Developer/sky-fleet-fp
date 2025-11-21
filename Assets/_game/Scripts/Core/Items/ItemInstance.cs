@@ -124,5 +124,7 @@ namespace Core.Items
                 other.TryGetProperty(ItemSign.IdentifiableTag, out var i2)) return false;
             return true;
         }
+
+        public bool IsEqualsSignOrIdentity(ItemInstance other) => _sign.Equals(other._sign) && Identifier == other.Identifier;
     }
 }

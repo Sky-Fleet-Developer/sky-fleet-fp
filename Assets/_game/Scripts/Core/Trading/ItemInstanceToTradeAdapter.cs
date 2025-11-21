@@ -57,7 +57,7 @@ namespace Core.Trading
             }
         }
 
-        public ItemInstance PullItem(TradeItem item)
+        public bool TryPullItem(TradeItem item, out ItemInstance result)
         {
             if (!_initialized)
             {
@@ -67,11 +67,12 @@ namespace Core.Trading
             {
                 if (tradeItem.Item == item.Item)
                 {
-                    return _itemsSource.PullItem(item.Item, item.amount);
+                    return _itemsSource.TryPullItem(item.Item, item.amount, out result);
                 }
             }
 
-            return null;
+            result = null;
+            return false;
         }
 
         public void AddListener(ITradeItemsStateListener listener)

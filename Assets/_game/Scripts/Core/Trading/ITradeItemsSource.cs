@@ -7,7 +7,7 @@ namespace Core.Trading
     public interface ITradeItemsSource
     {
         IEnumerable<TradeItem> GetTradeItems();
-        ItemInstance PullItem(TradeItem item);
+        bool TryPullItem(TradeItem item, out ItemInstance result);
         void AddListener(ITradeItemsStateListener listener);
         void RemoveListener(ITradeItemsStateListener listener);
     }

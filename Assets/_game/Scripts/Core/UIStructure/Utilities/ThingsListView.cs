@@ -38,7 +38,6 @@ namespace Core.UIStructure.Utilities
         public readonly MultipleSelectionHandler<TView> SelectionHandler = new ();
         protected List<TData> _thingsData = new();
         private Vector2 _dragPosition;
-        private bool _isDragNow;
 
         protected virtual void Awake()
         {

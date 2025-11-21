@@ -14,7 +14,8 @@ namespace Core.UIStructure.Utilities
     {
         private RectTransform _rectTransform;
         private IDragCallbacks<ThingView<T>> _dragCallbacks;
-
+        private bool _isDragging;
+        public bool IsDragging => _isDragging;
         public object Entity => Data;
         public IDragAndDropContainer MyContainer { get; private set; }
 
@@ -53,17 +54,19 @@ namespace Core.UIStructure.Utilities
         public abstract void RefreshView();
         public abstract void EmitSelection();
         
-        public void OnBeginDrag(PointerEventData eventData)
+        public virtual void OnBeginDrag(PointerEventData eventData)
         {
             _dragCallbacks.OnChildDragStart(this, eventData.position);
+            _isDragging = true;
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        public virtual void OnEndDrag(PointerEventData eventData)
         {
             _dragCallbacks.OnChildDragEnd(this);
+            _isDragging = false;
         }
         
-        public void OnDrag(PointerEventData eventData)
+        public virtual void OnDrag(PointerEventData eventData)
         {
             _dragCallbacks.OnChildDragContinue(this, eventData.delta);
         }

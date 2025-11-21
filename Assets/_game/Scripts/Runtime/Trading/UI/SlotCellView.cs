@@ -1,32 +1,84 @@
-﻿using Core.Character.Stuff;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Core.Character.Interface;
+using Core.Character.Stuff;
 using Core.Items;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Trading.UI
 {
-    public class SlotCellView : MonoBehaviour, IDragAndDropContainer, IInventoryStateListener
+    public class SlotCellView : MonoBehaviour, IDragAndDropContainer, IInventoryStateListener, IDragCallbacks<ThingView<ItemInstance>>
     {
         [SerializeField] private ThingView<ItemInstance> thingView;
+        [Inject] private DragAndDropService _dragAndDropService;
+        [Inject] private DragAndDropItemsMediator _dragAndDropItemsMediator;
         private SlotCell _cell;
         public string SlotKey => _slotKey;
         private string _slotKey;
         private ThingsListView<ItemInstance> _thingsListViewSource;
         private ThingsListView<ItemInstance> _thingsListView;
         private Transform _thingsListContainer;
-
+        private IPullPutItem _itemsSource;
+        private Vector2 _dragPosition;
+        private ThingView<ItemInstance>[] _draggableItemAsArray = new ThingView<ItemInstance>[1];
+        private bool _isDnDRegistered = false;
         public SlotCell Cell => _cell;
 
-        public void Init(string slotKey, ThingsListView<ItemInstance> thingsListViewSource, Transform thingsListContainer)
+        public void Init(string slotKey, ThingsListView<ItemInstance> thingsListViewSource, Transform thingsListContainer, IPullPutItem itemsSource)
         {
+            _itemsSource = itemsSource;
             _thingsListContainer = thingsListContainer;
             _thingsListViewSource = thingsListViewSource;
             _slotKey = slotKey;
             thingView.SetContainer(this);
+            thingView.SetDragCallbacks(this);
+            _draggableItemAsArray[0] = thingView;
+            EnsureDnDRegistered();
+        }
+
+        private void EnsureDnDRegistered()
+        {
+            if (!_isDnDRegistered)
+            {
+                _dragAndDropItemsMediator.RegisterContainerView(this, _itemsSource);
+                _isDnDRegistered = true;
+            }
         }
         
+        private void OnEnable()
+        {
+            if (_dragAndDropItemsMediator == null)
+            {
+                return;
+            }
+            EnsureDnDRegistered();
+        }
+
+        private void OnDisable()
+        {
+            _isDnDRegistered = false;
+            _dragAndDropItemsMediator.UnregisterContainerView(this);
+        }
+
+        /*private ItemInstance TryPullItem(ItemInstance item, float amount)
+        {
+            if(_itemsSource.TryPullItem(item, amount, out var result))
+            {
+                return result;
+            }
+            return null;
+        }
+
+        private bool TryPutItem(ItemInstance item)
+        {
+            return _itemsSource.TryPutItem(item);
+        }*/
+
         public void Set(SlotCell cell)
         {
             RemoveCell();
@@ -62,7 +114,15 @@ namespace Runtime.Trading.UI
         
         public void OnDropContent(DropEventData eventData)
         {
-            
+            foreach (IDraggable draggable in eventData.Content)
+            {
+                if (ReferenceEquals(draggable.MyContainer, this))
+                {
+                    return;
+                }
+            }
+            eventData.Use();
+            _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, this, eventData.Content);
         }
 
         public void ItemAdded(ItemInstance item)
@@ -87,6 +147,30 @@ namespace Runtime.Trading.UI
                 _cell.RemoveListener(this);
             }
             _cell = null;
+        }
+
+        public void OnChildDragStart(ThingView<ItemInstance> view, Vector2 position)
+        {
+            _dragPosition = position;
+            if (view.IsSelected)
+            {
+                _dragAndDropService.BeginDrag(position, this, _draggableItemAsArray);
+            }
+            else
+            {
+                _dragAndDropService.BeginDrag(position, view);
+            }
+        }
+        
+        public void OnChildDragEnd(ThingView<ItemInstance> view)
+        {
+            _dragAndDropService.Drop();
+        }
+
+        public void OnChildDragContinue(ThingView<ItemInstance> view, Vector2 delta)
+        {
+            _dragPosition += delta;
+            _dragAndDropService.Move(_dragPosition);
         }
     }
 }

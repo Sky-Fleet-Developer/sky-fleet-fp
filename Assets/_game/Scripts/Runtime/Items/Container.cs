@@ -107,9 +107,9 @@ namespace Runtime.Items
             return false;
         }
 
-        public bool TryPullItem(ItemSign sign, float amount, out ItemInstance result)
+        public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
         {
-            if (_bankSystem.TryPullItem(_inventoryKey, sign, amount, out result))
+            if (_bankSystem.TryPullItem(_inventoryKey, item, amount, out result))
             {
                 _volumeEmployed -= result.GetVolume();
                 return true;

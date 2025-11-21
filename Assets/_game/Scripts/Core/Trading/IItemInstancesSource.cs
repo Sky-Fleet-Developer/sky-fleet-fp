@@ -4,10 +4,9 @@ using Core.Items;
 
 namespace Core.Trading
 {
-    public interface IItemInstancesSource
+    public interface IItemInstancesSource : IPullPutItem
     {
         IEnumerable<ItemInstance> EnumerateItems();
-        ItemInstance PullItem(ItemInstance item, float amount);
         void AddListener(IInventoryStateListener listener);
         void RemoveListener(IInventoryStateListener listener);
     }

@@ -55,14 +55,14 @@ namespace Runtime.Cargo.UI
             base.Show();
             itemInstancesListView.SetItems(_containerHandler.GetItems());
             _containerHandler.AddListener(itemInstancesListView);
-            _dragAndDropItemsMediator.RegisterContainerView(itemInstancesListView, _containerHandler);
+            _dragAndDropItemsMediator.RegisterContainerView(itemInstancesListView, _containerHandler.InventoryKey);
         }
 
         public override void Hide()
         {
             base.Hide();
             _containerHandler.RemoveListener(itemInstancesListView);
-            _dragAndDropItemsMediator.DeregisterContainerView(itemInstancesListView);
+            _dragAndDropItemsMediator.UnregisterContainerView(itemInstancesListView);
         }
 
         public override void OnDisable()
