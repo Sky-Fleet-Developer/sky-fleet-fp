@@ -818,11 +818,38 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6449109564625662764, guid: 6c84571bdd637cc40b258ace218d337b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3738267227854853239, guid: 6c84571bdd637cc40b258ace218d337b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7936040752680387028}
   m_SourcePrefab: {fileID: 100100000, guid: 6c84571bdd637cc40b258ace218d337b, type: 3}
+--- !u!224 &3194157296268495676 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4829864699128907847, guid: 6c84571bdd637cc40b258ace218d337b, type: 3}
+  m_PrefabInstance: {fileID: 8022262758244959099}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6680020520350291724 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3738267227854853239, guid: 6c84571bdd637cc40b258ace218d337b, type: 3}
+  m_PrefabInstance: {fileID: 8022262758244959099}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7936040752680387028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6680020520350291724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49e9fb1c811f44f1b67267cedaa5fcce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Trading.UI.SlotContainerListView
+  itemsContainer: {fileID: 3194157296268495676}
 --- !u!224 &6913852116199380781 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3505527463959385174, guid: 6c84571bdd637cc40b258ace218d337b, type: 3}

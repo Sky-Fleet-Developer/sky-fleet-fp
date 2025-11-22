@@ -20,6 +20,7 @@ namespace Core.UIStructure.Utilities
     public interface IDragAndDropContainer : IEventSystemHandler
     {
         void OnDropContent(DropEventData eventData);
+        IDragAndDropContainer ParentContainer { get => null; }
     }
 
     public class DropEventData : BaseEventData

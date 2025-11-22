@@ -9,10 +9,19 @@ namespace Core.UIStructure.Utilities
     public abstract class ThingsListView<TData> : MonoBehaviour, IDragAndDropContainer, IDragCallbacks<ThingView<TData>>
     {
         public Action<DropEventData> OnDropContentEvent;
-        
-        void IDragAndDropContainer.OnDropContent(DropEventData eventData)
+        private IDragAndDropContainer _parentContainer;
+        public virtual void OnDropContent(DropEventData eventData)
         {
+            if (ReferenceEquals(eventData.Source, this))
+            {
+                return;
+            }
             OnDropContentEvent?.Invoke(eventData);
+        }
+
+        public void SetParentContainer(IDragAndDropContainer container)
+        {
+            _parentContainer = container;
         }
 
         public abstract void SetItems(IEnumerable<TData> items);

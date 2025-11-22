@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Character.Interface;
 using Core.Character.Stuff;
-using Core.Items;
 using Core.Patterns.State;
 using Core.Trading;
 using Core.UiStructure;
-using Core.UIStructure.Utilities;
 using Core.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -23,7 +22,7 @@ namespace Runtime.Trading.UI
         private ItemInstanceView _selected;
         private Dictionary<string, SlotCellView> _slots = new();
         private SlotCellView _slotSource;
-        private ThingsListView<ItemInstance> _slotContainerSource;
+        private SlotContainerListView _slotContainerSource;
         
         [Inject] private DiContainer _diContainer;
 
@@ -37,7 +36,7 @@ namespace Runtime.Trading.UI
             base.Awake();
             _slotSource = slotsContainer.GetComponentInChildren<SlotCellView>();
             DynamicPool.Instance.Return(_slotSource);
-            _slotContainerSource = slotContainersContainer.GetComponentInChildren<ThingsListView<ItemInstance>>();
+            _slotContainerSource = slotContainersContainer.GetComponentInChildren<SlotContainerListView>();
             DynamicPool.Instance.Return(_slotContainerSource);
         }
 

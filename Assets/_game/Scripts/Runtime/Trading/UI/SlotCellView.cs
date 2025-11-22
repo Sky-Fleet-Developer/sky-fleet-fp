@@ -21,8 +21,8 @@ namespace Runtime.Trading.UI
         private SlotCell _cell;
         public string SlotKey => _slotKey;
         private string _slotKey;
-        private ThingsListView<ItemInstance> _thingsListViewSource;
-        private ThingsListView<ItemInstance> _thingsListView;
+        private SlotContainerListView _thingsListViewSource;
+        private SlotContainerListView _thingsListView;
         private Transform _thingsListContainer;
         private IPullPutItem _itemsSource;
         private Vector2 _dragPosition;
@@ -30,7 +30,7 @@ namespace Runtime.Trading.UI
         private bool _isDnDRegistered = false;
         public SlotCell Cell => _cell;
 
-        public void Init(string slotKey, ThingsListView<ItemInstance> thingsListViewSource, Transform thingsListContainer, IPullPutItem itemsSource)
+        public void Init(string slotKey, SlotContainerListView thingsListViewSource, Transform thingsListContainer, IPullPutItem itemsSource)
         {
             _itemsSource = itemsSource;
             _thingsListContainer = thingsListContainer;
@@ -94,7 +94,7 @@ namespace Runtime.Trading.UI
                     _thingsListView.OnDropContentEvent += OnDropContentToThingsList;
                     _diContainer.Inject(_thingsListView);
                 }
-                _thingsListView.SetItems(_cell.EnumerateItems());
+                _thingsListView.Init(cell);
                 _cell.AddListener(this);
             }
             else if (_thingsListView)
@@ -122,13 +122,6 @@ namespace Runtime.Trading.UI
 
         private void OnDropContentToThingsList(DropEventData eventData)
         {
-            foreach (IDraggable draggable in eventData.Content)
-            {
-                if (ReferenceEquals(draggable.MyContainer, _thingsListView))
-                {
-                    return;
-                }
-            }
             eventData.Use();
             _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, _thingsListView, eventData.Content);
         }
