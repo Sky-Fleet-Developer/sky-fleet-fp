@@ -14,6 +14,8 @@ namespace Core.Items
         public ItemSign Sign => _sign;
         public float Amount => _amount;
         public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[ItemProperty.IdentifiableInstance_Identifier].stringValue : null;
+        public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
+        public bool IsUnique => TryGetProperty(ItemSign.IdentifiableTag, out _);
 
         private static int _id = 0;
         private int _instanceId = _id++;
@@ -49,7 +51,23 @@ namespace Core.Items
             }
             return null;
         }
-        
+
+        public bool TryGetContainerKey(out string value)
+        {
+            if (!IsContainer)
+            {
+                value = null;
+                return false;
+            }
+            if (!TryGetProperty(ItemSign.IdentifiableTag, out var identifiable))
+            {
+                value = null;
+                return false;
+            }
+            value = identifiable.values[ItemProperty.IdentifiableInstance_Identifier].stringValue;
+            return true;
+        }
+
         public bool TryGetProperty(string propertyName, out ItemProperty property)
         {
             for (var i = 0; i < _properties.Count; i++)
@@ -120,8 +138,7 @@ namespace Core.Items
             if(ReferenceEquals(this, other)) return true;
             if(!_sign.Equals(other._sign)) return false;
             if(GetOwnership() != other.GetOwnership()) return false;
-            if (TryGetProperty(ItemSign.IdentifiableTag, out var i1) ||
-                other.TryGetProperty(ItemSign.IdentifiableTag, out var i2)) return false;
+            if (IsUnique || other.IsUnique) return false;
             return true;
         }
 

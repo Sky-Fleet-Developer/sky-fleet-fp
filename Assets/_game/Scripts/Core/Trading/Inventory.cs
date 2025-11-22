@@ -4,20 +4,24 @@ using System.Linq;
 using Core.Configurations;
 using Core.Items;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Trading
 {
     public class Inventory : IItemsContainerMasterHandler
     {
+        private BankSystem _bankSystem;
         private string _key;
         private List<ItemInstance> _items;
         private CostRule[] _costRules;
         private HashSet<IInventoryStateListener> _stateListeners = new();
         public string Key => _key;
-        
-        public Inventory(string key)
+        public bool IsEmpty => _items.Count == 0;
+
+        public Inventory(string key, BankSystem bankSystem)
         {
             _key = key;
+            _bankSystem = bankSystem;
             _items = new List<ItemInstance>();
         }
 
@@ -55,16 +59,35 @@ namespace Core.Trading
 
         bool IPullPutItem.TryPutItem(ItemInstance item)
         {
-            for (var i = 0; i < _items.Count; i++)
+            bool possibleToMerge = true;
+            if (item.TryGetProperty(ItemSign.IdentifiableTag, out var property))
             {
-                if (_items[i].Sign.Equals(item.Sign))
+                var itemInventory = _bankSystem.GetOrCreateInventory(property.values[ItemProperty.IdentifiableInstance_Identifier]
+                    .stringValue);
+                if (itemInventory.IsEmpty)
                 {
-                    _items[i].Merge(item);
-                    ItemMutated(_items[i]);
-                    return true;
+                    _bankSystem.DissolveEmptyInventory(itemInventory.Key);
+                }
+                else
+                {
+                    possibleToMerge = false;
                 }
             }
-            
+
+            if (possibleToMerge)
+            {
+                for (var i = 0; i < _items.Count; i++)
+                {
+                    if (_items[i].Sign.Equals(item.Sign))
+                    {
+                        _items[i].Merge(item);
+                        item.Dispose();
+                        ItemMutated(_items[i]);
+                        return true;
+                    }
+                }
+            }
+
             _items.Add(item);
             ItemAdded(item);
             return true;
@@ -118,6 +141,14 @@ namespace Core.Trading
             }
             result = null;
             return false;
+        }
+        
+        public void Dispose()
+        {
+            _stateListeners.Clear();
+            _costRules = null;
+            _bankSystem = null;
+            _key = null;
         }
     }
 }

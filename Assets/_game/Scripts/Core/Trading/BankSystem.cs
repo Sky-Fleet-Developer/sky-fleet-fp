@@ -70,6 +70,15 @@ namespace Core.Trading
         {
             return GetOrCreateInventoryHandler(key);
         }
+
+        public void DissolveEmptyInventory(string key)
+        {
+            if (_inventories.TryGetValue(key, out IItemsContainerMasterHandler inventory) && inventory.IsEmpty)
+            {
+                _inventories.Remove(key);
+                inventory.Dispose();
+            }
+        }
         
         public void InitializeShop(string shopId, IInventoryOwner inventoryOwner)
         {
@@ -119,7 +128,7 @@ namespace Core.Trading
                 {
                     try
                     {
-                        if (tradeItem.amount <= 0)
+                        if (tradeItem.amount.Value <= 0)
                         {
                             continue;
                         }

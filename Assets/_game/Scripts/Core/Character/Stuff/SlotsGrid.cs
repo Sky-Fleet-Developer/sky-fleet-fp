@@ -16,6 +16,7 @@ namespace Core.Character.Stuff
         private List<ISlotsGridListener> _listenersSlots = new ();
 
         public string Key => _inventoryKey;
+        public bool IsEmpty => !_slots.Any(x => x.HasItem);
 
         public SlotsGrid(string gridId, SlotCell[] slots)
         {
@@ -62,6 +63,20 @@ namespace Core.Character.Stuff
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            for (var i = 0; i < _slots.Length; i++)
+            {
+                _slots[i].Dispose();
+            }
+
+            _slots = null;
+            _gridId = null;
+            _inventoryKey = null;
+            _listenersSlots.Clear();
+            _listenersSlots = null;
         }
 
         public void AddListener(IInventoryStateListener listener)

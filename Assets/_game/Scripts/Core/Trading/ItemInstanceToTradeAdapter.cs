@@ -67,7 +67,7 @@ namespace Core.Trading
             {
                 if (tradeItem.Item == item.Item)
                 {
-                    return _itemsSource.TryPullItem(item.Item, item.amount, out result);
+                    return _itemsSource.TryPullItem(item.Item, item.amount.Value, out result);
                 }
             }
 
@@ -135,7 +135,7 @@ namespace Core.Trading
         public void ItemMutated(ItemInstance item)
         {
             var tradeItem = FindTradeItem(item, out _);
-            tradeItem.amount = item.Amount;
+            tradeItem.amount.Value = item.Amount;
             foreach (var listener in _listeners)
             {
                 listener.ItemMutated(tradeItem, _kind);

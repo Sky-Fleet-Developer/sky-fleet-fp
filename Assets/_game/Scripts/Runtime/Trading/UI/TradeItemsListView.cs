@@ -10,18 +10,26 @@ namespace Runtime.Trading.UI
     {
         public TradeKind kindFilter;
         private ProductDeliverySettings _deliverySettings;
-        public event Action<TradeItem, float> OnItemInCardAmountChanged;
+        public event Action<TradeItem, float> OnItemInCartAmountChanged;
+        public event Action<TradeItem, int> OnDeliveryOptionChanged;
 
+        public void SetInCartAmount(TradeItem item, float amount)
+        {
+            ViewByData[item].SetInCartAmount(amount);
+        }
+        
         protected override void InitItem(TradeItemView item)
         {
             item.SetDeliverySettings(_deliverySettings);
             item.SetTradeItemKind(kindFilter);
             item.SetInCardAmountChangedCallback(ItemInCardAmountChanged);
+            item.SetDeliveryOptionChangedCallback(OnDeliveryOptionChanged);
+            OnDeliveryOptionChanged?.Invoke(item.Data, 0);
         }
 
         private void ItemInCardAmountChanged(TradeItem item, float amount)
         {
-            OnItemInCardAmountChanged?.Invoke(item, amount);
+            OnItemInCartAmountChanged?.Invoke(item, amount);
         }
 
         public void SetDeliverySettings(ProductDeliverySettings settings)

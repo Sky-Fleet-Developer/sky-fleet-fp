@@ -7,6 +7,7 @@ using Core.Localization;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
@@ -31,9 +32,11 @@ namespace Runtime.Trading.UI
         private TradeItem _data;
         private float _amount;
         private Action<TradeItem, float> _inCardAmountChangedCallback;
+        private Action<TradeItem, int> _deliveryOptionChangedCallback;
         private ProductDeliverySettings _deliverySettings;
         public override TradeItem Data => _data;
         private bool _isDataDirtyForDeliverySettings = true;
+        private IDisposable _amountObserver;
 
         private void Awake()
         {
@@ -46,19 +49,7 @@ namespace Runtime.Trading.UI
 
         private void DeliverySelected(int index)
         {
-            int counter = 0;
-            foreach (var service in _deliverySettings.Services)
-            {
-                if (service.IsCanDeliver(_data.Sign, _deliverySettings.Destination))
-                {
-                    if (counter == index)
-                    {
-                        _data.SetDeliveryService(service);
-                        _inCardAmountChangedCallback?.Invoke(_data, _amount);
-                    }
-                    counter++;
-                }
-            }
+            _deliveryOptionChangedCallback?.Invoke(_data, index);
         }
 
         private void OnDestroy()
@@ -103,7 +94,7 @@ namespace Runtime.Trading.UI
             {
                 if (int.TryParse(text, out int value))
                 {
-                    SetInCartAmount(value);
+                    SendWantedAmount(value);
                     return;
                 }
             }
@@ -111,7 +102,7 @@ namespace Runtime.Trading.UI
             {
                 if (float.TryParse(text, out float value))
                 {
-                    SetInCartAmount(value);
+                    SendWantedAmount(value);
                     return;
                 }
             }
@@ -121,24 +112,32 @@ namespace Runtime.Trading.UI
 
         private void AddToCart()
         {
-            SetInCartAmount(1);
+            SendWantedAmount(1);
         }
 
         private void OnMoreClick()
         {
-            SetInCartAmount(_amount + 1);
+            SendWantedAmount(_amount + 1);
         }
         
         private void OnLessClick()
         {
-            SetInCartAmount(_amount - 1);
+            SendWantedAmount(_amount - 1);
         }
 
-        private void SetInCartAmount(float value)
+        private void SendWantedAmount(float value)
         {
-            _amount = Mathf.Clamp(value, 0, _data.amount);
+            value = Mathf.Clamp(value, 0, _data.amount.Value);
+            if (!Mathf.Approximately(value, _amount))
+            {
+                _inCardAmountChangedCallback.Invoke(_data, value);
+            }
+        }
+        
+        public void SetInCartAmount(float value)
+        {
+            _amount = value;
             RefreshView();
-            _inCardAmountChangedCallback.Invoke(_data, _amount);
         }
 
         public override void Selected()
@@ -155,16 +154,29 @@ namespace Runtime.Trading.UI
 
         public override void SetData(TradeItem data)
         {
+            _amountObserver?.Dispose();
             _data = data;
+            _amountObserver = data.amount.Subscribe(OnAmountChanged);
             _isDataDirtyForDeliverySettings = true;
             _amount = 0;
             signView.SetData(data.Sign);
             RefreshView();
         }
 
+        private void OnAmountChanged(float value)
+        {
+            _amount = value;
+            RefreshView();
+        }
+
         public void SetInCardAmountChangedCallback(Action<TradeItem, float> callback)
         {
             _inCardAmountChangedCallback = callback;
+        }
+
+        public void SetDeliveryOptionChangedCallback(Action<TradeItem, int> callback)
+        {
+            _deliveryOptionChangedCallback = callback;
         }
         
         public override void RefreshView()
@@ -175,7 +187,7 @@ namespace Runtime.Trading.UI
                 : TMP_InputField.ContentType.DecimalNumber;
             inCartAmountInputField.text = _amount.ToString(new NumberFormatInfo());
             amountLabel.text = _data.amount.ToString();
-            moreButton.interactable = _amount < _data.amount;
+            moreButton.interactable = _amount < _data.amount.Value;
             addButton.gameObject.SetActive(_amount == 0);
             selectAmountGroup.gameObject.SetActive(_amount > 0);
             if (_isDataDirtyForDeliverySettings)

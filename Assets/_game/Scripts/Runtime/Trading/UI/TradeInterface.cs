@@ -35,10 +35,11 @@ namespace Runtime.Trading.UI
         [Inject] private BankSystem _bankSystem;
         [Inject] private DiContainer _container;
         private TradeItemView _selectedTarget;
-        private List<TradeItem> myInventoryItems = new();
         private IItemsContainerReadonly _myInventory;
         private ItemInstanceToTradeAdapter _myInventoryAdapter;
         private ITradeItemsSource _cargoZoneItemsSource;
+        private ProductDeliverySettings _sellerDeliverySettings;
+        private ProductDeliverySettings _purchaserDeliverySettings;
 
         protected override void Awake()
         {
@@ -46,8 +47,10 @@ namespace Runtime.Trading.UI
             sellerItemsView.SelectionHandler.AddListener(this);
             myItemsView.SelectionHandler.AddListener(this);
             acceptButton.onClick.AddListener(AcceptClick);
-            sellerItemsView.OnItemInCardAmountChanged += OnSellerItemInCardAmountChanged;
-            myItemsView.OnItemInCardAmountChanged += OnPurchaserItemInCardAmountChanged;
+            sellerItemsView.OnItemInCartAmountChanged += OnSellerItemInCartAmountChanged;
+            sellerItemsView.OnDeliveryOptionChanged += OnSellerDeliveryOptionChanged;
+            myItemsView.OnItemInCartAmountChanged += OnPurchaserItemInCartAmountChanged;
+            myItemsView.OnDeliveryOptionChanged += OnPurchaserDeliveryOptionChanged;
         }
 
         protected override void OnDestroy()
@@ -55,21 +58,58 @@ namespace Runtime.Trading.UI
             base.OnDestroy();
             acceptButton.onClick.RemoveListener(AcceptClick);
             _handler?.RemoveListener(sellerItemsView);
-            sellerItemsView.OnItemInCardAmountChanged -= OnSellerItemInCardAmountChanged;
-            myItemsView.OnItemInCardAmountChanged += OnPurchaserItemInCardAmountChanged;
+            sellerItemsView.OnItemInCartAmountChanged -= OnSellerItemInCartAmountChanged;
+            sellerItemsView.OnDeliveryOptionChanged -= OnSellerDeliveryOptionChanged;
+            myItemsView.OnItemInCartAmountChanged -= OnPurchaserItemInCartAmountChanged;
+            myItemsView.OnDeliveryOptionChanged -= OnPurchaserDeliveryOptionChanged;
         }
 
-        private void OnSellerItemInCardAmountChanged(TradeItem item, float amount)
+        private void OnSellerDeliveryOptionChanged(TradeItem item, int option)
         {
-            if (_purchase.SetPurchaseItemAmount(item, amount, out var innerItem))
+            SetDeliveryOption(item, option, _sellerDeliverySettings);
+            _purchase.UpdateDeliveryService(item);
+        }
+        
+        private void OnPurchaserDeliveryOptionChanged(TradeItem item, int option)
+        {
+            SetDeliveryOption(item, option, _purchaserDeliverySettings);
+            _sell.UpdateDeliveryService(item);
+        }
+
+        private void SetDeliveryOption(TradeItem item, int option, ProductDeliverySettings settings)
+        {
+            int counter = 0;
+            foreach (var service in settings.Services)
             {
+                if (service.IsCanDeliver(item.Sign, settings.Destination))
+                {
+                    if (counter == option)
+                    {
+                        item.SetDeliveryService(service);
+                        break;
+                    }
+                    counter++;
+                }
+            }
+        }
+        
+        private void OnSellerItemInCartAmountChanged(TradeItem item, float amount)
+        {
+            if (_purchase.SetPurchaseItemAmount(item, amount))
+            {
+                sellerItemsView.SetInCartAmount(item, amount);
                 RefreshCostView();
             }
         }
-        private void OnPurchaserItemInCardAmountChanged(TradeItem item, float amount)
+        private void OnPurchaserItemInCartAmountChanged(TradeItem item, float amount)
         {
-            if (_sell.SetPurchaseItemAmount(item, amount, out var innerItem))
+            if (item.Item.TryGetContainerKey(out string key) && !_bankSystem.GetOrCreateInventory(key).IsEmpty)
             {
+                return;
+            }
+            if (_sell.SetPurchaseItemAmount(item, amount))
+            {
+                myItemsView.SetInCartAmount(item, amount);
                 RefreshCostView();
             }
         }
@@ -82,17 +122,12 @@ namespace Runtime.Trading.UI
             _handler.AddListener(sellerItemsView);
             _purchase = new TradeDeal(_interactionState.Master, _handler);
             _sell = new TradeDeal(_handler, _interactionState.Master);
-            _myInventory = _bankSystem.GetOrCreateInventory(((IInventoryOwner)_interactionState.Master).InventoryKey);
-
-            sellerItemsView.SetDeliverySettings(new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices()));
+            _sellerDeliverySettings = new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices());
+            sellerItemsView.SetDeliverySettings(_sellerDeliverySettings);
             var deliveryService = new PutToInventoryDeliveryService();
             _container.Inject(deliveryService);
-            myItemsView.SetDeliverySettings(new ProductDeliverySettings(_handler, new List<IItemDeliveryService>{deliveryService}));
-            foreach (var itemInstance in _myInventory.GetItems())
-            {
-                int price = _handler.GetBuyoutPrice(itemInstance);
-                myInventoryItems.Add(new TradeItem(itemInstance, price));
-            }
+            _purchaserDeliverySettings = new ProductDeliverySettings(_handler, new[] {deliveryService});
+            myItemsView.SetDeliverySettings(_purchaserDeliverySettings);
 
             _myInventoryAdapter?.Dispose();
             _myInventoryAdapter = _handler.GetAdapterToCustomerItems(_interactionState.Master);

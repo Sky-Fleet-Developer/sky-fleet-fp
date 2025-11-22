@@ -662,6 +662,10 @@ namespace Core.Character
             switch (handler)
             {
                 case IDriveInterface characterInterface:
+                    if (CurrentState is SeatState)
+                    {
+                        return;
+                    }
                     CurrentState = new SeatState(this, currentInteractionState, characterInterface);
                     break;
                 case ITradeHandler: case ICargoLoadingHandler: case ICargoUnloadingPlayerHandler: case IContainerHandler:

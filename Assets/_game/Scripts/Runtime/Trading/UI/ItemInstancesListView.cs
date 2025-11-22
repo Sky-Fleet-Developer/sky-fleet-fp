@@ -9,11 +9,11 @@ namespace Runtime.Trading.UI
     {
         public override void AddItem(ItemInstance item)
         {
-            var index = _thingsData.FindIndex(x => x.Sign.Id == item.Sign.Id);
+            var index = ThingsData.FindIndex(x => x.Sign.Id == item.Sign.Id);
             if (index != -1)
             {
-                _thingsData[index].Merge(item);
-                _views[index].RefreshView();
+                ThingsData[index].Merge(item);
+                Views[index].RefreshView();
                 return;
             }
             base.AddItem(item);

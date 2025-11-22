@@ -8,7 +8,7 @@ using Zenject;
 
 namespace Core.Character.Stuff
 {
-    public class SlotCell : IItemInstancesSource, ICloneable
+    public class SlotCell : IItemInstancesSource, ICloneable, IDisposable
     {
         [Inject] private BankSystem _bankSystem;
         private ItemInstance _content;
@@ -76,8 +76,19 @@ namespace Core.Character.Stuff
         public bool TrySetItem(ItemInstance content)
         {
             if (!CanSetItem(content)) return false;
-
+            if(_content == null && content == null) return true;
+            
+            bool itemWasNull = _content == null;
+            if (content == null)
+            {
+                foreach (var listener in _listeners)
+                {
+                    listener.ItemRemoved(_content);
+                }
+            }
+            
             _content = content;
+
             if (_content == null)
             {
                 _attachedInventory = null;
@@ -91,8 +102,7 @@ namespace Core.Character.Stuff
                     _attachedInventory.RemoveListener(listener);
                 }
             }
-            if (_content.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) &&
-                _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
+            if (_content.IsContainer && _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
                 _attachedInventory = _bankSystem.GetOrCreateInventory(identifiableProperty
                     .values[ItemProperty.IdentifiableInstance_Identifier].stringValue);
@@ -105,6 +115,19 @@ namespace Core.Character.Stuff
             {
                 _attachedInventory = null;
             }
+            
+            foreach (var listener in _listeners)
+            {
+                if (itemWasNull)
+                {
+                    listener.ItemAdded(_content);
+                }
+                else
+                {
+                    listener.ItemRemoved(_content);
+                }
+            }
+            
             return true;
         }
 
@@ -152,6 +175,18 @@ namespace Core.Character.Stuff
                 return false;
             }
             return _bankSystem.TryPutItem(_attachedInventory.Key, item);
+        }
+
+        public void Dispose()
+        {
+            _bankSystem = null;
+            _content = null;
+            _attachedInventory = null;
+            _excludeTags = null;
+            _includeTags = null;
+            _listeners.Clear();
+            _listeners = null;
+            _slotId = null;
         }
     }
 }

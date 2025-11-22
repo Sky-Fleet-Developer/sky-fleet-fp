@@ -16,7 +16,8 @@ namespace Core.Trading
     
     public class InventoryFactory : MonoInstaller, IInventoryFactory
     {
-        [Inject] StuffSlotsTable _stuffSlotsTable;
+        [Inject] private StuffSlotsTable _stuffSlotsTable;
+        [Inject] private BankSystem _bankSystem;
         public IItemsContainerMasterHandler CreateInventory(string key)
         {
             foreach (var valueTuple in IInventoryFactory.SlotsShortPostfix)
@@ -26,7 +27,10 @@ namespace Core.Trading
                     return _stuffSlotsTable.CreateGrid(key, valueTuple.Item2);
                 }
             }
-            return new Inventory(key);
+
+            var inventory = new Inventory(key, _bankSystem);
+            
+            return inventory;
         }
 
         public override void InstallBindings()
