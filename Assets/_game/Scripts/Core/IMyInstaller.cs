@@ -2,7 +2,7 @@
 
 namespace Core
 {
-    public interface IInstallerWithContainer
+    public interface IMyInstaller
     {
         void InstallBindings(DiContainer container);
     }

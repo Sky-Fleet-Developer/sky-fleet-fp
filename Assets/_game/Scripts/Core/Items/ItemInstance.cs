@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Trading;
 using Core.Utilities;
 using UnityEditor;
 using UnityEngine;
@@ -19,14 +20,21 @@ namespace Core.Items
 
         private static int _id = 0;
         private int _instanceId = _id++;
+        private Action<string, string> _containerRegistrationCallback;
         public ItemInstance(){}
-        public ItemInstance(ItemSign sign, float amount)
+        public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback)
         {
+            _containerRegistrationCallback = containerRegistrationCallback;
             _amount = amount;
             _sign = sign;
             if (sign.HasTag(ItemSign.IdentifiableTag))
             {
-                _properties.Add(new ItemProperty{name = ItemSign.IdentifiableTag, values = new []{new ItemPropertyValue{stringValue = GUID.Generate().ToString()}}});
+                var guid = GUID.Generate().ToString();
+                _properties.Add(new ItemProperty{name = ItemSign.IdentifiableTag, values = new []{new ItemPropertyValue{stringValue = guid}}});
+                if(IsContainer)
+                {
+                    _containerRegistrationCallback(guid, sign.Id);
+                }
             }
         }
 
@@ -105,8 +113,12 @@ namespace Core.Items
             }
 
             _amount -= amountToDetach;
-            var newInstance = new ItemInstance(_sign, amountToDetach);
-            newInstance._properties = _properties.DeepClone();
+            var newInstance = new ItemInstance(_sign, amountToDetach, _containerRegistrationCallback);
+            foreach (var property in _properties)
+            {
+                if(property.name == ItemSign.IdentifiableTag) continue;
+                newInstance._properties.Add(property);
+            }
             return newInstance;
         }
 

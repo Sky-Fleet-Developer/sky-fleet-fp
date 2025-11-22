@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.Character.Stuff;
+using Core.Configurations;
 using UnityEngine;
 using Zenject;
 
@@ -18,6 +19,7 @@ namespace Core.Trading
     {
         [Inject] private StuffSlotsTable _stuffSlotsTable;
         [Inject] private BankSystem _bankSystem;
+        
         public IItemsContainerMasterHandler CreateInventory(string key)
         {
             foreach (var valueTuple in IInventoryFactory.SlotsShortPostfix)

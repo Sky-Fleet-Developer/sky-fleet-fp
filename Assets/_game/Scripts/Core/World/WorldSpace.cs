@@ -7,7 +7,7 @@ using Zenject;
 
 namespace Core.World
 {
-    public class WorldSpace : MonoBehaviour, IInstallerWithContainer
+    public class WorldSpace : MonoBehaviour, IMyInstaller
     {
         [Inject] private WorldGrid _grid;
         private DiContainer _diContainer;

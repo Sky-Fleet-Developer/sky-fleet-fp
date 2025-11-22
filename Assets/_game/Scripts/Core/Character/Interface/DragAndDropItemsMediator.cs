@@ -8,7 +8,7 @@ using Zenject;
 
 namespace Core.Character.Interface
 {
-    public class DragAndDropItemsMediator : MonoBehaviour, IInstallerWithContainer
+    public class DragAndDropItemsMediator : MonoBehaviour, IMyInstaller
     {
         [Inject] private BankSystem _bankSystem;
         private Dictionary<IDragAndDropContainer, DnDBindings> _inventories = new ();
@@ -72,7 +72,6 @@ namespace Core.Character.Interface
             _inventories[dragAndDropContainerView] = new DnDBindings(inventoryKey, _bankSystem);
         }
 
-        /// <param name="dragAndDropContainerView">UI View the items container</param>
         public void RegisterContainerView(IDragAndDropContainer dragAndDropContainerView, IPullPutItem itemsContainer)
         {
             _inventories[dragAndDropContainerView] = new DnDBindings(itemsContainer);

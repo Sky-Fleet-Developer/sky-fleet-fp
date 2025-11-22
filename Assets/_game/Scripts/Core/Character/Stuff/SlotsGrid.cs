@@ -59,7 +59,7 @@ namespace Core.Character.Stuff
                     yield return slotCell.Item;
                     if (slotCell.IsContainer)
                     {
-                        foreach (var item in slotCell.EnumerateItems()) yield return item;
+                        foreach (var item in slotCell.GetItems()) yield return item;
                     }
                 }
             }
@@ -136,7 +136,7 @@ namespace Core.Character.Stuff
 
                 if (slotCell.IsContainer)
                 {
-                    foreach (var i in slotCell.EnumerateItems())
+                    foreach (var i in slotCell.GetItems())
                     {
                         if (i.IsEqualsSignOrIdentity(item))
                         {

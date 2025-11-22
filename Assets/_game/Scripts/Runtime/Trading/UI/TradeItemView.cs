@@ -36,7 +36,6 @@ namespace Runtime.Trading.UI
         private ProductDeliverySettings _deliverySettings;
         public override TradeItem Data => _data;
         private bool _isDataDirtyForDeliverySettings = true;
-        private IDisposable _amountObserver;
 
         private void Awake()
         {
@@ -154,18 +153,10 @@ namespace Runtime.Trading.UI
 
         public override void SetData(TradeItem data)
         {
-            _amountObserver?.Dispose();
             _data = data;
-            _amountObserver = data.amount.Subscribe(OnAmountChanged);
             _isDataDirtyForDeliverySettings = true;
             _amount = 0;
             signView.SetData(data.Sign);
-            RefreshView();
-        }
-
-        private void OnAmountChanged(float value)
-        {
-            _amount = value;
             RefreshView();
         }
 

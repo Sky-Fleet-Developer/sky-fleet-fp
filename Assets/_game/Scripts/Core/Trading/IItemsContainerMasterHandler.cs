@@ -12,16 +12,14 @@ namespace Core.Trading
         bool TryPullItem(ItemInstance item, float amount, out ItemInstance result);
     }
     
-    public interface IItemsContainerMasterHandler : IItemsContainerReadonly, IPullPutItem
+    public interface IItemsContainerMasterHandler : IItemsContainerReadonly, IItemInstancesSource
     {
         void Dispose();
     }
     
-    public interface IItemsContainerReadonly : IItemInstancesSource
+    public interface IItemsContainerReadonly : IItemInstancesSourceReadonly
     {
         string Key { get; }
-        IEnumerable<ItemInstance> IItemInstancesSource.EnumerateItems() => GetItems();
-        IEnumerable<ItemInstance> GetItems();
         bool IsEmpty { get; }
         //IEnumerable<ItemInstance> GetItems(string id);
     }

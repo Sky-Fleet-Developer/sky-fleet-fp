@@ -13,7 +13,6 @@ namespace Core.Trading
         private BankSystem _bankSystem;
         private string _key;
         private List<ItemInstance> _items;
-        private CostRule[] _costRules;
         private HashSet<IInventoryStateListener> _stateListeners = new();
         public string Key => _key;
         public bool IsEmpty => _items.Count == 0;
@@ -146,7 +145,6 @@ namespace Core.Trading
         public void Dispose()
         {
             _stateListeners.Clear();
-            _costRules = null;
             _bankSystem = null;
             _key = null;
         }

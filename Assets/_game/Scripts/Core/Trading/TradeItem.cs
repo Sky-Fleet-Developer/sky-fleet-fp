@@ -64,7 +64,7 @@ namespace Core.Trading
 
     public static class ItemExtension
     {
-        public static IEnumerable<ItemInstance> MakeInstances(this TradeItem tradeItem, float maxStackSize)
+        /*public static IEnumerable<ItemInstance> MakeInstances(this TradeItem tradeItem, float maxStackSize)
         {
             if (!tradeItem.Sign.HasTag(ItemSign.LiquidTag))
             {
@@ -79,7 +79,7 @@ namespace Core.Trading
             {
                 yield return new ItemInstance(tradeItem.Sign, tradeItem.amount.Value);
             }
-        }
+        }*/
         public static IEnumerable<ItemInstance> DetachStacks(this ItemInstance tradeItem, float stackSize)
         {
             if (!tradeItem.Sign.HasTag(ItemSign.LiquidTag))

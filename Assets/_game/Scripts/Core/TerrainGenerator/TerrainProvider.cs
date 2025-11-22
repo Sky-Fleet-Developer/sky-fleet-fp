@@ -16,7 +16,7 @@ namespace Core.TerrainGenerator
     /// <summary>
     /// runtime generating terrain chunks by TerrainGenerationSettings
     /// </summary>
-    public class TerrainProvider : MonoBehaviour, ILoadAtStart, IInstallerWithContainer, TerrainProvider.ITerrainProviderHandler
+    public class TerrainProvider : MonoBehaviour, ILoadAtStart, IMyInstaller, TerrainProvider.ITerrainProviderHandler
     {
         public interface ITerrainProviderHandler
         {

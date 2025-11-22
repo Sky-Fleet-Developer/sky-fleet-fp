@@ -35,7 +35,7 @@ namespace Core.Trading
                 Debug.LogError($"Shop {_sourceShop} does not exists!");
             }
             _itemsSource.AddListener(this);
-            foreach (var itemInstance in _itemsSource.EnumerateItems())
+            foreach (var itemInstance in _itemsSource.GetItems())
             {
                 ItemAdded(itemInstance);
             }

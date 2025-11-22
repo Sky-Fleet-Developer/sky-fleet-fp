@@ -3,7 +3,7 @@ using Zenject;
 
 namespace Core.World
 {
-    public class LocationInstaller : MonoBehaviour, IInstallerWithContainer
+    public class LocationInstaller : MonoBehaviour, IMyInstaller
     {
         [SerializeField] private Location location;
 

@@ -27,7 +27,7 @@ namespace WorldEditor
         private WorldSpace _worldSpace;
         private TerrainProvider _terrainProvider;
         private WorldOffset _worldOffset;
-        private ItemFactory _itemFactory;
+        private ItemObjectFactory _itemObjectFactory;
 
         private Task _loading;
         private bool _isInitialized;
@@ -98,7 +98,7 @@ namespace WorldEditor
             diContainer.Inject(_worldGrid);
             diContainer.Inject(_worldSpace);
             diContainer.Inject(_terrainProvider);
-            diContainer.Inject(_itemFactory);
+            diContainer.Inject(_itemObjectFactory);
             _worldOffsetHandler = diContainer.TryResolve<WorldOffset.IWorldOffsetHandler>();
             _worldOffsetHandler?.TakeControl();
             _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
@@ -177,13 +177,13 @@ namespace WorldEditor
 
         private bool SetupItemFactory(DiContainer diContainer)
         {
-            _itemFactory = FindAnyObjectByType<ItemFactory>();
-            if (!_itemFactory)
+            _itemObjectFactory = FindAnyObjectByType<ItemObjectFactory>();
+            if (!_itemObjectFactory)
             {
                 Debug.LogError("ItemFactory is not found");
                 return false;
             }
-            _itemFactory.InstallBindings(diContainer);
+            _itemObjectFactory.InstallBindings(diContainer);
             return true;
         }
 

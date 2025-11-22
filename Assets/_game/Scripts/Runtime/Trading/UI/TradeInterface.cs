@@ -122,6 +122,8 @@ namespace Runtime.Trading.UI
             _handler.AddListener(sellerItemsView);
             _purchase = new TradeDeal(_interactionState.Master, _handler);
             _sell = new TradeDeal(_handler, _interactionState.Master);
+            _container.Inject(_purchase);
+            _container.Inject(_sell);
             _sellerDeliverySettings = new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices());
             sellerItemsView.SetDeliverySettings(_sellerDeliverySettings);
             var deliveryService = new PutToInventoryDeliveryService();
@@ -200,14 +202,15 @@ namespace Runtime.Trading.UI
             if (_bankSystem.TryMakeDeal(_sell))
             {
                 _sell = new TradeDeal(_handler, _interactionState.Master);
+                _container.Inject(_sell);
                 myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(_cargoZoneItemsSource.GetTradeItems()));
             }
             if (_bankSystem.TryMakeDeal(_purchase))
             {
                 _purchase = new TradeDeal(_interactionState.Master, _handler);
+                _container.Inject(_purchase);
                 sellerItemsView.SetItems(_handler.GetTradeItems());
             }
-
             RefreshCostView();
         }
 

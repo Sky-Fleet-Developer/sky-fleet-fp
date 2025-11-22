@@ -33,7 +33,7 @@ namespace Core
             for (var i = 0; i < injectTargets.Length; i++)
             {
                 Container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
-                if (injectTargets[i] is IInstallerWithContainer installer)
+                if (injectTargets[i] is IMyInstaller installer)
                 {
                     installer.InstallBindings(Container);
                 }

@@ -10,10 +10,23 @@ namespace Core.Items
         public const string LiquidTag = "liquid";
         public const string MassTag = "mass";
         public const string ResizableTag = "resizable";
+        /// <summary>
+        /// Item can contain other items
+        /// </summary>
         public const string ContainerTag = "container";
-        public const string IdentifiableTag = "identifiable"; //usings for assign uniq id to item to recognize its inventory or etc
-        public const string OwnershipTag = "ownership"; //usings for assign owner to item
+        /// <summary>
+        /// usings for assign uniq id to item to recognize its inventory or etc
+        /// </summary>
+        public const string IdentifiableTag = "identifiable";
+        /// <summary>
+        /// usings for assign owner to item
+        /// </summary>
+        public const string OwnershipTag = "ownership";
         public const string EquipableTag = "equipable";
+        /// <summary>
+        /// determine that item volume extends from contents items
+        /// </summary>
+        public const string FoldableTag = "foldable";
         public const string AllTag = "All";
         
         [SerializeField] private string id;

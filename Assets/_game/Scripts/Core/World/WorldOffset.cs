@@ -11,7 +11,7 @@ using Zenject;
 namespace Core.World
 {
 
-    public class WorldOffset : MonoBehaviour, ILoadAtStart, IInstallerWithContainer, WorldOffset.IWorldOffsetHandler
+    public class WorldOffset : MonoBehaviour, ILoadAtStart, IMyInstaller, WorldOffset.IWorldOffsetHandler
     {
         [ShowInInspector]
         public static Vector3 Offset { get; set; }

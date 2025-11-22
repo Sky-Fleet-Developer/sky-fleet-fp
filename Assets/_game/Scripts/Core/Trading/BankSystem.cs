@@ -11,7 +11,7 @@ using Zenject;
 namespace Core.Trading
 {
     [CreateAssetMenu(menuName = "SF/Game/BankSystem")]
-    public class BankSystem : ScriptableObject
+    public partial class BankSystem : ScriptableObject
     {
         [SerializeField] private WalletSource walletSource;
 #if UNITY_EDITOR
@@ -21,45 +21,11 @@ namespace Core.Trading
         [Inject] private IInventoryFactory _inventoryFactory;
         [Inject] private ShopTable _shopTable;
         [Inject] private ItemsTable _itemsTable;
+        [Inject] private IItemInstanceFactory _itemInstanceFactory;
+        [Inject] private IMassAndVolumeCalculator _massAndVolumeCalculator;
         private readonly Dictionary<string, IItemsContainerMasterHandler> _inventories = new ();
         private readonly Dictionary<string, Wallet> _wallets = new ();
-        
-        [Serializable]
-        private class WalletSource
-        {
-            [Serializable]
-            private class WalletData
-            {
-                public string id;
-                public int balance;
-            }
-            [SerializeField] private List<WalletData> data = new();
-            
-            public Wallet LoadWallet(string id)
-            {
-                foreach (var walletData in data)
-                {
-                    if (walletData.id == id)
-                    {
-                        return new Wallet(walletData.id, walletData.balance);
-                    }
-                }
-                return new Wallet(id, 0);
-            }
-
-            public void SaveWallet(Wallet wallet)
-            {
-                foreach (var walletData in data)
-                {
-                    if (walletData.id == wallet.WalletKey)
-                    {
-                        walletData.balance = wallet.GetBalance();
-                        return;
-                    }
-                }
-                data.Add(new WalletData {id = wallet.WalletKey, balance = wallet.GetBalance()});
-            }
-        }
+        private readonly Dictionary<string, ContainerInfo> _containerBindings = new ();
 
         public int GetWalletBalance(IWalletOwner owner)
         {
@@ -70,12 +36,16 @@ namespace Core.Trading
         {
             return GetOrCreateInventoryHandler(key);
         }
+        
+        public void BindInventoryToContainerSettings(string inventoryKey, string containerId) => _containerBindings[inventoryKey] = _itemsTable.GetContainer(containerId);
 
-        public void DissolveEmptyInventory(string key)
+        public IItemInstancesSource GetPullPutWarp(string inventoryKey) => new PullPutWarp(GetOrCreateInventory(inventoryKey), this);
+
+        public void DissolveEmptyInventory(string inventoryKey)
         {
-            if (_inventories.TryGetValue(key, out IItemsContainerMasterHandler inventory) && inventory.IsEmpty)
+            if (_inventories.TryGetValue(inventoryKey, out IItemsContainerMasterHandler inventory) && inventory.IsEmpty)
             {
-                _inventories.Remove(key);
+                _inventories.Remove(inventoryKey);
                 inventory.Dispose();
             }
         }
@@ -93,7 +63,7 @@ namespace Core.Trading
                 {
                     if (settings.IsItemMatch(itemSign))
                     {
-                        var item = new ItemInstance(itemSign, 100);
+                        var item = _itemInstanceFactory.Create(itemSign, 100);
                         inventory.TryPutItem(item);
                     }
                 }
@@ -109,9 +79,16 @@ namespace Core.Trading
         public bool TryPutItem(string key, ItemInstance item)
         {
             var handler = GetOrCreateInventoryHandler(key);
+            float volume = _massAndVolumeCalculator.GetVolume(handler);
+            if (_containerBindings.TryGetValue(key, out var containerInfo))
+            {
+                if (!containerInfo.IsItemMatch(item, volume))
+                {
+                    return false;
+                }
+            }
             item.SetOwnership(key);
-            handler.TryPutItem(item);
-            return true;
+            return handler.TryPutItem(item);
         }
 
         public bool TryMakeDeal(TradeDeal deal)

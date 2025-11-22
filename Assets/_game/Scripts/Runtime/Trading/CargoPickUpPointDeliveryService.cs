@@ -17,7 +17,7 @@ namespace Runtime.Trading
         [SerializeField] private Transform spawnAnchor;
         [SerializeField] private Vector2 spawnPlaceSize;
         [SerializeField] private Vector2Int spawnZoneSize;
-        [Inject(Optional = true)] private IItemFactory _itemFactory;
+        [Inject(Optional = true)] private IItemObjectFactory _iItemObjectFactory;
         [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
         private int _spawnCounter;
         public int Order => transform.GetSiblingIndex();
@@ -35,7 +35,7 @@ namespace Runtime.Trading
 
         private async void LoadAndInstantiatePrefab(ItemInstance item, IInventoryOwner destination)
         {
-            var instances = await _itemFactory.Create(item);
+            var instances = await _iItemObjectFactory.Create(item);
             for (var i = 0; i < instances.Count; i++)
             {
                 instances[i].transform.position = spawnAnchor.TransformPoint(GetNextSpawnPoint());

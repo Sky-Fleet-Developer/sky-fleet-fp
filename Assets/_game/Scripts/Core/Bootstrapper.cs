@@ -56,7 +56,7 @@ namespace Core
                 monoInstaller.InstallBindings();
             }
 
-            foreach (var installerWithContainer in GetComponentsInChildren<IInstallerWithContainer>())
+            foreach (var installerWithContainer in GetComponentsInChildren<IMyInstaller>())
             {
                 installerWithContainer.InstallBindings(Container);
             }

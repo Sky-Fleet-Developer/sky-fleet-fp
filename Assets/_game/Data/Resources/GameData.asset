@@ -392,6 +392,7 @@ MonoBehaviour:
     - container
     - identifiable
     - equipable
+    - foldable
     basicCost: 2000
     properties:
     - name: mass
@@ -399,9 +400,9 @@ MonoBehaviour:
       - stringValue: 1
         intValue: 1
         floatValue: 1
-      - stringValue: 25
-        intValue: 25
-        floatValue: 25
+      - stringValue: 1.5
+        intValue: 0
+        floatValue: 1.5
       - stringValue: 1
         intValue: 1
         floatValue: 1

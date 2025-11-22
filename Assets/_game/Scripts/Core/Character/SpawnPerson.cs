@@ -13,7 +13,7 @@ using Zenject;
 
 namespace Runtime.Character
 {
-    public class SpawnPerson : Singleton<SpawnPerson>, ILoadAtStart, IInstallerWithContainer
+    public class SpawnPerson : Singleton<SpawnPerson>, ILoadAtStart, IMyInstaller
     {
         [SerializeField] private int rulesSurveyFrequency;
         [SerializeField] private GameObject playerCamera;

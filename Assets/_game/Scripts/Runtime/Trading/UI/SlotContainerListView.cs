@@ -24,7 +24,7 @@ namespace Runtime.Trading.UI
         public void Init(SlotCell cell)
         {
             _slotCell = cell;
-            SetItems(cell.EnumerateItems());
+            SetItems(cell.GetItems());
         }
     }
 }

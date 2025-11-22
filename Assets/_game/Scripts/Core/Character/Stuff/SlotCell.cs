@@ -131,10 +131,10 @@ namespace Core.Character.Stuff
             return true;
         }
 
-        public IEnumerable<ItemInstance> EnumerateItems()
+        public IEnumerable<ItemInstance> GetItems()
         {
             if (!IsContainer) return Array.Empty<ItemInstance>();
-            return _attachedInventory.EnumerateItems();
+            return _attachedInventory.GetItems();
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Core.Character.Stuff
                 throw new Exception("Has no attached inventory on cell");
             }
             
-            return _attachedInventory.TryPullItem(item, amount, out result);
+            return _bankSystem.TryPullItem(_attachedInventory.Key, item, amount, out result);
         }
 
         public void AddListener(IInventoryStateListener listener)

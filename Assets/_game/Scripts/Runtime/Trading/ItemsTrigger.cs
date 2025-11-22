@@ -9,7 +9,7 @@ namespace Runtime.Trading
 {
     public class ItemsTrigger : MonoBehaviour, IItemInstancesSource
     {
-        [Inject] private IItemFactory _itemFactory;
+        [Inject] private IItemObjectFactory _iItemObjectFactory;
         private Dictionary<IItemObject, HashSet<Collider>> _items = new();
         private Dictionary<ItemInstance, IItemObject> _objectByInstance = new();
         public event Action<IItemObject> OnItemEnter;
@@ -17,7 +17,7 @@ namespace Runtime.Trading
         public IEnumerable<IItemObject> GetItems() => _items.Keys;
         public bool TryGetItem(ItemInstance instance, out IItemObject item) => _objectByInstance.TryGetValue(instance, out item);
         private List<IInventoryStateListener> _listeners = new();
-        IEnumerable<ItemInstance> IItemInstancesSource.EnumerateItems() => _objectByInstance.Keys;
+        IEnumerable<ItemInstance> IItemInstancesSourceReadonly.GetItems() => _objectByInstance.Keys;
 
         public bool CanPutAnyItem => false;
 
@@ -48,7 +48,7 @@ namespace Runtime.Trading
             {
                 if (obj is IItemObjectHandle itemHandle)
                 {
-                    _itemFactory.Deconstruct(itemHandle);
+                    _iItemObjectFactory.Deconstruct(itemHandle);
                 }
                 _items[obj].Clear();
                 _items.Remove(obj);

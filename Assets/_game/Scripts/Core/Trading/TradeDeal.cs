@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using Core.Items;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Trading
 {
     public class TradeDeal : IDisposable
     {
+        [Inject] private BankSystem _bankSystem;
         private List<TradeItem> _itemsToPurchase;
         private ITradeParticipant _seller;
         private ITradeParticipant _purchaser;
@@ -45,6 +47,10 @@ namespace Core.Trading
                 }
             }
 
+            if (item.Item.TryGetContainerKey(out var key) && !_bankSystem.GetOrCreateInventory(key).IsEmpty)
+            {
+                return false;
+            }
             var tradeItem = new TradeItem(item.Item, amount, item.Cost);
             tradeItem.SetDeliveryService(item.GetDeliveryService());
             tradeItem.SetSource(item.GetSource());
@@ -94,6 +100,16 @@ namespace Core.Trading
             }
 
             return counter;
+        }
+
+        public float GetTotalVolume()
+        {
+            float volume = 0;
+            foreach (var tradeItem in _itemsToPurchase)
+            {
+                volume += tradeItem.Sign.GetSingleVolume() * tradeItem.amount.Value;
+            }
+            return volume;
         }
 
 

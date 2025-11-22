@@ -35,7 +35,7 @@ namespace Core.UIStructure.Utilities
         public readonly IDragAndDropContainer Source;
     }
     
-    public class DragAndDropService : MonoBehaviour, ILoadAtStart, IInstallerWithContainer
+    public class DragAndDropService : MonoBehaviour, ILoadAtStart, IMyInstaller
     {
         [SerializeField] private RectTransform container;
         [SerializeField] private DraggableView draggablePlaceholder;

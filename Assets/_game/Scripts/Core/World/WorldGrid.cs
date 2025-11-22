@@ -19,7 +19,7 @@ namespace Core.World
         public int refreshPeriod;
     }
 
-    public class WorldGrid : MonoBehaviour, ILoadAtStart, IInstallerWithContainer, IWorldEntityDisposeListener
+    public class WorldGrid : MonoBehaviour, ILoadAtStart, IMyInstaller, IWorldEntityDisposeListener
     {
         [SerializeField] private WorldGridProfile profile;
         [ShowInInspector] private WorldGridData Settings

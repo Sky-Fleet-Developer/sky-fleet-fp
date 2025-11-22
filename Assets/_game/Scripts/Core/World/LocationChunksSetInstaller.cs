@@ -5,7 +5,7 @@ using Zenject;
 
 namespace Core.World
 {
-    public class LocationChunksSetInstaller : MonoBehaviour, IInstallerWithContainer
+    public class LocationChunksSetInstaller : MonoBehaviour, IMyInstaller
     {
         private LocationChunksSet _locationChunksSet;
 private LoadingChunkRuntimeStrategy _loadingChunkRuntimeStrategy;

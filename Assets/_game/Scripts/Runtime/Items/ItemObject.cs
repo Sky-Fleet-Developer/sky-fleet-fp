@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Items;
 using Core.Utilities;
 using UnityEditor;
@@ -12,7 +11,7 @@ namespace Runtime.Items
     {
         [SerializeField] private string guid;
         [SerializeField] private List<string> tags;
-        [Inject] private IItemFactory _iItemFactory;
+        [Inject] private IItemObjectFactory _itemObjectFactory;
         public string Guid => guid;
         public List<string> Tags => tags;
         private ItemInstance _sourceItem;
@@ -38,7 +37,7 @@ namespace Runtime.Items
 
         public void Deconstruct()
         {
-            _iItemFactory.Deconstruct(this);
+            _itemObjectFactory.Deconstruct(this);
         }
     }
 }
