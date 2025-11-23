@@ -76,7 +76,7 @@ namespace Runtime.Trading.UI
         private async void SetIconToDeliveryOption(TMP_Dropdown.OptionData data, int index, string spriteKey)
         {
             var load = Addressables.LoadAssetAsync<Sprite>(spriteKey).Task;
-            data.image = Addressables.LoadAssetAsync<Sprite>("ui_default-loading-icon").WaitForCompletion();
+            data.image = Addressables.LoadAssetAsync<Sprite>("ui_default-loading_icon").WaitForCompletion();
             await Task.Yield();
             deliverySelection.options[index] = data;
             var icon = await load;

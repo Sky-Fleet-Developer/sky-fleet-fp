@@ -191,5 +191,10 @@ namespace Runtime.Trading.UI
             _dragPosition += delta;
             _dragAndDropService.Move(_dragPosition);
         }
+
+        public void Clear()
+        {
+            RemoveCell();
+        }
     }
 }

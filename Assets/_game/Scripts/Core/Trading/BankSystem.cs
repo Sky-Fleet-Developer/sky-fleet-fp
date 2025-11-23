@@ -145,7 +145,69 @@ namespace Core.Trading
             PutCurrencyToWallet(seller, paymentAmount);
             return true;
         }
-        
+
+        public bool TryMergeItems(ItemInstance disposable, ItemInstance destination)
+        {
+            if (!disposable.Sign.Equals(destination.Sign))
+            {
+                return false;
+            }
+            
+            if (destination.IsContainer) // Merge containers is complex. It both should be empty before merge.
+            {
+                if (!TryPrepareContainersForMerge(disposable, destination))
+                {
+                    return false;
+                }
+            }
+
+            destination.Merge(disposable);
+            disposable.Dispose();
+            return true;
+        }
+
+        private bool TryPrepareContainersForMerge(ItemInstance disposable, ItemInstance destination)
+        {
+            bool canMergeA = true;
+            bool canMergeB = true;
+            string inventoryToDissolve = null;
+            if (disposable.TryGetProperty(ItemSign.IdentifiableTag, out var propertyA))
+            {
+                var key = propertyA.values[ItemProperty.IdentifiableInstance_Identifier].stringValue;
+                if (_inventories.TryGetValue(key, out var inventoryA))
+                {
+                    if (!inventoryA.IsEmpty)
+                    {
+                        canMergeA = false;
+                    }
+                    else
+                    {
+                        inventoryToDissolve = inventoryA.Key;
+                    }
+                }
+            }
+
+            if (destination.TryGetProperty(ItemSign.IdentifiableTag, out var propertyB))
+            {
+                var key = propertyB.values[ItemProperty.IdentifiableInstance_Identifier].stringValue;
+                if (_inventories.TryGetValue(key, out var inventoryB))
+                {
+                    if (!inventoryB.IsEmpty)
+                    {
+                        canMergeB = false;
+                    }
+                }
+            }
+                
+            if (!canMergeA || !canMergeB) return false;
+            if (inventoryToDissolve != null)
+            {
+                DissolveEmptyInventory(inventoryToDissolve);
+            }
+
+            return true;
+        }
+
         private IItemsContainerMasterHandler GetOrCreateInventoryHandler(string key)
         {
             if (!_inventories.TryGetValue(key, out IItemsContainerMasterHandler inventory))

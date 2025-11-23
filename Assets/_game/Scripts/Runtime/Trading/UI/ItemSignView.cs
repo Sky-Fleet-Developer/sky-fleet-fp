@@ -36,11 +36,11 @@ namespace Runtime.Trading.UI
         private async void LoadSpriteAsync()
         {
             icon.gameObject.SetActive(true);
-            var sprite = await Addressables.LoadAssetAsync<Sprite>($"ui_{_data.Id}").Task;
+            var sprite = await Addressables.LoadAssetAsync<Sprite>($"ui_{_data.Id}_icon").Task;
             icon.sprite = sprite;
             if (!sprite)
             {
-                Debug.LogError($"Sprite (ui_{_data.Id}) was not found");
+                Debug.LogError($"Sprite (ui_{_data.Id}_icon) was not found");
             }
         }
 

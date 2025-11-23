@@ -72,6 +72,12 @@ namespace Runtime.Trading.UI
         public override void Hide()
         {
             _inventory?.RemoveListener(this);
+
+            foreach (var cellView in _slots)
+            {
+                cellView.Value.Clear();
+            }
+
             base.Hide();
         }
 

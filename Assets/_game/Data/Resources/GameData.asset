@@ -79,7 +79,7 @@ MonoBehaviour:
   walletSource:
     data:
     - id: Player_Inventory_c-slots
-      balance: 5000
+      balance: 6000
     - id: iron_refinery
       balance: 100000
   needSaveChanges: 0

@@ -7,9 +7,9 @@ namespace Runtime.Trading.UI
 {
     public class ItemInstancesListView : ThingsListView<ItemInstance, ItemInstanceView>, IInventoryStateListener
     {
-        public override void AddItem(ItemInstance item)
+        /*public override void AddItem(ItemInstance item)
         {
-            var index = ThingsData.FindIndex(x => x.Sign.Id == item.Sign.Id);
+            var index = ThingsData.FindIndex(x => x.IsEqualsSignOrIdentity(item));
             if (index != -1)
             {
                 ThingsData[index].Merge(item);
@@ -17,7 +17,7 @@ namespace Runtime.Trading.UI
                 return;
             }
             base.AddItem(item);
-        }
+        }*/
 
         public void ItemAdded(ItemInstance item)
         {

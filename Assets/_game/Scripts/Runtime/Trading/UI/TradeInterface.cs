@@ -229,6 +229,8 @@ namespace Runtime.Trading.UI
         {
             _myInventoryAdapter.RemoveListener(myItemsView);
             _cargoZoneItemsSource.RemoveListener(myItemsView);
+            _myInventoryAdapter?.Dispose();
+            _myInventoryAdapter = null;
             _interactionState.LeaveState();
             _handler?.RemoveListener(sellerItemsView);
             return base.Hide(settings);

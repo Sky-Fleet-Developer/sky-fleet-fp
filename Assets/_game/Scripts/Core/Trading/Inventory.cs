@@ -58,32 +58,12 @@ namespace Core.Trading
 
         bool IPullPutItem.TryPutItem(ItemInstance item)
         {
-            bool possibleToMerge = true;
-            if (item.TryGetProperty(ItemSign.IdentifiableTag, out var property))
+            for (var i = 0; i < _items.Count; i++)
             {
-                var itemInventory = _bankSystem.GetOrCreateInventory(property.values[ItemProperty.IdentifiableInstance_Identifier]
-                    .stringValue);
-                if (itemInventory.IsEmpty)
+                if (_bankSystem.TryMergeItems(item, _items[i]))
                 {
-                    _bankSystem.DissolveEmptyInventory(itemInventory.Key);
-                }
-                else
-                {
-                    possibleToMerge = false;
-                }
-            }
-
-            if (possibleToMerge)
-            {
-                for (var i = 0; i < _items.Count; i++)
-                {
-                    if (_items[i].Sign.Equals(item.Sign))
-                    {
-                        _items[i].Merge(item);
-                        item.Dispose();
-                        ItemMutated(_items[i]);
-                        return true;
-                    }
+                    ItemMutated(_items[i]);
+                    return true;
                 }
             }
 

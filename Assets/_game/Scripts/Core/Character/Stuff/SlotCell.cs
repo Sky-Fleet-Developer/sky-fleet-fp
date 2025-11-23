@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Configurations;
 using Core.Items;
 using Core.Trading;
+using UnityEngine;
 using UnityEngine.Assertions;
 using Zenject;
 
@@ -79,13 +80,13 @@ namespace Core.Character.Stuff
             if(_content == null && content == null) return true;
             
             bool itemWasNull = _content == null;
-            if (content == null)
+            /*if (content == null)
             {
                 foreach (var listener in _listeners)
                 {
                     listener.ItemRemoved(_content);
                 }
-            }
+            }*/
             
             _content = content;
 
@@ -116,7 +117,7 @@ namespace Core.Character.Stuff
                 _attachedInventory = null;
             }
             
-            foreach (var listener in _listeners)
+            /*foreach (var listener in _listeners)
             {
                 if (itemWasNull)
                 {
@@ -126,7 +127,7 @@ namespace Core.Character.Stuff
                 {
                     listener.ItemRemoved(_content);
                 }
-            }
+            }*/
             
             return true;
         }
@@ -154,12 +155,14 @@ namespace Core.Character.Stuff
 
         public void AddListener(IInventoryStateListener listener)
         {
+            Debug.Log($"LISTENER: Add listener {listener} to {_slotId}");
             _listeners.Add(listener);
             _attachedInventory?.AddListener(listener);
         }
 
         public void RemoveListener(IInventoryStateListener listener)
         {
+            Debug.Log($"LISTENER: Remove listener {listener} from {_slotId}");
             _listeners.Remove(listener);
             _attachedInventory?.RemoveListener(listener);
         }
