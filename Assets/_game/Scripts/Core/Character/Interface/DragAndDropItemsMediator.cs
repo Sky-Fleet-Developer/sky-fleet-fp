@@ -18,7 +18,7 @@ namespace Core.Character.Interface
             private string _inventoryKey;
             private IPullPutItem _itemsContainer;
             private Func<ItemInstance, float, ItemInstance> _pullItem;
-            private Func<ItemInstance, bool> _putItem;
+            private Func<ItemInstance, PutItemResult> _putItem;
             
             public DnDBindings(IPullPutItem container) : this()
             {
@@ -31,7 +31,7 @@ namespace Core.Character.Interface
                 _bankSystem = bankSystem;
             }
 
-            public DnDBindings(Func<ItemInstance, float, ItemInstance> pullItem, Func<ItemInstance, bool> putItem) : this()
+            public DnDBindings(Func<ItemInstance, float, ItemInstance> pullItem, Func<ItemInstance, PutItemResult> putItem) : this()
             {
                 _pullItem = pullItem;
                 _putItem = putItem;
@@ -51,7 +51,7 @@ namespace Core.Character.Interface
                 return result != null;
             }
 
-            public bool TryPutItem(ItemInstance item)
+            public PutItemResult TryPutItem(ItemInstance item)
             {
                 if (!string.IsNullOrEmpty(_inventoryKey))
                 {
@@ -61,7 +61,7 @@ namespace Core.Character.Interface
                 {
                     return _itemsContainer.TryPutItem(item);
                 }
-                return _putItem?.Invoke(item)??false;
+                return _putItem?.Invoke(item)??PutItemResult.Fail;
             }
             
             
@@ -80,7 +80,7 @@ namespace Core.Character.Interface
         /// <param name="dragAndDropContainerView">UI View the items container</param>
         /// <param name="pullItem">method to pull item from entire container</param>
         /// <param name="putItem">method to put item to entire container</param>
-        public void RegisterContainerView(IDragAndDropContainer dragAndDropContainerView, Func<ItemInstance, float, ItemInstance> pullItem, Func<ItemInstance, bool> putItem)
+        public void RegisterContainerView(IDragAndDropContainer dragAndDropContainerView, Func<ItemInstance, float, ItemInstance> pullItem, Func<ItemInstance, PutItemResult> putItem)
         {
             _inventories[dragAndDropContainerView] = new DnDBindings(pullItem, putItem);
         }
@@ -90,21 +90,36 @@ namespace Core.Character.Interface
             _inventories.Remove(dragAndDropContainerView);
         }
 
-        public void DragAndDropPreformed(IDragAndDropContainer source, IDragAndDropContainer destination,
-            IReadOnlyList<IDraggable> items)
+        public void DragAndDropPreformed(DropEventData eventData, IDragAndDropContainer destination)
+        {
+            DragAndDropPreformed(eventData.Source, destination, eventData.Content);
+            if (eventData.Content.Count == 0)
+            {
+                eventData.Use();
+            }
+        }
+        public void DragAndDropPreformed(IDragAndDropContainer source, IDragAndDropContainer destination, List<IDraggableItem> items)
         {
             var sourceInventory = _inventories[source];
             var destinationInventory = _inventories[destination];
-            
-            foreach (var draggable in items)
+
+            for (int i = items.Count - 1; i >= 0; i--)
             {
-                var item = (ItemInstance)draggable.Entity;
-                if (sourceInventory.TryPullItem(item, item.Amount, out item))
+                var item = (ItemInstance)items[i];
+                if (!sourceInventory.TryPullItem(item, item.Amount, out item)) continue;
+                if (destinationInventory.TryPutItem(item) == PutItemResult.Fully)
                 {
-                    if (!destinationInventory.TryPutItem(item))
-                    {
-                        sourceInventory.TryPutItem(item);
-                    }
+                    items.RemoveAt(i);
+                    continue;
+                }
+                
+                if (item.IsEmpty)
+                {
+                    items.RemoveAt(i);
+                }
+                else
+                {
+                    sourceInventory.TryPutItem(item);
                 }
             }
         }

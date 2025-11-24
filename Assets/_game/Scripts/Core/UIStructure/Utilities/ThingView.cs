@@ -1,23 +1,18 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Core.UIStructure.Utilities
 {
-    public interface IDragCallbacks<TView>
+    public interface IDragCallbacks<in TView>
     {
         void OnChildDragStart(TView view, Vector2 position);
         void OnChildDragEnd(TView view);
         void OnChildDragContinue(TView view, Vector2 delta);
     }
-    public abstract class ThingView<T> : MonoBehaviour, ISelectionTarget, IMultipleSelectionTarget, IDraggable, IDragHandler, IBeginDragHandler, IEndDragHandler
+
+    public abstract class ThingView<T> : MonoBehaviour, ISelectionTarget, IMultipleSelectionTarget
     {
         private RectTransform _rectTransform;
-        private IDragCallbacks<ThingView<T>> _dragCallbacks;
-        private bool _isDragging;
-        public bool IsDragging => _isDragging;
-        public object Entity => Data;
-        public IDragAndDropContainer MyContainer { get; private set; }
 
         public RectTransform RectTransform
         {
@@ -27,15 +22,7 @@ namespace Core.UIStructure.Utilities
                 return _rectTransform;
             }
         }
-
-        public void SetContainer(IDragAndDropContainer container)
-        {
-            MyContainer = container;
-        }
-        public void SetDragCallbacks(IDragCallbacks<ThingView<T>> callbacks)
-        {
-            _dragCallbacks = callbacks;
-        }
+        
         public bool IsSelected { get; private set; }
         public abstract T Data { get; }
         public int Order => transform.GetSiblingIndex();
@@ -53,22 +40,5 @@ namespace Core.UIStructure.Utilities
         public abstract void SetData(T data);
         public abstract void RefreshView();
         public abstract void EmitSelection();
-        
-        public virtual void OnBeginDrag(PointerEventData eventData)
-        {
-            _dragCallbacks.OnChildDragStart(this, eventData.position);
-            _isDragging = true;
-        }
-
-        public virtual void OnEndDrag(PointerEventData eventData)
-        {
-            _dragCallbacks.OnChildDragEnd(this);
-            _isDragging = false;
-        }
-        
-        public virtual void OnDrag(PointerEventData eventData)
-        {
-            _dragCallbacks.OnChildDragContinue(this, eventData.delta);
-        }
     }
 }

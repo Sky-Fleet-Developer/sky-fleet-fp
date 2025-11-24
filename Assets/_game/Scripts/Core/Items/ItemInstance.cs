@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Trading;
+using Core.UIStructure.Utilities;
 using Core.Utilities;
 using UnityEditor;
 using UnityEngine;
 
 namespace Core.Items
 {
-    public class ItemInstance : IDisposable, IEquatable<ItemInstance>
+    public class ItemInstance : IDisposable, IEquatable<ItemInstance>, IDraggableItem
     {
         private ItemSign _sign;
         private float _amount;
@@ -17,13 +18,18 @@ namespace Core.Items
         public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[ItemProperty.IdentifiableInstance_Identifier].stringValue : null;
         public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
         public bool IsUnique => TryGetProperty(ItemSign.IdentifiableTag, out _);
-
+        public bool IsEmpty => _sign == null || _amount == 0;
+        int IDraggableItem.Order => IsContainer ? 1 : 0;
+        
         private static int _id = 0;
         private int _instanceId = _id++;
         private Action<string, string> _containerRegistrationCallback;
+        private Action<string> _unbindInventoryToContainerSettings;
         public ItemInstance(){}
-        public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback)
+        public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback,
+            Action<string> unbindInventoryToContainerSettings)
         {
+            _unbindInventoryToContainerSettings = unbindInventoryToContainerSettings;
             _containerRegistrationCallback = containerRegistrationCallback;
             _amount = amount;
             _sign = sign;
@@ -100,7 +106,7 @@ namespace Core.Items
             return Sign.GetSingleMass() * _amount;
         }
         
-        public ItemInstance Detach(float amountToDetach)
+        public ItemInstance Split(float amountToDetach)
         {
             if (Sign.HasTag(ItemSign.MassTag))
             {
@@ -113,7 +119,7 @@ namespace Core.Items
             }
 
             _amount -= amountToDetach;
-            var newInstance = new ItemInstance(_sign, amountToDetach, _containerRegistrationCallback);
+            var newInstance = new ItemInstance(_sign, amountToDetach, _containerRegistrationCallback, _unbindInventoryToContainerSettings);
             foreach (var property in _properties)
             {
                 if(property.name == ItemSign.IdentifiableTag) continue;
@@ -141,6 +147,7 @@ namespace Core.Items
 
         public void Dispose()
         {
+            if(IsContainer) _unbindInventoryToContainerSettings(Identifier);
             _sign = null;
         }
 

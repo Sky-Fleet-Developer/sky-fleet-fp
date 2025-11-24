@@ -13,12 +13,15 @@ namespace Runtime.Trading
         [Inject(Optional = true)] private BankSystem _bankSystem;
 
         public int Order => -1;
-        public void Deliver(ItemInstance item, IInventoryOwner destination)
+        public PutItemResult Deliver(ItemInstance item, IInventoryOwner destination)
         {
-            if (!IsCanDeliver(item.Sign, destination) || !_bankSystem.TryPutItem(destination.InventoryKey, item))
+            if (!IsCanDeliver(item.Sign, destination))
             {
-                throw new System.Exception("Can't put item to inventory");
+                return PutItemResult.Fail;
+                //throw new System.Exception("Can't put item to inventory");
             }
+
+            return _bankSystem.TryPutItem(destination.InventoryKey, item);
         }
 
         public bool IsCanDeliver(ItemSign item, IInventoryOwner destination)

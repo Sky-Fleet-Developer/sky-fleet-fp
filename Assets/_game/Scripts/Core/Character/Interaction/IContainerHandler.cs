@@ -8,7 +8,7 @@ namespace Core.Character.Interaction
     {
         float MaxVolume { get; }
         float VolumeRemains { get; }
-        bool TryPutItem(ItemInstance item);
+        PutItemResult TryPutItem(ItemInstance item);
         bool TryPullItem(ItemInstance item, float amount, out ItemInstance result);
         IEnumerable<ItemInstance> GetItems();
         void AddListener(IInventoryStateListener listener);

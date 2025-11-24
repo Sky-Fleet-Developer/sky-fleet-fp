@@ -95,20 +95,25 @@ namespace Core.Character.Stuff
             }
         }
 
-        public bool TryPutItem(ItemInstance item)
+        public PutItemResult TryPutItem(ItemInstance item)
         {
+            float amount = item.Amount;
             foreach (var slotCell in _slots)
             {
-                if (!slotCell.HasItem)
+                if (slotCell.HasItem) continue;
+                
+                var result = slotCell.TrySetItem(item);
+                if (result != PutItemResult.Fail)
                 {
-                    if (slotCell.TrySetItem(item))
+                    foreach (var listener in _listenersSlots)
                     {
-                        foreach (var listener in _listenersSlots)
-                        {
-                            listener.SlotFilled(slotCell);
-                        }
-                        return true;
+                        listener.SlotFilled(slotCell);
                     }
+                }
+
+                if (result == PutItemResult.Fully)
+                {
+                    return result;
                 }
             }
             
@@ -116,13 +121,14 @@ namespace Core.Character.Stuff
             {
                 if (slotCell.HasItem && slotCell.IsContainer)
                 {
-                    if (slotCell.TryPutItem(item))
+                    var result = slotCell.TryPutItem(item);
+                    if (result == PutItemResult.Fully)
                     {
-                        return true;
+                        return result;
                     }
                 }
             }
-            return false;
+            return amount == item.Amount ? PutItemResult.Fail : PutItemResult.Partly;
         }
         
         public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
@@ -162,7 +168,7 @@ namespace Core.Character.Stuff
                     }
                     if (slotCell.Item.Amount > amount)
                     {
-                        result = slotCell.Item.Detach(amount);
+                        result = slotCell.Item.Split(amount);
                         foreach (var listener in _listenersSlots)
                         {
                             listener.SlotReplaced(slotCell);

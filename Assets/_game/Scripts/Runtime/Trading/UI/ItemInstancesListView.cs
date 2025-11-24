@@ -5,7 +5,7 @@ using Core.UIStructure.Utilities;
 
 namespace Runtime.Trading.UI
 {
-    public class ItemInstancesListView : ThingsListView<ItemInstance, ItemInstanceView>, IInventoryStateListener
+    public class ItemInstancesListView : DraggableThingsListView<ItemInstance, ItemInstanceView>, IInventoryStateListener
     {
         /*public override void AddItem(ItemInstance item)
         {

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Core.UIStructure.Utilities
 {
-    public class DraggableView : MonoBehaviour
+    public class DraggablePreview : MonoBehaviour
     {
         private RectTransform _rectTransform;
 
@@ -12,9 +12,9 @@ namespace Core.UIStructure.Utilities
             _rectTransform = (RectTransform)transform;
         }
 
-        public void Align(IDraggable draggable)
+        public void Align(IDraggableView iDraggableView)
         {
-            var rtr = draggable.RectTransform;
+            var rtr = iDraggableView.RectTransform;
             var rightTopAngle = rtr.TransformPoint(rtr.rect.size);
             var leftBottomAngle = rtr.TransformPoint(-rtr.rect.size);
             var center = (rightTopAngle + leftBottomAngle) * 0.5f;

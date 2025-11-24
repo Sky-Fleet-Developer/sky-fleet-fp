@@ -10,7 +10,7 @@ namespace Runtime.Items
         
         public ItemInstance Create(ItemSign sign, float amount)
         {
-            var instance = new ItemInstance(sign, amount, _bankSystem.BindInventoryToContainerSettings);
+            var instance = new ItemInstance(sign, amount, _bankSystem.BindInventoryToContainerSettings, _bankSystem.UnbindInventoryToContainerSettings);
             return instance;
         }
     }

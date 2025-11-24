@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Configurations;
 using Core.Configurations.GoogleSheets;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace Core.Character.Stuff
@@ -12,7 +13,8 @@ namespace Core.Character.Stuff
     {
         private readonly char[] _combinationSeparators = new[] { '&', ' ' };
         [SerializeField] public string presetId;
-        [SerializeField] public string slotId;
+        [SerializeField] public string slotId; 
+        [SerializeField] public float maxCapacity;
         private string[] includeItemsTags;
         private string[] excludeItemsTags;
         [SerializeField] private TagCombination[] includeTags;
@@ -51,7 +53,7 @@ namespace Core.Character.Stuff
 
         public SlotCell ConvertToCell()
         {
-            return new SlotCell(slotId, includeTags, excludeTags);
+            return new SlotCell(slotId, includeTags, excludeTags, maxCapacity);
         }
     }
     [CreateAssetMenu(menuName = "SF/Configs/StuffSlots")]

@@ -12,9 +12,9 @@ using Zenject;
 
 namespace Runtime.Trading.UI
 {
-    public class SlotCellView : MonoBehaviour, IDragAndDropContainer, IInventoryStateListener, IDragCallbacks<ThingView<ItemInstance>>
+    public class SlotCellView : MonoBehaviour, IDragAndDropContainer, IInventoryStateListener, IDragCallbacks<DraggableThingView<ItemInstance>>
     {
-        [SerializeField] private ThingView<ItemInstance> thingView;
+        [SerializeField] private DraggableThingView<ItemInstance> thingView;
         [Inject] private DragAndDropService _dragAndDropService;
         [Inject] private DragAndDropItemsMediator _dragAndDropItemsMediator;
         [Inject] private DiContainer _diContainer;
@@ -26,7 +26,7 @@ namespace Runtime.Trading.UI
         private Transform _thingsListContainer;
         private IPullPutItem _itemsSource;
         private Vector2 _dragPosition;
-        private ThingView<ItemInstance>[] _draggableItemAsArray = new ThingView<ItemInstance>[1];
+        private DraggableThingView<ItemInstance>[] _draggableItemAsArray = new DraggableThingView<ItemInstance>[1];
         private bool _isDnDRegistered = false;
         public SlotCell Cell => _cell;
 
@@ -122,26 +122,12 @@ namespace Runtime.Trading.UI
 
         private void OnDropContentToThingsList(DropEventData eventData)
         {
-            eventData.Use();
-            _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, _thingsListView, eventData.Content);
+            _dragAndDropItemsMediator.DragAndDropPreformed(eventData, _thingsListView);
         }
 
         public void OnDropContent(DropEventData eventData)
         {
-            foreach (IDraggable draggable in eventData.Content)
-            {
-                if (ReferenceEquals(draggable.MyContainer, this))
-                {
-                    return;
-                }
-
-                if (draggable is ThingView<ItemInstance> itemView && !_cell.CanSetItem(itemView.Data))
-                {
-                    return;
-                }
-            }
-            eventData.Use();
-            _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, this, eventData.Content);
+            _dragAndDropItemsMediator.DragAndDropPreformed(eventData, this);
         }
 
         public void ItemAdded(ItemInstance item)
@@ -168,7 +154,7 @@ namespace Runtime.Trading.UI
             _cell = null;
         }
 
-        public void OnChildDragStart(ThingView<ItemInstance> view, Vector2 position)
+        public void OnChildDragStart(DraggableThingView<ItemInstance> view, Vector2 position)
         {
             _dragPosition = position;
             if (view.IsSelected)
@@ -181,12 +167,12 @@ namespace Runtime.Trading.UI
             }
         }
         
-        public void OnChildDragEnd(ThingView<ItemInstance> view)
+        public void OnChildDragEnd(DraggableThingView<ItemInstance> view)
         {
             _dragAndDropService.Drop();
         }
 
-        public void OnChildDragContinue(ThingView<ItemInstance> view, Vector2 delta)
+        public void OnChildDragContinue(DraggableThingView<ItemInstance> view, Vector2 delta)
         {
             _dragPosition += delta;
             _dragAndDropService.Move(_dragPosition);

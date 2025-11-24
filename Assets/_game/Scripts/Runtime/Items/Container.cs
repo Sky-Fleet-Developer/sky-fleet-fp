@@ -75,6 +75,7 @@ namespace Runtime.Items
     public class Container : MonoBehaviour, IContainerHandler, IInteractiveObject
     {
         [Inject] private BankSystem _bankSystem;
+        [Inject] private IMassAndVolumeCalculator _massAndVolumeCalculator;
         private string _inventoryKey;
         private IItemsContainerReadonly _inventory;
         private float _maxVolume;
@@ -93,18 +94,19 @@ namespace Runtime.Items
             _inventory = _bankSystem.GetOrCreateInventory(_inventoryKey);
         }
         
-        public bool TryPutItem(ItemInstance item)
+        public PutItemResult TryPutItem(ItemInstance item)
         {
             if (_containerInfo.IsItemMatch(item, _volumeEmployed))
             {
-                if (_bankSystem.TryPutItem(_inventoryKey, item))
+                var result = _bankSystem.TryPutItem(_inventoryKey, item);
+                if (result != PutItemResult.Fail)
                 {
-                    _volumeEmployed += item.GetVolume();
-                    return true;
+                    _volumeEmployed = _massAndVolumeCalculator.GetVolume(_bankSystem.GetOrCreateInventory(_inventoryKey));
                 }
+                return result;
             }
 
-            return false;
+            return PutItemResult.Fail;
         }
 
         public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)

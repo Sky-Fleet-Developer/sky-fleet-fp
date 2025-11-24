@@ -21,10 +21,10 @@ namespace Runtime.Trading
 
         public bool CanPutAnyItem => false;
 
-        public bool TryPutItem(ItemInstance item)
+        public PutItemResult TryPutItem(ItemInstance item)
         {
             Debug.LogError("You trying to put item inside trigger");
-            return false;
+            return PutItemResult.Fail;
         }
 
         public bool TryPullItem(ItemInstance item, float amount, out ItemInstance result)
@@ -37,7 +37,7 @@ namespace Runtime.Trading
 
             if (obj.SourceItem.Amount > amount)
             {
-                result = obj.SourceItem.Detach(amount);
+                result = obj.SourceItem.Split(amount);
                 foreach (var listener in _listeners)
                 {
                     listener.ItemMutated(obj.SourceItem);

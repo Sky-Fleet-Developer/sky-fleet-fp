@@ -39,6 +39,8 @@ namespace Core.Trading
         
         public void BindInventoryToContainerSettings(string inventoryKey, string containerId) => _containerBindings[inventoryKey] = _itemsTable.GetContainer(containerId);
 
+        public void UnbindInventoryToContainerSettings(string inventoryKey) => _containerBindings.Remove(inventoryKey);
+
         public IItemInstancesSource GetPullPutWarp(string inventoryKey) => new PullPutWarp(GetOrCreateInventory(inventoryKey), this);
 
         public void DissolveEmptyInventory(string inventoryKey)
@@ -76,7 +78,7 @@ namespace Core.Trading
             return handler.TryPullItem(item, amount, out result);
         }
        
-        public bool TryPutItem(string key, ItemInstance item)
+        public PutItemResult TryPutItem(string key, ItemInstance item)
         {
             var handler = GetOrCreateInventoryHandler(key);
             float volume = _massAndVolumeCalculator.GetVolume(handler);
@@ -84,7 +86,7 @@ namespace Core.Trading
             {
                 if (!containerInfo.IsItemMatch(item, volume))
                 {
-                    return false;
+                    return PutItemResult.Fail;
                 }
             }
             item.SetOwnership(key);
@@ -99,6 +101,7 @@ namespace Core.Trading
             var purchaser = deal.GetPurchaser();
             int paymentAmount = deal.GetPaymentAmount();
             if(!TryTakeCurrencyFromWallet(purchaser, paymentAmount)) return false;
+            int deliveredItemsCost = 0;
             foreach (var tradeItem in deal.GetPurchases())
             {
                 if (tradeItem.Item !=  null)
@@ -113,7 +116,18 @@ namespace Core.Trading
                         {
                             pulledItems.Add(result);
                             result.SetOwnership(purchaser.InventoryKey);
-                            tradeItem.GetDeliveryService().Deliver(result, purchaser);
+                            int cost = Mathf.FloorToInt(tradeItem.Cost * tradeItem.amount.Value + 0.5f);
+                            var deliverResult = tradeItem.GetDeliveryService().Deliver(result, purchaser);
+                            pulledItems.RemoveAt(pulledItems.Count - 1);
+                            if (deliverResult == PutItemResult.Fully)
+                            {
+                                deliveredItemsCost += cost;
+                                continue;
+                            }
+                            if (TryPutItem(seller.InventoryKey, result) != PutItemResult.Fully)
+                            {
+                                Debug.LogError($"Can't put item back: {result.Sign.Id} ({result.Amount})");
+                            }
                         }
                         else
                         {
@@ -134,7 +148,7 @@ namespace Core.Trading
                 foreach (ItemInstance item in pulledItems)
                 {
                     item.SetOwnership(seller.InventoryKey);
-                    if (!TryPutItem(seller.InventoryKey, item))
+                    if (TryPutItem(seller.InventoryKey, item) == PutItemResult.Fail)
                     {
                         Debug.LogError("Can't put item back");
                     }
@@ -142,7 +156,13 @@ namespace Core.Trading
 
                 return false;
             }
-            PutCurrencyToWallet(seller, paymentAmount);
+            PutCurrencyToWallet(seller, deliveredItemsCost);
+            int change = paymentAmount - deliveredItemsCost;
+            if (change > 0)
+            {
+                PutCurrencyToWallet(purchaser, change);
+            }
+
             return true;
         }
 
@@ -162,7 +182,6 @@ namespace Core.Trading
             }
 
             destination.Merge(disposable);
-            disposable.Dispose();
             return true;
         }
 

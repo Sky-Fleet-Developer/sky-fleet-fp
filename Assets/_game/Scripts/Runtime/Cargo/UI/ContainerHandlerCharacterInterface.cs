@@ -73,15 +73,14 @@ namespace Runtime.Cargo.UI
 
         private void OnDropContent(DropEventData eventData)
         {
-            foreach (IDraggable draggable in eventData.Content)
+            /*foreach (IDraggableItem draggable in eventData.Content)
             {
                 if (ReferenceEquals(draggable.MyContainer, this))
                 {
                     return;
                 }
-            }
-            eventData.Use();
-            _dragAndDropItemsMediator.DragAndDropPreformed(eventData.Source, itemInstancesListView, eventData.Content);
+            }*/
+            _dragAndDropItemsMediator.DragAndDropPreformed(eventData, itemInstancesListView);
         }
     }
 }

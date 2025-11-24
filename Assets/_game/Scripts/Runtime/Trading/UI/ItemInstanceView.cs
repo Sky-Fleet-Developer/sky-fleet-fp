@@ -11,7 +11,7 @@ using Zenject;
 
 namespace Runtime.Trading.UI
 {
-    public class ItemInstanceView : ThingView<ItemInstance>, IPointerClickHandler
+    public class ItemInstanceView : DraggableThingView<ItemInstance>, IPointerClickHandler
     {
         [SerializeField] private ItemSignView signView;
         [SerializeField] private TextMeshProUGUI amountLabel;

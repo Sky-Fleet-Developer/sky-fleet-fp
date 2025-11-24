@@ -18,10 +18,12 @@ namespace Core.Character.Stuff
         private TagCombination[] _excludeTags;
         private List<IInventoryStateListener> _listeners = new();
         private IItemsContainerReadonly _attachedInventory;
+        private float _maxCapacity;
         public string SlotId => _slotId;
-
-        public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags)
+        public float MaxCapacity => _maxCapacity;
+        public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags, float maxCapacity)
         {
+            _maxCapacity = maxCapacity;
             _slotId = slotId;
             _includeTags = includeTags;
             _excludeTags = excludeTags;
@@ -34,7 +36,7 @@ namespace Core.Character.Stuff
 
         public object Clone()
         {
-            var result = new SlotCell(_slotId, _includeTags, _excludeTags);
+            var result = new SlotCell(_slotId, _includeTags, _excludeTags, _maxCapacity);
             Assert.IsNull(result._content);
             return result;
         }
@@ -66,20 +68,29 @@ namespace Core.Character.Stuff
             
             foreach (var tag in _excludeTags)
             {
+                if (tag.IsEmpty)
+                {
+                    continue;
+                }
                 if (tag.IsItemMatch(content.Sign))
                 {
                     return false;
                 }
             }
+
+            /*if ((overrideAmount < 0 ? content.Amount : overrideAmount) > _maxCapacity)
+            {
+                return false;
+            }*/
+            
             return true;
         }
-        
-        public bool TrySetItem(ItemInstance content)
+
+        public PutItemResult TrySetItem(ItemInstance content)
         {
-            if (!CanSetItem(content)) return false;
-            if(_content == null && content == null) return true;
-            
-            bool itemWasNull = _content == null;
+            if (!CanSetItem(content)) return PutItemResult.Fail; // cant set item
+            if (_content == null && content == null) return PutItemResult.Fully; // already empty
+
             /*if (content == null)
             {
                 foreach (var listener in _listeners)
@@ -87,15 +98,56 @@ namespace Core.Character.Stuff
                     listener.ItemRemoved(_content);
                 }
             }*/
-            
-            _content = content;
+            if (_content != null && _content.Amount < _maxCapacity)
+            {
+                float countToFill = Mathf.Min(_maxCapacity - _content.Amount, content.Amount);
+                if (countToFill < content.Amount)
+                {
+                    var part = content.Split(countToFill);
+                    _bankSystem.TryMergeItems(_content, part);
+                    return PutItemResult.Partly; // input item is not empty
+                }
+                else
+                {
+                    _bankSystem.TryMergeItems(_content, content);
+                    return PutItemResult.Fully; // input item is empty
+                }
+            }
+            else if (_content == null && content.Amount > _maxCapacity)
+            {
+                var part = content.Split(_maxCapacity);
+                _content = part;
+                EnsureAttachedInventory();
+                return PutItemResult.Partly; // input item is not empty
+            }
+            else
+            {
+                _content = content;
+                EnsureAttachedInventory();
+                return PutItemResult.Fully; // input item set to our cell
+            }
 
+            /*foreach (var listener in _listeners)
+            {
+                if (itemWasNull)
+                {
+                    listener.ItemAdded(_content);
+                }
+                else
+                {
+                    listener.ItemRemoved(_content);
+                }
+            }*/
+        }
+
+        private void EnsureAttachedInventory()
+        {
             if (_content == null)
             {
                 _attachedInventory = null;
-                return true;
+                return;
             }
-            
+
             if (_attachedInventory != null) // remove listeners from old inventory
             {
                 foreach (var listener in _listeners)
@@ -103,7 +155,9 @@ namespace Core.Character.Stuff
                     _attachedInventory.RemoveListener(listener);
                 }
             }
-            if (_content.IsContainer && _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
+
+            if (_content.IsContainer &&
+                _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
                 _attachedInventory = _bankSystem.GetOrCreateInventory(identifiableProperty
                     .values[ItemProperty.IdentifiableInstance_Identifier].stringValue);
@@ -116,20 +170,6 @@ namespace Core.Character.Stuff
             {
                 _attachedInventory = null;
             }
-            
-            /*foreach (var listener in _listeners)
-            {
-                if (itemWasNull)
-                {
-                    listener.ItemAdded(_content);
-                }
-                else
-                {
-                    listener.ItemRemoved(_content);
-                }
-            }*/
-            
-            return true;
         }
 
         public IEnumerable<ItemInstance> GetItems()
@@ -171,11 +211,11 @@ namespace Core.Character.Stuff
         /// Put item to container inside of cell's item
         /// </summary>
         /// <returns>False when cant put item inside cell's item container or when cell's item has no container</returns>
-        public bool TryPutItem(ItemInstance item)
+        public PutItemResult TryPutItem(ItemInstance item)
         {
             if(_attachedInventory == null)
             {
-                return false;
+                return PutItemResult.Fail;
             }
             return _bankSystem.TryPutItem(_attachedInventory.Key, item);
         }

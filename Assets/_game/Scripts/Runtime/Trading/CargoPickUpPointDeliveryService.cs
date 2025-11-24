@@ -22,10 +22,11 @@ namespace Runtime.Trading
         private int _spawnCounter;
         public int Order => transform.GetSiblingIndex();
 
-        public void Deliver(ItemInstance item, IInventoryOwner destination)
+        public PutItemResult Deliver(ItemInstance item, IInventoryOwner destination)
         {
-            if(!IsCanDeliver(item.Sign, destination)) return;
+            if(!IsCanDeliver(item.Sign, destination)) return PutItemResult.Fail;
             LoadAndInstantiatePrefab(item, destination);
+            return PutItemResult.Fully;
         }
 
         public bool IsCanDeliver(ItemSign item, IInventoryOwner destination)

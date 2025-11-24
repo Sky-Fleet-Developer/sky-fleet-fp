@@ -30,7 +30,7 @@ namespace Core.Trading
                 _inventory.RemoveListener(listener);
             }
 
-            public bool TryPutItem(ItemInstance item)
+            public PutItemResult TryPutItem(ItemInstance item)
             {
                 return _bankSystem.TryPutItem(_inventory.Key, item);
             }

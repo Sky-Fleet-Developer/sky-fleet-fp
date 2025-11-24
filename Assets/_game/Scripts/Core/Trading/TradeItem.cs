@@ -1,14 +1,14 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Core.Items;
+using Core.UIStructure.Utilities;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Core.Trading
 {
-    public class TradeItem : IEquatable<TradeItem>, IDisposable
+    public class TradeItem : IEquatable<TradeItem>, IDisposable, IDraggableItem
     {
         public ReactiveProperty<float> amount = new();
         private ItemInstance _item;
@@ -21,6 +21,7 @@ namespace Core.Trading
         public IItemDeliveryService GetDeliveryService() => _deliveryService;
         public ITradeItemsSource GetSource() => _source;
         public bool IsConstantMass => Sign.HasTag(ItemSign.MassTag);
+        public int Order => Item.IsContainer ? 1 : 0;
 
         public TradeItem(ItemInstance itemInstance, float amount, int cost)
         {
@@ -86,7 +87,7 @@ namespace Core.Trading
             {
                 while (tradeItem.Amount > stackSize)
                 {
-                    yield return tradeItem.Detach(stackSize);
+                    yield return tradeItem.Split(stackSize);
                 }
                 yield return tradeItem;
             }

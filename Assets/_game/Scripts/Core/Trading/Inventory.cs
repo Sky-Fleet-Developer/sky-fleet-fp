@@ -56,20 +56,20 @@ namespace Core.Trading
             }
         }
 
-        bool IPullPutItem.TryPutItem(ItemInstance item)
+        PutItemResult IPullPutItem.TryPutItem(ItemInstance item)
         {
             for (var i = 0; i < _items.Count; i++)
             {
                 if (_bankSystem.TryMergeItems(item, _items[i]))
                 {
                     ItemMutated(_items[i]);
-                    return true;
+                    return PutItemResult.Fully;
                 }
             }
 
             _items.Add(item);
             ItemAdded(item);
-            return true;
+            return PutItemResult.Fully;
         }
 
         public IEnumerable<ItemInstance> GetItems()
@@ -110,7 +110,7 @@ namespace Core.Trading
                         }
                         else
                         {
-                            result = _items[i].Detach(amount);
+                            result = _items[i].Split(amount);
                             ItemMutated(_items[i]);
                         }
 

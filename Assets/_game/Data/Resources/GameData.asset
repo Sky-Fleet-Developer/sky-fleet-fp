@@ -557,13 +557,17 @@ MonoBehaviour:
   data:
   - presetId: character_slots
     slotId: bag
+    maxCapacity: 1
     includeTags:
     - tags:
       - equipable
-    excludeTags: []
+    excludeTags:
+    - tags: []
   - presetId: character_slots
     slotId: head
+    maxCapacity: 1
     includeTags:
     - tags:
       - equipable
-    excludeTags: []
+    excludeTags:
+    - tags: []
