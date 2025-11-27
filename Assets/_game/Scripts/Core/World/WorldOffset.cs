@@ -15,20 +15,20 @@ namespace Core.World
     {
         [ShowInInspector]
         public static Vector3 Offset { get; set; }
-
         public static event Action<Vector3> OnWorldOffsetChange;
         public static event Action<Vector3> OnWorldOffsetPreChanged;
 
         [SerializeField] private float limit = 1000;
         [SerializeField] private bool moveY = false;
         [Inject(Optional = true)] private IWorldOffsetHandler _worldOffsetHandler;
+        [Inject(Optional = true)] private Session _session;
         private Grid _grid;
         private Transform anchor;
         private bool _isEnabled = false;
         private bool _isManualControl = false;
         bool ILoadAtStart.enabled => enabled && _isEnabled;
 
-        private void Awake()
+        private void Start()
         {
             _isEnabled = gameObject.activeInHierarchy;
             gameObject.SetActive(false);
@@ -46,9 +46,9 @@ namespace Core.World
         {
             gameObject.SetActive(true);
             
-            if (Session.hasInstance)
+            if (_session.Player)
             {
-                anchor = Session.Instance.Player.transform;
+                anchor = _session.Player.transform;
             }
             else
             {

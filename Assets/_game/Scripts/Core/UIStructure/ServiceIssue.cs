@@ -10,17 +10,17 @@ using Zenject;
 
 namespace Core.UIStructure
 {
-    public class ServiceIssue : MonoInstaller, ILoadAtStart
+    public class ServiceIssue : MonoBehaviour, IMyInstaller, ILoadAtStart
     {
         public static ServiceIssue Instance;
         [SerializeField] private BearerCanvas bearerPrefab;
         [SerializeField] private List<Service> handMadeServices;
         [SerializeField] private List<Window> availableFrames;
-        private List<IService> availableServices = new List<IService>();
+        private List<IService> _availableServices = new List<IService>();
 
-        public override void InstallBindings()
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<ServiceIssue>().FromInstance(this);
+            container.Bind<ServiceIssue>().FromInstance(this);
         }
 
         public Task Load()
@@ -33,7 +33,7 @@ namespace Core.UIStructure
             {
                 Instance = this;
                 DontDestroyOnLoad(Instance);
-                availableServices.AddRange(handMadeServices);
+                _availableServices.AddRange(handMadeServices);
             }
 
             return Task.CompletedTask;
@@ -41,7 +41,7 @@ namespace Core.UIStructure
 
         public void AddService(params IService[] services)
         {
-            availableServices.AddRange(services);
+            _availableServices.AddRange(services);
         }
 
         public BearerCanvas CreateBearer()
@@ -127,7 +127,7 @@ namespace Core.UIStructure
 
         public IService GetServicePrefab(Func<IService, bool> selector)
         {
-            return availableServices.FirstOrDefault(selector);
+            return _availableServices.FirstOrDefault(selector);
         }
         
         public Window GetFramePrefab<T>() where T : Window

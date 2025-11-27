@@ -19,7 +19,7 @@ namespace Core.World
         
         public Vector3 GetPredictedWorldPosition(float time) => WorldPosition + _storedVelocity * time;
         private bool _isInitialized;
-        public void Start()
+        public void Awake()
         {
             _history = new Vector3[historyLength];
             _historyTimeMarks = new float[historyLength];

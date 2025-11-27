@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Core;
 using Core.Boot_strapper;
 using Core.Structure;
 using Core.Utilities;
@@ -21,7 +22,7 @@ using Random = UnityEngine.Random;
 
 namespace SphereWorld.Environment.Wind
 {
-    public class WindSimulation : MonoInstaller, ILoadAtStart
+    public class WindSimulation : MonoBehaviour, IMyInstaller, ILoadAtStart
     {
         //[SerializeField][Tooltip("can apply only power of two")] private int resolution;
         //[SerializeField] private int depth;
@@ -138,15 +139,16 @@ namespace SphereWorld.Environment.Wind
             }
         }
 
-        public override void InstallBindings()
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<RenderTexture>().WithId("_TexWindow").FromInstance(image);
-            Container.Bind<WindSimulation>().FromInstance(this);
+            _container = container;
+            container.Bind<RenderTexture>().WithId("_TexWindow").FromInstance(image);
+            container.Bind<WindSimulation>().FromInstance(this);
         }
 
         public void Initialize()
         {
-            _worldProfile = Container.Resolve<WorldProfile>();
+            _worldProfile = _container.Resolve<WorldProfile>();
             _atmosphereProfile = _worldProfile.GetChildAssets<AtmosphereProfile>().First();
             outputPressure.ClearKeys();
             for (float i = 0; i < _worldProfile.atmosphereDepthKilometers * 1000; i += 1000)
@@ -242,7 +244,8 @@ namespace SphereWorld.Environment.Wind
         }
         
         private IEnumerator _routine;
-        
+        private DiContainer _container;
+
         private void OnTick()
         {
             for (int i = 0; i < ticksPerFrame; i++)
