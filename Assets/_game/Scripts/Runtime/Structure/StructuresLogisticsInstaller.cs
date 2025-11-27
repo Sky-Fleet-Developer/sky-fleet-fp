@@ -1,24 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core;
 using Core.Structure;
 using Core.Structure.Serialization;
 using Core.World;
+using UnityEngine;
 using Zenject;
 
 namespace Runtime.Structure
 {
-    public class StructuresLogisticsInstaller : MonoInstaller
+    public class StructuresLogisticsInstaller : MonoBehaviour, IMyInstaller
     {
         private StructureFactory _structureFactory = new StructureFactory();
+        private DiContainer _container;
+
         [Inject]
         private void Inject()
         {
-            Container.Inject(_structureFactory);
+            _container.Inject(_structureFactory);
         }
         
-        public override void InstallBindings()
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<IStructureFactory>().FromInstance(_structureFactory);
+            _container = container;
+            _container.Bind<IStructureFactory>().FromInstance(_structureFactory);
         }
     }
 }

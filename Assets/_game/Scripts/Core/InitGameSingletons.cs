@@ -11,34 +11,37 @@ using Zenject;
 
 namespace Core
 {
-    public class InitGameSingletons : MonoInstaller, ILoadAtStart
+    public class InitGameSingletons : MonoBehaviour, IMyInstaller, ILoadAtStart
     {
         [SerializeField] private GameData gameData;
         [SerializeField] ScriptableObject[] injectTargets;
-        
+        private DiContainer _container;
+
         public Task Load()
         {
-            Container.Inject(CycleService.Instance);
+            _container.Inject(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
-                Container.Inject(injectTargets[i]);
+                _container.Inject(injectTargets[i]);
             }
             gameData.Initialize();
             return Task.CompletedTask;
         }
 
-        public override void InstallBindings()
+
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<CycleService>().FromInstance(CycleService.Instance);
+            _container = container;
+            _container.Bind<CycleService>().FromInstance(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
-                Container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
+                _container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
                 if (injectTargets[i] is IMyInstaller installer)
                 {
-                    installer.InstallBindings(Container);
+                    installer.InstallBindings(_container);
                 }
             }
-            gameData.InstallChildren(Container);
+            gameData.InstallChildren(_container);
         }
     }
 }

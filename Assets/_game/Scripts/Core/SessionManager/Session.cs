@@ -12,9 +12,9 @@ using UnityEngine.SceneManagement;
 
 namespace Core.SessionManager
 {
-    [DontDestroyOnLoad]
-    public class Session : Singleton<Session>
+    public class Session
     {
+        public static Session Instance { get; private set; }
         public SessionSettings Settings => settings;
         public ControlSettings Control => control;
 
@@ -29,9 +29,10 @@ namespace Core.SessionManager
 
         [ShowInInspector] private SaveLoadUtility saveLoadUtility = new SaveLoadUtility();
 
-        protected override void Setup()
+        public Session()
         {
             LoadSettings();
+            Instance = this;
             SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
         }
 
@@ -62,7 +63,7 @@ namespace Core.SessionManager
 
         private bool TryFindPlayer()
         {
-            Player = FindObjectOfType<FirstPersonController>();
+            Player = Object.FindObjectOfType<FirstPersonController>();
             return Player;
         }
         

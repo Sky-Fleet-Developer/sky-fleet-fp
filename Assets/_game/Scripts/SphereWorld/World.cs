@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
+using Core;
 using Core.Boot_strapper;
 using Core.Character;
 using Runtime.Character;
@@ -10,7 +12,7 @@ using Zenject;
 
 namespace SphereWorld
 {
-    public class World : MonoInstaller, ILoadAtStart
+    public class World : MonoBehaviour, IMyInstaller, ILoadAtStart
     {
         [SerializeField] private WorldProfile worldProfile;
         private List<WorldEntity> _entities = new();
@@ -18,21 +20,24 @@ namespace SphereWorld
         private Space _space;
         private TaskCompletionSource<bool> _loadCompletionSource;
         [Inject] private WindSimulation _windSimulation;
+        private DiContainer _container;
+
         [ShowInInspector, InlineProperty] private Polar? _mainAnchorCoordinates
         {
             get => _space?.Anchor?.Polar ?? null;
         }
         bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
 
-        public override void InstallBindings()
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<WorldProfile>().FromInstance(worldProfile);
+            _container = container;
+            container.Bind<WorldProfile>().FromInstance(worldProfile);
         }
         
         public Task Load()
         {
             _space = new Space(worldProfile.rigidPlanetRadiusKilometers);
-            Container.Inject(_space);
+            _container.Inject(_space);
             _loadCompletionSource = new TaskCompletionSource<bool>();
             SpawnPerson.OnPlayerWasLoaded.Subscribe(ContinueLoad);
             _windSimulation.OnSimulationTickComplete += OnSimulationTickComplete;

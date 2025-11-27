@@ -15,7 +15,7 @@ namespace Core.Trading
         public IItemsContainerMasterHandler CreateInventory(string key);
     }
     
-    public class InventoryFactory : MonoInstaller, IInventoryFactory
+    public class InventoryFactory : MonoBehaviour, IMyInstaller, IInventoryFactory
     {
         [Inject] private StuffSlotsTable _stuffSlotsTable;
         [Inject] private BankSystem _bankSystem;
@@ -35,9 +35,9 @@ namespace Core.Trading
             return inventory;
         }
 
-        public override void InstallBindings()
+        public void InstallBindings(DiContainer container)
         {
-            Container.Bind<IInventoryFactory>().To<InventoryFactory>().FromInstance(this);
+            container.Bind<IInventoryFactory>().To<InventoryFactory>().FromInstance(this);
         }
     }
 }
