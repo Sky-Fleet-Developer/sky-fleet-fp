@@ -100,6 +100,18 @@ VaryingsToDS UnpackVaryingsToDS(PackedVaryingsToDS input)
     return output;
 }
 
+VaryingsToDS InterpolateWithUVCoordsToDS(VaryingsToDS input0, VaryingsToDS input1, VaryingsToDS input2, VaryingsToDS input3, float2 uv)
+{
+    VaryingsToDS output;
+
+    output.vmesh = InterpolateWithUVCoordsMeshToDS(input0.vmesh, input1.vmesh, input2.vmesh, input3.vmesh, uv);
+    #ifdef VARYINGS_NEED_PASS
+    output.vpass = InterpolateWithUVCoordsPassToDS(input0.vpass, input1.vpass, input2.vpass, input3.vpass, uv);
+    #endif
+
+    return output;
+}
+
 VaryingsToDS InterpolateWithBaryCoordsToDS(VaryingsToDS input0, VaryingsToDS input1, VaryingsToDS input2, float3 baryCoords)
 {
     VaryingsToDS output;

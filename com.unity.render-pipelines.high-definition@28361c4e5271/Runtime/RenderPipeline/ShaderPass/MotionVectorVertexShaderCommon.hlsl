@@ -85,6 +85,16 @@ VaryingsPassToDS InterpolateWithBaryCoordsPassToDS(VaryingsPassToDS input0, Vary
 
     return output;
 }
+//#define TESSELLATION_INTERPOLATE_UV(name, uv) output.name = lerp(lerp(input0.name, input0.name, uv.x), lerp(input3.name, input2.name, uv.x), uv.y)
+
+VaryingsPassToDS InterpolateWithUVCoordsPassToDS(VaryingsPassToDS input0, VaryingsPassToDS input1, VaryingsPassToDS input2, VaryingsPassToDS input3, float2 uvCoords)
+{
+    VaryingsPassToDS output;
+
+    TESSELLATION_INTERPOLATE_UV(previousPositionRWS, uvCoords);
+
+    return output;
+}
 
 #endif // TESSELLATION_ON
 

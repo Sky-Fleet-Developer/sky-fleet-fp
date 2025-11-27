@@ -322,25 +322,59 @@ VaryingsMeshToDS InterpolateWithBaryCoordsMeshToDS(VaryingsMeshToDS input0, Vary
     TESSELLATION_INTERPOLATE_BARY(positionRWS, baryCoords);
     output.tessellationFactor = 0.0; // Not used, just to silent the shader compiler
     TESSELLATION_INTERPOLATE_BARY(normalWS, baryCoords);
-#ifdef VARYINGS_DS_NEED_TANGENT
+    #ifdef VARYINGS_DS_NEED_TANGENT
     // This will interpolate the sign but should be ok in practice as we may expect a triangle to have same sign (? TO CHECK)
     TESSELLATION_INTERPOLATE_BARY(tangentWS, baryCoords);
-#endif
-#ifdef VARYINGS_DS_NEED_TEXCOORD0
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD0
     TESSELLATION_INTERPOLATE_BARY(texCoord0, baryCoords);
-#endif
-#ifdef VARYINGS_DS_NEED_TEXCOORD1
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD1
     TESSELLATION_INTERPOLATE_BARY(texCoord1, baryCoords);
-#endif
-#ifdef VARYINGS_DS_NEED_TEXCOORD2
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD2
     TESSELLATION_INTERPOLATE_BARY(texCoord2, baryCoords);
-#endif
-#ifdef VARYINGS_DS_NEED_TEXCOORD3
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD3
     TESSELLATION_INTERPOLATE_BARY(texCoord3, baryCoords);
-#endif
-#ifdef VARYINGS_DS_NEED_COLOR
+    #endif
+    #ifdef VARYINGS_DS_NEED_COLOR
     TESSELLATION_INTERPOLATE_BARY(color, baryCoords);
-#endif
+    #endif
+
+    return output;
+}
+
+#define TESSELLATION_INTERPOLATE_UV(name, uv) output.name = lerp(lerp(input0.name, input1.name, uv.x), lerp(input3.name, input2.name, uv.x), uv.y)
+
+VaryingsMeshToDS InterpolateWithUVCoordsMeshToDS(VaryingsMeshToDS input0, VaryingsMeshToDS input1, VaryingsMeshToDS input2, VaryingsMeshToDS input3, float2 uvCoords)
+{
+    VaryingsMeshToDS output;
+
+    UNITY_TRANSFER_INSTANCE_ID(input0, output);
+
+    TESSELLATION_INTERPOLATE_UV(positionRWS, uvCoords);
+    output.tessellationFactor = 0.0; // Not used, just to silent the shader compiler
+    TESSELLATION_INTERPOLATE_UV(normalWS, uvCoords);
+    #ifdef VARYINGS_DS_NEED_TANGENT
+    // This will interpolate the sign but should be ok in practice as we may expect a triangle to have same sign (? TO CHECK)
+    TESSELLATION_INTERPOLATE_UV(tangentWS, uvCoords);
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD0
+    TESSELLATION_INTERPOLATE_UV(texCoord0, uvCoords);
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD1
+    TESSELLATION_INTERPOLATE_UV(texCoord1, uvCoords);
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD2
+    TESSELLATION_INTERPOLATE_UV(texCoord2, uvCoords);
+    #endif
+    #ifdef VARYINGS_DS_NEED_TEXCOORD3
+    TESSELLATION_INTERPOLATE_UV(texCoord3, uvCoords);
+    #endif
+    #ifdef VARYINGS_DS_NEED_COLOR
+    TESSELLATION_INTERPOLATE_UV(color, uvCoords);
+    #endif
 
     return output;
 }

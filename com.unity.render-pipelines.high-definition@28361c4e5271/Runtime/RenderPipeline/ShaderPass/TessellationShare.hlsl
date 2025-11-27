@@ -85,70 +85,77 @@ float4 GetTessellationFactors(float3 p0, float3 p1, float3 p2, float3 n0, float3
 
 struct TessellationFactors
 {
-    float edge[3] : SV_TessFactor;
-    float inside : SV_InsideTessFactor;
+    float edge[4] : SV_TessFactor;
+    float inside[2] : SV_InsideTessFactor;
 };
 
-TessellationFactors HullConstant(InputPatch<PackedVaryingsToDS, 3> input)
+TessellationFactors HullConstant()
 {
-    UNITY_SETUP_INSTANCE_ID(input[0].vmesh);
+    //UNITY_SETUP_INSTANCE_ID(input[0].vmesh);
 
-    VaryingsToDS varying0 = UnpackVaryingsToDS(input[0]);
-    VaryingsToDS varying1 = UnpackVaryingsToDS(input[1]);
-    VaryingsToDS varying2 = UnpackVaryingsToDS(input[2]);
+    //VaryingsToDS varying0 = UnpackVaryingsToDS(input[0]);
+    //VaryingsToDS varying1 = UnpackVaryingsToDS(input[1]);
+    //VaryingsToDS varying2 = UnpackVaryingsToDS(input[2]);
 
-    float3 p0 = varying0.vmesh.positionRWS;
-    float3 p1 = varying1.vmesh.positionRWS;
-    float3 p2 = varying2.vmesh.positionRWS;
-
-    float3 n0 = varying0.vmesh.normalWS;
-    float3 n1 = varying1.vmesh.normalWS;
-    float3 n2 = varying2.vmesh.normalWS;
+    //float3 p0 = varying0.vmesh.positionRWS;
+    //float3 p1 = varying1.vmesh.positionRWS;
+    //float3 p2 = varying2.vmesh.positionRWS;
+    //
+    //float3 n0 = varying0.vmesh.normalWS;
+    //float3 n1 = varying1.vmesh.normalWS;
+    //float3 n2 = varying2.vmesh.normalWS;
 
     // x - 1->2 edge
     // y - 2->0 edge
     // z - 0->1 edge
     // w - inside tessellation factor (calculate as mean of three in GetTessellationFactors())
-    float3 inputTessellationFactors;
+    //float3 inputTessellationFactors;
     // TessellatinFactor is evaluate in vertex shader
-    inputTessellationFactors.x = 0.5 * (varying1.vmesh.tessellationFactor + varying2.vmesh.tessellationFactor);
-    inputTessellationFactors.y = 0.5 * (varying2.vmesh.tessellationFactor + varying0.vmesh.tessellationFactor);
-    inputTessellationFactors.z = 0.5 * (varying0.vmesh.tessellationFactor + varying1.vmesh.tessellationFactor);
+    //inputTessellationFactors.x = 0.5 * (varying1.vmesh.tessellationFactor + varying2.vmesh.tessellationFactor);
+    //inputTessellationFactors.y = 0.5 * (varying2.vmesh.tessellationFactor + varying0.vmesh.tessellationFactor);
+    //inputTessellationFactors.z = 0.5 * (varying0.vmesh.tessellationFactor + varying1.vmesh.tessellationFactor);
 
-    float4 tf = GetTessellationFactors(p0, p1, p2, n0, n1, n2, inputTessellationFactors);
+    //float4 tf = float4(3,3,3,3);//GetTessellationFactors(p0, p1, p2, n0, n1, n2, inputTessellationFactors);
 
     TessellationFactors output;
-    output.edge[0] = min(tf.x, MAX_TESSELLATION_FACTORS);
-    output.edge[1] = min(tf.y, MAX_TESSELLATION_FACTORS);
-    output.edge[2] = min(tf.z, MAX_TESSELLATION_FACTORS);
-    output.inside  = min(tf.w, MAX_TESSELLATION_FACTORS);
+    output.edge[0] = _TessellationFactor;//min(tf.x, MAX_TESSELLATION_FACTORS);
+    output.edge[1] = _TessellationFactor;//min(tf.y, MAX_TESSELLATION_FACTORS);
+    output.edge[2] = _TessellationFactor;//min(tf.z, MAX_TESSELLATION_FACTORS);
+    output.edge[3] = _TessellationFactor;//min(tf.z, MAX_TESSELLATION_FACTORS);
+    output.inside[0] = _TessellationFactor;//min(tf.w, MAX_TESSELLATION_FACTORS);
+    output.inside[1] = _TessellationFactor;//min(tf.w, MAX_TESSELLATION_FACTORS);
 
     return output;
 }
 
 // ref: http://reedbeta.com/blog/tess-quick-ref/
 [maxtessfactor(MAX_TESSELLATION_FACTORS)]
-[domain("tri")]
-[partitioning("fractional_odd")]
+[domain("quad")]
+[partitioning("integer")]//fractional_odd
 [outputtopology("triangle_cw")]
 [patchconstantfunc("HullConstant")]
-[outputcontrolpoints(3)]
-PackedVaryingsToDS Hull(InputPatch<PackedVaryingsToDS, 3> input, uint id : SV_OutputControlPointID)
+[outputcontrolpoints(4)]
+PackedVaryingsToDS Hull(InputPatch<PackedVaryingsToDS, 4> input, uint id : SV_OutputControlPointID, uint pid : SV_PrimitiveID)
 {
     // Pass-through
     return input[id];
 }
 
-[domain("tri")]
-PackedVaryingsToPS Domain(TessellationFactors tessFactors, const OutputPatch<PackedVaryingsToDS, 3> input, float3 baryCoords : SV_DomainLocation)
+[domain("quad")]
+PackedVaryingsToPS Domain(TessellationFactors tessFactors, float2 uvCoords : SV_DomainLocation, const OutputPatch<PackedVaryingsToDS, 4> input)
 {
     UNITY_SETUP_INSTANCE_ID(input[0].vmesh);
 
     VaryingsToDS varying0 = UnpackVaryingsToDS(input[0]);
     VaryingsToDS varying1 = UnpackVaryingsToDS(input[1]);
     VaryingsToDS varying2 = UnpackVaryingsToDS(input[2]);
-
-    VaryingsToDS varying = InterpolateWithBaryCoordsToDS(varying0, varying1, varying2, baryCoords);
+    VaryingsToDS varying3 = UnpackVaryingsToDS(input[3]);
+    VaryingsToDS output = InterpolateWithUVCoordsToDS(varying0, varying1, varying2, varying3, uvCoords);
+    
+   #ifdef VARYINGS_DS_NEED_COLOR
+ output.vmesh.color.xy = uvCoords;
+    #endif
+    //output.vmesh.positionRWS += output.vmesh.normalWS * uvCoords.x;
 
     // We have Phong tessellation in all case where we don't have displacement only
 #ifdef _TESSELLATION_PHONG
@@ -170,8 +177,8 @@ PackedVaryingsToPS Domain(TessellationFactors tessFactors, const OutputPatch<Pac
 #endif
 
 #ifdef HAVE_TESSELLATION_MODIFICATION
-    varying.vmesh = ApplyTessellationModification(varying.vmesh, _TimeParameters.xyz);
+    output.vmesh = ApplyTessellationModification(output.vmesh, _TimeParameters.xyz);
 #endif
 
-    return VertTesselation(varying);
+    return VertTesselation(output);
 }

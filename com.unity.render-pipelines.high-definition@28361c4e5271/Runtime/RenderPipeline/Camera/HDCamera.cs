@@ -1778,7 +1778,7 @@ namespace UnityEngine.Rendering.HighDefinition
                         mpb.SetFloat(HDShaderIDs._BlitMipLevel, 0);
                         ctx.cmd.SetRenderTarget(data.tempTexture);
                         ctx.cmd.SetViewport(data.viewportSize);
-                        ctx.cmd.DrawProcedural(Matrix4x4.identity, data.blitMaterial, 0, MeshTopology.Triangles, 3, 1, mpb);
+                        ctx.cmd.DrawProcedural(Matrix4x4.identity, data.blitMaterial, 0, MeshTopology.Quads, 4, 1, mpb);
 
                         for (data.recorderCaptureActions.Reset(); data.recorderCaptureActions.MoveNext();)
                             data.recorderCaptureActions.Current(data.tempTexture, ctx.cmd);
