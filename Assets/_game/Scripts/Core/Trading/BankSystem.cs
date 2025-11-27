@@ -19,7 +19,7 @@ namespace Core.Trading
         [ShowInInspector] private IEnumerable<Wallet> CurrentWallets => _wallets.Values;
 #endif
         [Inject] private IInventoryFactory _inventoryFactory;
-        [Inject] private ShopTable _shopTable;
+        [Inject] private IShopDataSource _shopDataSource;
         [Inject] private ItemsTable _itemsTable;
         [Inject] private IItemInstanceFactory _itemInstanceFactory;
         [Inject] private IMassAndVolumeCalculator _massAndVolumeCalculator;
@@ -52,15 +52,15 @@ namespace Core.Trading
             }
         }
         
-        public void InitializeShop(string shopId, IInventoryOwner inventoryOwner)
+        public void InitializeShop(string shopId, string inventoryKey)
         {
-            if (_inventories.ContainsKey(inventoryOwner.InventoryKey))
+            if (_inventories.ContainsKey(inventoryKey))
             {
                 return;
             }
-            if (_shopTable.TryGetSettings(shopId, out ShopSettings settings))
+            if (_shopDataSource.TryGetSettings(shopId, out ShopSettings settings))
             {
-                var inventory = GetOrCreateInventoryHandler(inventoryOwner.InventoryKey);
+                var inventory = GetOrCreateInventoryHandler(inventoryKey);
                 foreach (var itemSign in _itemsTable.GetItems())
                 {
                     if (settings.IsItemMatch(itemSign))

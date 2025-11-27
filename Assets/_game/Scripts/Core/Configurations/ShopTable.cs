@@ -27,6 +27,17 @@ namespace Core.Configurations
         [SerializeField] private TagCombination[] includeTags;
         [SerializeField] private TagCombination[] excludeTags;
 
+        public ShopSettings(){}
+
+        /// <summary>
+        /// For tests only
+        /// </summary>
+        public ShopSettings(string id)
+        {
+            this.id = id;
+            includeTags = new []{new TagCombination{tags = new []{"all"}}};
+        }
+
         public void Postprocess()
         {
             includeTags = new TagCombination[includeItemsTags.Length];
@@ -142,8 +153,9 @@ namespace Core.Configurations
 
         public IEnumerable<CostRule> GetSellCostRules() => costRulesProcessed;
     }
+
     [CreateAssetMenu(menuName = "SF/Configs/Shops")]
-    public class ShopTable : Table<ShopSettings>
+    public class ShopTable : Table<ShopSettings>, IShopDataSource
     {
         public override string TableName => "Shop";
         [SerializeField] private ShopSettings[] data;

@@ -4,10 +4,10 @@ using Core.Trading;
 
 namespace Core.Configurations
 {
-    [Serializable]
     /// <summary>
     /// "OR" operator for item search
     /// </summary> 
+    [Serializable]
     public struct TagCombination
     {
         public string[] tags;
@@ -18,7 +18,7 @@ namespace Core.Configurations
             {
                 if (!item.HasTag(tags[i]))
                 {
-                    return false;
+                    return tags[i] == "all";
                 }
             }
             return true;

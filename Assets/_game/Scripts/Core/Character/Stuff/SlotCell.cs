@@ -33,6 +33,7 @@ namespace Core.Character.Stuff
         public ItemInstance Item => _content;
         public bool IsContainer => _attachedInventory != null;
         public string ContainerKey => _attachedInventory.Key;
+        public bool IsFilledFully => _content != null && _content.Amount >= _maxCapacity;
 
         public object Clone()
         {

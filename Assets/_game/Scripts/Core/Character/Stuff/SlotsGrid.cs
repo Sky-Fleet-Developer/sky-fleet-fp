@@ -14,6 +14,7 @@ namespace Core.Character.Stuff
         private string _inventoryKey;
         private SlotCell[] _slots;
         private List<ISlotsGridListener> _listenersSlots = new ();
+        private List<IInventoryStateListener> _inventoryListeners = new ();
 
         public string Key => _inventoryKey;
         public bool IsEmpty => !_slots.Any(x => x.HasItem);
@@ -77,10 +78,13 @@ namespace Core.Character.Stuff
             _inventoryKey = null;
             _listenersSlots.Clear();
             _listenersSlots = null;
+            _inventoryListeners.Clear();
+            _inventoryListeners = null;
         }
 
         public void AddListener(IInventoryStateListener listener)
         {
+            _inventoryListeners.Add(listener);
             foreach (var slotCell in _slots)
             {
                 slotCell.AddListener(listener);
@@ -89,6 +93,7 @@ namespace Core.Character.Stuff
 
         public void RemoveListener(IInventoryStateListener listener)
         {
+            _inventoryListeners.Remove(listener);
             foreach (var slotCell in _slots)
             {
                 slotCell.RemoveListener(listener);
@@ -100,7 +105,7 @@ namespace Core.Character.Stuff
             float amount = item.Amount;
             foreach (var slotCell in _slots)
             {
-                if (slotCell.HasItem) continue;
+                if (slotCell.IsFilledFully) continue;
                 
                 var result = slotCell.TrySetItem(item);
                 if (result != PutItemResult.Fail)
@@ -108,6 +113,17 @@ namespace Core.Character.Stuff
                     foreach (var listener in _listenersSlots)
                     {
                         listener.SlotFilled(slotCell);
+                    }
+                    foreach (var listener in _inventoryListeners)
+                    {
+                        if (result == PutItemResult.Fully)
+                        {
+                            listener.ItemAdded(slotCell.Item);
+                        }
+                        else
+                        {
+                            listener.ItemMutated(slotCell.Item);
+                        }
                     }
                 }
 
@@ -164,6 +180,11 @@ namespace Core.Character.Stuff
                         {
                             listener.SlotEmptied(slotCell);
                         }
+
+                        foreach (var listener in _inventoryListeners)
+                        {
+                            listener.ItemRemoved(result);
+                        }
                         return true;
                     }
                     if (slotCell.Item.Amount > amount)
@@ -172,6 +193,10 @@ namespace Core.Character.Stuff
                         foreach (var listener in _listenersSlots)
                         {
                             listener.SlotReplaced(slotCell);
+                        }
+                        foreach (var listener in _inventoryListeners)
+                        {
+                            listener.ItemMutated(result);
                         }
                         return true;
                     }

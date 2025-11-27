@@ -47,7 +47,7 @@ namespace Runtime.Trading
                     _diContainer.Inject(_deliveryServices[i]);
                 }
 
-                _bankSystem.InitializeShop(shopId, this);
+                _bankSystem.InitializeShop(shopId, shopId);
                 if (!_shopTable.TryGetSettings(shopId, out _shopSettings))
                 {
                     Debug.LogError($"Shop {shopId} does not exists!");
