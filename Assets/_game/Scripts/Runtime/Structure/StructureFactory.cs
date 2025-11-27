@@ -84,7 +84,7 @@ namespace Runtime.Structure
 #if UNITY_EDITOR
                 instance = PrefabUtility.InstantiatePrefab(source.transform) as Transform;
 #else
-                instance = Object.Instantiate(source.transform, runtimeInfo.parent);
+                instance = Object.Instantiate(source.transform);
 #endif
             }
 

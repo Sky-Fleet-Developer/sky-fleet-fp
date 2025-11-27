@@ -13,6 +13,7 @@ using UnityEditor;
 using UnityEngine;
 using Zenject;
 
+#if UNITY_EDITOR
 namespace WorldEditor
 {
     public class LocationContentEditor : EditorWindow
@@ -368,3 +369,4 @@ namespace WorldEditor
         }
     }
 }
+#endif

@@ -155,6 +155,7 @@ namespace SphereWorld.Environment.Wind
                 outputPressure.AddKey(keyframe);
             }
 
+            #if UNITY_EDITOR
             for (int i = 0; i < outputPressure.keys.Length; i++)
             {
                 AnimationUtility.SetKeyLeftTangentMode(outputPressure, i,
@@ -162,6 +163,7 @@ namespace SphereWorld.Environment.Wind
                 AnimationUtility.SetKeyRightTangentMode(outputPressure, i,
                     AnimationUtility.TangentMode.Auto);
             }
+            #endif
             
             MakeParticlesBuffer();
             if (!image)

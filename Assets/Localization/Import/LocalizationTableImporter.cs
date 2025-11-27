@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using Core.Configurations.GoogleSheets;
 using Sirenix.OdinInspector;
@@ -67,3 +68,4 @@ namespace Localization.Import
         }
     }
 }
+#endif

@@ -8,6 +8,7 @@ using Core.World;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 namespace WorldEditor
 {
     public class EditorStructureFactory : IStructureFactory
@@ -87,3 +88,4 @@ namespace WorldEditor
         }
     }
 }
+#endif

@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 namespace WorldEditor
 {
     public class DynamicPositionFromCamera : IDynamicPositionProvider
@@ -33,3 +34,4 @@ namespace WorldEditor
         }
     }
 }
+#endif

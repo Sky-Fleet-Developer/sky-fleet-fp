@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
-using UnityEditor;
 using UnityEngine;
 
 namespace Core.Items
@@ -35,7 +34,7 @@ namespace Core.Items
             _sign = sign;
             if (sign.HasTag(ItemSign.IdentifiableTag))
             {
-                var guid = GUID.Generate().ToString();
+                var guid = Guid.NewGuid().ToString();
                 _properties.Add(new ItemProperty{name = ItemSign.IdentifiableTag, values = new []{new ItemPropertyValue{stringValue = guid}}});
                 if(IsContainer)
                 {
