@@ -15,15 +15,19 @@ namespace Core
     {
         [SerializeField] private GameData gameData;
         [SerializeField] ScriptableObject[] injectTargets;
-        private DiContainer _container;
 
-        public Task Load()
+        [Inject]
+        private void Inject(DiContainer container)
         {
-            _container.Inject(CycleService.Instance);
+            container.Inject(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
-                _container.Inject(injectTargets[i]);
+                container.Inject(injectTargets[i]);
             }
+        }
+        
+        public Task Load()
+        {
             gameData.Initialize();
             return Task.CompletedTask;
         }
@@ -31,17 +35,16 @@ namespace Core
 
         public void InstallBindings(DiContainer container)
         {
-            _container = container;
-            _container.Bind<CycleService>().FromInstance(CycleService.Instance);
+            container.Bind<CycleService>().FromInstance(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
-                _container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
+                container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);
                 if (injectTargets[i] is IMyInstaller installer)
                 {
-                    installer.InstallBindings(_container);
+                    installer.InstallBindings(container);
                 }
             }
-            gameData.InstallChildren(_container);
+            gameData.InstallChildren(container);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Runtime.Trading
         string IWalletOwner.WalletKey => shopId;
 
         //public event Action ItemsChanged;
-        [Inject(Optional = true)] private ShopTable _shopTable;
+        [Inject(Optional = true)] private IShopDataSource _shopTable;
         [Inject(Optional = true)] private BankSystem _bankSystem;
         [Inject] private DiContainer _diContainer;
         private ItemInstanceToTradeAdapter _inventoryTradeAdapter;

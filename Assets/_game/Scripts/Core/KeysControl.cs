@@ -19,12 +19,23 @@ namespace Core
         private List<Request> requests;
 
         private LinkedList<KeyToRequest> clearKeysQueue;
+        private bool _isActive;
+        bool ILoadAtStart.enabled => _isActive;
+
+        private void Start()
+        {
+            if(_isActive) return;
+            _isActive = true;
+            gameObject.SetActive(false);
+        }
 
         public Task Load()
         {
+            _isActive = true;
             Hot = new HotKeys();
             requests = new List<Request>();
             clearKeysQueue = new LinkedList<KeyToRequest>();
+            gameObject.SetActive(true);
             return Task.CompletedTask;
         }
 

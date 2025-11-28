@@ -64,6 +64,22 @@ MonoBehaviour:
       - container
     excludeTags:
     - tags: []
+  - id: test_shop
+    costRulesProcessed: []
+    buyoutCostRulesProcessed:
+    - value: 0.5
+      tags:
+        tags:
+        - All
+    includeTags:
+    - tags:
+      - mass
+    - tags:
+      - resizable
+    - tags:
+      - liquid
+    excludeTags:
+    - tags: []
 --- !u!114 &-4455120187770695450
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ namespace Core.Trading
 {
     public class ItemInstanceToTradeAdapter : IInventoryStateListener, ITradeItemsSource, IDisposable
     {
-        [Inject] private ShopTable _shopTable;
+        [Inject] private IShopDataSource _shopDataSource;
         [Inject] private BankSystem _bankSystem;
         private TradeKind _kind;
         private IItemInstancesSource _itemsSource;
@@ -30,7 +30,7 @@ namespace Core.Trading
 
         public void Initialize()
         {
-            if (!_shopTable.TryGetSettings(_sourceShop, out _shopSettings))
+            if (!_shopDataSource.TryGetSettings(_sourceShop, out _shopSettings))
             {
                 Debug.LogError($"Shop {_sourceShop} does not exists!");
             }
@@ -155,7 +155,7 @@ namespace Core.Trading
         public void Dispose()
         {
             _itemsSource.RemoveListener(this);
-            _shopTable = null;
+            _shopDataSource = null;
             _bankSystem = null;
             _itemsSource = null;
             _shopSettings = null;

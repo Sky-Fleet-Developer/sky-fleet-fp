@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
@@ -13,6 +14,7 @@ namespace Core
 {
     public class Bootstrapper
     {
+        private static Bootstrapper _bootstrapper;
         public static LateEvent OnLoadComplete = new LateEvent();
 
         private const string GameSceneName = "GameScene";
@@ -21,30 +23,37 @@ namespace Core
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Main()
         {
-            var bootstrapper = new Bootstrapper();
-            bootstrapper.Run();
+            _bootstrapper = new Bootstrapper();
+            _bootstrapper.Run();
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnStateChanged;
             void OnStateChanged(PlayModeStateChange state)
             {
                 if (state == PlayModeStateChange.ExitingPlayMode)
                 {
-                    bootstrapper.Stop();
+                    _bootstrapper.Stop();
+                    _bootstrapper = null;
+                    EditorApplication.playModeStateChanged -= OnStateChanged;
                 }
             }
 #endif
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void ForceRunInBackground()
-        {
-            Application.runInBackground = true;
-            Application.backgroundLoadingPriority = ThreadPriority.High;
-        }
-
         private DiContainer _projectContainer;
         private Session _sessionContext;
+        private bool _controlledManually;
 
+        #region Tests
+        // Needs to control by Tests
+        public static Bootstrapper TakeManualControl()
+        {
+            _bootstrapper._controlledManually = true;
+            _bootstrapper.Stop();
+            return _bootstrapper;
+        }
+        
+        #endregion
+        
         private void Run()
         {
             Debug.Log("Bootstrapper running");
@@ -65,6 +74,10 @@ namespace Core
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            if (_controlledManually)
+            {
+                return;
+            }
             var sceneContextContainer = _projectContainer.CreateSubContainer();
             /*if (scene.name == GameSceneName)
             {
@@ -76,7 +89,7 @@ namespace Core
             RunServicesAsync(scene).Forget();
         }
 
-        private void InstallScene(Scene scene, DiContainer container)
+        public void InstallScene(Scene scene, DiContainer container)
         {
             foreach (var entry in scene.GetRootGameObjects().OrderBy(x => x.transform.GetSiblingIndex()))
             {
@@ -117,7 +130,7 @@ namespace Core
             }
         }
 
-        private async UniTask RunServicesAsync(Scene scene)
+        public async UniTask RunServicesAsync(Scene scene)
         {
             foreach (var entry in scene.GetRootGameObjects().OrderBy(x => x.transform.GetSiblingIndex()))
             {

@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetDirectory: 10x10-8x8
   material: {fileID: 2100000, guid: 8c7157b6424ca0b4fa88c766adc1682e, type: 2}
-  chunkSize: 3600
+  chunkSize: 1800
   height: 5250
   heightmapResolution: 256
   alphamapResolution: 257

@@ -271,6 +271,16 @@ namespace Core.Trading
             walletSource.SaveWallet(wallet);
         }
         
+        // For testing
+        internal Wallet TestCreateWallet(string key, int currency) => _wallets[key] = new Wallet(key, currency);
+
+        internal void TestDeleteInventory(string key)
+        {
+            _inventories[key].Dispose();
+            _inventories.Remove(key);
+        }
+        internal void TestDeleteWallet(string key) => _wallets.Remove(key);
+        
         #if UNITY_EDITOR
         [Button]
         private void ClearWalletsCache()

@@ -36,7 +36,14 @@ namespace Core.Data
         {
             foreach (var child in children)
             {
-                container.Bind(child.GetType()).FromInstance(child);
+                if(child is IMyInstaller installer)
+                {
+                    installer.InstallBindings(container);
+                }
+                else
+                {
+                    container.Bind(child.GetType()).FromInstance(child);
+                }
             }
         }
 

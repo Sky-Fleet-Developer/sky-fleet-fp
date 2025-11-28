@@ -8,7 +8,7 @@ namespace Core.Trading
 {
     public class TradeDeal : IDisposable
     {
-        [Inject] private BankSystem _bankSystem;
+        private BankSystem _bankSystem;
         private List<TradeItem> _itemsToPurchase;
         private ITradeParticipant _seller;
         private ITradeParticipant _purchaser;
@@ -16,8 +16,9 @@ namespace Core.Trading
         public ITradeParticipant GetPurchaser() => _purchaser;
         public ITradeParticipant GetSeller() => _seller;
         
-        public TradeDeal(ITradeParticipant purchaser, ITradeParticipant seller)
+        public TradeDeal(ITradeParticipant purchaser, ITradeParticipant seller, BankSystem bankSystem)
         {
+            _bankSystem = bankSystem;
             _purchaser = purchaser;
             _seller = seller;
             _itemsToPurchase = new();

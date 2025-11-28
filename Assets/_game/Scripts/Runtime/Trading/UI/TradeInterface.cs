@@ -120,8 +120,8 @@ namespace Runtime.Trading.UI
             _interactionState = ((FirstPersonController.UIInteractionState)_master.TargetState);
             _handler = (ITradeHandler)_interactionState.Handler;
             _handler.AddListener(sellerItemsView);
-            _purchase = new TradeDeal(_interactionState.Master, _handler);
-            _sell = new TradeDeal(_handler, _interactionState.Master);
+            _purchase = new TradeDeal(_interactionState.Master, _handler, _bankSystem);
+            _sell = new TradeDeal(_handler, _interactionState.Master, _bankSystem);
             _container.Inject(_purchase);
             _container.Inject(_sell);
             _sellerDeliverySettings = new ProductDeliverySettings(_interactionState.Master, _handler.GetDeliveryServices());
@@ -201,13 +201,13 @@ namespace Runtime.Trading.UI
         {
             if (_bankSystem.TryMakeDeal(_sell))
             {
-                _sell = new TradeDeal(_handler, _interactionState.Master);
+                _sell = new TradeDeal(_handler, _interactionState.Master, _bankSystem);
                 _container.Inject(_sell);
                 myItemsView.SetItems(_myInventoryAdapter.GetTradeItems().Concat(_cargoZoneItemsSource.GetTradeItems()));
             }
             if (_bankSystem.TryMakeDeal(_purchase))
             {
-                _purchase = new TradeDeal(_interactionState.Master, _handler);
+                _purchase = new TradeDeal(_interactionState.Master, _handler, _bankSystem);
                 _container.Inject(_purchase);
                 sellerItemsView.SetItems(_handler.GetTradeItems());
             }

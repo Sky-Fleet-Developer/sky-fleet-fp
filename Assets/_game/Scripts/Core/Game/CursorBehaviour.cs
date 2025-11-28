@@ -14,6 +14,15 @@ namespace Core.Game
         public static bool RotationLocked;
         public IState CurrentState { get; set; }
         public event Action StateChanged;
+        private bool _isActive;
+        bool ILoadAtStart.enabled => _isActive;
+
+        private void Start()
+        {
+            if (_isActive) return;
+            _isActive = true;
+            gameObject.SetActive(false);
+        }
 
         public void SetStatePrivate(IState value)
         {
@@ -22,7 +31,9 @@ namespace Core.Game
 
         public Task Load()
         {
+            _isActive = true;
             Instance = this;
+            gameObject.SetActive(true);
             CurrentState = new FreeCursorState(this);
             return Task.CompletedTask;
         }

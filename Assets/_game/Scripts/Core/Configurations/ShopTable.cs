@@ -7,6 +7,7 @@ using Core.Items;
 using Core.Trading;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Zenject;
 
 namespace Core.Configurations
 {
@@ -155,7 +156,7 @@ namespace Core.Configurations
     }
 
     [CreateAssetMenu(menuName = "SF/Configs/Shops")]
-    public class ShopTable : Table<ShopSettings>, IShopDataSource
+    public class ShopTable : Table<ShopSettings>, IMyInstaller, IShopDataSource
     {
         public override string TableName => "Shop";
         [SerializeField] private ShopSettings[] data;
@@ -176,6 +177,11 @@ namespace Core.Configurations
         {
             _dictionary ??= data.ToDictionary(v => v.Id);
             return _dictionary.TryGetValue(id, out settings);
+        }
+
+        public void InstallBindings(DiContainer container)
+        {
+            container.Bind<IShopDataSource>().FromInstance(this).AsSingle();
         }
     }
 }

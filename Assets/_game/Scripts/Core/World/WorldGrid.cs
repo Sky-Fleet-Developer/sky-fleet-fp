@@ -48,6 +48,15 @@ namespace Core.World
         private List<Vector3Int> _coordinatesCache = new ();
         private int _refreshCounter;
         private int _refreshNeighboursRadius;
+        private bool _isActive;
+        bool ILoadAtStart.enabled => _isActive;
+
+        private void Start()
+        {
+            if (_isActive) return;
+            _isActive = true;
+            gameObject.SetActive(false);
+        }
 
         public Task SetProfile(WorldGridProfile value)
         {
@@ -55,9 +64,11 @@ namespace Core.World
             return RefreshGrid();
         }
         
-        public Task Load()
+        public async Task Load()
         {
-            return RefreshGrid();
+            _isActive = true;
+            gameObject.SetActive(true);
+            await RefreshGrid();
         }
         
         public void AddEntity(IWorldEntity entity)
