@@ -461,7 +461,7 @@ namespace Core.Character
         {
             private InteractionState _prevState;
             private ICharacterHandler _handler;
-            private bool _canMove;
+            //private bool _canMove;
             private bool _rotationLocked;
             public ICharacterHandler Handler => _handler;
 
@@ -469,8 +469,8 @@ namespace Core.Character
             {
                 _handler = handler;
                 _prevState = prevState;
-                _canMove = Master.CanMove;
-                Master.CanMove = false;
+                //_canMove = Master.CanMove;
+               // Master.CanMove = false;
                 _rotationLocked = CursorBehaviour.RotationLocked;
                 CursorBehaviour.UnlockCursor();
                 CursorBehaviour.RotationLocked = true;
@@ -480,7 +480,7 @@ namespace Core.Character
             {
                 CursorBehaviour.RotationLocked = _rotationLocked;
                 CursorBehaviour.LockCursor();
-                Master.CanMove = _canMove;
+                //Master.CanMove = _canMove;
                 Master.CurrentState = _prevState;
             }
         }

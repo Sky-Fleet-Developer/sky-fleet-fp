@@ -40,11 +40,12 @@ namespace Core.Trading.Tests
             bank.TestCreateWallet(TestCostumer, initialBalance);
             var deal = CreateTradeDeal(bank, TradeKind.Sell);
 
-            var itemsAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestShop), TradeKind.Sell);
+            ItemInstanceToTradeAdapter shopAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestShop), TradeKind.Sell);
             for (int i = 0; i < items.Length; i++)
             {
-                AddItemToPurchase(items[i], amounts[i], itemsAdaptor, deal);
+                AddItemToPurchase(items[i], amounts[i], shopAdaptor, deal);
             }
+            ItemInstanceToTradeAdapter costumerAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestCostumer), TradeKind.Buyout);
 
             try
             {
@@ -60,7 +61,8 @@ namespace Core.Trading.Tests
             }
             finally
             {
-                itemsAdaptor.Dispose();
+                shopAdaptor.Dispose();
+                costumerAdaptor.Dispose();
                 deal.Dispose();
                 bank.TestDeleteInventory(TestCostumer);
                 bank.TestDeleteInventory(TestShop);
@@ -81,35 +83,39 @@ namespace Core.Trading.Tests
             bank.TestCreateWallet(TestCostumer, 5000);
             var deal = CreateTradeDeal(bank, TradeKind.Sell);
 
-            var itemsAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestShop), TradeKind.Sell);
-            MyContext.MyContainer.Inject(itemsAdaptor);
-            itemsAdaptor.Initialize();
+            var shopAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestShop), TradeKind.Sell);
+            
             for (int i = 0; i < items.Length; i++)
             {
-                AddItemToPurchase(items[i], amounts[i], itemsAdaptor, deal);
+                AddItemToPurchase(items[i], amounts[i], shopAdaptor, deal);
             }
             
             var shopInventory = bank.GetOrCreateInventory(TestShop);
             Dictionary<ItemInstance, float> initialItemAmounts = shopInventory.GetItems().ToDictionary(x => x, x => x.Amount);
-            
+            ItemInstanceToTradeAdapter costumerAdaptor = null;
+
             try
             {
                 bank.TryMakeDeal(deal);
-                deal.Dispose();
-                deal = CreateTradeDeal(bank, TradeKind.Buyout);
-                
+                costumerAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestCostumer), TradeKind.Buyout);
+
                 float sold = -1;
+                int failsCount = 0;
                 while (sold != 0)
                 {
-                    itemsAdaptor.Dispose();
-                    itemsAdaptor = CreateTradeAdaptor(bank, bank.GetPullPutWarp(TestCostumer), TradeKind.Buyout);
+                    deal.Dispose();
+                    deal = CreateTradeDeal(bank, TradeKind.Buyout);
+                    
                     sold = 0;
                     for (int i = 0; i < items.Length; i++)
                     {
-                        sold += AddItemToPurchase(items[i], -1, itemsAdaptor, deal);
+                        sold += AddItemToPurchase(items[i], -1, costumerAdaptor, deal);
                     }
 
-                    bank.TryMakeDeal(deal);
+                    if (!bank.TryMakeDeal(deal))
+                    {
+                        if(failsCount++ > 10) Assert.Fail();
+                    }
                 }
 
                 var costumerInventory = bank.GetOrCreateInventory(TestCostumer);
@@ -126,7 +132,8 @@ namespace Core.Trading.Tests
             }
             finally
             {
-                itemsAdaptor.Dispose();
+                shopAdaptor.Dispose();
+                costumerAdaptor!.Dispose();
                 deal.Dispose();
                 bank.TestDeleteInventory(TestCostumer);
                 bank.TestDeleteInventory(TestShop);

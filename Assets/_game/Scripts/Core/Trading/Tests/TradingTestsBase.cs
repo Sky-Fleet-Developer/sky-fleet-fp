@@ -41,7 +41,7 @@ namespace Core.Trading.Tests
             {
                 if (tradeItem.Sign.Id == itemId)
                 {
-                    if (!Mathf.Approximately(amount, -1))
+                    if (Mathf.Approximately(amount, -1))
                     {
                         amount = tradeItem.amount.Value;
                     }

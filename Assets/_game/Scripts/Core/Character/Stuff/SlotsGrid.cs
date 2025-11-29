@@ -106,17 +106,24 @@ namespace Core.Character.Stuff
             foreach (var slotCell in _slots)
             {
                 if (slotCell.IsFilledFully) continue;
-                
+                bool isSlotWasEmpty = !slotCell.HasItem;
                 var result = slotCell.TrySetItem(item);
                 if (result != PutItemResult.Fail)
                 {
                     foreach (var listener in _listenersSlots)
                     {
-                        listener.SlotFilled(slotCell);
+                        if (isSlotWasEmpty)
+                        {
+                            listener.SlotFilled(slotCell);
+                        }
+                        else
+                        {
+                            listener.SlotReplaced(slotCell);
+                        }
                     }
                     foreach (var listener in _inventoryListeners)
                     {
-                        if (result == PutItemResult.Fully)
+                        if (isSlotWasEmpty)
                         {
                             listener.ItemAdded(slotCell.Item);
                         }
