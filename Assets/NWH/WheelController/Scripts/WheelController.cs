@@ -2,6 +2,7 @@ using NWH.Common.Vehicles;
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Profiling;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -379,7 +380,9 @@ namespace NWH.WheelController3D
 
             wheel.CheckForWheelDimensionChange();
 
+            Profiler.BeginSample("WheelController.Step.FindTheHitPoint");
             _isGrounded = FindTheHitPoint();
+            Profiler.EndSample();
 
             bool bottomMeshColliderEnabled = false;
 
@@ -435,10 +438,10 @@ namespace NWH.WheelController3D
             direction.y = -_transformUp.y;
             direction.z = -_transformUp.z;
 
-            SetColliderLayersToIgnore();
+            //SetColliderLayersToIgnore();
             bool hasHit = _groundDetection.WheelCast(origin, direction, length, wheel.radius, wheel.width,
                 ref wheelHit, layerMask);
-            ResetColliderLayers();
+            //ResetColliderLayers();
 
             if (hasHit)
             {
