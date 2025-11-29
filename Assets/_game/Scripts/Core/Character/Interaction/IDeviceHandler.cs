@@ -1,6 +1,8 @@
-﻿namespace Core.Structure.Rigging
+﻿using Core.Structure.Rigging;
+
+namespace Core.Character.Interaction
 {
-    public interface IInteractiveDevice : IInteractiveObject
+    public interface IDeviceHandler : ICharacterHandler
     {
         void MoveValueInteractive(float val);
         void ExitControl();

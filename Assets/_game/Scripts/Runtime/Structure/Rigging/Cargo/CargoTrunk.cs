@@ -373,12 +373,14 @@ namespace Runtime.Structure.Rigging.Cargo
             DetachPrivate();
         }
 
-        public bool EnableInteraction => true;
-        public Transform Root => transform;
-        public bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            data = string.Empty;
-            return true;
+            if (data.used)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
     }
 }

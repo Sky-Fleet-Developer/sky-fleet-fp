@@ -122,7 +122,8 @@ namespace Core
                 }
                 if (entry.name.Contains("[Translator]"))
                 {
-                    foreach (var monoBehaviour in entry.GetComponentsInChildren<MonoBehaviour>().OrderBy(x => x.transform.GetSiblingIndex()))
+                    foreach (var monoBehaviour in entry.GetComponentsInChildren<MonoBehaviour>().OrderBy(x => 
+                                 x.transform.GetSiblingIndex()))
                     {
                         container.Inject(monoBehaviour);
                     }

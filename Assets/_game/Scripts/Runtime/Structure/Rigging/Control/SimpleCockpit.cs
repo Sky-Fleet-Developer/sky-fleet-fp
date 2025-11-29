@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control
 {
-    public class SimpleCockpit : BlockWithNode, IDriveInterface, IUpdatableBlock
+    public class SimpleCockpit : BlockWithNode, IDriveInterface, IUpdatableBlock, IInteractiveObject
     {
         public int GetAttachedControllersCount => isUnderControl ? 1 : 0;
 
@@ -70,19 +70,15 @@ namespace Runtime.Structure.Rigging.Control
                 controlElement.Tick();
             }
         }
-        public bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            if (isUnderControl)
+            if (isUnderControl || data.used || !canAttachController || data.Level != InteractLevel.Primary)
             {
-                data = GameData.Data.controlFailText;
-                return false;
+                return;
             }
-            data = string.Empty;
-            if (!canAttachController)
-            {
-                return false;
-            }
-            return true;
+            
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
         
         void IDriveInterface.OnCharacterEnter(ICharacterController character)
@@ -124,8 +120,5 @@ namespace Runtime.Structure.Rigging.Control
                 GUILayout.Label($"<size=25>Speed: {dynamic.Velocity.magnitude * 3.6f : 000.0}km/h</size>");
             }
         }
-
-        public bool EnableInteraction => IsActive;
-        public Transform Root { get; }
     }
 }

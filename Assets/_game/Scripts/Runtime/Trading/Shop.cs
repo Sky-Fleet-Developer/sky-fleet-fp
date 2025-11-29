@@ -21,7 +21,7 @@ namespace Runtime.Trading
         [SerializeField] private string shopId;
         [SerializeField] private ItemsTrigger itemsTrigger;
         public bool EnableInteraction => IsActive;
-        public Transform Root => transform;
+        public Transform MyTransform => transform;
         string IInventoryOwner.InventoryKey => shopId;
         string IWalletOwner.WalletKey => shopId;
 
@@ -111,10 +111,14 @@ namespace Runtime.Trading
             return _shopSettings.GetBuyoutCost(itemInstance);
         }
 
-        public bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            data = string.Empty;
-            return true;
+            if (data.used || data.KeyModifier != KeyModifier.Up)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
 
         public void ItemAdded(TradeItem item, TradeKind kind)

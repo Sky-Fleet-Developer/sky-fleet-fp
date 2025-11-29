@@ -21,6 +21,7 @@ using Runtime.Character;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Zenject;
 using InputAxis = Core.Data.GameSettings.InputAxis;
 
@@ -44,6 +45,7 @@ namespace Core.Character
         [FoldoutGroup("View")] public float verticalBorders;
         [SerializeField] private CharacterDragObjectsSettings dragObjectsSettings;
         private NearObjectsScanner _nearObjectsScanner;
+        private RaycastHit _lastPointerHit;
         
         public event Action StateChanged;
 
@@ -197,6 +199,9 @@ namespace Core.Character
 
         public class InteractionState : IState<FirstPersonController>
         {
+            private float _pressDownTime;
+            private Vector2 _mouseDelta;
+            private bool _isInteractionPressed;
             public FirstPersonController Master { get; }
             public InteractionState(FirstPersonController master)
             {
@@ -213,53 +218,49 @@ namespace Core.Character
 
             public virtual void LateUpdate()
             {
-                Ray ray;
-                if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
-                
-                if (StructureRaycaster.Cast(ray, out StructureHit hit))
+                _mouseDelta += (Vector2)Input.mousePositionDelta;
+                if (!_isInteractionPressed && Input.GetButtonDown("Interaction"))
                 {
-                    if (hit.CharacterHandler == null)
-                    {
-                        if (hit.InteractiveObject is IInteractiveDynamicObject interactiveDynamicObject && Master._attachedIIDriveInterface == null)
-                        {
-                            if (Input.GetButtonDown("Interaction") || Input.GetKeyDown(KeyCode.Mouse0))
-                            {
-                                if (interactiveDynamicObject.RequestInteractive(Master, out _))
-                                {
-                                    SwitchToDynamic(interactiveDynamicObject, hit.RaycastHit);
-                                }
-                            }
-                        }
-                        return;
-                    }
-
-                    if (Master._attachedIIDriveInterface == null)
-                    {
-                        if (hit.InteractiveObject.RequestInteractive(Master, out _))
-                        {
-                            //TODO: write text to HUD
-                            if (Input.GetButtonDown("Interaction"))
-                            {
-                                Master.EnterHandler(hit.CharacterHandler);
-                                return;
-                            }
-                        }
-                    }
-
-                    if (!CursorBehaviour.RotationLocked) return;
-
-                    if(hit.InteractiveObject == null) return;
-
-                    if (Input.GetKey(KeyCode.Mouse0))
-                    {
-                        if (hit.InteractiveObject.EnableInteraction && hit.InteractiveObject is IInteractiveDevice device)
-                        {
-                            SwitchToDevice(device);
-                            return;
-                        }
-                    }
+                    _pressDownTime = Time.time;
+                    _mouseDelta = Vector2.zero;
+                    _isInteractionPressed = true;
+                    InteractCast(InteractLevel.Primary, KeyModifier.Down);
+                    return;
                 }
+                else if (Input.GetButton("Interaction"))
+                {
+                    InteractCast(InteractLevel.Primary, KeyModifier.Hold);
+                    return;
+                }
+                else if (_isInteractionPressed && Input.GetButtonUp("Interaction"))
+                {
+                    _isInteractionPressed = false;
+                    InteractCast(InteractLevel.Primary, KeyModifier.Up);
+                    return;
+                }
+
+                if (!CursorBehaviour.RotationLocked)
+                {
+                    return;
+                }
+                
+                if (!_isInteractionPressed && Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    _pressDownTime = Time.time;
+                    _mouseDelta = Vector2.zero;
+                    _isInteractionPressed = true;
+                    InteractCast(InteractLevel.Secondary, KeyModifier.Down);
+                }
+                else if (Input.GetKey(KeyCode.Mouse0))
+                {
+                    InteractCast(InteractLevel.Secondary, KeyModifier.Hold);
+                }
+                else if (_isInteractionPressed && Input.GetKeyUp(KeyCode.Mouse0))
+                {
+                    _isInteractionPressed = false;
+                    InteractCast(InteractLevel.Secondary, KeyModifier.Up);
+                }
+
                 /*Master._nearObjectsScanner.ScanThisFrame(Master.transform.position);
                 float cosineA = 0.5f;
                 IItemObject nearest = null;
@@ -277,40 +278,40 @@ namespace Core.Character
                 {
                     if (Input.GetButtonDown("Interaction"))
                     {
-                        
+
                     }
                 }*/
+            }
+
+            private void InteractCast(InteractLevel interactLevel, KeyModifier keyModifier)
+            {
+                Ray ray;
+                if (CursorBehaviour.RotationLocked) ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                else ray = new Ray(Master.cameraRoot.position, Master.cameraRoot.forward);
+                
+                if (!Physics.Raycast(ray, out RaycastHit raycastHit, GameData.Data.interactionDistance, GameData.Data.rayScanLayer) || raycastHit.collider.gameObject.layer != GameData.Data.interactiveLayerIndex)
+                {
+                    return;
+                }
+                
+                Master._lastPointerHit = raycastHit;
+
+                InteractEventData interactEventData = new InteractEventData(Master, interactLevel, keyModifier, _pressDownTime, _mouseDelta, EventSystem.current);
+                
+                ExecuteEvents.ExecuteHierarchy<IInteractiveObject>(raycastHit.collider.gameObject, interactEventData,
+                    (a, b) => a.Interact((InteractEventData)b));
             }
 
             public virtual void Run()
             {
                 
             }
-
-            private void SwitchToDevice(IInteractiveDevice device)
-            {
-                /*switch (device)
-                {
-                    case ControlAxis axis:
-                        Debug.Log("Select device " + axis.computerInput);
-                        Master.CurrentState = new ControlAxisState(Master, axis, this);                        
-                        break;
-                }*/
-                Master.CurrentState = new ControlAxisState(Master, device, this);                        
-            }
-
-            private void SwitchToDynamic(IInteractiveDynamicObject interactiveDynamicObject, RaycastHit hitInfo)
-            {
-                Master.CurrentState = new InteractWithDynamicObjectState(interactiveDynamicObject, hitInfo, Master, this);                     
-
-            }
         }
         
         public class InteractWithDynamicObjectState : FreeWalkState
         {
-            private IInteractiveDynamicObject _target;
+            private IDragAndDropObjectHandler _target;
             private InteractionState _lastState;
-            private RaycastHit _initialHitInfo;
             private Vector3 _localHitPoint;
             private float _distance;
             private Vector3 _wantedPoint;
@@ -321,9 +322,8 @@ namespace Core.Character
             public float PullTension => _pullTension;
             private bool _initialized;
 
-            public InteractWithDynamicObjectState(IInteractiveDynamicObject target, RaycastHit initialHitInfo, FirstPersonController master, InteractionState lastState) : base(master)
+            public InteractWithDynamicObjectState(IDragAndDropObjectHandler target, RaycastHit initialHitInfo, FirstPersonController master, InteractionState lastState) : base(master)
             {
-                _initialHitInfo = initialHitInfo;
                 _lastState = lastState;
                 _target = target;
                 _localHitPoint = target.Rigidbody.transform.InverseTransformPoint(initialHitInfo.point);
@@ -397,16 +397,15 @@ namespace Core.Character
                 Master.CurrentState = _lastState;
                 _lastState = null;
                 _target = null;
-                _initialHitInfo = default;
             }
         }
         
         private class ControlAxisState : InteractionState
         {
             private InteractionState lastState;
-            private IInteractiveDevice _device;
+            private IDeviceHandler _device;
 
-            public ControlAxisState(FirstPersonController master, IInteractiveDevice device, InteractionState lastState) : base(master)
+            public ControlAxisState(FirstPersonController master, IDeviceHandler device, InteractionState lastState) : base(master)
             {
                 _device = device;
                 this.lastState = lastState;
@@ -482,6 +481,10 @@ namespace Core.Character
                 CursorBehaviour.LockCursor();
                 //Master.CanMove = _canMove;
                 Master.CurrentState = _prevState;
+            }
+
+            public override void LateUpdate()
+            {
             }
         }
         
@@ -673,6 +676,12 @@ namespace Core.Character
                     break;
                 case IPickUpHandler pickUpHandler:
                     pickUpHandler.PickUpTo(this);
+                    break;
+                case IDragAndDropObjectHandler dragAndDropObjectHandler:
+                    CurrentState = new InteractWithDynamicObjectState(dragAndDropObjectHandler, _lastPointerHit, this, (InteractionState)CurrentState);       
+                    break;
+                case IDeviceHandler deviceHandler:
+                    CurrentState = new ControlAxisState(this, deviceHandler, (InteractionState)CurrentState);                        
                     break;
             }
         }

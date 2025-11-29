@@ -46,8 +46,6 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             throw new System.NotImplementedException();
         }
 
-        public override bool EnableInteraction => false;
-
         public override Port<float> Port => port;
         private Port<float> port = new (PortType.Signal);
     }

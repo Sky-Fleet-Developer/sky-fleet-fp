@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Core.Character;
+using Core.Character.Interaction;
 using Core.Graph;
 using Core.Graph.Wires;
 using Sirenix.OdinInspector;
@@ -49,21 +50,22 @@ namespace Core.Structure.Rigging.Control.Attributes
         }
     }
 
-    public abstract class DeviceBase<T> : DeviceBase, IDeviceWithPort where T : Port
+    public abstract class DeviceBase<T> : DeviceBase, IDeviceWithPort, IDeviceHandler where T : Port
     {
         public abstract void MoveValueInteractive(float val);
         public abstract void ExitControl();
-
-        IDriveInterface IInteractiveDevice.Block => (IDriveInterface)base.Block;
+        IDriveInterface IDeviceHandler.Block => (IDriveInterface)base.Block;
         public abstract T Port { get; }
         Port IPortUser.GetPort() => Port;
         string IPortUser.GetName() => name;
-        public virtual bool EnableInteraction => true;
-        public Transform Root => transform;
-        public virtual bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            data = string.Empty;
-            return true;
+            if (data.used)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
     }
 }

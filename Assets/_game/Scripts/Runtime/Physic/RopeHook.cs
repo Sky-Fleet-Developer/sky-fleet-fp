@@ -1,10 +1,11 @@
 ﻿using Core.Character;
+using Core.Character.Interaction;
 using Core.Structure.Rigging;
 using UnityEngine;
 
 namespace Runtime.Physic
 {
-    public class RopeHook : MonoBehaviour, IInteractiveDynamicObject
+    public class RopeHook : MonoBehaviour, IDragAndDropObjectHandler, IInteractiveObject
     {
         [SerializeField] private Rope rope;
         [SerializeField] private Vector3 connectedAnchor;
@@ -64,21 +65,23 @@ namespace Runtime.Physic
             }*/
         }
 
-        public bool EnableInteraction => gameObject.activeInHierarchy && enabled;
-        public Transform Root => transform;
-        public bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            data = string.Empty;
-            return true;
+            if (data.used)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
-        Rigidbody IInteractiveDynamicObject.Rigidbody => _rigidbody;
-        bool IInteractiveDynamicObject.MoveTransitional => true;
-        void IInteractiveDynamicObject.StartPull()
+        Rigidbody IDragAndDropObjectHandler.Rigidbody => _rigidbody;
+        bool IDragAndDropObjectHandler.MoveTransitional => true;
+        void IDragAndDropObjectHandler.StartPull()
         {
             _connectionStateOnStartPull = rope.IsConnected;
         }
 
-        bool IInteractiveDynamicObject.ProcessPull(float tension)
+        bool IDragAndDropObjectHandler.ProcessPull(float tension)
         {
             if (rope.IsConnected)
             {

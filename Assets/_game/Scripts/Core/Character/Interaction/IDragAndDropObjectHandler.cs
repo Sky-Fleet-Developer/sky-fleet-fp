@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Core.Structure.Rigging
+namespace Core.Character.Interaction
 {
-    public interface IInteractiveDynamicObject : IInteractiveObject
+    public interface IDragAndDropObjectHandler : ICharacterHandler
     {
         Rigidbody Rigidbody { get; }
         bool MoveTransitional { get; }

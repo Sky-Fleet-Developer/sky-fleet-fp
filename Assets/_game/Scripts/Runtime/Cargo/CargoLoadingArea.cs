@@ -30,7 +30,7 @@ namespace Runtime.Cargo
 
         public IEnumerable<ITablePrefab> AvailableCargo => _detectedCargo.Keys;
         public bool EnableInteraction => IsActive;
-        public Transform Root => transform;
+        public Transform MyTransform => transform;
 
         public IEnumerable<ICargoTrunk> AvailableTrunks
         {
@@ -76,10 +76,14 @@ namespace Runtime.Cargo
             return false;
         }
         
-        public bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            data = "Cargo loading service";
-            return true;
+            if (data.used)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
         
         private void OnTriggerEnter(Collider other)

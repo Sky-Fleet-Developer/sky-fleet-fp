@@ -60,7 +60,5 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         {
             throw new System.NotImplementedException();
         }
-
-        public override bool EnableInteraction => false;
     }
 }

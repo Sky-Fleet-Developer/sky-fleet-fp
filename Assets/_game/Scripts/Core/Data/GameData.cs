@@ -65,7 +65,6 @@ namespace Core.Data
         public int interactiveLayerIndex;
         public float interactionDistance = 1f;
         public int maxCollidersToScan = 20;
-        public string controlFailText = "Control is already used";
         [Header("Physics")]
         public LayerMask walkableLayer;
         public LayerMask terrainLayer;

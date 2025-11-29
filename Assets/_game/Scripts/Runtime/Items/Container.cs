@@ -134,12 +134,14 @@ namespace Runtime.Items
             _inventory.RemoveListener(listener);
         }
 
-        public bool EnableInteraction => true;
-        public Transform Root => transform;
-        public bool RequestInteractive(ICharacterController character, out string data)
+        public void Interact(InteractEventData data)
         {
-            data = string.Empty;
-            return true;
+            if (data.used || data.KeyModifier != KeyModifier.Up || data.IsLongPress)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
 
         public float GetMass()

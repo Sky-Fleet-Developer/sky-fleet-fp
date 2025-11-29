@@ -1,15 +1,15 @@
-﻿using Core.Character;
+﻿using Core.Character.Interaction;
 using Core.Structure.Rigging;
 using Runtime.Items;
 using UnityEngine;
 
 namespace Runtime.Physic
 {
-    public class InteractiveDynamicObject : MonoBehaviour, IInteractiveDynamicObject
+    public class InteractiveDynamicObject : MonoBehaviour, IDragAndDropObjectHandler, IInteractiveObject
     {
         [SerializeField] private float disruptionTension = 2;
         [SerializeField] private bool moveTransitional;
-        private Rigidbody _rigidbody;
+        private Rigidbody _rigidbody; //rigidbody can be destroyed on containers attached to vehicle
 
         protected virtual void Awake()
         {
@@ -19,16 +19,25 @@ namespace Runtime.Physic
                 itemObject.OnItemInitialized.Subscribe(() => _rigidbody.mass = itemObject.SourceItem.GetMass());
             }
         }
-
-        public bool EnableInteraction => gameObject.activeInHierarchy && enabled;
-        public Transform Root => transform;
-        public bool RequestInteractive(ICharacterController character, out string data)
+        
+        public void Interact(InteractEventData data)
         {
-            data = string.Empty;
-            return true;
+            if (data.used || data.KeyModifier == KeyModifier.Down || data.MouseDelta.magnitude < 10)
+            {
+                return;
+            }
+            data.Controller.EnterHandler(this);
+            data.Use();
         }
 
-        public Rigidbody Rigidbody => _rigidbody;
+        public Rigidbody Rigidbody
+        {
+            get
+            {
+                if (!_rigidbody) _rigidbody = GetComponent<Rigidbody>();
+                return _rigidbody;
+            }
+        }
         public bool MoveTransitional => moveTransitional;
         public void StartPull()
         {
