@@ -14,7 +14,11 @@ namespace Core.World
     public class WorldOffset : MonoBehaviour, ILoadAtStart, IMyInstaller, WorldOffset.IWorldOffsetHandler
     {
         [ShowInInspector]
-        public static Vector3 Offset { get; set; }
+        public static Vector3 Offset
+        {
+            get; 
+            set; 
+        }
         public static event Action<Vector3> OnWorldOffsetChange;
         public static event Action<Vector3> OnWorldOffsetPreChanged;
 

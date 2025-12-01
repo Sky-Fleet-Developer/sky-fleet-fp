@@ -22,8 +22,9 @@ namespace Core
         private bool _isActive;
         bool ILoadAtStart.enabled => _isActive;
 
-        private void Start()
+        protected override void Awake()
         {
+            base.Awake();
             if(_isActive) return;
             _isActive = true;
             gameObject.SetActive(false);

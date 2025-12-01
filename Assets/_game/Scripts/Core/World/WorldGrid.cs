@@ -48,10 +48,10 @@ namespace Core.World
         private List<Vector3Int> _coordinatesCache = new ();
         private int _refreshCounter;
         private int _refreshNeighboursRadius;
-        private bool _isActive;
+        private bool _isActive = true;
         bool ILoadAtStart.enabled => _isActive;
 
-        private void Start()
+        private void Awake()
         {
             if (_isActive) return;
             _isActive = true;

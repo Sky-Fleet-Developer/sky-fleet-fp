@@ -98,11 +98,11 @@ namespace WorldEditor
             diContainer.Inject(_locationInstaller);
             diContainer.Inject(_worldGrid);
             diContainer.Inject(_worldSpace);
-            diContainer.Inject(_terrainProvider);
+            if(_terrainProvider) diContainer.Inject(_terrainProvider);
             diContainer.Inject(_itemObjectFactory);
             _worldOffsetHandler = diContainer.TryResolve<WorldOffset.IWorldOffsetHandler>();
             _worldOffsetHandler?.TakeControl();
-            _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
+            if(_terrainProvider) _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
 
             _worldGrid.Load();
             
@@ -194,9 +194,12 @@ namespace WorldEditor
             if (!_terrainProvider)
             {
                 Debug.LogError("TerrainProvider is not found");
-                return false;
+                //return false;
             }
-            _terrainProvider.InstallBindings(diContainer);
+            else
+            {
+                _terrainProvider.InstallBindings(diContainer);
+            }
             return true;
         }
 
@@ -342,13 +345,16 @@ namespace WorldEditor
         private async Task LoadProcess(RectInt rangeSettings)
         {
             await _chunksSet.SetRange(rangeSettings);
-            if (rangeSettings.size != Vector2Int.zero)
+            if (_terrainProvider)
             {
-                await _terrainProviderHandler.LoadPropsForCurrentPosition();
-            }
-            else
-            {
-                await _terrainProviderHandler.Unload();
+                if (rangeSettings.size != Vector2Int.zero)
+                {
+                    await _terrainProviderHandler.LoadPropsForCurrentPosition();
+                }
+                else
+                {
+                    await _terrainProviderHandler.Unload();
+                }
             }
         }
 

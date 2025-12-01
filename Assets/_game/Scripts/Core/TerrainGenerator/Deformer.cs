@@ -48,7 +48,7 @@ namespace Core.TerrainGenerator
 
         [ShowInInspector] private Rect axisAlignedRect;
         [ShowInInspector] private Dictionary<int, List<Vector2Int>> affectedChunks = new Dictionary<int, List<Vector2Int>>();
-        [Inject] private TerrainProvider _terrainProvider;
+        [Inject(Optional = true)] private TerrainProvider _terrainProvider;
 
         /*[SerializeField, HideInInspector]
         private string[] typesInfo;
@@ -59,6 +59,10 @@ namespace Core.TerrainGenerator
 
         public Task Load()
         {
+            if (!_terrainProvider)
+            {
+                return Task.CompletedTask;
+            }
             CalculateAxisAlignedRect();
             foreach (SerializedDeformerModule module in modules)
             {

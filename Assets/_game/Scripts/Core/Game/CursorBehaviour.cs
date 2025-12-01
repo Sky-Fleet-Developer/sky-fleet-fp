@@ -17,7 +17,7 @@ namespace Core.Game
         private bool _isActive;
         bool ILoadAtStart.enabled => _isActive;
 
-        private void Start()
+        private void Awake()
         {
             if (_isActive) return;
             _isActive = true;
