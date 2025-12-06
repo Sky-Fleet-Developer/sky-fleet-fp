@@ -64,7 +64,9 @@ void Frag(  PackedVaryingsToPS packedInput,
     GetSurfaceAndBuiltinData(input, V, posInput, surfaceData, builtinData);
 
     ENCODE_INTO_GBUFFER(surfaceData, builtinData, posInput.positionSS, outGBuffer);
-
+    #if SHADERPASS == SHADERPASS_GBUFFER
+    
+    #endif
 #ifdef _DEPTHOFFSET_ON
     outputDepth = posInput.deviceDepth;
 #endif

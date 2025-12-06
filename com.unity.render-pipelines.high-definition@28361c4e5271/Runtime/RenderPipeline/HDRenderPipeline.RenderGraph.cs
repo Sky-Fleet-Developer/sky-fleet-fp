@@ -874,7 +874,7 @@ namespace UnityEngine.Rendering.HighDefinition
             return CreateTransparentRendererListDesc(cullResults, hdCamera.camera, passNames, m_CurrentRendererConfigurationBakedLighting, transparentRange);
         }
 
-        static internal void RenderForwardRendererList(FrameSettings frameSettings,
+        static public void RenderForwardRendererList(FrameSettings frameSettings,
             RendererList rendererList,
             bool opaque,
             ScriptableRenderContext renderContext,

@@ -501,7 +501,7 @@ namespace UnityEngine.Rendering.HighDefinition
         }
     }
 
-    internal struct ShadowResult
+    public struct ShadowResult
     {
         public TextureHandle punctualShadowResult;
         public TextureHandle cachedPunctualShadowResult;
@@ -606,7 +606,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         public static HDShadowResolutionRequestHandle Invalid => new HDShadowResolutionRequestHandle() { index = k_InvalidIndex };
     }
-    internal class HDShadowManager
+    public class HDShadowManager
     {
         public const int k_DirectionalShadowCascadeCount = 4;
         public const int k_MinShadowMapResolution = 16;
@@ -618,7 +618,7 @@ namespace UnityEngine.Rendering.HighDefinition
         NativeList<HDShadowResolutionRequest> m_ShadowResolutionRequestStorage;
         HDDirectionalShadowData[]   m_CachedDirectionalShadowData;
 
-        public HDDirectionalShadowData     m_DirectionalShadowData;
+        internal HDDirectionalShadowData     m_DirectionalShadowData;
         public int                         m_CascadeCount;
         public int                         m_ShadowResolutionRequestCounter;
 
@@ -847,7 +847,7 @@ namespace UnityEngine.Rendering.HighDefinition
         }
 
         // Keep in sync with both HDShadowSampling.hlsl
-        public static DirectionalShadowAlgorithm GetDirectionalShadowAlgorithm()
+        internal static DirectionalShadowAlgorithm GetDirectionalShadowAlgorithm()
         {
             switch (HDRenderPipeline.currentAsset.currentPlatformRenderPipelineSettings.hdShadowInitParams.directionalShadowFilteringQuality)
             {
@@ -868,13 +868,13 @@ namespace UnityEngine.Rendering.HighDefinition
             return DirectionalShadowAlgorithm.PCF5x5;
         }
 
-        public static HDShadowAtlas.BlurAlgorithm GetAreaLightShadowBlurAlgorithm()
+        internal static HDShadowAtlas.BlurAlgorithm GetAreaLightShadowBlurAlgorithm()
         {
             return HDRenderPipeline.currentAsset.currentPlatformRenderPipelineSettings.hdShadowInitParams.areaShadowFilteringQuality == HDAreaShadowFilteringQuality.High ?
                 HDShadowAtlas.BlurAlgorithm.None : HDShadowAtlas.BlurAlgorithm.EVSM;
         }
 
-        public void UpdateShaderVariablesGlobalCB(ref ShaderVariablesGlobal cb)
+        internal void UpdateShaderVariablesGlobalCB(ref ShaderVariablesGlobal cb)
         {
             if (m_MaxShadowRequests == 0)
                 return;
@@ -1298,7 +1298,7 @@ namespace UnityEngine.Rendering.HighDefinition
         }
 
         // Warning: must be called after ProcessShadowRequests and RenderShadows to have valid informations
-        public unsafe void DisplayShadowMap(in ShadowResult atlasTextures, int shadowIndex, CommandBuffer cmd, Material debugMaterial, float screenX, float screenY, float screenSizeX, float screenSizeY, float minValue, float maxValue, MaterialPropertyBlock mpb)
+        internal unsafe void DisplayShadowMap(in ShadowResult atlasTextures, int shadowIndex, CommandBuffer cmd, Material debugMaterial, float screenX, float screenY, float screenSizeX, float screenSizeY, float minValue, float maxValue, MaterialPropertyBlock mpb)
         {
             if (shadowIndex >= m_ShadowRequestCount)
                 return;
@@ -1368,6 +1368,15 @@ namespace UnityEngine.Rendering.HighDefinition
                 // Punctual
                 result.cachedPunctualShadowResult = cachedShadowManager.punctualShadowAtlas.RenderShadows(renderGraph, cullResults, globalCB, hdCamera.frameSettings, "Cached Punctual Lights Shadows rendering");
                 BlitCachedShadows(renderGraph, ShadowMapType.PunctualAtlas);
+                /*if (OverrideOutputShadow != null)
+                {
+                    m_Atlas.BlitCachedIntoAtlas(renderGraph,
+                        RenOverrideOutputShadow.Invoke(),
+                        new Vector2Int(cachedShadowManager.punctualShadowAtlas.width,
+                            cachedShadowManager.punctualShadowAtlas.height), m_BlitShadowMaterial,
+                        "Blit Punctual Mixed Cached Shadows", HDProfileId.BlitPunctualMixedCachedShadowMaps);
+                }*/
+
                 result.punctualShadowResult = m_Atlas.RenderShadows(renderGraph, cullResults, globalCB, hdCamera.frameSettings, "Punctual Lights Shadows rendering");
 
                 if (ShaderConfig.s_AreaLights == 1)
@@ -1398,6 +1407,9 @@ namespace UnityEngine.Rendering.HighDefinition
             // We can probably remove this when we have only one code path and can clean things up a bit.
             BindShadowGlobalResources(renderGraph, result);
         }
+
+        public Func<RenderTexture> OverrideOutputShadow;
+        public Action ShadowPerformed;
 
         internal void ReleaseSharedShadowAtlases(RenderGraph renderGraph)
         {

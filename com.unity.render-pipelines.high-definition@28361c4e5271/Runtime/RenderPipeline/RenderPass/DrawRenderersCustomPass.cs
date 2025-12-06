@@ -255,7 +255,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 overrideMaterialPassIndex = (overrideMaterial != null) ? overrideMaterial.FindPass(overrideMaterialPassName) : 0,
                 overrideShaderPassIndex = (overrideShader != null) ? overrideShaderMaterial.FindPass(overrideShaderPassName) : 0,
                 stateBlock = stateBlock,
-                layerMask = layerMask,
+                layerMask = layerMask
             };
 
             Object.DestroyImmediate(overrideShaderMaterial);
