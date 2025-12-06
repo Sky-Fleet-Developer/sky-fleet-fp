@@ -28,6 +28,10 @@ namespace Core.World
         
         public async Task WriteChunk(LocationChunkData chunkData, int x, int y)
         {
+            if (Application.isPlaying)
+            {
+                return;
+            }
             string path = string.Format(GetDataFilePath(), x, y);
             if (chunkData.IsEmpty)
             {

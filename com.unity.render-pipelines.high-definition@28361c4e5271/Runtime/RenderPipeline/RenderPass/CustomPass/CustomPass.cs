@@ -83,6 +83,7 @@ namespace UnityEngine.Rendering.HighDefinition
         RenderTargets currentRenderTarget;
         CustomPassVolume owner;
         HDCamera currentHDCamera;
+        public HDCamera HdCamera => currentHDCamera;
 
         // TODO RENDERGRAPH: Remove this when we move things to render graph completely.
         MaterialPropertyBlock m_MSAAResolveMPB = null;

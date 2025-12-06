@@ -1,80 +1,16 @@
 #pragma kernel AnalyzeLightingKernel
 
-RWTexture2D<float4> source;
+Texture2DArray<float4> source;
 RWBuffer<int> result;
 float max_depth;
-float pixels_to_units;
-float sin_alpha;
 int result_resolution;
 
-float smooth(float t)
-{
-    float sine = sin(-1.57f + t * 3.14f) * 0.5f + 0.5f;
-    float p = pow(sine, 3);
-    return 1 - pow(1 - p, 3);
-}
 
-inline bool is_edge(uint2 id, out float minLightDepth, out float maxLightDepth)
-{
-    uint2 c = id * 2;
-    minLightDepth = 1;
-    maxLightDepth = 0;
-
-    float v = source[c].r;
-    minLightDepth = min(minLightDepth, v);
-    maxLightDepth = max(maxLightDepth, v);
-
-    v = source[c + uint2(0, 1)].r;
-    minLightDepth = min(minLightDepth, v);
-    maxLightDepth = max(maxLightDepth, v);
-
-    v = source[c + uint2(1, 0)].r;
-    minLightDepth = min(minLightDepth, v);
-    maxLightDepth = max(maxLightDepth, v);
-
-    v = source[c + uint2(1, 1)].r;
-    minLightDepth = min(minLightDepth, v);
-    maxLightDepth = max(maxLightDepth, v);
-    
-    return maxLightDepth > max_depth && minLightDepth < max_depth;
-}
-//                     |
-//---------------------* 
-//                    /| alpha
-//                   / |
-//                  /  |
-//                 /   | d
-//                /    |
-//               /     |
-//         p*---/--h---|   h = d * sin(alpha)
 [numthreads(8,8,1)]
 void AnalyzeLightingKernel (uint3 id : SV_DispatchThreadID)
 {
-    float min, max;
-    if (is_edge(id.xy, min, max))
+    if (source[id.xyz].r < max_depth)
     {
-        //source[id.xy * 2] = float4(1, 1, 1, 1);
-        //source[id.xy * 2+ uint2(0, 1)] = float4(1, 1, 1, 1);
-        //source[id.xy * 2+ uint2(1, 1)] = float4(1, 1, 1, 1);
-        //source[id.xy * 2+ uint2(1, 0)] = float4(1, 1, 1, 1);
-        float2 uv_centered = id.xy * pixels_to_units - float2(0.5, 0.5);
-        float distanceToCenter = length(uv_centered);
-        float h = (max - min) * sin_alpha; // h is cant be less or equal to zero
-        if (h < distanceToCenter)
-        {
-            return;
-        }
-        InterlockedAdd(result[0], (int)(smooth(1 - distanceToCenter / h) * result_resolution));
-    }
-    else
-    {
-        if (min < max_depth)
-        {
-            InterlockedAdd(result[0], result_resolution);
-        }
-        //source[id.xy * 2] = float4(0,0,0,0);
-        //source[id.xy * 2+ uint2(0, 1)] = float4(0,0,0,0);
-        //source[id.xy * 2+ uint2(1, 1)] = float4(0,0,0,0);
-        //source[id.xy * 2+ uint2(1, 0)] = float4(0,0,0,0);
+        InterlockedAdd(result[0], result_resolution);
     }
 }

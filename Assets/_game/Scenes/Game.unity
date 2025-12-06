@@ -653,7 +653,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 85696.2
+  m_Intensity: 88745.875
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1418,7 +1418,7 @@ Camera:
   far clip plane: 5000
   field of view: 60
   orthographic: 1
-  orthographic size: 200
+  orthographic size: 500
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -1507,7 +1507,7 @@ MonoBehaviour:
   materialMipBias: 0
   m_RenderingPathCustomFrameSettings:
     bitDatas:
-      data1: 4504149383455684
+      data1: 4504149383455716
       data2: 1628597846024
     lodBias: 1
     lodBiasMode: 0
@@ -1582,7 +1582,7 @@ Transform:
   m_GameObject: {fileID: 563457167}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 167, y: -334, z: -521}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2131,7 +2131,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 500}
+  m_SizeDelta: {x: 254, y: 254}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &858710855
 GameObject:
@@ -2168,7 +2168,6 @@ MonoBehaviour:
   priority: 0
   customPasses:
   - rid: 2235484293322244173
-  - rid: 2235484293322244174
   injectionPoint: 7
   m_TargetCamera: {fileID: 563457168}
   useTargetCamera: 1
@@ -2182,11 +2181,11 @@ MonoBehaviour:
         enabled: 1
         targetColorBuffer: 0
         targetDepthBuffer: 0
-        clearFlags: -1
+        clearFlags: 1
         passFoldout: 0
         m_Version: 0
-        resolution: 512
-        rectSize: 200
+        resolution: 256
+        rectSize: 500
         debug: {fileID: 773276776}
         shaderPassName: 
         layerMask:
@@ -2194,48 +2193,9 @@ MonoBehaviour:
           m_Bits: 65536
         analyzeShader: {fileID: 7200000, guid: 9cd727c9b5ce5a0488af00382c33bcb5, type: 3}
         threshold: 0.01
-        grayZoneAngle: 20
+        grayZoneAngle: 30
         resultResolution: 1024
         r: 0
-        shaderPass: 0
-        sortingCriteria: 51
-    - rid: 2235484293322244174
-      type: {class: DrawRenderersCustomPass, ns: UnityEngine.Rendering.HighDefinition, asm: Unity.RenderPipelines.HighDefinition.Runtime}
-      data:
-        m_Name: Custom Pass
-        enabled: 0
-        targetColorBuffer: 0
-        targetDepthBuffer: 0
-        clearFlags: 0
-        passFoldout: 0
-        m_Version: 0
-        filterFoldout: 1
-        rendererFoldout: 1
-        renderQueueType: 2
-        layerMask:
-          serializedVersion: 2
-          m_Bits: 1
-        sortingCriteria: 51
-        overrideMode: 2
-        overrideMaterial: {fileID: 0}
-        overrideMaterialPassIndex: 0
-        overrideMaterialPassName: Forward
-        overrideShader: {fileID: 4800000, guid: 65939c9c5cd72a54b9eb281af68f507c, type: 3}
-        overrideShaderPassIndex: 0
-        overrideShaderPassName: ZTest
-        overrideDepthState: 0
-        depthCompareFunction: 4
-        depthWrite: 1
-        overrideStencil: 0
-        stencilReferenceValue: 64
-        stencilWriteMask: 192
-        stencilReadMask: 192
-        stencilCompareFunction: 8
-        stencilPassOperation: 0
-        stencilFailOperation: 0
-        stencilDepthFailOperation: 0
-        shaderPass: 0
-        variableRateShading: 0
 --- !u!4 &858710857
 Transform:
   m_ObjectHideFlags: 0
@@ -2244,14 +2204,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 858710855}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.7047095, y: -0.058172595, z: 0.058172643, w: 0.7047102}
+  m_LocalPosition: {x: 703, y: 8181.8, z: -6437}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 563457171}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 9.438}
 --- !u!114 &858710858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2264,9 +2224,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b99fac445ea14eb29f8f2487894cda9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.MacroShading.MacroShadingProcessor
-  updateRate: 1
+  updateRate: 0.5
   renderCamera: {fileID: 563457168}
-  sun: {fileID: 157207114}
+  sun: {fileID: 157207113}
+  customPassVolume: {fileID: 858710856}
+  intensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1205.2825
+      inSlope: 3973.5876
+      outSlope: 3973.5876
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.2
+      value: 2000
+      inSlope: 3973.5735
+      outSlope: 3973.5735
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 1
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.5
+      value: 10000
+      inSlope: 83333.336
+      outSlope: 83333.336
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: 45000
+      inSlope: 154000
+      outSlope: 154000
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 87000
+      inSlope: 168000
+      outSlope: 168000
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!224 &863708544 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7741574236790904068, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
