@@ -80,8 +80,15 @@ namespace Core.World
             {
                 for (i.y = oldRange.yMin; i.y < oldRange.yMax; i.y++)
                 {
+#if !FLAT_SPACE
+                for (i.z = oldRange.zMin; i.z < oldRange.zMax; i.z++)
+                {
+#endif
                     if (intersection.Contains(i) || !_chunks.ContainsKey(i)) continue;
                     tasks.Add(SaveAndUnload(i));
+#if !FLAT_SPACE
+                }
+#endif
                 }
             }
 
@@ -89,8 +96,15 @@ namespace Core.World
             {
                 for (i.y = range.yMin; i.y < range.yMax; i.y++)
                 {
+#if !FLAT_SPACE
+                for (i.z = range.zMin; i.z < range.zMax; i.z++)
+                {
+#endif
                     if (intersection.Contains(i)) continue;
                     tasks.Add(Load(i));
+#if !FLAT_SPACE
+                }
+#endif
                 }
             }
 
@@ -110,8 +124,15 @@ namespace Core.World
             {
                 for (i.y = _range.yMin; i.y < _range.yMax; i.y++)
                 {
+#if !FLAT_SPACE
+                for (i.z = _range.zMin; i.z < _range.zMax; i.z++)
+                {
+#endif
                     if (!_chunks.ContainsKey(i)) continue;
                     tasks.Add(Save(i));
+#if !FLAT_SPACE
+                }
+#endif
                 }
             }
 

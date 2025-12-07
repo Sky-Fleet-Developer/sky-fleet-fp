@@ -24,6 +24,12 @@ using VolumeInt = UnityEngine.BoundsInt;
 #if UNITY_EDITOR
 namespace WorldEditor
 {
+    public enum ChunkPositionMode
+    {
+        None = -1,
+        MoveToZero = 0,
+        UseWorldPosition = 1
+    }
     public class LocationContentEditor : EditorWindow
     {
 #if FLAT_SPACE
@@ -48,6 +54,34 @@ namespace WorldEditor
         private bool _isInitialized;
         private WorldOffset.IWorldOffsetHandler _worldOffsetHandler;
         private TerrainProvider.ITerrainProviderHandler _terrainProviderHandler;
+
+        private ChunkPositionMode _chunkPositionMode = ChunkPositionMode.None;
+        private ChunkPositionMode ChunkPositionMode
+        {
+            set
+            {
+                if (_chunkPositionMode == value) return;
+                PlayerPrefs.SetString(PrefsKey + "." + nameof(_chunkPositionMode), value.ToString());
+                _chunkPositionMode = value;
+                UpdateWorldOffset(_currentContentRange);
+            }
+            get
+            {
+                if (_chunkPositionMode == ChunkPositionMode.None)
+                {
+                    string savedValue = PlayerPrefs.GetString(PrefsKey + "." + nameof(_chunkPositionMode));
+                    if (string.IsNullOrEmpty(savedValue))
+                    {
+                        _chunkPositionMode = ChunkPositionMode.MoveToZero;
+                    }
+                    else
+                    {
+                        _chunkPositionMode = (ChunkPositionMode) Enum.Parse(typeof(ChunkPositionMode), savedValue);
+                    }
+                }
+                return _chunkPositionMode;
+            }
+        }
 
         [MenuItem("Window/SF/Location Content Editor")]
         public static void Open()
@@ -219,38 +253,45 @@ namespace WorldEditor
 
         private void OnGUI()
         {
-            if (Event.current.type == EventType.Layout || Event.current.type == EventType.Repaint || Event.current.type == EventType.MouseDown  || Event.current.type == EventType.MouseUp || Event.current.type == EventType.KeyDown || Event.current.type == EventType.KeyUp)
+            DrawHeader();
+            EditorGUI.BeginChangeCheck();
+            var newValue = EditorGUILayout.EnumPopup("Chunk position mode", ChunkPositionMode);
+            if (EditorGUI.EndChangeCheck())
             {
-                DrawHeader();
-                if (!_isInitialized)
+                ChunkPositionMode = (ChunkPositionMode)newValue;
+            }
+
+            if (!_isInitialized)
+            {
+                if (Application.isPlaying)
                 {
-                    if (Application.isPlaying)
-                    {
-                        GUILayout.Label("Disabled in play mode");
-                    }
-                    else
-                    {
-                        GUILayout.Label("Something went wrong, check console for details");
-                        if (GUILayout.Button("Reload"))
-                        {
-                            Initialize();
-                        }
-                    }
-                    return;
+                    GUILayout.Label("Disabled in play mode");
                 }
-                if (_loading != null)
+                else
                 {
-                    if (_loading.IsCompleted)
+                    GUILayout.Label("Something went wrong, check console for details");
+                    if (GUILayout.Button("Reload"))
                     {
-                        FinishLoading();
+                        Initialize();
                     }
-                    GUILayout.Label("Loading...");
-                    return;
                 }
 
-                DrawContentRangeSettings();
-                DrawEntities();
+                return;
             }
+
+            if (_loading != null)
+            {
+                if (_loading.IsCompleted)
+                {
+                    FinishLoading();
+                }
+
+                GUILayout.Label("Loading...");
+                return;
+            }
+
+            DrawContentRangeSettings();
+            DrawEntities();
         }
 
         private async void FinishLoading()
@@ -351,13 +392,23 @@ namespace WorldEditor
         {
             Debug.Log($"Loading content range: {rangeSettings}");
             
-            if (_worldOffsetHandler != null)
-            {
-                Vector2 center = rangeSettings.center * _worldGrid.GetCellSize();
-                _worldOffsetHandler.SetOffset(-center);
-            }
+            UpdateWorldOffset(rangeSettings);
             
             _loading = LoadProcess(rangeSettings);
+        }
+
+        private void UpdateWorldOffset(VolumeInt rangeSettings)
+        {
+            if (_worldOffsetHandler != null)
+            {
+                Vector2 center = _chunkPositionMode switch
+                {
+                    ChunkPositionMode.UseWorldPosition => Vector2.zero,
+                    _ => rangeSettings.center * _worldGrid.GetCellSize()
+                };
+
+                _worldOffsetHandler.SetOffset(-center);
+            }
         }
 
         private async Task LoadProcess(VolumeInt rangeSettings)
