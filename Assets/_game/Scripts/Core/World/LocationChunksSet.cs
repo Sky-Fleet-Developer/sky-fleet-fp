@@ -1,21 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
+
+#if FLAT_SPACE
+using VectorInt = UnityEngine.Vector2Int;
+using VolumeInt = UnityEngine.RectInt;
+#else
+using VectorInt = UnityEngine.Vector3Int;
+using VolumeInt = UnityEngine.BoundsInt;
+#endif
 
 namespace Core.World
 {
     public interface ILocationChunkLoadStrategy
     {
-        Task Load(LocationChunkData data, Vector2Int coord);
-        Task Unload(LocationChunkData data, Vector2Int coord);
+        Task Load(LocationChunkData data, VectorInt coord);
+        Task Unload(LocationChunkData data, VectorInt coord);
     }
 
     public class LocationChunksSet
     {
-        private Dictionary<Vector2Int, LocationChunkData> _chunks;
-        private RectInt _range = RectInt.zero;
+        private Dictionary<VectorInt, LocationChunkData> _chunks;
+        
+#if FLAT_SPACE
+        private VolumeInt _range = VolumeInt.zero;
+#else
+        private VolumeInt _range = new VolumeInt(Vector3Int.zero, Vector3Int.zero);
+#endif
+        
+#if FLAT_SPACE
+        private static readonly VolumeInt ZeroVolume = UnityEngine.RectInt.zero;
+#else
+        private static readonly VolumeInt ZeroVolume = new UnityEngine.BoundsInt(0, 0, 0, 0, 0, 0);
+#endif
+        
         [Inject] private Location _location;
         [Inject] private DiContainer _diContainer;
         private ILocationChunkLoadStrategy _loadStrategy;
@@ -26,28 +47,35 @@ namespace Core.World
         public LocationChunksSet(ILocationChunkLoadStrategy loadStrategy)
         {
             _loadStrategy = loadStrategy;
-            _chunks = new Dictionary<Vector2Int, LocationChunkData>();
+            _chunks = new Dictionary<VectorInt, LocationChunkData>();
         }
 
-        public RectInt GetRange() => _range;
+        public VolumeInt GetRange() => _range;
         
-        public async Task SetRange(RectInt range)
+        public async UniTask SetRange(VolumeInt range)
         {
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             _setRangeTask = tcs.Task;
             var oldRange = _range;
             _range = range;
 
-            Vector2Int intersectionMin = new Vector2Int(Mathf.Max(oldRange.xMin, range.xMin),
-                Mathf.Max(_range.yMin, range.yMin));
-            Vector2Int intersectionMax = new Vector2Int(Mathf.Min(oldRange.xMax, range.xMax),
-                Mathf.Min(_range.yMax, range.yMax));
-            RectInt intersection = new RectInt(intersectionMin, intersectionMax - intersectionMin);
+#if FLAT_SPACE
+            VectorInt intersectionMin = new VectorInt(Mathf.Max(oldRange.xMin, range.xMin), Mathf.Max(_range.yMin, range.yMin));
+            VectorInt intersectionMax = new VectorInt(Mathf.Min(oldRange.xMax, range.xMax), Mathf.Min(_range.yMax, range.yMax));
+            VolumeInt intersection = new VolumeInt(intersectionMin, intersectionMax - intersectionMin);
             intersection.width = Mathf.Max(0, intersection.width);
             intersection.height = Mathf.Max(0, intersection.height);
+#else
+            VectorInt intersectionMin = new VectorInt(Mathf.Max(oldRange.xMin, range.xMin), Mathf.Max(_range.yMin, range.yMin));
+            VectorInt intersectionMax = new VectorInt(Mathf.Min(oldRange.xMax, range.xMax), Mathf.Min(_range.yMax, range.yMax));
+            VolumeInt intersection = new VolumeInt(intersectionMin, intersectionMax - intersectionMin);
+            intersection.size = new VectorInt(Mathf.Max(0, intersection.size.x), Mathf.Max(0, intersection.size.y), Mathf.Max(0, intersection.size.z));
+#endif
+            
+
 
             List<Task> tasks = new List<Task>();
-            Vector2Int i = Vector2Int.zero;
+            VectorInt i = VectorInt.zero;
             for (i.x = oldRange.xMin; i.x < oldRange.xMax; i.x++)
             {
                 for (i.y = oldRange.yMin; i.y < oldRange.yMax; i.y++)
@@ -77,7 +105,7 @@ namespace Core.World
         public async Task Save()
         {
             List<Task> tasks = new List<Task>();
-            Vector2Int i = Vector2Int.zero;
+            VectorInt i = VectorInt.zero;
             for (i.x = _range.xMin; i.x < _range.xMax; i.x++)
             {
                 for (i.y = _range.yMin; i.y < _range.yMax; i.y++)
@@ -93,7 +121,7 @@ namespace Core.World
             }
         }
 
-        private async Task Load(Vector2Int coord)
+        private async Task Load(VectorInt coord)
         {
             /*var chunk = await _location.ReadChunk(coord.x, coord.y);
             foreach (var entity in chunk.GetEntities())
@@ -104,30 +132,30 @@ namespace Core.World
             Debug.Log($"Load chunk: {coord}");*/
             var chunk = new LocationChunkData();
             _chunks[coord] = chunk;
-            await _location.ReadChunk(chunk, coord.x, coord.y);
+            await _location.ReadChunk(chunk, coord);
             chunk.Lock();
             await _loadStrategy.Load(chunk, coord);
             chunk.Unlock();
         }
 
-        private async Task Save(Vector2Int coord)
+        private async Task Save(VectorInt coord)
         {
-            await _location.WriteChunk(_chunks[coord], coord.x, coord.y);
+            await _location.WriteChunk(_chunks[coord], coord);
         }
 
-        private async Task Unload(Vector2Int coord)
+        private async Task Unload(VectorInt coord)
         {
             await _loadStrategy.Unload(_chunks[coord], coord);
         }
 
-        private async Task SaveAndUnload(Vector2Int coord)
+        private async Task SaveAndUnload(VectorInt coord)
         {
-            await _location.WriteChunk(_chunks[coord], coord.x, coord.y);
+            await _location.WriteChunk(_chunks[coord], coord);
             await _loadStrategy.Unload(_chunks[coord], coord);
             _chunks.Remove(coord);
         }
 
-        public void AddEntityToChunk(Vector2Int cell, IWorldEntity entity)
+        public void AddEntityToChunk(VectorInt cell, IWorldEntity entity)
         {
             if (!_range.Contains(cell))
             {
@@ -137,7 +165,7 @@ namespace Core.World
             _chunks[cell].AddEntity(entity);
         }
 
-        public void RemoveEntityFromChunk(Vector2Int cell, IWorldEntity entity)
+        public void RemoveEntityFromChunk(VectorInt cell, IWorldEntity entity)
         {
             if (!_chunks.ContainsKey(cell))
             {
@@ -147,7 +175,7 @@ namespace Core.World
             _chunks[cell].RemoveEntity(entity);
         }
 
-        public IEnumerable<IWorldEntity> GetEntities(Vector2Int cell)
+        public IEnumerable<IWorldEntity> GetEntities(VectorInt cell)
         {
             if (_chunks.TryGetValue(cell, out var chunk))
             {
@@ -158,7 +186,7 @@ namespace Core.World
             }
         }
 
-        public bool IsInRange(Vector2Int cell)
+        public bool IsInRange(VectorInt cell)
         {
             return _range.Contains(cell);
         }

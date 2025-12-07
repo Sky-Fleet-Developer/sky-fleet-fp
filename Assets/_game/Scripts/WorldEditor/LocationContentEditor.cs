@@ -13,14 +13,28 @@ using UnityEditor;
 using UnityEngine;
 using Zenject;
 
+#if FLAT_SPACE
+using VectorInt = UnityEngine.Vector2Int;
+using VolumeInt = UnityEngine.RectInt;
+#else
+using VectorInt = UnityEngine.Vector3Int;
+using VolumeInt = UnityEngine.BoundsInt;
+#endif
+
 #if UNITY_EDITOR
 namespace WorldEditor
 {
     public class LocationContentEditor : EditorWindow
     {
+#if FLAT_SPACE
+        private static readonly VolumeInt ZeroVolume = UnityEngine.RectInt.zero;
+#else
+        private static readonly VolumeInt ZeroVolume = new UnityEngine.BoundsInt(0, 0, 0, 0, 0, 0);
+#endif
+        
         private const string PrefsKey = nameof(LocationContentEditor);
-        private RectInt _currentContentRange;
-        private RectInt _rangeSettings;
+        private VolumeInt _currentContentRange;
+        private VolumeInt _rangeSettings;
         private LocationChunksSet _chunksSet;
         private LocationInstaller _locationInstaller;
         private DynamicPositionFromWorldRect _dynamicPositionFromWorldRect;
@@ -67,7 +81,7 @@ namespace WorldEditor
                     Initialize();
                     break;
                 case PlayModeStateChange.ExitingEditMode:
-                    Load(RectInt.zero);
+                    Load(ZeroVolume);
                     _loading.Wait();
                     break;
             }
@@ -106,10 +120,10 @@ namespace WorldEditor
 
             _worldGrid.Load();
             
-            var rangeFromSave = JsonConvert.DeserializeObject<RectInt?>(PlayerPrefs.GetString(PrefsKey + "." + nameof(_currentContentRange), ""));
+            var rangeFromSave = JsonConvert.DeserializeObject<VolumeInt?>(PlayerPrefs.GetString(PrefsKey + "." + nameof(_currentContentRange), ""));
             bool isLoaded = PlayerPrefs.GetInt(PrefsKey + ".isLoaded", 0) == 1;
-            _rangeSettings = rangeFromSave ?? new RectInt(0, 0, 1, 1);
-            _currentContentRange = isLoaded ? _rangeSettings : RectInt.zero;
+            _rangeSettings = rangeFromSave ?? new VolumeInt(VectorInt.zero, VectorInt.one);
+            _currentContentRange = isLoaded ? _rangeSettings : ZeroVolume;
 
             Load(_currentContentRange);
             _isInitialized = true;
@@ -125,7 +139,7 @@ namespace WorldEditor
         
         private void OnCompilation(object obj)
         {
-            Load(RectInt.zero);
+            Load(ZeroVolume);
             _loading.Wait();
         }
 
@@ -264,7 +278,11 @@ namespace WorldEditor
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label("Content Range:");
+#if FLAT_SPACE
             _rangeSettings = EditorGUILayout.RectIntField(_rangeSettings);
+#else
+            _rangeSettings = EditorGUILayout.BoundsIntField(_rangeSettings);
+#endif
             GUILayout.EndHorizontal();
             if (_rangeSettings != _currentContentRange)
             {
@@ -294,14 +312,14 @@ namespace WorldEditor
                 GUILayout.EndHorizontal();
             }
 
-            if (_currentContentRange.size != Vector2Int.zero)
+            if (_currentContentRange.size != VectorInt.zero)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("Unload", GUILayout.Width(180), GUILayout.Height(30)))
                 {
                     PlayerPrefs.SetInt(PrefsKey + ".isLoaded", 0); 
-                    _currentContentRange = RectInt.zero;
+                    _currentContentRange = ZeroVolume;
                     Load(_currentContentRange);
                 }
                 GUILayout.FlexibleSpace();
@@ -329,25 +347,25 @@ namespace WorldEditor
             GUILayout.Space(20);
         }
 
-        private void Load(RectInt rangeSettings)
+        private void Load(VolumeInt rangeSettings)
         {
             Debug.Log($"Loading content range: {rangeSettings}");
             
             if (_worldOffsetHandler != null)
             {
                 Vector2 center = rangeSettings.center * _worldGrid.GetCellSize();
-                _worldOffsetHandler.SetOffset(new Vector3(-center.x, 0, -center.y));
+                _worldOffsetHandler.SetOffset(-center);
             }
             
             _loading = LoadProcess(rangeSettings);
         }
 
-        private async Task LoadProcess(RectInt rangeSettings)
+        private async Task LoadProcess(VolumeInt rangeSettings)
         {
             await _chunksSet.SetRange(rangeSettings);
             if (_terrainProvider)
             {
-                if (rangeSettings.size != Vector2Int.zero)
+                if (rangeSettings.size != VectorInt.zero)
                 {
                     await _terrainProviderHandler.LoadPropsForCurrentPosition();
                 }

@@ -3,6 +3,14 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
+#if FLAT_SPACE
+using VectorInt = UnityEngine.Vector2Int;
+using VolumeInt = UnityEngine.RectInt;
+#else
+using VectorInt = UnityEngine.Vector3Int;
+using VolumeInt = UnityEngine.BoundsInt;
+#endif
+
 namespace Core.World
 {
     public class LoadingChunkRuntimeStrategy : ILocationChunkLoadStrategy
@@ -10,7 +18,7 @@ namespace Core.World
         [Inject] private WorldGrid _worldGrid;
         [Inject] private WorldSpace _worldSpace;
 
-        public async Task Load(LocationChunkData data, Vector2Int coord)
+        public async Task Load(LocationChunkData data, VectorInt coord)
         {
             List<Task> tasks = new List<Task>();
             foreach (var worldEntity in data.GetEntities())
@@ -29,7 +37,7 @@ namespace Core.World
             }
         }
 
-        public async Task Unload(LocationChunkData data, Vector2Int coord)
+        public async Task Unload(LocationChunkData data, VectorInt coord)
         {
             List<Task> tasks = new List<Task>();
             foreach (var worldEntity in data.GetEntities())

@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
 using Core.Data;
+using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Zenject;
+
+#if FLAT_SPACE
+using VectorInt = UnityEngine.Vector2Int;
+using VolumeInt = UnityEngine.RectInt;
+#else
+using VectorInt = UnityEngine.Vector3Int;
+using VolumeInt = UnityEngine.BoundsInt;
+#endif
 
 namespace Core.World
 {
@@ -45,7 +54,7 @@ namespace Core.World
         private Grid _grid;
         private Dictionary<IWorldEntity, int> _lods = new ();
         private List<IWorldEntity> _entitiesList = new ();
-        private List<Vector3Int> _coordinatesCache = new ();
+        private List<VectorInt> _coordinatesCache = new ();
         private int _refreshCounter;
         private int _refreshNeighboursRadius;
         private bool _isActive = true;
@@ -73,20 +82,28 @@ namespace Core.World
         
         public void AddEntity(IWorldEntity entity)
         {
-            var cell = _grid.PositionToCell(entity.Position);
+            #if FLAT_SPACE
+            VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
+            #else
+            VectorInt cell = _grid.PositionToCell(entity.Position);
+            #endif
 
             _entitiesList.Add(entity);
             _coordinatesCache.Add(cell);
             
-            _chunksSet.AddEntityToChunk(new Vector2Int(cell.x, cell.z), entity);
+            _chunksSet.AddEntityToChunk(cell, entity);
             _lods[entity] = -1;
             SetLodForEntity(entity);
         }
 
         public void RemoveEntity(IWorldEntity entity)
         {
-            var cell = _grid.PositionToCell(entity.Position);
-            _chunksSet.RemoveEntityFromChunk(new Vector2Int(cell.x, cell.z), entity);
+#if FLAT_SPACE
+            VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
+#else
+            VectorInt cell = _grid.PositionToCell(entity.Position);
+#endif
+            _chunksSet.RemoveEntityFromChunk(cell, entity);
             _entitiesList.Remove(entity);
             _lods[entity] = -1;
         }
@@ -113,10 +130,14 @@ namespace Core.World
                 }*/
             }
 
-            if (_grid.Update(_playerTracker.WorldPosition, out var cell))
+            if (_grid.Update(_playerTracker.WorldPosition, out Vector3Int cell3d))
             {
-                _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
-                    _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
+#if FLAT_SPACE
+                VectorInt cell = new VectorInt(cell3d.x, cell3d.z);
+#else
+                VectorInt cell = cell3d;
+#endif
+                _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2))).Forget();
             }
 
             foreach (var entity in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
@@ -129,28 +150,41 @@ namespace Core.World
         {
             _grid = new Grid(_playerTracker.WorldPosition, Settings.occlusionGridCellSize, true);
             _refreshNeighboursRadius = GameData.Data != null ? Mathf.RoundToInt(GameData.Data.lodDistances.GetLodDistance(Settings.maxRefreshLod) / Settings.occlusionGridCellSize + 0.5f) : (int)(_chunksSet.GetRange().size.magnitude * 0.5f);
-            var cell = _grid.PositionToCell(_playerTracker.WorldPosition);
-            await _chunksSet.SetRange(new RectInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
+            Vector3Int cell = _grid.PositionToCell(_playerTracker.WorldPosition);
+#if FLAT_SPACE
+            await _chunksSet.SetRange(new VolumeInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
                 _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
+#else
+            await _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2)));
+#endif
         }
         
         private void UpdateEntity(int i)
         {
             var entity = _entitiesList[i];
-            var cell = _grid.PositionToCell(entity.Position);
+#if FLAT_SPACE
+            VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
+#else
+            VectorInt cell = _grid.PositionToCell(entity.Position);
+#endif
             if (_coordinatesCache[i] != cell)
             {
                 if (_lods[entity] <= Settings.maxRefreshLod) // Sets the lod to the entities which leave the radius of update, which cant be updated in EnumerateNeighbours() enumeration
                 {
-                    if (_grid.GetDistance(cell) > _refreshNeighboursRadius)
+#if FLAT_SPACE
+                    float distance = _grid.GetDistance(new Vector3Int(cell.x, 0, cell.y));
+#else
+                    float distance = _grid.GetDistance(cell);
+#endif
+                    if (distance > _refreshNeighboursRadius)
                     {
                         _lods[entity] = Settings.maxRefreshLod + 1;
                         entity.OnLodChanged(Settings.maxRefreshLod + 1);
                     }
                 }
-                _chunksSet.RemoveEntityFromChunk(new Vector2Int(_coordinatesCache[i].x, _coordinatesCache[i].z), entity);
+                _chunksSet.RemoveEntityFromChunk(_coordinatesCache[i], entity);
                 _coordinatesCache[i] = cell;
-                _chunksSet.AddEntityToChunk(new Vector2Int(cell.x, cell.z), entity);
+                _chunksSet.AddEntityToChunk(cell, entity);
             }
         }
 
@@ -180,31 +214,40 @@ namespace Core.World
         
         public IEnumerable<IWorldEntity> EnumerateNeighbours(Vector3 center, int cellsRadius)
         {
-            var range = Vector3Int.one * cellsRadius;
-            var min = _grid.PositionToCell(center) - range;
+            var range = VectorInt.one * cellsRadius;
+#if FLAT_SPACE
+            VectorInt centerCell = new VectorInt(_grid.PositionToCell(center.x), _grid.PositionToCell(center.z));
+#else
+            VectorInt centerCell = _grid.PositionToCell(center);
+#endif
+            
+            var min = centerCell - range;
             var max = min + range * 2;
-            Vector3Int cell = min;
+            VectorInt cell = min;
             for (cell.x = min.x; cell.x <= max.x; cell.x++)
             {
-                //for (cell.y = min.y; cell.y <= max.y; cell.y++)
-                //{
+                for (cell.y = min.y; cell.y <= max.y; cell.y++)
+                {
+#if !FLAT_SPACE
                     for (cell.z = min.z; cell.z <= max.z; cell.z++)
                     {
+#endif
                         foreach (var worldEntity in EnumerateCell(cell))
                         {
                             yield return worldEntity;
                         }
+#if !FLAT_SPACE
                     }
-                //}   
+#endif
+                }
             }
         }
 
-        public IEnumerable<IWorldEntity> EnumerateCell(Vector3Int cell)
+        public IEnumerable<IWorldEntity> EnumerateCell(VectorInt cell)
         {
-            var cell2d = new Vector2Int(cell.x, cell.z);
-            if (_chunksSet.IsInRange(cell2d))
+            if (_chunksSet.IsInRange(cell))
             {
-                foreach (var worldEntity in _chunksSet.GetEntities(cell2d))
+                foreach (var worldEntity in _chunksSet.GetEntities(cell))
                 {
                     yield return worldEntity;
                 }
