@@ -15,7 +15,7 @@ using Zenject;
 
 namespace Core.World
 {
-    public class StructureEntity : IWorldEntity
+    public class StructureEntity : IObjectEntity
     {
         [Inject] private IStructureFactory _factory;
         private IStructure _structure;
@@ -219,5 +219,16 @@ namespace Core.World
                 }
             }
         }
+        
+        public override string ToString()
+        {
+            if (_structure is Component component && component)
+            {
+                return $"StructureEntity: {component.transform.name}";
+            }
+            return "Structure: null instance";
+        }
+
+        public GameObject GameObject => _structure?.transform.gameObject;
     }
 }

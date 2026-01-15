@@ -116,7 +116,6 @@ namespace WorldEditor
                     break;
                 case PlayModeStateChange.ExitingEditMode:
                     Load(ZeroVolume);
-                    _loading.Wait();
                     break;
             }
         }
@@ -174,7 +173,6 @@ namespace WorldEditor
         private void OnCompilation(object obj)
         {
             Load(ZeroVolume);
-            _loading.Wait();
         }
 
         private bool SetupWorldOffset(DiContainer diContainer)
@@ -254,12 +252,6 @@ namespace WorldEditor
         private void OnGUI()
         {
             DrawHeader();
-            EditorGUI.BeginChangeCheck();
-            var newValue = EditorGUILayout.EnumPopup("Chunk position mode", ChunkPositionMode);
-            if (EditorGUI.EndChangeCheck())
-            {
-                ChunkPositionMode = (ChunkPositionMode)newValue;
-            }
 
             if (!_isInitialized)
             {
@@ -306,13 +298,40 @@ namespace WorldEditor
         private void DrawEntities()
         {
             int entitiesCount = 0;
-            foreach (var entity in _worldGrid.EnumerateRadius(_dynamicPositionFromWorldRect.WorldPosition,
+            Vector3Int cellCache = Vector3Int.zero;
+            EditorGUI.indentLevel++;
+            foreach ((IWorldEntity entity, Vector3Int cell) in _worldGrid.EnumerateRadius(_dynamicPositionFromWorldRect.WorldPosition,
                          GameData.Data.lodDistances.GetLodDistance(GameData.Data.lodDistances.lods.Length - 1)))
             {
+                if (cellCache != cell)
+                {
+                    EditorGUI.indentLevel--;
+                    GUILayout.Box(cell.ToString());
+                    EditorGUI.indentLevel++;
+                    cellCache = cell;
+                }
+                GUILayout.BeginHorizontal();
+                IObjectEntity objectEntity = entity as IObjectEntity;
+                if (GUILayout.Button(entity.ToString(), GUILayout.Width(300), GUILayout.Height(22)) && objectEntity != null && objectEntity.GameObject)
+                {
+                    EditorGUIUtility.PingObject(objectEntity.GameObject);
+                }
+                if (GUILayout.Button("edit", GUILayout.Width(50), GUILayout.Height(22)) && objectEntity != null && objectEntity.GameObject && objectEntity is StructureEntity)
+                {
+                    Selection.activeGameObject = objectEntity.GameObject;
+                    StructConfigHolder.MakeConfigForStructure();
+                }
+                if(GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(22)))
+                {
+                    _worldSpace.RemoveEntity(entity);
+                    entity.Dispose();
+                }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
                 entitiesCount++;
             }
-            
-            GUILayout.Label($"Entities: {entitiesCount}");
+            EditorGUI.indentLevel--;
+            //GUILayout.Label($"Entities: {entitiesCount}");
         }
 
         private void DrawContentRangeSettings()
@@ -325,10 +344,15 @@ namespace WorldEditor
             _rangeSettings = EditorGUILayout.BoundsIntField(_rangeSettings);
 #endif
             GUILayout.EndHorizontal();
+            
             if (_rangeSettings != _currentContentRange)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Get range from camera",GUILayout.Width(180), GUILayout.Height(30)))
+                {
+                    _rangeSettings.position = _worldGrid.Grid.PositionToCell(SceneView.lastActiveSceneView.camera.transform.position) - _currentContentRange.size / 2;
+                }
                 if (GUILayout.Button("Load", GUILayout.Width(180), GUILayout.Height(30)))
                 {
                     _currentContentRange = _rangeSettings;
@@ -368,7 +392,7 @@ namespace WorldEditor
             }
         }
 
-        private static void DrawHeader()
+        private void DrawHeader()
         {
             GUILayout.Space(20);
             GUILayout.BeginHorizontal();
@@ -386,6 +410,13 @@ namespace WorldEditor
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.Space(20);
+            
+            EditorGUI.BeginChangeCheck();
+            var newValue = EditorGUILayout.EnumPopup("Chunk position mode", ChunkPositionMode);
+            if (EditorGUI.EndChangeCheck())
+            {
+                ChunkPositionMode = (ChunkPositionMode)newValue;
+            }
         }
 
         private void Load(VolumeInt rangeSettings)
@@ -395,6 +426,7 @@ namespace WorldEditor
             UpdateWorldOffset(rangeSettings);
             
             _loading = LoadProcess(rangeSettings);
+            _loading.Wait();
         }
 
         private void UpdateWorldOffset(VolumeInt rangeSettings)
@@ -413,7 +445,7 @@ namespace WorldEditor
 
         private async Task LoadProcess(VolumeInt rangeSettings)
         {
-            await _chunksSet.SetRange(rangeSettings);
+            await _chunksSet.SetRangeAsync(rangeSettings);
             if (_terrainProvider)
             {
                 if (rangeSettings.size != VectorInt.zero)

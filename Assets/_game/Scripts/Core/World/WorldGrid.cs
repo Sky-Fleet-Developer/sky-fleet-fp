@@ -59,6 +59,7 @@ namespace Core.World
         private int _refreshNeighboursRadius;
         private bool _isActive = true;
         bool ILoadAtStart.enabled => _isActive;
+        public Grid Grid => _grid;
 
         private void Awake()
         {
@@ -120,6 +121,16 @@ namespace Core.World
 
         public void Update()
         {
+            if (_grid.Update(_playerTracker.WorldPosition, out Vector3Int cell3d))
+            {
+#if FLAT_SPACE
+                VectorInt cell = new VectorInt(cell3d.x, cell3d.z);
+#else
+                VectorInt cell = cell3d;
+#endif
+                _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2)));
+            }
+            
             if (_refreshCounter++ >= Settings.refreshPeriod)
             {
                 _refreshCounter = 0;
@@ -130,17 +141,7 @@ namespace Core.World
                 }*/
             }
 
-            if (_grid.Update(_playerTracker.WorldPosition, out Vector3Int cell3d))
-            {
-#if FLAT_SPACE
-                VectorInt cell = new VectorInt(cell3d.x, cell3d.z);
-#else
-                VectorInt cell = cell3d;
-#endif
-                _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2))).Forget();
-            }
-
-            foreach (var entity in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
+            foreach ((IWorldEntity entity, VectorInt cell) in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
             {
                 SetLodForEntity(entity);
             }
@@ -155,7 +156,7 @@ namespace Core.World
             await _chunksSet.SetRange(new VolumeInt(cell.x - _refreshNeighboursRadius, cell.z - _refreshNeighboursRadius,
                 _refreshNeighboursRadius * 2, _refreshNeighboursRadius * 2));
 #else
-            await _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2)));
+            await _chunksSet.SetRangeAsync(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2)));
 #endif
         }
         
@@ -184,7 +185,7 @@ namespace Core.World
                 }
                 _chunksSet.RemoveEntityFromChunk(_coordinatesCache[i], entity);
                 _coordinatesCache[i] = cell;
-                _chunksSet.AddEntityToChunk(cell, entity);
+                _chunksSet.AddEntityToChunk(cell, entity, true);
             }
         }
 
@@ -199,20 +200,21 @@ namespace Core.World
             }
         }
 
-        public IEnumerable<IWorldEntity> EnumerateRadius(Vector3 center, float radius)
+        
+        public IEnumerable<(IWorldEntity entity, VectorInt cell)> EnumerateRadius(Vector3 center, float radius)
         {
             var range = Mathf.RoundToInt(radius / _grid.Size + 0.5f);
             float sqrRadius = radius * radius;
-            foreach (var worldEntity in EnumerateNeighbours(center, range))
+            foreach ((IWorldEntity entity, VectorInt cell) in EnumerateNeighbours(center, range))
             {
-                if (Vector3.SqrMagnitude(worldEntity.Position - _playerTracker.WorldPosition) < sqrRadius)
+                if (Vector3.SqrMagnitude(entity.Position - _playerTracker.WorldPosition) < sqrRadius)
                 {
-                    yield return worldEntity;
+                    yield return (entity, cell);
                 }
             }
         }
         
-        public IEnumerable<IWorldEntity> EnumerateNeighbours(Vector3 center, int cellsRadius)
+        public IEnumerable<(IWorldEntity entity, VectorInt cell)> EnumerateNeighbours(Vector3 center, int cellsRadius)
         {
             var range = VectorInt.one * cellsRadius;
 #if FLAT_SPACE
@@ -234,7 +236,7 @@ namespace Core.World
 #endif
                         foreach (var worldEntity in EnumerateCell(cell))
                         {
-                            yield return worldEntity;
+                            yield return (worldEntity, cell);
                         }
 #if !FLAT_SPACE
                     }

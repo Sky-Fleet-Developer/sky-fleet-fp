@@ -19,7 +19,11 @@ namespace WorldEditor
             get
             {
                 var center = _locationChunksSet.GetRange().center;
+#if FLAT_SPACE
                 return new Vector3(center.x, 0, center.y) * _grid.GetCellSize();
+#else
+                return center * _grid.GetCellSize();
+#endif
             }
         }
         public Vector3 SpacePosition => WorldPosition - WorldOffset.Offset;

@@ -13,4 +13,9 @@ namespace Core.World
         void RegisterDisposeListener(IWorldEntityDisposeListener listener);
         void UnregisterDisposeListener(IWorldEntityDisposeListener listener);
     }
+
+    public interface IObjectEntity : IWorldEntity
+    {
+        GameObject GameObject { get; }
+    }
 }
