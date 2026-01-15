@@ -27,27 +27,36 @@ namespace Core.World
         public event Action<StructureEntity, int> OnLodChangedEvent;
         public Vector3 Position => _head.position;
         public IStructure Structure => _structure;
-        private int instanceIndex;
         private int _lod;
-        private static int instanceCount = 0;
+        private bool _isLodDirty;
+        private int _instanceIndex;
+        private static int _instanceCount = 0;
 
         public StructureEntity()
         {
-            instanceIndex = instanceCount++;
+            _instanceIndex = _instanceCount++;
         }
         public StructureEntity(StructureConfigurationHead head, Configuration<IStructure>[] configs)
         {
-            instanceIndex = instanceCount++;
+            _instanceIndex = _instanceCount++;
             _head = head;
             _configs = configs;
         }
         public StructureEntity(IStructure structure, DiContainer diContainer)
         {
+            _instanceIndex = _instanceCount++;
             _factory = diContainer.Resolve<IStructureFactory>();
             _configs = _factory.GetDefaultConfigurations(structure, out _head);
         }
 
-        private bool _isLodDirty;
+        public void SetConfig<T>(T config) where T : Configuration<IStructure>
+        {
+            for (var i = 0; i < _configs.Length; i++)
+            {
+                if (_configs[i] is T) _configs[i] = config;
+            }
+        }
+
         public void OnLodChanged(int lod)
         {
             _lod = lod;
@@ -84,6 +93,10 @@ namespace Core.World
         }
         
         public Task GetAnyLoad() => _loading is { IsCompleted: true } ? Task.CompletedTask : _loading;
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
 
 
         public void RegisterDisposeListener(IWorldEntityDisposeListener listener)
@@ -165,7 +178,6 @@ namespace Core.World
         {
             public static readonly JsonConverter[] Converters = new JsonConverter[]
             {
-                new VectorConverter(),
                 new VectorConverter(),
                 new QuaternionConverter(),
                 new Matrix4x4Converter(),

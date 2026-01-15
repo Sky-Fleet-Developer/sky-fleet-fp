@@ -10,6 +10,7 @@ namespace Core.World
         Vector3 Position { get; }
         void OnLodChanged(int lod);
         Task GetAnyLoad();
+        void Initialize();
         void RegisterDisposeListener(IWorldEntityDisposeListener listener);
         void UnregisterDisposeListener(IWorldEntityDisposeListener listener);
     }

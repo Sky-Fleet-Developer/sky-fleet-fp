@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Trading;
+using System.IO;
+using Core.ContentSerializer;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Core.Items
         private List<ItemProperty> _properties = new();
         public ItemSign Sign => _sign;
         public float Amount => _amount;
+        public IReadOnlyList<ItemProperty> Properties => _properties;
         public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[ItemProperty.IdentifiableInstance_Identifier].stringValue : null;
         public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
         public bool IsUnique => TryGetProperty(ItemSign.IdentifiableTag, out _);
@@ -161,5 +163,23 @@ namespace Core.Items
         }
 
         public bool IsEqualsSignOrIdentity(ItemInstance other) => _sign.Equals(other._sign) && Identifier == other.Identifier;
+
+        public class Serializer : ISerializer<ItemInstance>
+        {
+            public void Serialize(ItemInstance obj, Stream stream)
+            {
+            }
+
+            public ItemInstance Deserialize(Stream stream)
+            {
+                var entity = new ItemInstance();
+                Populate(stream, ref entity);
+                return entity;
+            }
+
+            public void Populate(Stream stream, ref ItemInstance obj)
+            {
+            }
+        }
     }
 }

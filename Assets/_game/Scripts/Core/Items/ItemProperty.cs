@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using Core.ContentSerializer;
 
 namespace Core.Items
 {
@@ -23,6 +25,36 @@ namespace Core.Items
         public object Clone()
         {
             return new ItemProperty {name = name, values = values.ToArray()};
+        }
+        
+        public class Serializer : ISerializer<ItemProperty>
+        {
+            public void Serialize(ItemProperty obj, Stream stream)
+            {
+                stream.WriteInt(obj.values.Length);
+                foreach (var itemPropertyValue in obj.values)
+                {
+                    stream.WriteString(itemPropertyValue.stringValue);
+                    stream.WriteInt(itemPropertyValue.intValue);
+                    stream.WriteFloat(itemPropertyValue.floatValue);
+                }
+            }
+
+            public ItemProperty Deserialize(Stream stream)
+            {
+                var entity = new ItemProperty();
+                Populate(stream, ref entity);
+                return entity;
+            }
+
+            public void Populate(Stream stream, ref ItemProperty obj)
+            {
+                obj.values = new ItemPropertyValue[stream.ReadInt()];
+                for (int i = 0; i < obj.values.Length; i++)
+                {
+                    obj.values[i] = new ItemPropertyValue {stringValue = stream.ReadString(), intValue = stream.ReadInt(), floatValue = stream.ReadFloat()};
+                }
+            }
         }
     }
     

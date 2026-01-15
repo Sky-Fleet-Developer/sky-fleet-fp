@@ -94,6 +94,7 @@ namespace Core.World
             
             _chunksSet.AddEntityToChunk(cell, entity);
             _lods[entity] = -1;
+            entity.Initialize();
             SetLodForEntity(entity);
         }
 

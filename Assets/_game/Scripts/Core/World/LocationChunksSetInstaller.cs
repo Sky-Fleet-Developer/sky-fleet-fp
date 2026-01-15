@@ -8,7 +8,7 @@ namespace Core.World
     public class LocationChunksSetInstaller : MonoBehaviour, IMyInstaller
     {
         private LocationChunksSet _locationChunksSet;
-private LoadingChunkRuntimeStrategy _loadingChunkRuntimeStrategy;
+        private LoadingChunkRuntimeStrategy _loadingChunkRuntimeStrategy;
         [Inject]
         private void Inject(DiContainer container)
         {

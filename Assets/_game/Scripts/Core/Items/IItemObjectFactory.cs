@@ -6,7 +6,8 @@ namespace Core.Items
 {
     public interface IItemObjectFactory
     {
-        void Deconstruct(IItemObjectHandle itemObject);
-        Task<List<GameObject>> Create(ItemInstance item);
+        void Deconstruct(IItemObject itemObject);
+        Task<List<IItemObject>> Create(ItemInstance item);
+        Task<IItemObject> CreateSingle(ItemInstance item);
     }
 }

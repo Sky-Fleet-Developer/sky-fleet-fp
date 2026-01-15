@@ -54,6 +54,7 @@ namespace WorldEditor
         private bool _isInitialized;
         private WorldOffset.IWorldOffsetHandler _worldOffsetHandler;
         private TerrainProvider.ITerrainProviderHandler _terrainProviderHandler;
+        private IWorldEntity _editingEntity;
 
         private ChunkPositionMode _chunkPositionMode = ChunkPositionMode.None;
         private ChunkPositionMode ChunkPositionMode
@@ -130,8 +131,8 @@ namespace WorldEditor
             if(!SetupWorldSpace(diContainer)) return;
             if(!SetupTerrainProvider(diContainer)) return;
             if(!SetupItemFactory(diContainer)) return;
-            
             SetupWorldOffset(diContainer);
+            
             var structureFactory = new EditorStructureFactory();
             diContainer.Bind<IStructureFactory>().FromInstance(structureFactory);
             var strategy = new LocationChunkEditorLoadStrategy();
@@ -316,10 +317,32 @@ namespace WorldEditor
                 {
                     EditorGUIUtility.PingObject(objectEntity.GameObject);
                 }
-                if (GUILayout.Button("edit", GUILayout.Width(50), GUILayout.Height(22)) && objectEntity != null && objectEntity.GameObject && objectEntity is StructureEntity)
+                bool isEditing = _editingEntity == entity;
+                bool isEditingNow = GUILayout.Toggle(isEditing, "edit", GUILayout.Width(50), GUILayout.Height(22));
+                if(!isEditing && isEditingNow)
                 {
-                    Selection.activeGameObject = objectEntity.GameObject;
-                    StructConfigHolder.MakeConfigForStructure();
+                    if (objectEntity != null && objectEntity.GameObject && objectEntity is StructureEntity)
+                    {
+                        Selection.activeGameObject = objectEntity.GameObject;
+                        StructConfigHolder.MakeConfigForStructure();
+                        objectEntity.GameObject.transform.parent.name += " (Temp)";
+                        objectEntity.GameObject.transform.parent.gameObject.hideFlags = HideFlags.DontSave;
+                    }
+
+                    _editingEntity = entity;
+                }
+                if(isEditing && !isEditingNow)
+                {
+                    if (objectEntity != null && objectEntity.GameObject && objectEntity is StructureEntity structureEntity)
+                    {
+                        var config = objectEntity.GameObject.transform.parent.GetComponent<StructConfigHolder>();
+                        structureEntity.SetConfig(config.blocksConfiguration);
+                        structureEntity.SetConfig(config.graphConfiguration);
+                        structureEntity.Update();
+                        objectEntity.GameObject.transform.parent = null;
+                        DestroyImmediate(config.gameObject);
+                    }
+                    _editingEntity = null;
                 }
                 if(GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(22)))
                 {

@@ -42,8 +42,16 @@ namespace WorldEditor
         public async Task Unload(LocationChunkData data, VectorInt coord)
         {
             List<Task> tasks = new List<Task>();
+            List<GameObject> configHolders = new List<GameObject>();
             foreach (var worldEntity in data.GetEntities())
             {
+                if (worldEntity is StructureEntity structureEntity && structureEntity.GameObject)
+                {
+                    if (structureEntity.GameObject.transform.parent && structureEntity.GameObject.transform.parent.TryGetComponent<StructConfigHolder>(out var holder))
+                    {
+                        configHolders.Add(holder.gameObject);
+                    }
+                }
                 _worldSpace.RemoveEntity(worldEntity);
                 worldEntity.Dispose();
                 var loadTask = worldEntity.GetAnyLoad();
@@ -56,6 +64,18 @@ namespace WorldEditor
             foreach (var task in tasks)
             {
                 await task;
+            }
+            
+            foreach (var configHolder in configHolders)
+            {
+                if(configHolder.name.Contains("(Temp)"))
+                {
+                    Object.DestroyImmediate(configHolder);
+                }
+                else
+                {
+                    configHolder.SetActive(false);
+                }
             }
         }
     }

@@ -22,10 +22,10 @@ namespace Runtime.Items
             _container.Bind<IItemObjectFactory>().To<ItemObjectFactory>().FromInstance(this);
         }
 
-        public async Task<List<GameObject>> Create(ItemInstance item)
+        public async Task<List<IItemObject>> Create(ItemInstance item)
         {
             var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
-            List<GameObject> instances = new List<GameObject>((int)item.Amount);
+            List<IItemObject> instances = new List<IItemObject>((int)item.Amount);
             foreach (var makeInstance in item.DetachStacks(item.Sign.GetStackSize()))
             {
                 var instance = ConstructItemPrivate(makeInstance, prefab);
@@ -35,13 +35,20 @@ namespace Runtime.Items
             return instances;
         }
 
-        private GameObject ConstructItemPrivate(ItemInstance item, GameObject source)
+        public async Task<IItemObject> CreateSingle(ItemInstance item)
+        {
+            var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
+            return ConstructItemPrivate(item, prefab);
+        }
+
+        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source)
         {
             var instance = DynamicPool.Instance.Get(source.transform).gameObject;
-            if (instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
+            if (!instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
             {
-                itemObjectHandle.SetSourceItem(item);
+                return null;
             }
+            itemObjectHandle.SetSourceItem(item);
             
             if (item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) && item.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
@@ -66,10 +73,10 @@ namespace Runtime.Items
             {
                 rigidbody.mass = item.GetMass();
             }
-            return instance;
+            return itemObjectHandle;
         }
 
-        public void Deconstruct(IItemObjectHandle itemObject)
+        public void Deconstruct(IItemObject itemObject)
         {
             DynamicPool.Instance.Return(itemObject.transform);
         }
