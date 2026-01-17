@@ -26,8 +26,7 @@ MonoBehaviour:
       - iron
     - tags:
       - container
-    excludeTags:
-    - tags: []
+    excludeTags: []
   - id: iron_refinery
     costRulesProcessed:
     - value: 1.15
@@ -62,8 +61,7 @@ MonoBehaviour:
       - T1
     - tags:
       - container
-    excludeTags:
-    - tags: []
+    excludeTags: []
   - id: test_shop
     costRulesProcessed: []
     buyoutCostRulesProcessed:
@@ -78,8 +76,7 @@ MonoBehaviour:
       - resizable
     - tags:
       - liquid
-    excludeTags:
-    - tags: []
+    excludeTags: []
 --- !u!114 &-4455120187770695450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,6 +432,49 @@ MonoBehaviour:
       - stringValue: bag
         intValue: 0
         floatValue: 0
+  - id: cargo-emgracopter_body
+    tags:
+    - vehicle
+    - mass
+    - container
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 400
+        intValue: 400
+        floatValue: 400
+      - stringValue: 78
+        intValue: 78
+        floatValue: 78
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+    - name: container
+      values:
+      - stringValue: 9999
+        intValue: 9999
+        floatValue: 9999
+      - stringValue: block
+        intValue: 0
+        floatValue: 0
+  - id: "\u0441opter-\u0441ontrol-5axis_part"
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 30
+        intValue: 30
+        floatValue: 30
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
   linksToPrefabs:
   - signId: iron_ore
     prefabGuid: 
@@ -472,6 +512,10 @@ MonoBehaviour:
     prefabGuid: 32392e7850e5f4942814cddad09851ff
   - signId: small_bag
     prefabGuid: 
+  - signId: cargo-emgracopter_body
+    prefabGuid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
+  - signId: "\u0441opter-\u0441ontrol-5axis_part"
+    prefabGuid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
   containerInfos:
   - signId: cube_box
     includeTags:
@@ -489,6 +533,12 @@ MonoBehaviour:
       - mass
     excludeTags: []
     maxVolume: 24
+  - signId: cargo-emgracopter_body
+    includeTags:
+    - tags:
+      - block
+    excludeTags: []
+    maxVolume: 9999
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,6 +557,7 @@ MonoBehaviour:
   - {fileID: -4838933943100615771}
   - {fileID: -4455120187770695450}
   - {fileID: 8935232688312866269}
+  - {fileID: 8341189919319502898}
   serializedSharedData:
     serializationVersion: 0.0.1
     cargoCheckLayer:
@@ -521,7 +572,6 @@ MonoBehaviour:
     interactiveLayerIndex: 6
     interactionDistance: 2.3
     maxCollidersToScan: 20
-    controlFailText: Control is alredy used
     walkableLayer:
       serializedVersion: 2
       m_Bits: 65537
@@ -558,6 +608,105 @@ MonoBehaviour:
   m_Name: ViewSettings
   m_EditorClassIdentifier: 
   viewRadius: 4000
+--- !u!114 &8341189919319502898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 912dd233e5d5424f90e76f43eff17080, type: 3}
+  m_Name: StructureGridLocalSource
+  m_EditorClassIdentifier: Core::Core.Character.Stuff.StructureGridLocalSource
+  data:
+  - id: cargo_emgracopter
+    cells:
+    - slotId: FrontWheel_Rotator
+      path: FrontWheel_Parent/
+      sibling: 0
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: TestJet
+      path: 
+      sibling: 3
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: SmallLiquidTank_Front
+      path: 
+      sibling: 5
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: SmallLiquidTank_Rear
+      path: 
+      sibling: 6
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: SmallFuelPowerGenerator
+      path: 
+      sibling: 7
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: SmallBattery
+      path: 
+      sibling: 8
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: CopterControl_5axis
+      path: 
+      sibling: 9
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: ElevonsDistributor
+      path: 
+      sibling: 10
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: LightSupport-Single_L
+      path: 
+      sibling: 11
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: LightSupport-Single_R
+      path: 
+      sibling: 12
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: SupportTopCutoffModule
+      path: 
+      sibling: 13
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: RudderR_Rotator
+      path: RudderR_Parent/
+      sibling: 0
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: RudderL_Rotator
+      path: RudderL_Parent/
+      sibling: 0
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
+    - slotId: CargoTrunk
+      path: 
+      sibling: 17
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+      mountingType: 
 --- !u!114 &8935232688312866269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -577,13 +726,15 @@ MonoBehaviour:
     includeTags:
     - tags:
       - equipable
-    excludeTags:
-    - tags: []
+    excludeTags: []
+    m_Properties: []
   - presetId: character_slots
     slotId: head
     maxCapacity: 1
     includeTags:
     - tags:
       - equipable
-    excludeTags:
-    - tags: []
+    excludeTags: []
+    m_Properties: []
+  localSources:
+  - {fileID: 8341189919319502898}

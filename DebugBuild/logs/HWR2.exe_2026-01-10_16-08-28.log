@@ -1,0 +1,107 @@
+#A000FF Log - 2026-1-10
+[NFO] [16:08:28] Heroes of Hammerwatch II started
+[NFO] [16:08:28] Build 135: ARCH_64 USING_STEAM RELEASE FINAL
+[NFO] [16:08:28] Initializing Steam
+[NFO] [16:08:28] Steam ID: 110000141f715d4
+[NFO] [16:08:28] Launch options: 1: E:\Games\Heroes.of.Hammerwatch.II.Build.21002016\Heroes.of.Hammerwatch.II.Build.21002016\HWR2.exe 
+[NFO] [16:08:28] Listing system info:
+[NFO] [16:08:28]   Platform:   Windows
+[NFO] [16:08:28]   CPU count:  12
+[NFO] [16:08:28]   RAM:        32691 MB
+[NFO] [16:08:28] Opening SDL window
+[NFO] [16:08:28] Display DPI scale: 1
+[NFO] [16:08:28] Starting BGFX renderer OpenGL 3.2
+[NFO] [16:08:28] BGFX initialized
+[NFO] [16:08:28] Listing renderer info:
+[NFO] [16:08:28]   Renderer:   OpenGL 3.2
+[NFO] [16:08:28]   Vendor:     Nvidia
+[ERR] [16:08:28] Missing compression dictionary: res/net_short.dict
+[ERR] [16:08:28] Missing compression dictionary: res/net_long.dict
+[NFO] [16:08:28] Workshop: Subscribed items: 0
+[NFO] [16:08:28] Loading control bindings from 'res/controls_default.cfg'
+[ERR] [16:08:28] Failed to parse XML tree: "" (source: res/controls_default.cfg)
+[ERR] [16:08:28] Unable to load default controller configuration!
+[NFO] [16:08:28] Automatically assigning with 0 gamepads, 0 joysticks, 0 steam controllers
+[WRN] [16:08:28] No scenario set!
+[NFO] [16:08:28] LoadPersistentData()
+[NFO] [16:08:28] Trying to load persistent save 'saves/0.hps'
+[NFO] [16:08:28] Reading hash of 1638 bytes of data
+[NFO] [16:08:28] LoadManager::StartLoadMenu levels/town.lvl
+[NFO] [16:08:28] Zoom in scene by factor of: 1.777778
+[NFO] [16:08:28] Resizing render targets: 1024x768 (1.000000)
+[NFO] [16:08:28] Zoom in scene by factor of: 1.251157
+[NFO] [16:08:28] Resizing render targets: 1920x1081 (2.000000)
+[NFO] [16:08:28] Zoom in scene by factor of: 1.252315
+[NFO] [16:08:28] Resizing render targets: 1920x1082 (2.000000)
+[NFO] [16:08:29] Loading resources
+[NFO] [16:08:29] Opening resources
+[ERR] [16:08:29] Language file nor language fallback file was found!
+[NFO] [16:08:29] Resource load time: 0 ms
+[NFO] [16:08:29] Creating sound engine
+[NFO] [16:08:29] ResourceLoader load times:
+[NFO] [16:08:29]  class TextureLoader                       0.00 ms (0 files)
+[NFO] [16:08:29]  class TilesetLoader                       0.00 ms (0 files)
+[NFO] [16:08:29]  class UnitLoader                          0.00 ms (0 files)
+[NFO] [16:08:29]  class ShaderLoader                        0.00 ms (0 files)
+[NFO] [16:08:29]  class EffectLoader                        0.00 ms (0 files)
+[NFO] [16:08:29]  class MaterialLoader                      0.00 ms (0 files)
+[NFO] [16:08:29]  class ScriptLoader                        0.00 ms (0 files)
+[NFO] [16:08:29]  class MetaScriptLoader                    0.00 ms (0 files)
+[NFO] [16:08:29]  class FontLoader                          0.00 ms (0 files)
+[NFO] [16:08:29]  class TTFFontLoader                       0.00 ms (0 files)
+[NFO] [16:08:29]  class PenLoader                           0.00 ms (0 files)
+[NFO] [16:08:29]  class SValueLoader                        0.00 ms (0 files)
+[NFO] [16:08:29]  class GUILoader                           0.00 ms (0 files)
+[NFO] [16:08:29]  class EnvironmentLoader                   0.00 ms (0 files)
+[NFO] [16:08:29]  class NetMessageLoader                    0.00 ms (0 files)
+[NFO] [16:08:29]  class SoundLoader                         0.00 ms (0 files)
+[NFO] [16:08:29]  class SoundBankLoader                     0.00 ms (0 files)
+[NFO] [16:08:29]  class LanguageLoader                      0.00 ms (0 files)
+[NFO] [16:08:29]  class BitmapLoader                        0.00 ms (0 files)
+[NFO] [16:08:29]  class FMODSoundBankLoader                 0.00 ms (0 files)
+[NFO] [16:08:29]  class LevelLoader                         0.00 ms (0 files)
+[NFO] [16:08:29]  class IncludeLoader                       0.00 ms (0 files)
+[NFO] [16:08:29]  class TIFFLoader                          0.00 ms (0 files)
+[NFO] [16:08:29]  class PrefabLoader                        0.00 ms (0 files)
+[NFO] [16:08:29]  class BrushLoader                         0.00 ms (0 files)
+[NFO] [16:08:29]  class TextureMergeLoader                  0.00 ms (0 files)
+[NFO] [16:08:29]  class H265Loader                          0.00 ms (0 files)
+[NFO] [16:08:29]  class FBXLoader                           0.00 ms (0 files)
+[NFO] [16:08:29]  class Material3DLoader                    0.00 ms (0 files)
+[NFO] [16:08:29]  class OzzSkeletonLoader                   0.00 ms (0 files)
+[NFO] [16:08:29]  class OzzAnimationLoader                  0.00 ms (0 files)
+[NFO] [16:08:29]  class OzzModelLoader                      0.00 ms (0 files)
+[NFO] [16:08:29]  class SkeletonSetLoader                   0.00 ms (0 files)
+[ERR] [16:08:29] Failed to load menu level!
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_col_glsl' (1)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_mcol_glsl' (2)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_col_mcol_glsl' (3)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_amul_glsl' (4)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_amul_col_glsl' (5)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_amul_mcol_glsl' (6)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_batch_vcol_tex_amul_col_mcol_glsl' (7)
+[NFO] [16:08:29] Compiling shaders
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_lit_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_vcol_lit_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_vcol_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_addcol_lit_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_addcol_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_lit_aexp_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_aexp_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_proj_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/sprite_proj_batch_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_shaded_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_lit_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_lit_shaded_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_vcol_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_vcol_shaded_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_vcol_lit_glsl' (0)
+[ERR] [16:08:29] Failed to load shader 'system/shaders/mesh_vcol_lit_shaded_glsl' (0)
+[WRN] [16:08:29] SE : LoadByteCode failed. The bytecode is invalid. Number of bytes read from stream: 9
+[WRN] [16:08:29] SE : LoadByteCode failed. The bytecode is invalid. Number of bytes read from stream: 9
+[NFO] [16:08:29] Finished load state 'setting_scenario'
+[ERR] [16:08:29] Failed to open level 'levels/town.lvl'
+[ERR] [16:08:29] Couldn't find level levels/town.lvl

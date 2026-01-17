@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿using System.Globalization;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.Configurations.GoogleSheets
@@ -24,6 +25,7 @@ namespace Core.Configurations.GoogleSheets
 
         private async void LoadAsync()
         {
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             var data = await TableUtilities.LoadAsync(url);
             var links = TableUtilities.ParseAs<Link>(data, '\t', arraySeparator);
             for (var i = 0; i < tables.Length; i++)

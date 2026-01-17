@@ -6,6 +6,8 @@ namespace Core.Trading
 {
     public partial class BankSystem
     {
+
+        
         [Serializable]
         private class WalletSource
         {

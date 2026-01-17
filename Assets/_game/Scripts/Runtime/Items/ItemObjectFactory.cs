@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Core;
 using Core.Configurations;
 using Core.Items;
+using Core.Misc;
 using Core.Trading;
 using Core.Utilities;
 using UnityEngine;
@@ -37,6 +38,10 @@ namespace Runtime.Items
 
         public async Task<IItemObject> CreateSingle(ItemInstance item)
         {
+            if (item.Amount > item.Sign.GetStackSize())
+            {
+                throw new System.Exception("Cant create ItemObject: amount over limit");
+            }
             var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
             return ConstructItemPrivate(item, prefab);
         }
@@ -63,9 +68,9 @@ namespace Runtime.Items
                 }
                 ContainerInfo container = _tableItems.GetContainer(item.Sign.Id);
                 containerComponent.Init(
-                    identifiableProperty.values[ItemProperty.IdentifiableInstance_Identifier].stringValue,
+                    identifiableProperty.values[Property.IdentifiableInstance_Identifier].stringValue,
                     container,
-                    containerProperty.values[ItemProperty.Container_Volume].floatValue);
+                    containerProperty.values[Property.Container_Volume].floatValue);
                 instance.AddComponent<ContainerItemMass>();
             }
 

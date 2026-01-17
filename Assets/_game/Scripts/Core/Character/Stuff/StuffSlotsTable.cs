@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Configurations;
 using Core.Configurations.GoogleSheets;
+using Core.Misc;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Zenject;
@@ -15,10 +16,12 @@ namespace Core.Character.Stuff
         [SerializeField] public string presetId;
         [SerializeField] public string slotId; 
         [SerializeField] public float maxCapacity;
+        private string[] properties;
         private string[] includeItemsTags;
         private string[] excludeItemsTags;
         [SerializeField] private TagCombination[] includeTags;
         [SerializeField] private TagCombination[] excludeTags;
+        [SerializeField] private Property[] m_Properties;
 
         public void Postprocess()
         {
@@ -49,12 +52,37 @@ namespace Core.Character.Stuff
             {
                 excludeTags = Array.Empty<TagCombination>();
             }
+
+            if (properties != null)
+            {
+                m_Properties = new Property[properties.Length];
+                for (var i = 0; i < properties.Length; i++)
+                {
+                    if (Property.TryParse(properties[i], out Property property))
+                    {
+                        if (property.values.Length == 0)
+                        {
+                            continue;
+                        }
+                        m_Properties[i] = property;
+                    }
+                }
+            }
+            else
+            {
+                m_Properties = Array.Empty<Property>();
+            }
         }
 
         public SlotCell ConvertToCell()
         {
-            return new SlotCell(slotId, includeTags, excludeTags, maxCapacity);
+            return new SlotCell(slotId, includeTags, excludeTags, maxCapacity, m_Properties);
         }
+    }
+
+    public abstract class StuffSlotsLocalSource : ScriptableObject
+    {
+        public abstract bool TryGetGridSource(string inventoryKey, string gridId, out SlotsGrid result);
     }
     [CreateAssetMenu(menuName = "SF/Configs/StuffSlots")]
     public class StuffSlotsTable : Table<SlotPreset>
@@ -62,6 +90,7 @@ namespace Core.Character.Stuff
         [Inject] private DiContainer _diContainer;
         public override string TableName => "StuffSlots";
         [SerializeField] private SlotPreset[] data;
+        [SerializeField] private StuffSlotsLocalSource[] localSources;
         private Dictionary<string, SlotsGrid> _gridPresets = new ();
 
         protected override SlotPreset[] Data
@@ -80,15 +109,27 @@ namespace Core.Character.Stuff
         {
             if (!_gridPresets.TryGetValue(gridId, out var preset))
             {
-                List<SlotCell> cells = new();
-                foreach (var item in data)
+                foreach (var localSource in localSources)
                 {
-                    if (item.presetId.Equals(gridId))
+                    if (localSource.TryGetGridSource(inventoryKey, gridId, out preset))
                     {
-                        cells.Add(item.ConvertToCell());
+                        break;
                     }
                 }
-                preset = new SlotsGrid(gridId, cells.ToArray());
+
+                if (preset == null)
+                {
+                    List<SlotCell> cells = new();
+                    foreach (var item in data) // search matching by presetId in all rows to collect entire grid
+                    {
+                        if (item.presetId.Equals(gridId))
+                        {
+                            cells.Add(item.ConvertToCell());
+                        }
+                    }
+                    preset = new SlotsGrid(gridId, cells.ToArray());
+                }
+
                 _gridPresets.Add(gridId, preset);
             }
             var result = (SlotsGrid)preset.Clone();

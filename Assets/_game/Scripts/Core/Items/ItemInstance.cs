@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Core.ContentSerializer;
+using Core.Misc;
 using Core.UIStructure.Utilities;
 using Core.Utilities;
 using UnityEngine;
@@ -12,13 +14,13 @@ namespace Core.Items
     {
         private ItemSign _sign;
         private float _amount;
-        private List<ItemProperty> _properties = new();
+        private List<Property> _properties = new();
         public ItemSign Sign => _sign;
         public float Amount => _amount;
-        public IReadOnlyList<ItemProperty> Properties => _properties;
-        public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[ItemProperty.IdentifiableInstance_Identifier].stringValue : null;
+        public IReadOnlyList<Property> Properties => _properties;
+        public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[Property.IdentifiableInstance_Identifier].stringValue : null;
         public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
-        public bool IsUnique => TryGetProperty(ItemSign.IdentifiableTag, out _);
+        public bool IsUnique => _sign.HasTag(ItemSign.IdentifiableTag);
         public bool IsEmpty => _sign == null || _amount == 0;
         int IDraggableItem.Order => IsContainer ? 1 : 0;
         
@@ -27,6 +29,22 @@ namespace Core.Items
         private Action<string, string> _containerRegistrationCallback;
         private Action<string> _unbindInventoryToContainerSettings;
         public ItemInstance(){}
+
+        public ItemInstance(ItemSign sign, ItemDescription description,
+            Action<string, string> containerRegistrationCallback,
+            Action<string> unbindInventoryToContainerSettings)
+        {
+            _unbindInventoryToContainerSettings = unbindInventoryToContainerSettings;
+            _containerRegistrationCallback = containerRegistrationCallback;
+            _amount = description.amount;
+            _sign = sign;
+            _properties = description.properties.DeepClone();
+            if (IsContainer && IsUnique)
+            {
+                _containerRegistrationCallback(Identifier, sign.Id);
+            }
+        }
+
         public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback,
             Action<string> unbindInventoryToContainerSettings)
         {
@@ -34,14 +52,23 @@ namespace Core.Items
             _containerRegistrationCallback = containerRegistrationCallback;
             _amount = amount;
             _sign = sign;
+            TrySetupUniqId(sign);
+        }
+
+        private void TrySetupUniqId(ItemSign sign, string uniqId = null)
+        {
             if (sign.HasTag(ItemSign.IdentifiableTag))
             {
-                var guid = Guid.NewGuid().ToString();
-                _properties.Add(new ItemProperty{name = ItemSign.IdentifiableTag, values = new []{new ItemPropertyValue{stringValue = guid}}});
+                uniqId ??= Guid.NewGuid().ToString();
+                _properties.Add(new Property{name = ItemSign.IdentifiableTag, values = new []{new PropertyValue{stringValue = uniqId}}});
                 if(IsContainer)
                 {
-                    _containerRegistrationCallback(guid, sign.Id);
+                    _containerRegistrationCallback(uniqId, sign.Id);
                 }
+            }
+            else if (!string.IsNullOrEmpty(uniqId))
+            {
+                Debug.LogError($"Error when creating item instance: Trying setup uniqId to item without Identifiable tag. Wanted id: {uniqId}, item sign: {sign.Id}");
             }
         }
 
@@ -49,7 +76,7 @@ namespace Core.Items
         {
             if (!TryGetProperty(ItemSign.OwnershipTag, out var property))
             {
-                property = new ItemProperty { name = ItemSign.OwnershipTag, values = new[] { new ItemPropertyValue { stringValue = owner } } };
+                property = new Property { name = ItemSign.OwnershipTag, values = new[] { new PropertyValue { stringValue = owner } } };
                 _properties.Add(property);
             }
             else
@@ -79,11 +106,11 @@ namespace Core.Items
                 value = null;
                 return false;
             }
-            value = identifiable.values[ItemProperty.IdentifiableInstance_Identifier].stringValue;
+            value = identifiable.values[Property.IdentifiableInstance_Identifier].stringValue;
             return true;
         }
 
-        public bool TryGetProperty(string propertyName, out ItemProperty property)
+        public bool TryGetProperty(string propertyName, out Property property)
         {
             for (var i = 0; i < _properties.Count; i++)
             {

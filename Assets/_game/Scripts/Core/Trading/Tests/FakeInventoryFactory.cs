@@ -1,5 +1,7 @@
-﻿using Core.Character.Stuff;
+﻿using System;
+using Core.Character.Stuff;
 using Core.Configurations;
+using Core.Misc;
 
 namespace Core.Trading.Tests
 {
@@ -18,7 +20,7 @@ namespace Core.Trading.Tests
                 new SlotCell("lot", new TagCombination[]
                 {
                     new() { tags = new string[] { "all" } }
-                }, new TagCombination[] { }, 1)
+                }, new TagCombination[] { }, 1, ArraySegment<Property>.Empty)
             });
         }
         

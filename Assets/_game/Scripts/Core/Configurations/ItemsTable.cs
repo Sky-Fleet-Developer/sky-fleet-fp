@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Core.Configurations.GoogleSheets;
 using Core.Items;
+using Core.Misc;
 using Core.Trading;
 using UnityEngine;
 
@@ -27,7 +28,6 @@ namespace Core.Configurations
             public string prefabGuid;
         }
         
-        private static readonly char[] EntityTagParameterSeparators = new [] {':', '=', ';'};
         
         [SerializeField] private List<ItemSign> items;
         [SerializeField] private List<PrefabLink> linksToPrefabs;
@@ -65,7 +65,7 @@ namespace Core.Configurations
                 _containerById?.Clear();
                 _itemById?.Clear();
                 _prefabLinkById?.Clear();
-                List<ItemProperty> properties = new List<ItemProperty>();
+                List<Property> properties = new List<Property>();
                 List<string> tags = new List<string>();
                 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
                 for (int i = 0; i < value.Length; i++)
@@ -77,40 +77,24 @@ namespace Core.Configurations
                     tags.AddRange(rawItemSign.TradeTags);
                     foreach (string entityTag in rawItemSign.Properties)
                     {
-                        var parameters = entityTag.Split(EntityTagParameterSeparators, StringSplitOptions.RemoveEmptyEntries);
-                        string nameTrim = parameters[0].Trim();
-                        tags.Add(nameTrim);
-                        if (parameters.Length == 1)
+                        if (Property.TryParse(entityTag, out Property property))
                         {
-                            continue;
-                        }
-                        var property = new ItemProperty{name = nameTrim, values = new ItemPropertyValue[parameters.Length - 1]};
-                        
-                        for (var p = 1; p < parameters.Length; p++)
-                        {
-                            string pTrim = parameters[p].Trim();
-                            if (int.TryParse(pTrim, out int intValue))
+                            if (property.values != null && property.values.Length != 0)
                             {
-                                property.values[p-1].intValue = intValue;
+                                properties.Add(property);
                             }
-                            if (float.TryParse(pTrim, out float floatValue))
-                            {
-                                property.values[p-1].floatValue = floatValue;
-                            }
-                            property.values[p-1].stringValue = pTrim;
+                            tags.Add(property.name);
                         }
-
-                        properties.Add(property);
                     }
                     ItemSign newItem = new ItemSign(rawItemSign.Id, tags.ToArray(), properties.ToArray(), rawItemSign.BasicCost);
                     linksToPrefabs.Add(new PrefabLink{ signId = newItem.Id, prefabGuid = rawItemSign.TablePrefab });
                     items.Add(newItem);
 
-                    if (newItem.TryGetProperty(ItemSign.ContainerTag, out ItemProperty containerProperty))
+                    if (newItem.TryGetProperty(ItemSign.ContainerTag, out Property containerProperty))
                     {
-                        containerInfos.Add(new ContainerInfo(newItem.Id, containerProperty.values[ItemProperty.Container_Volume].floatValue,
-                        containerProperty.values[ItemProperty.Container_IncludeRules].stringValue,
-                        containerProperty.values.Length > 2 ? containerProperty.values[ItemProperty.Container_ExcludeRules].stringValue : null));
+                        containerInfos.Add(new ContainerInfo(newItem.Id, containerProperty.values[Property.Container_Volume].floatValue,
+                        containerProperty.values[Property.Container_IncludeRules].stringValue,
+                        containerProperty.values.Length > 2 ? containerProperty.values[Property.Container_ExcludeRules].stringValue : null));
                     }
                 }
             }

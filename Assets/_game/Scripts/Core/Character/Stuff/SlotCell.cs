@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Configurations;
 using Core.Items;
+using Core.Misc;
 using Core.Trading;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -19,14 +20,17 @@ namespace Core.Character.Stuff
         private List<IInventoryStateListener> _listeners = new();
         private IItemsContainerReadonly _attachedInventory;
         private float _maxCapacity;
+        private IReadOnlyCollection<Property> _properties;
+
         public string SlotId => _slotId;
         public float MaxCapacity => _maxCapacity;
-        public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags, float maxCapacity)
+        public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags, float maxCapacity, IReadOnlyCollection<Property> properties)
         {
             _maxCapacity = maxCapacity;
             _slotId = slotId;
             _includeTags = includeTags;
             _excludeTags = excludeTags;
+            _properties = properties;
         }
 
         public bool HasItem => _content != null;
@@ -37,7 +41,7 @@ namespace Core.Character.Stuff
 
         public object Clone()
         {
-            var result = new SlotCell(_slotId, _includeTags, _excludeTags, _maxCapacity);
+            var result = new SlotCell(_slotId, _includeTags, _excludeTags, _maxCapacity, _properties);
             Assert.IsNull(result._content);
             return result;
         }
@@ -49,7 +53,7 @@ namespace Core.Character.Stuff
             {
                 return false;
             }
-            if (equipableProperty.values[ItemProperty.Equipable_SlotType].stringValue != _slotId)
+            if (equipableProperty.values[Property.Equipable_SlotType].stringValue != _slotId)
             {
                 return false;
             }
@@ -161,7 +165,7 @@ namespace Core.Character.Stuff
                 _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
             {
                 _attachedInventory = _bankSystem.GetOrCreateInventory(identifiableProperty
-                    .values[ItemProperty.IdentifiableInstance_Identifier].stringValue);
+                    .values[Property.IdentifiableInstance_Identifier].stringValue);
                 foreach (var listener in _listeners)
                 {
                     _attachedInventory.AddListener(listener);

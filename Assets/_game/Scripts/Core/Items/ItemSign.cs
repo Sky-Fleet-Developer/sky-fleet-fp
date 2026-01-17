@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Misc;
 using UnityEngine;
 
 namespace Core.Items
@@ -27,19 +28,20 @@ namespace Core.Items
         /// determine that item volume extends from contents items
         /// </summary>
         public const string FoldableTag = "foldable";
+        public const string MountingTag = "mounting";
         public const string AllTag = "All";
         
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;
-        [SerializeField] private ItemProperty[] properties;
+        [SerializeField] private Property[] properties;
         
         public string Id => id;
         public IEnumerable<string> Tags => tags;
         public int BasicCost => basicCost;
 
         public ItemSign(){}
-        public ItemSign(string id, string[] tags, ItemProperty[] properties, int basicCost)
+        public ItemSign(string id, string[] tags, Property[] properties, int basicCost)
         {
             this.id = id;
             this.tags = tags;
@@ -63,7 +65,7 @@ namespace Core.Items
             return false;
         }
 
-        public bool TryGetProperty(string propertyName, out ItemProperty property)
+        public bool TryGetProperty(string propertyName, out Property property)
         {
             for (var i = 0; i < properties.Length; i++)
             {
@@ -79,13 +81,13 @@ namespace Core.Items
 
         public float GetStackSize()
         {
-            if (TryGetProperty(MassTag, out ItemProperty massProperty))
+            if (TryGetProperty(MassTag, out Property massProperty))
             {
-                return massProperty.values[ItemProperty.Mass_StackSize].floatValue;
+                return massProperty.values[Property.Mass_StackSize].floatValue;
             }
-            else if (TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
+            else if (TryGetProperty(ResizableTag, out Property resizableProperty))
             {
-                return resizableProperty.values[ItemProperty.Resizable_StackSize].floatValue;
+                return resizableProperty.values[Property.Resizable_StackSize].floatValue;
             }
             Debug.LogError($"Has no volume properties on ItemSign {Id}");
             return 1;
@@ -93,22 +95,22 @@ namespace Core.Items
 
         public float GetSingleVolume()
         {
-            if (TryGetProperty(MassTag, out ItemProperty massProperty))
+            if (TryGetProperty(MassTag, out Property massProperty))
             {
-                return massProperty.values[ItemProperty.Mass_VolumeByOne].floatValue;
+                return massProperty.values[Property.Mass_VolumeByOne].floatValue;
             }
             return 1;
         }
         
         public float GetSingleMass()
         {
-            if (TryGetProperty(MassTag, out ItemProperty massProperty))
+            if (TryGetProperty(MassTag, out Property massProperty))
             {
-                return massProperty.values[ItemProperty.Mass_MassByOne].floatValue;
+                return massProperty.values[Property.Mass_MassByOne].floatValue;
             }
-            else if(TryGetProperty(ResizableTag, out ItemProperty resizableProperty))
+            else if(TryGetProperty(ResizableTag, out Property resizableProperty))
             {
-                return resizableProperty.values[ItemProperty.Resizable_MassByLiter].floatValue;
+                return resizableProperty.values[Property.Resizable_MassByLiter].floatValue;
             }
             Debug.LogError($"Has no mass properties on ItemSign {Id}");
             return 1;

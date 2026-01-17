@@ -119,7 +119,7 @@ namespace Core.Configurations.GoogleSheets
                     else if (fieldType.IsArray && fieldType.GetElementType() != null &&
                              (fieldType.GetElementType().IsPrimitive || fieldType.GetElementType() == typeof(string)))
                     {
-                        var values = cellValue.Split(arraySeparator);
+                        var values = cellValue.Split(arraySeparator, StringSplitOptions.RemoveEmptyEntries);
                         Array arrayValues = Array.CreateInstance(fieldType.GetElementType(), values.Length);
 
                         for (int i = 0; i < values.Length; i++)

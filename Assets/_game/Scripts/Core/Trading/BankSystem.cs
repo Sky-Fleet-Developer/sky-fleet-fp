@@ -4,6 +4,7 @@ using System.Linq;
 using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Items;
+using Core.Misc;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -15,7 +16,7 @@ namespace Core.Trading
     {
         [SerializeField] private WalletSource walletSource;
 #if UNITY_EDITOR
-        [SerializeField] private bool needSaveChanges; 
+        [SerializeField] private bool needSaveChanges;
         [ShowInInspector] private IEnumerable<Wallet> CurrentWallets => _wallets.Values;
 #endif
         [Inject] private IInventoryFactory _inventoryFactory;
@@ -23,25 +24,27 @@ namespace Core.Trading
         [Inject] private ItemsTable _itemsTable;
         [Inject] private IItemInstanceFactory _itemInstanceFactory;
         [Inject] private IMassAndVolumeCalculator _massAndVolumeCalculator;
-        private readonly Dictionary<string, IItemsContainerMasterHandler> _inventories = new ();
-        private readonly Dictionary<string, Wallet> _wallets = new ();
-        private readonly Dictionary<string, ContainerInfo> _containerBindings = new ();
+        private readonly Dictionary<string, IItemsContainerMasterHandler> _inventories = new();
+        private readonly Dictionary<string, Wallet> _wallets = new();
+        private readonly Dictionary<string, ContainerInfo> _containerBindings = new();
 
         public int GetWalletBalance(IWalletOwner owner)
         {
             return GetOrCreateWallet(owner).GetBalance();
         }
-        
+
         public IItemsContainerReadonly GetOrCreateInventory(string key)
         {
             return GetOrCreateInventoryHandler(key);
         }
-        
-        public void BindInventoryToContainerSettings(string inventoryKey, string containerId) => _containerBindings[inventoryKey] = _itemsTable.GetContainer(containerId);
+
+        public void BindInventoryToContainerSettings(string inventoryKey, string containerId) =>
+            _containerBindings[inventoryKey] = _itemsTable.GetContainer(containerId);
 
         public void UnbindInventoryToContainerSettings(string inventoryKey) => _containerBindings.Remove(inventoryKey);
 
-        public IItemInstancesSource GetPullPutWarp(string inventoryKey) => new PullPutWarp(GetOrCreateInventory(inventoryKey), this);
+        public IItemInstancesSource GetPullPutWarp(string inventoryKey) =>
+            new PullPutWarp(GetOrCreateInventory(inventoryKey), this);
 
         public void DissolveEmptyInventory(string inventoryKey)
         {
@@ -51,13 +54,14 @@ namespace Core.Trading
                 inventory.Dispose();
             }
         }
-        
+
         public void InitializeShop(string shopId, string inventoryKey)
         {
             if (_inventories.ContainsKey(inventoryKey))
             {
                 return;
             }
+
             if (_shopDataSource.TryGetSettings(shopId, out ShopSettings settings))
             {
                 var inventory = GetOrCreateInventoryHandler(inventoryKey);
@@ -71,13 +75,13 @@ namespace Core.Trading
                 }
             }
         }
-        
+
         public bool TryPullItem(string key, ItemInstance item, float amount, out ItemInstance result)
         {
             var handler = GetOrCreateInventoryHandler(key);
             return handler.TryPullItem(item, amount, out result);
         }
-       
+
         public PutItemResult TryPutItem(string key, ItemInstance item)
         {
             var handler = GetOrCreateInventoryHandler(key);
@@ -89,6 +93,7 @@ namespace Core.Trading
                     return PutItemResult.Fail;
                 }
             }
+
             item.SetOwnership(key);
             return handler.TryPutItem(item);
         }
@@ -100,11 +105,11 @@ namespace Core.Trading
             var seller = deal.GetSeller();
             var purchaser = deal.GetPurchaser();
             int paymentAmount = deal.GetPaymentAmount();
-            if(!TryTakeCurrencyFromWallet(purchaser, paymentAmount)) return false;
+            if (!TryTakeCurrencyFromWallet(purchaser, paymentAmount)) return false;
             int deliveredItemsCost = 0;
             foreach (var tradeItem in deal.GetPurchases())
             {
-                if (tradeItem.Item !=  null)
+                if (tradeItem.Item != null)
                 {
                     try
                     {
@@ -112,6 +117,7 @@ namespace Core.Trading
                         {
                             continue;
                         }
+
                         if (tradeItem.GetSource().TryPullItem(tradeItem, out var result))
                         {
                             pulledItems.Add(result);
@@ -124,6 +130,7 @@ namespace Core.Trading
                                 deliveredItemsCost += cost;
                                 continue;
                             }
+
                             if (TryPutItem(seller.InventoryKey, result) != PutItemResult.Fully)
                             {
                                 Debug.LogError($"Can't put item back: {result.Sign.Id} ({result.Amount})");
@@ -156,6 +163,7 @@ namespace Core.Trading
 
                 return false;
             }
+
             PutCurrencyToWallet(seller, deliveredItemsCost);
             int change = paymentAmount - deliveredItemsCost;
             if (change > 0)
@@ -172,7 +180,7 @@ namespace Core.Trading
             {
                 return false;
             }
-            
+
             if (destination.IsContainer) // Merge containers is complex. It both should be empty before merge.
             {
                 if (!TryPrepareContainersForMerge(disposable, destination))
@@ -192,7 +200,7 @@ namespace Core.Trading
             string inventoryToDissolve = null;
             if (disposable.TryGetProperty(ItemSign.IdentifiableTag, out var propertyA))
             {
-                var key = propertyA.values[ItemProperty.IdentifiableInstance_Identifier].stringValue;
+                var key = propertyA.values[Property.IdentifiableInstance_Identifier].stringValue;
                 if (_inventories.TryGetValue(key, out var inventoryA))
                 {
                     if (!inventoryA.IsEmpty)
@@ -208,7 +216,7 @@ namespace Core.Trading
 
             if (destination.TryGetProperty(ItemSign.IdentifiableTag, out var propertyB))
             {
-                var key = propertyB.values[ItemProperty.IdentifiableInstance_Identifier].stringValue;
+                var key = propertyB.values[Property.IdentifiableInstance_Identifier].stringValue;
                 if (_inventories.TryGetValue(key, out var inventoryB))
                 {
                     if (!inventoryB.IsEmpty)
@@ -217,7 +225,7 @@ namespace Core.Trading
                     }
                 }
             }
-                
+
             if (!canMergeA || !canMergeB) return false;
             if (inventoryToDissolve != null)
             {
@@ -234,9 +242,10 @@ namespace Core.Trading
                 inventory = _inventoryFactory.CreateInventory(key);
                 _inventories.Add(key, inventory);
             }
+
             return inventory;
         }
-        
+
         private Wallet GetOrCreateWallet(IWalletOwner owner)
         {
             if (!_wallets.TryGetValue(owner.WalletKey, out Wallet wallet))
@@ -244,6 +253,7 @@ namespace Core.Trading
                 wallet = walletSource.LoadWallet(owner.WalletKey);
                 _wallets.Add(owner.WalletKey, wallet);
             }
+
             return wallet;
         }
 
@@ -258,6 +268,7 @@ namespace Core.Trading
 #endif
                 walletSource.SaveWallet(wallet);
             }
+
             return success;
         }
 
@@ -270,7 +281,7 @@ namespace Core.Trading
 #endif
             walletSource.SaveWallet(wallet);
         }
-        
+
         // For testing
         internal Wallet TestCreateWallet(string key, int currency) => _wallets[key] = new Wallet(key, currency);
 
@@ -279,14 +290,15 @@ namespace Core.Trading
             _inventories[key].Dispose();
             _inventories.Remove(key);
         }
+
         internal void TestDeleteWallet(string key) => _wallets.Remove(key);
-        
-        #if UNITY_EDITOR
+
+#if UNITY_EDITOR
         [Button]
         private void ClearWalletsCache()
         {
             _wallets.Clear();
         }
-        #endif
+#endif
     }
 }

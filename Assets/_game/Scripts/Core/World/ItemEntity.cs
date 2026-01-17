@@ -28,7 +28,6 @@ namespace Core.World
         private bool _isLodDirty;
         private IItemObject _objectInstance;
         private ItemInstance _itemInstance;
-        
         public event Action<ItemEntity, int> OnLodChangedEvent;
         public GameObject GameObject => _objectInstance?.transform.gameObject;
         public ItemInstance ItemInstance => _itemInstance;
@@ -37,7 +36,7 @@ namespace Core.World
         
         public void Initialize()
         {
-            _itemInstance = _itemInstanceFactory.Create(_itemsTable.GetItem(_itemDescription.signId), _itemDescription.amount);
+            _itemInstance = _itemInstanceFactory.CreateByDescription(_itemDescription);
             // TODO: process itemDescription nested items
         }
         

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Core.ContentSerializer;
+using Core.Misc;
 using Core.Trading;
 using JetBrains.Annotations;
 
@@ -13,7 +14,7 @@ namespace Core.Items
     {
         public string signId;
         public float amount;
-        public List<ItemProperty> properties;
+        public List<Property> properties;
         [CanBeNull] public List<ItemDescription> nestedItems;
 
         public ItemDescription(ItemInstance instance)
@@ -26,14 +27,14 @@ namespace Core.Items
 
         public void CollectNestedItems(BankSystem bankSystem)
         {
-            ItemProperty? containerProperty = null;
+            Property? containerProperty = null;
             for (var i = 0; i < properties.Count; i++)
             {
                 if (properties[i].name == ItemSign.IdentifiableTag)
                 {
                     containerProperty = properties[i];
                     break;
-                }   
+                }
             }
 
             if (containerProperty == null)
@@ -41,24 +42,27 @@ namespace Core.Items
                 return;
             }
 
-            var inv = bankSystem.GetOrCreateInventory(containerProperty.Value.values[ItemProperty.IdentifiableInstance_Identifier]
+            var inv = bankSystem.GetOrCreateInventory(containerProperty.Value
+                .values[Property.IdentifiableInstance_Identifier]
                 .stringValue);
             if (inv.IsEmpty)
             {
                 return;
             }
+
             nestedItems = new();
-            
+
             foreach (var itemInstance in inv.GetItems())
             {
                 nestedItems.Add(new ItemDescription(itemInstance));
                 nestedItems[^1].CollectNestedItems(bankSystem);
             }
         }
-        
+
         public class Serializer : ISerializer<ItemDescription>
         {
-            private static readonly ISerializer PropertySerializer = Serializers.GetSerializer(typeof(ItemProperty));
+            private static readonly ISerializer PropertySerializer = Serializers.GetSerializer(typeof(Property));
+
             public void Serialize(ItemDescription obj, Stream stream)
             {
                 stream.WriteString(obj.signId);
@@ -66,13 +70,14 @@ namespace Core.Items
                 stream.WriteInt(obj.properties?.Count ?? 0);
                 if (obj.properties != null)
                 {
-                    foreach (ItemProperty property in obj.properties)
+                    foreach (Property property in obj.properties)
                     {
                         PropertySerializer.Serialize(property, stream);
                     }
                 }
+
                 stream.WriteInt(obj.nestedItems?.Count ?? 0);
-                if(obj.nestedItems != null)
+                if (obj.nestedItems != null)
                 {
                     foreach (ItemDescription nestedItem in obj.nestedItems)
                     {
@@ -93,12 +98,12 @@ namespace Core.Items
                 obj.signId = stream.ReadString();
                 obj.amount = stream.ReadFloat();
                 var propertyCount = stream.ReadInt();
-                obj.properties = new List<ItemProperty>(propertyCount);
+                obj.properties = new List<Property>(propertyCount);
                 for (var i = 0; i < propertyCount; i++)
                 {
-                    obj.properties.Add((ItemProperty)PropertySerializer.Deserialize(stream));
+                    obj.properties.Add((Property)PropertySerializer.Deserialize(stream));
                 }
-                
+
                 int nestedItemCount = stream.ReadInt();
                 if (nestedItemCount > 0)
                 {
@@ -111,6 +116,5 @@ namespace Core.Items
                 }
             }
         }
-
     }
 }
