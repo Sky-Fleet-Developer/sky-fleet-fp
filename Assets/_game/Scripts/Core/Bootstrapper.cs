@@ -79,17 +79,19 @@ namespace Core
                 return;
             }
             var sceneContextContainer = _projectContainer.CreateSubContainer();
+            sceneContextContainer.Bind<bool>().FromInstance(true).WithConcreteId("IsRuntime");
             /*if (scene.name == GameSceneName)
             {
                 var context = sceneContextContainer.Resolve<Session>();
                 context.SetSessionAsCreated();
             }*/
 
+            BindScene(scene, sceneContextContainer);
             InstallScene(scene, sceneContextContainer);
             RunServicesAsync(scene).Forget();
         }
 
-        public void InstallScene(Scene scene, DiContainer container)
+        public static void BindScene(Scene scene, DiContainer container)
         {
             foreach (var entry in scene.GetRootGameObjects().OrderBy(x => x.transform.GetSiblingIndex()))
             {
@@ -109,7 +111,9 @@ namespace Core
                     }
                 }
             }
-
+        }
+        public static void InstallScene(Scene scene, DiContainer container)
+        {
             foreach (var entry in scene.GetRootGameObjects().OrderBy(x => x.transform.GetSiblingIndex()))
             {
                 if (!entry.gameObject.activeInHierarchy)

@@ -19,8 +19,9 @@ namespace Core.World
         public void InstallBindings(DiContainer container)
         {
             _loadingChunkRuntimeStrategy = new LoadingChunkRuntimeStrategy();
-            _locationChunksSet = new LocationChunksSet(_loadingChunkRuntimeStrategy);
+            _locationChunksSet = new LocationChunksSet();
             container.BindInstance(_locationChunksSet);
+            container.Bind<ILocationChunkLoadStrategy>().FromInstance(_loadingChunkRuntimeStrategy);
         }
     }
 }

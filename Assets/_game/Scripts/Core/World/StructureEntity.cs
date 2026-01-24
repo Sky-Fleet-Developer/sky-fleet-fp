@@ -95,7 +95,6 @@ namespace Core.World
         public Task GetAnyLoad() => _loading is { IsCompleted: true } ? Task.CompletedTask : _loading;
         public void Initialize()
         {
-            throw new NotImplementedException();
         }
 
 

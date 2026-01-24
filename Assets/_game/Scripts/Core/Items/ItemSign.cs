@@ -135,5 +135,10 @@ namespace Core.Items
         {
             return (id != null ? id.GetHashCode() : 0);
         }
+
+        public override string ToString()
+        {
+            return id;
+        }
     }
 }

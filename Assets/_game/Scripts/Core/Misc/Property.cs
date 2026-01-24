@@ -9,6 +9,8 @@ namespace Core.Misc
     [Serializable]
     public struct Property : ICloneable
     {
+        public const string PositionPropertyName = "position";
+        public const string RotationPropertyName = "rotation";
         public const int Resizable_MassByLiter = 0;
         public const int Resizable_StackSize = 1;
         public const int Mass_MassByOne = 0;
@@ -23,6 +25,8 @@ namespace Core.Misc
         public string name;
         public PropertyValue[] values;
 
+        public Property(string name, params PropertyValue[] values) => (this.name, this.values) = (name, values);
+        
         public object Clone()
         {
             return new Property {name = name, values = values.ToArray()};
@@ -32,6 +36,7 @@ namespace Core.Misc
         {
             public void Serialize(Property obj, Stream stream)
             {
+                stream.WriteString(obj.name);
                 stream.WriteInt(obj.values.Length);
                 foreach (var itemPropertyValue in obj.values)
                 {
@@ -50,6 +55,7 @@ namespace Core.Misc
 
             public void Populate(Stream stream, ref Property obj)
             {
+                obj.name = stream.ReadString();
                 obj.values = new PropertyValue[stream.ReadInt()];
                 for (int i = 0; i < obj.values.Length; i++)
                 {

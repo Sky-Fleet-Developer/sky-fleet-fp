@@ -33,6 +33,17 @@ namespace Core.World
         public ItemInstance ItemInstance => _itemInstance;
 
         public Vector3 Position => _objectInstance == null ? _positionCache : _objectInstance.transform.position + WorldOffset.Offset;
+
+        public ItemEntity()
+        {
+        }
+
+        public ItemEntity(ItemDescription itemDescription, Vector3 position, Quaternion rotation) : this()
+        {
+            _itemDescription = itemDescription;
+            _positionCache = position;
+            _rotationCache = rotation;
+        }
         
         public void Initialize()
         {
@@ -79,17 +90,17 @@ namespace Core.World
 
         public Task GetAnyLoad()
         {
-            throw new NotImplementedException();
+            return _loading ?? Task.CompletedTask;
         }
         
         public void RegisterDisposeListener(IWorldEntityDisposeListener listener)
         {
-            throw new NotImplementedException();
+            _disposeListeners.Add(listener);
         }
 
         public void UnregisterDisposeListener(IWorldEntityDisposeListener listener)
         {
-            throw new NotImplementedException();
+             _disposeListeners.Remove(listener);
         }
 
         
@@ -135,6 +146,7 @@ namespace Core.World
 
         public void Dispose()
         {
+            _itemObjectFactory.Deconstruct(_objectInstance);
             foreach (var listener in _disposeListeners)
             {
                 listener.OnEntityDisposed(this);

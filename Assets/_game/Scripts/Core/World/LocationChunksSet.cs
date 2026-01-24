@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -40,15 +41,14 @@ namespace Core.World
         
         [Inject] private Location _location;
         [Inject] private DiContainer _diContainer;
-        private ILocationChunkLoadStrategy _loadStrategy;
+        [Inject] private ILocationChunkLoadStrategy _loadStrategy;
         private Task _setRangeTask;
         private HashSet<(IWorldEntity entity, VectorInt target)> _notSorted = new ();
         public Task SetRangeTask => _setRangeTask;
 
 
-        public LocationChunksSet(ILocationChunkLoadStrategy loadStrategy)
+        public LocationChunksSet()
         {
-            _loadStrategy = loadStrategy;
             _chunks = new Dictionary<VectorInt, LocationChunkData>();
             _frozen = new Dictionary<VectorInt, LocationChunkData>();
         }
@@ -198,10 +198,20 @@ namespace Core.World
         {
             var chunk = _chunks[coord];
             _frozen.Add(coord, chunk);
-            _chunks.Remove(coord);
-            await _location.WriteChunk(chunk, coord);
-            await _loadStrategy.Unload(chunk, coord);
-            _frozen.Remove(coord);
+            try
+            {
+                _chunks.Remove(coord);
+                await _location.WriteChunk(chunk, coord);
+                await _loadStrategy.Unload(chunk, coord);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                _frozen.Remove(coord);
+            }
         }
 
         public void AddEntityToChunk(VectorInt cell, IWorldEntity entity, bool rememberForNewChunkIfNotExist = false)
@@ -258,10 +268,11 @@ namespace Core.World
         public void Unload()
         {
             Task[] tasks = new Task[_chunks.Count];
-            int i = 0;
-            foreach (var locationChunkData in _chunks)
+            var toUnload = _chunks.Keys.ToArray();
+            
+            for (var i = 0; i < toUnload.Length; i++)
             {
-                tasks[i++] = Unload(locationChunkData.Key);
+                tasks[i] = Unload(toUnload[i]);
             }
 
             Task.WaitAll(tasks);

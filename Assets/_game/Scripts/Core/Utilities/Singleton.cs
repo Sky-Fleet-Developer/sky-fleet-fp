@@ -72,6 +72,7 @@ namespace Core.Utilities
                 GameObject go = new GameObject($"[{typeof(T).Name}]");
                 _instance = go.AddComponent<T>();
                 if(Application.isPlaying == false) _instance.Setup();
+                go.hideFlags = HideFlags.DontSave;
             }
 
             AddToDontDestroy();

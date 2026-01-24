@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Core;
 using Core.Boot_strapper;
+using Core.Configurations;
 using Core.Data;
+using Core.Items;
 using Core.Structure;
 using Core.TerrainGenerator;
 using Core.World;
@@ -11,6 +15,7 @@ using Runtime.Structure;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 #if FLAT_SPACE
@@ -43,7 +48,7 @@ namespace WorldEditor
         private VolumeInt _rangeSettings;
         private LocationChunksSet _chunksSet;
         private LocationInstaller _locationInstaller;
-        private DynamicPositionFromWorldRect _dynamicPositionFromWorldRect;
+        private IDynamicPositionProvider _dynamicPositionFromWorldRect;
         private WorldGrid _worldGrid;
         private WorldSpace _worldSpace;
         private TerrainProvider _terrainProvider;
@@ -57,6 +62,8 @@ namespace WorldEditor
         private IWorldEntity _editingEntity;
 
         private ChunkPositionMode _chunkPositionMode = ChunkPositionMode.None;
+        //private ItemsTable _itemsTable;
+
         private ChunkPositionMode ChunkPositionMode
         {
             set
@@ -125,6 +132,7 @@ namespace WorldEditor
         {
             _isInitialized = false; 
             DiContainer diContainer = new DiContainer();
+            diContainer.Bind<bool>().FromInstance(false).WithConcreteId("IsRuntime");
 
             if (!SetupLocation(diContainer)) return;
             if(!SetupWorld(diContainer)) return;
@@ -132,23 +140,40 @@ namespace WorldEditor
             if(!SetupTerrainProvider(diContainer)) return;
             if(!SetupItemFactory(diContainer)) return;
             SetupWorldOffset(diContainer);
+            //SetupItemsTable(diContainer);
             
-            var structureFactory = new EditorStructureFactory();
+            /*var structureFactory = new EditorStructureFactory();
             diContainer.Bind<IStructureFactory>().FromInstance(structureFactory);
             var strategy = new LocationChunkEditorLoadStrategy();
             _chunksSet = new LocationChunksSet(strategy);
             _dynamicPositionFromWorldRect = new DynamicPositionFromWorldRect(_worldGrid, _chunksSet);
             diContainer.BindInstance(_chunksSet);
             diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(_dynamicPositionFromWorldRect);
+            diContainer.BindInstance(_itemsTable);
+            var itemsFactory = new ItemInstanceFactory();
+            diContainer.Bind<IItemInstanceFactory>().FromInstance(itemsFactory);*/
+            var scene = SceneManager.GetActiveScene();
+            Bootstrapper.BindScene(scene, diContainer);
             
-            diContainer.Inject(strategy);
-            diContainer.Inject(_chunksSet);
-            diContainer.Inject(_locationInstaller);
-            diContainer.Inject(_worldGrid);
-            diContainer.Inject(_worldSpace);
-            if(_terrainProvider) diContainer.Inject(_terrainProvider);
-            diContainer.Inject(_itemObjectFactory);
+            _chunksSet = diContainer.Resolve<LocationChunksSet>();
+            _worldGrid = diContainer.Resolve<WorldGrid>();
+            _dynamicPositionFromWorldRect = diContainer.ResolveId<IDynamicPositionProvider>("Player");
             _worldOffsetHandler = diContainer.TryResolve<WorldOffset.IWorldOffsetHandler>();
+            _dynamicPositionFromWorldRect = new DynamicPositionFromWorldRect(_worldGrid, _chunksSet);
+            diContainer.RebindId<IDynamicPositionProvider>("Player").FromInstance(_dynamicPositionFromWorldRect);
+            var strategy = new LocationChunkEditorLoadStrategy();
+            diContainer.Rebind<ILocationChunkLoadStrategy>().FromInstance(strategy);
+
+            diContainer.Inject(strategy);
+            Bootstrapper.InstallScene(scene, diContainer);
+            
+            //diContainer.Inject(_chunksSet);
+            //diContainer.Inject(_locationInstaller);
+            //diContainer.Inject(_worldGrid);
+            //diContainer.Inject(_worldSpace); 
+            //if(_terrainProvider) diContainer.Inject(_terrainProvider);
+            //diContainer.Inject(_itemObjectFactory);
+
             _worldOffsetHandler?.TakeControl();
             if(_terrainProvider) _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
 
@@ -176,6 +201,15 @@ namespace WorldEditor
             Load(ZeroVolume);
         }
 
+        /*private void SetupItemsTable(DiContainer diContainer)
+        {
+            _itemsTable = FindAnyObjectByType<ItemsTable>();
+            if (!_itemsTable)
+            {
+                Debug.LogError("ItemsTable is not found");
+            }
+        }*/
+        
         private bool SetupWorldOffset(DiContainer diContainer)
         {
             _worldOffset = FindAnyObjectByType<WorldOffset>();
@@ -184,7 +218,7 @@ namespace WorldEditor
                 Debug.LogError("WorldOffset is not found");
                 return false;
             }
-            _worldOffset.InstallBindings(diContainer);
+            //_worldOffset.InstallBindings(diContainer);
             return true;
         }
         private bool SetupLocation(DiContainer diContainer)
@@ -195,7 +229,7 @@ namespace WorldEditor
                 Debug.LogError("LocationInstaller is not found");
                 return false;
             }
-            _locationInstaller.InstallBindings(diContainer);
+            //_locationInstaller.InstallBindings(diContainer);
             return true;
         }
 
@@ -207,7 +241,7 @@ namespace WorldEditor
                 Debug.LogError("WorldGrid is not found");
                 return false;
             }
-            _worldGrid.InstallBindings(diContainer);
+            //_worldGrid.InstallBindings(diContainer);
             return true;
         }
 
@@ -219,7 +253,7 @@ namespace WorldEditor
                 Debug.LogError("WorldSpace is not found");
                 return false;
             }
-            _worldSpace.InstallBindings(diContainer);
+            //_worldSpace.InstallBindings(diContainer);
             return true;
         }
 
@@ -231,7 +265,7 @@ namespace WorldEditor
                 Debug.LogError("ItemFactory is not found");
                 return false;
             }
-            _itemObjectFactory.InstallBindings(diContainer);
+            //_itemObjectFactory.InstallBindings(diContainer);
             return true;
         }
 
@@ -245,7 +279,7 @@ namespace WorldEditor
             }
             else
             {
-                _terrainProvider.InstallBindings(diContainer);
+                //_terrainProvider.InstallBindings(diContainer);
             }
             return true;
         }
@@ -493,6 +527,12 @@ namespace WorldEditor
                 head.rotation = structConfigHolder.transform.rotation;
                 _worldSpace.RegisterStructure(head, structConfigHolder.blocksConfiguration, structConfigHolder.graphConfiguration);
                 //DestroyImmediate(structConfigHolder.gameObject);
+            }
+
+            var items = FindObjectsByType<EntityObjectInstaller>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            foreach (var itemObject in items)
+            {
+                _worldSpace.AddEntity(new ItemEntity(itemObject.itemDescription, itemObject.transform.localPosition, itemObject.transform.localRotation));
             }
             
             _loading = _chunksSet.Save();

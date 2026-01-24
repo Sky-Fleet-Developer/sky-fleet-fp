@@ -48,7 +48,16 @@ namespace Runtime.Items
 
         private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source)
         {
-            var instance = DynamicPool.Instance.Get(source.transform).gameObject;
+            GameObject instance;
+            if (Application.isPlaying)
+            {
+                instance = DynamicPool.Instance.Get(source.transform).gameObject;
+            }
+            else
+            {
+                instance = Instantiate(source);
+            }
+
             if (!instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
             {
                 return null;
@@ -74,6 +83,15 @@ namespace Runtime.Items
                 instance.AddComponent<ContainerItemMass>();
             }
 
+            if (item.TryGetProperty(Property.PositionPropertyName, out var positionProperty))
+            {
+                instance.transform.localPosition = new Vector3(positionProperty.values[0].floatValue, positionProperty.values[1].floatValue, positionProperty.values[2].floatValue);
+            }
+            if (item.TryGetProperty(Property.RotationPropertyName, out var rotationProperty))
+            {
+                instance.transform.localRotation = new Quaternion(rotationProperty.values[0].floatValue, rotationProperty.values[1].floatValue, rotationProperty.values[2].floatValue, rotationProperty.values[3].floatValue);
+            }
+
             if (instance.TryGetComponent(out Rigidbody rigidbody))
             {
                 rigidbody.mass = item.GetMass();
@@ -83,7 +101,14 @@ namespace Runtime.Items
 
         public void Deconstruct(IItemObject itemObject)
         {
-            DynamicPool.Instance.Return(itemObject.transform);
+            if (Application.isPlaying)
+            {
+                DynamicPool.Instance.Return(itemObject.transform);
+            }
+            else
+            {
+                DestroyImmediate(itemObject.transform.gameObject);
+            }
         }
     }
 }
