@@ -60,7 +60,7 @@ namespace Core.Utilities
 
         protected static T Instantiate()
         {
-            _instance = FindObjectOfType<T>();
+            _instance = FindAnyObjectByType<T>(FindObjectsInactive.Include);
             if (_instance != null)
             {
                 Debug.Log($"Find instance for {typeof(T).Name}");
@@ -72,7 +72,7 @@ namespace Core.Utilities
                 GameObject go = new GameObject($"[{typeof(T).Name}]");
                 _instance = go.AddComponent<T>();
                 if(Application.isPlaying == false) _instance.Setup();
-                go.hideFlags = HideFlags.DontSave;
+                go.hideFlags = HideFlags.HideAndDontSave;
             }
 
             AddToDontDestroy();

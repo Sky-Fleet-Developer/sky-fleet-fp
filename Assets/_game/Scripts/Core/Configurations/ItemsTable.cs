@@ -63,8 +63,11 @@ namespace Core.Configurations
                 linksToPrefabs = new List<PrefabLink>();
                 containerInfos = new List<ContainerInfo>();
                 _containerById?.Clear();
+                _containerById = null;
                 _itemById?.Clear();
+                _itemById = null;
                 _prefabLinkById?.Clear();
+                _prefabLinkById = null;
                 List<Property> properties = new List<Property>();
                 List<string> tags = new List<string>();
                 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -94,7 +97,8 @@ namespace Core.Configurations
                     {
                         containerInfos.Add(new ContainerInfo(newItem.Id, containerProperty.values[Property.Container_Volume].floatValue,
                         containerProperty.values[Property.Container_IncludeRules].stringValue,
-                        containerProperty.values.Length > 2 ? containerProperty.values[Property.Container_ExcludeRules].stringValue : null));
+                        containerProperty.values[Property.Container_ExcludeRules].stringValue,
+                        containerProperty.values[Property.Container_GridPreset].stringValue));
                     }
                 }
             }

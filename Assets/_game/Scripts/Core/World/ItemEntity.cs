@@ -32,7 +32,7 @@ namespace Core.World
         public GameObject GameObject => _objectInstance?.transform.gameObject;
         public ItemInstance ItemInstance => _itemInstance;
 
-        public Vector3 Position => _objectInstance == null ? _positionCache : _objectInstance.transform.position + WorldOffset.Offset;
+        public Vector3 Position => _positionCache;
 
         public ItemEntity()
         {
@@ -146,7 +146,11 @@ namespace Core.World
 
         public void Dispose()
         {
-            _itemObjectFactory.Deconstruct(_objectInstance);
+            if (_objectInstance != null)
+            {
+                _itemObjectFactory.Deconstruct(_objectInstance);
+            }
+
             foreach (var listener in _disposeListeners)
             {
                 listener.OnEntityDisposed(this);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core;
@@ -13,6 +14,7 @@ using Newtonsoft.Json;
 using Runtime.Items;
 using Runtime.Structure;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -62,6 +64,7 @@ namespace WorldEditor
         private IWorldEntity _editingEntity;
 
         private ChunkPositionMode _chunkPositionMode = ChunkPositionMode.None;
+        private EntityObjectInstaller[] _entityObjectSources;
         //private ItemsTable _itemsTable;
 
         private ChunkPositionMode ChunkPositionMode
@@ -113,6 +116,16 @@ namespace WorldEditor
             Initialize();
             UnityEditor.Compilation.CompilationPipeline.compilationStarted += OnCompilation;
             UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        private void OnFocus()
+        {
+            RefreshEntitySources();
+        }
+
+        private void RefreshEntitySources()
+        {
+            _entityObjectSources = FindObjectsByType<EntityObjectInstaller>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         }
 
         private void OnPlayModeStateChanged(PlayModeStateChange obj)
@@ -318,7 +331,41 @@ namespace WorldEditor
             }
 
             DrawContentRangeSettings();
-            DrawEntities();
+            DrawEntitiesAll();
+        }
+
+        private void DrawEntitiesAll()
+        {
+            GUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
+            {
+                Rect rect;
+                if (_currentContentRange.size != VectorInt.zero)
+                {
+                    GUILayout.Space(10);
+                    rect = EditorGUILayout.BeginVertical();
+                    {
+                        GUI.Box(rect.Expand(5).MinHeight(300), "");
+                        DrawWorldEntities();
+                    }
+                    EditorGUILayout.EndVertical();
+                }
+                else
+                {
+                    GUILayout.FlexibleSpace();
+                }
+
+                GUILayout.Space(10);
+                rect = EditorGUILayout.BeginVertical();
+                {
+                    GUI.Box(rect.Expand(5).MinHeight(300).AddY(2), "");
+                    DrawEntitySources();
+                }
+                EditorGUILayout.EndVertical();
+                GUILayout.Space(10);
+            }
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
         }
 
         private async void FinishLoading()
@@ -330,8 +377,36 @@ namespace WorldEditor
             _loading = null;
         }
 
-        private void DrawEntities()
+        private void DrawEntitySources()
         {
+            foreach (var source in _entityObjectSources)
+            {
+                if (!source)
+                {
+                    continue;
+                }
+                GUILayout.Label("Scene content");
+                GUILayout.BeginHorizontal();
+                if (_currentContentRange.size != VectorInt.zero)
+                {
+                    if (GUILayout.Button("<<", GUILayout.Width(25), GUILayout.Height(22)))
+                    {
+                        _worldSpace.AddEntity(new ItemEntity(source.itemDescription, source.transform.localPosition,
+                            source.transform.localRotation));
+                    }
+                }
+
+                if (GUILayout.Button(source.name, GUILayout.MinWidth(200), GUILayout.Height(22)))
+                {
+                    EditorGUIUtility.PingObject(source.gameObject);
+                }
+                GUILayout.EndHorizontal();
+            }
+        }
+        
+        private void DrawWorldEntities()
+        {
+            GUILayout.Label("World content");
             int entitiesCount = 0;
             Vector3Int cellCache = Vector3Int.zero;
             EditorGUI.indentLevel++;
@@ -347,7 +422,7 @@ namespace WorldEditor
                 }
                 GUILayout.BeginHorizontal();
                 IObjectEntity objectEntity = entity as IObjectEntity;
-                if (GUILayout.Button(entity.ToString(), GUILayout.Width(300), GUILayout.Height(22)) && objectEntity != null && objectEntity.GameObject)
+                if (GUILayout.Button(entity.ToString(), GUILayout.MinWidth(200), GUILayout.Height(22)) && objectEntity != null && objectEntity.GameObject)
                 {
                     EditorGUIUtility.PingObject(objectEntity.GameObject);
                 }
@@ -429,6 +504,11 @@ namespace WorldEditor
                 if (GUILayout.Button("Refresh entities", GUILayout.Width(200), GUILayout.Height(25)))
                 {
                     ConvertEditorEntitiesToWorld();
+                }
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Save chunks", GUILayout.Width(200), GUILayout.Height(25)))
+                {
+                    SaveChunks();
                 }
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -529,12 +609,17 @@ namespace WorldEditor
                 //DestroyImmediate(structConfigHolder.gameObject);
             }
 
-            var items = FindObjectsByType<EntityObjectInstaller>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-            foreach (var itemObject in items)
+            /*var items = ;
+            foreach (var itemObject in _entityObjectSources)
             {
                 _worldSpace.AddEntity(new ItemEntity(itemObject.itemDescription, itemObject.transform.localPosition, itemObject.transform.localRotation));
-            }
+            }*/
             
+            _loading = _chunksSet.Save();
+        }
+
+        private void SaveChunks()
+        {
             _loading = _chunksSet.Save();
         }
     }

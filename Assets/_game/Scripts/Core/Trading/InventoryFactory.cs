@@ -8,10 +8,7 @@ namespace Core.Trading
 {
     public interface IInventoryFactory
     {
-        public static readonly List<(string, string)> SlotsShortPostfix = new()
-        {
-            ( "_c-slots", "character_slots")
-        };
+
         public IItemsContainerMasterHandler CreateInventory(string key);
     }
     
@@ -22,12 +19,9 @@ namespace Core.Trading
         
         public IItemsContainerMasterHandler CreateInventory(string key)
         {
-            foreach (var valueTuple in IInventoryFactory.SlotsShortPostfix)
+            if (_stuffSlotsTable.TryCreateGrid(key, out var grid))
             {
-                if (key.EndsWith(valueTuple.Item1))
-                {
-                    return _stuffSlotsTable.CreateGrid(key, valueTuple.Item2);
-                }
+                return grid;
             }
 
             var inventory = new Inventory(key, _bankSystem);

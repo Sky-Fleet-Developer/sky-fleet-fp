@@ -43,8 +43,16 @@ namespace Core.Trading
 
         public void UnbindInventoryToContainerSettings(string inventoryKey) => _containerBindings.Remove(inventoryKey);
 
-        public IItemInstancesSource GetPullPutWarp(string inventoryKey) =>
-            new PullPutWarp(GetOrCreateInventory(inventoryKey), this);
+        public IItemInstancesSource GetPullPutWarp(string inventoryKey)
+        {
+            var inv = GetOrCreateInventory(inventoryKey);
+            if (inv is ISlotsGridSource slotsGridSource)
+            {
+                return new SlotPullPutWarp(slotsGridSource, this);
+            }
+            return new PullPutWarp(inv, this);
+        }
+            
 
         public void DissolveEmptyInventory(string inventoryKey)
         {
@@ -198,10 +206,9 @@ namespace Core.Trading
             bool canMergeA = true;
             bool canMergeB = true;
             string inventoryToDissolve = null;
-            if (disposable.TryGetProperty(ItemSign.IdentifiableTag, out var propertyA))
+            if (disposable.IsContainer)
             {
-                var key = propertyA.values[Property.IdentifiableInstance_Identifier].stringValue;
-                if (_inventories.TryGetValue(key, out var inventoryA))
+                if (_inventories.TryGetValue(disposable.ContainerKey, out var inventoryA))
                 {
                     if (!inventoryA.IsEmpty)
                     {
@@ -214,10 +221,9 @@ namespace Core.Trading
                 }
             }
 
-            if (destination.TryGetProperty(ItemSign.IdentifiableTag, out var propertyB))
+            if (destination.IsContainer)
             {
-                var key = propertyB.values[Property.IdentifiableInstance_Identifier].stringValue;
-                if (_inventories.TryGetValue(key, out var inventoryB))
+                if (_inventories.TryGetValue(destination.ContainerKey, out var inventoryB))
                 {
                     if (!inventoryB.IsEmpty)
                     {

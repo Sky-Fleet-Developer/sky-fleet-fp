@@ -1,6 +1,6 @@
 ﻿using Core.Graph;
 
-namespace Core.Structure.Rigging
+namespace Runtime.Structure.Rigging
 {
     public abstract class BlockWithNode : Block, IGraphNode
     {

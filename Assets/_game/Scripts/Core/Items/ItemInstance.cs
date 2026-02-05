@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Core.Character.Stuff;
 using Core.ContentSerializer;
 using Core.Misc;
 using Core.UIStructure.Utilities;
@@ -20,10 +21,12 @@ namespace Core.Items
         public IReadOnlyList<Property> Properties => _properties;
         public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[Property.IdentifiableInstance_Identifier].stringValue : null;
         public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
+        public string ContainerKey => _containerKey;
         public bool IsUnique => _sign.HasTag(ItemSign.IdentifiableTag);
         public bool IsEmpty => _sign == null || _amount == 0;
         int IDraggableItem.Order => IsContainer ? 1 : 0;
-        
+
+        private string _containerKey = null;
         private static int _id = 0;
         private int _instanceId = _id++;
         private Action<string, string> _containerRegistrationCallback;
@@ -39,9 +42,33 @@ namespace Core.Items
             _amount = description.amount;
             _sign = sign;
             _properties = description.properties.DeepClone();
-            if (IsContainer && IsUnique)
+            if (IsUnique && IsContainer)
             {
-                _containerRegistrationCallback(Identifier, sign.Id);
+                TrySetupContainerId();
+                if (ContainerKey != null)
+                {
+                    _containerRegistrationCallback(ContainerKey, sign.Id);
+                }
+            }
+        }
+
+        private void TrySetupContainerId()
+        {
+            if (_sign.TryGetProperty(ItemSign.ContainerTag, out var property))
+            {
+                var postfix = property.values[Property.Container_GridPreset].stringValue;
+                if (string.IsNullOrEmpty(postfix))
+                {
+                    _containerKey = Identifier;
+                }
+                else
+                {
+                    _containerKey = $"{Identifier}{StuffSlotsTable.GridIdentifierKey}{postfix}";
+                }
+            }
+            else
+            {
+                _containerKey = null;
             }
         }
 
@@ -63,7 +90,8 @@ namespace Core.Items
                 _properties.Add(new Property{name = ItemSign.IdentifiableTag, values = new []{new PropertyValue{stringValue = uniqId}}});
                 if(IsContainer)
                 {
-                    _containerRegistrationCallback(uniqId, sign.Id);
+                    TrySetupContainerId();
+                    _containerRegistrationCallback(ContainerKey, sign.Id);
                 }
             }
             else if (!string.IsNullOrEmpty(uniqId))
@@ -96,17 +124,12 @@ namespace Core.Items
 
         public bool TryGetContainerKey(out string value)
         {
-            if (!IsContainer)
+            if (string.IsNullOrEmpty(ContainerKey))
             {
                 value = null;
                 return false;
             }
-            if (!TryGetProperty(ItemSign.IdentifiableTag, out var identifiable))
-            {
-                value = null;
-                return false;
-            }
-            value = identifiable.values[Property.IdentifiableInstance_Identifier].stringValue;
+            value = ContainerKey;
             return true;
         }
 

@@ -398,6 +398,12 @@ MonoBehaviour:
       - stringValue: resizable | mass
         intValue: 0
         floatValue: 0
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
   - id: small_bag
     tags:
     - cloth
@@ -427,6 +433,12 @@ MonoBehaviour:
       - stringValue: resizable | mass
         intValue: 0
         floatValue: 0
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
     - name: equipable
       values:
       - stringValue: bag
@@ -436,6 +448,7 @@ MonoBehaviour:
     tags:
     - vehicle
     - mass
+    - identifiable
     - container
     basicCost: 1
     properties:
@@ -458,6 +471,12 @@ MonoBehaviour:
       - stringValue: block
         intValue: 0
         floatValue: 0
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+      - stringValue: cargo-emgracopter-grid
+        intValue: 0
+        floatValue: 0
   - id: "\u0441opter-\u0441ontrol-5axis_part"
     tags:
     - block
@@ -469,6 +488,176 @@ MonoBehaviour:
       - stringValue: 30
         intValue: 30
         floatValue: 30
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: front-wheel-rotator_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: test-jet_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: small-liquid-tank_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 30
+        intValue: 30
+        floatValue: 30
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: small-fuel-power-generator_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 15
+        intValue: 15
+        floatValue: 15
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: small-battery_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 30
+        intValue: 30
+        floatValue: 30
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: elevons-distributor_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 2
+        intValue: 2
+        floatValue: 2
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: light-support-single_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: support-top-cutoff-module_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: rudder-rotator_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+  - id: cargo-trunk_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
       - stringValue: 1
         intValue: 1
         floatValue: 1
@@ -516,6 +705,26 @@ MonoBehaviour:
     prefabGuid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
   - signId: "\u0441opter-\u0441ontrol-5axis_part"
     prefabGuid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
+  - signId: front-wheel-rotator_part
+    prefabGuid: 13a1ed8c-e274-4eb8-8b8f-54bc25d252e0
+  - signId: test-jet_part
+    prefabGuid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
+  - signId: small-liquid-tank_part
+    prefabGuid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
+  - signId: small-fuel-power-generator_part
+    prefabGuid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+  - signId: small-battery_part
+    prefabGuid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+  - signId: elevons-distributor_part
+    prefabGuid: 6033ed0c-0604-490b-a38b-b47267c1f9c5
+  - signId: light-support-single_part
+    prefabGuid: c1068a3d-6483-4a10-b9fa-b346bb6195bf
+  - signId: support-top-cutoff-module_part
+    prefabGuid: a8ddd184-bed7-4a74-82c1-98c1279a03a0
+  - signId: rudder-rotator_part
+    prefabGuid: 28459fdc-e3d7-4a70-b4e2-c8798caf7c4f
+  - signId: cargo-trunk_part
+    prefabGuid: 61371496-4d96-44d1-bbec-8a0d64725edf
   containerInfos:
   - signId: cube_box
     includeTags:
@@ -525,6 +734,7 @@ MonoBehaviour:
       - mass
     excludeTags: []
     maxVolume: 970
+    gridPrefix: 
   - signId: small_bag
     includeTags:
     - tags:
@@ -533,12 +743,14 @@ MonoBehaviour:
       - mass
     excludeTags: []
     maxVolume: 24
+    gridPrefix: 
   - signId: cargo-emgracopter_body
     includeTags:
     - tags:
       - block
     excludeTags: []
     maxVolume: 9999
+    gridPrefix: cargo-emgracopter-grid
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -621,7 +833,7 @@ MonoBehaviour:
   m_Name: StructureGridLocalSource
   m_EditorClassIdentifier: Core::Core.Character.Stuff.StructureGridLocalSource
   data:
-  - id: cargo_emgracopter
+  - id: cargo-emgracopter-grid
     cells:
     - slotId: FrontWheel_Rotator
       path: FrontWheel_Parent/
@@ -629,84 +841,124 @@ MonoBehaviour:
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys:
+      - targetParent
+      - minMaxAngle
+      constantFieldValues:
+      - FrontWheel_Parent/
+      - (-40.00, 40.00)
     - slotId: TestJet
       path: 
       sibling: 3
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: SmallLiquidTank_Front
       path: 
       sibling: 5
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: SmallLiquidTank_Rear
       path: 
       sibling: 6
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: SmallFuelPowerGenerator
       path: 
       sibling: 7
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: SmallBattery
       path: 
       sibling: 8
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: CopterControl_5axis
       path: 
       sibling: 9
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: ElevonsDistributor
       path: 
       sibling: 10
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: LightSupport-Single_L
       path: 
       sibling: 11
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: LightSupport-Single_R
       path: 
       sibling: 12
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: SupportTopCutoffModule
       path: 
       sibling: 13
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
     - slotId: RudderR_Rotator
       path: RudderR_Parent/
       sibling: 0
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys:
+      - targetParent
+      - minMaxAngle
+      constantFieldValues:
+      - RudderR_Parent/
+      - (-25.00, 25.00)
     - slotId: RudderL_Rotator
       path: RudderL_Parent/
       sibling: 0
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys:
+      - targetParent
+      - minMaxAngle
+      constantFieldValues:
+      - RudderL_Parent/
+      - (-25.00, 25.00)
     - slotId: CargoTrunk
       path: 
       sibling: 17
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
 --- !u!114 &8935232688312866269
 MonoBehaviour:
   m_ObjectHideFlags: 0

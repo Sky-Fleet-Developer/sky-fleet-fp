@@ -33,17 +33,30 @@ namespace Core.Character.Stuff
             public Vector3 position;
             public Vector3 rotation;
             public string mountingType;
+            public string[] constantFieldKeys;
+            public string[] constantFieldValues;
             
             public SlotCell ConvertToSlotCell()
             {
                 return new SlotCell(slotId, 
-                    string.IsNullOrEmpty(mountingType) ? Array.Empty<TagCombination>() : new TagCombination[1]
+                    string.IsNullOrEmpty(mountingType) ? 
+                        new TagCombination[1]
                     {
                         new ()
                         {
                             tags = new[]
                             {
-                                $"{ItemSign.MountingTag}:{mountingType}"
+                                $"{ItemSign.BlockTag}"
+                            }
+                        }
+                    }
+                        : new TagCombination[1]
+                    {
+                        new ()
+                        {
+                            tags = new[]
+                            {
+                                $"{ItemSign.MountingTag}:{mountingType}", $"{ItemSign.BlockTag}"
                             }
                         }
                     }, 
@@ -51,17 +64,17 @@ namespace Core.Character.Stuff
                     1,
                     new Property[]
                     {
-                        new (){name = nameof(position), values = new PropertyValue[]{new (position.x), new (position.y), new (position.z)}},
-                        new (){name = nameof(rotation), values = new PropertyValue[]{new (rotation.x), new (rotation.y), new (rotation.z)}},
-                        new (){name = nameof(sibling), values = new PropertyValue[]{new (sibling)}},
-                        new (){name = nameof(path), values = new PropertyValue[]{new (path)}},
+                        new (){name = Property.PositionPropertyName, values = new PropertyValue[]{new (position.x), new (position.y), new (position.z)}},
+                        new (){name = Property.RotationPropertyName, values = new PropertyValue[]{new (rotation.x), new (rotation.y), new (rotation.z)}},
+                        new (){name = Property.SiblingPropertyName, values = new PropertyValue[]{new (sibling)}},
+                        new (){name = Property.PathPropertyName, values = new PropertyValue[]{new (path)}},
                     });
             }
         }
         
         [SerializeField] private StructureGrid[] data;
-        private Dictionary<string, SlotsGrid> _cache = new ();
-        public override bool TryGetGridSource(string inventoryKey, string gridId, out SlotsGrid result)
+        private Dictionary<string, SlotsGrid> _cache;
+        public override bool TryGetGridSource(string gridId, out SlotsGrid result)
         {
             _cache??= data.ToDictionary(k => k.id, v => v.ConvertToGrid());
             return _cache.TryGetValue(gridId, out result);
@@ -77,7 +90,9 @@ namespace Core.Character.Stuff
                     slotId = v.blockName,
                     mountingType = "", 
                     path = v.path, 
-                    sibling = v.sibilingIdx 
+                    sibling = v.sibilingIdx,
+                    constantFieldKeys = v.constantFieldsKeys.ToArray(),
+                    constantFieldValues = v.constantFieldsValues.ToArray()
                 }).ToArray()};
         }
     }

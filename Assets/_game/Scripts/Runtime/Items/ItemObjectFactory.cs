@@ -4,6 +4,7 @@ using Core;
 using Core.Configurations;
 using Core.Items;
 using Core.Misc;
+using Core.Structure;
 using Core.Trading;
 using Core.Utilities;
 using UnityEngine;
@@ -64,7 +65,7 @@ namespace Runtime.Items
             }
             itemObjectHandle.SetSourceItem(item);
             
-            if (item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty) && item.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
+            if (item.IsUnique && item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty))
             {
                 foreach (var monoBehaviour in instance.GetComponents<MonoBehaviour>())
                 {
@@ -75,12 +76,21 @@ namespace Runtime.Items
                     containerComponent = instance.AddComponent<Container>();
                     _container.Inject(containerComponent);
                 }
+                
                 ContainerInfo container = _tableItems.GetContainer(item.Sign.Id);
                 containerComponent.Init(
-                    identifiableProperty.values[Property.IdentifiableInstance_Identifier].stringValue,
+                    item.ContainerKey,
                     container,
                     containerProperty.values[Property.Container_Volume].floatValue);
-                instance.AddComponent<ContainerItemMass>();
+                
+                if (itemObjectHandle is IDynamicStructure)
+                {
+                    _container.Inject(instance.AddComponent<ContainerItemMass>());
+                }
+
+                var view = instance.AddComponent<ContainerContentView>();
+                _container.Inject(view);
+                view.TryInit();
             }
 
             if (item.TryGetProperty(Property.PositionPropertyName, out var positionProperty))

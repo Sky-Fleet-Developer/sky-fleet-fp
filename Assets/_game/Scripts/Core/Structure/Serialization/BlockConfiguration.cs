@@ -20,9 +20,17 @@ namespace Core.Structure.Serialization
         public Vector3 localPosition;
         public Vector3 localRotation;
         
-        private Dictionary<string, string> setup;//свойства помеченные [PlayerProperty] или [ConstantField]
-        [SerializeField] private List<string> setupKeys = new List<string>();
-        [SerializeField] private List<string> setupValues = new List<string>();
+        public Dictionary<string, string> setup;//свойства помеченные [PlayerProperty](удалено) или [ConstantField]
+        public List<string> setupKeys = new List<string>();
+        public List<string> setupValues = new List<string>();
+        
+        public Dictionary<string, string> constantFields;//[ConstantField]
+        public List<string> constantFieldsKeys = new List<string>();
+        public List<string> constantFieldsValues = new List<string>();
+        
+        public Dictionary<string, string> playerProperties;//[PlayerProperty]
+        public List<string> playerPropertiesKeys = new List<string>();
+        public List<string> playerPropertiesValues = new List<string>();
         public BlockConfiguration(){}
         public BlockConfiguration(IBlock block)
         {
@@ -32,19 +40,25 @@ namespace Core.Structure.Serialization
             currentGuid = block.Guid;
             localPosition = block.transform.localPosition;
             localRotation = block.transform.localEulerAngles;
-            PropertyInfo[] properties = block.GetProperties();
-
+            
+            PropertyInfo[] properties = block.GetBlockPlayerPropertiesCached();
             for (int i = 0; i < properties.Length; i++)
             {
                 string value = properties[i].GetValue(block).ToString();
                 AddSetup(properties[i].Name, value);
+                playerProperties?.Add(properties[i].Name, value);
+                playerPropertiesKeys.Add(properties[i].Name);
+                playerPropertiesValues.Add(value);
             }
             
-            FieldInfo[] fields = block.GetFields();
+            FieldInfo[] fields = block.GetBlockConstantFieldsCached();
             for (int i = 0; i < fields.Length; i++)
             {
                 string value = fields[i].GetValue(block).ToString();
                 AddSetup(fields[i].Name, value);
+                constantFields?.Add(fields[i].Name, value);
+                constantFieldsKeys.Add(fields[i].Name);
+                constantFieldsValues.Add(value);
             }
         }
 
@@ -158,7 +172,7 @@ namespace Core.Structure.Serialization
         
         public void ApplySetup(IBlock block)
         {
-            PropertyInfo[] properties = block.GetProperties();
+            PropertyInfo[] properties = block.GetBlockPlayerPropertiesCached();
             for (int i = 0; i < properties.Length; i++)
             {
                 if (TryGetSetup(properties[i].Name, out string value))
@@ -167,7 +181,7 @@ namespace Core.Structure.Serialization
                 }
             }
             
-            FieldInfo[] fields = block.GetFields();
+            FieldInfo[] fields = block.GetBlockConstantFieldsCached();
             for (int i = 0; i < fields.Length; i++)
             {
                 if (TryGetSetup(fields[i].Name, out string value))

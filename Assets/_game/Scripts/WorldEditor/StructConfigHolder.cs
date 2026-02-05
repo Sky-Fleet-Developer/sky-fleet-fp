@@ -164,6 +164,17 @@ namespace WorldEditor
             
             configurationHead.position = transform.position;
             configurationHead.rotation = transform.rotation;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                var structureFactory = new StructureFactory();
+                structure = await structureFactory.Create(configurationHead, new Configuration<IStructure>[] {blocksConfiguration, graphConfiguration});
+                structure.transform.SetParent(transform);
+                return;
+            }
+#endif
+ 
             if (structure != null)
             {
                 configurationHead.Root = structure.transform.gameObject;
@@ -184,11 +195,7 @@ namespace WorldEditor
                     return;
                 }
             }
-#if UNITY_EDITOR
-            var structureFactory = new StructureFactory();
-            structure = await structureFactory.Create(configurationHead, new Configuration<IStructure>[] {blocksConfiguration, graphConfiguration});
-            structure.transform.SetParent(transform);
-#endif
+
         }
 
         private GameObject TryGetRoot()

@@ -20,11 +20,17 @@ namespace Core.Character.Stuff
         private List<IInventoryStateListener> _listeners = new();
         private IItemsContainerReadonly _attachedInventory;
         private float _maxCapacity;
-        private IReadOnlyCollection<Property> _properties;
+        private IReadOnlyList<Property> _properties;
 
         public string SlotId => _slotId;
         public float MaxCapacity => _maxCapacity;
-        public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags, float maxCapacity, IReadOnlyCollection<Property> properties)
+        public bool HasItem => _content != null;
+        public ItemInstance Item => _content;
+        public bool IsContainer => _attachedInventory != null;
+        public string ContainerKey => _attachedInventory.Key;
+        public bool IsFilledFully => _content != null && _content.Amount >= _maxCapacity;
+        
+        public SlotCell(string slotId, TagCombination[] includeTags, TagCombination[] excludeTags, float maxCapacity, IReadOnlyList<Property> properties)
         {
             _maxCapacity = maxCapacity;
             _slotId = slotId;
@@ -32,12 +38,20 @@ namespace Core.Character.Stuff
             _excludeTags = excludeTags;
             _properties = properties;
         }
-
-        public bool HasItem => _content != null;
-        public ItemInstance Item => _content;
-        public bool IsContainer => _attachedInventory != null;
-        public string ContainerKey => _attachedInventory.Key;
-        public bool IsFilledFully => _content != null && _content.Amount >= _maxCapacity;
+        
+        public bool TryGetProperty(string propertyName, out Property property)
+        {
+            for (var i = 0; i < _properties.Count; i++)
+            {
+                if (_properties[i].name == propertyName)
+                {
+                    property = _properties[i];
+                    return true;
+                }
+            }
+            property = default;
+            return false;
+        }
 
         public object Clone()
         {
@@ -49,14 +63,12 @@ namespace Core.Character.Stuff
         public bool CanSetItem(ItemInstance content)
         {
             if(content == null) return true;
-            if (!content.Sign.TryGetProperty(ItemSign.EquipableTag, out var equipableProperty))
+            if (content.Sign.TryGetProperty(ItemSign.EquipableTag, out var equipableProperty) &&
+                equipableProperty.values[Property.Equipable_SlotType].stringValue != _slotId)
             {
                 return false;
             }
-            if (equipableProperty.values[Property.Equipable_SlotType].stringValue != _slotId)
-            {
-                return false;
-            }
+
             bool isMatch = false;
             foreach (var tag in _includeTags)
             {
@@ -161,11 +173,9 @@ namespace Core.Character.Stuff
                 }
             }
 
-            if (_content.IsContainer &&
-                _content.TryGetProperty(ItemSign.IdentifiableTag, out var identifiableProperty))
+            if (_content.IsContainer)
             {
-                _attachedInventory = _bankSystem.GetOrCreateInventory(identifiableProperty
-                    .values[Property.IdentifiableInstance_Identifier].stringValue);
+                _attachedInventory = _bankSystem.GetOrCreateInventory(_content.ContainerKey);
                 foreach (var listener in _listeners)
                 {
                     _attachedInventory.AddListener(listener);

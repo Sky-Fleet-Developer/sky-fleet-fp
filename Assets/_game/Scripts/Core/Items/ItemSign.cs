@@ -29,6 +29,7 @@ namespace Core.Items
         /// </summary>
         public const string FoldableTag = "foldable";
         public const string MountingTag = "mounting";
+        public const string BlockTag = "block";
         public const string AllTag = "All";
         
         [SerializeField] private string id;

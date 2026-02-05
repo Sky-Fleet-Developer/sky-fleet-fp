@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Core.Character.Stuff;
 using Core.ContentSerializer;
 using Core.Misc;
 using Core.Trading;
@@ -14,6 +15,7 @@ namespace Core.Items
     {
         public string signId;
         public float amount;
+        public string gridSlot;
         public List<Property> properties;
         [CanBeNull] public List<ItemDescription> nestedItems;
 
@@ -23,28 +25,26 @@ namespace Core.Items
             amount = instance.Amount;
             properties = instance.Properties.ToList();
             nestedItems = null;
+            gridSlot = null;
         }
 
         public void CollectNestedItems(BankSystem bankSystem)
         {
-            Property? containerProperty = null;
-            for (var i = 0; i < properties.Count; i++)
-            {
-                if (properties[i].name == ItemSign.IdentifiableTag)
-                {
-                    containerProperty = properties[i];
-                    break;
-                }
-            }
+            Property? identifiable = FindProperty(ItemSign.IdentifiableTag);
+            Property? container = FindProperty(ItemSign.ContainerTag);
 
-            if (containerProperty == null)
+            if (identifiable == null || container == null)
             {
                 return;
             }
 
-            var inv = bankSystem.GetOrCreateInventory(containerProperty.Value
-                .values[Property.IdentifiableInstance_Identifier]
-                .stringValue);
+            var postfix = container.Value.values[Property.Container_GridPreset].stringValue;
+            string id = identifiable.Value.values[Property.IdentifiableInstance_Identifier].stringValue;
+            if (!string.IsNullOrEmpty(postfix))
+            {
+                id = $"{id}{StuffSlotsTable.GridIdentifierKey}{postfix}";
+            }
+            var inv = bankSystem.GetOrCreateInventory(id);
             if (inv.IsEmpty)
             {
                 return;
@@ -59,6 +59,21 @@ namespace Core.Items
             }
         }
 
+        private Property? FindProperty(string propertyName)
+        {
+            Property? containerProperty = null;
+            for (var i = 0; i < properties.Count; i++)
+            {
+                if (properties[i].name == propertyName)
+                {
+                    containerProperty = properties[i];
+                    break;
+                }
+            }
+
+            return containerProperty;
+        }
+
         public class Serializer : ISerializer<ItemDescription>
         {
             private static readonly ISerializer PropertySerializer = Serializers.GetSerializer(typeof(Property));
@@ -66,6 +81,7 @@ namespace Core.Items
             public void Serialize(ItemDescription obj, Stream stream)
             {
                 stream.WriteString(obj.signId);
+                stream.WriteString(obj.gridSlot ?? "");
                 stream.WriteFloat(obj.amount);
                 stream.WriteInt(obj.properties?.Count ?? 0);
                 if (obj.properties != null)
@@ -96,6 +112,7 @@ namespace Core.Items
             public void Populate(Stream stream, ref ItemDescription obj)
             {
                 obj.signId = stream.ReadString();
+                obj.gridSlot = stream.ReadString();
                 obj.amount = stream.ReadFloat();
                 var propertyCount = stream.ReadInt();
                 obj.properties = new List<Property>(propertyCount);

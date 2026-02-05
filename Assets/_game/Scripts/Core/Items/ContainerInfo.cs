@@ -14,6 +14,7 @@ namespace Core.Items
         [SerializeField] private TagCombination[] includeTags;
         [SerializeField] private TagCombination[] excludeTags;
         [SerializeField] private float maxVolume;
+        [SerializeField] private string gridPrefix;
 
         public string SignId => signId;
 
@@ -21,10 +22,11 @@ namespace Core.Items
         {
         }
 
-        public ContainerInfo(string signId, float maxVolume, string include, string exclude)
+        public ContainerInfo(string signId, float maxVolume, string include, string exclude, string gridPrefix)
         {
             this.signId = signId;
             this.maxVolume = maxVolume;
+            this.gridPrefix = gridPrefix;
             
             var properties = include.Split(_orSymbols, StringSplitOptions.RemoveEmptyEntries);
             includeTags = new TagCombination[properties.Length];

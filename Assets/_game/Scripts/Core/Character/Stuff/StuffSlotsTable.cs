@@ -82,7 +82,7 @@ namespace Core.Character.Stuff
 
     public abstract class StuffSlotsLocalSource : ScriptableObject
     {
-        public abstract bool TryGetGridSource(string inventoryKey, string gridId, out SlotsGrid result);
+        public abstract bool TryGetGridSource(string gridId, out SlotsGrid result);
     }
     [CreateAssetMenu(menuName = "SF/Configs/StuffSlots")]
     public class StuffSlotsTable : Table<SlotPreset>
@@ -92,6 +92,7 @@ namespace Core.Character.Stuff
         [SerializeField] private SlotPreset[] data;
         [SerializeField] private StuffSlotsLocalSource[] localSources;
         private Dictionary<string, SlotsGrid> _gridPresets = new ();
+        public const string GridIdentifierKey = "_g:";
 
         protected override SlotPreset[] Data
         {
@@ -105,13 +106,22 @@ namespace Core.Character.Stuff
             }
         }
 
-        public SlotsGrid CreateGrid(string inventoryKey, string gridId)
+        public bool TryCreateGrid(string inventoryKey, out SlotsGrid result)
         {
+            int gridIdentifierIndex = inventoryKey.IndexOf(GridIdentifierKey, StringComparison.Ordinal);
+            if (gridIdentifierIndex == -1) // not a grid
+            {
+                result = null;
+                return false;
+            } 
+            
+            string gridId = inventoryKey.Substring(gridIdentifierIndex + GridIdentifierKey.Length);
+
             if (!_gridPresets.TryGetValue(gridId, out var preset))
             {
                 foreach (var localSource in localSources)
                 {
-                    if (localSource.TryGetGridSource(inventoryKey, gridId, out preset))
+                    if (localSource.TryGetGridSource(gridId, out preset))
                     {
                         break;
                     }
@@ -132,10 +142,10 @@ namespace Core.Character.Stuff
 
                 _gridPresets.Add(gridId, preset);
             }
-            var result = (SlotsGrid)preset.Clone();
+            result = (SlotsGrid)preset.Clone();
             _diContainer.Inject(result);
             result.SetAsInventory(inventoryKey);
-            return result;
+            return true;
         }
     }
 }

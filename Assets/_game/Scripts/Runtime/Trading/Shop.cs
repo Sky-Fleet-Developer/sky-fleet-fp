@@ -9,6 +9,7 @@ using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Trading;
 using Newtonsoft.Json;
+using Runtime.Structure.Rigging;
 using UnityEngine;
 using Zenject;
 

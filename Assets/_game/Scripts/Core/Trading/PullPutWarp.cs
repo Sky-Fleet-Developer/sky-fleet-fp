@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Character.Stuff;
 using Core.Items;
 
 namespace Core.Trading
@@ -39,6 +40,24 @@ namespace Core.Trading
             {
                 return _bankSystem.TryPullItem(_inventory.Key, item, amount, out result);
             }
+        }
+        
+        private class SlotPullPutWarp : PullPutWarp, ISlotsGridSource
+        {
+            private ISlotsGridSource _slotsGridSource;
+            public SlotPullPutWarp(ISlotsGridSource slotsGridSource, BankSystem bankSystem) : base(slotsGridSource, bankSystem)
+            {
+                _slotsGridSource = slotsGridSource;
+            }
+
+            public IEnumerable<SlotCell> EnumerateSlots() => _slotsGridSource.EnumerateSlots();
+
+            public void AddListener(ISlotsGridListener listener) => _slotsGridSource.AddListener(listener);
+
+            public void RemoveListener(ISlotsGridListener listener) => _slotsGridSource.RemoveListener(listener);
+
+            public string Key => _slotsGridSource.Key;
+            public bool IsEmpty => _slotsGridSource.IsEmpty;
         }
 
     }

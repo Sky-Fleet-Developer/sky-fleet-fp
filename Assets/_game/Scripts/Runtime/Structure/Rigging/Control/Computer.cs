@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Core.Graph.Wires;
+using Core.Structure.Rigging;
 using UnityEngine;
 
-namespace Core.Structure.Rigging.Control
+namespace Runtime.Structure.Rigging.Control
 {
     public abstract class Computer : BlockWithNode, IComputer
     {

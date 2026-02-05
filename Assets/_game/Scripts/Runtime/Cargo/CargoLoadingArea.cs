@@ -7,6 +7,7 @@ using Core.Configurations;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
+using Runtime.Structure.Rigging;
 using Runtime.Trading;
 using Unity.Cinemachine;
 using UnityEngine;

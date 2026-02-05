@@ -11,6 +11,8 @@ namespace Core.Misc
     {
         public const string PositionPropertyName = "position";
         public const string RotationPropertyName = "rotation";
+        public const string SiblingPropertyName = "sibling";
+        public const string PathPropertyName = "path";
         public const int Resizable_MassByLiter = 0;
         public const int Resizable_StackSize = 1;
         public const int Mass_MassByOne = 0;
@@ -20,6 +22,7 @@ namespace Core.Misc
         public const int Container_Volume = 0;
         public const int Container_IncludeRules = 1;
         public const int Container_ExcludeRules = 2;
+        public const int Container_GridPreset = 3;
         public const int Equipable_SlotType = 0;
         public const int IdentifiableInstance_Identifier = 0;
         public string name;
@@ -86,6 +89,10 @@ namespace Core.Misc
             for (var p = 1; p < parameters.Length; p++)
             {
                 string pTrim = parameters[p].Trim();
+                if (pTrim.Length == 1 && pTrim[0] == '_')
+                {
+                    pTrim = "";
+                }
                 property.values[p-1] = new PropertyValue(pTrim);
             }
             return true;

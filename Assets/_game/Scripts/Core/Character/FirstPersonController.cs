@@ -699,8 +699,9 @@ namespace Core.Character
             }
         }
 
-        private string ManagementKey => "Player_Inventory_c-slots";
-        string IInventoryOwner.InventoryKey => ManagementKey;
-        string IWalletOwner.WalletKey => ManagementKey;
+        private string InventoryKey => "Player_Inventory_g:character_slots";
+        private string WalletKey => "Player_Inventory";
+        string IInventoryOwner.InventoryKey => InventoryKey;
+        string IWalletOwner.WalletKey => WalletKey;
     }
 }

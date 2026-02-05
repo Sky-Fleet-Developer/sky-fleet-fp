@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -26,7 +27,14 @@ namespace Core.Configurations.GoogleSheets
         private async void LoadAsync()
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            var data = await TableUtilities.LoadAsync(url);
+            var loadTask = TableUtilities.LoadAsync(url);
+            var data = await loadTask;
+            
+            if(loadTask.IsFaulted)
+            {
+                Debug.LogError($"Loading failed: {loadTask.Exception}");
+            }
+            
             var links = TableUtilities.ParseAs<Link>(data, '\t', arraySeparator);
             for (var i = 0; i < tables.Length; i++)
             {
@@ -34,10 +42,18 @@ namespace Core.Configurations.GoogleSheets
                 {
                     if (links[j].TableName == tables[i].TableName)
                     {
-                        tables[i].LoadData(links[j].Url, '\t', arraySeparator);
+                        try
+                        {
+                            tables[i].LoadData(links[j].Url, '\t', arraySeparator);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogException(e);
+                        }
                     }
                 }
             }
+            Debug.Log("Loading complete");
         }
 
     }

@@ -1,17 +1,14 @@
 using System.Collections.Generic;
-using Core.Cargo;
-using Core.Configurations;
-using Core.Items;
-using Core.Structure.Serialization;
-using Core.Trading;
+using Core.Structure;
 using Core.Utilities;
+using Runtime.Items;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Core.Structure.Rigging
+namespace Runtime.Structure.Rigging
 {
 
-    public abstract class Block : MonoBehaviour, IBlock
+    public abstract class Block : ItemObject, IBlock
     {
         public Vector3 localPosition => transform.position;
         public Parent Parent { get; private set; }
@@ -19,19 +16,6 @@ namespace Core.Structure.Rigging
 
         private Bounds boundsCash;
 
-        [ShowInInspector] public string Guid
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(guid)) guid = System.Guid.NewGuid().ToString();
-                return guid;
-            }
-            set => guid = value;
-        }
-        [SerializeField, HideInInspector] private string guid;
-        public List<string> Tags => tags;
-        [SerializeField] private List<string> tags;
-        
         [ShowInInspector]
         public string MountingType
         {

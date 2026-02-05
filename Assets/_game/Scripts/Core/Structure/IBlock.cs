@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Core.Structure
 {
-    public interface IBlock : ITablePrefab, IMass
+    public interface IBlock : IItemObjectHandle, IMass
     {
         // ReSharper disable once InconsistentNaming
         Vector3 localPosition { get; }
@@ -36,7 +36,7 @@ namespace Core.Structure
         private static Dictionary<Type, PropertyInfo[]> _propertiesCache;
         private static Dictionary<Type, FieldInfo[]> _fieldsCache;
 
-        public static PropertyInfo[] GetProperties(this IBlock block)
+        public static PropertyInfo[] GetBlockPlayerPropertiesCached(this IBlock block)
         {
             Type blockType = block.GetType();
             if (_propertiesCache == null) _propertiesCache = new Dictionary<Type, PropertyInfo[]>();
@@ -47,7 +47,7 @@ namespace Core.Structure
             return properties;
         }
         
-        public static FieldInfo[] GetFields(this IBlock block)
+        public static FieldInfo[] GetBlockConstantFieldsCached(this IBlock block)
         {
             Type blockType = block.GetType();
             if (_fieldsCache == null) _fieldsCache = new Dictionary<Type, FieldInfo[]>();

@@ -1,4 +1,5 @@
 ﻿using Core.Character.Interaction;
+using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Tests;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace Core.Trading.Tests
     public class TradingTestsBase : RuntimeTestLauncher
     {
         public const string TestShop = "test_shop";
-        public const string TestCostumer = "test_costumer_c-slots";
+        public static readonly string TestCostumer = $"test_costumer{StuffSlotsTable.GridIdentifierKey}character_slots";
         public const string BagItemId = "small_bag";
         public const string IronIngotItemId = "iron_ingot";
 
