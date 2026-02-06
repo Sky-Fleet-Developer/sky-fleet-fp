@@ -19,20 +19,10 @@ namespace Core.Structure
         public static event Action<IStructure> OnStructureInitialized;
         public static event Action<IStructure> OnStructureUnregistered;
 
-        public static IEnumerable<StructureEntity> Entities()
-        {
-            foreach (var list in _entitiesByLod)
-            {
-                foreach (var container in list)
-                {
-                    yield return container.Entity;
-                }
-            }
-        }
         private class EntityContainer : IEquatable<EntityContainer>
         {
-            public readonly StructureEntity Entity;
             public readonly IGraph graph;
+            public readonly IStructure Structure;
             public HashSet<IDriveInterface> Controls = new ();
             public HashSet<IUpdatableBlock> Updatables = new ();
             public HashSet<IPowerUser> PowerUsers = new ();
@@ -40,18 +30,19 @@ namespace Core.Structure
             public HashSet<IForceUser> ForceUsers = new ();
             public int Lod;
 
-            public EntityContainer(StructureEntity entity, bool needInitialize = true)
+
+            public EntityContainer(IStructure structure, bool needInitialize = true)
             {
-                Entity = entity;
+                Structure = structure;
                 if(!needInitialize) return;
-                graph = entity.Structure.Graph;
-                foreach (var structureBlock in entity.Structure.Blocks)
+                graph = structure.Graph;
+                foreach (var structureBlock in structure.Blocks)
                 {
                     AddBlock(structureBlock);
                 }
 
-                entity.Structure.OnBlockAddedEvent += AddBlock;
-                entity.Structure.OnBlockRemovedEvent += RemoveBlock;
+                structure.OnBlockAddedEvent += AddBlock;
+                structure.OnBlockRemovedEvent += RemoveBlock;
             }
 
             private void AddBlock(IBlock block)
@@ -108,17 +99,21 @@ namespace Core.Structure
                 {
                     return false;
                 }
-                return Entity.Equals(other.Entity);
+
+                if (Structure == null)
+                {
+                    return other.Structure == null;
+                }
+                return Structure.Equals(other.Structure);
             }
 
             public override int GetHashCode()
             {
-                return Entity.GetHashCode();
+                return Structure.GetHashCode();
             }
 
             public void Update()
             {
-                Entity.Update();
                 foreach (IDriveInterface t in Controls)
                 {
                     IStructure str = t.Structure;
@@ -174,8 +169,20 @@ namespace Core.Structure
                 }
             }
         }
+
+        public static IEnumerable<IStructure> Structures()
+        {
+            foreach (var list in _entitiesByLod)
+            {
+                foreach (var container in list)
+                {
+                    yield return container.Structure;
+                }
+            }
+        }
+
         private static HashSet<EntityContainer>[] _entitiesByLod;
-        private static Dictionary<StructureEntity, EntityContainer> _entities;
+        private static Dictionary<IStructure, EntityContainer> _structures;
         private static int[] _updateCycleCounters;
         
         public static event Action OnEndPhysicsTick;
@@ -190,7 +197,7 @@ namespace Core.Structure
         protected override void Setup()
         {
             _entitiesByLod = new HashSet<EntityContainer>[GameData.Data.lodDistances.lods.Length+1];
-            _entities = new();
+            _structures = new();
             for (var i = 0; i < _entitiesByLod.Length; i++)
             {
                 _entitiesByLod[i] = new HashSet<EntityContainer>(GameData.Data.initialStructuresCacheCapacity);
@@ -199,34 +206,32 @@ namespace Core.Structure
             OnInitialize.Invoke();
         }
 
-        public static void RegisterEntity(StructureEntity entity)
+        public static void RegisterStructure(IStructure structure)
         {
             if (!Application.isPlaying)
             {
                 return;
             }
-            entity.OnLodChangedEvent += SetEntityLod;
-            var structure = entity.Structure;
-            var lod = Instance._worldGrid.GetLod(entity);
-            var container = new EntityContainer(entity);
+
+            var lod = 0;//Instance._worldGrid.GetLod(structure);
+            var container = new EntityContainer(structure);
             container.Lod = lod;
-            _entities[entity] = container;
+            _structures[structure] = container;
             _entitiesByLod[lod].Add(container);
             OnStructureInitialized?.Invoke(structure);
         }
 
-        public static void UnregisterEntity(StructureEntity entity)
+        public static void UnregisterStructure(IStructure structure)
         {
-            var structure = entity.Structure;
             OnStructureUnregistered?.Invoke(structure);
-            var lod = Instance._worldGrid.GetLod(entity);
-            _entities.Remove(entity);
-            _entitiesByLod[lod].Remove(new EntityContainer(entity, false));
+            var lod = 0;//Instance._worldGrid.GetLod(structure);
+            _structures.Remove(structure);
+            _entitiesByLod[lod].Remove(new EntityContainer(structure, false));
         }
 
-        private static void SetEntityLod(StructureEntity entity, int lod)
+        public static void SetLodToStructure(IStructure entity, int lod)
         {
-            var container = _entities[entity];
+            var container = _structures[entity];
             _entitiesByLod[container.Lod].Remove(container);
             _entitiesByLod[lod].Add(container);
             container.Lod = lod;

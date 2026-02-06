@@ -51,6 +51,10 @@ namespace Runtime.Structure
                 return;
             }
             _parents.Add(new Parent(transform, this));
+            if (!_graph.HasConfiguration)
+            {
+                _graph.SetConfiguration(new GraphConfiguration(SourceItem));
+            }
             _graph.Init();
             RefreshBlocks();
             CalculateStructureRadius();
@@ -78,7 +82,7 @@ namespace Runtime.Structure
             }
             
             parent.AddBlock(block);
-            _configuration.SetupBlock(block, this, parent);
+            _configuration?.SetupBlock(block, this, parent);
             block.InitBlock(this, parent);
             _blocks.Add(block);
             if (block is IGraphNode node)

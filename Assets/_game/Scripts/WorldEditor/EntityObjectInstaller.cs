@@ -9,7 +9,9 @@ using Core.Data;
 using Core.Items;
 using Core.Misc;
 using Core.Structure;
+using Core.Structure.Serialization;
 using Core.Utilities;
+using Newtonsoft.Json;
 using Runtime.Items;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -128,6 +130,16 @@ namespace WorldEditor
             {
                 itemDescription.properties[property].values[i] = new PropertyValue(itemObject.transform.localRotation[i]);
             }
+
+            if (itemObject is IBlock block)
+            {
+                foreach (var propertyInfo in block.GetBlockPlayerPropertiesCached())
+                {
+                    string value = propertyInfo.GetValue(block).ToString();
+                    property = FindOrAddProperty(ref itemDescription, propertyInfo.Name, 1);
+                    itemDescription.properties[property].values[0] = new PropertyValue(value);
+                }
+            }
         }
         
         private static void SetupNestedItems(IItemObject itemObject, ref ItemDescription itemDescription)
@@ -190,6 +202,33 @@ namespace WorldEditor
             return itemDescription.properties.Count - 1;
         }
 
+        [Button]
+        private void PasteWiresConfigFromClipboard()
+        {
+            string clipboard = GUIUtility.systemCopyBuffer;
+            if(string.IsNullOrEmpty(clipboard)) return;
+
+            try
+            {
+                List<WireConfiguration> wires = JsonConvert.DeserializeObject<List<WireConfiguration>>(GUIUtility.systemCopyBuffer);
+                
+                var prop = itemDescription.properties.FindIndex(x => x.name == Property.WiresPropertyName);
+                if (prop == -1)
+                {
+                    itemDescription.properties.Add(default);
+                    prop = itemDescription.properties.Count - 1;
+                }
+            
+                itemDescription.properties[prop] = new Property(Property.WiresPropertyName, wires.Select(x => new PropertyValue(x)).ToArray());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return;
+            }
+        }
+        
+        [Space(20)]
         [ShowInInspector]
         private static string _itemsFormat = "{name}_part\tblock\tmass: {mass}; 1; 1\t1\t{guid}";
         [Button]

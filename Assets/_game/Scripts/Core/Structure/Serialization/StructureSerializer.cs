@@ -37,11 +37,12 @@ namespace Core.Structure.Serialization
 
         private IEnumerable<IStructure> CollectInRuntime()
         {
-            foreach (var entity in CycleService.Entities())
-            {
-                yield return entity.Structure;
-
-            }
+            throw new NotImplementedException();
+            //foreach (var entity in CycleService.Entities())
+            //{
+            //    yield return entity.Structure;
+            //
+            //}
         }
 
         private IEnumerable<IStructure> CollectInEditor()

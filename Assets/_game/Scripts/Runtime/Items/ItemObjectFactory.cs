@@ -82,15 +82,32 @@ namespace Runtime.Items
                     item.ContainerKey,
                     container,
                     containerProperty.values[Property.Container_Volume].floatValue);
-                
-                if (itemObjectHandle is IDynamicStructure)
+            }
+            
+            if (itemObjectHandle is IDynamicStructure)
+            {
+                _container.Inject(instance.AddComponent<ContainerItemMass>());
+            }
+            
+            var view = instance.AddComponent<SlotsContainerContentView>();
+            _container.Inject(view);
+            view.TryInit();
+            
+            if (itemObjectHandle is IStructure structure)
+            {
+                CycleService.RegisterStructure(structure);
+                structure.Init();
+            }
+            
+            if (itemObjectHandle is IBlock block)
+            {
+                foreach (var propertyInfo in block.GetBlockPlayerPropertiesCached())
                 {
-                    _container.Inject(instance.AddComponent<ContainerItemMass>());
+                    if (item.TryGetProperty(propertyInfo.Name, out var property))
+                    {
+                        block.ApplyProperty(propertyInfo, property.values[0].stringValue);
+                    }
                 }
-
-                var view = instance.AddComponent<ContainerContentView>();
-                _container.Inject(view);
-                view.TryInit();
             }
 
             if (item.TryGetProperty(Property.PositionPropertyName, out var positionProperty))
@@ -111,6 +128,10 @@ namespace Runtime.Items
 
         public void Deconstruct(IItemObject itemObject)
         {
+            if (itemObject is IStructure structure)
+            {
+                CycleService.UnregisterStructure(structure);
+            }
             if (Application.isPlaying)
             {
                 DynamicPool.Instance.Return(itemObject.transform);

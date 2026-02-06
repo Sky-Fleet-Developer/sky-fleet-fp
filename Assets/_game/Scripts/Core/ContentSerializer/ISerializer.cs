@@ -40,11 +40,15 @@ namespace Core.ContentSerializer
                         {
                             _instance._serializersByName.Add(type.FullName, serializer);
                         }
-                        break;
+                        return serializer;
                     }
                 }
             }
-            return serializer;
+            else
+            {
+                return serializer;
+            }
+            throw new Exception($"Serializer for type {name} was not found");
         }
 
         public static ISerializer GetSerializer(Type type)
@@ -61,11 +65,15 @@ namespace Core.ContentSerializer
                         {
                             _instance._serializersByName.Add(type.FullName, serializer);
                         }
-                        break;
+                        return serializer;
                     }
                 }
             }
-            return serializer;
+            else
+            {
+                return serializer;
+            }
+            throw new Exception($"Serializer for type {type} was not found");
         }
     }
     public interface ISerializer

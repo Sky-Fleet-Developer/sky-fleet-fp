@@ -5,7 +5,6 @@ using Core.World;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
-using static Core.Structure.CycleService;
 
 namespace Runtime.Environment.AirDrag
 {
@@ -37,18 +36,17 @@ namespace Runtime.Environment.AirDrag
                 materialArray[i] = material;
             }
 
-            OnInitialize.Subscribe(InitializeEntities);
-
-            OnStructureInitialized += CalculateDragFor;
-            OnStructureUnregistered += RemoveStructure;
-            OnEndPhysicsTick += PhysicsTick;
+            CycleService.OnInitialize.Subscribe(InitializeEntities);
+            CycleService.OnStructureInitialized += CalculateDragFor;
+            CycleService.OnStructureUnregistered += RemoveStructure;
+            CycleService.OnEndPhysicsTick += PhysicsTick;
         }
 
         private void InitializeEntities()
         {
-            foreach (StructureEntity entity in Entities())
+            foreach (IStructure structure in CycleService.Structures())
             {
-                if (entity.Structure is IDynamicStructure dynamicStructure)
+                if (structure is IDynamicStructure dynamicStructure)
                 {
                     CalculateDragFor(dynamicStructure);
                 }

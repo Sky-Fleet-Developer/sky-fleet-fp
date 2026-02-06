@@ -839,7 +839,7 @@ MonoBehaviour:
       path: FrontWheel_Parent/
       sibling: 0
       position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      rotation: {x: -0, y: 0, z: 0}
       mountingType: 
       constantFieldKeys:
       - targetParent
@@ -850,80 +850,80 @@ MonoBehaviour:
     - slotId: TestJet
       path: 
       sibling: 3
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: 0, y: 0.15998292, z: -3.5}
+      rotation: {x: 1.0000026, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: SmallLiquidTank_Front
       path: 
       sibling: 5
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: -0.4, y: 0.14798295, z: -2.222}
+      rotation: {x: 90, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: SmallLiquidTank_Rear
       path: 
       sibling: 6
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: 0.4, y: 0.14798295, z: -2.222}
+      rotation: {x: 90, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: SmallFuelPowerGenerator
       path: 
       sibling: 7
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: 0, y: 0.479, z: -2.414}
+      rotation: {x: 90, y: 89.99994, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: SmallBattery
       path: 
       sibling: 8
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: -0.27, y: 0.614, z: 2.852}
+      rotation: {x: 45.136257, y: 359.787, z: 359.54758}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: CopterControl_5axis
       path: 
       sibling: 9
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: 0.29999998, y: 0.5638306, z: 2.514}
+      rotation: {x: -0, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: ElevonsDistributor
       path: 
       sibling: 10
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: -0.327, y: -0.029, z: 0.309}
+      rotation: {x: -0, y: 90.00002, z: 90.00001}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: LightSupport-Single_L
       path: 
       sibling: 11
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: -2, y: 0.06998289, z: -0.15}
+      rotation: {x: 359, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: LightSupport-Single_R
       path: 
       sibling: 12
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: 2.0000055, y: 0.06998289, z: -0.15008596}
+      rotation: {x: 359, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
     - slotId: SupportTopCutoffModule
       path: 
       sibling: 13
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: 0.128, y: 0.007, z: 0.257}
+      rotation: {x: -0, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
@@ -931,7 +931,7 @@ MonoBehaviour:
       path: RudderR_Parent/
       sibling: 0
       position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      rotation: {x: -0, y: 0, z: 0}
       mountingType: 
       constantFieldKeys:
       - targetParent
@@ -943,7 +943,7 @@ MonoBehaviour:
       path: RudderL_Parent/
       sibling: 0
       position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      rotation: {x: -0, y: 0, z: 0}
       mountingType: 
       constantFieldKeys:
       - targetParent
@@ -954,8 +954,8 @@ MonoBehaviour:
     - slotId: CargoTrunk
       path: 
       sibling: 17
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
+      position: {x: -0, y: 0.13, z: -0.573}
+      rotation: {x: -0, y: 0, z: 0}
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []

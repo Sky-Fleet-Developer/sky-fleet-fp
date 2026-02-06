@@ -146,7 +146,17 @@ namespace Core.Items
             property = default;
             return false;
         }
-        
+
+        public Property EnsureProperty(string propertyName)
+        {
+            if (!TryGetProperty(propertyName, out var property))
+            {
+                property = new Property { name = propertyName };
+                _properties.Add(property);
+            }
+            return property;
+        }
+
         public float GetVolume()
         {
             return Sign.GetSingleVolume() * _amount;

@@ -24,6 +24,7 @@ namespace Core.Graph
         private GraphConfiguration _configuration;
         private PortsAndWiresAddressBook _addressBook;
         private Wire _mainPowerWire;
+        public bool HasConfiguration => _configuration != null;
         public void SetConfiguration(GraphConfiguration value)
         {
             _configuration = value;
@@ -227,7 +228,7 @@ namespace Core.Graph
 
         public void Dispose()
         {
-            _powerPortProcessor.Dispose();
+            _powerPortProcessor?.Dispose();
         }
     }
 }

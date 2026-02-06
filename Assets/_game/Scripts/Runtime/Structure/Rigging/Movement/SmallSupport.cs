@@ -155,6 +155,7 @@ namespace Runtime.Structure.Rigging.Movement
 
             force *= mainForce;
             localForce.Value = force;
+            //Debug.Log($"force: {force}");
             root.AddForce(force, position);
         }
 

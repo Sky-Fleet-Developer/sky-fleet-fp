@@ -110,7 +110,7 @@ namespace Core.World
 #endif
                             if (intersection.Contains(i) || !_chunks.ContainsKey(i) || range.Contains(i)) continue;
                             tasks.Add(SaveAndUnload(i));
-                            Debug.Log($"CELLS: unload chunk ({i})");
+                            //Debug.Log($"CELLS: unload chunk ({i})");
 
 #if !FLAT_SPACE
                         }
@@ -130,7 +130,7 @@ namespace Core.World
 #endif
                             if (intersection.Contains(i)) continue;
                             tasks.Add(Load(i));
-                            Debug.Log($"CELLS: load chunk ({i})");
+                            //Debug.Log($"CELLS: load chunk ({i})");
 #if !FLAT_SPACE
                         }
 #endif
@@ -243,7 +243,8 @@ namespace Core.World
                     _frozen[cell].RemoveEntity(entity);
                     return;
                 }
-                throw new Exception("Cell is not loaded");
+                Debug.LogException(new Exception("Cell is not loaded"));
+                return;
             }
 
             _chunks[cell].RemoveEntity(entity);

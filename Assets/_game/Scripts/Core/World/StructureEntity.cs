@@ -108,13 +108,14 @@ namespace Core.World
             _disposeListeners.Remove(listener);   
         }
 
-        public void Update()
+        public void UpdateTransforms()
         {
             if (_structure != null)
             {
                 _head.position = _structure.transform.position - WorldOffset.Offset;
             }
         }
+        
         /*public void OnDistanceToPlayerChanged(int cellsDistance, float realDistanceSqr)
         {
             if (cellsDistance > GameData.Data.worldEntitiesLoadCellDistance)
@@ -141,7 +142,7 @@ namespace Core.World
             _structure = await _loading;
             if (Application.isPlaying)
             {
-                CycleService.RegisterEntity(this);
+               // CycleService.RegisterEntity(this);
             }
             _isConstructInProgress = false;
         }
@@ -150,7 +151,7 @@ namespace Core.World
         {
             if (Application.isPlaying)
             {
-                CycleService.UnregisterEntity(this);
+               // CycleService.UnregisterEntity(this);
             }
             _factory.Destruct(_structure);
         }

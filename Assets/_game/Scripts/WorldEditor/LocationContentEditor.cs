@@ -312,6 +312,7 @@ namespace WorldEditor
                     GUILayout.Label("Something went wrong, check console for details");
                     if (GUILayout.Button("Reload"))
                     {
+                        PlayerPrefs.SetInt(PrefsKey + ".isLoaded", 0);
                         Initialize();
                     }
                 }
@@ -332,6 +333,23 @@ namespace WorldEditor
 
             DrawContentRangeSettings();
             DrawEntitiesAll();
+        }
+
+        private void Update()
+        {
+            if (_isInitialized && !Application.isPlaying && _currentContentRange.size != VectorInt.zero)
+            {
+                try
+                {
+                    _worldGrid.Update();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    _isInitialized = false;
+                    Initialize();
+                }
+            }   
         }
 
         private void DrawEntitiesAll()
@@ -447,7 +465,7 @@ namespace WorldEditor
                         var config = objectEntity.GameObject.transform.parent.GetComponent<StructConfigHolder>();
                         structureEntity.SetConfig(config.blocksConfiguration);
                         structureEntity.SetConfig(config.graphConfiguration);
-                        structureEntity.Update();
+                        structureEntity.UpdateTransforms();
                         objectEntity.GameObject.transform.parent = null;
                         DestroyImmediate(config.gameObject);
                     }

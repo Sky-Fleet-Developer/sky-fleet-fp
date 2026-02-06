@@ -144,6 +144,10 @@ namespace Core.World
 
             foreach ((IWorldEntity entity, VectorInt cell) in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
             {
+                if (entity is IObjectEntity objectEntity)
+                {
+                    objectEntity.UpdateTransforms();
+                }
                 SetLodForEntity(entity);
             }
         }

@@ -30,11 +30,12 @@ namespace Core.SessionManager.SaveService
 
         public void Save(string path, string name)
         {
-            Debug.Log("Begin to save the session...");
+            throw new NotImplementedException();
+            //Debug.Log("Begin to save the session...");
 
             
             
-            State state = new State(CycleService.Entities());
+            /*State state = new State(CycleService.Entities());
             
             
 
@@ -44,7 +45,7 @@ namespace Core.SessionManager.SaveService
             state.playerRot = playerTransform.localEulerAngles;
 
             SaveToFile(state, path, name);
-            Debug.Log("Session was saved successfully!");
+            Debug.Log("Session was saved successfully!");*/
         }
 
         public async Task Load(string filePath)

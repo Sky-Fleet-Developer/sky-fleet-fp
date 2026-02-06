@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
 using Zenject;
+using UniTaskVoid = Cysharp.Threading.Tasks.UniTaskVoid;
 
 namespace Core.World
 {
@@ -30,6 +31,7 @@ namespace Core.World
         private ItemInstance _itemInstance;
         public event Action<ItemEntity, int> OnLodChangedEvent;
         public GameObject GameObject => _objectInstance?.transform.gameObject;
+
         public ItemInstance ItemInstance => _itemInstance;
 
         public Vector3 Position => _positionCache;
@@ -51,6 +53,15 @@ namespace Core.World
             // TODO: process itemDescription nested items
         }
         
+        public void UpdateTransforms()
+        {
+            if (_objectInstance != null)
+            {
+                _positionCache = _objectInstance.transform.position;
+                _rotationCache = _objectInstance.transform.rotation;
+            }
+        }
+        
         public void OnLodChanged(int lod)
         {
             _lod = lod;
@@ -58,22 +69,24 @@ namespace Core.World
             _isLodDirty = true;
             if (_loading == null)
             {
-                ChangeLod();
+                ChangeLod().Forget();
             }
             else
             {
-                _loading.ContinueWith(_ => ChangeLod());
+                _loading.ContinueWith(_ => ChangeLod().Forget());
             }
         }
         
-        private void ChangeLod()
+        private async UniTaskVoid ChangeLod()
         {
             if (_lod < GameData.Data.lodDistances.lods.Length)
             {
                 if(_objectInstance == null)
                 {
                     _loading = _itemObjectFactory.CreateSingle(_itemInstance);
-                    _loading.ContinueWith(task => _objectInstance = task.Result);
+                    _objectInstance = await _loading;
+                    _objectInstance.transform.position = _positionCache;
+                    _objectInstance.transform.rotation = _rotationCache;
                 }
             }
             else
@@ -103,7 +116,11 @@ namespace Core.World
              _disposeListeners.Remove(listener);
         }
 
-        
+        public override string ToString()
+        {
+            return $"ItemEntity {_itemDescription.signId}";
+        }
+
         public class Serializer : ISerializer<ItemEntity>
         {
             private static readonly ISerializer ItemDescriptionSerializer = Serializers.GetSerializer(typeof(ItemDescription));

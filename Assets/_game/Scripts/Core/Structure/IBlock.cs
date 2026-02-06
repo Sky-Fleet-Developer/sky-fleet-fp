@@ -87,18 +87,18 @@ namespace Core.Structure
 
             Type attribute = typeof(SaveValueAttribute);
 
-            string log = $"Fields for type {type.Name}:\n";
+            //string log = $"Fields for type {type.Name}:\n";
 
             foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (field.GetCustomAttributes().FirstOrDefault(x => x.GetType() == attribute) != null)
                 {
                     fields.Add(field);
-                    log += $"{field.Name},";
+                    //log += $"{field.Name},";
                 }
             }
 
-            Debug.Log(log);
+            //Debug.Log(log);
 
             return fields.ToArray();
         }
