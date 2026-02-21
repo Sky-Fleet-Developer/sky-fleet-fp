@@ -54,10 +54,12 @@ MonoBehaviour:
     maxOutput: 1
     contentType: 0
     delta: 0
+  DebugEnabled: 0
   controlPortType: 0
   isCycled: 0
   rotationForce: 10
   dragForce: 5
+  slowdownDelta: 25
   inputSignalMultiplier: 40
   consumptionPerDelta:
     serializedVersion: 2

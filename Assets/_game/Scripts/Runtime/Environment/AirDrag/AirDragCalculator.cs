@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Utilities;
+using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 namespace Runtime.Environment.AirDrag
@@ -14,7 +17,7 @@ namespace Runtime.Environment.AirDrag
             Vector3.back,
             Vector3.left,
             Vector3.up,
-            Vector3.down
+            Vector3.down,
         };
         
         private Transform current;
@@ -26,16 +29,19 @@ namespace Runtime.Environment.AirDrag
         {
             this.data = data;
             current = target;
-            Bounds bounds = target.GetBounds();
-            center = bounds.center + target.position;
-            radius = Vector3.Magnitude(bounds.center - bounds.min);
-
-            data.Cam.orthographicSize = radius;
-            data.Cam.farClipPlane = radius * 2;
+           
 
             ShootLayerResult resultLayer = new ShootLayerResult();
             foreach (Vector3 direction in shootDirections)
             {
+                Bounds bounds = target.GetBounds();
+                bounds.center += target.position;
+                DrawBounds(bounds);
+                center = bounds.center;
+                radius = bounds.extents.magnitude;
+
+                data.Cam.orthographicSize = radius;
+                data.Cam.farClipPlane = radius * 2;
                 var d = current.TransformDirection(direction);
                 TakeSnapshot(center - d * radius, d, resultLayer);
             }
@@ -43,6 +49,40 @@ namespace Runtime.Environment.AirDrag
             resultLayer.Initialize();
 
             return resultLayer;
+        }
+
+        private static void DrawBounds(Bounds bounds)
+        {
+            Vector3 center = bounds.center;
+            Vector3 size = bounds.size;
+
+            // Draw the 8 corners of the bounds
+            Vector3 v3FrontTopLeft    = center + new Vector3(-size.x,  size.y, -size.z) * 0.5f;
+            Vector3 v3FrontTopRight   = center + new Vector3( size.x,  size.y, -size.z) * 0.5f;
+            Vector3 v3FrontBottomLeft  = center + new Vector3(-size.x, -size.y, -size.z) * 0.5f;
+            Vector3 v3FrontBottomRight = center + new Vector3( size.x, -size.y, -size.z) * 0.5f;
+            Vector3 v3BackTopLeft     = center + new Vector3(-size.x,  size.y,  size.z) * 0.5f;
+            Vector3 v3BackTopRight    = center + new Vector3( size.x,  size.y,  size.z) * 0.5f;
+            Vector3 v3BackBottomLeft   = center + new Vector3(-size.x, -size.y,  size.z) * 0.5f;
+            Vector3 v3BackBottomRight  = center + new Vector3( size.x, -size.y,  size.z) * 0.5f;
+
+            // Front face
+            Debug.DrawLine(v3FrontTopLeft, v3FrontTopRight, Color.red);
+            Debug.DrawLine(v3FrontTopRight, v3FrontBottomRight, Color.red);
+            Debug.DrawLine(v3FrontBottomRight, v3FrontBottomLeft, Color.red);
+            Debug.DrawLine(v3FrontBottomLeft, v3FrontTopLeft, Color.red);
+
+            // Back face
+            Debug.DrawLine(v3BackTopLeft, v3BackTopRight, Color.red);
+            Debug.DrawLine(v3BackTopRight, v3BackBottomRight, Color.red);
+            Debug.DrawLine(v3BackBottomRight, v3BackBottomLeft, Color.red);
+            Debug.DrawLine(v3BackBottomLeft, v3BackTopLeft, Color.red);
+
+            // Connect front and back faces
+            Debug.DrawLine(v3FrontTopLeft, v3BackTopLeft, Color.red);
+            Debug.DrawLine(v3FrontTopRight, v3BackTopRight, Color.red);
+            Debug.DrawLine(v3FrontBottomRight, v3BackBottomRight, Color.red);
+            Debug.DrawLine(v3FrontBottomLeft, v3BackBottomLeft, Color.red);
         }
 
         private void TakeSnapshot(Vector3 origin, Vector3 direction, ShootLayerResult result)
@@ -76,13 +116,20 @@ namespace Runtime.Environment.AirDrag
             Vector2 screenOffset = CalculateOffset(normals, out Vector3 normal, out int space);
 
             Ray ray = data.Cam.ScreenPointToRay(new Vector3(screenOffset.x * data.resolution, screenOffset.y * data.resolution, 1));
+            Debug.Log($"offset = {screenOffset}, origin = {ray.origin}");
             Debug.DrawRay(ray.origin, normal, Color.blue, 15);
+            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(0, 0, 1)).origin, ray.direction, Color.cyan, 15);
+            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(0, data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
+            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(data.resolution, 0, 1)).origin, ray.direction, Color.cyan, 15);
+            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(data.resolution, data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
             normal = current.InverseTransformDirection(normal);
             
             Vector3 normalOffset = Vector3.ProjectOnPlane(ray.origin - current.position, ray.direction);
             Vector3 dotOffset = Vector3.Project(center - current.position, ray.direction);
 
             Vector3 localOffset = current.InverseTransformDirection(normalOffset + dotOffset);
+            Vector3 wo = current.InverseTransformPoint(localOffset);
+            Debug.DrawRay(wo, normal, Color.blue, 15);
 
             float cameraSpace = radius * radius * 4;
             float pixelSpace = cameraSpace / (data.resolution * data.resolution);
@@ -110,14 +157,14 @@ namespace Runtime.Environment.AirDrag
                 {
                     nrm = normals[y * res + x];
                     normal += nrm;
-                    dot = Vector3.Dot(nrm, fwd);
+                    dot = Mathf.Abs(Vector3.Dot(nrm, fwd));
                     dotSumm += dot;
                     offset += new Vector2(x, y) * dot;
                     if (nrm.sqrMagnitude != 0) space++;
                 }
             }
 
-            float inv = 1f / Mathf.Abs(dotSumm * res);
+            float inv = 1f / (dotSumm * res);
             offset *= inv;
             if (space != 0)
             {

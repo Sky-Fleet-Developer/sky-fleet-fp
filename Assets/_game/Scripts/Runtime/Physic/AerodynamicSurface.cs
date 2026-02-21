@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Structure;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -23,7 +24,7 @@ namespace Runtime.Physic
             new Keyframe(Mathf.PI / 2, 1f)); // максимальная подъёмная сила при большем положительном угле атаки
 
         // Глобальные переменные
-        private Rigidbody parentRigidbody;
+        private IDynamicStructure parentRigidbody;
         private List<AerodynamicZone> zones;
         private Vector3[] cachedCorners; // кэшируемые углы для рисования контура
 
@@ -35,8 +36,8 @@ namespace Runtime.Physic
 
         void Start()
         {
-            parentRigidbody = GetComponentInParent<Rigidbody>();
-            if (!parentRigidbody)
+            parentRigidbody = GetComponentInParent<IDynamicStructure>();
+            if (parentRigidbody == null)
                 Debug.LogError("RigidBody не найден в иерархии!");
 
             InitializeZones();
@@ -98,10 +99,7 @@ namespace Runtime.Physic
             {
                 return;
             }
-            parentRigidbody.AddForceAtPosition(forceWorldSpace, transform.TransformPoint(zone.LocalPosition),
-                    ForceMode.Force);
-
-
+            parentRigidbody.AddForce(forceWorldSpace, transform.TransformPoint(zone.LocalPosition));
         }
 
         void OnDrawGizmosSelected()

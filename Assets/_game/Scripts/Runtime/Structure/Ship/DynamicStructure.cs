@@ -41,6 +41,17 @@ namespace Runtime.Structure.Ship
         public void AddForce(Vector3 force, Vector3 position)
         {
             rigidbody.AddForceAtPosition(force, position);
+            /*Vector3 f = force * 0.0003f;
+            Color c = Color.HSVToRGB(Mathf.Repeat(Time.time * 3f, 1f), 1f, 1f);
+            Debug.DrawRay(position, f, c, 1);
+            Vector3 cross = Vector3.Cross(f, transform.right).normalized;
+            Debug.DrawRay(position + f, -f * 0.1f + cross * (f.magnitude * 0.1f), c, 1);
+            Debug.DrawRay(position + f, -f * 0.1f - cross * (f.magnitude * 0.1f), c, 1);*/
+        }
+
+        public Vector3 GetPointVelocity(Vector3 transformPoint)
+        {
+            return rigidbody.GetPointVelocity(transformPoint);
         }
 
         public void RecalculateMass()

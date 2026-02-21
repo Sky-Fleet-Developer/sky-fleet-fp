@@ -1,16 +1,20 @@
-﻿using Core.Graph.Wires;
+﻿using System;
+using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
+using NWH.Common.Utility;
 using Runtime.Physic;
 using Runtime.Structure.Rigging.Power;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Runtime.Structure.Rigging.Control
 {
     public abstract class AbstractRotator : PowerUserBlock, IUpdatableBlock
     {
+        [SerializeField] private bool DebugEnabled;
         [SerializeField] private PortType controlPortType;
         private Port<float> targetAngle;
         private Port<float> currentAngle = new Port<float>(PortType.Signal);
@@ -19,21 +23,21 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private float rotationForce;
         [SerializeField] private float dragForce;
         [SerializeField] private float inputSignalMultiplier = 1;
-        [SerializeField] private AnimationCurve consumptionPerDelta;
+        [SerializeField] private AnimationCurve consumptionPerPower;
         [SerializeField, SaveValue, HideIf("isCycled")] public Vector2 minMaxAngle;
         [PlayerProperty] public float InputSignalMultiplier
         {
             get => inputSignalMultiplier;
             set => inputSignalMultiplier = value;
         }
-        [ShowInInspector, ReadOnly] private float _inertia;
+        [ShowInInspector, ReadOnly] private float _inertiaInv;
         [ShowInInspector, ReadOnly] private float _velocity;
         [ShowInInspector, ReadOnly] private float _currentAngle;
         [ShowInInspector, ReadOnly] private float _availablePower;
-        private float _acceleration;
+        [ShowInInspector, ReadOnly] private float _power;
         
         [SerializeField] private float maxConsumption;
-        public override float Consumption => (IsWork ? 0.001f : 0) + consumptionPerDelta.Evaluate(Mathf.Abs(_acceleration)) * maxConsumption;
+        public override float Consumption => (IsWork ? 0.001f : 0) + consumptionPerPower.Evaluate(Mathf.Abs(_power)) * maxConsumption;
         public override void InitBlock(IStructure structure, Parent parent)
         {
             targetAngle ??= new(controlPortType);
@@ -44,11 +48,25 @@ namespace Runtime.Structure.Rigging.Control
         private void OnInitComplete()
         {
             var bounds = Parent.Bounds;
-            _inertia = PhysicsUtilities.GetAngularAcceleration(bounds.size, Parent.Mass, GetRotationAxis()).magnitude;
+            _inertiaInv = PhysicsUtilities.GetAngularAcceleration(bounds.size, Parent.Mass, GetRotationAxis()).magnitude;
         }
 
         protected abstract Vector3 GetRotationAxis();
 
+        public override void ConsumptionTick()
+        {
+            float target = targetAngle.GetValue() * inputSignalMultiplier;
+            if (!isCycled)
+            {
+                target = Mathf.Clamp(target, minMaxAngle.x, minMaxAngle.y);
+            }
+            
+            float vel = _velocity;
+            Mathf.SmoothDampAngle(_currentAngle, target, ref vel, 1f / (rotationForce * _inertiaInv), Mathf.Infinity, CycleService.DeltaTime);
+            _power = Mathf.Abs(_velocity - vel);
+            
+            base.ConsumptionTick();
+        }
 
         public override void PowerTick()
         {
@@ -84,59 +102,37 @@ namespace Runtime.Structure.Rigging.Control
 
         private void Accelerate()
         {
-            float target = targetAngle.GetValue();
+            float target = targetAngle.GetValue() * inputSignalMultiplier;
             if (!isCycled)
             {
                 target = Mathf.Clamp(target, minMaxAngle.x, minMaxAngle.y);
             }
-
-            _currentAngle %= 360;
-            float delta = target - _currentAngle;
-            if (delta > 180)
-            {
-                delta -= 360;
-            }
-            else if (delta < -180)
-            {
-                delta += 360;
-            }
-
-            float maxAcceleration = _inertia * rotationForce * _availablePower;
-            float slowingTime = Mathf.Abs(_velocity / maxAcceleration);
-            int slowingSign = (int)Mathf.Sign(-_velocity);
-            int deltaSign =  (int)Mathf.Sign(delta);
-            float sSlowing = _velocity * slowingTime + (maxAcceleration * slowingSign * slowingTime * slowingTime) * 0.5f;
-
-            _acceleration = 0;
-            if (slowingSign != deltaSign)
-            {
-                if (Mathf.Abs(sSlowing) > Mathf.Abs(delta))
-                {
-                    _acceleration = slowingSign * maxAcceleration * CycleService.DeltaTime;
-                }
-                else
-                {
-                    _acceleration = deltaSign * maxAcceleration * CycleService.DeltaTime;
-                }
-            }
-            else
-            {
-                _acceleration = slowingSign * maxAcceleration * CycleService.DeltaTime;
-            }
-
-            _velocity += _acceleration;
+            
+            _currentAngle = Mathf.SmoothDampAngle(_currentAngle, target, ref _velocity, 1f / (rotationForce * _availablePower * _inertiaInv), Mathf.Infinity, CycleService.DeltaTime);
         }
 
         private void Decelerate()
         {
-            _acceleration = 0;
-            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertia) * Mathf.Sign(_velocity) * CycleService.DeltaTime;
+            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertiaInv) * Mathf.Sign(_velocity) * CycleService.DeltaTime;
+            _currentAngle += _velocity * CycleService.DeltaTime;
+            if (!isCycled)
+            {
+                if (_currentAngle < minMaxAngle.x)
+                {
+                    _velocity = Mathf.Max(0, _velocity);
+                    _currentAngle = minMaxAngle.x;
+                }
+                if(_currentAngle > minMaxAngle.y)
+                {
+                    _velocity = Mathf.Min(0, _velocity);
+                    _currentAngle = minMaxAngle.y;
+                }
+            }
         }
         
         private void Rotate()
         {
-            _currentAngle += _velocity * CycleService.DeltaTime;
-            _currentAngle = TryApplyRotation(_currentAngle * inputSignalMultiplier) / inputSignalMultiplier;
+            _currentAngle = TryApplyRotation(_currentAngle);
         }
 
         protected abstract float TryApplyRotation(float angle);
