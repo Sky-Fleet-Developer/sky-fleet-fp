@@ -18,8 +18,11 @@ namespace Runtime.Structure.Ship
         [ShowInInspector, ReadOnly]
         public float TotalMass { get; private set; }
 
-        [ShowInInspector]
-        public Vector3 LocalCenterOfMass { get; private set; }
+        public Vector3 LocalCenterOfMass
+        {
+            get => localCenterOfMass;
+            private set => localCenterOfMass = value;
+        }
 
         public Rigidbody Physics => rigidbody;
 

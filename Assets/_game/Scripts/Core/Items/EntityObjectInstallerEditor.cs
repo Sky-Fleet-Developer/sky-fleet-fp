@@ -10,20 +10,15 @@ using Core.Items;
 using Core.Misc;
 using Core.Structure;
 using Core.Structure.Serialization;
-using Core.Utilities;
 using Newtonsoft.Json;
-using Runtime.Items;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-#if UNITY_EDITOR
-namespace WorldEditor
+namespace Core.Items
 {
-    [ExecuteInEditMode, RequireComponent(typeof(IItemObject))]
-    public class EntityObjectInstaller : MonoBehaviour
+    public partial class EntityObjectInstaller
     {
-        private const string GuidKey = "ItemIdentifier";
-
+#if UNITY_EDITOR
         [ValueDropdown("GetAbleItems")]
         [ShowInInspector]
         [PropertyOrder(-1)]
@@ -33,22 +28,23 @@ namespace WorldEditor
             set => itemDescription.signId = value;
         }
 
-        public ItemDescription itemDescription = new ();
-        public IItemObject itemObject;
-        private static ItemsTable _itemsTable;
-        private static TablePrefabs _tablePrefabs;
-        private static StuffSlotsTable _stuffSlotsTable;
+        private IItemObject _itemObjectEditor;
+        private static ItemsTable _itemsTableEditor;
+        private static TablePrefabs _tablePrefabsEditor;
+        private static StuffSlotsTable _stuffSlotsTableEditor;
+        private static Dictionary<string, IItemObject> RegisteredGUIDsEditor = new();
+
         private IEnumerable<string> GetAbleItems()
         {
             EnsureObjects();
-            foreach (var p in EnumerateAbleItems(itemObject.Guid)) yield return p.Id;
+            foreach (var p in EnumerateAbleItems(_itemObjectEditor.Guid)) yield return p.Id;
         }
 
         private static IEnumerable<ItemSign> EnumerateAbleItems(string prefabGuid)
         {
-            foreach (var item in _itemsTable.GetItems())
+            foreach (var item in _itemsTableEditor.GetItems())
             {
-                if (string.Equals(_itemsTable.GetItemPrefabGuid(item.Id), prefabGuid))
+                if (string.Equals(_itemsTableEditor.GetItemPrefabGuid(item.Id), prefabGuid))
                 {
                     yield return item;
                 }
@@ -64,7 +60,8 @@ namespace WorldEditor
                 {
                     itemDescription.amount = 1;
                 }
-                SetupItem(itemObject, ref itemDescription);
+
+                SetupItem(_itemObjectEditor, ref itemDescription);
             }
             else
             {
@@ -74,10 +71,11 @@ namespace WorldEditor
 
         private void EnsureObjects()
         {
-            _itemsTable ??= Resources.FindObjectsOfTypeAll<GameData>()[0].GetChildAssets<ItemsTable>().First();
-            _tablePrefabs ??= Resources.FindObjectsOfTypeAll<TablePrefabs>()[0];
-            _stuffSlotsTable ??= Resources.FindObjectsOfTypeAll<GameData>()[0].GetChildAssets<StuffSlotsTable>().First();
-            itemObject = GetComponent<IItemObject>();
+            _itemsTableEditor ??= Resources.FindObjectsOfTypeAll<GameData>()[0].GetChildAssets<ItemsTable>().First();
+            _tablePrefabsEditor ??= Resources.FindObjectsOfTypeAll<TablePrefabs>()[0];
+            _stuffSlotsTableEditor ??=
+                Resources.FindObjectsOfTypeAll<GameData>()[0].GetChildAssets<StuffSlotsTable>().First();
+            _itemObjectEditor = GetComponent<IItemObject>();
         }
 
         private void OnTransformChildrenChanged()
@@ -85,7 +83,7 @@ namespace WorldEditor
             if (!Application.isPlaying)
             {
                 EnsureObjects();
-                SetupNestedItems(itemObject, ref itemDescription);
+                SetupNestedItems(_itemObjectEditor, ref itemDescription);
             }
         }
 
@@ -94,7 +92,7 @@ namespace WorldEditor
             if (!Application.isPlaying)
             {
                 EnsureObjects();
-                SetupNestedItems(itemObject, ref itemDescription);
+                SetupNestedItems(_itemObjectEditor, ref itemDescription);
             }
         }
 
@@ -104,31 +102,38 @@ namespace WorldEditor
             {
                 return;
             }
+
             int property;
-            var sign = _itemsTable.GetItem(itemDescription.signId);
+            var sign = _itemsTableEditor.GetItem(itemDescription.signId);
             if (sign.HasTag(ItemSign.IdentifiableTag))
             {
-                var customData = itemObject.transform.GetOrAddCustomObjectData();
-                if (!customData.TryGetData(GuidKey, out var guid))
+                property = FindOrAddProperty(ref itemDescription, ItemSign.IdentifiableTag, 1);
+                ref string guid = ref itemDescription.properties[property].values[0].stringValue;
+                bool alreadyRegistered = RegisteredGUIDsEditor.TryGetValue(guid, out var c);
+                if (string.IsNullOrEmpty(guid) || alreadyRegistered && c != itemObject)
                 {
                     guid = Guid.NewGuid().ToString();
-                    customData.SetData(GuidKey, guid);
+                    alreadyRegistered = false;
                 }
-                
-                property = FindOrAddProperty(ref itemDescription, ItemSign.IdentifiableTag, 1);
-                itemDescription.properties[property].values[0] = new PropertyValue(guid);
+
+                if (!alreadyRegistered)
+                {
+                    RegisteredGUIDsEditor.Add(guid, itemObject);
+                }
             }
-                
+
             property = FindOrAddProperty(ref itemDescription, Property.PositionPropertyName, 3);
             for (int i = 0; i < 3; i++)
             {
-                itemDescription.properties[property].values[i] = new PropertyValue(itemObject.transform.localPosition[i]);
+                itemDescription.properties[property].values[i] =
+                    new PropertyValue(itemObject.transform.localPosition[i]);
             }
 
             property = FindOrAddProperty(ref itemDescription, Property.RotationPropertyName, 4);
             for (int i = 0; i < 4; i++)
             {
-                itemDescription.properties[property].values[i] = new PropertyValue(itemObject.transform.localRotation[i]);
+                itemDescription.properties[property].values[i] =
+                    new PropertyValue(itemObject.transform.localRotation[i]);
             }
 
             if (itemObject is IBlock block)
@@ -141,15 +146,16 @@ namespace WorldEditor
                 }
             }
         }
-        
+
         private static void SetupNestedItems(IItemObject itemObject, ref ItemDescription itemDescription)
         {
             if (string.IsNullOrEmpty(itemDescription.signId))
             {
                 return;
             }
-            var sign = _itemsTable.GetItem(itemDescription.signId);
-            if(sign.HasTag(ItemSign.ContainerTag))
+
+            var sign = _itemsTableEditor.GetItem(itemDescription.signId);
+            if (sign.HasTag(ItemSign.ContainerTag))
             {
                 CollectContainerContent(ref itemDescription, itemObject);
             }
@@ -158,13 +164,14 @@ namespace WorldEditor
         private static void CollectContainerContent(ref ItemDescription root, IItemObject itemObject)
         {
             root.nestedItems?.Clear();
-    
+
             CollectChildrenRecursive(ref root, itemObject.transform);
+
             void CollectChildrenRecursive(ref ItemDescription root, Transform transform)
             {
-                foreach(Transform child in transform)
+                foreach (Transform child in transform)
                 {
-                    if (child.TryGetComponent(out ItemObject childItemObject))
+                    if (child.TryGetComponent(out IItemObject childItemObject))
                     {
                         AddNestedItem(ref root, childItemObject);
                     }
@@ -176,7 +183,7 @@ namespace WorldEditor
             }
         }
 
-        private static void AddNestedItem(ref ItemDescription root, ItemObject childItemObject)
+        private static void AddNestedItem(ref ItemDescription root, IItemObject childItemObject)
         {
             root.nestedItems ??= new List<ItemDescription>();
             var description = new ItemDescription
@@ -184,7 +191,7 @@ namespace WorldEditor
                 signId = EnumerateAbleItems(childItemObject.Guid).FirstOrDefault()?.Id ?? "_",
                 amount = 1,
                 properties = new List<Property>(),
-                gridSlot = childItemObject.name
+                gridSlot = childItemObject.transform.name
             };
             SetupItem(childItemObject, ref description);
             root.nestedItems.Add(description);
@@ -206,20 +213,22 @@ namespace WorldEditor
         private void PasteWiresConfigFromClipboard()
         {
             string clipboard = GUIUtility.systemCopyBuffer;
-            if(string.IsNullOrEmpty(clipboard)) return;
+            if (string.IsNullOrEmpty(clipboard)) return;
 
             try
             {
-                List<WireConfiguration> wires = JsonConvert.DeserializeObject<List<WireConfiguration>>(GUIUtility.systemCopyBuffer);
-                
+                List<WireConfiguration> wires =
+                    JsonConvert.DeserializeObject<List<WireConfiguration>>(GUIUtility.systemCopyBuffer);
+
                 var prop = itemDescription.properties.FindIndex(x => x.name == Property.WiresPropertyName);
                 if (prop == -1)
                 {
                     itemDescription.properties.Add(default);
                     prop = itemDescription.properties.Count - 1;
                 }
-            
-                itemDescription.properties[prop] = new Property(Property.WiresPropertyName, wires.Select(x => new PropertyValue(x)).ToArray());
+
+                itemDescription.properties[prop] = new Property(Property.WiresPropertyName,
+                    wires.Select(x => new PropertyValue(x)).ToArray());
             }
             catch (Exception e)
             {
@@ -227,10 +236,10 @@ namespace WorldEditor
                 return;
             }
         }
-        
-        [Space(20)]
-        [ShowInInspector]
+
+        [Space(20)] [ShowInInspector]
         private static string _itemsFormat = "{name}_part\tblock\tmass: {mass}; 1; 1\t1\t{guid}";
+
         [Button]
         private void CollectNonExistItemsToClipboard()
         {
@@ -239,19 +248,21 @@ namespace WorldEditor
             HashSet<IBlock> blocks = new();
             CollectChildrenRecursive(transform);
             GUIUtility.systemCopyBuffer = sb.ToString();
+
             void CollectChildrenRecursive(Transform transform)
             {
-                foreach(Transform child in transform)
+                foreach (Transform child in transform)
                 {
-                    if (child.TryGetComponent(out ItemObject childItemObject))
+                    if (child.TryGetComponent(out IItemObject childItemObject))
                     {
                         var sign = EnumerateAbleItems(childItemObject.Guid).FirstOrDefault();
                         if (sign == null)
                         {
-                            var prefabItem = _tablePrefabs.GetItem(childItemObject.Guid);
+                            var prefabItem = _tablePrefabsEditor.GetItem(childItemObject.Guid);
                             if (prefabItem == null)
                             {
-                                Debug.LogError($"Prefab for object {childItemObject.name} ({childItemObject.Guid}) not found");
+                                Debug.LogError(
+                                    $"Prefab for object {childItemObject.transform.name} ({childItemObject.Guid}) not found");
                             }
                             else
                             {
@@ -260,6 +271,7 @@ namespace WorldEditor
                                 {
                                     continue;
                                 }
+
                                 StringBuilder nameChars = new StringBuilder(reference.transform.name);
                                 for (var i = 0; i < nameChars.Length; i++)
                                 {
@@ -269,13 +281,17 @@ namespace WorldEditor
                                         {
                                             nameChars.Insert(i++, '-');
                                         }
+
                                         nameChars[i] = char.ToLower(nameChars[i]);
                                         continue;
                                     }
-                                    if(nameChars[i] == '_') nameChars[i] = '-';
+
+                                    if (nameChars[i] == '_') nameChars[i] = '-';
                                 }
+
                                 var s = _itemsFormat.Replace("{name}", nameChars.ToString())
-                                    .Replace("{guid}", childItemObject.Guid).Replace("{mass}", reference.Mass.ToString(CultureInfo.InvariantCulture));
+                                    .Replace("{guid}", childItemObject.Guid).Replace("{mass}",
+                                        reference.Mass.ToString(CultureInfo.InvariantCulture));
                                 sb.AppendLine(s);
                             }
                         }
@@ -285,6 +301,6 @@ namespace WorldEditor
                 }
             }
         }
+#endif
     }
 }
-#endif

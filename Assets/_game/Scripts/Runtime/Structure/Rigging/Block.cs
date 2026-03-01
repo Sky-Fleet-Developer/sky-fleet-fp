@@ -10,7 +10,7 @@ namespace Runtime.Structure.Rigging
 
     public abstract class Block : ItemObject, IBlock
     {
-        public Vector3 localPosition => transform.position;
+        public Vector3 localPosition => transform.localPosition;
         public Parent Parent { get; private set; }
         public IStructure Structure { get; private set; }
 

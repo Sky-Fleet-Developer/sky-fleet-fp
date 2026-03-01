@@ -30,9 +30,9 @@ namespace Core.World
         private Transform anchor;
         private bool _isEnabled = false;
         private bool _isManualControl = false;
-        bool ILoadAtStart.enabled => enabled && _isEnabled;
+        bool ILoadAtStart.enabled => _isEnabled;
 
-        private void Start()
+        private void Awake()
         {
             _isEnabled = gameObject.activeInHierarchy;
             gameObject.SetActive(false);
@@ -42,11 +42,11 @@ namespace Core.World
         public Task Load()
         {
             Offset = Vector3.zero;
-            SpawnPerson.OnPlayerWasLoaded.Subscribe(OnPlayerWasLoaded);
+            Bootstrapper.OnLoadComplete.Subscribe(OnInitComplete);
             return Task.CompletedTask;
         }
 
-        private void OnPlayerWasLoaded()
+        private void OnInitComplete()
         {
             gameObject.SetActive(true);
             

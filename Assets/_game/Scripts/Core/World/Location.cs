@@ -64,6 +64,11 @@ namespace Core.World
                 }
                 return;
             }
+
+            if (!Directory.Exists(dataPath))
+            {
+                Directory.CreateDirectory(dataPath);
+            }
             await using FileStream stream = File.Open(path, FileMode.OpenOrCreate);
             Serializers.GetSerializer(typeof(LocationChunkData)).Serialize(chunkData, stream);
         }

@@ -2674,7 +2674,7 @@ MonoBehaviour:
     m_Value: {x: 0, y: 0}
   bottomAltitude:
     m_OverrideState: 1
-    m_Value: 3000
+    m_Value: 1500
   altitudeRange:
     m_OverrideState: 1
     m_Value: 2000

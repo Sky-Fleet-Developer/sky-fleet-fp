@@ -101,10 +101,21 @@ namespace Runtime.Items
 
         private async void AddView(SlotCell slot, Transform parent, int siblingIndex = 0)
         {
-            IItemObject instance = await _itemObjectFactory.CreateSingle(slot.Item);
-            instance.transform.SetParent(parent, false);
-            instance.transform.SetSiblingIndex(siblingIndex);
-            instance.transform.name = slot.SlotId;
+            IItemObject instance;
+            var exist = parent.Find(slot.SlotId);
+            if (exist)
+            {
+                var handle = exist.GetComponent<IItemObjectHandle>();
+                _itemObjectFactory.SetupInstance(handle, slot.Item);
+                instance = handle;
+            }
+            else
+            {
+                instance = await _itemObjectFactory.CreateSingle(slot.Item);
+                instance.transform.SetParent(parent, false);
+                instance.transform.SetSiblingIndex(siblingIndex);
+                instance.transform.name = slot.SlotId;
+            }
 
             if (instance is IBlock block)
             {

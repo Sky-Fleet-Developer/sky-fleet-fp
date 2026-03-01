@@ -47,10 +47,21 @@ namespace Core.World
             _rotationCache = rotation;
         }
         
+        public ItemEntity(IItemObject objectInstance, ItemDescription itemDescription) : this()
+        {
+            _itemDescription = itemDescription;
+            _objectInstance = objectInstance;
+            _positionCache = objectInstance.transform.position;
+            _rotationCache = objectInstance.transform.rotation;
+        }
+        
         public void Initialize()
         {
             _itemInstance = _itemInstanceFactory.CreateByDescription(_itemDescription);
-            // TODO: process itemDescription nested items
+            if (_objectInstance is IItemObjectHandle itemObjectHandle)
+            {
+                _itemObjectFactory.SetupInstance(itemObjectHandle, _itemInstance);
+            }
         }
         
         public void UpdateTransforms()

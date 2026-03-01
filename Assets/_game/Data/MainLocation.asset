@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: MainLocation
   m_EditorClassIdentifier: Core::Core.World.Location
   dataPath: MainLocation
-  dataFileFormat: '{x}_{y}.txt'
+  dataFileFormat2d: '{x}_{y}.txt'
+  dataFileFormat3d: '{x}_{y}_{z}.txt'

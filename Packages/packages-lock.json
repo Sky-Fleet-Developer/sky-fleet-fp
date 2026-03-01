@@ -14,12 +14,27 @@
       "dependencies": {},
       "hash": "34432703a177c97631a4eb1d908f086037c67969"
     },
+    "com.github.siccity.xnode": {
+      "version": "https://github.com/Siccity/xNode.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d6effd70f5574369e3415c423ef3e621ea309564"
+    },
     "com.neuecc.unirx": {
       "version": "https://github.com/neuecc/UniRx.git?path=/Assets/Plugins/UniRx/Scripts/",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "6baeccf6c544c155497164327cca72f28163a578"
+    },
+    "com.skyfleetdeveloper.qne": {
+      "version": "file:E:/Projects/quests-and-events",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.github.siccity.xnode": "1.8.0"
+      }
     },
     "com.unity.addressables": {
       "version": "2.7.3",

@@ -105,9 +105,12 @@ namespace Core
                 }
                 if (entry.name.Contains("[Translator]"))
                 {
-                    foreach (var installer in entry.GetComponentsInChildren<IMyInstaller>().OrderBy(x => ((Component)x).transform.GetSiblingIndex()))
+                    for (int i = 0; i < entry.transform.childCount; i++)
                     {
-                        installer.InstallBindings(container);
+                        foreach (var installer in entry.transform.GetChild(i).GetComponents<IMyInstaller>())
+                        {
+                            installer.InstallBindings(container);
+                        }
                     }
                 }
             }
@@ -126,10 +129,12 @@ namespace Core
                 }
                 if (entry.name.Contains("[Translator]"))
                 {
-                    foreach (var monoBehaviour in entry.GetComponentsInChildren<MonoBehaviour>().OrderBy(x => 
-                                 x.transform.GetSiblingIndex()))
+                    for (int i = 0; i < entry.transform.childCount; i++)
                     {
-                        container.Inject(monoBehaviour);
+                        foreach (var monoBehaviour in entry.transform.GetChild(i).GetComponents<MonoBehaviour>())
+                        {
+                            container.Inject(monoBehaviour);
+                        }
                     }
                 }
             }
@@ -139,7 +144,7 @@ namespace Core
         {
             foreach (var entry in scene.GetRootGameObjects().OrderBy(x => x.transform.GetSiblingIndex()))
             {
-                foreach (var load in entry.GetComponents<ILoadAtStart>().OrderBy(x => ((Component)x).transform.GetSiblingIndex()))
+                foreach (var load in entry.transform.GetComponents<ILoadAtStart>())
                 {
                     if (load.enabled)
                     {
@@ -150,12 +155,15 @@ namespace Core
 
                 if (entry.name.Contains("[Translator]"))
                 {
-                    foreach (var load in entry.GetComponentsInChildren<ILoadAtStart>(true).OrderBy(x => ((Component)x).transform.GetSiblingIndex()))
+                    for (int i = 0; i < entry.transform.childCount; i++)
                     {
-                        if (load.enabled)
+                        foreach (var load in entry.transform.GetChild(i).GetComponents<ILoadAtStart>())
                         {
-                            Debug.Log($"BOOTSTRAPPER: Begin load {load}");
-                            await load.Load();
+                            if (load.enabled)
+                            {
+                                Debug.Log($"BOOTSTRAPPER: Begin load {load}");
+                                await load.Load();
+                            }
                         }
                     }
                 }

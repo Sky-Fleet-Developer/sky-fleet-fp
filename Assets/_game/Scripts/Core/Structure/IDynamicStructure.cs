@@ -6,7 +6,6 @@ namespace Core.Structure
     public interface IDynamicStructure : IStructure, IMass
     {
         float TotalMass { get; }
-        Vector3 LocalCenterOfMass { get; }
         Vector3 Velocity { get; }
 
         Rigidbody Physics { get; }

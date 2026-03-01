@@ -9,5 +9,6 @@ namespace Core.Items
         void Deconstruct(IItemObject itemObject);
         Task<List<IItemObject>> Create(ItemInstance item);
         Task<IItemObject> CreateSingle(ItemInstance item);
+        void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item);
     }
 }

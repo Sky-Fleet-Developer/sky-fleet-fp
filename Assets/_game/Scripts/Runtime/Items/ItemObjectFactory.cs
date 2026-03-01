@@ -7,6 +7,8 @@ using Core.Misc;
 using Core.Structure;
 using Core.Trading;
 using Core.Utilities;
+using Core.Utilities.AsyncAwaitUtil.Source;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -47,33 +49,20 @@ namespace Runtime.Items
             return ConstructItemPrivate(item, prefab);
         }
 
-        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source)
+        public void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item)
         {
-            GameObject instance;
-            if (Application.isPlaying)
-            {
-                instance = DynamicPool.Instance.Get(source.transform).gameObject;
-            }
-            else
-            {
-                instance = Instantiate(source);
-            }
-
-            if (!instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
-            {
-                return null;
-            }
             itemObjectHandle.SetSourceItem(item);
+            var go = itemObjectHandle.transform.gameObject;
             
             if (item.IsUnique && item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty))
             {
-                foreach (var monoBehaviour in instance.GetComponents<MonoBehaviour>())
+                foreach (var monoBehaviour in go.GetComponents<MonoBehaviour>())
                 {
                     _container.Inject(monoBehaviour);
                 }
-                if (!instance.TryGetComponent(out Container containerComponent))
+                if (!go.TryGetComponent(out Container containerComponent))
                 {
-                    containerComponent = instance.AddComponent<Container>();
+                    containerComponent = go.AddComponent<Container>();
                     _container.Inject(containerComponent);
                 }
                 
@@ -86,10 +75,10 @@ namespace Runtime.Items
             
             if (itemObjectHandle is IDynamicStructure)
             {
-                _container.Inject(instance.AddComponent<ContainerItemMass>());
+                _container.Inject(go.AddComponent<ContainerItemMass>());
             }
             
-            var view = instance.AddComponent<SlotsContainerContentView>();
+            var view = go.AddComponent<SlotsContainerContentView>();
             _container.Inject(view);
             view.TryInit();
             
@@ -112,17 +101,38 @@ namespace Runtime.Items
 
             if (item.TryGetProperty(Property.PositionPropertyName, out var positionProperty))
             {
-                instance.transform.localPosition = new Vector3(positionProperty.values[0].floatValue, positionProperty.values[1].floatValue, positionProperty.values[2].floatValue);
+                go.transform.localPosition = new Vector3(positionProperty.values[0].floatValue, positionProperty.values[1].floatValue, positionProperty.values[2].floatValue);
             }
             if (item.TryGetProperty(Property.RotationPropertyName, out var rotationProperty))
             {
-                instance.transform.localRotation = new Quaternion(rotationProperty.values[0].floatValue, rotationProperty.values[1].floatValue, rotationProperty.values[2].floatValue, rotationProperty.values[3].floatValue);
+                go.transform.localRotation = new Quaternion(rotationProperty.values[0].floatValue, rotationProperty.values[1].floatValue, rotationProperty.values[2].floatValue, rotationProperty.values[3].floatValue);
             }
 
-            if (instance.TryGetComponent(out Rigidbody rigidbody))
+            if (go.TryGetComponent(out Rigidbody rigidbody))
             {
                 rigidbody.mass = item.GetMass();
             }
+        }
+
+        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source)
+        {
+            GameObject instance;
+            if (Application.isPlaying)
+            {
+                instance = DynamicPool.Instance.Get(source.transform).gameObject;
+            }
+            else
+            {
+                instance = Instantiate(source);
+            }
+
+            if (!instance.TryGetComponent(out IItemObjectHandle itemObjectHandle))
+            {
+                return null;
+            }
+            
+            SetupInstance(itemObjectHandle, item);
+            
             return itemObjectHandle;
         }
 
