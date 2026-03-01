@@ -10,14 +10,14 @@ namespace Core.Cargo
     {
         void Enter();
         void Exit();
-        void BeginPlacement(ITablePrefab cargo);
+        void BeginPlacement(IRemotePrefab cargo);
         void EndPlacement();
     }
     
     public interface ICargoUnloadingHandler : ICharacterHandler
     {
-        IEnumerable<ITablePrefab> AvailableCargo { get; }
-        bool TryUnload(ITablePrefab cargo, Vector3 targetGroundPoint, Quaternion targetRotation, out PlaceCargoHandler handler);
-        void Detach(ITablePrefab cargo);
+        IEnumerable<IRemotePrefab> AvailableCargo { get; }
+        bool TryUnload(IRemotePrefab cargo, Vector3 targetGroundPoint, Quaternion targetRotation, out PlaceCargoHandler handler);
+        void Detach(IRemotePrefab cargo);
     }
 }

@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Runtime.Items
 {
-    public class ItemObject : TablePrefab, IItemObjectHandle
+    public class ItemObject : RemotePrefab, IItemObjectHandle
     {
         [Inject] private IItemObjectFactory _itemObjectFactory;
         private ItemInstance _sourceItem;

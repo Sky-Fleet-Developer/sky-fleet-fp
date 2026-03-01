@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 5800308881516799747}
   - component: {fileID: 4140789298684733790}
   m_Layer: 0
-  m_Name: SupportTopCutoffModule
+  m_Name: support-top-cutoff-module_part
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21e6615c9982416ea8d7b1ea5cc9f3b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: a8ddd184-bed7-4a74-82c1-98c1279a03a0
+  assetId: support-top-cutoff-module_part
   tags: []
   mass: 10
   mountingType: 

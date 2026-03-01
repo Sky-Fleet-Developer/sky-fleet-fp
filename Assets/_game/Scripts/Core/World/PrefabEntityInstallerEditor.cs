@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Core.World
 {
-    public partial class PrefabEntityInstaller
+    /*public partial class PrefabEntityInstaller
     {
         #if UNITY_EDITOR
         private static TablePrefabs _tablePrefabsEditor;
@@ -26,8 +26,8 @@ namespace Core.World
             EnsureObjects();
             if (_current != null)
             {
-                yield return new ("self", _current.Guid);
-                PrefabId = _current.Guid;
+                yield return new ("self", _current.AssetId);
+                PrefabId = _current.AssetId;
                 yield break;
             }
             foreach (var remotePrefabItem in _tablePrefabsEditor.items)
@@ -50,5 +50,5 @@ namespace Core.World
             }
         }
         #endif
-    }
+    }*/
 }

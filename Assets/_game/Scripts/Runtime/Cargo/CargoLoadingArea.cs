@@ -25,11 +25,11 @@ namespace Runtime.Cargo
     {
         [SerializeField] private CinemachineCamera viewCamera;
         private readonly Dictionary<IStructure, TrunkLink> _detectedTrunks = new();
-        private readonly Dictionary<ITablePrefab, int> _detectedCargo = new();
+        private readonly Dictionary<IRemotePrefab, int> _detectedCargo = new();
         private Queue<Collider> _enterAtStart = new();
         private bool _isInitialized;
 
-        public IEnumerable<ITablePrefab> AvailableCargo => _detectedCargo.Keys;
+        public IEnumerable<IRemotePrefab> AvailableCargo => _detectedCargo.Keys;
         public bool EnableInteraction => IsActive;
         public Transform MyTransform => transform;
 
@@ -67,7 +67,7 @@ namespace Runtime.Cargo
             }
         }
 
-        public bool TryLoad(ITablePrefab cargo, ICargoTrunk trunk, Vector3Int position)
+        public bool TryLoad(IRemotePrefab cargo, ICargoTrunk trunk, Vector3Int position)
         {
             if (trunk.TryPlaceCargo(cargo, position, out var handler))
             {
@@ -109,7 +109,7 @@ namespace Runtime.Cargo
             {
                 structure.OnInitComplete.Subscribe(ProcessStructure);
             }
-            else if(other.attachedRigidbody.gameObject.TryGetComponent(out ITablePrefab tablePrefab))
+            else if(other.attachedRigidbody.gameObject.TryGetComponent(out IRemotePrefab tablePrefab))
             {
                 if (_detectedCargo.TryGetValue(tablePrefab, out int counter))
                 {
@@ -152,7 +152,7 @@ namespace Runtime.Cargo
                     }
                 }
             }
-            else if (other.attachedRigidbody.gameObject.TryGetComponent(out ITablePrefab tablePrefab))
+            else if (other.attachedRigidbody.gameObject.TryGetComponent(out IRemotePrefab tablePrefab))
             {
                 if (_detectedCargo.TryGetValue(tablePrefab, out int counter))
                 {

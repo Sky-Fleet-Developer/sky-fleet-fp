@@ -1360,7 +1360,7 @@ GameObject:
   - component: {fileID: 8038350659764686923}
   - component: {fileID: 2036540870009994420}
   m_Layer: 0
-  m_Name: CargoTrunk
+  m_Name: cargo-trunk_part
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1420,7 +1420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6fa394f346543e0b32f24308417d224, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 61371496-4d96-44d1-bbec-8a0d64725edf
+  assetId: cargo-trunk_part
   tags: []
   mass: 10
   mountingType: 

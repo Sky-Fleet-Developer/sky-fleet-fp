@@ -27,10 +27,10 @@ namespace Core.Configurations
             var prefabGameObject = (reference.editorAsset as GameObject);
             if (prefabGameObject)
             {
-                var block = prefabGameObject.GetComponent<ITablePrefab>();
+                var block = prefabGameObject.GetComponent<IRemotePrefab>();
                 if (block != null)
                 {
-                    guid = block.Guid;
+                    guid = block.AssetId;
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace Core.Configurations
         }
 
 #if  UNITY_EDITOR
-        public ITablePrefab tablePrefabCache;
+        public IRemotePrefab remotePrefabCache;
 
         [ShowInInspector] public string refresher
         {
@@ -70,28 +70,28 @@ namespace Core.Configurations
             {
                 if (reference != null && reference.editorAsset != null)
                 {
-                    if (tablePrefabCache == null || reference.editorAsset as GameObject != tablePrefabCache.transform.gameObject)
+                    if (remotePrefabCache == null || reference.editorAsset as GameObject != remotePrefabCache.transform.gameObject)
                     {
-                        if((reference.editorAsset as GameObject).TryGetComponent(out ITablePrefab tablePrefab))
+                        if((reference.editorAsset as GameObject).TryGetComponent(out IRemotePrefab tablePrefab))
                         {
-                            tablePrefabCache = tablePrefab;
+                            remotePrefabCache = tablePrefab;
                         }
                         else
                         {
-                            tablePrefabCache = null;
+                            remotePrefabCache = null;
                         }
                     }
                     else
                     {
-                        tablePrefabCache = null;
+                        remotePrefabCache = null;
                     }
                 }
 
-                if (tablePrefabCache != null)
+                if (remotePrefabCache != null)
                 {
-                    guid = tablePrefabCache.Guid;
+                    guid = remotePrefabCache.AssetId;
                     tags ??= new List<string>();
-                    tags.AddRange(tablePrefabCache.Tags);
+                    tags.AddRange(remotePrefabCache.Tags);
                 }
 
                 string val = "--";

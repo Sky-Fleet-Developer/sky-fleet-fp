@@ -15,7 +15,7 @@ namespace Core.World
         private int _historyPointer;
         [ShowInInspector] public Vector3 StoredVelocity => _storedVelocity;
         [ShowInInspector] public Vector3 WorldPosition => _isInitialized ? _history[_historyPointer] : Vector3.zero;
-        public Vector3 SpacePosition => _isInitialized ? _history[_historyPointer] : Vector3.zero;
+        public Vector3 SpacePosition => _isInitialized ? _history[_historyPointer] + WorldOffset.Offset : Vector3.zero;
         
         public Vector3 GetPredictedWorldPosition(float time) => WorldPosition + _storedVelocity * time;
         private bool _isInitialized;

@@ -17,7 +17,10 @@ namespace Core.Utilities
         public int hiddenLodRefreshPeriod;
         private float[] _sqrLods;
 
-        
+        public float GetMaxLodDistance()
+        {
+            return lods[^1].distance;
+        }
         public float GetLodDistance(int lod)
         {
             if (lod >= lods.Length)

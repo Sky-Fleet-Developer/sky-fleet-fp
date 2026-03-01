@@ -116,7 +116,7 @@ namespace Core.ContentSerializer.Bundles
                 {
                     context.AddTag("Block");
                     IBlock block = component as IBlock;
-                    context.AddTag(block.Guid);
+                    context.AddTag(block.AssetId);
                     context.AddTag(block.MountingType);
                 }
                 components.Add(type.FullName + "|" + component.GetInstanceID());

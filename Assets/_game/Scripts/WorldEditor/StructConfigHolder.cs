@@ -94,9 +94,9 @@ namespace WorldEditor
             DestroyImmediate(tempObject);
         }
 
-        private static bool IsTablePrefab(ITablePrefab prefab)
+        private static bool IsTablePrefab(IRemotePrefab prefab)
         {
-            return TablePrefabs.Instance.GetItem(prefab.Guid) != null;
+            return TablePrefabs.Instance.GetItem(prefab.AssetId) != null;
         }
 
         private static GameObject CreateAndReplacePrefab(GameObject source)
@@ -200,7 +200,7 @@ namespace WorldEditor
 
         private GameObject TryGetRoot()
         {
-            ITablePrefab prefab = GetComponentInChildren<ITablePrefab>();
+            IRemotePrefab prefab = GetComponentInChildren<IRemotePrefab>();
             if (prefab != null)
             {
                 return prefab.transform.gameObject;

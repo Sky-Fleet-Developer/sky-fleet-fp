@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3046490105225057544}
   - component: {fileID: 5349540421330091292}
   m_Layer: 0
-  m_Name: FrontWheel_Rotator
+  m_Name: front-wheel-rotator_part
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12191bac44cde4844942d85e5b427b98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 13a1ed8c-e274-4eb8-8b8f-54bc25d252e0
+  assetId: front-wheel-rotator_part
   tags: []
   mass: 10
   mountingType: 
@@ -59,29 +59,10 @@ MonoBehaviour:
   isCycled: 0
   rotationForce: 10
   dragForce: 5
-  slowdownDelta: 25
   inputSignalMultiplier: 40
-  consumptionPerDelta:
+  consumptionPerPower:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+    m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4

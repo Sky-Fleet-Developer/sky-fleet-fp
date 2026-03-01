@@ -225,7 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1189d9a31ac49d08f499ef548f590d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: adbcf898-3ade-4bb5-89d1-5e701e109c52
+  assetId: mine-shop
   tags: []
   mass: 10
   mountingType: 

@@ -11,7 +11,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
     public class AltitudeIndicator : MonoBehaviour, IDevice
     {
         [ShowInInspector]
-        public string Guid
+        public string AssetId
         {
             get
             {

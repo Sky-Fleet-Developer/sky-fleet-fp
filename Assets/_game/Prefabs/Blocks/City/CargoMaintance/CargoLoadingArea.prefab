@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c55dab3fe0044308c45e3bdb5543a51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: dc699fe1-1174-454f-9f25-034c09e38ae6
+  assetId: cargo-loading-area
   tags: []
   mass: 10
   mountingType: 

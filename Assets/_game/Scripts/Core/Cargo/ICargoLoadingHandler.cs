@@ -13,9 +13,9 @@ namespace Core.Cargo
     }
     public interface ICargoLoadingHandler : ICharacterHandler
     {
-        IEnumerable<ITablePrefab> AvailableCargo { get; }
+        IEnumerable<IRemotePrefab> AvailableCargo { get; }
         IEnumerable<ICargoTrunk> AvailableTrunks { get; }
 
-        bool TryLoad(ITablePrefab cargo, ICargoTrunk trunk, Vector3Int position);
+        bool TryLoad(IRemotePrefab cargo, ICargoTrunk trunk, Vector3Int position);
     }
 }

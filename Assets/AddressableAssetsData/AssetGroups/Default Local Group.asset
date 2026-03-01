@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: 650a7fab13020734db8c8b4ab6a2b165
   m_SerializeEntries:
   - m_GUID: 02e05baff1bdc20449a234ed5944933f
-    m_Address: Assets/_game/Prefabs/Blocks/StabilizationComputer.prefab
+    m_Address: stabilization-computer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -26,17 +26,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0b735169160b97744aec9c8a4edc840c
-    m_Address: Assets/_game/Prefabs/Blocks/LiquidTank.prefab
+    m_Address: small-liquid-tank_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0e6dae452a353fa499523684254c5116
-    m_Address: FrontWheel_Rotator
+    m_Address: front-wheel-rotator_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0fbd8324154f38445998d1fabd80ffb7
-    m_Address: Assets/_game/Prefabs/Blocks/LightSupport-Single.prefab
+    m_Address: light-support-single_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -51,17 +51,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 224c86b27b861a940ad48c19615b6c2e
-    m_Address: MineShop
+    m_Address: mine-shop
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 250bff99d49557f4194a3fb0f505fd48
-    m_Address: SupportTopCutoffModule
+    m_Address: support-top-cutoff-module_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2977a920f267beb46af8277b14e0d7a3
-    m_Address: Assets/_game/Prefabs/Blocks/Emgracopter/CargoControl.prefab
+    m_Address: cargo-control
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -71,7 +71,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 32392e7850e5f4942814cddad09851ff
-    m_Address: Crate1000
+    m_Address: cube_box
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -91,12 +91,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 47d5c998281a5a94483aa12a9a4e60cb
-    m_Address: Assets/_game/Prefabs/Blocks/SmallSupport.prefab
+    m_Address: light-support-double
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 48a371fc77a91fe4098ec1d5f2fcd654
-    m_Address: Assets/_game/Prefabs/Blocks/TestHydrogenStorage.prefab
+    m_Address: test-hydrogen-storage
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -106,17 +106,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4ca7a315dc9b1df46b4f7b3467189178
-    m_Address: CargoLoadingArea
+    m_Address: cargo-loading-area
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 559f97fa9e9482247ba86d12f15c48ab
-    m_Address: Assets/_game/Prefabs/Blocks/Emgracopter/ElevonsDistributor.prefab
+    m_Address: elevons-distributor_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 605b1e63956e177459a2770646853be7
-    m_Address: Assets/_game/Prefabs/Blocks/QuadroFlyComputer.prefab
+    m_Address: quadro-fly-computer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -126,17 +126,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 69fb808f0b12bea4599794e24b59a1dc
-    m_Address: Assets/_game/Prefabs/Blocks/Emgracopter/CopterControl_3axis.prefab
+    m_Address: "\u0441opter-\u0441ontrol-5axis_part"
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 72a701bdd11c43343a4c894c98cf6f97
-    m_Address: Assets/_game/Prefabs/Blocks/SmallBattery.prefab
+    m_Address: small-battery_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 77dff4da645eda9439685b2c5e3bbaf7
-    m_Address: ingot_iron
+    m_Address: iron_ingot
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -156,7 +156,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9b1a814305bc6ca4f8c0fc8a154b8eb1
-    m_Address: Cargo_Emgracopter
+    m_Address: cargo-emgracopter_body
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -166,17 +166,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aa1b82e31421c4341a0a61590069ff38
-    m_Address: Assets/_game/Prefabs/Blocks/Gyroscop.prefab
+    m_Address: gyroscope
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: accdc2cc301f55449b7149659e20dba5
-    m_Address: CargoTrunk
+    m_Address: cargo-trunk_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b249800ad0fa4ac49b0be7281b7690ff
-    m_Address: Assets/_game/Prefabs/Blocks/TestControl.prefab
+    m_Address: test-control
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -186,7 +186,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ca2e9211ebc228342b78d89e6b5a3660
-    m_Address: Assets/_game/Prefabs/Blocks/Common/CraneControl_3axis.prefab
+    m_Address: crane-control_3axis
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -196,7 +196,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cf34d1182ef2a164fa784c6808b516d5
-    m_Address: Rudder_Rotator
+    m_Address: rudder-rotator_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -211,12 +211,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d4ac0d39cf8e4a147a90d726ceb2f314
-    m_Address: Assets/_game/Prefabs/Blocks/TestJet.prefab
+    m_Address: test-jet_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d655fa3d876798c40bb238fbfe5ecd4f
-    m_Address: Assets/_game/Prefabs/Blocks/AimingComputer.prefab
+    m_Address: aiming-computer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -231,17 +231,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f16d3e7948dbe24408d78a6e2a5855cf
-    m_Address: Assets/_game/Prefabs/Blocks/ThrustInverse.prefab
+    m_Address: thrust-inverse
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f241b618a0db84543894629afe816ce2
-    m_Address: Assets/_game/Prefabs/Blocks/SmallFuelPowerGenerator.prefab
+    m_Address: small-fuel-power-generator_part
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fbafd38309706bf4ea7d07ea2da55d08
-    m_Address: ingot_copper
+    m_Address: copper_ingot
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

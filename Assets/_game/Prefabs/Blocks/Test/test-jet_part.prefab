@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1915622220691640615}
   - component: {fileID: 69203444365512920}
   m_Layer: 0
-  m_Name: TestJet
+  m_Name: test-jet_part
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8bbc1703a49fd747918341a0b3ff943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
+  assetId: test-jet_part
   tags: []
   mass: 10
   mountingType: 

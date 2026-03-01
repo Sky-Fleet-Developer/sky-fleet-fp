@@ -10,36 +10,38 @@ using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Zenject;
 
 namespace Core.World
 {
-    public class PrefabEntity : IWorldEntity
+    public class AssetEntity : IWorldEntity
     {
-        private string _prefabId;
+        private string _assetId;
         private List<IWorldEntityDisposeListener> _listeners = new();
         private Vector3 _positionCache;
         private Quaternion _rotationCache;
         private Task<GameObject> _loading;
+        private AsyncOperationHandle<GameObject> _loadingOp;
         private int _lod;
         private bool _isLodDirty;
-        private ITablePrefab _objectInstance;
+        private GameObject _objectInstance;
 
-        [Inject] private TablePrefabs _prefabs;
         public Vector3 Position => _positionCache;
         
-        public PrefabEntity(){}
+        public AssetEntity(){}
 
-        public PrefabEntity(string prefabId, Vector3 position, Quaternion rotation)
+        public AssetEntity(string assetId, Vector3 position, Quaternion rotation)
         {
-            _prefabId = prefabId;
+            _assetId = assetId;
             _positionCache = position;
             _rotationCache = rotation;
         }
 
-        public PrefabEntity(ITablePrefab instance)
+        public AssetEntity(GameObject instance, string assetId)
         {
-            _prefabId = instance.Guid;
+            _assetId = assetId;
             _objectInstance = instance;
             _positionCache = instance.transform.position;
             _rotationCache = instance.transform.rotation;
@@ -66,8 +68,9 @@ namespace Core.World
             {
                 if(_objectInstance == null)
                 {
-                    _loading = _prefabs.GetItem(_prefabId).LoadPrefab();
-                    _objectInstance = UnityEngine.Object.Instantiate(await _loading, _positionCache, _rotationCache).GetComponent<ITablePrefab>();
+                    _loadingOp = Addressables.LoadAssetAsync<GameObject>(_assetId);
+                    _loading = _loadingOp.Task;
+                    _objectInstance = UnityEngine.Object.Instantiate(await _loading, _positionCache, _rotationCache);
                     _objectInstance.transform.position = _positionCache;
                     _objectInstance.transform.rotation = _rotationCache;
                 }
@@ -76,6 +79,13 @@ namespace Core.World
             {
                 if (_objectInstance != null)
                 {
+                    if (_loadingOp.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        _loadingOp.Release();
+                    }
+
+                    _loading?.Dispose();
+                    _loading = null;
                     UnityEngine.Object.Destroy(_objectInstance.transform.gameObject);
                     _objectInstance = null;
                 }
@@ -105,10 +115,15 @@ namespace Core.World
         }
         public void Dispose()
         {
-            
+            if (_loadingOp.Status == AsyncOperationStatus.Succeeded)
+            {
+                _loadingOp.Release();
+            }
+            _loading?.Dispose();
+            _loading = null;
         }
         
-        public class Serializer : ISerializer<PrefabEntity>
+        public class Serializer : ISerializer<AssetEntity>
         {
             
             public static readonly JsonConverter[] Converters = new JsonConverter[]
@@ -118,11 +133,11 @@ namespace Core.World
                 new Matrix4x4Converter(),
             };
 
-            public void Serialize(PrefabEntity entity, Stream stream)
+            public void Serialize(AssetEntity entity, Stream stream)
             {
                 try
                 {
-                    stream.WriteString(entity._prefabId);
+                    stream.WriteString(entity._assetId);
                     for (int i = 0; i < 3; i++)
                     {
                         stream.WriteFloat(entity._positionCache[i]);
@@ -138,16 +153,16 @@ namespace Core.World
                 }
             }
 
-            public PrefabEntity Deserialize(Stream stream)
+            public AssetEntity Deserialize(Stream stream)
             {
-                var entity = new PrefabEntity();
+                var entity = new AssetEntity();
                 Populate(stream, ref entity);
                 return entity;
             }
 
-            public void Populate(Stream stream, ref PrefabEntity entity)
+            public void Populate(Stream stream, ref AssetEntity entity)
             {
-                entity._prefabId = stream.ReadString();
+                entity._assetId = stream.ReadString();
                 for (int i = 0; i < 3; i++)
                 {
                     entity._positionCache[i] = stream.ReadFloat();

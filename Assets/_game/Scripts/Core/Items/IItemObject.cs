@@ -2,7 +2,7 @@
 
 namespace Core.Items
 {
-    public interface IItemObject : ITablePrefab
+    public interface IItemObject : IRemotePrefab
     {
         ItemInstance SourceItem { get; }
     }

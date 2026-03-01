@@ -27,24 +27,24 @@ namespace Runtime.Structure.Rigging.Cargo
         [SerializeField] private TrunkVolumeView trunkVolumeView;
         [SerializeField] private CargoVolumeView cargoVolumeView;
         [Inject] private PrefabVolumeProcessor _prefabVolumes;
-        private Dictionary<Vector3Int, ITablePrefab> _content = new();
+        private Dictionary<Vector3Int, IRemotePrefab> _content = new();
         private HashSet<Vector3Int> _space = new();
         private PlaceCargoHandler _rejectHandler = PlaceCargoHandler.Empty;
         private PlaceCargoHandler _loadAcceptHandler;
         private PlaceCargoHandler _unloadAcceptHandler;
         private uint _placeCounter = 1;
         private uint _placeToken = 0;
-        private ITablePrefab _cargoToPlace;
+        private IRemotePrefab _cargoToPlace;
         private IReadOnlyList<Vector3Int> _volumeToPlace;
         private Vector3Int _positionToPlace;
         private float _cargoMass;
         private Vector3 _localCenterOfMass;
-        private readonly List<ITablePrefab> _cargo = new ();
+        private readonly List<IRemotePrefab> _cargo = new ();
         private bool _visualizeUnloadCargo;
         private Vector3 _cargoVolumeViewInitialPosition;
         [ShowInInspector] public override float Mass => base.Mass + _cargoMass;
         [ShowInInspector] public override Vector3 LocalCenterOfMass => _localCenterOfMass;
-        IEnumerable<ITablePrefab> ICargoUnloadingHandler.AvailableCargo => _cargo;
+        IEnumerable<IRemotePrefab> ICargoUnloadingHandler.AvailableCargo => _cargo;
 
         private void Awake()
         {
@@ -82,7 +82,7 @@ namespace Runtime.Structure.Rigging.Cargo
 
         //1. коллайдеры не должны касаться другого груза
         //2. коллайдеры должны быть полностью внутри хотя бы одного объема
-        public bool TryPlaceCargo(ITablePrefab cargo, Vector3Int position, out PlaceCargoHandler handler)
+        public bool TryPlaceCargo(IRemotePrefab cargo, Vector3Int position, out PlaceCargoHandler handler)
         {
             _placeCounter++;
             handler = _rejectHandler;
@@ -93,7 +93,7 @@ namespace Runtime.Structure.Rigging.Cargo
             foreach (var point in volume)
             {
                 var p = point + position;
-                if (!_space.Contains(p) || _content.TryGetValue(p, out ITablePrefab content) && content != null && content != cargo)
+                if (!_space.Contains(p) || _content.TryGetValue(p, out IRemotePrefab content) && content != null && content != cargo)
                 {
                     return false;
                 }
@@ -176,11 +176,11 @@ namespace Runtime.Structure.Rigging.Cargo
         }
 
         private Vector3Int _cargoViewPosition;
-        private ITablePrefab _lastUnloadCandidatae;
+        private IRemotePrefab _lastUnloadCandidatae;
         private Vector3 _unloadWorldPoint;
         private Quaternion _unloadRotation;
 
-        void ICargoTrunkPlayerInterface.EnterPlacement(ITablePrefab cargo)
+        void ICargoTrunkPlayerInterface.EnterPlacement(IRemotePrefab cargo)
         {
             placementCamera.gameObject.SetActive(true);
             trunkVolumeView.gameObject.SetActive(true);
@@ -226,7 +226,7 @@ namespace Runtime.Structure.Rigging.Cargo
                 {
                     yield return (point, 1);
                 }
-                else if(_content.TryGetValue(p, out ITablePrefab content) && content != null)
+                else if(_content.TryGetValue(p, out IRemotePrefab content) && content != null)
                 {
                     if (content == _cargoToPlace)
                     {
@@ -263,7 +263,7 @@ namespace Runtime.Structure.Rigging.Cargo
             _visualizeUnloadCargo = false;
         }
 
-        public void BeginPlacement(ITablePrefab cargo)
+        public void BeginPlacement(IRemotePrefab cargo)
         {
             cargoVolumeView.SetVolume(_prefabVolumes.GetProfile(cargo).GetVolume(), Vector3Int.zero, _prefabVolumes.ParticleSize);   
         }
@@ -273,7 +273,7 @@ namespace Runtime.Structure.Rigging.Cargo
             cargoVolumeView.transform.localPosition = _cargoVolumeViewInitialPosition;
         }
 
-        public bool TryUnload(ITablePrefab cargo, Vector3 targetGroundPoint, Quaternion targetRotation, out PlaceCargoHandler handler)
+        public bool TryUnload(IRemotePrefab cargo, Vector3 targetGroundPoint, Quaternion targetRotation, out PlaceCargoHandler handler)
         {
             _placeCounter++;
             if (_content.ContainsValue(cargo))
@@ -368,7 +368,7 @@ namespace Runtime.Structure.Rigging.Cargo
             return rb;
         }
 
-        public void Detach(ITablePrefab cargo)
+        public void Detach(IRemotePrefab cargo)
         {
             DetachPrivate();
         }

@@ -1317,7 +1317,7 @@ GameObject:
   - component: {fileID: -3018615592195754149}
   - component: {fileID: 8376794104268489595}
   m_Layer: 0
-  m_Name: Crate1000
+  m_Name: cube_box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1406,7 +1406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576e915dd8a644bf92df9acf178a9328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 32392e7850e5f4942814cddad09851ff
+  assetId: cube_box
   tags: []
 --- !u!114 &8376794104268489595
 MonoBehaviour:

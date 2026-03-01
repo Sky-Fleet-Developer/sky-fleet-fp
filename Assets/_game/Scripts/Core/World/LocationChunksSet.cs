@@ -26,7 +26,7 @@ namespace Core.World
     {
         private Dictionary<VectorInt, LocationChunkData> _chunks;
         private Dictionary<VectorInt, LocationChunkData> _frozen;
-        
+
 #if FLAT_SPACE
         private VolumeInt _range = VolumeInt.zero;
 #else
@@ -49,8 +49,8 @@ namespace Core.World
 
         public LocationChunksSet()
         {
-            _chunks = new Dictionary<VectorInt, LocationChunkData>();
-            _frozen = new Dictionary<VectorInt, LocationChunkData>();
+            _chunks = new ();
+            _frozen = new ();
         }
 
         public VolumeInt GetRange() => _range;
@@ -214,20 +214,13 @@ namespace Core.World
             }
         }
 
-        public void AddEntityToChunk(VectorInt cell, IWorldEntity entity, bool rememberForNewChunkIfNotExist = false)
+        public void AddEntityToChunk(VectorInt cell, IWorldEntity entity)
         {
             Debug.Log($"CELLS: add ({entity}) to chunk ({cell})");
             if (!_chunks.ContainsKey(cell))
             {
-                if (rememberForNewChunkIfNotExist)
-                {
-                    _notSorted.Add((entity, cell));
-                    return;
-                }
-                else
-                {
-                    throw new Exception("Entity is not in loaded range");
-                }
+                _notSorted.Add((entity, cell));
+                return;
             }
 
             _chunks[cell].AddEntity(entity);

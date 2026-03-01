@@ -3,7 +3,7 @@ using Core.Graph;
 
 namespace Core.Structure.Rigging.Control.Attributes
 {
-    public interface IDevice : ITablePrefab
+    public interface IDevice : IRemotePrefab
     {
         IGraph Graph { get; }
         IBlock Block { get; }

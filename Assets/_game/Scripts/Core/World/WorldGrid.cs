@@ -190,7 +190,7 @@ namespace Core.World
                 }
                 _chunksSet.RemoveEntityFromChunk(_coordinatesCache[i], entity);
                 _coordinatesCache[i] = cell;
-                _chunksSet.AddEntityToChunk(cell, entity, true);
+                _chunksSet.AddEntityToChunk(cell, entity);
             }
         }
 

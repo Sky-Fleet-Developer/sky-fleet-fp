@@ -49,12 +49,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 66a42df53344cb3468d5d36f8bf84f63, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 626160afc796209429d51fd054b03b4a, type: 2}
     - target: {fileID: 919132149155446097, guid: 66a42df53344cb3468d5d36f8bf84f63, type: 3}
       propertyPath: m_Name
-      value: ingot_copper
+      value: copper_ingot
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 66a42df53344cb3468d5d36f8bf84f63, type: 3}
       propertyPath: m_Layer
@@ -96,9 +96,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   disruptionTension: 2
   moveTransitional: 1
-  itemObjectHandleImplementation:
-    guid: fbafd38309706bf4ea7d07ea2da55d08
-    tags: []
 --- !u!65 &6808589099564173967
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -127,10 +124,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1423459186595837005}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -159,8 +156,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576e915dd8a644bf92df9acf178a9328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemObjectHandleImplementation:
-    guid: 
-    tags: []
-  guid: fbafd38309706bf4ea7d07ea2da55d08
+  assetId: copper_ingot
   tags: []

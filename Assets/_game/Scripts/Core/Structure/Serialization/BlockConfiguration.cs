@@ -37,7 +37,7 @@ namespace Core.Structure.Serialization
             path = block.GetPath();
             blockName = block.transform.name;
             sibilingIdx = block.transform.GetSiblingIndex();
-            currentGuid = block.Guid;
+            currentGuid = block.AssetId;
             localPosition = block.transform.localPosition;
             localRotation = block.transform.localEulerAngles;
             
@@ -99,7 +99,7 @@ namespace Core.Structure.Serialization
 
             if (block != null)
             {
-                if (block.Guid != currentGuid)
+                if (block.AssetId != currentGuid)
                 {
                     //structure.RemoveBlock(block);
                     if (Application.isPlaying)

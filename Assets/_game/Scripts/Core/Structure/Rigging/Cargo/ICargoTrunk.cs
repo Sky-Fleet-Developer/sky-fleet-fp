@@ -5,12 +5,12 @@ namespace Core.Structure.Rigging.Cargo
 {
     public interface ICargoTrunk : IBlock
     {
-        bool TryPlaceCargo(ITablePrefab cargo, Vector3Int position, out PlaceCargoHandler handler);
+        bool TryPlaceCargo(IRemotePrefab cargo, Vector3Int position, out PlaceCargoHandler handler);
     }
 
     public interface ICargoTrunkPlayerInterface : ICargoTrunk
     {
-        void EnterPlacement(ITablePrefab cargo);
+        void EnterPlacement(IRemotePrefab cargo);
         void Move(Vector3Int delta);
         void ExitPlacement();
         bool Confirm();

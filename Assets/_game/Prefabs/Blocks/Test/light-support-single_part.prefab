@@ -65,6 +65,10 @@ PrefabInstance:
       value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5515342915449225561, guid: 47d5c998281a5a94483aa12a9a4e60cb, type: 3}
+      propertyPath: assetId
+      value: light-support-single_part
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515342915449225561, guid: 47d5c998281a5a94483aa12a9a4e60cb, type: 3}
       propertyPath: dragForce
       value: 46500
       objectReference: {fileID: 0}

@@ -3860,7 +3860,7 @@ GameObject:
   - component: {fileID: 5383931358479544097}
   - component: {fileID: 8646477965608030451}
   m_Layer: 0
-  m_Name: Cargo_Emgracopter
+  m_Name: cargo-emgracopter_body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3927,7 +3927,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa2715b62d30df84da40b23db37d5e8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
+  assetId: cargo-emgracopter_body
   tags: []
   emptyMass: 400
   localCenterOfMass: {x: 0, y: 0, z: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2939571550161282229}
   - component: {fileID: 617225687984817852}
   m_Layer: 0
-  m_Name: CopterControl_5axis
+  m_Name: "\u0441opter-\u0441ontrol-5axis_part"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6245316add7da44db194bf20a50f12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
+  assetId: "\u0441opter-\u0441ontrol-5axis_part"
   tags: []
   mass: 30
   mountingType: 
@@ -708,7 +708,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 47be4dbb-998a-4c73-a8cd-8b1da9c44fd0
+  assetId: 47be4dbb-998a-4c73-a8cd-8b1da9c44fd0
   tags: []
   minValue: 0
   maxValue: 0
@@ -798,7 +798,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 832eeda0-8168-41af-858f-f750702b2948
+  assetId: 832eeda0-8168-41af-858f-f750702b2948
   tags: []
   minValue: 0
   maxValue: 0

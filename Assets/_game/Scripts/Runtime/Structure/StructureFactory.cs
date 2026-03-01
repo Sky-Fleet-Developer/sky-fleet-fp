@@ -120,7 +120,7 @@ namespace Runtime.Structure
         {
             head = new StructureConfigurationHead
             {
-                bodyGuid = structure.Guid,
+                bodyGuid = structure.AssetId,
                 position = structure.transform.position - WorldOffset.Offset,
                 rotation = structure.transform.rotation,
                 Root = structure.transform.gameObject,

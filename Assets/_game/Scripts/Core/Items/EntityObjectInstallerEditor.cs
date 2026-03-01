@@ -37,7 +37,7 @@ namespace Core.Items
         private IEnumerable<string> GetAbleItems()
         {
             EnsureObjects();
-            foreach (var p in EnumerateAbleItems(_itemObjectEditor.Guid)) yield return p.Id;
+            foreach (var p in EnumerateAbleItems(_itemObjectEditor.AssetId)) yield return p.Id;
         }
 
         private static IEnumerable<ItemSign> EnumerateAbleItems(string prefabGuid)
@@ -186,9 +186,15 @@ namespace Core.Items
         private static void AddNestedItem(ref ItemDescription root, IItemObject childItemObject)
         {
             root.nestedItems ??= new List<ItemDescription>();
+            var item = EnumerateAbleItems(childItemObject.AssetId).FirstOrDefault();
+            if (item == null)
+            {
+                Debug.LogError($"Has no item {childItemObject.AssetId}");
+            }
+
             var description = new ItemDescription
             {
-                signId = EnumerateAbleItems(childItemObject.Guid).FirstOrDefault()?.Id ?? "_",
+                signId = item?.Id ?? "_",
                 amount = 1,
                 properties = new List<Property>(),
                 gridSlot = childItemObject.transform.name
@@ -255,14 +261,14 @@ namespace Core.Items
                 {
                     if (child.TryGetComponent(out IItemObject childItemObject))
                     {
-                        var sign = EnumerateAbleItems(childItemObject.Guid).FirstOrDefault();
+                        var sign = EnumerateAbleItems(childItemObject.AssetId).FirstOrDefault();
                         if (sign == null)
                         {
-                            var prefabItem = _tablePrefabsEditor.GetItem(childItemObject.Guid);
+                            var prefabItem = _tablePrefabsEditor.GetItem(childItemObject.AssetId);
                             if (prefabItem == null)
                             {
                                 Debug.LogError(
-                                    $"Prefab for object {childItemObject.transform.name} ({childItemObject.Guid}) not found");
+                                    $"Prefab for object {childItemObject.transform.name} ({childItemObject.AssetId}) not found");
                             }
                             else
                             {
@@ -290,7 +296,7 @@ namespace Core.Items
                                 }
 
                                 var s = _itemsFormat.Replace("{name}", nameChars.ToString())
-                                    .Replace("{guid}", childItemObject.Guid).Replace("{mass}",
+                                    .Replace("{guid}", childItemObject.AssetId).Replace("{mass}",
                                         reference.Mass.ToString(CultureInfo.InvariantCulture));
                                 sb.AppendLine(s);
                             }

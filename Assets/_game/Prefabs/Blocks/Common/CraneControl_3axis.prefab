@@ -90,6 +90,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -111,6 +116,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -161,9 +167,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 832eeda0-8168-41af-858f-f750702b2948
+  assetId: 832eeda0-8168-41af-858f-f750702b2948
   tags: []
+  minValue: 0
+  maxValue: 0
+  sensitivity: 0
+  setDefaultOnExitControl: 0
+  defaultValue: 0
   lever: {fileID: 6801522352403789167}
+  portType: 0
   mul: 30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -226,6 +238,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -247,6 +264,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -309,6 +327,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -330,6 +353,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -392,6 +416,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -413,6 +442,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -579,9 +609,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86af324fd3231c4884dcfc16af01e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 47be4dbb-998a-4c73-a8cd-8b1da9c44fd0
+  assetId: 47be4dbb-998a-4c73-a8cd-8b1da9c44fd0
   tags: []
+  minValue: 0
+  maxValue: 0
+  sensitivity: 0
+  setDefaultOnExitControl: 0
+  defaultValue: 0
   lever: {fileID: 3236884272747718815}
+  portType: 0
   mul: -30
   trim: 0
   eulerStart: {x: 0, y: 0, z: 0}
@@ -637,101 +673,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6245316add7da44db194bf20a50f12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guid: 85e503a8-b2ea-4b5e-9a64-e59d190115ff
+  assetId: crane-control_3axis
   tags: []
   mass: 30
   mountingType: 
   axes:
-  - enableInteraction: 0
+  - computerInput: Vertical
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: c12d5b2f-81d0-4d72-8a64-d1906ab46102
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
     portType: 4
-    keyPositive:
-      keys:
-      - KeyCodes: 77000000
-    keyNegative:
-      keys:
-      - KeyCodes: 73000000
-    axe:
-      Axis:
-        _name: 
-        Inverse: 0
-        Multiply: 0
-    keyActiveAxis:
-      keys: []
-    computerInput: Vertical
-    inputValue: 0
-    realValue: 0
-    logicValue: 0
-    multiply: 4
-    sensitivity: 2.5
-    gravity: 2.5
-    power: 1.5
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
     _device: {fileID: 538689747084574013}
-  - enableInteraction: 0
+  - computerInput: Horizontal
+    enableInteraction: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: d25a9557-aeeb-4fcd-a2a2-7d5b8aa14202
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
     portType: 4
-    keyPositive:
-      keys:
-      - KeyCodes: 61000000
-    keyNegative:
-      keys:
-      - KeyCodes: 64000000
-    axe:
-      Axis:
-        _name: 
-        Inverse: 0
-        Multiply: 0
-    keyActiveAxis:
-      keys: []
-    computerInput: Horizontal
-    inputValue: 0
-    realValue: 0
-    logicValue: -0
-    multiply: 1
-    sensitivity: 2.5
-    gravity: 2.5
-    power: 1.5
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 1
-    saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
     _device: {fileID: 839546906025698908}
-  - enableInteraction: 1
+  - computerInput: Winch
+    enableInteraction: 1
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: c5dbae9a-8589-4840-a3dc-8b05df2f04c5
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
     portType: 4
-    keyPositive:
-      keys: []
-    keyNegative:
-      keys: []
-    axe:
-      Axis:
-        _name: Yaw
-        Inverse: 0
-        Multiply: 20
-    keyActiveAxis:
-      keys: []
-    computerInput: Winch
-    inputValue: 0
-    realValue: 0
-    logicValue: 0
-    multiply: 1
-    sensitivity: 3
-    gravity: 1
-    power: 0.75
-    dead: 0
-    trim: 0
-    step: 0
-    inverse: 0
-    saveInactive: 0
-    axeType: 0
-    fromZeroToOne: 0
     _device: {fileID: 714428746198227535}
   buttons:
   - enableInteraction: 0
@@ -803,6 +787,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
+  canAttachController: 1
 --- !u!1 &8451552895609572411
 GameObject:
   m_ObjectHideFlags: 0
@@ -861,6 +846,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -882,6 +872,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0

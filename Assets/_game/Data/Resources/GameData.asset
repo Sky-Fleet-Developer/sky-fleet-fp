@@ -121,9 +121,11 @@ MonoBehaviour:
       - stringValue: 3.9
         intValue: 0
         floatValue: 3.9
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: iron_ingot
     tags:
     - T1
@@ -137,12 +139,15 @@ MonoBehaviour:
       - stringValue: 15.6
         intValue: 0
         floatValue: 15.6
+        objectValue: 
       - stringValue: 2
         intValue: 2
         floatValue: 2
+        objectValue: 
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
   - id: cyan_crystal
     tags:
     - chemistry
@@ -156,9 +161,11 @@ MonoBehaviour:
       - stringValue: 3.1
         intValue: 0
         floatValue: 3.1
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: catalith_ore
     tags:
     - chemistry
@@ -173,9 +180,11 @@ MonoBehaviour:
       - stringValue: 2.5
         intValue: 0
         floatValue: 2.5
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: catazyne-1_liquid
     tags:
     - fuel
@@ -189,6 +198,7 @@ MonoBehaviour:
       - stringValue: 0.95
         intValue: 0
         floatValue: 0.95
+        objectValue: 
   - id: catazyne-2_liquid
     tags:
     - fuel
@@ -202,6 +212,7 @@ MonoBehaviour:
       - stringValue: 0.92
         intValue: 0
         floatValue: 0.92
+        objectValue: 
   - id: cyanides-shell
     tags:
     - chemistry
@@ -216,12 +227,15 @@ MonoBehaviour:
       - stringValue: 150
         intValue: 150
         floatValue: 150
+        objectValue: 
       - stringValue: 100
         intValue: 100
         floatValue: 100
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: chitirenin_raw
     tags:
     - chemistry
@@ -234,9 +248,11 @@ MonoBehaviour:
       - stringValue: 1.05
         intValue: 0
         floatValue: 1.05
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: chitirenin_affinated
     tags:
     - chemistry
@@ -250,9 +266,11 @@ MonoBehaviour:
       - stringValue: 1.2
         intValue: 0
         floatValue: 1.2
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: copper_ore
     tags:
     - T0
@@ -265,9 +283,11 @@ MonoBehaviour:
       - stringValue: 3.5
         intValue: 0
         floatValue: 3.5
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: copper_ingot
     tags:
     - T1
@@ -280,12 +300,15 @@ MonoBehaviour:
       - stringValue: 15.6
         intValue: 0
         floatValue: 15.6
+        objectValue: 
       - stringValue: 2
         intValue: 2
         floatValue: 2
+        objectValue: 
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
   - id: copper_wire
     tags:
     - T2
@@ -298,12 +321,15 @@ MonoBehaviour:
       - stringValue: 2
         intValue: 2
         floatValue: 2
+        objectValue: 
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
   - id: stone
     tags:
     - T0
@@ -316,9 +342,11 @@ MonoBehaviour:
       - stringValue: 2.6
         intValue: 0
         floatValue: 2.6
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: cement_bag
     tags:
     - T1
@@ -331,12 +359,15 @@ MonoBehaviour:
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
   - id: concrete_block
     tags:
     - T2
@@ -349,12 +380,15 @@ MonoBehaviour:
       - stringValue: 1000
         intValue: 1000
         floatValue: 1000
+        objectValue: 
       - stringValue: 500
         intValue: 500
         floatValue: 500
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: hard_coil
     tags:
     - T0
@@ -368,9 +402,11 @@ MonoBehaviour:
       - stringValue: 1.3
         intValue: 0
         floatValue: 1.3
+        objectValue: 
       - stringValue: 20
         intValue: 20
         floatValue: 20
+        objectValue: 
   - id: cube_box
     tags:
     - storage
@@ -384,26 +420,33 @@ MonoBehaviour:
       - stringValue: 25
         intValue: 25
         floatValue: 25
+        objectValue: 
       - stringValue: 1000
         intValue: 1000
         floatValue: 1000
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
     - name: container
       values:
       - stringValue: 970
         intValue: 970
         floatValue: 970
+        objectValue: 
       - stringValue: resizable | mass
         intValue: 0
         floatValue: 0
+        objectValue: 
       - stringValue: 
         intValue: 0
         floatValue: 0
+        objectValue: 
       - stringValue: 
         intValue: 0
         floatValue: 0
+        objectValue: 
   - id: small_bag
     tags:
     - cloth
@@ -419,31 +462,39 @@ MonoBehaviour:
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1.5
         intValue: 0
         floatValue: 1.5
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
     - name: container
       values:
       - stringValue: 24
         intValue: 24
         floatValue: 24
+        objectValue: 
       - stringValue: resizable | mass
         intValue: 0
         floatValue: 0
+        objectValue: 
       - stringValue: 
         intValue: 0
         floatValue: 0
+        objectValue: 
       - stringValue: 
         intValue: 0
         floatValue: 0
+        objectValue: 
     - name: equipable
       values:
       - stringValue: bag
         intValue: 0
         floatValue: 0
+        objectValue: 
   - id: cargo-emgracopter_body
     tags:
     - vehicle
@@ -457,26 +508,33 @@ MonoBehaviour:
       - stringValue: 400
         intValue: 400
         floatValue: 400
+        objectValue: 
       - stringValue: 78
         intValue: 78
         floatValue: 78
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
     - name: container
       values:
       - stringValue: 9999
         intValue: 9999
         floatValue: 9999
+        objectValue: 
       - stringValue: block
         intValue: 0
         floatValue: 0
+        objectValue: 
       - stringValue: 
         intValue: 0
         floatValue: 0
+        objectValue: 
       - stringValue: cargo-emgracopter-grid
         intValue: 0
         floatValue: 0
+        objectValue: 
   - id: "\u0441opter-\u0441ontrol-5axis_part"
     tags:
     - block
@@ -488,12 +546,15 @@ MonoBehaviour:
       - stringValue: 30
         intValue: 30
         floatValue: 30
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: front-wheel-rotator_part
     tags:
     - block
@@ -505,12 +566,15 @@ MonoBehaviour:
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: test-jet_part
     tags:
     - block
@@ -522,12 +586,15 @@ MonoBehaviour:
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: small-liquid-tank_part
     tags:
     - block
@@ -539,12 +606,15 @@ MonoBehaviour:
       - stringValue: 30
         intValue: 30
         floatValue: 30
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: small-fuel-power-generator_part
     tags:
     - block
@@ -556,12 +626,15 @@ MonoBehaviour:
       - stringValue: 15
         intValue: 15
         floatValue: 15
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: small-battery_part
     tags:
     - block
@@ -573,12 +646,15 @@ MonoBehaviour:
       - stringValue: 30
         intValue: 30
         floatValue: 30
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: elevons-distributor_part
     tags:
     - block
@@ -590,12 +666,15 @@ MonoBehaviour:
       - stringValue: 2
         intValue: 2
         floatValue: 2
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: light-support-single_part
     tags:
     - block
@@ -607,12 +686,15 @@ MonoBehaviour:
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: support-top-cutoff-module_part
     tags:
     - block
@@ -624,12 +706,15 @@ MonoBehaviour:
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: rudder-rotator_part
     tags:
     - block
@@ -641,12 +726,15 @@ MonoBehaviour:
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   - id: cargo-trunk_part
     tags:
     - block
@@ -658,73 +746,76 @@ MonoBehaviour:
       - stringValue: 10
         intValue: 10
         floatValue: 10
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
       - stringValue: 1
         intValue: 1
         floatValue: 1
+        objectValue: 
   linksToPrefabs:
   - signId: iron_ore
-    prefabGuid: 
+    prefabGuid: iron_ore
   - signId: iron_ingot
-    prefabGuid: 77dff4da645eda9439685b2c5e3bbaf7
+    prefabGuid: iron_ingot
   - signId: cyan_crystal
-    prefabGuid: 
+    prefabGuid: cyan_crystal
   - signId: catalith_ore
-    prefabGuid: 
+    prefabGuid: catalith_ore
   - signId: catazyne-1_liquid
-    prefabGuid: 
+    prefabGuid: catazyne-1_liquid
   - signId: catazyne-2_liquid
-    prefabGuid: 
+    prefabGuid: catazyne-2_liquid
   - signId: cyanides-shell
-    prefabGuid: 
+    prefabGuid: cyanides-shell
   - signId: chitirenin_raw
-    prefabGuid: 
+    prefabGuid: chitirenin_raw
   - signId: chitirenin_affinated
-    prefabGuid: 
+    prefabGuid: chitirenin_affinated
   - signId: copper_ore
-    prefabGuid: 
+    prefabGuid: copper_ore
   - signId: copper_ingot
-    prefabGuid: fbafd38309706bf4ea7d07ea2da55d08
+    prefabGuid: copper_ingot
   - signId: copper_wire
-    prefabGuid: 
+    prefabGuid: copper_wire
   - signId: stone
-    prefabGuid: 
+    prefabGuid: stone
   - signId: cement_bag
-    prefabGuid: 
+    prefabGuid: cement_bag
   - signId: concrete_block
-    prefabGuid: 
+    prefabGuid: concrete_block
   - signId: hard_coil
-    prefabGuid: 
+    prefabGuid: hard_coil
   - signId: cube_box
-    prefabGuid: 32392e7850e5f4942814cddad09851ff
+    prefabGuid: cube_box
   - signId: small_bag
-    prefabGuid: 
+    prefabGuid: small_bag
   - signId: cargo-emgracopter_body
-    prefabGuid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
+    prefabGuid: cargo-emgracopter_body
   - signId: "\u0441opter-\u0441ontrol-5axis_part"
-    prefabGuid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
+    prefabGuid: "\u0441opter-\u0441ontrol-5axis_part"
   - signId: front-wheel-rotator_part
-    prefabGuid: 13a1ed8c-e274-4eb8-8b8f-54bc25d252e0
+    prefabGuid: front-wheel-rotator_part
   - signId: test-jet_part
-    prefabGuid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
+    prefabGuid: test-jet_part
   - signId: small-liquid-tank_part
-    prefabGuid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
+    prefabGuid: small-liquid-tank_part
   - signId: small-fuel-power-generator_part
-    prefabGuid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+    prefabGuid: small-fuel-power-generator_part
   - signId: small-battery_part
-    prefabGuid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+    prefabGuid: small-battery_part
   - signId: elevons-distributor_part
-    prefabGuid: 6033ed0c-0604-490b-a38b-b47267c1f9c5
+    prefabGuid: elevons-distributor_part
   - signId: light-support-single_part
-    prefabGuid: c1068a3d-6483-4a10-b9fa-b346bb6195bf
+    prefabGuid: light-support-single_part
   - signId: support-top-cutoff-module_part
-    prefabGuid: a8ddd184-bed7-4a74-82c1-98c1279a03a0
+    prefabGuid: support-top-cutoff-module_part
   - signId: rudder-rotator_part
-    prefabGuid: 28459fdc-e3d7-4a70-b4e2-c8798caf7c4f
+    prefabGuid: rudder-rotator_part
   - signId: cargo-trunk_part
-    prefabGuid: 61371496-4d96-44d1-bbec-8a0d64725edf
+    prefabGuid: cargo-trunk_part
   containerInfos:
   - signId: cube_box
     includeTags:

@@ -34,7 +34,7 @@ namespace Runtime.Environment.MacroShading
             {
                 _lastUpdate = Time.time;
                 renderCamera.transform.rotation = sun.transform.rotation;
-                renderCamera.transform.position = _player.SpacePosition - renderCamera.transform.forward * renderCamera.farClipPlane;
+                renderCamera.transform.position = _player.WorldPosition - renderCamera.transform.forward * renderCamera.farClipPlane;
                 renderCamera.Render();
                 //sun.intensity = ;
             }

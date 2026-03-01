@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Core.Character;
 using Core.Character.Interaction;
 using Core.Graph;
 using Core.Graph.Wires;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Core.Structure.Rigging.Control.Attributes
 {
@@ -13,22 +15,31 @@ namespace Core.Structure.Rigging.Control.Attributes
     public abstract class DeviceBase : MonoBehaviour, IDevice
     {
         [ShowInInspector]
-        public string Guid
+        public string AssetId
         {
             get
             {
-                if (string.IsNullOrEmpty(guid))
+                if (string.IsNullOrEmpty(assetId))
                 {
-                    guid = System.Guid.NewGuid().ToString();
+                    var sb = new StringBuilder(name);
+                    for (int i = 0; i < sb.Length; i++)
+                    {
+                        if (char.IsUpper(sb[i]))
+                        {
+                            sb.Insert(i++, "-");
+                            sb[i] = char.ToLower(sb[i]);
+                        }
+                    }
+                    assetId = sb.ToString();
 #if UNITY_EDITOR
                     UnityEditor.EditorUtility.SetDirty(this);   
 #endif
                 }
-                return guid;
+                return assetId;
             }
-            set => guid = value;
+            set => assetId = value;
         }
-        [SerializeField, HideInInspector] private string guid;
+        [FormerlySerializedAs("guid")] [SerializeField, HideInInspector] private string assetId;
 
         public List<string> Tags => tags;
         [SerializeField] private List<string> tags;

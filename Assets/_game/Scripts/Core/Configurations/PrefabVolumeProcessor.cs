@@ -155,21 +155,21 @@ namespace Core.Configurations
                 Mathf.RoundToInt(point.z / particleSize));
         }
 
-        public PrefabVolumeProfile GetProfile(ITablePrefab tablePrefab)
+        public PrefabVolumeProfile GetProfile(IRemotePrefab remotePrefab)
         {
             _profilesByGuid ??= profiles.ToDictionary(x => x.PrefabGuid);
 
-            if (_profilesByGuid.TryGetValue(tablePrefab.Guid, out var profile))
+            if (_profilesByGuid.TryGetValue(remotePrefab.AssetId, out var profile))
             {
                 return profile;
             }
             else
             {
-                profile = new PrefabVolumeProfile(tablePrefab.Guid);
+                profile = new PrefabVolumeProfile(remotePrefab.AssetId);
                 profiles.Add(profile);
-                _profilesByGuid.Add(tablePrefab.Guid, profile);
+                _profilesByGuid.Add(remotePrefab.AssetId, profile);
                 
-                SetupProfile(profile, tablePrefab.transform);
+                SetupProfile(profile, remotePrefab.transform);
                 return profile;
             }
         }

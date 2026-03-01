@@ -19,7 +19,7 @@ namespace Core.Configurations
             public string[] TradeTags;
             public string[] Properties;
             public int BasicCost;
-            public string TablePrefab;
+            public string TablePrefabOverride;
         }
         [System.Serializable]
         private class PrefabLink
@@ -90,7 +90,7 @@ namespace Core.Configurations
                         }
                     }
                     ItemSign newItem = new ItemSign(rawItemSign.Id, tags.ToArray(), properties.ToArray(), rawItemSign.BasicCost);
-                    linksToPrefabs.Add(new PrefabLink{ signId = newItem.Id, prefabGuid = rawItemSign.TablePrefab });
+                    linksToPrefabs.Add(new PrefabLink{ signId = newItem.Id, prefabGuid = string.IsNullOrEmpty(rawItemSign.TablePrefabOverride) ? newItem.Id : rawItemSign.TablePrefabOverride });
                     items.Add(newItem);
 
                     if (newItem.TryGetProperty(ItemSign.ContainerTag, out Property containerProperty))
