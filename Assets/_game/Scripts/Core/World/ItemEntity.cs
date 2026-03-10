@@ -29,6 +29,7 @@ namespace Core.World
         private bool _isLodDirty;
         private IItemObject _objectInstance;
         private ItemInstance _itemInstance;
+        public int Id { get; } = IWorldEntity.IdCounter++;
         public event Action<ItemEntity, int> OnLodChangedEvent;
         public GameObject GameObject => _objectInstance?.transform.gameObject;
 
@@ -95,21 +96,31 @@ namespace Core.World
                 if(_objectInstance == null)
                 {
                     _loading = _itemObjectFactory.CreateSingle(_itemInstance);
-                    _objectInstance = await _loading;
-                    _objectInstance.transform.position = _positionCache;
-                    _objectInstance.transform.rotation = _rotationCache;
+                    OnSpawn(await _loading);
                 }
             }
             else
             {
                 if (_objectInstance != null)
                 {
+                    OnDespawn();
                     _itemObjectFactory.Deconstruct(_objectInstance);
                     _objectInstance = null;
                 }
             }
             OnLodChangedEvent?.Invoke(this, _lod);
             _isLodDirty = false;
+        }
+
+        protected virtual void OnSpawn(IItemObject instance)
+        {
+            _objectInstance = instance;
+            _objectInstance.transform.position = _positionCache;
+            _objectInstance.transform.rotation = _rotationCache;
+        }
+
+        protected virtual void OnDespawn()
+        {
         }
 
         public Task GetAnyLoad()
@@ -136,20 +147,19 @@ namespace Core.World
         {
             private static readonly ISerializer ItemDescriptionSerializer = Serializers.GetSerializer(typeof(ItemDescription));
             
-            public static readonly JsonConverter[] Converters = new JsonConverter[]
-            {
-                new VectorConverter(),
-                new QuaternionConverter(),
-                new Matrix4x4Converter(),
-            };
-
             public void Serialize(ItemEntity entity, Stream stream)
             {
                 try
                 {
                     ItemDescriptionSerializer.Serialize(entity._itemDescription, stream);
-                    stream.WriteString(JsonConvert.SerializeObject(entity._positionCache, Converters));
-                    stream.WriteString(JsonConvert.SerializeObject(entity._rotationCache, Converters));
+                    for (int i = 0; i < 3; i++)
+                    {
+                        stream.WriteFloat(entity._positionCache[i]);
+                    }
+                    for (int i = 0; i < 4; i++)
+                    {
+                        stream.WriteFloat(entity._rotationCache[i]);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -167,8 +177,14 @@ namespace Core.World
             public void Populate(Stream stream, ref ItemEntity entity)
             {
                 entity._itemDescription = (ItemDescription)ItemDescriptionSerializer.Deserialize(stream);
-                entity._positionCache = JsonConvert.DeserializeObject<Vector3>(stream.ReadString());
-                entity._rotationCache = JsonConvert.DeserializeObject<Quaternion>(stream.ReadString());
+                for (int i = 0; i < 3; i++)
+                {
+                    entity._positionCache[i] = stream.ReadFloat();
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    entity._rotationCache[i] = stream.ReadFloat();
+                }
             }
         }
 

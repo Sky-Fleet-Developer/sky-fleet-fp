@@ -45,7 +45,7 @@ namespace WorldEditor
             List<GameObject> configHolders = new List<GameObject>();
             foreach (var worldEntity in data.GetEntities())
             {
-                if (worldEntity is StructureEntity structureEntity && structureEntity.GameObject)
+                if (worldEntity is UnitEntity structureEntity && structureEntity.GameObject)
                 {
                     if (structureEntity.GameObject.transform.parent && structureEntity.GameObject.transform.parent.TryGetComponent<StructConfigHolder>(out var holder))
                     {

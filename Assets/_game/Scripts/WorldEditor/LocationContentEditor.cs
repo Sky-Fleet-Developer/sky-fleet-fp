@@ -448,27 +448,10 @@ namespace WorldEditor
                 bool isEditingNow = GUILayout.Toggle(isEditing, "edit", GUILayout.Width(50), GUILayout.Height(22));
                 if(!isEditing && isEditingNow)
                 {
-                    if (objectEntity != null && objectEntity.GameObject && objectEntity is StructureEntity)
-                    {
-                        Selection.activeGameObject = objectEntity.GameObject;
-                        StructConfigHolder.MakeConfigForStructure();
-                        objectEntity.GameObject.transform.parent.name += " (Temp)";
-                        objectEntity.GameObject.transform.parent.gameObject.hideFlags = HideFlags.DontSave;
-                    }
-
                     _editingEntity = entity;
                 }
                 if(isEditing && !isEditingNow)
                 {
-                    if (objectEntity != null && objectEntity.GameObject && objectEntity is StructureEntity structureEntity)
-                    {
-                        var config = objectEntity.GameObject.transform.parent.GetComponent<StructConfigHolder>();
-                        structureEntity.SetConfig(config.blocksConfiguration);
-                        structureEntity.SetConfig(config.graphConfiguration);
-                        structureEntity.UpdateTransforms();
-                        objectEntity.GameObject.transform.parent = null;
-                        DestroyImmediate(config.gameObject);
-                    }
                     _editingEntity = null;
                 }
                 if(GUILayout.Button("X", GUILayout.Width(20), GUILayout.Height(22)))
@@ -623,7 +606,7 @@ namespace WorldEditor
                 var head = structConfigHolder.configurationHead;
                 head.position = structConfigHolder.transform.position;
                 head.rotation = structConfigHolder.transform.rotation;
-                _worldSpace.RegisterStructure(head, structConfigHolder.blocksConfiguration, structConfigHolder.graphConfiguration);
+                //_worldSpace.RegisterStructure(head, structConfigHolder.blocksConfiguration, structConfigHolder.graphConfiguration);
                 //DestroyImmediate(structConfigHolder.gameObject);
             }
 

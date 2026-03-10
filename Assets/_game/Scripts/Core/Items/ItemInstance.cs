@@ -230,13 +230,6 @@ namespace Core.Items
             {
             }
 
-            public ItemInstance Deserialize(Stream stream)
-            {
-                var entity = new ItemInstance();
-                Populate(stream, ref entity);
-                return entity;
-            }
-
             public void Populate(Stream stream, ref ItemInstance obj)
             {
             }

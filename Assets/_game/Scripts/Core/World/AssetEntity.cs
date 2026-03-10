@@ -27,6 +27,7 @@ namespace Core.World
         private int _lod;
         private bool _isLodDirty;
         private GameObject _objectInstance;
+        public int Id { get; } = IWorldEntity.IdCounter++;
 
         public Vector3 Position => _positionCache;
         
@@ -125,14 +126,6 @@ namespace Core.World
         
         public class Serializer : ISerializer<AssetEntity>
         {
-            
-            public static readonly JsonConverter[] Converters = new JsonConverter[]
-            {
-                new VectorConverter(),
-                new QuaternionConverter(),
-                new Matrix4x4Converter(),
-            };
-
             public void Serialize(AssetEntity entity, Stream stream)
             {
                 try
@@ -151,13 +144,6 @@ namespace Core.World
                 {
                     Debug.LogException(e);
                 }
-            }
-
-            public AssetEntity Deserialize(Stream stream)
-            {
-                var entity = new AssetEntity();
-                Populate(stream, ref entity);
-                return entity;
             }
 
             public void Populate(Stream stream, ref AssetEntity entity)

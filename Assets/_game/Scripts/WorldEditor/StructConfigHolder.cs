@@ -183,7 +183,7 @@ namespace WorldEditor
                 structure.Init(true);
                 if (_worldSpace)
                 {
-                    _worldSpace.RegisterStructure(structure);
+                    //_worldSpace.RegisterStructure(structure);
                     return;
                 }
             }
@@ -191,7 +191,7 @@ namespace WorldEditor
             {
                 if (_worldSpace)
                 {
-                    _worldSpace.RegisterStructure(configurationHead, new Configuration<IStructure>[] {blocksConfiguration, graphConfiguration});
+                    //_worldSpace.RegisterStructure(configurationHead, new Configuration<IStructure>[] {blocksConfiguration, graphConfiguration});
                     return;
                 }
             }

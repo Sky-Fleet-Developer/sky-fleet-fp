@@ -33,6 +33,8 @@ namespace Runtime.Misc
         private bool _isBoundsInView;
         private float _viewRangeSqr;
         
+        public SplineParticleSystem Spline => _spline;
+        
         public event Action<SpsPoint> OnPointBecameVisible;
         public event Action<SpsPoint> OnPointBecameInvisible;
 
@@ -111,6 +113,7 @@ namespace Runtime.Misc
                     {
                         var p = _spline.GetPoint(i);
                         _spline.EvaluatePoint(p, out Vector3 position, out Quaternion rotation, out _, out _);
+                        bool prevValue = _pointsViewData[i];
                         _pointsViewData[i] = Vector3.SqrMagnitude(position - _playerTracker.SpacePosition) < _viewRangeSqr;
                         if (_pointsViewData[i])
                         {
@@ -124,6 +127,18 @@ namespace Runtime.Misc
                                 _viewedPoints[_viewedPointsCount].Rotation = rotation;
                             }
                             _viewedPointsCount++;
+                        }
+
+                        if (prevValue != _pointsViewData[i])
+                        {
+                            if (_pointsViewData[i])
+                            {
+                                OnPointBecameVisible?.Invoke(p);
+                            }
+                            else
+                            {
+                                OnPointBecameInvisible?.Invoke(p);
+                            }
                         }
                     }
                 }

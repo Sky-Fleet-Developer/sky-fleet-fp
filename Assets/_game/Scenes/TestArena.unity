@@ -2370,6 +2370,7 @@ GameObject:
   - component: {fileID: 2099192058}
   - component: {fileID: 2099192059}
   - component: {fileID: 2099192060}
+  - component: {fileID: 2099192061}
   m_Layer: 0
   m_Name: AttackSpawner
   m_TagString: Untagged
@@ -2564,6 +2565,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Runtime::Runtime.Misc.SpsViewRange
   overrideViewRange: 1
   viewRange: 400
+--- !u!114 &2099192061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099192054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e769bee5fa646518e02252f35a6bf1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Content.TransportPath
+  entityToSpawn: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
+  spawnBehaviour:
+    rid: 8817784431595487308
+  attachedStrategy:
+    _underlyingValue: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 8817784431595487308
+      type: {class: TransportSpawnBehaviour, ns: Runtime.Content, asm: Runtime}
+      data: 
 --- !u!1001 &4494832323326198457
 PrefabInstance:
   m_ObjectHideFlags: 0

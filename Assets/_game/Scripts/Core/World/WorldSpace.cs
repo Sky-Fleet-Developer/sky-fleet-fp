@@ -23,7 +23,7 @@ namespace Core.World
             _grid.RemoveEntity(entity);
         }
 
-        public void RegisterStructure(StructureConfigurationHead head, params Configuration<IStructure>[] configs)
+        /*public void RegisterStructure(StructureConfigurationHead head, params Configuration<IStructure>[] configs)
         {
             AddEntity(new StructureEntity(head, configs));
         }
@@ -31,7 +31,7 @@ namespace Core.World
         public void RegisterStructure(IStructure structure)
         {
             AddEntity(new StructureEntity(structure, _diContainer));
-        }
+        }*/
         
         public void InstallBindings(DiContainer container)
         {

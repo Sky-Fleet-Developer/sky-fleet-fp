@@ -18,14 +18,14 @@ namespace Core.SessionManager.SaveService
         //TODO: characters
         //TODO: session settings
 
-        public State(IEnumerable<StructureEntity> structureEntities)
+        public State(IEnumerable<UnitEntity> structureEntities)
         {
-            structuresCache = new();
-            var serializer = new Serializer(new StructureProvider.StructureBehaviour());
-            foreach (var entity in structureEntities)
-            {
-                structuresCache.Add(new StructureBundle(entity.Structure, serializer));
-            }
+            //structuresCache = new();
+            //var serializer = new Serializer(new StructureProvider.StructureBehaviour());
+            //foreach (var entity in structureEntities)
+            //{
+            //    structuresCache.Add(new StructureBundle(entity.Unit, serializer));
+            //}
         }
     }
 }

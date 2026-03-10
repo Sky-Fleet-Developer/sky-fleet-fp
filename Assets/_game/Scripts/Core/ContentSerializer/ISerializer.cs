@@ -15,7 +15,7 @@ namespace Core.ContentSerializer
         {
         }
         
-        public static void Register<T>(ISerializer<T> serializer)
+        public static void Register<T>(ISerializer<T> serializer) where T : new()
         {
             _instance._serializersByType.Add(typeof(T), serializer);
             string fullName = typeof(T).FullName;
@@ -83,7 +83,7 @@ namespace Core.ContentSerializer
         void Populate(Stream stream, ref object obj);
     }
 
-    public interface ISerializer<T> : ISerializer
+    public interface ISerializer<T> : ISerializer where T : new()
     {
         void ISerializer.Serialize(object obj, Stream stream)
         {
@@ -102,7 +102,13 @@ namespace Core.ContentSerializer
             obj = oT;
         }
         void Serialize(T obj, Stream stream);
-        new T Deserialize(Stream stream);
+
+        new T Deserialize(Stream stream)
+        {
+            T instance = new T();
+            Populate(stream, ref instance);
+            return instance;
+        }
         void Populate(Stream stream, ref T obj);
     }
 }

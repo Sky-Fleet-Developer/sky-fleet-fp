@@ -79,6 +79,10 @@ namespace Core.Structure.Serialization
     {
         public List<string> ports;
 
+        public WireConfiguration()
+        {
+            ports = new List<string>();
+        }
         public WireConfiguration(List<string> ports)
         {
             this.ports = ports;
@@ -93,13 +97,6 @@ namespace Core.Structure.Serialization
                 {
                     stream.WriteString(port);
                 }
-            }
-
-            public WireConfiguration Deserialize(Stream stream)
-            {
-                var value = new WireConfiguration(new List<string>());
-                Populate(stream, ref value);
-                return value;
             }
 
             public void Populate(Stream stream, ref WireConfiguration obj)

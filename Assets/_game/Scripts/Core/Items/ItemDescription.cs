@@ -102,13 +102,6 @@ namespace Core.Items
                 }
             }
 
-            public ItemDescription Deserialize(Stream stream)
-            {
-                var entity = new ItemDescription();
-                Populate(stream, ref entity);
-                return entity;
-            }
-
             public void Populate(Stream stream, ref ItemDescription obj)
             {
                 obj.signId = stream.ReadString();
@@ -128,7 +121,7 @@ namespace Core.Items
 
                     for (var i = 0; i < nestedItemCount; i++)
                     {
-                        obj.nestedItems.Add(Deserialize(stream));
+                        obj.nestedItems.Add((this as ISerializer<ItemDescription>).Deserialize(stream));
                     }
                 }
             }

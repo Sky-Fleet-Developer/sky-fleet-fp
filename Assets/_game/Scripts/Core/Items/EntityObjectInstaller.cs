@@ -1,4 +1,6 @@
-﻿using Core.World;
+﻿using Core.Ai;
+using Core.Structure;
+using Core.World;
 using UnityEngine;
 using Zenject;
 
@@ -22,7 +24,15 @@ namespace Core.Items
                 var itemObject = GetComponent<IItemObject>();
                 if (itemObject != null)
                 {
-                    _worldSpace.AddEntity(new ItemEntity(itemObject, itemDescription));
+                    var unit = GetComponent<IUnit>();
+                    if (unit != null)
+                    {
+                        _worldSpace.AddEntity(new UnitEntity(unit, itemObject, itemDescription));
+                    }
+                    else
+                    {
+                        _worldSpace.AddEntity(new ItemEntity(itemObject, itemDescription));
+                    }
                 }
                 Destroy(this);
             });
