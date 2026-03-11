@@ -15,7 +15,7 @@ namespace Runtime.Content
         {
             var entity = new UnitEntity(source.itemDescription, position, rotation);
             _worldSpace.AddEntity(entity);
-            
+            entity.SetAiActivity(true);
             return entity;
         }
         

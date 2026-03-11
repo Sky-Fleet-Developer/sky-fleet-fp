@@ -5,15 +5,26 @@ namespace Runtime.Ai.Maneuvers
 {
     public class Follow : IManeuver
     {
+        private DirectionToTarget _directionToTarget;
         private ITargetData _target;
         private float _predictionTime = 2f;
-        private float _chaseFactor = 0.1f;
+        private float _chaseFactor = 0.5f;
         private Vector3 _followOffset;
 
         public Follow(ITargetData target, Vector3 followOffset)
         {
             _target = target;
             _followOffset = followOffset;
+            _directionToTarget = new DirectionToTarget(target);
+        }
+
+
+        public void Enter(IUnitControl control, Sensor sensor)
+        {
+            control.SetForwardVector(_directionToTarget);
+            control.SetDriftCompensation(0.05f);
+            control.SetUpVector(new ConstantDirection(Vector3.up));
+            control.SetRollYawFactor(0.3f);
         }
 
         public void Tick(IUnitControl control, Sensor sensor)
@@ -27,7 +38,11 @@ namespace Runtime.Ai.Maneuvers
             Vector3 fwd = sensor.Rotation * Vector3.forward;
             float acceleration = Vector3.Dot(fwd, predictedDelta) * _chaseFactor;
             
-            control.SetTargetVelocity(predictedDelta.normalized * (vMag + acceleration), MovementType.Direct);
+            control.SetSpeed(vMag + acceleration);
+        }
+
+        public void Exit(IUnitControl control, Sensor sensor)
+        {
         }
     }
 }

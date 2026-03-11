@@ -34,7 +34,7 @@ namespace Core.Structure
             return null;
         }
 
-        public static IEnumerable<T> GetBlocksByType<T>(this IStructure structure) where T : IBlock
+        public static IEnumerable<T> GetBlocksByType<T>(this IStructure structure)
         {
             return structure.Blocks.OfType<T>();
         }

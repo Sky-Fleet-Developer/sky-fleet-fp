@@ -2371,13 +2371,14 @@ GameObject:
   - component: {fileID: 2099192059}
   - component: {fileID: 2099192060}
   - component: {fileID: 2099192061}
+  - component: {fileID: 2099192062}
   m_Layer: 0
   m_Name: AttackSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2099192056
 Transform:
   m_ObjectHideFlags: 0
@@ -2527,11 +2528,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Runtime::Runtime.EventBehaviours.SplineSpawner
   debugDraw: 1
   baseCount: 1
-  densityOverDistance: 0.01
+  densityOverDistance: 0
   longitudeIrregularity: 1
   clusterCenterIrregularity: 1
-  timeOffset: 0
-  speed: 10
+  timeOffset: 0.12
+  speed: 30
   clusterization:
     x: 0
     y: 5
@@ -2564,7 +2565,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Misc.SpsViewRange
   overrideViewRange: 1
-  viewRange: 400
+  viewRange: 1000
 --- !u!114 &2099192061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2581,13 +2582,26 @@ MonoBehaviour:
   spawnBehaviour:
     rid: 8817784431595487308
   attachedStrategy:
-    _underlyingValue: {fileID: 0}
+    _underlyingValue: {fileID: 2099192062}
   references:
     version: 2
     RefIds:
     - rid: 8817784431595487308
       type: {class: TransportSpawnBehaviour, ns: Runtime.Content, asm: Runtime}
       data: 
+--- !u!114 &2099192062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099192054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 364cb2f32dec49d4a01967e530b1b782, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Ai.ArenaFightStrategy
+  spline: {fileID: 2099192060}
 --- !u!1001 &4494832323326198457
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2651,6 +2665,10 @@ PrefabInstance:
     - target: {fileID: 2718442238139209660, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_Name
       value: 'Bootstrapper[Translator]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205572834780381020, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.x

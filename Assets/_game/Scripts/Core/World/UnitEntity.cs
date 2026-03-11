@@ -38,6 +38,11 @@ namespace Core.World
             SetupUnit();
         }
 
+        public void SetAiActivity(bool isActive)
+        {
+            ((MonoBehaviour)_unit).enabled = isActive;
+        }
+
         protected override void OnSpawn(IItemObject instance)
         {
             base.OnSpawn(instance);

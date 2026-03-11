@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Ai;
 using Core.World;
+using Runtime.Structure.Ship;
 using UnityEngine;
 
 namespace Runtime.Ai
 {
+    [RequireComponent(typeof(IUnitControl), typeof(DynamicStructure))]
     public class StructureUnit : MonoBehaviour, IUnit
     {
-        [SerializeField, SerializeReference] private IUnitTactic myTactic;
+        [SerializeField, SerializeReference] private IUnitTactic myTactic = new EmptyTactic();
         private IUnitControl _myControl;
-        private Sensor _sensor;
+        private DynamicStructure _structure;
+        private Sensor _sensor = new Sensor();
         private IManeuver _currentManeuver;
         private IManeuverEndpoint _currentEndpoint;
         private Queue<(IManeuver, IManeuverEndpoint)> _maneuvers = new();
@@ -20,6 +24,17 @@ namespace Runtime.Ai
         private void Awake()
         {
             _myControl = GetComponent<IUnitControl>();
+            _structure = GetComponent<DynamicStructure>();
+        }
+
+        private void OnEnable()
+        {
+            ((MonoBehaviour)_myControl).enabled = true;
+        }
+
+        private void OnDisable()
+        {
+            ((MonoBehaviour)_myControl).enabled = false;
         }
 
         public void InjectEntity(UnitEntity entity)
@@ -29,7 +44,7 @@ namespace Runtime.Ai
 
         public void SetTactic(IUnitTactic tactic)
         {
-            myTactic = tactic;
+            myTactic = tactic ?? new EmptyTactic();
         }
 
         public void SetManeuvers((IManeuver, IManeuverEndpoint)[] maneuvers)
@@ -41,12 +56,12 @@ namespace Runtime.Ai
                 _currentEndpoint = null;
                 return;
             }
-            _currentManeuver = maneuvers[0].Item1;
-            _currentEndpoint = maneuvers[0].Item2;
-            for (var i = 1; i < maneuvers.Length; i++)
+            for (var i = 0; i < maneuvers.Length; i++)
             {
                 _maneuvers.Enqueue(maneuvers[i]);
             }
+
+            RefreshNextManeuver();
         }
 
         private bool RefreshNextManeuver()
@@ -57,7 +72,9 @@ namespace Runtime.Ai
                 if (!endpoint.IsComplete(maneuver, _myControl, _sensor))
                 {
                     _currentEndpoint = endpoint;
+                    _currentManeuver?.Exit(_myControl, _sensor);
                     _currentManeuver = maneuver;
+                    _currentManeuver.Enter(_myControl, _sensor);
                     return true;
                 }
             }
@@ -66,12 +83,25 @@ namespace Runtime.Ai
 
         public void Update()
         {
+            UpdateSensor();
             TickManeuver();
             myTactic.ControlUnit(this, _sensor);
         }
 
+        private void UpdateSensor()
+        {
+            _sensor.Position = transform.position;
+            _sensor.Rotation = transform.rotation;
+            _sensor.Velocity = _structure.Velocity;
+            _sensor.LocalVelocity = transform.InverseTransformDirection(_sensor.Velocity);
+        }
+        
         private void TickManeuver()
         {
+            if (!_myControl.IsActive)
+            {
+                return;
+            }
             if (_currentEndpoint == null)
             {
                 return;

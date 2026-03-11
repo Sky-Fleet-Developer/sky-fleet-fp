@@ -120,5 +120,18 @@ namespace Runtime.Structure.Rigging.Control
                 GUILayout.Label($"<size=25>Speed: {dynamic.Velocity.magnitude * 3.6f : 000.0}km/h</size>");
             }
         }
+
+        public float PitchAxis { get => axes[0].Value; set => axes[0].SetValue(value); }
+        public float RollAxis { get => axes[1].Value; set => axes[1].SetValue(value); }
+        public float YawAxis { get => axes[2].Value; set => axes[2].SetValue(value); }
+        public float ThrustAxis { get => axes[3].Value; set => axes[3].SetValue(value); }
+        public float SupportsPowerAxis { get => axes[4].Value; set => axes[4].SetValue(value); }
+        public void ResetControls()
+        {
+            PitchAxis = 0;
+            RollAxis = 0;
+            YawAxis = 0;
+            ThrustAxis = 0;
+        }
     }
 }

@@ -2,9 +2,13 @@
 
 namespace Core.Ai
 {
-    public enum MovementType { Direct, Strafe }
     public interface IUnitControl
     {
-        public void SetTargetVelocity(Vector3 velocity, MovementType movementType);
+        public bool IsActive { get; }
+        public void SetUpVector(IDirectionData direction);
+        public void SetForwardVector(IDirectionData direction);
+        public void SetSpeed(float speed);
+        public void SetRollYawFactor(float factor);
+        public void SetDriftCompensation(float value);
     }
 }

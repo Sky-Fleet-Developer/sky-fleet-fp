@@ -51,16 +51,28 @@ namespace Core.Structure.Rigging.Control
         {
             bindings.Enable();
         }
+        
         public void Disable()
         {
             bindings.Disable();
         }
+        
         [Space]
         [ShowInInspector, Range(-1, 1)] private float _inputValue;
 
-
         [SerializeField, HideInInspector]
         private DeviceBase<Port<float>> _device;
+
+        public float Value => _inputValue;
+        public void SetValue(float value)
+        {
+            _inputValue = value;
+            port.Value = _inputValue;
+            if (_device)
+            {
+                _device.Port.Value = _inputValue;
+            }
+        }
 
         public void Tick()
         {

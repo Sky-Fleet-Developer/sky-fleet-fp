@@ -4,4 +4,9 @@
     {
         public void ControlUnit(IUnit unit, Sensor sensor);
     }
+
+    public class EmptyTactic : IUnitTactic
+    {
+        public void ControlUnit(IUnit unit, Sensor sensor) { }
+    }
 }
