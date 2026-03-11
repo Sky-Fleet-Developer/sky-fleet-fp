@@ -11,9 +11,9 @@ namespace Runtime.Content
     {
         [Inject] private WorldSpace _worldSpace;
         
-        public ItemEntity Spawn(EntityObjectInstaller source, Vector3 position, Quaternion rotation)
+        public UnitEntity Spawn(EntityObjectInstaller source, Vector3 position, Quaternion rotation)
         {
-            var entity = new ItemEntity(source.itemDescription, position, rotation);
+            var entity = new UnitEntity(source.itemDescription, position, rotation);
             _worldSpace.AddEntity(entity);
             
             return entity;

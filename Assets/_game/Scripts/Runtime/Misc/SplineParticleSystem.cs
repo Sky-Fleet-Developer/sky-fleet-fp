@@ -146,6 +146,12 @@ namespace Runtime.Misc
             }
         }
 
+        public void EvaluatePoint(int pointIndex, out Vector3 position, out Quaternion rotation, out bool isReverse, out int lap)
+        {
+            SpsPoint p = _points[pointIndex];
+            EvaluatePoint(p, out position, out rotation, out isReverse, out lap);
+        }
+
         public void EvaluatePoint(SpsPoint point, out Vector3 position, out Quaternion rotation, out bool isReverse, out int lap)
         {
             float t = point.Time / _splineLength + timeOffset + _speedNormalized * Time.time;

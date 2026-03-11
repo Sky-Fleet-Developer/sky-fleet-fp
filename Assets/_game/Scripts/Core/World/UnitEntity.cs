@@ -21,6 +21,7 @@ namespace Core.World
     public class UnitEntity : ItemEntity
     {
         private IUnit _unit;
+        private IUnitTactic _tactic;
         public IUnit Unit => _unit;
         
         public UnitEntity() : base()
@@ -34,12 +35,20 @@ namespace Core.World
         public UnitEntity(IUnit unit, IItemObject objectInstance, ItemDescription itemDescription) : base(objectInstance, itemDescription)
         {
             _unit = unit;
+            SetupUnit();
         }
 
         protected override void OnSpawn(IItemObject instance)
         {
             base.OnSpawn(instance);
             _unit = GameObject.GetComponent<IUnit>();
+            SetupUnit();
+        }
+
+        private void SetupUnit()
+        {
+            _unit.SetTactic(_tactic);
+            _unit.InjectEntity(this);
         }
 
         public override string ToString()
@@ -66,6 +75,12 @@ namespace Core.World
                 var boxed = (object)entity;
                 BaseSerializer.Populate(stream, ref boxed);
             }
+        }
+
+        public void SetTactic(IUnitTactic tactic)
+        {
+            _tactic = tactic;
+            _unit?.SetTactic(tactic);
         }
     }
 }

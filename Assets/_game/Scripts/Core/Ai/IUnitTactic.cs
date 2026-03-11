@@ -2,6 +2,6 @@
 {
     public interface IUnitTactic
     {
-        //TODO: implement sensors to detect environment, add controls of maneuvers queue
+        public void ControlUnit(IUnit unit, Sensor sensor);
     }
 }
