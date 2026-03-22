@@ -94,7 +94,18 @@ namespace Core.Character.Stuff
                     properties);
             }
         }
-        
+
+        /*private void OnValidate()
+        {
+            foreach (var structureGrid in data)
+            {
+                for (var i = 0; i < structureGrid.cells.Length; i++)
+                {
+                    structureGrid.cells[i].sibling = i;
+                }
+            }
+        }*/
+
         [SerializeField] private StructureGrid[] data;
         private Dictionary<string, SlotsGrid> _cache;
         public override bool TryGetGridSource(string gridId, out SlotsGrid result)
@@ -103,11 +114,19 @@ namespace Core.Character.Stuff
             return _cache.TryGetValue(gridId, out result);
         }
 
+        #if UNITY_EDITOR
         [Button]
-        private void AddFromBlocksConfig(string id, BlocksConfiguration blocksConfig)
+        public void AddOrReplaceBlocksConfig(string id, BlocksConfiguration blocksConfig)
         {
-            Array.Resize(ref data, data.Length + 1);
-            data[^1] = new StructureGrid(){id = id, cells = blocksConfig.blocks.Select(
+            UnityEditor.Undo.RecordObject(this, "AddFromBlocksConfig");
+            var existId = Array.FindIndex(data, v => v.id == id);
+            if (existId == -1)
+            {
+                Array.Resize(ref data, data.Length + 1);
+                existId = data.Length - 1;
+            }
+
+            data[existId] = new StructureGrid(){id = id, cells = blocksConfig.blocks.Select(
                 v => new BlockCell 
                 { 
                     slotId = v.blockName,
@@ -119,6 +138,8 @@ namespace Core.Character.Stuff
                     constantFieldKeys = v.constantFieldsKeys.ToArray(),
                     constantFieldValues = v.constantFieldsValues.ToArray()
                 }).ToArray()};
+            UnityEditor.EditorUtility.SetDirty(this);
         }
+        #endif
     }
 }

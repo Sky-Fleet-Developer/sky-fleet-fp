@@ -23,6 +23,18 @@ namespace Core.Structure.Serialization
             }
         }
         
+        #if UNITY_EDITOR
+        public BlocksConfiguration (GameObject prefab)
+        {
+            var structure = prefab.GetComponent<IStructure>();
+            foreach (var block in prefab.GetComponentsInChildren<IBlock>(true))
+            {
+                block.SetStructureEditor(structure);
+                blocks.Add(new BlockConfiguration(block));
+            }
+        }
+        #endif
+        
         public BlockConfiguration FindBlockConfig(string path, string blockName)
         {
             blocksCache ??= blocks.ToDictionary(block => $"{block.path}.{block.blockName}");

@@ -30,7 +30,7 @@ namespace Core.Structure.Serialization
         }
         public GraphConfiguration() {}
 
-        public GraphConfiguration(ItemInstance source)
+        public GraphConfiguration(IPropertiesContainer source)
         {
             if (!source.TryGetProperty(Property.WiresPropertyName, out var property))
             {
@@ -69,8 +69,9 @@ namespace Core.Structure.Serialization
         
         public override Task Apply(IStructure structure)
         {
-            structure.Graph.SetConfiguration(this);
-            return Task.CompletedTask;
+            throw new System.NotImplementedException();
+            //structure.Graph.Init();
+            //return Task.CompletedTask;
         }
     }
     

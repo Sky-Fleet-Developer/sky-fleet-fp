@@ -992,11 +992,27 @@ MonoBehaviour:
       position: {x: -0.327, y: -0.029, z: 0.309}
       rotation: {x: -0, y: 90.00002, z: 90.00001}
       mountingType: 
-      constantFieldKeys: []
-      constantFieldValues: []
-    - slotId: LightSupport-Single_L
+      constantFieldKeys:
+      - pitchInfluence
+      - rollInfluence
+      constantFieldValues:
+      - 0,8
+      - 0,2
+    - slotId: ElevonsDistributor_Tail
       path: 
       sibling: 11
+      position: {x: -0.327, y: -0.029, z: 0.579}
+      rotation: {x: -0, y: 90.00002, z: 90.00001}
+      mountingType: 
+      constantFieldKeys:
+      - pitchInfluence
+      - rollInfluence
+      constantFieldValues:
+      - 1
+      - -1
+    - slotId: LightSupport-Single_L
+      path: 
+      sibling: 12
       position: {x: -2, y: 0.06998289, z: -0.15}
       rotation: {x: 359, y: 0, z: 0}
       mountingType: 
@@ -1004,7 +1020,7 @@ MonoBehaviour:
       constantFieldValues: []
     - slotId: LightSupport-Single_R
       path: 
-      sibling: 12
+      sibling: 13
       position: {x: 2.0000055, y: 0.06998289, z: -0.15008596}
       rotation: {x: 359, y: 0, z: 0}
       mountingType: 
@@ -1012,7 +1028,7 @@ MonoBehaviour:
       constantFieldValues: []
     - slotId: SupportTopCutoffModule
       path: 
-      sibling: 13
+      sibling: 14
       position: {x: 0.128, y: 0.007, z: 0.257}
       rotation: {x: -0, y: 0, z: 0}
       mountingType: 
@@ -1044,7 +1060,7 @@ MonoBehaviour:
       - (-25.00, 25.00)
     - slotId: CargoTrunk
       path: 
-      sibling: 17
+      sibling: 18
       position: {x: -0, y: 0.13, z: -0.573}
       rotation: {x: -0, y: 0, z: 0}
       mountingType: 

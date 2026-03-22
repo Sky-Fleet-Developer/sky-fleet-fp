@@ -1,7 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace NWH.Common.Utility
 {
+    [Serializable]
+    public class PIDSettings
+    {
+        public float proportional;
+        public float integral;
+        public float derivative;
+    }
     /// <summary>
     ///     Implementation of PID controller based on:
     ///     https://github.com/ms-iot/pid-controller/blob/master/PidController/PidController/PidController.cs
@@ -77,7 +85,7 @@ namespace NWH.Common.Utility
         /// <summary>
         ///     The desired value
         /// </summary>
-        public float SetPoint { get; set; } = 0;
+        public float TargetValue { get; set; } = 0;
 
 
         /// <summary>
@@ -90,7 +98,7 @@ namespace NWH.Common.Utility
         /// <returns>Value of the variable that needs to be controlled</returns>
         public float ControlVariable(float timeSinceLastUpdate)
         {
-            float error = SetPoint - ProcessVariable;
+            float error = TargetValue - ProcessVariable;
 
             // integral term calculation
             IntegralTerm += GainIntegral * error * timeSinceLastUpdate;

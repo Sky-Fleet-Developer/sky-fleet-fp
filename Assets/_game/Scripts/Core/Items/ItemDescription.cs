@@ -11,13 +11,14 @@ using JetBrains.Annotations;
 namespace Core.Items
 {
     [Serializable]
-    public struct ItemDescription
+    public struct ItemDescription : IPropertiesContainer
     {
         public string signId;
         public float amount;
         public string gridSlot;
         public List<Property> properties;
         [CanBeNull] public List<ItemDescription> nestedItems;
+        public IReadOnlyList<Property> Properties => properties;
 
         public ItemDescription(ItemInstance instance)
         {
@@ -27,19 +28,34 @@ namespace Core.Items
             nestedItems = null;
             gridSlot = null;
         }
+        
+        public bool TryGetProperty(string propertyName, out Property property)
+        {
+            for (var i = 0; i < properties.Count; i++)
+            {
+                if (properties[i].name == propertyName)
+                {
+                    property = properties[i];
+                    return true;
+                }
+            }
+            property = default;
+            return false;
+        }
 
         public void CollectNestedItems(BankSystem bankSystem)
         {
-            Property? identifiable = FindProperty(ItemSign.IdentifiableTag);
-            Property? container = FindProperty(ItemSign.ContainerTag);
-
-            if (identifiable == null || container == null)
+            if (!TryGetProperty(ItemSign.IdentifiableTag, out var identifiable))
+            {
+                return;
+            }
+            if (!TryGetProperty(ItemSign.ContainerTag, out var container))
             {
                 return;
             }
 
-            var postfix = container.Value.values[Property.Container_GridPreset].stringValue;
-            string id = identifiable.Value.values[Property.IdentifiableInstance_Identifier].stringValue;
+            var postfix = container.values[Property.Container_GridPreset].stringValue;
+            string id = identifiable.values[Property.IdentifiableInstance_Identifier].stringValue;
             if (!string.IsNullOrEmpty(postfix))
             {
                 id = $"{id}{StuffSlotsTable.GridIdentifierKey}{postfix}";
@@ -57,21 +73,6 @@ namespace Core.Items
                 nestedItems.Add(new ItemDescription(itemInstance));
                 nestedItems[^1].CollectNestedItems(bankSystem);
             }
-        }
-
-        private Property? FindProperty(string propertyName)
-        {
-            Property? containerProperty = null;
-            for (var i = 0; i < properties.Count; i++)
-            {
-                if (properties[i].name == propertyName)
-                {
-                    containerProperty = properties[i];
-                    break;
-                }
-            }
-
-            return containerProperty;
         }
 
         public class Serializer : ISerializer<ItemDescription>
@@ -126,5 +127,7 @@ namespace Core.Items
                 }
             }
         }
+
+
     }
 }

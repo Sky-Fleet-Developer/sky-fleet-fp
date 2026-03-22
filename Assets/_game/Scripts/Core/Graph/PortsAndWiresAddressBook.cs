@@ -12,14 +12,14 @@ namespace Core.Graph
         private Dictionary<string, List<PortPointer>> _portsByNode;
         private Dictionary<string, PortPointer> _portsById;
 
-        public PortsAndWiresAddressBook(GraphConfiguration configuration)
+        public PortsAndWiresAddressBook(IEnumerable<WireConfiguration> wiresConfig)
         {
             _wireConfigs = new();
             _wireByPort = new();
             _portsByNode = new();
             _wireByConfig = new();
             _portsById = new();
-            foreach (var wire in configuration.wires)
+            foreach (var wire in wiresConfig)
             {
                 foreach (var port in wire.ports) _wireConfigs.Add(port, wire);
             }

@@ -10,9 +10,9 @@ namespace Runtime.Structure.Rigging.Control
     {
         [SerializeField][DrawWithUnity] private PortType portType;
 
-        [SerializeField]
+        [SerializeField, BlockRelativeValue]
         private float pitchInfluence = 0.75f;
-        [SerializeField]
+        [SerializeField, BlockRelativeValue]
         private float rollInfluence = 0.75f;
         private Port<float> inputPitch;
         private Port<float> inputRoll;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Game;
 using Core.Graph;
+using Core.Misc;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Serialization;
@@ -51,11 +52,12 @@ namespace Runtime.Structure
                 return;
             }
             _parents.Add(new Parent(transform, this));
-            if (!_graph.HasConfiguration)
+
+            if (!_graph.InitGraphFromProperties(SourceItem))
             {
-                _graph.SetConfiguration(new GraphConfiguration(SourceItem));
+                Debug.LogError("Failed to init wires graph");
             }
-            _graph.Init();
+
             RefreshBlocks();
             CalculateStructureRadius();
             OnInitComplete.Invoke();

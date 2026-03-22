@@ -14,6 +14,7 @@ namespace Runtime.Structure.Ship
         public float Mass => emptyMass;
         
         public Vector3 Velocity => rigidbody.linearVelocity;
+        public Vector3 AngularVelocity => rigidbody.angularVelocity;
 
         [ShowInInspector, ReadOnly]
         public float TotalMass { get; private set; }

@@ -24,13 +24,16 @@ namespace Core.Structure
         void InitBlock(IStructure structure, Parent parent);
         void Remove();
         Bounds GetBounds();
+#if UNITY_EDITOR
+        void SetStructureEditor(IStructure structure);
+#endif
     }
 
     public static class BlockExtension
     {
         public static string GetPath(this IBlock block)
         {
-            return block.Parent.Transform.GetPath(block.Structure.transform);
+            return block.transform.parent.GetPath(block.Structure.transform);
         }        
 
         private static Dictionary<Type, PropertyInfo[]> _propertiesCache;
@@ -63,7 +66,7 @@ namespace Core.Structure
             List<PropertyInfo> properties = new List<PropertyInfo>();
 
             Type attributeA = typeof(PlayerPropertyAttribute);
-            Type attributeB = typeof(SaveValueAttribute);
+            Type attributeB = typeof(BlockRelativeValueAttribute);
 
             //string log = $"Properties for type {type.Name}:\n";
 
@@ -85,7 +88,7 @@ namespace Core.Structure
         {
             List<FieldInfo> fields = new List<FieldInfo>();
 
-            Type attribute = typeof(SaveValueAttribute);
+            Type attribute = typeof(BlockRelativeValueAttribute);
 
             //string log = $"Fields for type {type.Name}:\n";
 

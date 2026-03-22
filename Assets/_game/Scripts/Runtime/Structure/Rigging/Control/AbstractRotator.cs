@@ -24,7 +24,7 @@ namespace Runtime.Structure.Rigging.Control
         [SerializeField] private float dragForce;
         [SerializeField] private float inputSignalMultiplier = 1;
         [SerializeField] private AnimationCurve consumptionPerPower;
-        [SerializeField, SaveValue, HideIf("isCycled")] public Vector2 minMaxAngle;
+        [SerializeField, BlockRelativeValue, HideIf("isCycled")] public Vector2 minMaxAngle;
         [PlayerProperty] public float InputSignalMultiplier
         {
             get => inputSignalMultiplier;

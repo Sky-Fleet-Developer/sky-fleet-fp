@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Core.Items
 {
-    public class ItemInstance : IDisposable, IEquatable<ItemInstance>, IDraggableItem
+    public class ItemInstance : IDisposable, IEquatable<ItemInstance>, IDraggableItem, IPropertiesContainer
     {
         private ItemSign _sign;
         private float _amount;

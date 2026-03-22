@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Graph.Wires;
+using Core.Items;
 using Core.Structure;
 using Core.Structure.Serialization;
 using Sirenix.OdinInspector;
@@ -21,59 +22,58 @@ namespace Core.Graph
         public IEnumerable<IGraphNode> Nodes => _nodes;
         public IEnumerable<Wire> Wires => _wires;
         private bool _isInitialized = false;
-        private GraphConfiguration _configuration;
+        //private GraphConfiguration _configuration;
         private PortsAndWiresAddressBook _addressBook;
         private Wire _mainPowerWire;
-        public bool HasConfiguration => _configuration != null;
-        public void SetConfiguration(GraphConfiguration value)
-        {
-            _configuration = value;
-            _addressBook = new PortsAndWiresAddressBook(_configuration);
-        }
 
-        public void Init()
+        private bool _autoConnectPowerWires;
+
+
+        public void Init(IEnumerable<WireConfiguration> wires, bool autoConnectPowerWires)
         {
             if(_isInitialized) return;
+            _autoConnectPowerWires = autoConnectPowerWires;
             _powerPortProcessor = new PowerPortProcessor(this);
             _nodes = new List<IGraphNode>();
             _wires = new List<Wire>();
+            _addressBook = new PortsAndWiresAddressBook(wires);
             /*
 
-            portsPointers = GetAllPorts();
-            
-            foreach (WireConfiguration wire in _configuration.wires)
-            {
-                if (wire.ports.Count == 0)
-                {
-                    continue;
-                }
-                PortPointer[] portsToConnect = new PortPointer[wire.ports.Count];
+                       portsPointers = GetAllPorts();
 
-                int notNullCounter = 0;
-                for (var i = 0; i < wire.ports.Count; i++)
-                {
-                    portsToConnect[i] = GetPort(wire.ports[i]);
-                    if (!portsToConnect[i].IsNull())
-                    {
-                        notNullCounter++;
-                    }
-                }
+                       foreach (WireConfiguration wire in _configuration.wires)
+                       {
+                           if (wire.ports.Count == 0)
+                           {
+                               continue;
+                           }
+                           PortPointer[] portsToConnect = new PortPointer[wire.ports.Count];
 
-                if (notNullCounter > 1)
-                {
-                    ConnectPorts(portsToConnect);
-                }
-            }
+                           int notNullCounter = 0;
+                           for (var i = 0; i < wire.ports.Count; i++)
+                           {
+                               portsToConnect[i] = GetPort(wire.ports[i]);
+                               if (!portsToConnect[i].IsNull())
+                               {
+                                   notNullCounter++;
+                               }
+                           }
 
-            if (_configuration.autoConnectPowerWires)
-            {
-                PortPointer[] powerPorts = Ports.Where(x => x.Port is PowerPort).ToArray();
-                if (powerPorts.Length > 0)
-                {
-                    ConnectPorts(powerPorts);
-                }
-            }
-*/
+                           if (notNullCounter > 1)
+                           {
+                               ConnectPorts(portsToConnect);
+                           }
+                       }
+
+                       if (_configuration.autoConnectPowerWires)
+                       {
+                           PortPointer[] powerPorts = Ports.Where(x => x.Port is PowerPort).ToArray();
+                           if (powerPorts.Length > 0)
+                           {
+                               ConnectPorts(powerPorts);
+                           }
+                       }
+           */
             _isInitialized = true;
         }
 
@@ -105,7 +105,7 @@ namespace Core.Graph
                     }
                 }
 
-                if (_configuration.autoConnectPowerWires && port.Port is PowerPort)
+                if (_autoConnectPowerWires && port.Port is PowerPort)
                 {
                     if (_mainPowerWire == null)
                     {

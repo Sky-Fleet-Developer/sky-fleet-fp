@@ -1118,7 +1118,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.size
-      value: 14
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[0].amount
@@ -1158,19 +1158,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].signId
-      value: light-support-single_part
+      value: elevons-distributor_part
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].signId
-      value: support-top-cutoff-module_part
+      value: light-support-single_part
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].signId
-      value: rudder-rotator_part
+      value: support-top-cutoff-module_part
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].signId
-      value: cargo-trunk_part
+      value: rudder-rotator_part
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[0].gridSlot
@@ -1206,27 +1206,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].gridSlot
-      value: LightSupport-Single_L
+      value: ElevonsDistributor_Tail
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[9].gridSlot
-      value: LightSupport-Single_R
+      value: LightSupport-Single_L
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].gridSlot
-      value: SupportTopCutoffModule
+      value: LightSupport-Single_R
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].gridSlot
-      value: RudderR_Rotator
+      value: SupportTopCutoffModule
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[12].gridSlot
-      value: RudderL_Rotator
+      value: RudderR_Rotator
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].gridSlot
-      value: CargoTrunk
+      value: RudderL_Rotator
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[0].properties.Array.size
@@ -1246,11 +1246,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].properties.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[0].properties.Array.data[0].name
@@ -1370,7 +1370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[12].properties.Array.data[2].values.Array.data[0].intValue
-      value: 25
+      value: -25
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[0].properties.Array.data[1].values.Array.data[3].floatValue
@@ -1534,39 +1534,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[0].values.Array.data[0].floatValue
-      value: -2
+      value: -0.327
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[0].values.Array.data[1].floatValue
-      value: 0.06998289
+      value: -0.029
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[0].values.Array.data[2].floatValue
-      value: -0.15
+      value: 0.579
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[0].floatValue
-      value: 0.008726637
+      value: 0.5000002
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[1].floatValue
-      value: 0
+      value: 0.50000006
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[2].floatValue
-      value: 0
+      value: 0.49999994
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[3].floatValue
-      value: -0.9999619
+      value: 0.49999985
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[9].properties.Array.data[0].values.Array.data[0].floatValue
-      value: 2.0000055
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[9].properties.Array.data[0].values.Array.data[2].floatValue
-      value: -0.15008596
+      value: -0.15
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[0].properties.Array.data[0].values.Array.data[0].stringValue
@@ -1602,35 +1602,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[0].values.Array.data[0].floatValue
-      value: 0.128
+      value: 2.0000055
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[0].values.Array.data[1].floatValue
-      value: 0.007
+      value: 0.06998289
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[0].values.Array.data[2].floatValue
-      value: 0.257
+      value: -0.15008596
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[1].values.Array.data[0].floatValue
-      value: 0
+      value: 0.008726637
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[1].values.Array.data[3].floatValue
-      value: 1
+      value: -0.9999619
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[0].values.Array.data[0].floatValue
-      value: 0
+      value: 0.128
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[0].values.Array.data[1].floatValue
-      value: 0
+      value: 0.007
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[0].values.Array.data[2].floatValue
-      value: 0
+      value: 0.257
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[2].values.Array.data[0].floatValue
@@ -1638,19 +1638,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[12].properties.Array.data[2].values.Array.data[0].floatValue
-      value: 25
+      value: -25
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].properties.Array.data[0].values.Array.data[0].floatValue
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].properties.Array.data[0].values.Array.data[1].floatValue
-      value: 0.13
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].properties.Array.data[0].values.Array.data[2].floatValue
-      value: -0.573
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[1].properties.Array.data[0].values.Array.data[0].stringValue
@@ -1822,71 +1822,71 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[0].values.Array.data[0].stringValue
-      value: -2
+      value: -0.327
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[0].values.Array.data[1].stringValue
-      value: 0.06998289
+      value: -0.029
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[0].values.Array.data[2].stringValue
-      value: -0.15
+      value: 0.579
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[0].stringValue
-      value: 0.008726637
+      value: 0.5000002
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[1].stringValue
-      value: 0
+      value: 0.5000001
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[2].stringValue
-      value: 0
+      value: 0.4999999
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[8].properties.Array.data[1].values.Array.data[3].stringValue
-      value: -0.9999619
+      value: 0.4999999
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[9].properties.Array.data[0].values.Array.data[0].stringValue
-      value: 2.000005
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[9].properties.Array.data[0].values.Array.data[2].stringValue
-      value: -0.150086
+      value: -0.15
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[0].values.Array.data[0].stringValue
-      value: 0.128
+      value: 2.000005
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[0].values.Array.data[1].stringValue
-      value: 0.007
+      value: 0.06998289
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[0].values.Array.data[2].stringValue
-      value: 0.257
+      value: -0.150086
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[1].values.Array.data[0].stringValue
-      value: 0
+      value: 0.008726637
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[10].properties.Array.data[1].values.Array.data[3].stringValue
-      value: 1
+      value: -0.9999619
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[0].values.Array.data[0].stringValue
-      value: 0
+      value: 0.128
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[0].values.Array.data[1].stringValue
-      value: 0
+      value: 0.007
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[0].values.Array.data[2].stringValue
-      value: 0
+      value: 0.257
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[11].properties.Array.data[2].values.Array.data[0].stringValue
@@ -1894,15 +1894,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[12].properties.Array.data[2].values.Array.data[0].stringValue
-      value: 25
+      value: -25
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].properties.Array.data[0].values.Array.data[1].stringValue
-      value: 0.13
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: itemDescription.nestedItems.Array.data[13].properties.Array.data[0].values.Array.data[2].stringValue
-      value: -0.573
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3135245034059036130, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2057,7 +2057,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1347897269
 Transform:
   m_ObjectHideFlags: 0
@@ -2378,7 +2378,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2099192056
 Transform:
   m_ObjectHideFlags: 0
@@ -2459,41 +2459,113 @@ MonoBehaviour:
           z: 0.2025032
           w: -0.007836497
     - Position:
-        x: -17
+        x: 114
         y: 163.04004
-        z: 1063
+        z: 1015
       TangentIn:
         x: -0.23400688
         y: 0
         z: -184.00256
       TangentOut:
-        x: 0.14658546
-        y: 0
-        z: 205.00244
+        x: 0.073287964
+        y: 4.7366625e-14
+        z: 102.501236
       Rotation:
         value:
-          x: -3.231645e-13
-          y: 0.99999785
-          z: 6.726255e-16
-          w: -0.002081424
+          x: -3.1576163e-13
+          y: 0.9770904
+          z: 6.8777625e-14
+          w: -0.21282496
     - Position:
-        x: -24
+        x: 62
+        y: 167.04004
+        z: 376
+      TangentIn:
+        x: -0.0000038146973
+        y: -0.00000047683716
+        z: -612.9399
+      TangentOut:
+        x: 0.0000038146973
+        y: 0.00000023841858
+        z: 612.93994
+      Rotation:
+        value:
+          x: -0.00028447452
+          y: 0.94747186
+          z: 0.0016259018
+          w: 0.319835
+    - Position:
+        x: -340
         y: 171.04004
-        z: -1529
+        z: -187
       TangentIn:
         x: 0
         y: 0
-        z: -1.839717
+        z: -249.73788
       TangentOut:
         x: 0
         y: 0
-        z: 3.6795247
+        z: 472.1844
+      Rotation:
+        value:
+          x: -0.003794814
+          y: -0.643347
+          z: -0.0017082975
+          w: 0.7655633
+    - Position:
+        x: -563
+        y: 171.04004
+        z: 632
+      TangentIn:
+        x: 0
+        y: 0
+        z: -444.6684
+      TangentOut:
+        x: 0
+        y: 0
+        z: 84.88168
       Rotation:
         value:
           x: 0
-          y: 0.9996522
+          y: -0.13273315
+          z: -0
+          w: 0.99115187
+    - Position:
+        x: -547
+        y: 171.04004
+        z: 1091
+      TangentIn:
+        x: 0
+        y: 0
+        z: -499.78598
+      TangentOut:
+        x: 0
+        y: 0
+        z: 499.78598
+      Rotation:
+        value:
+          x: 0
+          y: 0.563609
           z: 0
-          w: -0.026371777
+          w: 0.8260417
+    - Position:
+        x: 107
+        y: 171.04004
+        z: 830
+      TangentIn:
+        x: 0
+        y: 0
+        z: -499.78598
+      TangentOut:
+        x: 0
+        y: 0
+        z: 499.78598
+      Rotation:
+        value:
+          x: 0
+          y: 0.563609
+          z: 0
+          w: 0.8260417
     m_MetaData:
     - Mode: 3
       Tension: 0.5
@@ -2501,7 +2573,15 @@ MonoBehaviour:
       Tension: 0.5
     - Mode: 4
       Tension: 0.5
+    - Mode: 4
+      Tension: 0.5
     - Mode: 3
+      Tension: 0.5
+    - Mode: 3
+      Tension: 0.5
+    - Mode: 2
+      Tension: 0.5
+    - Mode: 2
       Tension: 0.5
     m_Closed: 0
     m_IntData:
@@ -2565,7 +2645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Misc.SpsViewRange
   overrideViewRange: 1
-  viewRange: 1000
+  viewRange: 2000
 --- !u!114 &2099192061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2672,7 +2752,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.2
+      value: 16.8
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2680,7 +2760,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1829
+      value: 1698.8
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.w

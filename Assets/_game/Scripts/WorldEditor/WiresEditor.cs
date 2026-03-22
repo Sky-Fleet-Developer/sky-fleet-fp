@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Graph;
 using Core.Graph.Wires;
+using Core.Items;
+using Core.Misc;
 using Core.SessionManager.SaveService;
 using Core.Structure;
 using Core.Structure.Rigging;
@@ -28,7 +30,7 @@ namespace WorldEditor
         private IGraph selectedGraph;
         private IGraph currentGraph;
         private Transform currentGraphTransform;
-        private StructConfigHolder configHolder;
+        private EntityObjectInstaller configHolder;
 
         [SerializeField] private List<IGraphNode> nodes;
 
@@ -89,28 +91,19 @@ namespace WorldEditor
 
         public void GetFomSelection()
         {
-            if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out IStructure structure))
+            if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out configHolder))
             {
-                Transform parent = Selection.activeTransform.parent;
-                if (parent)
+                currentGraphTransform = Selection.activeTransform;
+                selectedGraph = Selection.activeGameObject.GetComponent<IStructure>().Graph;
+                /*if (EditorUtility.DisplayDialog("Instanced structure has no config holder!", "Instance one?", "Yes",
+                    "No"))
                 {
-                    configHolder = parent.GetComponent<StructConfigHolder>();
+                    configHolder = StructConfigHolder.CreateForStructure(Selection.activeGameObject);
                 }
                 else
                 {
-                    if (EditorUtility.DisplayDialog("Instanced structure has no config holder!", "Instance one?", "Yes",
-                        "No"))
-                    {
-                        configHolder = StructConfigHolder.CreateForStructure(Selection.activeGameObject);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
-                currentGraphTransform = Selection.activeTransform;
-                selectedGraph = structure.Graph;
+                    return;
+                }*/
             }
         }
 
@@ -157,12 +150,21 @@ namespace WorldEditor
             if (GUILayout.Button("Edit configuration", GUILayout.Width(200)))
             {
                 var structure = currentGraphTransform.GetComponent<IStructure>();
-                await configHolder.blocksConfiguration.Apply(structure);
-                await configHolder.graphConfiguration.Apply(structure);
-                structure.Init(true);
+                //structure.Init(true);
                 currentGraph = selectedGraph;
-
-                nodes = selectedGraph.Nodes.ToList();
+                
+                if (!currentGraph.InitGraphFromProperties(configHolder.itemDescription))
+                {
+                    Debug.LogError("Failed to init wires graph");
+                    return;
+                }
+                
+                nodes = new List<IGraphNode>();
+                currentGraphTransform.GetComponentsInChildren(nodes);
+                foreach (var graphNode in nodes)
+                {
+                    currentGraph.AddNode(graphNode);
+                }
 
                 CreateArrays();
 
@@ -181,7 +183,10 @@ namespace WorldEditor
                     if (portsContainer.HasNestedValues == false) containersWithPorts.Add(portsContainer);
                 }
 
-                foreach (WireConfiguration configWire in configHolder.graphConfiguration.wires)
+                configHolder.itemDescription.TryGetProperty(Property.WiresPropertyName, out var wiresProperty);
+
+                foreach (WireConfiguration configWire in wiresProperty.values.Select(x =>
+                             x.GetObjectValue<WireConfiguration>()))
                 {
                     List<IPortsContainer> wire = new List<IPortsContainer>();
                     foreach (string portId in configWire.ports)
@@ -287,12 +292,17 @@ namespace WorldEditor
             IStructure structure = currentGraphTransform.gameObject.GetComponent<IStructure>();
             MonoBehaviour monobeh = structure as MonoBehaviour;
             Undo.RecordObject(monobeh, "Config");
-            configHolder.graphConfiguration.wires.Clear();
-            foreach (List<IPortsContainer> wire in wires)
+            var wiresPropertyIndex = configHolder.itemDescription.properties.FindIndex(x => x.name == "wires");
+            var wiresProperty = configHolder.itemDescription.properties[wiresPropertyIndex];
+            wiresProperty.values = new PropertyValue[wires.Count];
+            for (int i = 0; i < wires.Count; i++)
             {
-                configHolder.graphConfiguration.wires.Add(new WireConfiguration(wire.Select(x => x.GetPort().Id).ToList()));
+                wiresProperty.values[i] =
+                    new PropertyValue(new WireConfiguration(wires[i].Select(x => x.GetPort().Id).ToList()));
             }
-            configHolder.blocksConfiguration = new BlocksConfiguration(structure);
+
+            configHolder.itemDescription.properties[wiresPropertyIndex] = wiresProperty;
+            //configHolder.blocksConfiguration = new BlocksConfiguration(structure);
             EditorUtility.SetDirty(monobeh);
             configDirty = false;
         }
@@ -316,7 +326,7 @@ namespace WorldEditor
             if (expand)
             {
                 if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard,
-                    MainSkin.verticalScrollbarUpButton, GUILayout.Width(18)) || GUILayout.Button(descr))
+                        MainSkin.verticalScrollbarUpButton, GUILayout.Width(18)) || GUILayout.Button(descr))
                 {
                     SetExpand(container, false);
                     expand = false;
@@ -326,7 +336,7 @@ namespace WorldEditor
             else
             {
                 if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard,
-                    MainSkin.verticalScrollbarDownButton, GUILayout.Width(18)) || GUILayout.Button(descr))
+                        MainSkin.verticalScrollbarDownButton, GUILayout.Width(18)) || GUILayout.Button(descr))
                 {
                     SetExpand(container, true);
                     if (Event.current.alt) SetExpandAll(true);
@@ -362,11 +372,11 @@ namespace WorldEditor
             GUILayout.BeginHorizontal();
 
             float space = verticalOffset;
-            
+
 
             string prefix = "   |";
             Color color = Color.gray;
-            
+
             if (options.connected)
             {
                 prefix = "~--|";
@@ -456,7 +466,7 @@ namespace WorldEditor
                         wire.RemoveAt(i--);
                     }
                 }
-                
+
                 configDirty = true;
                 if (!options.isFirst)
                 {

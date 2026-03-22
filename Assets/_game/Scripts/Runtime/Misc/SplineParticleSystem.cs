@@ -179,7 +179,7 @@ namespace Runtime.Misc
         
 
 #if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
             if (!debugDraw)
             {

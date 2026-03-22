@@ -12,6 +12,7 @@ using Core.Structure;
 using Core.Structure.Serialization;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 namespace Core.Items
@@ -306,6 +307,27 @@ namespace Core.Items
                     CollectChildrenRecursive(child);
                 }
             }
+        }
+
+        [Button]
+        private void SendBlocksConfigToGridLocalSource()
+        {
+            EnsureObjects();
+            if (!TryGetComponent(out IStructure structure))
+            {
+                return;
+            }
+            StructureGridLocalSource gridLocalSource = AssetDatabase
+                .LoadAssetAtPath<GameData>("Assets/_game/Data/Resources/GameData.asset")
+                .GetChildAssets<StructureGridLocalSource>().First();
+            var sign = _itemsTableEditor.GetItem(itemDescription.signId);
+            if (!sign.TryGetProperty(ItemSign.ContainerTag, out var property))
+            {
+                return;
+            }
+
+            var gridId = property.values[Property.Container_GridPreset].stringValue;
+            gridLocalSource.AddOrReplaceBlocksConfig(gridId, new BlocksConfiguration(structure.transform.gameObject));
         }
 #endif
     }

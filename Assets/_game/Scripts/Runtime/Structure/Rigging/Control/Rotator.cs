@@ -6,7 +6,7 @@ namespace Runtime.Structure.Rigging.Control
 {
     public class Rotator : AbstractRotator
     {
-        [SerializeField][SaveValue]
+        [SerializeField][BlockRelativeValue]
         private string targetParent;
         [SerializeField] private Vector3 rotationAxis = Vector3.up;
 

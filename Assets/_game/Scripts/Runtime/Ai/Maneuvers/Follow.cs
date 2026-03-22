@@ -22,9 +22,11 @@ namespace Runtime.Ai.Maneuvers
         public void Enter(IUnitControl control, Sensor sensor)
         {
             control.SetForwardVector(_directionToTarget);
-            control.SetDriftCompensation(0.05f);
+            control.SetDriftCompensation(0.15f);
             control.SetUpVector(new ConstantDirection(Vector3.up));
-            control.SetRollYawFactor(0.3f);
+            control.SetRollYawFactor(0.4f);
+            control.SetRollBackFactor(0.8f);
+            control.SetPredictionTime(4f);
         }
 
         public void Tick(IUnitControl control, Sensor sensor)

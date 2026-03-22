@@ -54,5 +54,12 @@ namespace Runtime.Structure.Rigging
         {
             return boundsCash;
         }
+
+#if UNITY_EDITOR
+        void IBlock.SetStructureEditor(IStructure structure)
+        {
+            Structure = structure;
+        }  
+#endif
     }
 }

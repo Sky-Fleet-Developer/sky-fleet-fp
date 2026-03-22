@@ -3864,7 +3864,7 @@ GameObject:
   m_Layer: 0
   m_Name: cargo-emgracopter_body
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -3959,10 +3959,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35df048719fe464a83219a35f9bd3321, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Ai.EmgracopterControl
-  pitchSensitivity: 1
-  rollSensitivity: 1
-  yawSensitivity: 1
-  throtleSensitivity: 0.05
+  pitchSensitivity: 2
+  pitchDumper: 0.5
+  rollSensitivity: 1.5
+  rollDumper: 1.5
+  yawSensitivity: 20
+  yawDumper: 1
+  throttleSensitivity: 0.05
 --- !u!114 &8298939715364924127
 MonoBehaviour:
   m_ObjectHideFlags: 0
