@@ -9,6 +9,7 @@ using Core.Trading;
 using Core.Utilities;
 using Core.Utilities.AsyncAwaitUtil.Source;
 using Cysharp.Threading.Tasks;
+using Runtime.Ai;
 using UnityEngine;
 using Zenject;
 
@@ -71,16 +72,19 @@ namespace Runtime.Items
                     item.ContainerKey,
                     container,
                     containerProperty.values[Property.Container_Volume].floatValue);
+                
+                if (!go.TryGetComponent(out SlotsContainerContentView view))
+                {
+                    view = go.AddComponent<SlotsContainerContentView>();
+                }
+                _container.Inject(view);
+                view.TryInit();
             }
             
             if (itemObjectHandle is IDynamicStructure)
             {
                 _container.Inject(go.AddComponent<ContainerItemMass>());
             }
-            
-            var view = go.AddComponent<SlotsContainerContentView>();
-            _container.Inject(view);
-            view.TryInit();
             
             if (itemObjectHandle is IStructure structure)
             {
@@ -107,6 +111,14 @@ namespace Runtime.Items
             {
                 go.transform.localRotation = new Quaternion(rotationProperty.values[0].floatValue, rotationProperty.values[1].floatValue, rotationProperty.values[2].floatValue, rotationProperty.values[3].floatValue);
             }
+            //if (item.TryGetProperty(Property.SignatureIdPropertyName, out var signatureProperty))
+            //{
+            //    if (!go.TryGetComponent(out Signature signature))
+            //    {
+            //        signature = go.AddComponent<Signature>();
+            //    }
+            //    signature.SignId = signatureProperty.values[Property.SignatureId_Signature].stringValue;
+            //}
 
             if (go.TryGetComponent(out Rigidbody rigidbody))
             {

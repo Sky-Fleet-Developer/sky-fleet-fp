@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
+using Core.Misc;
 using Core.SessionManager;
 using Core.Utilities;
 using Cysharp.Threading.Tasks;
@@ -9,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace Core
 {
@@ -61,7 +63,10 @@ namespace Core
             _projectContainer.Bind<DynamicPool>().FromNewComponentOnRoot().AsSingle();
             _sessionContext = new Session();
             _projectContainer.Bind<Session>().FromInstance(_sessionContext).AsSingle();
-
+            var tickService = new GameObject("[Tick]").AddComponent<TickService>();
+            Object.DontDestroyOnLoad(tickService.gameObject);
+            _projectContainer.BindInstance(tickService);
+            
             _projectContainer.Inject(_sessionContext);
 
             SceneManager.sceneLoaded += OnSceneLoaded;

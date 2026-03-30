@@ -7,6 +7,7 @@ using Core.ContentSerializer;
 using Core.Data;
 using Core.Game;
 using Core.Items;
+using Core.Misc;
 using Core.Structure;
 using Core.Structure.Serialization;
 using Core.Utilities;
@@ -18,12 +19,18 @@ using Zenject;
 
 namespace Core.World
 {
-    public class UnitEntity : ItemEntity
+    public class UnitEntity : ItemEntity, ISignatureData
     {
         private IUnit _unit;
         private IUnitTactic _tactic;
+        private string _signature;
         public IUnit Unit => _unit;
-        
+
+        public Quaternion Rotation => GameObject.transform.rotation;
+        public Vector3 Velocity => Rigidbody?.linearVelocity ?? Vector3.zero;
+        public string SignatureId => _signature;
+        public UnitTechCharacteristic GetTechCharacteristic() => _unit?.GetTechCharacteristic() ?? default;
+
         public UnitEntity() : base()
         {
         }
@@ -35,9 +42,27 @@ namespace Core.World
         public UnitEntity(IUnit unit, IItemObject objectInstance, ItemDescription itemDescription) : base(objectInstance, itemDescription)
         {
             _unit = unit;
-            SetupUnit();
         }
 
+        public override void Initialize()
+        {
+            base.Initialize();
+            if (!string.IsNullOrEmpty(_signature))
+            {
+                ItemInstance.SetSignatureProperty(_signature);
+            }
+            else
+            {
+                RefreshSignature();
+            }
+        }
+
+        public void SetSignature(string value)
+        {
+            _signature = value;
+            ItemInstance?.SetSignatureProperty(value);
+        }
+        
         public void SetAiActivity(bool isActive)
         {
             ((MonoBehaviour)_unit).enabled = isActive;
@@ -48,6 +73,14 @@ namespace Core.World
             base.OnSpawn(instance);
             _unit = GameObject.GetComponent<IUnit>();
             SetupUnit();
+        }
+
+        private void RefreshSignature()
+        {
+            if (ItemInstance.TryGetProperty(Property.SiblingPropertyName, out var property))
+            {
+                _signature = property.values[Property.SignatureId_Signature].stringValue;
+            }
         }
 
         private void SetupUnit()

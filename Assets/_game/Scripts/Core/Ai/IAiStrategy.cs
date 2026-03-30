@@ -1,4 +1,5 @@
-﻿using Core.World;
+﻿using System.Collections.Generic;
+using Core.World;
 
 namespace Core.Ai
 {
@@ -13,5 +14,6 @@ namespace Core.Ai
         /// Don't need to remove entity on death. It will be removed automatically.
         /// </summary>
         public void RemoveControllableUnit(UnitEntity unit);
+        public IReadOnlyList<UnitEntity> GetControllableUnits();
     }
 }

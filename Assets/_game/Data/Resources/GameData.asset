@@ -842,6 +842,43 @@ MonoBehaviour:
     excludeTags: []
     maxVolume: 9999
     gridPrefix: cargo-emgracopter-grid
+--- !u!114 &-2708408504679486571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3821c396f1d24b208739f2fd2da0f13d, type: 3}
+  m_Name: TableRelations
+  m_EditorClassIdentifier: Core::Core.Ai.RelationsTable
+  data:
+  - signId: groupA
+    relations:
+    - signId: groupA
+      relation: 4
+    - signId: groupC
+      relation: 4
+    - signId: groupB
+      relation: 0
+  - signId: groupC
+    relations:
+    - signId: groupA
+      relation: 4
+    - signId: groupC
+      relation: 4
+    - signId: groupB
+      relation: 0
+  - signId: groupB
+    relations:
+    - signId: groupB
+      relation: 4
+    - signId: groupA
+      relation: 0
+    - signId: groupC
+      relation: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -861,6 +898,7 @@ MonoBehaviour:
   - {fileID: -4455120187770695450}
   - {fileID: 8935232688312866269}
   - {fileID: 8341189919319502898}
+  - {fileID: -2708408504679486571}
   serializedSharedData:
     serializationVersion: 0.0.1
     cargoCheckLayer:

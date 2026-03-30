@@ -210,14 +210,14 @@ namespace Core.Character.Stuff
 
         public void AddListener(IInventoryStateListener listener)
         {
-            Debug.Log($"LISTENER: Add listener {listener} to {_slotId}");
+            //Debug.Log($"LISTENER: Add listener {listener} to {_slotId}");
             _listeners.Add(listener);
             _attachedInventory?.AddListener(listener);
         }
 
         public void RemoveListener(IInventoryStateListener listener)
         {
-            Debug.Log($"LISTENER: Remove listener {listener} from {_slotId}");
+            //Debug.Log($"LISTENER: Remove listener {listener} from {_slotId}");
             _listeners.Remove(listener);
             _attachedInventory?.RemoveListener(listener);
         }

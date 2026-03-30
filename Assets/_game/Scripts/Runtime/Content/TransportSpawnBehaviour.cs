@@ -11,9 +11,13 @@ namespace Runtime.Content
     {
         [Inject] private WorldSpace _worldSpace;
         
-        public UnitEntity Spawn(EntityObjectInstaller source, Vector3 position, Quaternion rotation)
+        public UnitEntity Spawn(EntityObjectInstaller source, Vector3 position, Quaternion rotation, string overrideSignature = null)
         {
             var entity = new UnitEntity(source.itemDescription, position, rotation);
+            if (!string.IsNullOrEmpty(overrideSignature))
+            {
+                entity.SetSignature(overrideSignature);
+            }
             _worldSpace.AddEntity(entity);
             entity.SetAiActivity(true);
             return entity;

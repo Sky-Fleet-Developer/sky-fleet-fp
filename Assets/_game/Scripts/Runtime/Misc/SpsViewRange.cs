@@ -22,8 +22,6 @@ namespace Runtime.Misc
     [RequireComponent(typeof(SplineParticleSystem))]
     public class SpsViewRange : MonoBehaviour
     {
-        [SerializeField] private bool overrideViewRange;
-        [SerializeField, ShowIf("overrideViewRange")] private float viewRange;
         private SplineParticleSystem _spline;
         private bool[] _pointsViewData;
         private List<SpsPointData> _viewedPoints = new();
@@ -53,33 +51,15 @@ namespace Runtime.Misc
             }
         }
 
-        private void OnValidate()
+        public void SetViewRange(float range)
         {
-            if (overrideViewRange)
-            {
-                _viewRangeSqr = viewRange * viewRange;
-            }
-            else
-            {
-                _viewRangeSqr = GameData.Data.lodDistances.GetMaxLodDistance();
-                _viewRangeSqr *= _viewRangeSqr;
-            }
+            _viewRangeSqr = range*range;
         }
 
         private void Awake()
         {
             EnsureObjects();
             gameObject.AddWorldOffsetAnchor();
-            if (overrideViewRange)
-            {
-                _viewRangeSqr = viewRange * viewRange;
-            }
-            else
-            {
-                _viewRangeSqr = GameData.Data.lodDistances.GetMaxLodDistance();
-                _viewRangeSqr *= _viewRangeSqr;
-            }
-
             Bootstrapper.OnLoadComplete.Subscribe(OnLoadComplete);
             enabled = false;
         }

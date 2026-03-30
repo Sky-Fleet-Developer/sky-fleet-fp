@@ -68,10 +68,17 @@ namespace Runtime.Ai
                 Vector3 up = transform.InverseTransformDirection(_up.GetDirection(transform.position)).normalized;
                 Vector3 velocity = transform.InverseTransformDirection(_structure.Velocity);
                 Vector3 angularVelocity = transform.InverseTransformDirection(_structure.AngularVelocity);
+
+                // flip when up is down
+                float upVal = up.x;
+                if (up.y < 0)
+                {
+                    upVal = Mathf.Sign(upVal);
+                }
                 
                 _mainDriveHandler.PitchAxis = Mathf.Clamp(-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper, -1, 1);
                 _mainDriveHandler.RollAxis = Mathf.Clamp((-fwd.x * (1 - _rollYawFactor) //turn by roll
-                                             - up.x * (_rollYawFactor + _rollBackFactor) //align to up
+                                             - upVal * (_rollYawFactor + _rollBackFactor) //align to up
                                              + velocity.x * _driftCompensation) * rollSensitivity 
                                              - angularVelocity.z * rollDumper,
                                             -1, 1);
@@ -101,13 +108,13 @@ namespace Runtime.Ai
             GUILayout.Box($"Thrust: {_mainDriveHandler.ThrustAxis}");
             GUILayout.EndVertical();
         }
-
+        
         public void SetUpVector(IDirectionData direction)
         {
             _up = direction;
         }
 
-        public void SetForwardVector(IDirectionData direction)
+        public void SetForwardDirection(IDirectionData direction)
         {
             _forward = direction;
         }

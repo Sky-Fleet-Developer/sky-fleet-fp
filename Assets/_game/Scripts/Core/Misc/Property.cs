@@ -19,6 +19,7 @@ namespace Core.Misc
         public const string ConstantFieldsPropertyName = "constant_fiels";
         public const string WiresPropertyName = "wires";
         public const string AutoConnectPowerWirePropertyName = "a_con_pow_count";
+        public const string SignatureIdPropertyName = "signature_id";
         public const int Resizable_MassByLiter = 0;
         public const int Resizable_StackSize = 1;
         public const int Mass_MassByOne = 0;
@@ -31,6 +32,7 @@ namespace Core.Misc
         public const int Container_GridPreset = 3;
         public const int Equipable_SlotType = 0;
         public const int IdentifiableInstance_Identifier = 0;
+        public const int SignatureId_Signature = 0;
         public string name;
         public PropertyValue[] values;
 

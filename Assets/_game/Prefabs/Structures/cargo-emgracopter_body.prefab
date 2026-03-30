@@ -3980,6 +3980,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Runtime::Runtime.Ai.StructureUnit
   myTactic:
     rid: -2
+  myTechCharacteristic:
+    minimalForwardSpeed: 30
+    cruiseSpeed: 200
+    maxAttackRange: 500
+    minAttackRange: 100
+    turn180Time: 7
   references:
     version: 2
     RefIds:

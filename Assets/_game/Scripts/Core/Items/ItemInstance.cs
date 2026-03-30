@@ -51,6 +51,19 @@ namespace Core.Items
                 }
             }
         }
+        
+        public void SetSignatureProperty(string value)
+        {
+            for (var i = 0; i < _properties.Count; i++)
+            {
+                if (_properties[i].name == Property.SignatureIdPropertyName)
+                {
+                    _properties[i].values[Property.SignatureId_Signature].stringValue = value;
+                    return;
+                }
+            }
+            _properties.Add(new Property{name = Property.SignatureIdPropertyName, values = new []{new PropertyValue{stringValue = value}}});
+        }
 
         private void TrySetupContainerId()
         {

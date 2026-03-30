@@ -228,7 +228,7 @@ namespace Core.World
 
         public void RemoveEntityFromChunk(VectorInt cell, IWorldEntity entity)
         {
-            Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
+            //Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
             if (!_chunks.ContainsKey(cell))
             {
                 if (_frozen.ContainsKey(cell))
@@ -236,7 +236,7 @@ namespace Core.World
                     _frozen[cell].RemoveEntity(entity);
                     return;
                 }
-                Debug.LogException(new Exception("Cell is not loaded"));
+                //Debug.LogException(new Exception("Cell is not loaded"));
                 return;
             }
 

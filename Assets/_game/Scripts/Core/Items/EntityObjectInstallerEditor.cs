@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Core.Ai;
 using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Data;
@@ -29,11 +30,42 @@ namespace Core.Items
             set => itemDescription.signId = value;
         }
 
+        [ShowInInspector]
+        [ValueDropdown("GetAbleSignatures")]
+        public string Signature
+        {
+            get
+            {
+                //EnsureObjects();
+                int property = FindOrAddProperty(ref itemDescription, Property.SignatureIdPropertyName, 1);
+                return itemDescription.properties[property].values[Property.SignatureId_Signature].stringValue;
+            }
+            set
+            {
+                EnsureObjects();
+                int property = FindOrAddProperty(ref itemDescription, Property.SignatureIdPropertyName, 1);
+                itemDescription.properties[property].values[Property.SignatureId_Signature].stringValue = value;
+            }
+        }
+        
+        private IEnumerable<string> GetAbleSignatures()
+        {
+            return EditorReferences.RelationsTableEditor.GetAllRegisteredSignatures();
+        }
+
+        [ShowInInspector]
+        public string SignatureManual
+        {
+            get => Signature;
+            set => Signature = value;
+        }
+
         private IItemObject _itemObjectEditor;
-        private static ItemsTable _itemsTableEditor;
-        private static TablePrefabs _tablePrefabsEditor;
-        private static StuffSlotsTable _stuffSlotsTableEditor;
-        private static Dictionary<string, IItemObject> RegisteredGUIDsEditor = new();
+        private static Dictionary<string, IItemObject> _registeredGUIDsEditor = new();
+        private void EnsureObjects()
+        {
+            _itemObjectEditor = GetComponent<IItemObject>();
+        }
 
         private IEnumerable<string> GetAbleItems()
         {
@@ -43,9 +75,9 @@ namespace Core.Items
 
         private static IEnumerable<ItemSign> EnumerateAbleItems(string prefabGuid)
         {
-            foreach (var item in _itemsTableEditor.GetItems())
+            foreach (var item in EditorReferences.ItemsTableEditor.GetItems())
             {
-                if (string.Equals(_itemsTableEditor.GetItemPrefabGuid(item.Id), prefabGuid))
+                if (string.Equals(EditorReferences.ItemsTableEditor.GetItemPrefabGuid(item.Id), prefabGuid))
                 {
                     yield return item;
                 }
@@ -69,16 +101,7 @@ namespace Core.Items
                 enabled = false;
             }
         }
-
-        private void EnsureObjects()
-        {
-            _itemsTableEditor ??= Resources.FindObjectsOfTypeAll<GameData>()[0].GetChildAssets<ItemsTable>().First();
-            _tablePrefabsEditor ??= Resources.FindObjectsOfTypeAll<TablePrefabs>()[0];
-            _stuffSlotsTableEditor ??=
-                Resources.FindObjectsOfTypeAll<GameData>()[0].GetChildAssets<StuffSlotsTable>().First();
-            _itemObjectEditor = GetComponent<IItemObject>();
-        }
-
+        
         private void OnTransformChildrenChanged()
         {
             if (!Application.isPlaying)
@@ -105,12 +128,12 @@ namespace Core.Items
             }
 
             int property;
-            var sign = _itemsTableEditor.GetItem(itemDescription.signId);
+            var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
             if (sign.HasTag(ItemSign.IdentifiableTag))
             {
                 property = FindOrAddProperty(ref itemDescription, ItemSign.IdentifiableTag, 1);
                 ref string guid = ref itemDescription.properties[property].values[0].stringValue;
-                bool alreadyRegistered = RegisteredGUIDsEditor.TryGetValue(guid, out var c);
+                bool alreadyRegistered = _registeredGUIDsEditor.TryGetValue(guid, out var c);
                 if (string.IsNullOrEmpty(guid) || alreadyRegistered && c != itemObject)
                 {
                     guid = Guid.NewGuid().ToString();
@@ -119,7 +142,7 @@ namespace Core.Items
 
                 if (!alreadyRegistered)
                 {
-                    RegisteredGUIDsEditor.Add(guid, itemObject);
+                    _registeredGUIDsEditor.Add(guid, itemObject);
                 }
             }
 
@@ -155,7 +178,7 @@ namespace Core.Items
                 return;
             }
 
-            var sign = _itemsTableEditor.GetItem(itemDescription.signId);
+            var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
             if (sign.HasTag(ItemSign.ContainerTag))
             {
                 CollectContainerContent(ref itemDescription, itemObject);
@@ -265,7 +288,7 @@ namespace Core.Items
                         var sign = EnumerateAbleItems(childItemObject.AssetId).FirstOrDefault();
                         if (sign == null)
                         {
-                            var prefabItem = _tablePrefabsEditor.GetItem(childItemObject.AssetId);
+                            var prefabItem = EditorReferences.TablePrefabsEditor.GetItem(childItemObject.AssetId);
                             if (prefabItem == null)
                             {
                                 Debug.LogError(
@@ -320,7 +343,7 @@ namespace Core.Items
             StructureGridLocalSource gridLocalSource = AssetDatabase
                 .LoadAssetAtPath<GameData>("Assets/_game/Data/Resources/GameData.asset")
                 .GetChildAssets<StructureGridLocalSource>().First();
-            var sign = _itemsTableEditor.GetItem(itemDescription.signId);
+            var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
             if (!sign.TryGetProperty(ItemSign.ContainerTag, out var property))
             {
                 return;

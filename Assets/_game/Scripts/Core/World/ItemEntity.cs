@@ -28,10 +28,12 @@ namespace Core.World
         private int _lod;
         private bool _isLodDirty;
         private IItemObject _objectInstance;
+        private Rigidbody _rigidbody;
         private ItemInstance _itemInstance;
         public int Id { get; } = IWorldEntity.IdCounter++;
         public event Action<ItemEntity, int> OnLodChangedEvent;
         public GameObject GameObject => _objectInstance?.transform.gameObject;
+        public Rigidbody Rigidbody => _rigidbody;
 
         public ItemInstance ItemInstance => _itemInstance;
 
@@ -52,11 +54,12 @@ namespace Core.World
         {
             _itemDescription = itemDescription;
             _objectInstance = objectInstance;
+            _rigidbody = _objectInstance.transform.GetComponent<Rigidbody>();
             _positionCache = objectInstance.transform.position;
             _rotationCache = objectInstance.transform.rotation;
         }
         
-        public void Initialize()
+        public virtual void Initialize()
         {
             _itemInstance = _itemInstanceFactory.CreateByDescription(_itemDescription);
             if (_objectInstance is IItemObjectHandle itemObjectHandle)
@@ -115,6 +118,7 @@ namespace Core.World
         protected virtual void OnSpawn(IItemObject instance)
         {
             _objectInstance = instance;
+            _rigidbody = _objectInstance.transform.GetComponent<Rigidbody>();
             _objectInstance.transform.position = _positionCache;
             _objectInstance.transform.rotation = _rotationCache;
         }
