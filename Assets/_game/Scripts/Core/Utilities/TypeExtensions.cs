@@ -6,25 +6,28 @@ namespace Core.Utilities
 {
     public static class TypeExtensions
     {
-
-        public static bool TypesDirty = false;
+        //public static bool TypesDirty = false;
         public static Dictionary<string, Type> TypesCache;
-        public static Type GetTypeByName(string name)
+
+        public static void Init()
         {
-            if (TypesDirty) TypesCache = null;
-            if (TypesCache == null)
+            if (TypesCache != null)
             {
-                TypesCache = new Dictionary<string, Type>();
-                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                foreach (System.Reflection.Assembly assembly in assemblies)
+                return;
+            }
+            TypesCache = new Dictionary<string, Type>();
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (System.Reflection.Assembly assembly in assemblies)
+            {
+                foreach (Type type in assembly.GetTypes())
                 {
-                    foreach (Type type in assembly.GetTypes())
-                    {
-                        if (type.FullName != null) TypesCache[type.FullName] = type;
-                    }
+                    if (type.FullName != null) TypesCache[type.FullName] = type;
                 }
             }
-
+        }
+        
+        public static Type GetTypeByName(string name)
+        {
             TypesCache.TryGetValue(name, out Type result);
             return result;
         }

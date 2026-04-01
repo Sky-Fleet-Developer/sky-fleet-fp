@@ -2607,11 +2607,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.EventBehaviours.SplineSpawner
   debugDraw: 1
-  baseCount: 0
-  densityOverDistance: 0.001
+  baseCount: 1
+  densityOverDistance: 0
   longitudeIrregularity: 1
   clusterCenterIrregularity: 1
-  timeOffset: -0.26
+  timeOffset: -0.97
   speed: 30
   clusterization:
     x: 0
@@ -2656,7 +2656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e769bee5fa646518e02252f35a6bf1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Content.TransportPath
-  viewRange: 1000
+  viewRange: 2000
   entityToSpawn: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
   signatureOverride:
     signature: groupA
@@ -2745,7 +2745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e769bee5fa646518e02252f35a6bf1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Content.TransportPath
-  viewRange: 1000
+  viewRange: 2000
   entityToSpawn: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
   signatureOverride:
     signature: groupB
@@ -2796,11 +2796,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.EventBehaviours.SplineSpawner
   debugDraw: 1
-  baseCount: 0
-  densityOverDistance: 0.001
+  baseCount: 1
+  densityOverDistance: 0
   longitudeIrregularity: 1
   clusterCenterIrregularity: 1
-  timeOffset: -0.26
+  timeOffset: -1.1
   speed: 30
   clusterization:
     x: 0

@@ -1,22 +1,30 @@
 ﻿#pragma kernel CSMain
 
-Texture2D<float4> source;
-RWStructuredBuffer<float3> result;
+Texture2D<float3> source;
+RWBuffer<int> result; // 0: x, 1: y, 2: z, 3: filled pixels counter, 4: dot summ, 5: offset.x, 6: offset.y
+float3 fwd;
 uint resx;
+
+float dot_prod(float3 a, float3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    float4 color = source[id.xy];
-    //result[id.x + id.y * resx] = float3(color.r, color.g, color.b);
-
-    float l = color.x + color.y + color.z;
-    if(l > 0)
+    float3 color = source[id.xy];
+    float sum = color.x + color.y + color.z;
+    if (sum > 0)
     {
-        result[id.x + id.y * resx] = float3((color.r * 2) - 1, (color.g * 2) - 1, (color.b * 2) - 1);
-    }
-    else
-    {
-        result[id.x + id.y * resx] = float3(0, 0, 0);
+        float3 n = float3((color.r * 2) - 1, (color.g * 2) - 1, (color.b * 2) - 1);
+        InterlockedAdd(result[0], n.x * 255);
+        InterlockedAdd(result[1], n.y * 255);
+        InterlockedAdd(result[2], n.z * 255);
+        InterlockedAdd(result[3], 1);
+        float dot = abs(dot_prod(fwd, n));
+        InterlockedAdd(result[4], dot * 255);
+        InterlockedAdd(result[5], id.x * dot);
+        InterlockedAdd(result[6], id.y * dot);
     }
 }

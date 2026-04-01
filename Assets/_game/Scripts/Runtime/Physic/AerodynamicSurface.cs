@@ -94,7 +94,7 @@ namespace Runtime.Physic
             var liftForceMagnitude = -localRelativeVelocity.y * liftFactorFromForwardSpeed * liftFactorByAngle * zone.Area;
 
             var forceWorldSpace = transform.TransformVector(Vector3.up * liftForceMagnitude);
-            Debug.DrawRay(transform.TransformPoint(zone.LocalPosition), forceWorldSpace * 0.1f, Color.red);
+            //Debug.DrawRay(transform.TransformPoint(zone.LocalPosition), forceWorldSpace * 0.1f, Color.red);
             if (float.IsNaN(forceWorldSpace.x))
             {
                 return;

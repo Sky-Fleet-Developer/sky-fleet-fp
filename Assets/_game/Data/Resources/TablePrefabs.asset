@@ -21,7 +21,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 673ea29c-0dfc-4bc8-b1c7-99506d787f41
+    guid: test-hydrogen-storage
     tags:
     - block
     - test
@@ -31,7 +31,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 3636a306-24bb-4c6a-a7c4-646571f2a3be
+    guid: test-jet_part
     tags:
     - block
     - test
@@ -41,7 +41,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 3745a5db-16a8-42eb-9586-ebf071e75ffa
+    guid: small-fuel-power-generator_part
     tags:
     - block
     - test
@@ -51,7 +51,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 55a0a8fb-b7c6-43ce-879e-5221e8b7880a
+    guid: small-battery_part
     tags:
     - block
     - test
@@ -70,7 +70,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: ad236af6-3feb-466c-8ce1-4cc6a8dad25a
+    guid: light-support-double
     tags:
     - block
     - test
@@ -80,7 +80,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 6f96fc38-fbdb-4380-968a-3c11a7f0a2d8
+    guid: small-liquid-tank_part
     tags:
     - block
     - test
@@ -90,7 +90,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 4ea266d0-fbd5-4023-b34e-662b30e2819e
+    guid: thrust-inverse
     tags:
     - block
     - test
@@ -100,7 +100,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 1fee7ed5-cd7b-49ef-8a8e-2161eb7634de
+    guid: gyroscope
     tags:
     - block
     - test
@@ -110,7 +110,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 40222abb-51cd-4887-8afb-92518f93a6cd
+    guid: test-control
     tags:
     - block
     - test
@@ -192,7 +192,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: c1068a3d-6483-4a10-b9fa-b346bb6195bf
+    guid: light-support-single_part
     tags:
     - block
     - test
@@ -251,7 +251,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 4391cf4e-8e1a-416e-8f8b-0ed380b73c2b
+    guid: quadro-fly-computer
     tags:
     - block
   - reference:
@@ -260,7 +260,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: d833a2c4-4c0c-46aa-9b51-608146a519f3
+    guid: stabilization-computer
     tags:
     - block
   - reference:
@@ -279,7 +279,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 6c5a69e4-0810-4ff3-b14a-98e5fa234e68
+    guid: aiming-computer
     tags:
     - block
   - reference:
@@ -308,7 +308,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 85e503a8-b2ea-4b5e-9a64-e59d190115ff
+    guid: crane-control_3axis
     tags:
     - block
     - common
@@ -318,7 +318,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: a2711b16-3bd8-4dc2-95c2-8d548b2f7ed6
+    guid: "\u0441opter-\u0441ontrol-5axis_part"
     tags:
     - block
     - emgracopter
@@ -328,7 +328,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 6033ed0c-0604-490b-a38b-b47267c1f9c5
+    guid: elevons-distributor_part
     tags:
     - block
     - emgracopter
@@ -338,7 +338,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: cac79dce-7556-4756-9de2-fbc1791456d9
+    guid: cargo-control
     tags:
     - block
     - emgracopter
@@ -348,7 +348,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 32392e7850e5f4942814cddad09851ff
+    guid: cube_box
     tags:
     - item
   - reference:
@@ -367,7 +367,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: fbafd38309706bf4ea7d07ea2da55d08
+    guid: copper_ingot
     tags:
     - item
   - reference:
@@ -376,7 +376,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 77dff4da645eda9439685b2c5e3bbaf7
+    guid: iron_ingot
     tags:
     - item
   - reference:
@@ -385,7 +385,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 13a1ed8c-e274-4eb8-8b8f-54bc25d252e0
+    guid: front-wheel-rotator_part
     tags:
     - block
     - emgracopter
@@ -395,7 +395,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: a8ddd184-bed7-4a74-82c1-98c1279a03a0
+    guid: support-top-cutoff-module_part
     tags:
     - block
     - emgracopter
@@ -405,17 +405,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 28459fdc-e3d7-4a70-b4e2-c8798caf7c4f
-    tags:
-    - block
-    - emgracopter
-  - reference:
-      m_AssetGUID: accdc2cc301f55449b7149659e20dba5
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
-    guid: 61371496-4d96-44d1-bbec-8a0d64725edf
+    guid: rudder-rotator_part
     tags:
     - block
     - emgracopter
@@ -425,16 +415,26 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: 6dba6dfc-cdc2-44fa-b9d1-c6b97696c78c
+    guid: cargo-emgracopter_body
     tags:
     - structure
+  - reference:
+      m_AssetGUID: accdc2cc301f55449b7149659e20dba5
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: cargo-trunk_part
+    tags:
+    - block
+    - emgracopter
   - reference:
       m_AssetGUID: 4ca7a315dc9b1df46b4f7b3467189178
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: dc699fe1-1174-454f-9f25-034c09e38ae6
+    guid: cargo-loading-area
     tags:
     - block
     - city
@@ -445,7 +445,7 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    guid: adbcf898-3ade-4bb5-89d1-5e701e109c52
+    guid: mine-shop
     tags:
     - block
     - city

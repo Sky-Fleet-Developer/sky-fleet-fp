@@ -27,6 +27,7 @@ namespace Core
         {
             _bootstrapper = new Bootstrapper();
             _bootstrapper.Run();
+            TypeExtensions.Init();
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnStateChanged;
             void OnStateChanged(PlayModeStateChange state)
@@ -153,7 +154,7 @@ namespace Core
                 {
                     if (load.enabled)
                     {
-                        Debug.Log($"BOOTSTRAPPER: Begin load {load}");
+                        //Debug.Log($"BOOTSTRAPPER: Begin load {load}");
                         await load.Load();
                     }
                 }
@@ -166,7 +167,7 @@ namespace Core
                         {
                             if (load.enabled)
                             {
-                                Debug.Log($"BOOTSTRAPPER: Begin load {load}");
+                                //Debug.Log($"BOOTSTRAPPER: Begin load {load}");
                                 await load.Load();
                             }
                         }

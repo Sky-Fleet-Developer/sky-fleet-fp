@@ -10,5 +10,6 @@ namespace Core.Ai
         public float maxAttackRange;
         public float minAttackRange;
         public float turn180Time;
+        public float cruiseLiftAngle;
     }
 }

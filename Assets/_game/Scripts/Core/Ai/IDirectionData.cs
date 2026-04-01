@@ -22,7 +22,7 @@ namespace Core.Ai
 
         public Vector3 GetPredictedDirection(Vector3 origin, Vector3 velocity, float time)
         {
-            return Value * velocity;
+            return GetDirection(origin);
         }
     }
 

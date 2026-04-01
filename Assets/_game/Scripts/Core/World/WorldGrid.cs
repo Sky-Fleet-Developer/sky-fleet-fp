@@ -252,12 +252,9 @@ namespace Core.World
 
         public IEnumerable<IWorldEntity> EnumerateCell(VectorInt cell)
         {
-            if (_chunksSet.IsInRange(cell))
+            foreach (var worldEntity in _chunksSet.GetEntities(cell))
             {
-                foreach (var worldEntity in _chunksSet.GetEntities(cell))
-                {
-                    yield return worldEntity;
-                }
+                yield return worldEntity;
             }
         }
 

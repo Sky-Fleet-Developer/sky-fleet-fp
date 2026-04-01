@@ -4,6 +4,53 @@ using UnityEngine;
 
 namespace Runtime.Ai.Maneuvers
 {
+    public class UpAway : IManeuver
+    {
+        private float _targetHeight;
+        private float _liftAngleDeg;
+        private ConstantDirection _forwardDirection;
+        private ConstantDirection _upDirection;
+        private Sensor _sensor;
+        private IUnitControl _control;
+        private float _cruiseSpeed;
+
+        public UpAway(float targetHeight, float liftAngleDeg)
+        {
+            _liftAngleDeg = liftAngleDeg;
+            _targetHeight = targetHeight;
+        }
+
+        public void InjectControls(IUnit unit, IUnitControl control, Sensor sensor)
+        {
+            _control = control;
+            _sensor = sensor;
+            _cruiseSpeed = unit.GetTechCharacteristic().cruiseSpeed;
+        }
+
+        public void Enter()
+        {
+            Quaternion rotation = Quaternion.AngleAxis(-_liftAngleDeg, Vector3.ProjectOnPlane(_sensor.Rotation * Vector3.right, Vector3.up));
+            _forwardDirection = new ConstantDirection(rotation * Vector3.ProjectOnPlane(_sensor.Velocity, Vector3.up));
+            _upDirection = new ConstantDirection(rotation * Vector3.up);
+            _control.SetForwardDirection(_forwardDirection);
+            _control.SetUpVector(_upDirection);
+            _control.SetDriftCompensation(0.2f);
+            _control.SetRollYawFactor(0.5f);
+            _control.SetRollBackFactor(0.3f);
+            _control.SetPredictionTime(1);
+            _control.SetSpeed(_cruiseSpeed);
+        }
+
+        public bool Tick()
+        {
+            return _sensor.Position.y + WorldOffset.Offset.y > _targetHeight;
+        }
+
+        public void Exit()
+        {
+        }
+    }
+    
     public class DownAway : IManeuver
     {
         private const float TurnSpeed = 45;
@@ -33,7 +80,7 @@ namespace Runtime.Ai.Maneuvers
             _forward = new SmoothTurn
             {
                 Self = _sensor,
-                Value = Quaternion.AngleAxis(TurnSpeed, _normal)
+                Value = Quaternion.AngleAxis(-TurnSpeed, _normal)
             };
             
             _control.SetForwardDirection(_forward);

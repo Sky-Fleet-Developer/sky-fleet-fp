@@ -3986,6 +3986,7 @@ MonoBehaviour:
     maxAttackRange: 500
     minAttackRange: 100
     turn180Time: 7
+    cruiseLiftAngle: 20
   references:
     version: 2
     RefIds:

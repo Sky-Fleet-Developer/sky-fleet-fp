@@ -56,7 +56,7 @@ namespace Runtime.Ai
 
         public override void Tick()
         {
-            for (var i = 0; i < ControlledEntities.Count; i++)
+            for (var i = ControlledEntities.Count - 1; i >= 0; i--)
             {
                 ControlUnit(ControlledEntities[i], ControlledEntities[i].Unit.Sensor);
             }
@@ -64,20 +64,32 @@ namespace Runtime.Ai
 
         private void ControlUnit(UnitEntity entity, Sensor sensor)
         {
+            ISignatureData closestEnemy = null;
+            float distToClosestEnemy = float.MaxValue;
+
             foreach (var signature in sensor.NearSignatures)
             {
                 if (_nearSignaturesCache[entity.Id].Contains(signature))
                 {
                     continue;
                 }
-                if (Vector3.SqrMagnitude(signature.Position - sensor.Position) < _alarmRadiusSqr)
+                float sqrDist = Vector3.SqrMagnitude(signature.Position - sensor.Position);
+                if (sqrDist < _alarmRadiusSqr)
                 {
                     _nearSignaturesCache[entity.Id].Add(signature);
-                    if (_tableRelations.GetRelation(entity.SignatureId, signature.SignatureId) < RelationType.Neutral)
+                    if (sqrDist < distToClosestEnemy)
                     {
-                        OnEnemySignatureApproached?.Invoke(entity, signature);
+                        if (_tableRelations.GetRelation(entity.SignatureId, signature.SignatureId) < RelationType.Neutral)
+                        {
+                            closestEnemy = signature;
+                            distToClosestEnemy = sqrDist;
+                        }
                     }
                 }
+            }
+            if(closestEnemy != null)
+            {
+                OnEnemySignatureApproached?.Invoke(entity, closestEnemy);
             }
         }
     }

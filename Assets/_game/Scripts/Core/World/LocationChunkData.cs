@@ -12,7 +12,7 @@ namespace Core.World
 {
     public class LocationChunkData
     {
-        private LinkedList<IWorldEntity> _entities = new LinkedList<IWorldEntity>();
+        private LinkedList<IWorldEntity> _entities = new ();
         private bool _locked;
         public void Lock()
         {

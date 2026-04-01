@@ -22,7 +22,7 @@ namespace Core.Misc
             var gameData = AssetDatabase.LoadAssetAtPath<GameData>("Assets/_game/Data/Resources/GameData.asset");
             ItemsTableEditor = gameData.GetChildAssets<ItemsTable>().First();
             RelationsTableEditor = gameData.GetChildAssets<TableRelations>().First();
-            TablePrefabsEditor = Resources.FindObjectsOfTypeAll<TablePrefabs>()[0];
+            TablePrefabsEditor = AssetDatabase.LoadAssetAtPath<TablePrefabs>("Assets/_game/Data/Resources/TablePrefabs.asset");
             StuffSlotsTableEditor = gameData.GetChildAssets<StuffSlotsTable>().First();
         }
     }

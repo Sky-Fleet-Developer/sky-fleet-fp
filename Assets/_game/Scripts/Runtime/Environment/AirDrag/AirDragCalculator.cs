@@ -10,6 +10,8 @@ namespace Runtime.Environment.AirDrag
 {
     public class AirDragCalculator
     {
+        private static readonly int FwdProperty = Shader.PropertyToID("fwd");
+
         private Vector3[] shootDirections = new Vector3[]
         {
             Vector3.forward,
@@ -109,14 +111,15 @@ namespace Runtime.Environment.AirDrag
         private void ExtractRenderInfo(ShootLayerResult result)
         {
             int k = data.resolution / 8;
+            data.pixelsToNormalsShader.SetVector(FwdProperty, -data.Cam.transform.forward);
             data.pixelsToNormalsShader.Dispatch(0, k, k, 1);
-            Vector3[] normals = new Vector3[data.resolution * data.resolution];
-            data.Buffer.GetData(normals);
+            int[] shaderResult = new int[AirDragBehaviour.ResultBufferSize];
+            data.ResultBuffer.GetData(shaderResult);
 
-            Vector2 screenOffset = CalculateOffset(normals, out Vector3 normal, out int space);
+            Vector2 screenOffset = ExtractResult(shaderResult, out Vector3 normal, out int space);
 
             Ray ray = data.Cam.ScreenPointToRay(new Vector3(screenOffset.x * data.resolution, screenOffset.y * data.resolution, 1));
-            Debug.Log($"offset = {screenOffset}, origin = {ray.origin}");
+            //Debug.Log($"offset = {screenOffset}, origin = {ray.origin}");
             Debug.DrawRay(ray.origin, normal, Color.blue, 15);
             Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(0, 0, 1)).origin, ray.direction, Color.cyan, 15);
             Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(0, data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
@@ -140,36 +143,20 @@ namespace Runtime.Environment.AirDrag
             Debug.DrawRay(data.Cam.transform.position, data.Cam.transform.forward, Color.black, 5);
         }
 
-        private Vector2 CalculateOffset(Vector3[] normals, out Vector3 normal, out int space)
+        private Vector2 ExtractResult(int[] shaderResult, out Vector3 normal, out int filledPixelsCount)
         {
             int res = data.resolution;
-            Vector2 offset = Vector2.zero;
-            normal = Vector3.zero;
-            space = 0;
-            
-            Vector3 nrm = Vector3.zero;
-            Vector3 fwd = -data.Cam.transform.forward;
-            float dotSumm = 0;
-            float dot = 0;
-            for (int x = 0; x < res; x++)
-            {
-                for (int y = 0; y < res; y++)
-                {
-                    nrm = normals[y * res + x];
-                    normal += nrm;
-                    dot = Mathf.Abs(Vector3.Dot(nrm, fwd));
-                    dotSumm += dot;
-                    offset += new Vector2(x, y) * dot;
-                    if (nrm.sqrMagnitude != 0) space++;
-                }
-            }
+            normal = new Vector3(shaderResult[0] / 255f, shaderResult[1] / 255f, shaderResult[2] / 255f);
+            filledPixelsCount = shaderResult[3];
+            float dotSum = shaderResult[4] / 255f;
+            Vector2 offset = new Vector2(shaderResult[5], shaderResult[6]);
 
-            float inv = 1f / (dotSumm * res);
-            offset *= inv;
-            if (space != 0)
+            offset *= 1f / (dotSum * res);
+            if (filledPixelsCount != 0)
             {
-                normal /= space;
+                normal /= filledPixelsCount;
             }
+            //Debug.Log($"Extacted: normal = {normal}, offset = {offset}, filledPixelsCount = {filledPixelsCount}, dotSum = {dotSum}");
             return offset;
         }
     }

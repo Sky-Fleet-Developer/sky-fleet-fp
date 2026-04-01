@@ -68,7 +68,8 @@ namespace Runtime.Ai
                 Vector3 up = transform.InverseTransformDirection(_up.GetDirection(transform.position)).normalized;
                 Vector3 velocity = transform.InverseTransformDirection(_structure.Velocity);
                 Vector3 angularVelocity = transform.InverseTransformDirection(_structure.AngularVelocity);
-
+                Debug.DrawRay(transform.position, transform.rotation * up * 8, Color.green);
+                Debug.DrawRay(transform.position, transform.rotation * fwd * 10, Color.blue);
                 // flip when up is down
                 float upVal = up.x;
                 if (up.y < 0)

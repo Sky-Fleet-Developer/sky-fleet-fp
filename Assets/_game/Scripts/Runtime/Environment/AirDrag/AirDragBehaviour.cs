@@ -11,6 +11,9 @@ namespace Runtime.Environment.AirDrag
     [CreateAssetMenu(menuName = "SF/Data/AirDrag")]
     public class AirDragBehaviour : ScriptableObject
     {
+        private static readonly int SourceProperty = Shader.PropertyToID("source");
+        private static readonly int ResultProperty = Shader.PropertyToID("result");
+        private static readonly int XResolutionProperty = Shader.PropertyToID("resx");
         public Material material;
         public ComputeShader pixelsToNormalsShader;
         public int resolution = 256;
@@ -20,7 +23,8 @@ namespace Runtime.Environment.AirDrag
         [SerializeField] private int layer;
 
         [NonSerialized] public Camera Cam;
-        [NonSerialized] public ComputeBuffer Buffer;
+        [NonSerialized] public ComputeBuffer ResultBuffer;
+        public const int ResultBufferSize = 7;
 
         private RenderTexture texture;
         private Material[] materialArray;
@@ -163,19 +167,11 @@ namespace Runtime.Environment.AirDrag
 
         private void RecreateBuffer()
         {
-            if (Buffer != null && Buffer.count != resolution * resolution)
-            {
-                Buffer.Dispose();
-                Buffer = null;
-            }
-
-            if (Buffer == null)
-            {
-                Buffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 3);
-                pixelsToNormalsShader.SetBuffer(0, "result", Buffer);
-                pixelsToNormalsShader.SetTexture(0, "source", texture);
-                pixelsToNormalsShader.SetInt("resx", resolution);
-            }
+            ResultBuffer ??= new ComputeBuffer(ResultBufferSize, sizeof(float));
+            ResultBuffer.SetData(new float[ResultBufferSize]);
+            pixelsToNormalsShader.SetBuffer(0, ResultProperty, ResultBuffer);
+            pixelsToNormalsShader.SetTexture(0, SourceProperty, texture);
+            pixelsToNormalsShader.SetInt(XResolutionProperty, resolution);
         }
     }
 }

@@ -156,7 +156,7 @@ namespace Runtime.Ai
 
             if (_currentManeuver.Tick())
             {
-                NextManeuver();
+                _isManeuversComplete = !NextManeuver();
             }
         }
     }

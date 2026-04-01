@@ -43,7 +43,7 @@ namespace Core.World
         [Inject] private DiContainer _diContainer;
         [Inject] private ILocationChunkLoadStrategy _loadStrategy;
         private Task _setRangeTask;
-        private HashSet<(IWorldEntity entity, VectorInt target)> _notSorted = new ();
+        //private HashSet<(IWorldEntity entity, VectorInt target)> _notSorted = new ();
         public Task SetRangeTask => _setRangeTask;
 
 
@@ -168,18 +168,22 @@ namespace Core.World
 
         private async Task Load(VectorInt coord)
         {
-            var chunk = new LocationChunkData();
-            _chunks[coord] = chunk;
+            if (!_chunks.TryGetValue(coord, out var chunk))
+            {
+                chunk = new LocationChunkData();
+                _chunks[coord] = chunk;
+            }
+
             await _location.ReadChunk(chunk, coord);
             chunk.Lock();
             await _loadStrategy.Load(chunk, coord);
             chunk.Unlock();
             
-            foreach ((IWorldEntity entity, VectorInt target) in _notSorted)
-            {
-                if(target == coord) chunk.AddEntity(entity);
-            }
-            _notSorted.RemoveWhere(x => x.target == coord);
+            //foreach ((IWorldEntity entity, VectorInt target) in _notSorted)
+            //{
+            //    if(target == coord) chunk.AddEntity(entity);
+            //}
+            //_notSorted.RemoveWhere(x => x.target == coord);
         }
 
         private async Task Save(VectorInt coord)
@@ -219,8 +223,8 @@ namespace Core.World
             Debug.Log($"CELLS: add ({entity}) to chunk ({cell})");
             if (!_chunks.ContainsKey(cell))
             {
-                _notSorted.Add((entity, cell));
-                return;
+                //_notSorted.Add((entity, cell));
+                _chunks[cell] = new LocationChunkData();
             }
 
             _chunks[cell].AddEntity(entity);
@@ -228,7 +232,7 @@ namespace Core.World
 
         public void RemoveEntityFromChunk(VectorInt cell, IWorldEntity entity)
         {
-            //Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
+            Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
             if (!_chunks.ContainsKey(cell))
             {
                 if (_frozen.ContainsKey(cell))

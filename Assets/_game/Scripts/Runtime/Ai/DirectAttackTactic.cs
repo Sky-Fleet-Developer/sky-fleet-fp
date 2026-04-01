@@ -5,6 +5,7 @@ using Core.Misc;
 using Core.World;
 using Runtime.Ai.Maneuvers;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Runtime.Ai
 {
@@ -26,6 +27,7 @@ namespace Runtime.Ai
         public ISignatureData Target { get; set; }
         private State _state;
         private UnitTechCharacteristic _characteristic;
+        private float _attackRangeMul = Random.Range(0.7f, 1.3f);
 
         public override void UnitEnterTactic(UnitEntity entity)
         {
@@ -42,7 +44,8 @@ namespace Runtime.Ai
 
         private void DefineCombatState()
         {
-            float d = ControlledEntity.Unit.Sensor.Distance(Target);
+            // TODO: make reaction to attack, retreat faster when enemy attacks me
+            float d = ControlledEntity.Unit.Sensor.Distance(Target, _characteristic.turn180Time * 0.2f) * _attackRangeMul;
             if (d > _characteristic.maxAttackRange)
             {
                 SetState(State.Approaching);
@@ -59,6 +62,10 @@ namespace Runtime.Ai
 
         private void SetState(State state)
         {
+            if (state == _state)
+            {
+                return;
+            }
             switch (state)
             {
                 case State.Idle:
@@ -71,14 +78,29 @@ namespace Runtime.Ai
                     ControlledEntity.Unit.SetManeuvers(new Aiming(Target));
                     break;
                 case State.Retreating:
-                    ControlledEntity.Unit.SetManeuvers(new DownAway());
+                    if (Target.Position.y > ControlledEntity.Position.y)
+                    {
+                        ControlledEntity.Unit.SetManeuvers(new DownAway());
+                    }
+                    else
+                    {
+                        ControlledEntity.Unit.SetManeuvers(new UpAway(ControlledEntity.Position.y + 150, ControlledEntity.GetTechCharacteristic().cruiseLiftAngle));
+                    }
                     break;
             }
+            Debug.Log($"{state}");
             _state = state;
         }
 
         public override void Tick()
         {
+            if (_state == State.Retreating)
+            {
+                if (!ControlledEntity.Unit.IsManeuversComplete)
+                {
+                    return;
+                }
+            }
             DefineCombatState();
         }
     }
