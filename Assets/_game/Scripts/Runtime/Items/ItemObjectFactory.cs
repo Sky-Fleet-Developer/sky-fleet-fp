@@ -27,44 +27,48 @@ namespace Runtime.Items
             _container.Bind<IItemObjectFactory>().To<ItemObjectFactory>().FromInstance(this);
         }
 
-        public async Task<List<IItemObject>> Create(ItemInstance item)
+        public async Task<List<IItemObject>> Create(ItemInstance item, DiContainer overrideDiContainer = null)
         {
             var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
             List<IItemObject> instances = new List<IItemObject>((int)item.Amount);
             foreach (var makeInstance in item.DetachStacks(item.Sign.GetStackSize()))
             {
-                var instance = ConstructItemPrivate(makeInstance, prefab);
+                var instance = ConstructItemPrivate(makeInstance, prefab, overrideDiContainer);
                 instances.Add(instance);
             }
 
             return instances;
         }
 
-        public async Task<IItemObject> CreateSingle(ItemInstance item)
+        public async Task<IItemObject> CreateSingle(ItemInstance item, DiContainer overrideDiContainer = null)
         {
             if (item.Amount > item.Sign.GetStackSize())
             {
                 throw new System.Exception("Cant create ItemObject: amount over limit");
             }
             var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
-            return ConstructItemPrivate(item, prefab);
+            return ConstructItemPrivate(item, prefab, overrideDiContainer);
         }
 
-        public void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item)
+        public void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item, DiContainer overrideDiContainer = null)
         {
             itemObjectHandle.SetSourceItem(item);
             var go = itemObjectHandle.transform.gameObject;
+            if (overrideDiContainer == null)
+            {
+                overrideDiContainer = _container;
+            }
             
             if (item.IsUnique && item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty))
             {
                 foreach (var monoBehaviour in go.GetComponents<MonoBehaviour>())
                 {
-                    _container.Inject(monoBehaviour);
+                    overrideDiContainer.Inject(monoBehaviour);
                 }
                 if (!go.TryGetComponent(out Container containerComponent))
                 {
                     containerComponent = go.AddComponent<Container>();
-                    _container.Inject(containerComponent);
+                    overrideDiContainer.Inject(containerComponent);
                 }
                 
                 ContainerInfo container = _tableItems.GetContainer(item.Sign.Id);
@@ -77,13 +81,13 @@ namespace Runtime.Items
                 {
                     view = go.AddComponent<SlotsContainerContentView>();
                 }
-                _container.Inject(view);
+                overrideDiContainer.Inject(view);
                 view.TryInit();
             }
             
             if (itemObjectHandle is IDynamicStructure)
             {
-                _container.Inject(go.AddComponent<ContainerItemMass>());
+                overrideDiContainer.Inject(go.AddComponent<ContainerItemMass>());
             }
             
             if (itemObjectHandle is IStructure structure)
@@ -126,7 +130,7 @@ namespace Runtime.Items
             }
         }
 
-        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source)
+        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source, DiContainer overrideDiContainer)
         {
             GameObject instance;
             if (Application.isPlaying)
@@ -143,7 +147,7 @@ namespace Runtime.Items
                 return null;
             }
             
-            SetupInstance(itemObjectHandle, item);
+            SetupInstance(itemObjectHandle, item, overrideDiContainer);
             
             return itemObjectHandle;
         }

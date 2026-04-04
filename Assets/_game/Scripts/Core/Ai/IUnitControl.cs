@@ -12,5 +12,8 @@ namespace Core.Ai
         public void SetRollYawFactor(float factor);
         public void SetRollBackFactor(float factor);
         public void SetDriftCompensation(float value);
+        
+        public bool IsWeaponActive { get; }
+        public void SetAimingVector(IDirectionData direction);
     }
 }

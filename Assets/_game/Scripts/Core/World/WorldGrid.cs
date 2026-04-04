@@ -52,14 +52,17 @@ namespace Core.World
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
         [Inject] private LocationChunksSet _chunksSet;
         private Grid _grid;
-        private Dictionary<IWorldEntity, int> _lods = new ();
-        private List<IWorldEntity> _entitiesList = new ();
-        private List<VectorInt> _coordinatesCache = new ();
+        private Dictionary<int, int> _lods = new (); // Key is entityId, value is entity lod
+        private Dictionary<int, IWorldEntity> _entities = new ();
+        private Dictionary<int, VectorInt> _coordinatesCache = new ();
         private int _refreshCounter;
         private int _refreshNeighboursRadius;
         private bool _isActive = true;
         bool ILoadAtStart.enabled => _isActive;
         public Grid Grid => _grid;
+
+        public event Action<IWorldEntity> OnEntityAdded;
+        public event Action<IWorldEntity> OnEntityRemoved;
 
         private void Awake()
         {
@@ -88,14 +91,15 @@ namespace Core.World
             #else
             VectorInt cell = _grid.PositionToCell(entity.Position);
             #endif
-
-            _entitiesList.Add(entity);
-            _coordinatesCache.Add(cell);
+            var id = entity.Id;
+            _entities.Add(id, entity);
+            _coordinatesCache.Add(id, cell);
             
             _chunksSet.AddEntityToChunk(cell, entity);
-            _lods[entity] = -1;
+            _lods[id] = -1;
             entity.Initialize();
             SetLodForEntity(entity);
+            OnEntityAdded?.Invoke(entity);
         }
 
         public void RemoveEntity(IWorldEntity entity)
@@ -105,14 +109,18 @@ namespace Core.World
 #else
             VectorInt cell = _grid.PositionToCell(entity.Position);
 #endif
+            var id = entity.Id;
             _chunksSet.RemoveEntityFromChunk(cell, entity);
-            _entitiesList.Remove(entity);
-            _lods[entity] = -1;
+            _entities.Remove(id);
+            _lods[id] = -1;
+            OnEntityRemoved?.Invoke(entity);
         }
+        
+        public IWorldEntity GetEntity(int id) => _entities[id];
 
         public int GetLod(IWorldEntity entity)
         {
-            return _lods[entity];
+            return _lods[entity.Id];
         }
 
         public float GetCellSize()
@@ -135,7 +143,7 @@ namespace Core.World
             if (_refreshCounter++ >= Settings.refreshPeriod)
             {
                 _refreshCounter = 0;
-                Parallel.For(0, _entitiesList.Count, UpdateEntity);
+                Parallel.ForEach(_entities, UpdateEntity);
                 /*for (int i = 0; i < _entitiesList.Count; i++)
                 {
                     UpdateEntity(i);
@@ -165,17 +173,16 @@ namespace Core.World
 #endif
         }
         
-        private void UpdateEntity(int i)
+        private void UpdateEntity(KeyValuePair<int, IWorldEntity> keyValuePair)
         {
-            var entity = _entitiesList[i];
 #if FLAT_SPACE
             VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
 #else
-            VectorInt cell = _grid.PositionToCell(entity.Position);
+            VectorInt cell = _grid.PositionToCell(keyValuePair.Value.Position);
 #endif
-            if (_coordinatesCache[i] != cell)
+            if (_coordinatesCache[keyValuePair.Key] != cell)
             {
-                if (_lods[entity] <= Settings.maxRefreshLod) // Sets the lod to the entities which leave the radius of update, which cant be updated in EnumerateNeighbours() enumeration
+                if (_lods[keyValuePair.Key] <= Settings.maxRefreshLod) // Sets the lod to the entities which leave the radius of update, which cant be updated in EnumerateNeighbours() enumeration
                 {
 #if FLAT_SPACE
                     float distance = _grid.GetDistance(new Vector3Int(cell.x, 0, cell.y));
@@ -184,13 +191,13 @@ namespace Core.World
 #endif
                     if (distance > _refreshNeighboursRadius)
                     {
-                        _lods[entity] = Settings.maxRefreshLod + 1;
-                        entity.OnLodChanged(Settings.maxRefreshLod + 1);
+                        _lods[keyValuePair.Key] = Settings.maxRefreshLod + 1;
+                        keyValuePair.Value.OnLodChanged(Settings.maxRefreshLod + 1);
                     }
                 }
-                _chunksSet.RemoveEntityFromChunk(_coordinatesCache[i], entity);
-                _coordinatesCache[i] = cell;
-                _chunksSet.AddEntityToChunk(cell, entity);
+                _chunksSet.RemoveEntityFromChunk(_coordinatesCache[keyValuePair.Key], keyValuePair.Value);
+                _coordinatesCache[keyValuePair.Key] = cell;
+                _chunksSet.AddEntityToChunk(cell, keyValuePair.Value);
             }
         }
 
@@ -198,14 +205,13 @@ namespace Core.World
         {
             float dSqr = Vector3.SqrMagnitude(entity.Position - _playerTracker.WorldPosition);
             var lod = GameData.Data.lodDistances.GetLodSqr(dSqr);
-            if (_lods[entity] != lod)
+            if (_lods[entity.Id] != lod)
             {
-                _lods[entity] = lod;
+                _lods[entity.Id] = lod;
                 entity.OnLodChanged(lod);
             }
         }
 
-        
         public IEnumerable<(IWorldEntity entity, VectorInt cell)> EnumerateRadius(Vector3 center, float radius)
         {
             var range = Mathf.RoundToInt(radius / _grid.Size + 0.5f);
@@ -263,7 +269,7 @@ namespace Core.World
             container.Bind<WorldGrid>().FromInstance(this);
         }
 
-        public void OnEntityDisposed(IWorldEntity entity)
+        void IWorldEntityDisposeListener.OnEntityDisposed(IWorldEntity entity)
         {
             RemoveEntity(entity);
         }

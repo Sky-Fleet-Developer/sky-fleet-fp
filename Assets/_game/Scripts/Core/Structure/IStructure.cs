@@ -15,8 +15,6 @@ namespace Core.Structure
     public interface IStructure : IItemObjectHandle, IEventSystem
     {
         bool Active { get; }
-        // ReSharper disable once InconsistentNaming
-        Transform transform { get; }
         Bounds Bounds { get; }
         float Radius { get; }
         //TODO: Visibility
@@ -36,5 +34,7 @@ namespace Core.Structure
         Parent GetOrFindParent(string path);
         event Action<IBlock> OnBlockAddedEvent;
         event Action<IBlock> OnBlockRemovedEvent;
+        event Action<IStructure, IBlock> OnBlockAddedToStructureEvent;
+        event Action<IStructure, IBlock> OnBlockRemovedFromStructureEvent;
     }
 }

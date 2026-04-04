@@ -20,16 +20,6 @@ namespace Runtime.Ai
         {
         }
 
-        public int RefreshNearSignaturesRate => 5;
-        public event Action<UnitEntity, ISignatureData> OnEnemySignatureApproached;
-        private Dictionary<int, HashSet<ISignatureData>> _nearSignaturesCache = new();
-
-        public float AlarmRadius
-        {
-            get => Mathf.Sqrt(_alarmRadiusSqr);
-            set => _alarmRadiusSqr = value * value;
-        }
-        private float _alarmRadiusSqr;
 
         public void SetSpline(SpsViewRange spline)
         {
@@ -44,14 +34,7 @@ namespace Runtime.Ai
         public override void UnitEnterTactic(UnitEntity entity)
         {
             base.UnitEnterTactic(entity);
-            _nearSignaturesCache.Add(entity.Id, new HashSet<ISignatureData>());
             entity.Unit.SetManeuvers(new Follow(new SpsPointAsTarget(_splineLinks[entity.Unit.EntityId], _spline.Spline), Vector3.zero));
-        }
-
-        public override void UnitExitTactic(UnitEntity entity)
-        {
-            base.UnitExitTactic(entity);
-            _nearSignaturesCache.Remove(entity.Id);
         }
 
         public override void Tick()
@@ -64,33 +47,7 @@ namespace Runtime.Ai
 
         private void ControlUnit(UnitEntity entity, Sensor sensor)
         {
-            ISignatureData closestEnemy = null;
-            float distToClosestEnemy = float.MaxValue;
 
-            foreach (var signature in sensor.NearSignatures)
-            {
-                if (_nearSignaturesCache[entity.Id].Contains(signature))
-                {
-                    continue;
-                }
-                float sqrDist = Vector3.SqrMagnitude(signature.Position - sensor.Position);
-                if (sqrDist < _alarmRadiusSqr)
-                {
-                    _nearSignaturesCache[entity.Id].Add(signature);
-                    if (sqrDist < distToClosestEnemy)
-                    {
-                        if (_tableRelations.GetRelation(entity.SignatureId, signature.SignatureId) < RelationType.Neutral)
-                        {
-                            closestEnemy = signature;
-                            distToClosestEnemy = sqrDist;
-                        }
-                    }
-                }
-            }
-            if(closestEnemy != null)
-            {
-                OnEnemySignatureApproached?.Invoke(entity, closestEnemy);
-            }
         }
     }
 }

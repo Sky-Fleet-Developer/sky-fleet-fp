@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Ai;
 using Core.Character.Interaction;
 using Core.Structure;
-using NUnit.Framework;
-using NWH.Common.Utility;
 using Runtime.Structure.Ship;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Runtime.Ai
 {
@@ -24,7 +20,9 @@ namespace Runtime.Ai
         [SerializeField] private float throttleSensitivity = 0.05f;
         private DynamicStructure _structure;
         private List<IDriveHandler> _driveHandlers = new();
+        private List<IWeaponHandler> _weaponHandlers = new();
         private IDriveHandler _mainDriveHandler;
+        private IWeaponHandler _mainWeaponHandler;
         private IDirectionData _up;
         private IDirectionData _forward;
         private float _wantedSpeed;
@@ -32,9 +30,12 @@ namespace Runtime.Ai
         private float _rollBackFactor;
         private float _driftCompensation;
         private float _predictionTime;
+        private IDirectionData _aimingDirection;
+        //private Ray _currentAimingRay;
 
         public bool IsActive => _mainDriveHandler != null;
-        
+        public bool IsWeaponActive => _mainWeaponHandler != null;
+
         private void Awake()
         {
             _structure = GetComponent<DynamicStructure>();
@@ -52,6 +53,12 @@ namespace Runtime.Ai
             {
                 SwitchMainDriveHandler(_driveHandlers[0]);
             }
+            _weaponHandlers.Clear();
+            _weaponHandlers.AddRange(_structure.GetBlocksByType<IWeaponHandler>());
+            if (_weaponHandlers.Count > 0)
+            {
+                SwitchMainWeaponHandler(_weaponHandlers[0]);
+            }
         }
 
         private void OnDisable()
@@ -62,53 +69,79 @@ namespace Runtime.Ai
 
         private void Update()
         {
-            if (IsActive)
-            {
-                Vector3 fwd = transform.InverseTransformDirection(_forward.GetPredictedDirection(transform.position, Vector3.zero, _predictionTime)).normalized;
-                Vector3 up = transform.InverseTransformDirection(_up.GetDirection(transform.position)).normalized;
-                Vector3 velocity = transform.InverseTransformDirection(_structure.Velocity);
-                Vector3 angularVelocity = transform.InverseTransformDirection(_structure.AngularVelocity);
-                Debug.DrawRay(transform.position, transform.rotation * up * 8, Color.green);
-                Debug.DrawRay(transform.position, transform.rotation * fwd * 10, Color.blue);
-                // flip when up is down
-                float upVal = up.x;
-                if (up.y < 0)
-                {
-                    upVal = Mathf.Sign(upVal);
-                }
-                
-                _mainDriveHandler.PitchAxis = Mathf.Clamp(-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper, -1, 1);
-                _mainDriveHandler.RollAxis = Mathf.Clamp((-fwd.x * (1 - _rollYawFactor) //turn by roll
-                                             - upVal * (_rollYawFactor + _rollBackFactor) //align to up
-                                             + velocity.x * _driftCompensation) * rollSensitivity 
-                                             - angularVelocity.z * rollDumper,
-                                            -1, 1);
-
-                float yawControlValue = fwd.x * _rollYawFactor * yawSensitivity; //turn by yaw
-                float yawDumping = -angularVelocity.y * yawDumper;
-                _mainDriveHandler.YawAxis = Mathf.Clamp(yawControlValue + yawDumping, -1, 1);
-                
-                _mainDriveHandler.ThrustAxis = Mathf.Clamp01((_wantedSpeed - velocity.z) * throttleSensitivity);
-                _mainDriveHandler.SupportsPowerAxis = 1;
-                //Debug.DrawRay(transform.position - transform.forward * 4, transform.right * _mainDriveHandler.YawAxis * 5, Color.yellow);
-                //Debug.DrawRay(transform.position + transform.right * 3, transform.up * _mainDriveHandler.RollAxis * 5, Color.red);
-                //Debug.DrawRay(transform.position - transform.right * 3, -transform.up * _mainDriveHandler.RollAxis * 5, Color.red);
-                //Debug.DrawRay(transform.position + transform.forward * 4, transform.up * _mainDriveHandler.PitchAxis * 5, Color.green);
-            }
+            ControlMovement();
+            ControlWeapon();
         }
 
-        private void OnGUI()
+        private void ControlMovement()
         {
-            var skin = GUI.skin;
-            skin.box.fontSize = 20;
-            GUI.skin = skin;
-            GUILayout.BeginVertical();
-            GUILayout.Box($"Pitch: {_mainDriveHandler.PitchAxis}");
-            GUILayout.Box($"Roll: {_mainDriveHandler.RollAxis}");
-            GUILayout.Box($"Yaw: {_mainDriveHandler.YawAxis}");
-            GUILayout.Box($"Thrust: {_mainDriveHandler.ThrustAxis}");
-            GUILayout.EndVertical();
+            if (!IsActive)
+            {
+                return;
+            }
+            
+            Vector3 fwd = transform.InverseTransformDirection(_forward.GetPredictedDirection(transform.position, Vector3.zero, _predictionTime)).normalized;
+            Vector3 up = transform.InverseTransformDirection(_up.GetDirection(transform.position)).normalized;
+            Vector3 velocity = transform.InverseTransformDirection(_structure.Velocity);
+            Vector3 angularVelocity = transform.InverseTransformDirection(_structure.AngularVelocity);
+            Debug.DrawRay(transform.position, transform.rotation * up * 8, Color.green);
+            Debug.DrawRay(transform.position, transform.rotation * fwd * 10, Color.blue);
+            // flip when up is down
+            float upVal = up.x;
+            if (up.y < 0)
+            {
+                upVal = Mathf.Sign(upVal);
+            }
+                
+            _mainDriveHandler.PitchAxis = Mathf.Clamp(-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper, -1, 1);
+            _mainDriveHandler.RollAxis = Mathf.Clamp((-fwd.x * (1 - _rollYawFactor) //turn by roll
+                                                      - upVal * (_rollYawFactor + _rollBackFactor) //align to up
+                                                      + velocity.x * _driftCompensation) * rollSensitivity 
+                                                     - angularVelocity.z * rollDumper,
+                -1, 1);
+
+            float yawControlValue = fwd.x * _rollYawFactor * yawSensitivity; //turn by yaw
+            float yawDumping = -angularVelocity.y * yawDumper;
+            _mainDriveHandler.YawAxis = Mathf.Clamp(yawControlValue + yawDumping, -1, 1);
+                
+            _mainDriveHandler.ThrustAxis = Mathf.Clamp01((_wantedSpeed - velocity.z) * throttleSensitivity);
+            _mainDriveHandler.SupportsPowerAxis = 1;
+            //Debug.DrawRay(transform.position - transform.forward * 4, transform.right * _mainDriveHandler.YawAxis * 5, Color.yellow);
+            //Debug.DrawRay(transform.position + transform.right * 3, transform.up * _mainDriveHandler.RollAxis * 5, Color.red);
+            //Debug.DrawRay(transform.position - transform.right * 3, -transform.up * _mainDriveHandler.RollAxis * 5, Color.red);
+            //Debug.DrawRay(transform.position + transform.forward * 4, transform.up * _mainDriveHandler.PitchAxis * 5, Color.green);
         }
+
+        private void ControlWeapon()
+        {
+            if (!IsWeaponActive)
+            {
+                return;
+            }
+            
+            if (!_mainWeaponHandler.CanAimHorizontally && !_mainWeaponHandler.CanAimVertically)
+            {
+                return;
+            }
+            
+            //_currentAimingRay = _mainWeaponHandler.GetAimingRay();
+            Vector3 direction = _aimingDirection.GetDirection(transform.position);
+            
+            //TODO: rotate weapon
+        }
+
+        //private void OnGUI()
+        //{
+        //    var skin = GUI.skin;
+        //    skin.box.fontSize = 20;
+        //    GUI.skin = skin;
+        //    GUILayout.BeginVertical();
+        //    GUILayout.Box($"Pitch: {_mainDriveHandler.PitchAxis}");
+        //    GUILayout.Box($"Roll: {_mainDriveHandler.RollAxis}");
+        //    GUILayout.Box($"Yaw: {_mainDriveHandler.YawAxis}");
+        //    GUILayout.Box($"Thrust: {_mainDriveHandler.ThrustAxis}");
+        //    GUILayout.EndVertical();
+        //}
         
         public void SetUpVector(IDirectionData direction)
         {
@@ -143,6 +176,11 @@ namespace Runtime.Ai
         public void SetDriftCompensation(float value)
         {
             _driftCompensation = value;
+        }
+        
+        public void SetAimingVector(IDirectionData direction)
+        {
+            _aimingDirection = direction;
         }
 
         private void BlockAdded(IBlock block)
@@ -180,6 +218,15 @@ namespace Runtime.Ai
                 _mainDriveHandler.ResetControls();
             }
             _mainDriveHandler = driveHandler;
+        }
+
+        private void SwitchMainWeaponHandler(IWeaponHandler weaponHandler)
+        {
+            if (_mainWeaponHandler != null)
+            {
+                _mainWeaponHandler.ResetControls();
+            }
+            _mainWeaponHandler = weaponHandler;
         }
     }
 }

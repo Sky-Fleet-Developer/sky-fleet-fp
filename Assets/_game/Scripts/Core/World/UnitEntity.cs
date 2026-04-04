@@ -30,6 +30,7 @@ namespace Core.World
         public Vector3 Velocity => Rigidbody?.linearVelocity ?? Vector3.zero;
         public string SignatureId => _signature;
         public UnitTechCharacteristic GetTechCharacteristic() => _unit?.GetTechCharacteristic() ?? default;
+        public IReadOnlyList<int> MenaceTo => _unit.Sensor.MyMenaceTargets;
 
         public UnitEntity() : base()
         {
@@ -42,6 +43,13 @@ namespace Core.World
         public UnitEntity(IUnit unit, IItemObject objectInstance, ItemDescription itemDescription) : base(objectInstance, itemDescription)
         {
             _unit = unit;
+        }
+
+        [Inject]
+        private void Inject(DiContainer container)
+        {
+            OverrideContainer = container.CreateSubContainer();
+            OverrideContainer.Bind<UnitEntity>().FromInstance(this);
         }
 
         public override void Initialize()

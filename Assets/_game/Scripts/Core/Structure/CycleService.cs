@@ -16,8 +16,8 @@ namespace Core.Structure
 {
     public class CycleService : Singleton<CycleService>
     {
-        public static event Action<IStructure> OnStructureInitialized;
-        public static event Action<IStructure> OnStructureUnregistered;
+        public static event Action<IStructure> OnStructureAdd;
+        public static event Action<IStructure> OnStructureRemoved;
 
         private class EntityContainer : IEquatable<EntityContainer>
         {
@@ -218,12 +218,12 @@ namespace Core.Structure
             container.Lod = lod;
             _structures[structure] = container;
             _entitiesByLod[lod].Add(container);
-            OnStructureInitialized?.Invoke(structure);
+            OnStructureAdd?.Invoke(structure);
         }
 
         public static void UnregisterStructure(IStructure structure)
         {
-            OnStructureUnregistered?.Invoke(structure);
+            OnStructureRemoved?.Invoke(structure);
             var lod = 0;//Instance._worldGrid.GetLod(structure);
             _structures.Remove(structure);
             _entitiesByLod[lod].Remove(new EntityContainer(structure, false));

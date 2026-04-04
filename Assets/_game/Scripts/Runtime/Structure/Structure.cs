@@ -92,6 +92,7 @@ namespace Runtime.Structure
                 _graph.AddNode(node);
             }
             OnBlockAddedEvent?.Invoke(block);
+            OnBlockAddedToStructureEvent?.Invoke(this, block);
         }
 
         public void RemoveBlock(IBlock block)
@@ -104,6 +105,7 @@ namespace Runtime.Structure
                 _graph.RemoveNode(node);
             }
             OnBlockRemovedEvent?.Invoke(block);
+            OnBlockRemovedFromStructureEvent?.Invoke(this, block);
         }
 
         public Parent GetOrFindParent(string path)
@@ -129,6 +131,8 @@ namespace Runtime.Structure
 
         public event Action<IBlock> OnBlockAddedEvent;
         public event Action<IBlock> OnBlockRemovedEvent;
+        public event Action<IStructure, IBlock> OnBlockAddedToStructureEvent;
+        public event Action<IStructure, IBlock> OnBlockRemovedFromStructureEvent;
 
         private void RefreshBlocks()
         {

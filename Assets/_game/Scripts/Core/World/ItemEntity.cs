@@ -30,6 +30,7 @@ namespace Core.World
         private IItemObject _objectInstance;
         private Rigidbody _rigidbody;
         private ItemInstance _itemInstance;
+        protected DiContainer OverrideContainer { get; set; } = null;
         public int Id { get; } = IWorldEntity.IdCounter++;
         public event Action<ItemEntity, int> OnLodChangedEvent;
         public GameObject GameObject => _objectInstance?.transform.gameObject;
@@ -64,7 +65,7 @@ namespace Core.World
             _itemInstance = _itemInstanceFactory.CreateByDescription(_itemDescription);
             if (_objectInstance is IItemObjectHandle itemObjectHandle)
             {
-                _itemObjectFactory.SetupInstance(itemObjectHandle, _itemInstance);
+                _itemObjectFactory.SetupInstance(itemObjectHandle, _itemInstance, OverrideContainer);
             }
         }
         
@@ -98,7 +99,7 @@ namespace Core.World
             {
                 if(_objectInstance == null)
                 {
-                    _loading = _itemObjectFactory.CreateSingle(_itemInstance);
+                    _loading = _itemObjectFactory.CreateSingle(_itemInstance, OverrideContainer);
                     OnSpawn(await _loading);
                 }
             }
@@ -114,6 +115,7 @@ namespace Core.World
             OnLodChangedEvent?.Invoke(this, _lod);
             _isLodDirty = false;
         }
+        
 
         protected virtual void OnSpawn(IItemObject instance)
         {

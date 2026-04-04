@@ -41,8 +41,8 @@ namespace Runtime.Environment.AirDrag
             }
 
             CycleService.OnInitialize.Subscribe(InitializeEntities);
-            CycleService.OnStructureInitialized += CalculateDragFor;
-            CycleService.OnStructureUnregistered += RemoveStructure;
+            CycleService.OnStructureAdd += CalculateDragFor;
+            CycleService.OnStructureRemoved += RemoveStructure;
             CycleService.OnEndPhysicsTick += PhysicsTick;
         }
 

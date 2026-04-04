@@ -10,10 +10,11 @@ namespace Core.Ai
         public Vector3 Velocity;
         public Vector3 LocalVelocity;
         public float Height;
-        public List<ISignatureData> NearSignatures = new();
+        public List<SignatureDataWarp> NeighbourSignatures = new();
         public Vector3 MainCaliberWantedDirectionLocalSpace;
         public float MainCaliberChargeInitialSpeed;
-        
+        public List<int> MyMenaceTargets = new ();
+
         Vector3 ITargetData.Position => Position;
         Quaternion ITargetData.Rotation => Rotation;
         Vector3 ITargetData.Velocity => Velocity;

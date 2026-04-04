@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.Ai;
+using Core.Character.Interaction;
 using Core.Data;
 using Core.Misc;
+using Core.Structure;
 using Core.World;
 using Runtime.Structure.Ship;
 using UnityEngine;
@@ -29,6 +32,7 @@ namespace Runtime.Ai
         private IManeuver _currentManeuver;
         private Queue<IManeuver> _maneuvers = new();
         private UnitEntity _entity;
+        private List<IWeaponHandler> _weaponHandlers = new();
         [Inject] private WorldGrid _worldGrid;
         [Inject] private TickService _tickService;
         public bool IsManeuversComplete => _isManeuversComplete;
@@ -53,6 +57,25 @@ namespace Runtime.Ai
                 myTactic.UnitEnterTactic(_entity);
             }
             _tickService.Add(this);
+            _weaponHandlers = _structure.GetBlocksByType<IWeaponHandler>().ToList();
+            _structure.OnBlockAddedEvent += OnBlockAdded;
+            _structure.OnBlockRemovedEvent += OnBlockRemoved;
+        }
+
+        private void OnBlockAdded(IBlock block)
+        {
+            if(block is IWeaponHandler weaponHandler)
+            {
+                _weaponHandlers.Add(weaponHandler);
+            }
+        }
+
+        private void OnBlockRemoved(IBlock block)
+        {
+            if (block is IWeaponHandler weaponHandler)
+            {
+                _weaponHandlers.Remove(weaponHandler);
+            }
         }
 
         private void OnDisable()
@@ -63,6 +86,8 @@ namespace Runtime.Ai
                 myTactic.UnitExitTactic(_entity);
             }
             _tickService.Remove(this);
+            _structure.OnBlockAddedEvent -= OnBlockAdded;
+            _structure.OnBlockRemovedEvent -= OnBlockRemoved;
         }
 
         public void InjectEntity(UnitEntity entity)
@@ -135,18 +160,30 @@ namespace Runtime.Ai
             if (_refreshNearSignaturesTimer < 0)
             {
                 _refreshNearSignaturesTimer = RefreshNearSignaturesInterval;
-                _sensor.NearSignatures.Clear();
-                foreach ((IWorldEntity entity, Vector3Int cell) in
-                         _worldGrid.EnumerateNeighbours(transform.position, 1))
+                _sensor.NeighbourSignatures.Clear();
+                _sensor.MyMenaceTargets.Clear();
+                foreach ((IWorldEntity entity, Vector3Int cell) in _worldGrid.EnumerateNeighbours(transform.position, 1))
                 {
-                    if (entity != this && entity is UnitEntity unitEntity)
+                    if (!ReferenceEquals(entity, this) && entity is UnitEntity unitEntity)
                     {
-                        _sensor.NearSignatures.Add(unitEntity);
+                        float distance = (unitEntity.Position - _sensor.Position).sqrMagnitude;
+
+                        int insertIndex = 0;
+                        while (insertIndex < _sensor.NeighbourSignatures.Count)
+                        {
+                            if (distance < _sensor.NeighbourSignatures[insertIndex].SqrDistance)
+                            {
+                                break;
+                            }
+                            insertIndex++;
+                        }
+
+                        _sensor.NeighbourSignatures.Insert(insertIndex, new SignatureDataWarp(unitEntity, distance));
                     }
                 }
             }
         }
-        
+
         private void TickManeuver()
         {
             if (!_myControl.IsActive)

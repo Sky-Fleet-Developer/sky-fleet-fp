@@ -10,9 +10,11 @@ using ITickable = Zenject.ITickable;
 
 namespace Runtime.Ai
 {
+    
     public class ArenaFightStrategy : MonoBehaviour, ITickable, IAiPathStrategy, IWorldEntityDisposeListener
     {
         [SerializeField] private SpsViewRange spline;
+        [SerializeField] private float alarmRadius = 700;
         private List<UnitEntity> _controllableUnits = new ();
         private SpsFollowTactic _followSplineTactic;
         private Dictionary<int, int> _pathLinkedUnits = new ();
@@ -29,8 +31,6 @@ namespace Runtime.Ai
             _followSplineTactic = new SpsFollowTactic(_tickService);
             _followSplineTactic.SetSpline(spline);
             _followSplineTactic.SetSplineLinks(_pathLinkedUnits);
-            _followSplineTactic.OnEnemySignatureApproached += OnEnemySignatureApproached;
-            _followSplineTactic.AlarmRadius = 500;
             container.Inject(_followSplineTactic);
         }
 
@@ -70,7 +70,13 @@ namespace Runtime.Ai
 
         public void Tick()
         {
+            // 1. attack enemies in alarm radius
+            // 2. react to incoming menaces
             
+            foreach (UnitEntity controllableUnit in _controllableUnits)
+            {
+                controllableUnit.Unit.Sensor
+            }
         }
     }
 }
