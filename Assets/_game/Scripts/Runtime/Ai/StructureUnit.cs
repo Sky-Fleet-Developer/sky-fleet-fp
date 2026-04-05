@@ -35,6 +35,7 @@ namespace Runtime.Ai
         private List<IWeaponHandler> _weaponHandlers = new();
         [Inject] private WorldGrid _worldGrid;
         [Inject] private TickService _tickService;
+        [Inject] private MenacesWatcher _menacesWatcher;
         public bool IsManeuversComplete => _isManeuversComplete;
         public int EntityId => _entity.Id;
         private float _refreshNearSignaturesTimer;
@@ -60,6 +61,7 @@ namespace Runtime.Ai
             _weaponHandlers = _structure.GetBlocksByType<IWeaponHandler>().ToList();
             _structure.OnBlockAddedEvent += OnBlockAdded;
             _structure.OnBlockRemovedEvent += OnBlockRemoved;
+            _sensor.Menaces = _menacesWatcher.GetMenaces(_entity);
         }
 
         private void OnBlockAdded(IBlock block)
@@ -161,7 +163,6 @@ namespace Runtime.Ai
             {
                 _refreshNearSignaturesTimer = RefreshNearSignaturesInterval;
                 _sensor.NeighbourSignatures.Clear();
-                _sensor.MyMenaceTargets.Clear();
                 foreach ((IWorldEntity entity, Vector3Int cell) in _worldGrid.EnumerateNeighbours(transform.position, 1))
                 {
                     if (!ReferenceEquals(entity, this) && entity is UnitEntity unitEntity)

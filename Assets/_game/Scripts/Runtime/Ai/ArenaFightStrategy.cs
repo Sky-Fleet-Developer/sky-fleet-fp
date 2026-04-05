@@ -10,7 +10,6 @@ using ITickable = Zenject.ITickable;
 
 namespace Runtime.Ai
 {
-    
     public class ArenaFightStrategy : MonoBehaviour, ITickable, IAiPathStrategy, IWorldEntityDisposeListener
     {
         [SerializeField] private SpsViewRange spline;
@@ -18,7 +17,9 @@ namespace Runtime.Ai
         private List<UnitEntity> _controllableUnits = new ();
         private SpsFollowTactic _followSplineTactic;
         private Dictionary<int, int> _pathLinkedUnits = new ();
+        private Dictionary<int, SpsFrozenPoint> _unitsFrozenPoints = new ();
         [Inject] private TickService _tickService;
+        [Inject] private TableRelations _tableRelations;
         
         private void OnDestroy()
         {
@@ -36,6 +37,10 @@ namespace Runtime.Ai
 
         private void OnEnemySignatureApproached(UnitEntity entity, ISignatureData other)
         {
+            if (entity.GetTactic() is SpsFollowTactic)
+            {
+                _unitsFrozenPoints.Add(entity.Id, spline.FreezePoint(_pathLinkedUnits[entity.Id]));
+            }
             var t = new DirectAttackTactic(_tickService);
             t.Target = other;
             entity.SetTactic(t);
@@ -72,10 +77,37 @@ namespace Runtime.Ai
         {
             // 1. attack enemies in alarm radius
             // 2. react to incoming menaces
-            
-            foreach (UnitEntity controllableUnit in _controllableUnits)
+
+            for (int i = _followSplineTactic.ControlledEntitiesList.Count - 1; i >= 0; i--)
             {
-                //controllableUnit.Unit.Sensor
+                var unit = _followSplineTactic.ControlledEntitiesList[i];
+                SignatureDataWarp? closestEnemy = unit.GetClosestEnemy(_tableRelations);
+                if (closestEnemy != null)
+                {
+                    OnEnemySignatureApproached(unit, closestEnemy.Value.Data);
+                }
+            }
+
+            foreach (var unit in _controllableUnits)
+            {
+                if (unit.Unit.Sensor.Menaces.Count > 0 && unit.GetTactic() is not MenaceReactionTactic)
+                {
+                    if (unit.GetTactic() is SpsFollowTactic)
+                    {
+                        _unitsFrozenPoints.Add(unit.Id, spline.FreezePoint(_pathLinkedUnits[unit.Id]));
+                    }
+                    unit.SetTactic(new MenaceReactionTactic(OnUnitMenaceDisappeared, _tickService));
+                }
+            }
+        }
+
+        private void OnUnitMenaceDisappeared(UnitEntity unit)
+        {
+            if (_pathLinkedUnits.ContainsKey(unit.Id))
+            {
+                spline.UnfreezePoint(_unitsFrozenPoints[unit.Id]);
+                _unitsFrozenPoints.Remove(unit.Id);
+                unit.SetTactic(_followSplineTactic);
             }
         }
     }

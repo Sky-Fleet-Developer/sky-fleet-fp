@@ -30,8 +30,10 @@ namespace Core.Items
         public const string FoldableTag = "foldable";
         public const string MountingTag = "mounting";
         public const string BlockTag = "block";
+        public const string ShellTag = "shell";
+        public const string KineticWeaponTag = "kinetic-weapon";
         public const string AllTag = "All";
-        
+
         [SerializeField] private string id;
         [SerializeField] private string[] tags;
         [SerializeField] private int basicCost;

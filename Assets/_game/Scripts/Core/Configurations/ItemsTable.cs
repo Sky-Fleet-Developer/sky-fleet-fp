@@ -6,7 +6,10 @@ using Core.Configurations.GoogleSheets;
 using Core.Items;
 using Core.Misc;
 using Core.Trading;
+using Core.Weapon;
+using Unity.Properties;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Core.Configurations
 {
@@ -21,20 +24,36 @@ namespace Core.Configurations
             public int BasicCost;
             public string TablePrefabOverride;
         }
-        [System.Serializable]
+        [Serializable]
         private class PrefabLink
         {
             public string signId;
             public string prefabGuid;
         }
-        
+        [Serializable]
+        private class ShellInfo
+        {
+            public string signId;
+            public ShellData shellData;
+        }
+        [Serializable]
+        private class KineticWeaponInfo
+        {
+            public string signId;
+            public KineticWeaponData weaponData;
+        }
         
         [SerializeField] private List<ItemSign> items;
         [SerializeField] private List<PrefabLink> linksToPrefabs;
         [SerializeField] private List<ContainerInfo> containerInfos;
+        [SerializeField] private List<ShellInfo> shellsInfos;
+        [SerializeField] private List<KineticWeaponInfo> kineticWeaponInfos;
+        
         private Dictionary<string, ItemSign> _itemById;
         private Dictionary<string, PrefabLink> _prefabLinkById;
         private Dictionary<string, ContainerInfo> _containerById;
+        private Dictionary<string, ShellInfo> _shellById;
+        private Dictionary<string, KineticWeaponInfo> _kineticWeaponById;
         public override string TableName => "Items";
         public IEnumerable<ItemSign> GetItems() => items;
 
@@ -54,6 +73,18 @@ namespace Core.Configurations
             _containerById ??= containerInfos.ToDictionary(x => x.SignId);
             return _containerById[id];
         }
+
+        public ShellData GetShell(string id)
+        {
+            _shellById ??= shellsInfos.ToDictionary(x => x.signId);
+            return _shellById[id].shellData;
+        }
+
+        public KineticWeaponData GetKineticWeapon(string id)
+        {
+            _kineticWeaponById ??= kineticWeaponInfos.ToDictionary(x => x.signId);
+            return _kineticWeaponById[id].weaponData;
+        }
         
         protected override RawItemSign[] Data
         {
@@ -62,6 +93,8 @@ namespace Core.Configurations
                 items = new List<ItemSign>(value.Length);
                 linksToPrefabs = new List<PrefabLink>();
                 containerInfos = new List<ContainerInfo>();
+                shellsInfos = new List<ShellInfo>();
+                kineticWeaponInfos = new List<KineticWeaponInfo>();
                 _containerById?.Clear();
                 _containerById = null;
                 _itemById?.Clear();
@@ -99,6 +132,25 @@ namespace Core.Configurations
                         containerProperty.values[Property.Container_IncludeRules].stringValue,
                         containerProperty.values[Property.Container_ExcludeRules].stringValue,
                         containerProperty.values[Property.Container_GridPreset].stringValue));
+                    }
+
+                    if (newItem.TryGetProperty(ItemSign.ShellTag, out Property shellProperty))
+                    {
+                        var shellInfo = new ShellInfo { signId = newItem.Id };
+                        var caliberData = shellProperty.values[Property.Shell_Caliber].stringValue;
+                        var dividerIndex = caliberData.IndexOf('-');
+                        shellInfo.shellData.caliber = caliberData.Substring(0, dividerIndex);
+                        shellInfo.shellData.chargeType = caliberData.Substring(dividerIndex + 1);
+                        shellInfo.shellData.airDrag = shellProperty.values[Property.Shell_AirDrag].floatValue;
+                        shellsInfos.Add(shellInfo);
+                    }
+
+                    if (newItem.TryGetProperty(ItemSign.KineticWeaponTag, out Property kineticWeaponProperty))
+                    {
+                        var weaponInfo = new KineticWeaponInfo { signId = newItem.Id };
+                        weaponInfo.weaponData.caliber = kineticWeaponProperty.values[Property.KineticWeapon_Caliber].stringValue;
+                        weaponInfo.weaponData.spread = kineticWeaponProperty.values[Property.KineticWeapon_Spread].floatValue;
+                        kineticWeaponInfos.Add(weaponInfo);
                     }
                 }
             }

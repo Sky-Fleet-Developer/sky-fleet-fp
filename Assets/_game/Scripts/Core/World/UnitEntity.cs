@@ -127,5 +127,7 @@ namespace Core.World
             _tactic = tactic;
             _unit?.SetTactic(tactic);
         }
+        
+        public IUnitTactic GetTactic() => _tactic;
     }
 }

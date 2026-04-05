@@ -26,7 +26,7 @@ namespace Core
         private static void Main()
         {
             _bootstrapper = new Bootstrapper();
-            _bootstrapper.Run();
+            _bootstrapper.Run().Forget();
             TypeExtensions.Init();
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnStateChanged;
@@ -45,6 +45,7 @@ namespace Core
         private DiContainer _projectContainer;
         private Session _sessionContext;
         private bool _controlledManually;
+        private RemoteConfigurationHandler _remoteConfigurationHandler;
 
         #region Tests
         // Needs to control by Tests
@@ -57,13 +58,15 @@ namespace Core
         
         #endregion
         
-        private void Run()
+        private async UniTaskVoid Run()
         {
             Debug.Log("Bootstrapper running");
             _projectContainer = ProjectContext.Instance.Container;
             _projectContainer.Bind<DynamicPool>().FromNewComponentOnRoot().AsSingle();
             _sessionContext = new Session();
             _projectContainer.Bind<Session>().FromInstance(_sessionContext).AsSingle();
+            _remoteConfigurationHandler = new RemoteConfigurationHandler();
+            var configsLoading = _remoteConfigurationHandler.LoadConfigurations();
             var tickService = new GameObject("[Tick]").AddComponent<TickService>();
             Object.DontDestroyOnLoad(tickService.gameObject);
             _projectContainer.BindInstance(tickService);
@@ -71,10 +74,12 @@ namespace Core
             _projectContainer.Inject(_sessionContext);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
+            await configsLoading;
         }
 
         private void Stop()
         {
+            _remoteConfigurationHandler.Dispose();
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 

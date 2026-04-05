@@ -20,7 +20,6 @@ namespace Core.Ai
     public class MenacesWatcher : MonoBehaviour, IMyInstaller, ITickable, IWorldEntityDisposeListener
     {
         [SerializeField] private int initialMenaceCapacity = 100;
-        [SerializeField] private int checkCellsRadius = 1;
         [SerializeField] private float menaceDotThreshold = 0.9f;
         //[SerializeField] private float menaceRange;
         [Inject] private TickService _tickService;

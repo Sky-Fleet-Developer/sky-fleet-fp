@@ -176,6 +176,12 @@ namespace Runtime.Misc
             rotation = Quaternion.LookRotation(isReverse ? -tan : tan, up);
             position = (Vector3)pos + rotation * new Vector3(point.SideOffset.x * shapeSize * (isReverse && flipHorizontalOffsetInReverseDirection ? -1 : 1), point.SideOffset.y * shapeSize, 0);
         }
+
+        public void MovePointToTime(int pointIndex, float time)
+        {
+            float t = _points[pointIndex].Time / _splineLength + timeOffset + _speedNormalized * time;
+            _points[pointIndex].Time = (t - timeOffset - _speedNormalized * Time.time) * _splineLength;
+        }
         
 
 #if UNITY_EDITOR

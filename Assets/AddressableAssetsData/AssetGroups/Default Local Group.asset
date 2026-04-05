@@ -240,6 +240,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f8112db98dbc02b41a30a626b47924fc
+    m_Address: ShellTypesSettings
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fbafd38309706bf4ea7d07ea2da55d08
     m_Address: copper_ingot
     m_ReadOnly: 0

@@ -11,6 +11,7 @@ namespace Core.Ai
         public Vector3 LocalVelocity;
         public float Height;
         public List<SignatureDataWarp> NeighbourSignatures = new();
+        public IReadOnlyList<MenaceRef> Menaces;
         public Vector3 MainCaliberWantedDirectionLocalSpace;
         public float MainCaliberChargeInitialSpeed;
 

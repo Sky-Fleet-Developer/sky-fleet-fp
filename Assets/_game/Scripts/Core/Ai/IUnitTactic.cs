@@ -19,6 +19,8 @@ namespace Core.Ai
         private TickService _tickService;
         public virtual int TickRate { get; } = 1;
         protected List<UnitEntity> ControlledEntities = new();
+        
+        public IReadOnlyList<UnitEntity> ControlledEntitiesList => ControlledEntities;
 
         public MultipleUnitTacticBase(TickService tickService)
         {

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Core.ContentSerializer;
 using JetBrains.Annotations;
 using UnityEngine;
+// ReSharper disable InconsistentNaming
 
 namespace Core.Misc
 {
@@ -33,6 +34,11 @@ namespace Core.Misc
         public const int Equipable_SlotType = 0;
         public const int IdentifiableInstance_Identifier = 0;
         public const int SignatureId_Signature = 0;
+        public const int Shell_Caliber = 0;
+        public const int Shell_AirDrag = 1;
+        public const int KineticWeapon_Caliber = 0;
+        public const int KineticWeapon_Spread = 1;
+
         public string name;
         public PropertyValue[] values;
 

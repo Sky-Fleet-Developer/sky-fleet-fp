@@ -343,6 +343,7 @@ Transform:
   - {fileID: 7741574236790904068}
   - {fileID: 6214491843004615163}
   - {fileID: 2093195035405142475}
+  - {fileID: 2643679524400946235}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2718442238553342970
@@ -396,6 +397,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 65421e073bc4929429153b097ec740c0, type: 2}
   - {fileID: 11400000, guid: ceb1915d0b5bbba46aa4ddbd106f7413, type: 2}
   - {fileID: 11400000, guid: 15534fe94936fea4f8124e4508988108, type: 2}
+  assetReferences:
+  - m_AssetGUID: f8112db98dbc02b41a30a626b47924fc
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
 --- !u!1 &2718442238776304254
 GameObject:
   m_ObjectHideFlags: 0
@@ -3312,6 +3319,52 @@ MonoBehaviour:
   rulesSurveyFrequency: 2
   playerCamera: {fileID: 7582750399512105257}
   source: {fileID: 9102070319755283109, guid: e1ab0498d98d80c408696ae1ef0c12cf, type: 3}
+--- !u!1 &8725212571662939682
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2643679524400946235}
+  - component: {fileID: 1103030797071170439}
+  m_Layer: 0
+  m_Name: MenacesWatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2643679524400946235
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8725212571662939682}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -54.77271, y: 1999.9994, z: -63.39844}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2718442238139209658}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1103030797071170439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8725212571662939682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb79b63667714e948cc65cdb60d05c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::Core.Ai.MenacesWatcher
+  initialMenaceCapacity: 10
+  menaceDotThreshold: 0.9
 --- !u!1 &8984824427879456085
 GameObject:
   m_ObjectHideFlags: 0
@@ -3861,7 +3914,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6152280968474717946, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -162.0232
+      value: -0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 8060047345911729618, guid: c564369c7a7f59a4eb5e1b6b15f0b4ec, type: 3}
       propertyPath: m_AnchorMax.x

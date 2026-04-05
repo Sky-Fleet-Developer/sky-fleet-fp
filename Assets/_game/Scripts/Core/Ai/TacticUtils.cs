@@ -1,4 +1,5 @@
 ﻿using Core.Ai;
+using Core.World;
 using UnityEngine;
 
 namespace Core.Ai
@@ -38,5 +39,22 @@ namespace Core.Ai
                 return Vector3.Distance(from.Position + from.Velocity * predictionTime, to.Position + to.Velocity * predictionTime);
             }
         }
+        
+        public static SignatureDataWarp? GetClosestEnemy(this UnitEntity unit, TableRelations tableRelations)
+        {
+            SignatureDataWarp? closestEnemy = null;
+            for (var i = 0; i < unit.Unit.Sensor.NeighbourSignatures.Count; i++)
+            {
+                var relation = tableRelations.GetRelation(unit.SignatureId,
+                    unit.Unit.Sensor.NeighbourSignatures[i].Data.SignatureId);
+                if (relation < RelationType.Neutral)
+                {
+                    closestEnemy = unit.Unit.Sensor.NeighbourSignatures[i];
+                    break;
+                }
+            }
+
+            return closestEnemy;
+        } 
     }
 }

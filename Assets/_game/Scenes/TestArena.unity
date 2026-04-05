@@ -2683,6 +2683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Ai.ArenaFightStrategy
   spline: {fileID: 2099192060}
+  alarmRadius: 700
 --- !u!1 &2105812694
 GameObject:
   m_ObjectHideFlags: 0
@@ -2733,6 +2734,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Ai.ArenaFightStrategy
   spline: {fileID: 2105812698}
+  alarmRadius: 700
 --- !u!114 &2105812697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3039,7 +3041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4518376856425908888, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000030517578
+      value: -324.04636
       objectReference: {fileID: 0}
     - target: {fileID: 5004515790012368854, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: location

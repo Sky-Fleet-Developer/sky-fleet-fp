@@ -19,6 +19,12 @@ namespace Runtime.Misc
         void OnPointEnabled(int index, SpsPoint point);
     }
 
+    public struct SpsFrozenPoint
+    {
+        public int Index;
+        public float FreezeTime;
+    }
+
     [RequireComponent(typeof(SplineParticleSystem))]
     public class SpsViewRange : MonoBehaviour
     {
@@ -30,6 +36,7 @@ namespace Runtime.Misc
         private int _prevUpdateTick;
         private bool _isBoundsInView;
         private float _viewRangeSqr;
+        private HashSet<int> _frozenPoints = new();
         
         public SplineParticleSystem Spline => _spline;
         
@@ -91,6 +98,10 @@ namespace Runtime.Misc
                     _viewedPointsCount = 0;
                     for (var i = 0; i < _spline.Points.Count; i++)
                     {
+                        if (_frozenPoints.Contains(i))
+                        {
+                            continue;
+                        }
                         var p = _spline.GetPoint(i);
                         _spline.EvaluatePoint(p, out Vector3 position, out Quaternion rotation, out _, out _);
                         bool prevValue = _pointsViewData[i];
@@ -126,12 +137,28 @@ namespace Runtime.Misc
             }
         }
 
+        public SpsFrozenPoint FreezePoint(int particleIndex)
+        {
+            _frozenPoints.Add(particleIndex);
+            return new SpsFrozenPoint(){Index = particleIndex, FreezeTime = Time.time};
+        }
+
+        public void UnfreezePoint(SpsFrozenPoint point)
+        {
+            _frozenPoints.Remove(point.Index);
+            _spline.MovePointToTime(point.Index, point.FreezeTime);
+        }
+
         #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.red;
             for (var i = 0; i < _viewedPointsCount; i++)
             {
+                if (_frozenPoints.Contains(i))
+                {
+                    continue;
+                }
                 Gizmos.DrawSphere(_viewedPoints[i].Position, 1 + HandleUtility.GetHandleSize(_viewedPoints[i].Position) * 0.1f);
             }
         }
