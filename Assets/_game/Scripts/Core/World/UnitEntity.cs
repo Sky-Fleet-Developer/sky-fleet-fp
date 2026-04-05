@@ -30,7 +30,6 @@ namespace Core.World
         public Vector3 Velocity => Rigidbody?.linearVelocity ?? Vector3.zero;
         public string SignatureId => _signature;
         public UnitTechCharacteristic GetTechCharacteristic() => _unit?.GetTechCharacteristic() ?? default;
-        public IReadOnlyList<int> MenaceTo => _unit.Sensor.MyMenaceTargets;
 
         public UnitEntity() : base()
         {

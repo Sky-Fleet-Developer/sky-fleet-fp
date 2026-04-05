@@ -75,7 +75,7 @@ namespace Runtime.Ai
             
             foreach (UnitEntity controllableUnit in _controllableUnits)
             {
-                controllableUnit.Unit.Sensor
+                //controllableUnit.Unit.Sensor
             }
         }
     }

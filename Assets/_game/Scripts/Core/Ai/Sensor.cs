@@ -13,7 +13,6 @@ namespace Core.Ai
         public List<SignatureDataWarp> NeighbourSignatures = new();
         public Vector3 MainCaliberWantedDirectionLocalSpace;
         public float MainCaliberChargeInitialSpeed;
-        public List<int> MyMenaceTargets = new ();
 
         Vector3 ITargetData.Position => Position;
         Quaternion ITargetData.Rotation => Rotation;
