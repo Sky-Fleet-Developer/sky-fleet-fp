@@ -9,12 +9,12 @@ namespace Core.Utilities
         //public static bool TypesDirty = false;
         public static Dictionary<string, Type> TypesCache;
 
-        public static void Init()
+        static TypeExtensions()
         {
-            if (TypesCache != null)
-            {
-                return;
-            }
+            //if (TypesCache != null)
+            //{
+            //    return;
+            //}
             TypesCache = new Dictionary<string, Type>();
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (System.Reflection.Assembly assembly in assemblies)

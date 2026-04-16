@@ -5,6 +5,7 @@ using Core.Items;
 using Unity.Collections;
 using UnityEngine;
 using Zenject;
+using Random = UnityEngine.Random;
 
 namespace Core.Weapon
 {
@@ -18,7 +19,7 @@ namespace Core.Weapon
         private int _projectilesCounter;
         
         //public event Action<int, Vector3, Vector3> OnProjectileWaterInteraction;
-        public event Action<int, int> OnProjectileAdded;
+        public event Action<int> OnProjectileAdded;
         public event Action<int> OnProjectileRemoved;
         public event Action OnPostUpdate;
         
@@ -79,20 +80,19 @@ namespace Core.Weapon
         {
             OnProjectileRemoved?.Invoke(i);
             _projectiles[i].Dispose();
-            _projectiles.RemoveAt(i);
+            //_projectiles.RemoveAt(i); TODO: remove old particles, implement stable indexing
         }
 
-        public void MakeProjectile(IKineticWeapon weapon, ItemInstance sourceItem, string projectileKey)
+        public void MakeProjectile(IKineticWeapon weapon, ItemInstance shell)
         {
-            //var config = projectilesTable.GetProjectileConfig(projectileKey);
-            //int entityId = ;
-            //var random = new System.Random(entityId);
-            //int startIndex = _projectiles.Count;
-            //Vector3 spread = new Vector3((float)random.NextDouble() * 2 - 1, (float)random.NextDouble() * 2 - 1, (float)random.NextDouble() * 2 - 1) * config.data.spread * 0.01f;
-            //ProjectileInstance instance = new ProjectileInstance(origin, direction + spread, config, _projectilesCounter++);
-            //AddProjectile(instance);
-            //
-            //OnProjectileAdded?.Invoke(startIndex, config.data.particlesAmount);
+            var weaponData = _itemsTable.GetKineticWeapon(weapon.SourceItem.Sign.Id);
+            var shellData = _itemsTable.GetShell(shell.Sign.Id);
+            Vector3 spread = Random.insideUnitSphere * (weaponData.spread * 0.01f);
+            float speed = weaponData.impulse / shell.Sign.GetSingleMass();
+            
+            ProjectileInstance instance = new ProjectileInstance(weapon.Muzzle.position, weapon.Muzzle.forward + spread, weapon.Velocity, speed, shellData, _projectilesCounter++);
+            AddProjectile(instance);
+            OnProjectileAdded?.Invoke(_projectilesCounter - 1);
         }
 
         private void AddProjectile(ProjectileInstance instance)

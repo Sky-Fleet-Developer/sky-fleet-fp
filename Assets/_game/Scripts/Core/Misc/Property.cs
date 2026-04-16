@@ -38,6 +38,7 @@ namespace Core.Misc
         public const int Shell_AirDrag = 1;
         public const int KineticWeapon_Caliber = 0;
         public const int KineticWeapon_Spread = 1;
+        public const int KineticWeapon_Impulse = 2;
 
         public string name;
         public PropertyValue[] values;

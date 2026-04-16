@@ -21,14 +21,14 @@ namespace Core.Weapon
         private Vector3 _position;
         private Vector3 _previousPosition;
 
-        public ProjectileInstance(Vector3 origin, Vector3 direction, float speed, ShellData shellData, int id)
+        public ProjectileInstance(Vector3 origin, Vector3 nonUnitDirection, Vector3 initialVelocity, float speed, ShellData shellData, int id)
         {
             ShellData = shellData;
             Id = id;
             InitialTime = Time.time;
             _position = origin;
             _previousPosition = origin;
-            _velocity = direction.normalized * speed;
+            _velocity = initialVelocity + nonUnitDirection.normalized * speed;
         }
 
         public void Step(float fixedDeltaTime)

@@ -65,7 +65,7 @@ namespace Core.Graph.Wires
             }
         }
 
-        public void AddRegisterAction(Action action)
+        public void RegisterAction(Action action)
         {
             if (wire == null)
             {
@@ -84,7 +84,7 @@ namespace Core.Graph.Wires
 
         public void Call()
         {
-            ((ActionWire)wire).CallActions();
+            ((ActionWire)wire)?.CallActions();
         }
 
         public override Wire CreateWire()

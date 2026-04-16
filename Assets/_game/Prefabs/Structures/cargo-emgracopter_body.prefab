@@ -3861,6 +3861,8 @@ GameObject:
   - component: {fileID: 8646477965608030451}
   - component: {fileID: -5622881468845156940}
   - component: {fileID: 8298939715364924127}
+  - component: {fileID: 5879157571972199602}
+  - component: {fileID: 693702345977942489}
   m_Layer: 0
   m_Name: cargo-emgracopter_body
   m_TagString: Untagged
@@ -3992,6 +3994,30 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+--- !u!114 &5879157571972199602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7877429791870785641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff1b3b3d9f3e49298ebaf6f4444ce6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Items.Container
+--- !u!114 &693702345977942489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7877429791870785641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c38dc0c5c7f74fcfb2005ea63ab76a37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Items.SlotsContainerContentView
 --- !u!1 &8039881118815293158
 GameObject:
   m_ObjectHideFlags: 0

@@ -27,7 +27,7 @@ namespace Core
         {
             _bootstrapper = new Bootstrapper();
             _bootstrapper.Run().Forget();
-            TypeExtensions.Init();
+            //TypeExtensions.Init();
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnStateChanged;
             void OnStateChanged(PlayModeStateChange state)
@@ -67,6 +67,7 @@ namespace Core
             _projectContainer.Bind<Session>().FromInstance(_sessionContext).AsSingle();
             _remoteConfigurationHandler = new RemoteConfigurationHandler();
             var configsLoading = _remoteConfigurationHandler.LoadConfigurations();
+            _projectContainer.Bind<RemoteConfigurationHandler>().FromInstance(_remoteConfigurationHandler);
             var tickService = new GameObject("[Tick]").AddComponent<TickService>();
             Object.DontDestroyOnLoad(tickService.gameObject);
             _projectContainer.BindInstance(tickService);

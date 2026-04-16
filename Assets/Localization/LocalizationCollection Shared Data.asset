@@ -15,275 +15,275 @@ MonoBehaviour:
   m_TableCollectionName: LocalizationCollection
   m_TableCollectionNameGuidString: a105491da5422b944bf6c229541308ec
   m_Entries:
-  - m_Id: 90016265940398080
+  - m_Id: 92902035945414656
     m_Key: iron_ore_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265944592384
+  - m_Id: 92902035987357696
     m_Key: iron_ore_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786688
+  - m_Id: 92902035991552000
     m_Key: iron_ingot_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786689
+  - m_Id: 92902035991552001
     m_Key: iron_ingot_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786690
+  - m_Id: 92902035991552002
     m_Key: cube_box_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786691
+  - m_Id: 92902035991552003
     m_Key: cube_box_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786692
+  - m_Id: 92902035991552004
     m_Key: small_bag_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786693
+  - m_Id: 92902035991552005
     m_Key: small_bag_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786694
+  - m_Id: 92902035991552006
     m_Key: cyan_crystal_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786695
+  - m_Id: 92902035991552007
     m_Key: cyan_crystal_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786696
+  - m_Id: 92902035991552008
     m_Key: catalith_ore_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786697
+  - m_Id: 92902035991552009
     m_Key: catalith_ore_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786698
+  - m_Id: 92902035991552010
     m_Key: catazyne-1_liquid_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786699
+  - m_Id: 92902035991552011
     m_Key: catazyne-1_liquid_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786700
+  - m_Id: 92902035991552012
     m_Key: catazyne-2_liquid_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786701
+  - m_Id: 92902035991552013
     m_Key: catazyne-2_liquid_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786702
+  - m_Id: 92902035991552014
     m_Key: cyanides-shell_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786703
+  - m_Id: 92902035991552015
     m_Key: cyanides-shell_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786704
+  - m_Id: 92902035991552016
     m_Key: chitirenin_raw_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786705
+  - m_Id: 92902035991552017
     m_Key: chitirenin_raw_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786706
+  - m_Id: 92902035991552018
     m_Key: chitirenin_affinated_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786707
+  - m_Id: 92902035991552019
     m_Key: chitirenin_affinated_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786708
+  - m_Id: 92902035991552020
     m_Key: cargo-emgracopter_body_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786709
+  - m_Id: 92902035991552021
     m_Key: cargo-emgracopter_body_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786710
+  - m_Id: 92902035991552022
     m_Key: "\u0441opter-\u0441ontrol-5axis_part_name"
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786711
+  - m_Id: 92902035991552023
     m_Key: "\u0441opter-\u0441ontrol-5axis_part_description"
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786712
+  - m_Id: 92902035991552024
     m_Key: aircraft-cannon-11x95_part_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786713
+  - m_Id: 92902035991552025
     m_Key: aircraft-cannon-11x95_part_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786714
+  - m_Id: 92902035991552026
     m_Key: projectile-11x95-ap_ammo_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786715
+  - m_Id: 92902035991552027
     m_Key: projectile-11x95-ap_ammo_description
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786716
+  - m_Id: 92902035991552028
     m_Key: put-to-inventory-delivery_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786717
+  - m_Id: 92902035991552029
     m_Key: cargo-zone-delivery_name
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786718
+  - m_Id: 92902035991552030
     m_Key: trade-kind_sell_add-button
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786719
+  - m_Id: 92902035991552031
     m_Key: trade-kind_buyout_add-button
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786720
+  - m_Id: 92902035995746304
     m_Key: iron_ore_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786721
+  - m_Id: 92902035995746305
     m_Key: iron_ore_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786722
+  - m_Id: 92902035995746306
     m_Key: iron_ingot_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786723
+  - m_Id: 92902035995746307
     m_Key: iron_ingot_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786724
+  - m_Id: 92902035995746308
     m_Key: cube_box_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786725
+  - m_Id: 92902035995746309
     m_Key: cube_box_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786726
+  - m_Id: 92902035995746310
     m_Key: small_bag_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786727
+  - m_Id: 92902035995746311
     m_Key: small_bag_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786728
+  - m_Id: 92902035995746312
     m_Key: cyan_crystal_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786729
+  - m_Id: 92902035995746313
     m_Key: cyan_crystal_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786730
+  - m_Id: 92902035995746314
     m_Key: catalith_ore_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786731
+  - m_Id: 92902035995746315
     m_Key: catalith_ore_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786732
+  - m_Id: 92902035995746316
     m_Key: catazyne-1_liquid_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786733
+  - m_Id: 92902035995746317
     m_Key: catazyne-1_liquid_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786734
+  - m_Id: 92902035995746318
     m_Key: catazyne-2_liquid_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786735
+  - m_Id: 92902035995746319
     m_Key: catazyne-2_liquid_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786736
+  - m_Id: 92902035995746320
     m_Key: cyanides-shell_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786737
+  - m_Id: 92902035995746321
     m_Key: cyanides-shell_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786738
+  - m_Id: 92902035995746322
     m_Key: chitirenin_raw_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786739
+  - m_Id: 92902035995746323
     m_Key: chitirenin_raw_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786740
+  - m_Id: 92902035995746324
     m_Key: chitirenin_affinated_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786741
+  - m_Id: 92902035995746325
     m_Key: chitirenin_affinated_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786742
+  - m_Id: 92902035995746326
     m_Key: cargo-emgracopter_body_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786743
+  - m_Id: 92902035995746327
     m_Key: cargo-emgracopter_body_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786744
+  - m_Id: 92902035995746328
     m_Key: "\u0441opter-\u0441ontrol-5axis_part_name 1"
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786745
+  - m_Id: 92902035995746329
     m_Key: "\u0441opter-\u0441ontrol-5axis_part_description 1"
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786746
+  - m_Id: 92902035995746330
     m_Key: aircraft-cannon-11x95_part_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786747
+  - m_Id: 92902035995746331
     m_Key: aircraft-cannon-11x95_part_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786748
+  - m_Id: 92902035995746332
     m_Key: projectile-11x95-ap_ammo_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786749
+  - m_Id: 92902035995746333
     m_Key: projectile-11x95-ap_ammo_description 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786750
+  - m_Id: 92902035995746334
     m_Key: put-to-inventory-delivery_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786751
+  - m_Id: 92902035995746335
     m_Key: cargo-zone-delivery_name 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786752
+  - m_Id: 92902035995746336
     m_Key: trade-kind_sell_add-button 1
     m_Metadata:
       m_Items: []
-  - m_Id: 90016265948786753
+  - m_Id: 92902035995746337
     m_Key: trade-kind_buyout_add-button 1
     m_Metadata:
       m_Items: []

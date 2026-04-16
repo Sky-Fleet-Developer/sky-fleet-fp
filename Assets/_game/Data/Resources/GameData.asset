@@ -755,6 +755,92 @@ MonoBehaviour:
         intValue: 1
         floatValue: 1
         objectValue: 
+  - id: aircraft-cannon-11x95_part
+    tags:
+    - block
+    - weapon
+    - mass
+    - kinetic-weapon
+    - container
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 10
+        intValue: 10
+        floatValue: 10
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+    - name: kinetic-weapon
+      values:
+      - stringValue: 110x950
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+      - stringValue: 28
+        intValue: 28
+        floatValue: 28
+        objectValue: 
+    - name: container
+      values:
+      - stringValue: 50
+        intValue: 50
+        floatValue: 50
+        objectValue: 
+      - stringValue: shell
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+      - stringValue: weapon
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+  - id: 11x95-ap_projectile
+    tags:
+    - ammo
+    - mass
+    - shell
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 0.04
+        intValue: 0
+        floatValue: 0.04
+        objectValue: 
+      - stringValue: 0.12
+        intValue: 0
+        floatValue: 0.12
+        objectValue: 
+      - stringValue: 50
+        intValue: 50
+        floatValue: 50
+        objectValue: 
+    - name: shell
+      values:
+      - stringValue: 110x950-ap
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+      - stringValue: 0.25
+        intValue: 0
+        floatValue: 0.25
+        objectValue: 
   linksToPrefabs:
   - signId: iron_ore
     prefabGuid: iron_ore
@@ -816,6 +902,10 @@ MonoBehaviour:
     prefabGuid: rudder-rotator_part
   - signId: cargo-trunk_part
     prefabGuid: cargo-trunk_part
+  - signId: aircraft-cannon-11x95_part
+    prefabGuid: aircraft-cannon-11x95_part
+  - signId: 11x95-ap_projectile
+    prefabGuid: 11x95-ap_projectile
   containerInfos:
   - signId: cube_box
     includeTags:
@@ -842,6 +932,29 @@ MonoBehaviour:
     excludeTags: []
     maxVolume: 9999
     gridPrefix: cargo-emgracopter-grid
+  - signId: aircraft-cannon-11x95_part
+    includeTags:
+    - tags:
+      - shell
+    excludeTags: []
+    maxVolume: 50
+    gridPrefix: weapon
+  shellsInfos:
+  - signId: 11x95-ap_projectile
+    shellData:
+      caliber:
+        diameter: 110
+        length: 950
+      chargeType: ap
+      airDrag: 0.25
+  kineticWeaponInfos:
+  - signId: aircraft-cannon-11x95_part
+    weaponData:
+      caliber:
+        diameter: 110
+        length: 950
+      spread: 1
+      impulse: 28
 --- !u!114 &-2708408504679486571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1104,6 +1217,14 @@ MonoBehaviour:
       mountingType: 
       constantFieldKeys: []
       constantFieldValues: []
+    - slotId: Cannon-11x95
+      path: 
+      sibling: 19
+      position: {x: -0.58, y: -0.195, z: 0.92}
+      rotation: {x: -0, y: 0, z: 0}
+      mountingType: 
+      constantFieldKeys: []
+      constantFieldValues: []
 --- !u!114 &8935232688312866269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1131,6 +1252,14 @@ MonoBehaviour:
     includeTags:
     - tags:
       - equipable
+    excludeTags: []
+    m_Properties: []
+  - presetId: weapon
+    slotId: main
+    maxCapacity: 1000
+    includeTags:
+    - tags:
+      - shell
     excludeTags: []
     m_Properties: []
   localSources:

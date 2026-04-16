@@ -14,7 +14,12 @@ namespace Runtime.Items
         void IItemObjectHandle.SetSourceItem(ItemInstance sign)
         {
             _sourceItem = sign;
+            OnItemSet();
             OnItemInitialized.Invoke();
+        }
+
+        protected virtual void OnItemSet()
+        {
         }
 
         public void Deconstruct()

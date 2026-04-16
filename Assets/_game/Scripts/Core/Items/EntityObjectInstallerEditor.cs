@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Core.Items
 {
@@ -62,6 +63,41 @@ namespace Core.Items
 
         private IItemObject _itemObjectEditor;
         private static Dictionary<string, IItemObject> _registeredGUIDsEditor = new();
+        //[ShowInInspector] private List<AmmoItemWarp> _weapon = new();
+
+        /*[Serializable]
+        private class AmmoItemWarp
+        {
+            [InlineProperty]
+            public ItemDescription weapon;
+            [HideInInspector]
+            public ItemDescription ammoItem;
+            [ShowInInspector, InlineProperty, ValueDropdown(nameof(GetAbleItems))]
+            public string Ammo
+            {
+                get => ammoItem?.signId;
+                set
+                {
+                    if (ammoItem != null)
+                    {
+                        ammoItem.signId = value;
+                    }
+                    else
+                    {
+                        ammoItem = new ItemDescription{signId = value, amount = 100, gridSlot = "main"};
+                        weapon.nestedItems ??= new();
+                        weapon.nestedItems.Add(ammoItem);
+                    }
+                }
+            }
+
+            private static IEnumerable<string> GetAbleItems()
+            {
+                return EditorReferences.ItemsTableEditor.GetShellSigns();
+            }
+        }*/
+        
+        
         private void EnsureObjects()
         {
             _itemObjectEditor = GetComponent<IItemObject>();
@@ -107,7 +143,7 @@ namespace Core.Items
             if (!Application.isPlaying)
             {
                 EnsureObjects();
-                SetupNestedItems(_itemObjectEditor, ref itemDescription);
+                SetupNestedItems(_itemObjectEditor, ref itemDescription, this);
             }
         }
 
@@ -116,11 +152,11 @@ namespace Core.Items
             if (!Application.isPlaying)
             {
                 EnsureObjects();
-                SetupNestedItems(_itemObjectEditor, ref itemDescription);
+                SetupNestedItems(_itemObjectEditor, ref itemDescription, this);
             }
         }
 
-        private static void SetupItem(IItemObject itemObject, ref ItemDescription itemDescription)
+        private static void SetupItem(IItemObject itemObject, ref ItemDescription itemDescription) //TODO: add nested items to nested items
         {
             if (string.IsNullOrEmpty(itemDescription.signId))
             {
@@ -171,23 +207,24 @@ namespace Core.Items
             }
         }
 
-        private static void SetupNestedItems(IItemObject itemObject, ref ItemDescription itemDescription)
+        private static void SetupNestedItems(IItemObject itemObject, ref ItemDescription itemDescription, EntityObjectInstaller instance)
         {
             if (string.IsNullOrEmpty(itemDescription.signId))
             {
                 return;
             }
-
+            //instance._weapon.Clear();
             var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
             if (sign.HasTag(ItemSign.ContainerTag))
             {
-                CollectContainerContent(ref itemDescription, itemObject);
+                CollectContainerContent(ref itemDescription, itemObject, instance);
             }
         }
 
-        private static void CollectContainerContent(ref ItemDescription root, IItemObject itemObject)
+        private static void CollectContainerContent(ref ItemDescription root, IItemObject itemObject,
+            EntityObjectInstaller instance)
         {
-            root.nestedItems?.Clear();
+            //root.nestedItems?.Clear();
 
             CollectChildrenRecursive(ref root, itemObject.transform);
 
@@ -197,7 +234,7 @@ namespace Core.Items
                 {
                     if (child.TryGetComponent(out IItemObject childItemObject))
                     {
-                        AddNestedItem(ref root, childItemObject);
+                        AddNestedItem(ref root, childItemObject, instance);
                     }
                     else
                     {
@@ -207,24 +244,44 @@ namespace Core.Items
             }
         }
 
-        private static void AddNestedItem(ref ItemDescription root, IItemObject childItemObject)
+        private static void AddNestedItem(ref ItemDescription root, IItemObject childItemObject,
+            EntityObjectInstaller instance)
         {
-            root.nestedItems ??= new List<ItemDescription>();
+            root.nestedItems ??= new ();
             var item = EnumerateAbleItems(childItemObject.AssetId).FirstOrDefault();
             if (item == null)
             {
                 Debug.LogError($"Has no item {childItemObject.AssetId}");
             }
 
-            var description = new ItemDescription
+            ItemDescription description = null;
+
+            var expectId = item?.Id ?? "_";
+            description = root.nestedItems.FirstOrDefault(x =>
+                x.signId == expectId && Mathf.Approximately(x.amount, 1) &&
+                x.gridSlot == childItemObject.transform.name);
+            
+            bool isNew = description == null;
+            description ??= new ItemDescription
             {
-                signId = item?.Id ?? "_",
+                signId = expectId,
                 amount = 1,
                 properties = new List<Property>(),
                 gridSlot = childItemObject.transform.name
             };
+            
+            //var sign = EditorReferences.ItemsTableEditor.GetItem(description.signId);
+            //if (sign.HasTag(ItemSign.KineticWeaponTag))
+            //{
+            //
+            //    var ammo = description.nestedItems.FirstOrDefault(x => x.signId == ItemSign.ShellTag);
+            //    instance._weapon.Add(new AmmoItemWarp{weapon = description, ammoItem = ammo});
+            //}
             SetupItem(childItemObject, ref description);
-            root.nestedItems.Add(description);
+            if (isNew)
+            {
+                root.nestedItems.Add(description);
+            }
         }
 
         private static int FindOrAddProperty(ref ItemDescription itemDescription, string propertyName, int valueCount)

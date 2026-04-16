@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Core.Graph.Wires;
 using Core.Structure.Serialization;
+using UnityEngine;
 
 namespace Core.Graph
 {
@@ -21,7 +22,12 @@ namespace Core.Graph
             _portsById = new();
             foreach (var wire in wiresConfig)
             {
-                foreach (var port in wire.ports) _wireConfigs.Add(port, wire);
+                Debug.Log($"wire {_wireConfigs.Count}:");
+                foreach (var port in wire.ports)
+                {
+                    Debug.Log($"port: {port}:");
+                    _wireConfigs.Add(port, wire);
+                }
             }
         }
 

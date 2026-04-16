@@ -32,7 +32,7 @@ namespace Core.Weapon
             _projectileHandler.OnPostUpdate -= OnUpdate;
         }
 
-        private void OnProjectileAdded(int index, int count)
+        private void OnProjectileAdded(int index)
         {
             var instance = _projectileHandler.Projectiles[index];
             var settings = _shellTypesSettings.GetShellTypeSettings(instance.ShellData.chargeType);
@@ -49,22 +49,20 @@ namespace Core.Weapon
                     Debug.LogError($"Need manual stop for vfx {initialVfx.transform.name}, but it is not handled");
                 }
             }
+
             var lifetimeVfxSource = settings.GetLifetimeVfx(instance.ShellData.caliber.diameter);
 
-            for (int i = 0; i < count; i++)
+            instance = _projectileHandler.Projectiles[index];
+            if (lifetimeVfxSource != null)
             {
-                instance = _projectileHandler.Projectiles[index + i];
-                if (lifetimeVfxSource != null)
-                {
-                    var lifetimeVfx = (IVfx)DynamicPool.Instance.Get(lifetimeVfxSource as MonoBehaviour);
-                    lifetimeVfx.Position = instance.Position;
-                    lifetimeVfx.Rotation = Quaternion.LookRotation(instance.Velocity);
-                    _vfx[instance.Id] = lifetimeVfx;
-                    lifetimeVfx.Play();
-                }
+                var lifetimeVfx = (IVfx)DynamicPool.Instance.Get(lifetimeVfxSource as MonoBehaviour);
+                lifetimeVfx.Position = instance.Position;
+                lifetimeVfx.Rotation = Quaternion.LookRotation(instance.Velocity);
+                _vfx[instance.Id] = lifetimeVfx;
+                lifetimeVfx.Play();
             }
         }
-        
+
         //private void WaterSplash(int index, Vector3 pointOnWater, Vector3 waterNormal)
         //{
         //    var instance = _projectileHandler.Projectiles[index];

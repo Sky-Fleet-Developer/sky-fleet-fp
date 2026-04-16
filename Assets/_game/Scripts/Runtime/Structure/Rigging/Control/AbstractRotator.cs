@@ -16,9 +16,9 @@ namespace Runtime.Structure.Rigging.Control
     {
         [SerializeField] private bool DebugEnabled;
         [SerializeField] private PortType controlPortType;
-        private Port<float> targetAngle;
-        private Port<float> currentAngle = new Port<float>(PortType.Signal);
-        private Port<float> velocity = new Port<float>(PortType.Signal);
+        private Port<float> targetAngle = new (PortType.Signal);
+        private Port<float> currentAngle = new (PortType.Signal);
+        private Port<float> velocity = new (PortType.Signal);
         [SerializeField] private bool isCycled;
         [SerializeField] private float rotationForce;
         [SerializeField] private float dragForce;

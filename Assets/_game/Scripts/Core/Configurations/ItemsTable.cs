@@ -79,6 +79,8 @@ namespace Core.Configurations
             _shellById ??= shellsInfos.ToDictionary(x => x.signId);
             return _shellById[id].shellData;
         }
+        
+        public IEnumerable<string> GetShellSigns() => shellsInfos.Select(x => x.signId);
 
         public KineticWeaponData GetKineticWeapon(string id)
         {
@@ -150,6 +152,7 @@ namespace Core.Configurations
                         var weaponInfo = new KineticWeaponInfo { signId = newItem.Id };
                         weaponInfo.weaponData.caliber = kineticWeaponProperty.values[Property.KineticWeapon_Caliber].stringValue;
                         weaponInfo.weaponData.spread = kineticWeaponProperty.values[Property.KineticWeapon_Spread].floatValue;
+                        weaponInfo.weaponData.impulse = kineticWeaponProperty.values[Property.KineticWeapon_Impulse].floatValue;
                         kineticWeaponInfos.Add(weaponInfo);
                     }
                 }

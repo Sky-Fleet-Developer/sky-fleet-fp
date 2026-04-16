@@ -13,6 +13,6 @@ namespace Core.Structure
         Vector3 GetVelocityForPoint(Vector3 worldPoint);
         void RecalculateMass();
         void AddForce(Vector3 force, Vector3 position);
-        Vector3 GetPointVelocity(Vector3 transformPoint);
+        Vector3 GetPointVelocity(Vector3 worldPoint);
     }
 }

@@ -1,11 +1,12 @@
 using System;
 using Core.Character;
-using Core.Data.GameSettings;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using InputControl = Core.Data.GameSettings.InputControl;
 
 
 namespace Core.Structure.Rigging.Control
@@ -14,8 +15,6 @@ namespace Core.Structure.Rigging.Control
     [Serializable]
     public class ControlButton : IControlElement
     {
-        public bool EnableInteraction => enableInteraction;
-        [SerializeField] private bool enableInteraction;
         public string GetName()
         {
             return computerInput;
@@ -53,28 +52,32 @@ namespace Core.Structure.Rigging.Control
         public void Init(IGraph graph, IDriveInterface block)
         {
             //graph.ConnectPorts(new PortPointer(block, _device.Port, GetName(), nameof(port)), );
+            bindings.performed += OnPerformed;   
+        }
+
+        private void OnPerformed(InputAction.CallbackContext obj)
+        {
+            port.Call();
+            _device?.Port.Call();
         }
 
         public void Enable()
         {
+            bindings.Enable();
         }
-
+        
         public void Disable()
         {
+            bindings.Disable();
         }
 
         [SerializeField, HideInInspector]
         private DeviceBase<ActionPort> _device;
 
-        [SerializeField] protected InputButtons keyDetected;
+        [SerializeField] protected InputAction bindings;
 
         public void Tick()
         {
-            if(InputControl.Instance.GetButtonDown(keyDetected) > 0)
-            {
-                port.Call();
-                _device.Port.Call();
-            }
         }
     }
 }

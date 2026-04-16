@@ -29,7 +29,7 @@ namespace Runtime.Structure.Rigging.Control
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);
-            resetCorrection.AddRegisterAction(ResetCorrection);
+            resetCorrection.RegisterAction(ResetCorrection);
         }
 
         private void ResetCorrection()

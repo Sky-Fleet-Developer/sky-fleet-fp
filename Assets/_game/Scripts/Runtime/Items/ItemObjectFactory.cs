@@ -54,12 +54,17 @@ namespace Runtime.Items
         {
             itemObjectHandle.SetSourceItem(item);
             var go = itemObjectHandle.transform.gameObject;
+            DiContainer currentDiContainer = _container;
             if (overrideDiContainer == null)
             {
                 overrideDiContainer = _container;
             }
+            else
+            {
+                _container = overrideDiContainer; // we bust to warp inherit items into parent container and restore it after
+            }
             
-            if (item.IsUnique && item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty))
+            if (/*item.IsUnique && */item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty))
             {
                 foreach (var monoBehaviour in go.GetComponents<MonoBehaviour>())
                 {
@@ -77,12 +82,11 @@ namespace Runtime.Items
                     container,
                     containerProperty.values[Property.Container_Volume].floatValue);
                 
-                if (!go.TryGetComponent(out SlotsContainerContentView view))
+                if (go.TryGetComponent(out SlotsContainerContentView view))
                 {
-                    view = go.AddComponent<SlotsContainerContentView>();
+                    overrideDiContainer.Inject(view);
+                    view.TryInit();
                 }
-                overrideDiContainer.Inject(view);
-                view.TryInit();
             }
             
             if (itemObjectHandle is IDynamicStructure)
@@ -128,6 +132,8 @@ namespace Runtime.Items
             {
                 rigidbody.mass = item.GetMass();
             }
+            
+            _container = currentDiContainer;
         }
 
         private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source, DiContainer overrideDiContainer)

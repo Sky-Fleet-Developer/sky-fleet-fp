@@ -22,7 +22,7 @@ namespace Core.Items
         public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[Property.IdentifiableInstance_Identifier].stringValue : null;
         public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
         public string ContainerKey => _containerKey;
-        public bool IsUnique => _sign.HasTag(ItemSign.IdentifiableTag);
+        //public bool IsUnique => _sign.HasTag(ItemSign.IdentifiableTag);
         public bool IsEmpty => _sign == null || _amount == 0;
         int IDraggableItem.Order => IsContainer ? 1 : 0;
 
@@ -42,7 +42,7 @@ namespace Core.Items
             _amount = description.amount;
             _sign = sign;
             _properties = description.properties.DeepClone();
-            if (IsUnique && IsContainer)
+            if (IsContainer)
             {
                 TrySetupContainerId();
                 if (ContainerKey != null)
@@ -231,7 +231,7 @@ namespace Core.Items
             if(ReferenceEquals(this, other)) return true;
             if(!_sign.Equals(other._sign)) return false;
             if(GetOwnership() != other.GetOwnership()) return false;
-            if (IsUnique || other.IsUnique) return false;
+            if (IsContainer || other.IsContainer) return false;
             return true;
         }
 

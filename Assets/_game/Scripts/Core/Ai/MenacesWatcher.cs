@@ -130,7 +130,7 @@ namespace Core.Ai
         
         public void InstallBindings(DiContainer container)
         {
-            container.Bind<MenacesWatcher>().AsSingle();
+            container.Bind<MenacesWatcher>().FromInstance(this);
         }
     }
 }

@@ -50,7 +50,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assetId: "\u0441opter-\u0441ontrol-5axis_part"
   tags: []
-  mass: 30
   mountingType: 
   axes:
   - computerInput: Pitch
@@ -271,12 +270,25 @@ MonoBehaviour:
     portType: 0
     _device: {fileID: 0}
   buttons:
-  - enableInteraction: 0
-    computerInput: Release
+  - computerInput: Shoot
     _device: {fileID: 0}
-    keyDetected:
-      keys:
-      - KeyCodes: 72000000
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: eed9b824-f053-4c33-b9f7-83ee77a51714
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: dd781b5c-04e4-48f1-82f3-478b4adf49f9
+        m_Path: <Mouse>/leftButton
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Bindings
+        m_Flags: 0
+      m_Flags: 0
   toggles: []
   trackballs: []
   attachData:

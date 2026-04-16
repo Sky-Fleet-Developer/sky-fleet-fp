@@ -16,9 +16,9 @@ MonoBehaviour:
   - id: ap
     vfxPerCaliberDiameter:
     - initialVfx:
-        _underlyingValue: {fileID: 0}
+        _underlyingValue: {fileID: 6777404629046377138, guid: 1c899712b75a59e41ad95293fd0ee867, type: 3}
       lifetimeVfx:
-        _underlyingValue: {fileID: 0}
+        _underlyingValue: {fileID: 1135561214162508785, guid: 07e4150efb67a0644baca520f0e5d980, type: 3}
       defaultHitVfx:
         _underlyingValue: {fileID: 0}
       maxCaliberDiameter: 15

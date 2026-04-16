@@ -53,9 +53,9 @@ namespace Runtime.Structure.Ship
             Debug.DrawRay(position + f, -f * 0.1f - cross * (f.magnitude * 0.1f), c, 1);*/
         }
 
-        public Vector3 GetPointVelocity(Vector3 transformPoint)
+        public Vector3 GetPointVelocity(Vector3 worldPoint)
         {
-            return rigidbody.GetPointVelocity(transformPoint);
+            return rigidbody.GetPointVelocity(worldPoint);
         }
 
         public void RecalculateMass()

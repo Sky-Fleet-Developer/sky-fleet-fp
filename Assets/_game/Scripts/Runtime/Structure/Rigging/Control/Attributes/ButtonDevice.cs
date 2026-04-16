@@ -26,7 +26,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
         public override void Init(IGraph graph, IBlock block)
         {
             base.Init(graph, block);
-            Port.AddRegisterAction(OnClick);
+            Port.RegisterAction(OnClick);
         }
 
         private IEnumerator AnimButtonClick()

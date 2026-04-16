@@ -142,7 +142,7 @@ namespace WorldEditor
             selectedPorts = new List<IPortsContainer>();
         }
 
-        private async void CreateButton()
+        private void CreateButton()
         {
             GUILayout.Space(20);
             EditorGUILayout.ObjectField(currentGraphTransform, typeof(Transform), true);

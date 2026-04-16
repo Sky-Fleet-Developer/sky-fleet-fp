@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using Core.Items;
+using UnityEngine;
 
 namespace Core.Weapon
 {
-    public interface IKineticWeapon
+    public interface IKineticWeapon : IItemObject
     {
         public Transform Muzzle { get; }
-        public float Energy { get; }
-        public float SpreadFactor { get; }
+        public Vector3 Velocity { get; }
     }
 }

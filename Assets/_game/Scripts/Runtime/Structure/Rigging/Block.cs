@@ -25,13 +25,10 @@ namespace Runtime.Structure.Rigging
 
         public bool IsActive => gameObject && gameObject.activeSelf && enabled;
 
-        public virtual float Mass { get => mass; }
+        public virtual float Mass { get => _mass; }
         public virtual Vector3 LocalCenterOfMass => Vector3.zero;
-
-        [SerializeField]
-        private float mass = 10;
-
         [SerializeField, HideInInspector] private string mountingType;
+        private float _mass;
 
         public virtual void InitBlock(IStructure structure, Parent parent)
         {
@@ -39,6 +36,11 @@ namespace Runtime.Structure.Rigging
             Structure = structure;
             boundsCash = transform.GetBounds();
             boundsCash.center = parent.Transform.InverseTransformPoint(boundsCash.center);
+        }
+
+        protected override void OnItemSet()
+        {
+            _mass = SourceItem.GetMass();
         }
 
         public void Remove()

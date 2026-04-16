@@ -50,9 +50,10 @@ namespace Core.Trading
             {
                 return new SlotPullPutWarp(slotsGridSource, this);
             }
+
             return new PullPutWarp(inv, this);
         }
-            
+
 
         public void DissolveEmptyInventory(string inventoryKey)
         {
@@ -243,6 +244,12 @@ namespace Core.Trading
 
         private IItemsContainerMasterHandler GetOrCreateInventoryHandler(string key)
         {
+#if UNITY_EDITOR
+            if (key == null)
+            {
+                throw new ArgumentException("Invalid inventory key");
+            }
+#endif
             if (!_inventories.TryGetValue(key, out IItemsContainerMasterHandler inventory))
             {
                 inventory = _inventoryFactory.CreateInventory(key);

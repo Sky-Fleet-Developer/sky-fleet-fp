@@ -460,6 +460,16 @@ MonoBehaviour:
     tags:
     - structure
     - city
+  - reference:
+      m_AssetGUID: cf7df14ed6ce20347bc9d21dab395dfc
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    guid: aircraft-cannon-11x95_part
+    tags:
+    - block
+    - emgracopter
   autoSearchSettings:
   - pathToSearchFolder: Assets/_game/Prefabs/Blocks
     tags:

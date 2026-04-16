@@ -28,7 +28,7 @@ namespace Runtime.Structure.Rigging.Control
             {
                 _currentLength = _wantedLength = rope.GetDistance();
             });
-            detach.AddRegisterAction(Detach);
+            detach.RegisterAction(Detach);
         }
 
         private void Detach()

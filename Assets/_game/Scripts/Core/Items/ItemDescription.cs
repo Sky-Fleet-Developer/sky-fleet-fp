@@ -7,18 +7,29 @@ using Core.ContentSerializer;
 using Core.Misc;
 using Core.Trading;
 using JetBrains.Annotations;
+using Sirenix.OdinInspector;
 
 namespace Core.Items
 {
     [Serializable]
-    public struct ItemDescription : IPropertiesContainer
+    public class ItemDescription : IPropertiesContainer
     {
+#if UNITY_EDITOR
+        [ShowInInspector, ValueDropdown(nameof(SignIds)), PropertyOrder(-10)]
+        private string SelectedSignId
+        {
+            get => signId;
+            set => signId = value;
+        }
+        private static IEnumerable<string> SignIds => EditorReferences.ItemsTableEditor.GetItems().Select(x => x.Id);
+#endif
         public string signId;
         public float amount;
         public string gridSlot;
         public List<Property> properties;
-        [CanBeNull] public List<ItemDescription> nestedItems;
+        [CanBeNull, ShowInInspector] public List<ItemDescription> nestedItems = new();
         public IReadOnlyList<Property> Properties => properties;
+        public ItemDescription(){}
 
         public ItemDescription(ItemInstance instance)
         {
