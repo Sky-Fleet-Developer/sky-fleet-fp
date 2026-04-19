@@ -94,6 +94,11 @@ namespace Runtime.Ai
 
         public override void Tick()
         {
+            if (ControlledEntity == null)
+            {
+                Dispose();
+                return;
+            }
             if (_state == State.Retreating)
             {
                 if (!ControlledEntity.Unit.IsManeuversComplete)

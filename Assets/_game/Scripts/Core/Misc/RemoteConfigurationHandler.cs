@@ -35,6 +35,10 @@ namespace Core.Misc
 
         public void Dispose()
         {
+            if (_configs == null)
+            {
+                return;
+            }
             foreach (var asyncOperationHandle in _configs)
             {
                 Addressables.Release(asyncOperationHandle);

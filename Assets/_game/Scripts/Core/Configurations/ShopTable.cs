@@ -181,7 +181,7 @@ namespace Core.Configurations
 
         public void InstallBindings(DiContainer container)
         {
-            container.Bind<IShopDataSource>().FromInstance(this).AsSingle();
+            container.Bind<IShopDataSource>().FromInstance(this).AsSingle(); 
         }
     }
 }

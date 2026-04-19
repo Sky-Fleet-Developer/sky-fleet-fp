@@ -52,7 +52,6 @@ namespace Runtime.Items
 
         public void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item, DiContainer overrideDiContainer = null)
         {
-            itemObjectHandle.SetSourceItem(item);
             var go = itemObjectHandle.transform.gameObject;
             DiContainer currentDiContainer = _container;
             if (overrideDiContainer == null)
@@ -87,13 +86,15 @@ namespace Runtime.Items
                     overrideDiContainer.Inject(view);
                     view.TryInit();
                 }
+                
+                if (itemObjectHandle is IDynamicStructure)
+                {
+                    overrideDiContainer.Inject(go.AddComponent<ContainerItemMass>());
+                }
             }
             
-            if (itemObjectHandle is IDynamicStructure)
-            {
-                overrideDiContainer.Inject(go.AddComponent<ContainerItemMass>());
-            }
-            
+            itemObjectHandle.SetSourceItem(item);
+
             if (itemObjectHandle is IStructure structure)
             {
                 CycleService.RegisterStructure(structure);

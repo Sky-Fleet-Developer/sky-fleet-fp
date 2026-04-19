@@ -26,7 +26,6 @@ namespace Core.World
         private string _signature;
         public IUnit Unit => _unit;
 
-        public Quaternion Rotation => GameObject.transform.rotation;
         public Vector3 Velocity => Rigidbody?.linearVelocity ?? Vector3.zero;
         public string SignatureId => _signature;
         public UnitTechCharacteristic GetTechCharacteristic() => _unit?.GetTechCharacteristic() ?? default;
@@ -84,7 +83,7 @@ namespace Core.World
 
         private void RefreshSignature()
         {
-            if (ItemInstance.TryGetProperty(Property.SiblingPropertyName, out var property))
+            if (ItemInstance.TryGetProperty(Property.SignatureIdPropertyName, out var property))
             {
                 _signature = property.values[Property.SignatureId_Signature].stringValue;
             }

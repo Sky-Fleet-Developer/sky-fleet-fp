@@ -26,7 +26,7 @@ namespace Core
         private static void Main()
         {
             _bootstrapper = new Bootstrapper();
-            _bootstrapper.Run().Forget();
+            _bootstrapper.Run();
             //TypeExtensions.Init();
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnStateChanged;
@@ -58,24 +58,19 @@ namespace Core
         
         #endregion
         
-        private async UniTaskVoid Run()
+        private void Run()
         {
             Debug.Log("Bootstrapper running");
             _projectContainer = ProjectContext.Instance.Container;
             _projectContainer.Bind<DynamicPool>().FromNewComponentOnRoot().AsSingle();
             _sessionContext = new Session();
             _projectContainer.Bind<Session>().FromInstance(_sessionContext).AsSingle();
-            _remoteConfigurationHandler = new RemoteConfigurationHandler();
-            var configsLoading = _remoteConfigurationHandler.LoadConfigurations();
-            _projectContainer.Bind<RemoteConfigurationHandler>().FromInstance(_remoteConfigurationHandler);
-            var tickService = new GameObject("[Tick]").AddComponent<TickService>();
-            Object.DontDestroyOnLoad(tickService.gameObject);
-            _projectContainer.BindInstance(tickService);
+
+            SetupSingletons(_projectContainer, ref _remoteConfigurationHandler).Forget();
             
             _projectContainer.Inject(_sessionContext);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
-            await configsLoading;
         }
 
         private void Stop()
@@ -182,6 +177,17 @@ namespace Core
             }
 
             OnLoadComplete.Invoke();
+        }
+
+        public static UniTask SetupSingletons(DiContainer container, ref RemoteConfigurationHandler remoteConfigurationHandler)
+        {
+            remoteConfigurationHandler = new RemoteConfigurationHandler();
+            var configsLoading = remoteConfigurationHandler.LoadConfigurations();
+            container.Bind<RemoteConfigurationHandler>().FromInstance(remoteConfigurationHandler);
+            var tickService = new GameObject("[Tick]").AddComponent<TickService>();
+            Object.DontDestroyOnLoad(tickService.gameObject);
+            container.BindInstance(tickService);
+            return configsLoading.AsUniTask();
         }
     }
 }

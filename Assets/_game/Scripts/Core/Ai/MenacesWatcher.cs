@@ -15,6 +15,8 @@ namespace Core.Ai
     {
         public IMenace Menace;
         public float Dot;
+        public float Distance;
+        public float Angle => Mathf.Acos(Dot) * Mathf.Rad2Deg;
     }
     
     public class MenacesWatcher : MonoBehaviour, IMyInstaller, ITickable, IWorldEntityDisposeListener
@@ -30,12 +32,12 @@ namespace Core.Ai
 
         private struct UnitData
         {
-            public List<IMenace> Menaces;
+            public List<IMenace> MenacesOnBoard;
             public List<MenaceRef> MenacedBy;
 
             public UnitData(int initialCapacity)
             {
-                Menaces = new();
+                MenacesOnBoard = new();
                 MenacedBy = new(initialCapacity);
             }
         }
@@ -50,7 +52,16 @@ namespace Core.Ai
             _tickService.Remove(this);
         }
 
-        public IReadOnlyList<MenaceRef> GetMenaces(UnitEntity unit) => _unitsWithMenaces[unit].MenacedBy;
+        public IReadOnlyList<MenaceRef> GetMenaces(UnitEntity unit)
+        {
+            if (!_unitsWithMenaces.TryGetValue(unit, out var data))
+            {
+                data = new UnitData(initialMenaceCapacity);
+                _unitsWithMenaces.Add(unit, data);
+                return data.MenacedBy;
+            }
+            return data.MenacedBy;
+        }
         
         public void RegisterMenace(IMenace menace)
         {
@@ -60,14 +71,14 @@ namespace Core.Ai
                 _unitsWithMenaces.Add(menace.MyUnit, data);
                 menace.MyUnit.RegisterDisposeListener(this);
             }
-            data.Menaces.Add(menace);
+            data.MenacesOnBoard.Add(menace);
         }
 
         public void UnregisterMenace(IMenace menace)
         {
             if (_unitsWithMenaces.TryGetValue(menace.MyUnit, out var data))
             {
-                data.Menaces.Remove(menace);
+                data.MenacesOnBoard.Remove(menace);
             }
         }
         
@@ -90,11 +101,11 @@ namespace Core.Ai
         private void CheckMenaces(KeyValuePair<UnitEntity, UnitData> kv)
         {
             var unitSign = kv.Key.SignatureId;
-            for (var i = 0; i < kv.Value.Menaces.Count; i++)
+            for (var i = 0; i < kv.Value.MenacesOnBoard.Count; i++)
             {
-                var ray = kv.Value.Menaces[i].AimingRay;
+                var ray = kv.Value.MenacesOnBoard[i].AimingRay;
 
-                foreach (var cell in _worldGrid.Grid.IntersectRay(ray, Mathf.Sqrt(kv.Value.Menaces[i].MenaceDistanceSqr)))
+                foreach (var cell in _worldGrid.Grid.IntersectRay(ray, Mathf.Sqrt(kv.Value.MenacesOnBoard[i].MenaceDistanceSqr)))
                 {
                     foreach (var worldEntity in _worldGrid.EnumerateCell(cell))
                     {
@@ -109,20 +120,21 @@ namespace Core.Ai
                         {
                             continue;
                         }
-                        
-                        float dot = Vector3.Dot(ray.direction, worldEntity.Position - ray.origin);
+                        Vector3 delta = worldEntity.Position - ray.origin;
+                        float deltaLen = delta.magnitude;
+                        float dot = Vector3.Dot(ray.direction, delta / deltaLen);
                         if (dot < menaceDotThreshold)
                         {
                             continue;
                         }
                         
-                        float distanceSqr = (worldEntity.Position - ray.origin).sqrMagnitude;
-                        if (distanceSqr > kv.Value.Menaces[i].MenaceDistanceSqr)
+                        if (deltaLen * deltaLen > kv.Value.MenacesOnBoard[i].MenaceDistanceSqr)
                         {
                             continue;
                         }
                         
-                        kv.Value.MenacedBy.Add(new MenaceRef {Menace = kv.Value.Menaces[i], Dot = dot});
+                        kv.Value.MenacedBy.InsertByAscendingOrder(new MenaceRef {Menace = kv.Value.MenacesOnBoard[i], Dot = dot, Distance = deltaLen},
+                            (listItem, insertItem) => (listItem.Dot * listItem.Menace.MenaceFactorValue).CompareTo(insertItem.Dot * insertItem.Menace.MenaceFactorValue));
                     }
                 }
             }

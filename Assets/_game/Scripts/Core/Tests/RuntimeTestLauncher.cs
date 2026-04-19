@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Core.Misc;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -12,6 +14,7 @@ namespace Core.Tests
             public Bootstrapper MyBootstrapper;
             public Scene MyScene;
             public DiContainer MyContainer;
+            public RemoteConfigurationHandler MyRemoteConfigurationHandler;
             public bool IsSceneInstalled;
             public bool IsSystemsRun;
         }
@@ -50,18 +53,45 @@ namespace Core.Tests
                 CreateContext();
             }
             MyContext.MyBootstrapper = Bootstrapper.TakeManualControl();
-            await SceneManager.LoadSceneAsync(SceneName);
-            MyContext.MyScene = SceneManager.GetSceneByName(SceneName);
-            MyContext.MyContainer = new DiContainer();
-            if (installScene)
+
+            TaskCompletionSource<Exception> sceneLoadingTask = new TaskCompletionSource<Exception>();
+            async void OnSceneLoaded(Scene scene, LoadSceneMode mode)
             {
-                InstallScene();
+                MyContext.MyScene = SceneManager.GetSceneByName(SceneName);
+                MyContext.MyContainer = new DiContainer();
+                var setupSingletons = Bootstrapper.SetupSingletons(MyContext.MyContainer, ref MyContext.MyRemoteConfigurationHandler);
+
+                if (installScene)
+                {
+                    try
+                    {
+                        InstallScene();
+                    }
+                    catch (Exception e)
+                    {
+                        sceneLoadingTask.SetResult(e);
+                        return;
+                    }
+                }
+
+                await setupSingletons;
+
+                if (runSystems)
+                {
+                    await RunSystems();
+                }
+                sceneLoadingTask.SetResult(null);
             }
 
-            if (runSystems)
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            var sceneLoading = SceneManager.LoadSceneAsync(SceneName);
+            var exception = await sceneLoadingTask.Task;
+            if (exception != null)
             {
-                await RunSystems();
+                throw exception;
             }
+            await sceneLoading;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         private void CreateContext()

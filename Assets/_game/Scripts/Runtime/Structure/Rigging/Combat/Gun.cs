@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Core.Ai;
+using Core.Configurations;
 using Core.Graph.Wires;
 using Core.Items;
 using Core.Structure;
@@ -21,16 +23,24 @@ namespace Runtime.Structure.Rigging.Combat
         [Inject] private UnitEntity _myUnit;
         [Inject] private ProjectileHandler _projectileHandler;
         [Inject] private BankSystem _bankSystem;
-        public UnitEntity MyUnit => _myUnit;
-        public float MenaceDistanceSqr => menaceAbstractDistance * menaceAbstractDistance;
-        public Ray AimingRay => new Ray(muzzle.position, muzzle.forward);
-        public float MenaceFactorValue { get; }
-        public Transform Muzzle => muzzle;
-        public Vector3 Velocity => Structure is IDynamicStructure dynamicStructure ? dynamicStructure.GetPointVelocity(muzzle.position) : Vector3.zero;
-
+        [Inject] private ItemsTable _itemsTable;
+        [Inject] private MenacesWatcher _menacesWatcher;
+        // ReSharper disable once InconsistentNaming
         private ActionPort shootInput = new();
         private IItemInstancesSource _inventory;
         private ItemInstance _shell;
+        private float _menaceFactor;
+        private CaliberSign _myCaliber;
+        
+        public UnitEntity MyUnit => _myUnit;
+        public float MenaceDistanceSqr => menaceAbstractDistance * menaceAbstractDistance;
+        public Ray AimingRay => new Ray(_myUnit.GetGlobalPositionThreadSafe(_muzzleLocalPos), _myUnit.GetGlobalRotationThreadSafe(_muzzleLocalRot) * Vector3.forward);
+        public float MenaceFactorValue => _menaceFactor;
+        public Transform Muzzle => muzzle;
+        public Vector3 Velocity => Structure is IDynamicStructure dynamicStructure ? dynamicStructure.GetPointVelocity(muzzle.position) : Vector3.zero;
+        private bool _isRegisteredInMenacesWatcher = false;
+        private Vector3 _muzzleLocalPos;
+        private Quaternion _muzzleLocalRot;
 
         public override void InitBlock(IStructure structure, Parent parent)
         {
@@ -38,11 +48,48 @@ namespace Runtime.Structure.Rigging.Combat
             shootInput.RegisterAction(Shoot);
             _inventory = _bankSystem.GetPullPutWarp(SourceItem.ContainerKey);
             RefreshShell();
+            _muzzleLocalPos = structure.transform.InverseTransformPoint(muzzle.position);
+            _muzzleLocalRot = Quaternion.Inverse(structure.transform.rotation) * muzzle.rotation;
+        }
+        
+        protected override void OnItemSet()
+        {
+            base.OnItemSet();
+            var myWeapon = _itemsTable.GetKineticWeapon(SourceItem.Sign.Id);
+            _myCaliber = myWeapon.caliber;
+            _menaceFactor = _myCaliber.DiameterMeters;
+            TryRegisterMenace();
+        }
+
+        private void TryRegisterMenace()
+        {
+            if (!_isRegisteredInMenacesWatcher)
+            {
+                _menacesWatcher.RegisterMenace(this);
+                _isRegisteredInMenacesWatcher = true;
+            }
+        }
+
+        private void OnEnable()
+        {
+            if (_menacesWatcher != null)
+            {
+                TryRegisterMenace();
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_isRegisteredInMenacesWatcher)
+            {
+                _menacesWatcher.UnregisterMenace(this);
+                _isRegisteredInMenacesWatcher = false;
+            }
         }
 
         private void RefreshShell()
         {
-            _shell = _inventory.GetItems().FirstOrDefault(x => x.Sign.HasTag(ItemSign.ShellTag));
+            _shell = _inventory.GetItems().FirstOrDefault(x => x.Sign.HasTag(ItemSign.ShellTag) && _itemsTable.GetShell(x.Sign.Id).caliber.Equals(_myCaliber));
         }
 
         private void Shoot()

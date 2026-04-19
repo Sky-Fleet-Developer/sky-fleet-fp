@@ -1,4 +1,5 @@
-﻿using Core.Graph.Wires;
+﻿using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
@@ -19,13 +20,13 @@ namespace Runtime.Structure.Rigging.Control
         private Port<float> outputLeft;
         private Port<float> outputRight;
 
-        public override void InitBlock(IStructure structure, Parent parent)
+        public override void InitNode(IGraph graph)
         {
             inputPitch ??= new (portType);
             inputRoll ??= new (portType);
             outputLeft ??= new (portType);
             outputRight ??= new (portType);
-            base.InitBlock(structure, parent);
+            base.InitNode(graph);
         }
 
         public void UpdateBlock()

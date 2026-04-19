@@ -22,10 +22,10 @@ namespace Core.Graph
             _portsById = new();
             foreach (var wire in wiresConfig)
             {
-                Debug.Log($"wire {_wireConfigs.Count}:");
+                //Debug.Log($"wire {_wireConfigs.Count}:");
                 foreach (var port in wire.ports)
                 {
-                    Debug.Log($"port: {port}:");
+                    //Debug.Log($"port: {port}:");
                     _wireConfigs.Add(port, wire);
                 }
             }

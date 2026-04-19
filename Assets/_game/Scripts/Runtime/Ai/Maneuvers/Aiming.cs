@@ -30,8 +30,9 @@ namespace Runtime.Ai.Maneuvers
             _control.SetForwardDirection(_aimingDir);
             _control.SetDriftCompensation(0.1f);
             _control.SetUpVector(new ConstantDirection(Vector3.up));
-            _control.SetRollYawFactor(0.3f);
-            _control.SetRollBackFactor(0.4f);
+            _control.SetRollYawFactor(0.5f);
+            _control.SetRollBackFactor(0.15f);
+            _control.SetAcuity(1.5f);
         }
 
         public bool Tick()
@@ -42,12 +43,13 @@ namespace Runtime.Ai.Maneuvers
             
             _control.SetPredictionTime(chargeFlyTime);
             _control.SetFollowSpeed(_target, _sensor, chargeFlyTime, Vector3.zero/*- _aimingDir.GetDirection(_sensor.Position) * distance*/, _chaseFactor, _characteristic.minimalForwardSpeed);
-            
+            _aimingDir.DrawGizmos(_sensor.Position, Color.red);
             return false;
         }
 
         public void Exit()
         {
+            _control.SetAcuity(1);
         }
     }
 }

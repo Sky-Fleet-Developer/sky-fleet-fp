@@ -1,4 +1,5 @@
-﻿using Core.Graph.Wires;
+﻿using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Runtime.Structure.Rigging.Power;
 using Sirenix.OdinInspector;
@@ -17,11 +18,11 @@ namespace Runtime.Structure.Rigging.Movement
         private Port<float> outputPower;
         public override float Consumption => consumption;
 
-        public override void InitBlock(IStructure structure, Parent parent)
+        public override void InitNode(IGraph graph)
         {
-            inputPower ??= new Port<float>(controlType);
-            outputPower ??= new Port<float>(controlType);
-            base.InitBlock(structure, parent);
+            inputPower = new Port<float>(controlType);
+            outputPower = new Port<float>(controlType);
+            base.InitNode(graph);
         }
 
         public override void PowerTick()

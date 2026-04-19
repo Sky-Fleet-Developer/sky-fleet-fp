@@ -39,6 +39,7 @@ namespace Core.World
         public ItemInstance ItemInstance => _itemInstance;
 
         public Vector3 Position => _positionCache;
+        public Quaternion Rotation => _rotationCache;
 
         public ItemEntity()
         {
@@ -192,6 +193,26 @@ namespace Core.World
                     entity._rotationCache[i] = stream.ReadFloat();
                 }
             }
+        }
+
+        //public Vector3 GetRelativePosition(Vector3 globalPosition)
+        //{
+        //    return _objectInstance.transform.InverseTransformPoint(globalPosition);
+        //}
+        //
+        //public Quaternion GetRelativeRotation(Quaternion globalRotation)
+        //{
+        //    return _objectInstance.transform.rotation * globalRotation;
+        //}
+
+        public Vector3 GetGlobalPositionThreadSafe(Vector3 relativePosition)
+        {
+            return _rotationCache * relativePosition + _positionCache;
+        }
+
+        public Quaternion GetGlobalRotationThreadSafe(Quaternion relativeRotation)
+        {
+            return _rotationCache * relativeRotation;
         }
 
         public void Dispose()

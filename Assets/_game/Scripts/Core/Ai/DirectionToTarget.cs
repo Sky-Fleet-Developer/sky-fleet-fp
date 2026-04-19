@@ -17,5 +17,10 @@ namespace Core.Ai
         {
             return Correction * (Target.Position + Target.Velocity * time - (origin + velocity * time));
         }
+
+        public void DrawGizmos(Vector3 origin, Color color)
+        {
+            Debug.DrawRay(origin, GetDirection(origin), color);
+        }
     }
 }

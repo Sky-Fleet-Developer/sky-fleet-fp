@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.Graph;
 using Core.Graph.Wires;
 using Core.SessionManager.SaveService;
 using Core.Structure;
@@ -40,9 +41,17 @@ namespace Runtime.Structure.Rigging.Control
         public override float Consumption => (IsWork ? 0.001f : 0) + consumptionPerPower.Evaluate(Mathf.Abs(_power)) * maxConsumption;
         public override void InitBlock(IStructure structure, Parent parent)
         {
-            targetAngle ??= new(controlPortType);
             base.InitBlock(structure, parent);
             structure.OnInitComplete.Subscribe(OnInitComplete);
+        }
+
+        public override void InitNode(IGraph graph)
+        {
+            if (targetAngle == null || targetAngle.ValueType != controlPortType)
+            {
+                targetAngle = new(controlPortType);
+            }
+            base.InitNode(graph);
         }
 
         private void OnInitComplete()

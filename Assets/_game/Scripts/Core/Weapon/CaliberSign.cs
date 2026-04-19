@@ -3,7 +3,7 @@
 namespace Core.Weapon
 {
     [Serializable]
-    public struct CaliberSign
+    public struct CaliberSign : IEquatable<CaliberSign>
     {
         public int diameter;
         public int length;
@@ -23,5 +23,15 @@ namespace Core.Weapon
         }
         
         public override string ToString() => $"{diameter / 10f}x{length / 10f}";
+
+        public bool Equals(CaliberSign other)
+        {
+            return diameter == other.diameter && length == other.length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is CaliberSign other && Equals(other);
+        }
     }
 }

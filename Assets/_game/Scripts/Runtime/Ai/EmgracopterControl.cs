@@ -30,10 +30,12 @@ namespace Runtime.Ai
         private float _rollBackFactor;
         private float _driftCompensation;
         private float _predictionTime;
+        private float _acuity = 1;
         private IDirectionData _aimingDirection;
         //private Ray _currentAimingRay;
 
         public bool IsActive => _mainDriveHandler != null;
+
         public bool IsWeaponActive => _mainWeaponHandler != null;
 
         private void Awake()
@@ -93,16 +95,16 @@ namespace Runtime.Ai
                 upVal = Mathf.Sign(upVal);
             }
                 
-            _mainDriveHandler.PitchAxis = Mathf.Clamp(-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper, -1, 1);
-            _mainDriveHandler.RollAxis = Mathf.Clamp((-fwd.x * (1 - _rollYawFactor) //turn by roll
+            _mainDriveHandler.PitchAxis = Mathf.Clamp((-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper) * _acuity, -1, 1);
+            _mainDriveHandler.RollAxis = Mathf.Clamp(((-fwd.x * (1 - _rollYawFactor) //turn by roll
                                                       - upVal * (_rollYawFactor + _rollBackFactor) //align to up
                                                       + velocity.x * _driftCompensation) * rollSensitivity 
-                                                     - angularVelocity.z * rollDumper,
+                                                     - angularVelocity.z * rollDumper) * _acuity,
                 -1, 1);
 
             float yawControlValue = fwd.x * _rollYawFactor * yawSensitivity; //turn by yaw
             float yawDumping = -angularVelocity.y * yawDumper;
-            _mainDriveHandler.YawAxis = Mathf.Clamp(yawControlValue + yawDumping, -1, 1);
+            _mainDriveHandler.YawAxis = Mathf.Clamp((yawControlValue + yawDumping) * _acuity, -1, 1);
                 
             _mainDriveHandler.ThrustAxis = Mathf.Clamp01((_wantedSpeed - velocity.z) * throttleSensitivity);
             _mainDriveHandler.SupportsPowerAxis = 1;
@@ -181,6 +183,11 @@ namespace Runtime.Ai
         public void SetAimingVector(IDirectionData direction)
         {
             _aimingDirection = direction;
+        }
+        
+        public void SetAcuity(float value)
+        {
+            _acuity = value;
         }
 
         private void BlockAdded(IBlock block)

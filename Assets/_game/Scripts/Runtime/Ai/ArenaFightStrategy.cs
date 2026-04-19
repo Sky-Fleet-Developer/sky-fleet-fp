@@ -6,7 +6,7 @@ using Core.World;
 using Runtime.Misc;
 using UnityEngine;
 using Zenject;
-using ITickable = Zenject.ITickable;
+using ITickable = Core.Misc.ITickable;
 
 namespace Runtime.Ai
 {
@@ -20,9 +20,15 @@ namespace Runtime.Ai
         private Dictionary<int, SpsFrozenPoint> _unitsFrozenPoints = new ();
         [Inject] private TickService _tickService;
         [Inject] private TableRelations _tableRelations;
-        
+        public int TickRate => 5;
+
+        private void Start()
+        {
+            _tickService.Add(this);
+        }
         private void OnDestroy()
         {
+            _tickService.Remove(this);
             _followSplineTactic.Dispose();
         }
 
@@ -72,7 +78,7 @@ namespace Runtime.Ai
         {
             RemoveControllableUnit(entity as UnitEntity);
         }
-
+        
         public void Tick()
         {
             // 1. attack enemies in alarm radius
@@ -90,7 +96,7 @@ namespace Runtime.Ai
 
             foreach (var unit in _controllableUnits)
             {
-                if (unit.Unit.Sensor.Menaces.Count > 0 && unit.GetTactic() is not MenaceReactionTactic)
+                if (unit.Unit.Sensor.Menaces.Count > 0 && unit.GetTactic() is not MenaceReactionTactic && unit.Unit.Sensor.Menaces[0].Dot > 0.995f)
                 {
                     if (unit.GetTactic() is SpsFollowTactic)
                     {

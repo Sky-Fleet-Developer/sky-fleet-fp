@@ -1,4 +1,5 @@
-﻿using Core.Graph.Wires;
+﻿using Core.Graph;
+using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Runtime.Structure.Rigging.Power;
@@ -13,10 +14,10 @@ namespace Runtime.Structure.Rigging.Control
         public Port<float> output = new Port<float>(PortType.Signal);
 
         [SerializeField] private float value = 0;
-        public override void InitBlock(IStructure structure, Parent parent)
+        public override void InitNode(IGraph graph)
         {
             input = new(inputType);
-            base.InitBlock(structure, parent);
+            base.InitNode(graph);
         }
 
         public void UpdateBlock()

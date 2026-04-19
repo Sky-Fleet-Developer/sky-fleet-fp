@@ -39,7 +39,20 @@ namespace Core.Ai
                 return Vector3.Distance(from.Position + from.Velocity * predictionTime, to.Position + to.Velocity * predictionTime);
             }
         }
-        
+
+        //public static float TimeToReach(this Sensor from, ITargetData to)
+        //{
+        //    Vector3 deltaPos = to.Position - from.Position;
+        //    Vector3 relativeVelocity = to.Velocity + from.Velocity;
+        //    float dot = Vector3.Dot(deltaPos.normalized, relativeVelocity.normalized);
+        //    if (dot <= 0)
+        //    {
+        //        return Mathf.Infinity;
+        //    }
+        //    
+        //    return deltaPos.magnitude / (relativeVelocity.magnitude * dot);
+        //}
+
         public static SignatureDataWarp? GetClosestEnemy(this UnitEntity unit, TableRelations tableRelations)
         {
             SignatureDataWarp? closestEnemy = null;
