@@ -205,6 +205,11 @@ namespace Core.World
         //    return _objectInstance.transform.rotation * globalRotation;
         //}
 
+        public Vector3 GetGlobalDirectionThreadSafe(Vector3 relativeDirection)
+        {
+            return _rotationCache * relativeDirection;
+        }
+        
         public Vector3 GetGlobalPositionThreadSafe(Vector3 relativePosition)
         {
             return _rotationCache * relativePosition + _positionCache;

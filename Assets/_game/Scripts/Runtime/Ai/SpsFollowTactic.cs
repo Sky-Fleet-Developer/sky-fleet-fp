@@ -20,7 +20,6 @@ namespace Runtime.Ai
         {
         }
 
-
         public void SetSpline(SpsViewRange spline)
         {
             _spline = spline;

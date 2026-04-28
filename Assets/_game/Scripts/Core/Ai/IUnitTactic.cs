@@ -12,6 +12,7 @@ namespace Core.Ai
         public void UnitEnterTactic(UnitEntity entity);
 
         public void UnitExitTactic(UnitEntity entity);
+        public bool CanChangeTo(Type newTacticType, UnitEntity entity);
     }
 
     public abstract class MultipleUnitTacticBase : IUnitTactic, ITickable, IDisposable
@@ -45,6 +46,8 @@ namespace Core.Ai
             ControlledEntities.Remove(entity);
         }
 
+        public virtual bool CanChangeTo(Type newTacticType, UnitEntity entity) => true;
+
         public abstract void Tick();
     }
     
@@ -77,6 +80,8 @@ namespace Core.Ai
             ControlledEntity = null;
         }
 
+        public virtual bool CanChangeTo(Type newTacticType, UnitEntity entity) => true;
+
         public abstract void Tick();
     }
 
@@ -85,5 +90,9 @@ namespace Core.Ai
         public void UnitEnterTactic(UnitEntity entity) { }
 
         public void UnitExitTactic(UnitEntity entity) { }
+        public bool CanChangeTo(Type newTacticType, UnitEntity entity)
+        {
+            return true;
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace Runtime.Ai.Maneuvers
         private ITargetData _target;
         private Sensor _sensor;
         private float _chaseFactor = 0.5f;
+        private IUnit _unit;
 
         public Aiming(ITargetData target)
         {
@@ -19,6 +20,7 @@ namespace Runtime.Ai.Maneuvers
 
         public void InjectControls(IUnit unit, IUnitControl control, Sensor sensor)
         {
+            _unit = unit;
             _sensor = sensor;
             _control = control;
             _aimingDir = new DirectionToTarget(_target);
@@ -27,6 +29,7 @@ namespace Runtime.Ai.Maneuvers
         
         public void Enter()
         {
+            Debug.Log($"Enter Aiming ({_unit.EntityId})");
             _control.SetForwardDirection(_aimingDir);
             _control.SetDriftCompensation(0.1f);
             _control.SetUpVector(new ConstantDirection(Vector3.up));

@@ -8,4 +8,11 @@ namespace Core.Ai
         public Quaternion Rotation {get;}
         public Vector3 Velocity {get;}
     }
+
+    public class ManualTargetData : ITargetData
+    {
+        public Vector3 Position { get; set; }
+        public Quaternion Rotation { get; set; }
+        public Vector3 Velocity { get; set; }
+    }
 }

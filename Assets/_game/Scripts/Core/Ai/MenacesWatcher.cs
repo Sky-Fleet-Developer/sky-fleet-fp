@@ -132,9 +132,12 @@ namespace Core.Ai
                         {
                             continue;
                         }
-                        
-                        kv.Value.MenacedBy.InsertByAscendingOrder(new MenaceRef {Menace = kv.Value.MenacesOnBoard[i], Dot = dot, Distance = deltaLen},
-                            (listItem, insertItem) => (listItem.Dot * listItem.Menace.MenaceFactorValue).CompareTo(insertItem.Dot * insertItem.Menace.MenaceFactorValue));
+
+                        if (_unitsWithMenaces.TryGetValue(unitEntity, out var data))
+                        {
+                            data.MenacedBy.InsertByAscendingOrder(new MenaceRef {Menace = kv.Value.MenacesOnBoard[i], Dot = dot, Distance = deltaLen},
+                                (listItem, insertItem) => (listItem.Dot * listItem.Menace.MenaceFactorValue).CompareTo(insertItem.Dot * insertItem.Menace.MenaceFactorValue));
+                        }
                     }
                 }
             }

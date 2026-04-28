@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Core.Ai
 {
@@ -11,5 +12,6 @@ namespace Core.Ai
         public float minAttackRange;
         public float turn180Time;
         public float cruiseLiftAngle;
+        public Vector3 blindZone;
     }
 }

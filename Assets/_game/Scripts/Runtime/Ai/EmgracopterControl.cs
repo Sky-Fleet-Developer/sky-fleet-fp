@@ -18,6 +18,7 @@ namespace Runtime.Ai
         [SerializeField] private float yawSensitivity = 1;
         [SerializeField] private float yawDumper = 0.1f;
         [SerializeField] private float throttleSensitivity = 0.05f;
+        [SerializeField] private AnimationCurve suppressControlBySpeed;
         private DynamicStructure _structure;
         private List<IDriveHandler> _driveHandlers = new();
         private List<IWeaponHandler> _weaponHandlers = new();
@@ -94,17 +95,18 @@ namespace Runtime.Ai
             {
                 upVal = Mathf.Sign(upVal);
             }
-                
-            _mainDriveHandler.PitchAxis = Mathf.Clamp((-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper) * _acuity, -1, 1);
+
+            float suppressionBySpeed = suppressControlBySpeed.Evaluate(velocity.magnitude);
+            _mainDriveHandler.PitchAxis = Mathf.Clamp((-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper) * _acuity, -1, 1) * suppressionBySpeed;
             _mainDriveHandler.RollAxis = Mathf.Clamp(((-fwd.x * (1 - _rollYawFactor) //turn by roll
                                                       - upVal * (_rollYawFactor + _rollBackFactor) //align to up
                                                       + velocity.x * _driftCompensation) * rollSensitivity 
                                                      - angularVelocity.z * rollDumper) * _acuity,
-                -1, 1);
+                -1, 1) * suppressionBySpeed;
 
             float yawControlValue = fwd.x * _rollYawFactor * yawSensitivity; //turn by yaw
             float yawDumping = -angularVelocity.y * yawDumper;
-            _mainDriveHandler.YawAxis = Mathf.Clamp((yawControlValue + yawDumping) * _acuity, -1, 1);
+            _mainDriveHandler.YawAxis = Mathf.Clamp((yawControlValue + yawDumping) * _acuity, -1, 1) * suppressionBySpeed;
                 
             _mainDriveHandler.ThrustAxis = Mathf.Clamp01((_wantedSpeed - velocity.z) * throttleSensitivity);
             _mainDriveHandler.SupportsPowerAxis = 1;

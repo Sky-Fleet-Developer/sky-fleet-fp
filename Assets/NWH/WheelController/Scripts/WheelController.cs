@@ -882,7 +882,7 @@ namespace NWH.WheelController3D
                     totalForce.x = -(_frictionForce.x + _suspensionForce.x) * otherBodyForceScale;
                     totalForce.y = -(_frictionForce.y + _suspensionForce.y) * otherBodyForceScale;
                     totalForce.z = -(_frictionForce.z + _suspensionForce.z) * otherBodyForceScale;
-                    Debug.Log($"WHEEL: totalForce = {totalForce}");
+                    //Debug.Log($"WHEEL: totalForce = {totalForce}");
                     _hitRigidbody.AddForceAtPosition(totalForce, wheelHit.point);
                 }
             }

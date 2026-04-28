@@ -13,11 +13,13 @@ namespace Runtime.Ai.Maneuvers
         private Sensor _sensor;
         private IUnitControl _control;
         private float _cruiseSpeed;
+        private float _maxTime;
 
-        public UpAway(float targetHeight, float liftAngleDeg)
+        public UpAway(float targetHeight, float liftAngleDeg, float maxDuration)
         {
             _liftAngleDeg = liftAngleDeg;
             _targetHeight = targetHeight;
+            _maxTime = Time.time + maxDuration;
         }
 
         public void InjectControls(IUnit unit, IUnitControl control, Sensor sensor)
@@ -43,7 +45,7 @@ namespace Runtime.Ai.Maneuvers
 
         public bool Tick()
         {
-            return _sensor.Position.y + WorldOffset.Offset.y > _targetHeight;
+            return _sensor.Position.y + WorldOffset.Offset.y > _targetHeight || Time.time > _maxTime;
         }
 
         public void Exit()

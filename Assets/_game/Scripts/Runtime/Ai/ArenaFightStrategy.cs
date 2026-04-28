@@ -96,7 +96,7 @@ namespace Runtime.Ai
 
             foreach (var unit in _controllableUnits)
             {
-                if (unit.Unit.Sensor.Menaces.Count > 0 && unit.GetTactic() is not MenaceReactionTactic && unit.Unit.Sensor.Menaces[0].Dot > 0.995f)
+                if (unit.Unit.HasSignificantMenace() && unit.GetTactic().CanChangeTo(typeof(MenaceReactionTactic), unit))
                 {
                     if (unit.GetTactic() is SpsFollowTactic)
                     {
