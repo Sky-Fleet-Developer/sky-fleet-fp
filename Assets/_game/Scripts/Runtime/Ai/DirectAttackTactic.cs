@@ -84,7 +84,7 @@ namespace Runtime.Ai
                     break;
                 case State.Aiming:
                 case State.Shooting:
-                    ControlledEntity.Unit.SetManeuvers(new RotateTowards(Target), new Aiming(Target));
+                    ControlledEntity.Unit.SetManeuvers(new RotateTowards(Target), new Aiming(Target, true));
                     break;
                 case State.Retreating:
                     if (Target.Position.y > ControlledEntity.Position.y)

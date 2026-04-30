@@ -9,7 +9,7 @@ namespace Core.Tests
 {
     public class RuntimeTestLauncher
     {
-        public class Context
+        public class Context : IDisposable
         {
             public Bootstrapper MyBootstrapper;
             public Scene MyScene;
@@ -17,6 +17,16 @@ namespace Core.Tests
             public RemoteConfigurationHandler MyRemoteConfigurationHandler;
             public bool IsSceneInstalled;
             public bool IsSystemsRun;
+            private bool _isDisposed;
+            public void Dispose()
+            {
+                if (_isDisposed) return;
+                MyContainer?.DisposeAll();
+                MyRemoteConfigurationHandler.Dispose();
+                _isDisposed = true;
+            }
+            
+            ~Context() => Dispose();
         }
         private const string SceneName = "RuntimeTestScene";
         private static Context _staticContext;

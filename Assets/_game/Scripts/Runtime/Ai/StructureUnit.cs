@@ -37,7 +37,7 @@ namespace Runtime.Ai
         [Inject] private TickService _tickService;
         [Inject] private MenacesWatcher _menacesWatcher;
         public bool IsManeuversComplete => _isManeuversComplete;
-        public int EntityId => _entity.Id;
+        public UnitEntity Entity => _entity;
         private float _refreshNearSignaturesTimer;
         private bool _isManeuversComplete;
         public Sensor Sensor => _sensor;

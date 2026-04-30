@@ -20,6 +20,5 @@ namespace Core.World
     public interface IObjectEntity : IWorldEntity
     {
         GameObject GameObject { get; }
-        void UpdateTransforms();
     }
 }

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.Ai;
+using Core.Character.Interaction;
 using Core.Configurations;
 using Core.Graph.Wires;
 using Core.Items;
+using Core.Misc;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Trading;
@@ -16,7 +18,7 @@ using Zenject;
 
 namespace Runtime.Structure.Rigging.Combat
 {
-    public class Gun : BlockWithNode, IMenace, IKineticWeapon
+    public class Gun : BlockWithNode, IMenace, IKineticWeapon, IWeaponHandler
     {
         [SerializeField] private Transform muzzle;
         [SerializeField] private float menaceAbstractDistance = 500f;
@@ -25,22 +27,29 @@ namespace Runtime.Structure.Rigging.Combat
         [Inject] private BankSystem _bankSystem;
         [Inject] private ItemsTable _itemsTable;
         [Inject] private MenacesWatcher _menacesWatcher;
+        [Inject] private TransformCacheSystem _transformCacheSystem;
         // ReSharper disable once InconsistentNaming
         private ActionPort shootInput = new();
         private IItemInstancesSource _inventory;
         private ItemInstance _shell;
         private float _menaceFactor;
         private CaliberSign _myCaliber;
-        
+        private bool _isRegisteredInMenacesWatcher = false;
+        private Vector3 _muzzleLocalPos;
+        private Quaternion _muzzleLocalRot;
+                
         public UnitEntity MyUnit => _myUnit;
         public float MenaceDistanceSqr => menaceAbstractDistance * menaceAbstractDistance;
         public Ray AimingRay => new Ray(_myUnit.GetGlobalPositionThreadSafe(_muzzleLocalPos), _myUnit.GetGlobalRotationThreadSafe(_muzzleLocalRot) * Vector3.forward);
         public float MenaceFactorValue => _menaceFactor;
         public Transform Muzzle => muzzle;
         public Vector3 Velocity => Structure is IDynamicStructure dynamicStructure ? dynamicStructure.GetPointVelocity(muzzle.position) : Vector3.zero;
-        private bool _isRegisteredInMenacesWatcher = false;
-        private Vector3 _muzzleLocalPos;
-        private Quaternion _muzzleLocalRot;
+        public float Accuracy => 1f;
+        public bool CanAimHorizontally => false;
+        public bool CanAimVertically => false;
+        public float HorizontalAimAxis { get; set; }
+        public float VerticalAimAxis { get; set; }
+        public TransformCache MuzzleThreadSafe => _transformCacheSystem.Read(muzzle);
 
         public override void InitBlock(IStructure structure, Parent parent)
         {
@@ -50,6 +59,7 @@ namespace Runtime.Structure.Rigging.Combat
             RefreshShell();
             _muzzleLocalPos = structure.transform.InverseTransformPoint(muzzle.position);
             _muzzleLocalRot = Quaternion.Inverse(structure.transform.rotation) * muzzle.rotation;
+            _transformCacheSystem.AddTarget(muzzle);
         }
         
         protected override void OnItemSet()
@@ -107,6 +117,15 @@ namespace Runtime.Structure.Rigging.Combat
             {
                 _projectileHandler.MakeProjectile(this, projectile);
             }
+        }
+        
+        void IWeaponHandler.Fire()
+        {
+            Shoot();
+        }
+
+        void IWeaponHandler.ResetControls()
+        {
         }
     }
 }

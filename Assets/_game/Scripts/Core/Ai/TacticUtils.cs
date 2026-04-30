@@ -27,6 +27,12 @@ namespace Core.Ai
             Vector3 dir = to.Position - from.Position;
             return Vector3.Dot(from.Rotation * Vector3.forward, dir);
         }
+        
+        public static float Dot(this Sensor from, ITargetData to, float predictionTime)
+        {
+            Vector3 dir = to.Position + to.Velocity * predictionTime - from.Position + from.Velocity * predictionTime;
+            return Vector3.Dot(from.Rotation * Vector3.forward, dir);
+        }
 
         public static float Distance(this Sensor from, ITargetData to, float predictionTime = 0)
         {
@@ -68,6 +74,6 @@ namespace Core.Ai
             }
 
             return closestEnemy;
-        } 
+        }
     }
 }

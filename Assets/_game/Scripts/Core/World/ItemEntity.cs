@@ -6,7 +6,9 @@ using Core.Configurations;
 using Core.ContentSerializer;
 using Core.Data;
 using Core.Items;
+using Core.Misc;
 using Core.Structure;
+using Core.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
@@ -20,6 +22,7 @@ namespace Core.World
         [Inject] private ItemsTable _itemsTable;
         [Inject] private IItemObjectFactory _itemObjectFactory;
         [Inject] private IItemInstanceFactory _itemInstanceFactory;
+        [Inject] private TransformCacheSystem _transformCacheSystem;
         private Vector3 _positionCache;
         private Quaternion _rotationCache;
         private ItemDescription _itemDescription;
@@ -28,6 +31,7 @@ namespace Core.World
         private int _lod;
         private bool _isLodDirty;
         private IItemObject _objectInstance;
+        private Transform _objectInstanceTransform;
         private Rigidbody _rigidbody;
         private ItemInstance _itemInstance;
         protected DiContainer OverrideContainer { get; set; } = null;
@@ -37,9 +41,8 @@ namespace Core.World
         public Rigidbody Rigidbody => _rigidbody;
 
         public ItemInstance ItemInstance => _itemInstance;
-
-        public Vector3 Position => _positionCache;
-        public Quaternion Rotation => _rotationCache;
+        public Vector3 Position => _objectInstance == null ? _positionCache : _transformCacheSystem.Read(_objectInstanceTransform).Position;
+        public Quaternion Rotation => _objectInstance == null ? _rotationCache : _transformCacheSystem.Read(_objectInstanceTransform).Rotation;
 
         public ItemEntity()
         {
@@ -56,9 +59,6 @@ namespace Core.World
         {
             _itemDescription = itemDescription;
             _objectInstance = objectInstance;
-            _rigidbody = _objectInstance.transform.GetComponent<Rigidbody>();
-            _positionCache = objectInstance.transform.position;
-            _rotationCache = objectInstance.transform.rotation;
         }
         
         public virtual void Initialize()
@@ -68,14 +68,10 @@ namespace Core.World
             {
                 _itemObjectFactory.SetupInstance(itemObjectHandle, _itemInstance, OverrideContainer);
             }
-        }
-        
-        public void UpdateTransforms()
-        {
+
             if (_objectInstance != null)
             {
-                _positionCache = _objectInstance.transform.position;
-                _rotationCache = _objectInstance.transform.rotation;
+                OnSpawn();
             }
         }
         
@@ -101,7 +97,8 @@ namespace Core.World
                 if(_objectInstance == null)
                 {
                     _loading = _itemObjectFactory.CreateSingle(_itemInstance, OverrideContainer);
-                    OnSpawn(await _loading);
+                    _objectInstance = await _loading;
+                    OnSpawn();
                 }
             }
             else
@@ -116,18 +113,21 @@ namespace Core.World
             OnLodChangedEvent?.Invoke(this, _lod);
             _isLodDirty = false;
         }
-        
 
-        protected virtual void OnSpawn(IItemObject instance)
+        protected virtual void OnSpawn()
         {
-            _objectInstance = instance;
             _rigidbody = _objectInstance.transform.GetComponent<Rigidbody>();
-            _objectInstance.transform.position = _positionCache;
-            _objectInstance.transform.rotation = _rotationCache;
+            _objectInstanceTransform = _objectInstance.transform;
+            _objectInstanceTransform.position = _positionCache;
+            _objectInstanceTransform.rotation = _rotationCache;
+            _transformCacheSystem.AddTarget(_objectInstanceTransform);
         }
 
         protected virtual void OnDespawn()
         {
+            _transformCacheSystem.RemoveTarget(_objectInstanceTransform);
+            _objectInstanceTransform = null;
+            _rigidbody = null;
         }
 
         public Task GetAnyLoad()

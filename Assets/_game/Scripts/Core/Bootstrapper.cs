@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
@@ -77,6 +76,7 @@ namespace Core
         {
             _remoteConfigurationHandler.Dispose();
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            _projectContainer.DisposeAll();
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -187,6 +187,9 @@ namespace Core
             var tickService = new GameObject("[Tick]").AddComponent<TickService>();
             Object.DontDestroyOnLoad(tickService.gameObject);
             container.BindInstance(tickService);
+            TransformCacheSystem transformCacheSystem = new TransformCacheSystem();
+            tickService.Add(transformCacheSystem);
+            container.Bind<TransformCacheSystem>().FromInstance(transformCacheSystem);
             return configsLoading.AsUniTask();
         }
     }

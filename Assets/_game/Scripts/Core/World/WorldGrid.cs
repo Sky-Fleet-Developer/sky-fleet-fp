@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boot_strapper;
 using Core.Data;
+using Core.Misc;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Zenject;
+using ITickable = Core.Misc.ITickable;
 
 #if FLAT_SPACE
 using VectorInt = UnityEngine.Vector2Int;
@@ -28,7 +30,7 @@ namespace Core.World
         public int refreshPeriod;
     }
 
-    public class WorldGrid : MonoBehaviour, ILoadAtStart, IMyInstaller, IWorldEntityDisposeListener
+    public class WorldGrid : MonoBehaviour, ITickable, ILoadAtStart, IMyInstaller, IWorldEntityDisposeListener
     {
         [SerializeField] private WorldGridProfile profile;
         [ShowInInspector] private WorldGridData Settings
@@ -51,6 +53,7 @@ namespace Core.World
         }
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
         [Inject] private LocationChunksSet _chunksSet;
+        [Inject] private TickService _tickService;
         private Grid _grid;
         private Dictionary<int, int> _lods = new (); // Key is entityId, value is entity lod
         private Dictionary<int, IWorldEntity> _entities = new ();
@@ -63,6 +66,12 @@ namespace Core.World
 
         public event Action<IWorldEntity> OnEntityAdded;
         public event Action<IWorldEntity> OnEntityRemoved;
+        public int TickRate => 1;
+
+        static WorldGrid()
+        {
+            TickService.SetUpdate(typeof(WorldGrid), false);
+        }
 
         private void Awake()
         {
@@ -81,9 +90,15 @@ namespace Core.World
         {
             _isActive = true;
             gameObject.SetActive(true);
+            _tickService.Add(this);
             await RefreshGrid();
         }
-        
+
+        private void OnDestroy()
+        {
+            _tickService.Remove(this);
+        }
+
         public void AddEntity(IWorldEntity entity)
         {
             #if FLAT_SPACE
@@ -96,6 +111,7 @@ namespace Core.World
             _coordinatesCache.Add(id, cell);
             
             _chunksSet.AddEntityToChunk(cell, entity);
+
             _lods[id] = -1;
             entity.Initialize();
             SetLodForEntity(entity);
@@ -128,7 +144,7 @@ namespace Core.World
             return _grid.Size;
         }
 
-        public void Update()
+        public void Tick()
         {
             if (_grid.Update(_playerTracker.WorldPosition, out Vector3Int cell3d))
             {
@@ -152,10 +168,6 @@ namespace Core.World
 
             foreach ((IWorldEntity entity, VectorInt cell) in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
             {
-                if (entity is IObjectEntity objectEntity)
-                {
-                    objectEntity.UpdateTransforms();
-                }
                 SetLodForEntity(entity);
             }
         }

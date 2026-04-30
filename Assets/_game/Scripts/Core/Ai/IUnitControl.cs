@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Core.Character.Interaction;
+using UnityEngine;
 
 namespace Core.Ai
 {
@@ -16,5 +17,6 @@ namespace Core.Ai
         
         public bool IsWeaponActive { get; }
         public void SetAimingVector(IDirectionData direction);
+        public IWeaponHandler GetMainWeapon();
     }
 }

@@ -117,6 +117,11 @@ namespace Core.Character.Stuff
             }*/
             if (_content != null && _content.Amount < _maxCapacity)
             {
+                if (content == null)
+                {
+                    _content = null;
+                    return PutItemResult.Fully; // input item is empty
+                }
                 float countToFill = Mathf.Min(_maxCapacity - _content.Amount, content.Amount);
                 if (countToFill < content.Amount)
                 {

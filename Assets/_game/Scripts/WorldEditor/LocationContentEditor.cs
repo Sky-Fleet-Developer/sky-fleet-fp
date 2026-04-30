@@ -341,7 +341,7 @@ namespace WorldEditor
             {
                 try
                 {
-                    _worldGrid.Update();
+                    _worldGrid.Tick();
                 }
                 catch (Exception e)
                 {

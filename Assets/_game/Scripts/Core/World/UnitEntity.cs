@@ -74,9 +74,9 @@ namespace Core.World
             ((MonoBehaviour)_unit).enabled = isActive;
         }
 
-        protected override void OnSpawn(IItemObject instance)
+        protected override void OnSpawn()
         {
-            base.OnSpawn(instance);
+            base.OnSpawn();
             _unit = GameObject.GetComponent<IUnit>();
             SetupUnit();
         }

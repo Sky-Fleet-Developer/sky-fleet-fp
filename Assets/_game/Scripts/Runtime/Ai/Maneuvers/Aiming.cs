@@ -1,4 +1,6 @@
 ﻿using Core.Ai;
+using Core.Character.Interaction;
+using Core.Misc;
 using UnityEngine;
 
 namespace Runtime.Ai.Maneuvers
@@ -12,9 +14,13 @@ namespace Runtime.Ai.Maneuvers
         private Sensor _sensor;
         private float _chaseFactor = 0.5f;
         private IUnit _unit;
+        private bool _shootWhenReady;
+        private IWeaponHandler _mainWeapon;
+        private float _accuracyCos;
 
-        public Aiming(ITargetData target)
+        public Aiming(ITargetData target, bool shootWhenReady)
         {
+            _shootWhenReady = shootWhenReady;
             _target = target;
         }
 
@@ -25,6 +31,11 @@ namespace Runtime.Ai.Maneuvers
             _control = control;
             _aimingDir = new DirectionToTarget(_target);
             _characteristic = unit.GetTechCharacteristic();
+            _mainWeapon = control.GetMainWeapon();
+            if (_mainWeapon != null)
+            {
+                _accuracyCos = Mathf.Cos(_mainWeapon.Accuracy * Mathf.Deg2Rad);
+            }
         }
         
         public void Enter()
@@ -36,6 +47,7 @@ namespace Runtime.Ai.Maneuvers
             _control.SetRollYawFactor(0.5f);
             _control.SetRollBackFactor(0.15f);
             _control.SetAcuity(1.5f);
+            _control.SetAimingVector(_aimingDir);
         }
 
         public bool Tick()
@@ -47,6 +59,24 @@ namespace Runtime.Ai.Maneuvers
             _control.SetPredictionTime(chargeFlyTime);
             _control.SetFollowSpeed(_target, _sensor, chargeFlyTime, Vector3.zero/*- _aimingDir.GetDirection(_sensor.Position) * distance*/, _chaseFactor, _characteristic.minimalForwardSpeed);
             _aimingDir.DrawGizmos(_sensor.Position, Color.red);
+
+            if (_shootWhenReady && _control.IsWeaponActive) // TODO: make a dash toward aim target when close to target
+            {
+                TransformCache weaponMuzzle = _mainWeapon.MuzzleThreadSafe;
+                Vector3 dir = _target.Position - weaponMuzzle.Position + (_target.Velocity - _sensor.Velocity) * chargeFlyTime;
+                float dot = Vector3.Dot(weaponMuzzle.Rotation * Vector3.forward, dir.normalized);
+                Debug.DrawRay(weaponMuzzle.Position, weaponMuzzle.Rotation * Vector3.forward * 100, Color.yellow);
+                Debug.DrawRay(weaponMuzzle.Position, dir, Color.green);
+                if (dot > Mathf.Cos(10))
+                {
+                    Debug.Log(Mathf.Acos(dot) * Mathf.Rad2Deg);
+                }
+
+                if (dot > _accuracyCos)
+                {
+                    _mainWeapon.Fire();
+                }
+            }
             return false;
         }
 

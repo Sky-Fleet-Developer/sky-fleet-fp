@@ -182,6 +182,8 @@ namespace Runtime.Ai
             _driftCompensation = value;
         }
         
+        public IWeaponHandler GetMainWeapon() => _mainWeaponHandler;
+        
         public void SetAimingVector(IDirectionData direction)
         {
             _aimingDirection = direction;

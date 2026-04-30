@@ -9,7 +9,8 @@ namespace Core.Ai
         public void SetTactic(IUnitTactic tactic);
         public void SetManeuvers(params IManeuver[] maneuvers);
         public bool IsManeuversComplete { get; }
-        public int EntityId { get; }
+        public int EntityId => Entity.Id;
+        public UnitEntity Entity { get; }
         public void InjectEntity(UnitEntity entity);
         public Sensor Sensor { get; }
         public UnitTechCharacteristic GetTechCharacteristic();
