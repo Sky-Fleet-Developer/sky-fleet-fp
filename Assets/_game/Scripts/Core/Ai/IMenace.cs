@@ -9,7 +9,7 @@ namespace Core.Ai
     public interface IMenace
     {
         public UnitEntity MyUnit { get; }
-        public float MenaceDistanceSqr { get; }
+        public float MenaceDistance { get; }
         public Ray AimingRay { get; }
         public float MenaceFactorValue { get; }
     }

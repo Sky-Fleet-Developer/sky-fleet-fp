@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using Core.Misc;
+using UnityEngine;
 
 namespace Core.Weapon
 {
     public class ProjectileInstance
     {
         private const float G = 9.8f;
-        public int Id { get; }
+        public SmKey Id { get; private set; }
         public ShellData ShellData { get; }
         public float InitialTime { get; }
         public Vector3 Position
@@ -21,14 +22,18 @@ namespace Core.Weapon
         private Vector3 _position;
         private Vector3 _previousPosition;
 
-        public ProjectileInstance(Vector3 origin, Vector3 nonUnitDirection, Vector3 initialVelocity, float speed, ShellData shellData, int id)
+        public ProjectileInstance(Vector3 origin, Vector3 nonUnitDirection, Vector3 initialVelocity, float speed, ShellData shellData)
         {
             ShellData = shellData;
-            Id = id;
             InitialTime = Time.time;
             _position = origin;
             _previousPosition = origin;
             _velocity = initialVelocity + nonUnitDirection.normalized * speed;
+        }
+
+        public void InjectKey(SmKey id)
+        {
+            Id = id;
         }
 
         public void Step(float fixedDeltaTime)

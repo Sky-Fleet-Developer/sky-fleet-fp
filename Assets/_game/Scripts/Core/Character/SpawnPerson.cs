@@ -25,6 +25,16 @@ namespace Runtime.Character
         [SerializeField] private FirstPersonController source;
         bool ILoadAtStart.enabled => enabled && gameObject.activeInHierarchy;
         private DiContainer _diContainer;
+        private TransformTracker _playerTracker;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _playerTracker = new GameObject("PlayerTracker").AddComponent<TransformTracker>();
+            _playerTracker.transform.SetParent(transform);
+            _playerTracker.transform.localPosition = Vector3.zero;
+            _playerTracker.Init();
+        }
 
         private void Start()
         {
@@ -42,6 +52,9 @@ namespace Runtime.Character
                     if (!rule.TryGetSpawnPoint(out var spawnPosition)) continue;
                     
                     player = Instantiate(source, spawnPosition, transform.rotation);
+                    _playerTracker.transform.SetParent(player.transform);
+                    _playerTracker.transform.localPosition = Vector3.zero;
+                    _playerTracker.transform.localRotation = Quaternion.identity;
                     _diContainer.InjectGameObject(player.gameObject);
                     player.gameObject.SetActive(false);
                     OnPlayerWasLoaded.Invoke();
@@ -63,7 +76,7 @@ namespace Runtime.Character
         public void InstallBindings(DiContainer container)
         {
             _diContainer = container;
-            _diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(playerCamera.GetComponent<TransformTracker>());
+            _diContainer.Bind<IDynamicPositionProvider>().WithId("Player").FromInstance(_playerTracker);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Runtime.Ai.Maneuvers
     {
         private IUnitControl _control;
         private DirectionToTarget _aimingDir;
+        private DirectionToTarget _followDir;
         private UnitTechCharacteristic _characteristic;
         private ITargetData _target;
         private Sensor _sensor;
@@ -17,6 +18,7 @@ namespace Runtime.Ai.Maneuvers
         private bool _shootWhenReady;
         private IWeaponHandler _mainWeapon;
         private float _accuracyCos;
+        
 
         public Aiming(ITargetData target, bool shootWhenReady)
         {
@@ -30,6 +32,7 @@ namespace Runtime.Ai.Maneuvers
             _sensor = sensor;
             _control = control;
             _aimingDir = new DirectionToTarget(_target);
+            _followDir = new DirectionToTarget(_target);
             _characteristic = unit.GetTechCharacteristic();
             _mainWeapon = control.GetMainWeapon();
             if (_mainWeapon != null)
@@ -40,8 +43,8 @@ namespace Runtime.Ai.Maneuvers
         
         public void Enter()
         {
-            Debug.Log($"Enter Aiming ({_unit.EntityId})");
-            _control.SetForwardDirection(_aimingDir);
+            //Debug.Log($"Enter Aiming ({_unit.EntityId})");
+            _control.SetForwardDirection(_followDir);
             _control.SetDriftCompensation(0.1f);
             _control.SetUpVector(new ConstantDirection(Vector3.up));
             _control.SetRollYawFactor(0.5f);
@@ -53,10 +56,11 @@ namespace Runtime.Ai.Maneuvers
         public bool Tick()
         {
             _aimingDir.Correction = Quaternion.Inverse(Quaternion.LookRotation(_sensor.MainCaliberWantedDirectionLocalSpace));
+            _followDir.Correction = _aimingDir.Correction;
             float distance = _sensor.Distance(_target);
             float chargeFlyTime = distance / _sensor.MainCaliberChargeInitialSpeed;
             
-            _control.SetPredictionTime(chargeFlyTime);
+            _control.SetPredictionTime(chargeFlyTime/* + Mathf.PingPong(_dash, 1f)*/);
             _control.SetFollowSpeed(_target, _sensor, chargeFlyTime, Vector3.zero/*- _aimingDir.GetDirection(_sensor.Position) * distance*/, _chaseFactor, _characteristic.minimalForwardSpeed);
             _aimingDir.DrawGizmos(_sensor.Position, Color.red);
 
@@ -66,10 +70,13 @@ namespace Runtime.Ai.Maneuvers
                 Vector3 dir = _target.Position - weaponMuzzle.Position + (_target.Velocity - _sensor.Velocity) * chargeFlyTime;
                 float dot = Vector3.Dot(weaponMuzzle.Rotation * Vector3.forward, dir.normalized);
                 Debug.DrawRay(weaponMuzzle.Position, weaponMuzzle.Rotation * Vector3.forward * 100, Color.yellow);
-                Debug.DrawRay(weaponMuzzle.Position, dir, Color.green);
+                //Debug.DrawRay(weaponMuzzle.Position, dir, Color.green);
                 if (dot > Mathf.Cos(10))
                 {
-                    Debug.Log(Mathf.Acos(dot) * Mathf.Rad2Deg);
+                    //Debug.Log(Mathf.Acos(dot) * Mathf.Rad2Deg);
+                    Vector3 dashAxis = Vector3.Cross(dir, weaponMuzzle.Rotation * Vector3.forward);
+                    _followDir.Correction *= Quaternion.AngleAxis(-1.5f + Mathf.PingPong(Time.time * 0.7f, 1f) * 3, dashAxis);
+                    Debug.DrawRay(_sensor.Position, _followDir.GetDirection(_sensor.Position), Color.red);
                 }
 
                 if (dot > _accuracyCos)

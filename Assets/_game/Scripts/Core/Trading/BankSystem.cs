@@ -185,10 +185,19 @@ namespace Core.Trading
 
         public bool TryMergeItems(ItemInstance disposable, ItemInstance destination)
         {
-            if (!disposable.Sign.Equals(destination.Sign))
+            try
             {
-                return false;
+                if (!disposable.Sign.Equals(destination.Sign))
+                {
+                    return false;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
 
             if (destination.IsContainer) // Merge containers is complex. It both should be empty before merge.
             {

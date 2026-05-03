@@ -1,4 +1,5 @@
-﻿using Core.Ai;
+﻿using System.Linq;
+using Core.Ai;
 using UnityEngine;
 
 namespace Runtime.Ai
@@ -33,6 +34,10 @@ namespace Runtime.Ai
 
         public bool Tick()
         {
+            if (_sensor.Menaces.Count == 0)
+            {
+                return true;
+            }
             MenaceRef mainMenace = _sensor.Menaces[0];
             Vector3 blindZoneUnitSpace = mainMenace.Menace.MyUnit.GetTechCharacteristic().blindZone.normalized;
             Vector3 blindZone = mainMenace.Menace.MyUnit.GetGlobalDirectionThreadSafe(blindZoneUnitSpace);

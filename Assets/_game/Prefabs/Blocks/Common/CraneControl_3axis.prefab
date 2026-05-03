@@ -675,7 +675,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assetId: crane-control_3axis
   tags: []
-  mass: 30
   mountingType: 
   axes:
   - computerInput: Vertical
@@ -718,12 +717,18 @@ MonoBehaviour:
     portType: 4
     _device: {fileID: 714428746198227535}
   buttons:
-  - enableInteraction: 0
-    computerInput: Release
+  - computerInput: Release
     _device: {fileID: 0}
-    keyDetected:
-      keys:
-      - KeyCodes: 72000000
+    repeatWhenHeld: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 80ddf7a9-b73e-4a2d-a498-dead0d3ca10c
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
   toggles: []
   trackballs: []
   attachData:

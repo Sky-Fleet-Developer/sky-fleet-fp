@@ -1096,12 +1096,6 @@ MonoBehaviour:
     amount: 1
     gridSlot: 
     properties:
-    - name: identifiable
-      values:
-      - stringValue: 1dc79653-2efd-4bab-9cb0-b1c5937167a6
-        intValue: 0
-        floatValue: 0
-        objectValue: 
     - name: position
       values:
       - stringValue: -27.27487
@@ -1132,7 +1126,7 @@ MonoBehaviour:
         objectValue: 
       - stringValue: 0
         intValue: 0
-        floatValue: 0
+        floatValue: 1827.81
         objectValue: 
     - name: wires
       values:
@@ -1152,35 +1146,35 @@ MonoBehaviour:
         intValue: 0
         floatValue: 0
         objectValue: 03210000004c69676874537570706f72742d53696e676c655f4c5f706f77657248616e646c65210000004c69676874537570706f72742d53696e676c655f525f706f77657248616e646c6522000000537570706f7274546f704375746f66664d6f64756c655f6f7574707574506f776572
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 0319000000436f70746572436f6e74726f6c5f35617869735f50697463681d000000456c65766f6e734469737472696275746f725f696e707574506974636822000000456c65766f6e734469737472696275746f725f5461696c5f696e7075745069746368
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 0218000000436f70746572436f6e74726f6c5f35617869735f526f6c6c1c000000456c65766f6e734469737472696275746f725f696e707574526f6c6c
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 021b0000004c69676874537570706f72742d53696e676c655f4c5f70697463681d000000456c65766f6e734469737472696275746f725f6f75747075744c656674
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 021b0000004c69676874537570706f72742d53696e676c655f525f70697463681e000000456c65766f6e734469737472696275746f725f6f75747075745269676874
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 0317000000436f70746572436f6e74726f6c5f35617869735f5961771e00000046726f6e74576865656c5f526f7461746f725f746172676574416e676c6521000000456c65766f6e734469737472696275746f725f5461696c5f696e707574526f6c6c
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 0223000000456c65766f6e734469737472696275746f725f5461696c5f6f757470757452696768741b000000527564646572525f526f7461746f725f746172676574416e676c65
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 0222000000456c65766f6e734469737472696275746f725f5461696c5f6f75747075744c6566741b0000005275646465724c5f526f7461746f725f746172676574416e676c65
-      - stringValue: 
+      - stringValue: 0
         intValue: 0
         floatValue: 0
         objectValue: 021700000043616e6e6f6e2d31317839355f73686f6f74496e70757419000000436f70746572436f6e74726f6c5f35617869735f53686f6f74

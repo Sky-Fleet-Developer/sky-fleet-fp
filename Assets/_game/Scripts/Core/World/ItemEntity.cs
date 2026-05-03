@@ -59,6 +59,7 @@ namespace Core.World
         {
             _itemDescription = itemDescription;
             _objectInstance = objectInstance;
+            _positionCache = objectInstance.transform.position; // Do not remove. This is important for initial cell definition
         }
         
         public virtual void Initialize()
@@ -207,17 +208,17 @@ namespace Core.World
 
         public Vector3 GetGlobalDirectionThreadSafe(Vector3 relativeDirection)
         {
-            return _rotationCache * relativeDirection;
+            return Rotation * relativeDirection;
         }
         
         public Vector3 GetGlobalPositionThreadSafe(Vector3 relativePosition)
         {
-            return _rotationCache * relativePosition + _positionCache;
+            return Rotation * relativePosition + Position;
         }
 
         public Quaternion GetGlobalRotationThreadSafe(Quaternion relativeRotation)
         {
-            return _rotationCache * relativeRotation;
+            return Rotation * relativeRotation;
         }
 
         public void Dispose()

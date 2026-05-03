@@ -19,7 +19,7 @@ namespace Runtime.Ai
         public override void UnitEnterTactic(UnitEntity entity)
         {
             base.UnitEnterTactic(entity);
-            Debug.Log($"MenaceReactionTactic ({entity.Id}) menace by {entity.Unit.Sensor.Menaces[0].Menace.MyUnit.Id}. Dot: {entity.Unit.Sensor.Menaces[0].Dot}");
+            //Debug.Log($"MenaceReactionTactic ({entity.Id}) menace by {entity.Unit.Sensor.Menaces[0].Menace.MyUnit.Id}. Dot: {entity.Unit.Sensor.Menaces[0].Dot}");
             entity.Unit.SetManeuvers(new MoveToDeadZoneManeuver());
         }
 
@@ -41,7 +41,7 @@ namespace Runtime.Ai
             }
             if (!ControlledEntity.Unit.HasSignificantMenace())
             {
-                Debug.Log($"Menace disappeared ({ControlledEntity.Id})");
+                //Debug.Log($"Menace disappeared ({ControlledEntity.Id})");
                 _onMenaceDisappeared(ControlledEntity);
                 _shouldBeDisposed = true;
                 return;

@@ -66,6 +66,7 @@ namespace Core.World
 
         public event Action<IWorldEntity> OnEntityAdded;
         public event Action<IWorldEntity> OnEntityRemoved;
+        public IEnumerable<IWorldEntity> Entities => _entities.Values;
         public int TickRate => 1;
 
         static WorldGrid()
@@ -101,6 +102,7 @@ namespace Core.World
 
         public void AddEntity(IWorldEntity entity)
         {
+            entity.Initialize();
             #if FLAT_SPACE
             VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
             #else
@@ -113,7 +115,6 @@ namespace Core.World
             _chunksSet.AddEntityToChunk(cell, entity);
 
             _lods[id] = -1;
-            entity.Initialize();
             SetLodForEntity(entity);
             OnEntityAdded?.Invoke(entity);
         }

@@ -1104,17 +1104,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1347897269}
     m_Modifications:
-    - target: {fileID: 826670004452166300, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
-      propertyPath: myTechCharacteristic.minAttackRange
-      value: 30
-      objectReference: {fileID: 0}
     - target: {fileID: 1513608487675574314, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: m_Name
       value: Cargo_Emgracopter
       objectReference: {fileID: 0}
+    - target: {fileID: 2512834825235996267, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
+      propertyPath: itemDescription.nestedItems.Array.data[15].properties.Array.data[2].values.Array.data[0].stringValue
+      value: 23f667c9-469c-4039-aced-f4eb1cde6a9a
+      objectReference: {fileID: 0}
     - target: {fileID: 3135245034059036130, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -27.274872
+      value: -18.96
       objectReference: {fileID: 0}
     - target: {fileID: 3135245034059036130, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1122,7 +1122,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3135245034059036130, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1827.81
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3135245034059036130, guid: 0aef917da1207f84bba4e9854f2a5e7e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1799,7 +1799,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Runtime::Runtime.EventBehaviours.SplineSpawner
   debugDraw: 1
   baseCount: 1
-  densityOverDistance: 0
+  densityOverDistance: 0.005
   longitudeIrregularity: 1
   clusterCenterIrregularity: 1
   timeOffset: -0.81
@@ -1808,7 +1808,7 @@ MonoBehaviour:
     x: 0
     y: 5
   shapeSize: 50
-  loopMode: 0
+  loopMode: 2
   flipHorizontalOffsetInReverseDirection: 0
   seed: 2
 --- !u!114 &2099192059
@@ -1990,7 +1990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Runtime::Runtime.EventBehaviours.SplineSpawner
   debugDraw: 1
   baseCount: 1
-  densityOverDistance: 0
+  densityOverDistance: 0.005
   longitudeIrregularity: 1
   clusterCenterIrregularity: 1
   timeOffset: -1.34
@@ -1999,7 +1999,7 @@ MonoBehaviour:
     x: 0
     y: 5
   shapeSize: 50
-  loopMode: 0
+  loopMode: 2
   flipHorizontalOffsetInReverseDirection: 0
   seed: 1
 --- !u!114 &2105812701
@@ -2186,13 +2186,49 @@ PrefabInstance:
       propertyPath: m_Name
       value: 'Bootstrapper[Translator]'
       objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: Orbits.Top.Height
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: Orbits.Top.Radius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: Orbits.Bottom.Height
+      value: -6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: Orbits.Bottom.Radius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: Orbits.Center.Radius
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: TrackerSettings.PositionDamping.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: TrackerSettings.PositionDamping.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: TrackerSettings.PositionDamping.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3205572834780381020, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3333878296263490488, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -29.352905
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2240,31 +2276,63 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: c032e2792537fb04e834cca2f2d75d9b, type: 2}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 164.15381
       objectReference: {fileID: 0}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 2.2496338
       objectReference: {fileID: 0}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -212.285
       objectReference: {fileID: 0}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.27014783
+      value: 0.99061877
       objectReference: {fileID: 0}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.02260701
+      value: 0.13665478
       objectReference: {fileID: 0}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.959337
+      value: -0.000000001437126
       objectReference: {fileID: 0}
     - target: {fileID: 7582750399512105258, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.078623645
+      value: 1.9824996e-10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7582750399512105259, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: field of view
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 7582750399512105259, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: far clip plane
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 7582750399512105259, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: near clip plane
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.99061877
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.13665478
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.0000000014371256
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 1.9824843e-10
       objectReference: {fileID: 0}
     - target: {fileID: 8984863272464365300, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchorMax.x

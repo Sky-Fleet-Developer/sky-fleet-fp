@@ -97,16 +97,16 @@ namespace Runtime.Ai
             }
 
             float suppressionBySpeed = suppressControlBySpeed.Evaluate(velocity.magnitude);
-            _mainDriveHandler.PitchAxis = Mathf.Clamp((-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper) * _acuity, -1, 1) * suppressionBySpeed;
+            _mainDriveHandler.PitchAxis = Mathf.Clamp((-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper) * _acuity, -suppressionBySpeed, suppressionBySpeed);
             _mainDriveHandler.RollAxis = Mathf.Clamp(((-fwd.x * (1 - _rollYawFactor) //turn by roll
                                                       - upVal * (_rollYawFactor + _rollBackFactor) //align to up
                                                       + velocity.x * _driftCompensation) * rollSensitivity 
                                                      - angularVelocity.z * rollDumper) * _acuity,
-                -1, 1) * suppressionBySpeed;
+                -suppressionBySpeed, suppressionBySpeed);
 
             float yawControlValue = fwd.x * _rollYawFactor * yawSensitivity; //turn by yaw
             float yawDumping = -angularVelocity.y * yawDumper;
-            _mainDriveHandler.YawAxis = Mathf.Clamp((yawControlValue + yawDumping) * _acuity, -1, 1) * suppressionBySpeed;
+            _mainDriveHandler.YawAxis = Mathf.Clamp((yawControlValue + yawDumping) * _acuity, -suppressionBySpeed, suppressionBySpeed);
                 
             _mainDriveHandler.ThrustAxis = Mathf.Clamp01((_wantedSpeed - velocity.z) * throttleSensitivity);
             _mainDriveHandler.SupportsPowerAxis = 1;

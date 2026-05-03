@@ -22,8 +22,6 @@ namespace Core.Misc
         private NativeList<TransformCache> _caches = new(32, Allocator.Persistent);
         private TransformAccessArray _transforms = new(32);
         private Dictionary<Transform, int> _transformMap = new();
-        //private List<int> _sparse = new();
-        //private List<int> _dense = new();
 #if UNITY_EDITOR
         private Dictionary<Transform, TransformCache> _testCache = new();
 #endif

@@ -13,6 +13,7 @@ namespace Core.Ai
         public UnitEntity Entity { get; }
         public void InjectEntity(UnitEntity entity);
         public Sensor Sensor { get; }
+        IManeuver CurrentManeuver { get; }
         public UnitTechCharacteristic GetTechCharacteristic();
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Configurations;
 using Core.Items;
+using Core.Misc;
 using Unity.Collections;
 using UnityEngine;
 using Zenject;
@@ -15,15 +16,14 @@ namespace Core.Weapon
         [SerializeField] private float minSpatialLength = 3f;
         [SerializeField] private bool drawQueries;
         [Inject] private ItemsTable _itemsTable;
-        private List<ProjectileInstance> _projectiles = new(1000);
-        private int _projectilesCounter;
+        private SlotMap<ProjectileInstance> _projectiles = new(512);
         
         //public event Action<int, Vector3, Vector3> OnProjectileWaterInteraction;
-        public event Action<int> OnProjectileAdded;
-        public event Action<int> OnProjectileRemoved;
+        public event Action<ProjectileInstance> OnProjectileAdded;
+        public event Action<SmKey> OnProjectileRemoved;
         public event Action OnPostUpdate;
         
-        public IReadOnlyList<ProjectileInstance> Projectiles => _projectiles;
+        public IReadOnlySlotMap<ProjectileInstance> Projectiles => _projectiles;
         
         public void InstallBindings(DiContainer container)
         {
@@ -32,12 +32,12 @@ namespace Core.Weapon
 
         private void FixedUpdate()
         {
-            for (int i = _projectiles.Count - 1; i >= 0; i--)
+            foreach (var projectile in _projectiles.GetValues())
             {
-                _projectiles[i].Step(Time.fixedDeltaTime);
-                if (_projectiles[i].InitialTime + projectileSettings.maxLifetime < Time.time)
+                projectile.Step(Time.fixedDeltaTime);
+                if (projectile.InitialTime + projectileSettings.maxLifetime < Time.time)
                 {
-                    RemoveParticle(i);
+                    RemoveParticle(projectile);
                 }
             }
 
@@ -45,16 +45,19 @@ namespace Core.Weapon
             {
                 var hitsPool = new NativeArray<RaycastHit>(_projectiles.Count, Allocator.TempJob);
                 var commands = new NativeArray<RaycastCommand>(_projectiles.Count, Allocator.TempJob);
-                for (int i = 0; i < _projectiles.Count; i++)
+                int i = 0;
+                foreach (var projectile in _projectiles.GetValues())
                 {
-                    var vMag = _projectiles[i].Velocity.magnitude;
-                    commands[i] = new RaycastCommand(_projectiles[i].PreviousPosition, _projectiles[i].Velocity / vMag, 
+                    var vMag = projectile.Velocity.magnitude;
+                    commands[i++] = new RaycastCommand(projectile.PreviousPosition, projectile.Velocity / vMag, 
                         new QueryParameters(layerMask: projectileSettings.layerMask, true, QueryTriggerInteraction.Collide, true), vMag * Time.fixedDeltaTime);
                 }
+                
                 var handle = RaycastCommand.ScheduleBatch(commands, hitsPool, 1);
                 handle.Complete();
-
-                for (int i = hitsPool.Length - 1; i >= 0; i--)
+                
+                i = hitsPool.Length - 1;
+                foreach (var projectile in _projectiles.GetValues())
                 {
                     var raycastHit = hitsPool[i];
                     if (raycastHit.collider != null)
@@ -63,12 +66,14 @@ namespace Core.Weapon
                         //Debug.Log($"Collide: {raycastHit.collider.name}");
                         if (raycastHit.collider.TryGetComponent<IDamagable>(out var damagable))
                         {
-                            damagable.Hit(_projectiles[i], raycastHit.point, raycastHit.normal, ArraySegment<IDamageModifier>.Empty);
+                            damagable.Hit(projectile, raycastHit.point, raycastHit.normal, ArraySegment<IDamageModifier>.Empty);
                         }
-                        _projectiles[i].Position = raycastHit.point;
-                        RemoveParticle(i);
+                        projectile.Position = raycastHit.point;
+                        RemoveParticle(projectile);
                     }
+                    i--;
                 }
+
                 commands.Dispose();
                 hitsPool.Dispose();
             }
@@ -76,11 +81,11 @@ namespace Core.Weapon
             OnPostUpdate?.Invoke();
         }
 
-        private void RemoveParticle(int i)
+        private void RemoveParticle(ProjectileInstance instance)
         {
-            OnProjectileRemoved?.Invoke(i);
-            _projectiles[i].Dispose();
-            //_projectiles.RemoveAt(i); TODO: remove old particles, implement stable indexing
+            OnProjectileRemoved?.Invoke(instance.Id);
+            instance.Dispose();
+            _projectiles.Remove(instance.Id);
         }
 
         public void MakeProjectile(IKineticWeapon weapon, ItemInstance shell)
@@ -90,14 +95,15 @@ namespace Core.Weapon
             Vector3 spread = Random.insideUnitSphere * (weaponData.spread * 0.01f);
             float speed = weaponData.impulse / shell.Sign.GetSingleMass();
             
-            ProjectileInstance instance = new ProjectileInstance(weapon.Muzzle.position, weapon.Muzzle.forward + spread, weapon.Velocity, speed, shellData, _projectilesCounter++);
+            ProjectileInstance instance = new ProjectileInstance(weapon.Muzzle.position, weapon.Muzzle.forward + spread, weapon.Velocity, speed, shellData);
             AddProjectile(instance);
-            OnProjectileAdded?.Invoke(_projectilesCounter - 1);
+            OnProjectileAdded?.Invoke(instance);
         }
 
         private void AddProjectile(ProjectileInstance instance)
         {
-            _projectiles.Add(instance);
+            var key = _projectiles.Add(instance);
+            instance.InjectKey(key);
         }
     }
 }

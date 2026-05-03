@@ -39,12 +39,12 @@ namespace Runtime.Structure.Rigging.Combat
         private Quaternion _muzzleLocalRot;
                 
         public UnitEntity MyUnit => _myUnit;
-        public float MenaceDistanceSqr => menaceAbstractDistance * menaceAbstractDistance;
+        public float MenaceDistance => menaceAbstractDistance;
         public Ray AimingRay => new Ray(_myUnit.GetGlobalPositionThreadSafe(_muzzleLocalPos), _myUnit.GetGlobalRotationThreadSafe(_muzzleLocalRot) * Vector3.forward);
         public float MenaceFactorValue => _menaceFactor;
         public Transform Muzzle => muzzle;
         public Vector3 Velocity => Structure is IDynamicStructure dynamicStructure ? dynamicStructure.GetPointVelocity(muzzle.position) : Vector3.zero;
-        public float Accuracy => 1f;
+        public float Accuracy => 1.7f;
         public bool CanAimHorizontally => false;
         public bool CanAimVertically => false;
         public float HorizontalAimAxis { get; set; }

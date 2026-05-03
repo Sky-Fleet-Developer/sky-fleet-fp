@@ -43,6 +43,7 @@ namespace Runtime.Ai
         public Sensor Sensor => _sensor;
         int ITickable.TickRate => 1;
         public UnitTechCharacteristic GetTechCharacteristic() => myTechCharacteristic;
+        public IManeuver CurrentManeuver => _currentManeuver;
         
         private void Awake()
         {

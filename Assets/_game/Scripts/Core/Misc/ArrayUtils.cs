@@ -45,13 +45,16 @@ namespace Core.Misc
                 }
             }
 
-            if (highest == list.Count)
+            lock (list)
             {
-                list.Add(item);
-            }
-            else
-            {
-                list.Insert(highest, item);
+                if (highest == list.Count)
+                {
+                    list.Add(item);
+                }
+                else
+                {
+                    list.Insert(highest, item);
+                }
             }
         }
 

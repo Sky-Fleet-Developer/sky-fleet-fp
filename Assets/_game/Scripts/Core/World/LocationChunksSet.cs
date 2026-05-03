@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Misc;
 using Cysharp.Threading.Tasks;
+using NUnit.Framework;
 using UnityEngine;
 using Zenject;
 
@@ -108,7 +110,7 @@ namespace Core.World
                         for (i.z = oldRange.zMin; i.z < oldRange.zMax; i.z++)
                         {
 #endif
-                            if (intersection.Contains(i) || !_chunks.ContainsKey(i) || range.Contains(i)) continue;
+                            if (intersection.ContainsInclusive(i) || !_chunks.ContainsKey(i) || range.ContainsInclusive(i)) continue;
                             tasks.Add(SaveAndUnload(i));
                             //Debug.Log($"CELLS: unload chunk ({i})");
 
@@ -128,7 +130,7 @@ namespace Core.World
                         for (i.z = range.zMin; i.z < range.zMax; i.z++)
                         {
 #endif
-                            if (intersection.Contains(i)) continue;
+                            if (intersection.ContainsInclusive(i)) continue;
                             tasks.Add(Load(i));
                             //Debug.Log($"CELLS: load chunk ({i})");
 #if !FLAT_SPACE
@@ -260,7 +262,7 @@ namespace Core.World
 
         public bool IsInRange(VectorInt cell)
         {
-            return _range.Contains(cell);
+            return _range.ContainsInclusive(cell);
         }
 
         public void Unload()

@@ -73,11 +73,17 @@ namespace Core.Structure.Rigging.Control
 
         [SerializeField, HideInInspector]
         private DeviceBase<ActionPort> _device;
+        [SerializeField] private bool repeatWhenHeld;
 
         [SerializeField] protected InputAction bindings;
 
         public void Tick()
         {
+            if (repeatWhenHeld && bindings.IsPressed())
+            {
+                port.Call();
+                _device?.Port.Call();
+            }
         }
     }
 }

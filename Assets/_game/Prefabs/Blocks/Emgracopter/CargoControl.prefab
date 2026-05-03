@@ -271,16 +271,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assetId: cargo-control
   tags: []
-  mass: 30
   mountingType: 
   axes: []
   buttons:
-  - enableInteraction: 0
-    computerInput: Release
+  - computerInput: Release
     _device: {fileID: 0}
-    keyDetected:
-      keys:
-      - KeyCodes: 72000000
+    repeatWhenHeld: 0
+    bindings:
+      m_Name: Bindings
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 93eecfe1-f78f-4487-a8ad-f1a75b1dd882
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
   toggles: []
   trackballs: []
   attachData:

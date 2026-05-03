@@ -17,6 +17,8 @@ namespace Core.Ai
         public float Dot;
         public float Distance;
         public float Angle => Mathf.Acos(Dot) * Mathf.Rad2Deg;
+        
+        public new string ToString() => $"From: {Menace.MyUnit} ({Menace.MyUnit.SignatureId}). Angle: {Angle}";
     }
     
     public class MenacesWatcher : MonoBehaviour, IMyInstaller, ITickable, IWorldEntityDisposeListener
@@ -105,7 +107,7 @@ namespace Core.Ai
             {
                 var ray = kv.Value.MenacesOnBoard[i].AimingRay;
 
-                foreach (var cell in _worldGrid.Grid.IntersectRay(ray, Mathf.Sqrt(kv.Value.MenacesOnBoard[i].MenaceDistanceSqr)))
+                foreach (var cell in _worldGrid.Grid.IntersectRay(ray, kv.Value.MenacesOnBoard[i].MenaceDistance))
                 {
                     foreach (var worldEntity in _worldGrid.EnumerateCell(cell))
                     {
@@ -128,15 +130,29 @@ namespace Core.Ai
                             continue;
                         }
                         
-                        if (deltaLen * deltaLen > kv.Value.MenacesOnBoard[i].MenaceDistanceSqr)
+                        if (deltaLen > kv.Value.MenacesOnBoard[i].MenaceDistance)
                         {
                             continue;
                         }
 
+                        Debug.DrawRay(ray.origin, ray.direction * deltaLen, Color.magenta, 0.05f);
+                        Debug.DrawLine(worldEntity.Position, ray.origin, Color.blueViolet, 0.05f);
+                        
                         if (_unitsWithMenaces.TryGetValue(unitEntity, out var data))
                         {
                             data.MenacedBy.InsertByAscendingOrder(new MenaceRef {Menace = kv.Value.MenacesOnBoard[i], Dot = dot, Distance = deltaLen},
-                                (listItem, insertItem) => (listItem.Dot * listItem.Menace.MenaceFactorValue).CompareTo(insertItem.Dot * insertItem.Menace.MenaceFactorValue));
+                                (listItem, insertItem) =>
+                                {
+                                    try
+                                    {
+                                        return (listItem.Dot * listItem.Menace.MenaceFactorValue).CompareTo(insertItem.Dot * insertItem.Menace.MenaceFactorValue);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine(e);
+                                        throw;
+                                    }
+                                });
                         }
                     }
                 }

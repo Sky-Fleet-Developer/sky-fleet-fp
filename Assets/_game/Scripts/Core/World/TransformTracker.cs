@@ -21,6 +21,11 @@ namespace Core.World
         private bool _isInitialized;
         public void Awake()
         {
+            Init();
+        }
+
+        public void Init()
+        {
             _history = new Vector3[historyLength];
             _historyTimeMarks = new float[historyLength];
             _isInitialized = true;

@@ -3962,11 +3962,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Ai.EmgracopterControl
   pitchSensitivity: 1.5
-  pitchDumper: 0.8
+  pitchDumper: 1.4
   rollSensitivity: 1
-  rollDumper: 1.5
+  rollDumper: 1.7
   yawSensitivity: 15
-  yawDumper: 1
+  yawDumper: 1.7
   throttleSensitivity: 0.05
   suppressControlBySpeed:
     serializedVersion: 2
@@ -3974,14 +3974,14 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 30
       value: 1
-      inSlope: -0.022985408
-      outSlope: -0.022985408
+      inSlope: -0.019139422
+      outSlope: -0.019139422
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.47805843
+      outWeight: 0.07510007
     - serializedVersion: 3
-      time: 80
+      time: 90
       value: 0.4
       inSlope: -0.00434859
       outSlope: -0.00434859
@@ -3991,7 +3991,7 @@ MonoBehaviour:
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 300
-      value: 0.06
+      value: 0.09
       inSlope: -0.0001367322
       outSlope: -0.0001367322
       tangentMode: 0
@@ -4019,7 +4019,7 @@ MonoBehaviour:
     minimalForwardSpeed: 30
     cruiseSpeed: 200
     maxAttackRange: 500
-    minAttackRange: 35
+    minAttackRange: 25
     turn180Time: 7
     cruiseLiftAngle: 20
     blindZone: {x: 0, y: -1, z: -1}

@@ -24,6 +24,7 @@ namespace Core.World
         private IUnit _unit;
         private IUnitTactic _tactic;
         private string _signature;
+        private string _cachedName;
         public IUnit Unit => _unit;
 
         public Vector3 Velocity => Rigidbody?.linearVelocity ?? Vector3.zero;
@@ -78,6 +79,11 @@ namespace Core.World
         {
             base.OnSpawn();
             _unit = GameObject.GetComponent<IUnit>();
+            if (_unit is Component component && component)
+            {
+                _cachedName = $"UnitEntity ({Id}): {component.transform.name}";
+            }
+            _cachedName = $"Unit ({Id}): {_unit}";
             SetupUnit();
         }
 
@@ -97,11 +103,7 @@ namespace Core.World
 
         public override string ToString()
         {
-            if (_unit is Component component && component)
-            {
-                return $"ActorEntity: {component.transform.name}";
-            }
-            return "Actor: null instance";
+            return _cachedName;
         }
         
         public class Serializer : ISerializer<UnitEntity>

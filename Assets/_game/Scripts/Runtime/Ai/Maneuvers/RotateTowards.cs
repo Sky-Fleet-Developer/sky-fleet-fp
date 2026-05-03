@@ -29,7 +29,7 @@ namespace Runtime.Ai.Maneuvers
 
         public void Enter()
         {
-            Debug.Log($"Enter RotateTowards ({_unit.EntityId})");
+            //Debug.Log($"Enter RotateTowards ({_unit.EntityId})");
             _control.SetForwardDirection(_direction);
             _control.SetDriftCompensation(0.1f);
             _control.SetUpVector(new ConstantDirection(Vector3.up));
@@ -46,12 +46,12 @@ namespace Runtime.Ai.Maneuvers
             Debug.DrawRay(_sensor.Position, wanted * 15, Color.yellow);
             Debug.DrawRay(_sensor.Position, current * 15, Color.green);
             var dot = Vector3.Dot(current, wanted);
-            bool done = dot > 0.95f;
-            if (done)
-            {
-                Debug.Log($"Exit RotateTowards ({_unit.EntityId})");
-            }
-            return done;
+            //bool done = dot > 0.95f;
+            //if (done)
+            //{
+            //    Debug.Log($"Exit RotateTowards ({_unit.EntityId})");
+            //}
+            return dot > 0.95f;
         }
 
         public void Exit()

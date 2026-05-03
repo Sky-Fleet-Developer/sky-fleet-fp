@@ -42,16 +42,29 @@ namespace Core.Items
             _amount = description.amount;
             _sign = sign;
             _properties = description.properties.DeepClone();
-            if (IsContainer)
+            TrySetupUniqId(sign);
+            TrySetupContainerId();
+            if (ContainerKey != null)
             {
-                TrySetupContainerId();
-                if (ContainerKey != null)
-                {
-                    _containerRegistrationCallback(ContainerKey, sign.Id);
-                }
+                _containerRegistrationCallback(ContainerKey, sign.Id);
             }
         }
         
+        public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback,
+            Action<string> unbindInventoryToContainerSettings)
+        {
+            _unbindInventoryToContainerSettings = unbindInventoryToContainerSettings;
+            _containerRegistrationCallback = containerRegistrationCallback;
+            _amount = amount;
+            _sign = sign;
+            TrySetupUniqId(sign);
+            TrySetupContainerId();
+            if (ContainerKey != null)
+            {
+                _containerRegistrationCallback(ContainerKey, sign.Id);
+            }
+        }
+
         public void SetSignatureProperty(string value)
         {
             for (var i = 0; i < _properties.Count; i++)
@@ -83,16 +96,6 @@ namespace Core.Items
             {
                 _containerKey = null;
             }
-        }
-
-        public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback,
-            Action<string> unbindInventoryToContainerSettings)
-        {
-            _unbindInventoryToContainerSettings = unbindInventoryToContainerSettings;
-            _containerRegistrationCallback = containerRegistrationCallback;
-            _amount = amount;
-            _sign = sign;
-            TrySetupUniqId(sign);
         }
 
         private void TrySetupUniqId(ItemSign sign, string uniqId = null)

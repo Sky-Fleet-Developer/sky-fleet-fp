@@ -32,9 +32,8 @@ namespace Core.Weapon
             _projectileHandler.OnPostUpdate -= OnUpdate;
         }
 
-        private void OnProjectileAdded(int index)
+        private void OnProjectileAdded(ProjectileInstance instance)
         {
-            var instance = _projectileHandler.Projectiles[index];
             var settings = _shellTypesSettings.GetShellTypeSettings(instance.ShellData.chargeType);
 
             var initialVfxSource = settings.GetInitialVfx(instance.ShellData.caliber.diameter);
@@ -52,13 +51,12 @@ namespace Core.Weapon
 
             var lifetimeVfxSource = settings.GetLifetimeVfx(instance.ShellData.caliber.diameter);
 
-            instance = _projectileHandler.Projectiles[index];
             if (lifetimeVfxSource != null)
             {
                 var lifetimeVfx = (IVfx)DynamicPool.Instance.Get(lifetimeVfxSource as MonoBehaviour);
                 lifetimeVfx.Position = instance.Position;
                 lifetimeVfx.Rotation = Quaternion.LookRotation(instance.Velocity);
-                _vfx[instance.Id] = lifetimeVfx;
+                _vfx[instance.Id.Index] = lifetimeVfx;
                 lifetimeVfx.Play();
             }
         }
@@ -78,9 +76,9 @@ namespace Core.Weapon
         
         private void OnUpdate()
         {
-            foreach (var instance in _projectileHandler.Projectiles)
+            foreach (var instance in _projectileHandler.Projectiles.GetValues())
             {
-                if (_vfx.TryGetValue(instance.Id, out var vfx))
+                if (_vfx.TryGetValue(instance.Id.Index, out var vfx))
                 {
                     vfx.Position = instance.Position;
                     vfx.Rotation = Quaternion.LookRotation(instance.Velocity);
@@ -88,10 +86,10 @@ namespace Core.Weapon
             }
         }
         
-        private void OnProjectileRemoved(int index)
+        private void OnProjectileRemoved(SmKey smKey)
         {
-            var instance = _projectileHandler.Projectiles[index];
-            if (_vfx.TryGetValue(instance.Id, out var vfx))
+            var instance = _projectileHandler.Projectiles[smKey];
+            if (_vfx.TryGetValue(instance.Id.Index, out var vfx))
             {
                 vfx.Position = instance.Position;
                 vfx.Rotation = Quaternion.LookRotation(instance.Velocity);

@@ -44,7 +44,6 @@ namespace Runtime.Ai
 
         private void DefineCombatState()
         {
-            // TODO: make reaction to attack, retreat faster when enemy attacks me
             float d = ControlledEntity.Unit.Sensor.Distance(Target, _characteristic.turn180Time * 0.2f);
             if (d > _characteristic.maxAttackRange)
             {
@@ -63,7 +62,7 @@ namespace Runtime.Ai
                 }
             }
 
-            Debug.Log($"Retreating ({ControlledEntity.Id}). d = {d}, noise = {noise}");
+            //Debug.Log($"Retreating ({ControlledEntity.Id}). d = {d}, noise = {noise}");
             SetState(State.Retreating);
         }
 
@@ -100,7 +99,7 @@ namespace Runtime.Ai
                     break;
             }
 
-            Debug.Log($"{state}: ({ControlledEntity.Id})");
+            //Debug.Log($"{state}: ({ControlledEntity.Id})");
             _state = state;
         }
 
@@ -160,6 +159,11 @@ namespace Runtime.Ai
             }
 
             DefineCombatState();
+        }
+
+        public string GetDescription()
+        {
+            return $"State: {_state}. Target: {Target}";
         }
     }
 }

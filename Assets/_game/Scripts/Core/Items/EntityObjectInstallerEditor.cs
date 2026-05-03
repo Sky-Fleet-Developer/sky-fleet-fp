@@ -164,8 +164,8 @@ namespace Core.Items
             }
 
             int property;
-            var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
-            if (sign.HasTag(ItemSign.IdentifiableTag))
+            //var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
+            /*if (sign.HasTag(ItemSign.IdentifiableTag))
             {
                 property = FindOrAddProperty(ref itemDescription, ItemSign.IdentifiableTag, 1);
                 ref string guid = ref itemDescription.properties[property].values[0].stringValue;
@@ -180,7 +180,7 @@ namespace Core.Items
                 {
                     _registeredGUIDsEditor.Add(guid, itemObject);
                 }
-            }
+            }*/
 
             property = FindOrAddProperty(ref itemDescription, Property.PositionPropertyName, 3);
             for (int i = 0; i < 3; i++)

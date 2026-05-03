@@ -86,8 +86,8 @@ MonoBehaviour:
   motor: {fileID: 9102070319755283118}
   rigidbody: {fileID: 9102070319755283119}
   collider: {fileID: 9102070319755283105}
-  verticalSpeed: 130
-  horizontalSpeed: 270
+  verticalSpeed: 195
+  horizontalSpeed: 405
   horizontalBorders: 0
   verticalBorders: 80
   dragObjectsSettings:

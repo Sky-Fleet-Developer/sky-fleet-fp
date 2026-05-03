@@ -272,6 +272,7 @@ MonoBehaviour:
   buttons:
   - computerInput: Shoot
     _device: {fileID: 0}
+    repeatWhenHeld: 1
     bindings:
       m_Name: Bindings
       m_Type: 0

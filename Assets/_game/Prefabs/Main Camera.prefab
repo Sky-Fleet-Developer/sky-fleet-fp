@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 6433927543360965043}
   - component: {fileID: 6433927543360965042}
   - component: {fileID: 7355709827529369415}
-  - component: {fileID: 3905293990249513713}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -280,21 +279,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7448c88323e76b45b038a800458b4a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3905293990249513713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6433927543360965047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f71e13bc5ca94e209e794106ed4c972b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::Core.World.TransformTracker
-  historyLength: 50
-  cachePositionDelay: 1
-  minimalCacheDistance: 50
 --- !u!1 &6433927544455065252
 GameObject:
   m_ObjectHideFlags: 0
