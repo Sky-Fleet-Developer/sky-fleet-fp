@@ -4,6 +4,7 @@ using System.Linq;
 using Core.Character;
 using Core.Data;
 using Core.Graph;
+using Core.Misc;
 using Core.Structure.Rigging;
 using Core.Utilities;
 using UnityEngine;
@@ -11,13 +12,14 @@ using Core.SessionManager;
 using Core.World;
 using Runtime;
 using Zenject;
+using ITickable = Core.Misc.ITickable;
 
 namespace Core.Structure
 {
-    public class CycleService : Singleton<CycleService>
+    public class StructureUpdateSystem : MonoBehaviour, ITickable, IMyInstaller
     {
-        public static event Action<IStructure> OnStructureAdd;
-        public static event Action<IStructure> OnStructureRemoved;
+        public event Action<IStructure> OnStructureAdd;
+        public event Action<IStructure> OnStructureRemoved;
 
         private class EntityContainer : IEquatable<EntityContainer>
         {
@@ -170,7 +172,7 @@ namespace Core.Structure
             }
         }
 
-        public static IEnumerable<IStructure> Structures()
+        public IEnumerable<IStructure> Structures()
         {
             foreach (var list in _entitiesByLod)
             {
@@ -181,20 +183,28 @@ namespace Core.Structure
             }
         }
 
-        private static HashSet<EntityContainer>[] _entitiesByLod;
-        private static Dictionary<IStructure, EntityContainer> _structures;
-        private static int[] _updateCycleCounters;
+        private HashSet<EntityContainer>[] _entitiesByLod;
+        private Dictionary<IStructure, EntityContainer> _structures;
+        private int[] _updateCycleCounters;
         
-        public static event Action OnEndPhysicsTick;
         public static event Action OnEndUpdateTick;
-        public static LateEvent OnInitialize = new LateEvent();
+        public LateEvent OnInitialize = new LateEvent();
 
         public static float DeltaTime;
         public static float Period;
         
         [Inject] private WorldGrid _worldGrid;
+        [Inject] private TickService _tickService;
+        
+        public int TickRate => 1;
+        
+        static StructureUpdateSystem()
+        {
+            TickService.SetUpdate(typeof(StructureUpdateSystem), true);
+            TickService.SetOrderAfter(typeof(StructureUpdateSystem), typeof(TransformCacheSystem));
+        }
 
-        protected override void Setup()
+        private void Awake()
         {
             _entitiesByLod = new HashSet<EntityContainer>[GameData.Data.lodDistances.lods.Length+1];
             _structures = new();
@@ -206,7 +216,12 @@ namespace Core.Structure
             OnInitialize.Invoke();
         }
 
-        public static void RegisterStructure(IStructure structure)
+        private void Start()
+        {
+            _tickService.Add(this);
+        }
+
+        public void RegisterStructure(IStructure structure)
         {
             if (!Application.isPlaying)
             {
@@ -221,7 +236,7 @@ namespace Core.Structure
             OnStructureAdd?.Invoke(structure);
         }
 
-        public static void UnregisterStructure(IStructure structure)
+        public void UnregisterStructure(IStructure structure)
         {
             OnStructureRemoved?.Invoke(structure);
             var lod = 0;//Instance._worldGrid.GetLod(structure);
@@ -229,7 +244,7 @@ namespace Core.Structure
             _entitiesByLod[lod].Remove(new EntityContainer(structure, false));
         }
 
-        public static void SetLodToStructure(IStructure entity, int lod)
+        public void SetLodToStructure(IStructure entity, int lod)
         {
             var container = _structures[entity];
             _entitiesByLod[container.Lod].Remove(container);
@@ -257,7 +272,7 @@ namespace Core.Structure
             }
         }
 
-        private void FixedUpdate()
+        public void Tick()
         {
             if(!Physics.autoSimulation) return;
 
@@ -269,7 +284,11 @@ namespace Core.Structure
                     entityContainer.FixedUpdate();
                 }
             }
-            OnEndPhysicsTick?.Invoke();
+        }
+
+        public void InstallBindings(DiContainer container)
+        {
+            container.Bind<StructureUpdateSystem>().FromInstance(this).AsSingle();
         }
     }
 
@@ -277,17 +296,17 @@ namespace Core.Structure
     {
         public static float DeltaTime(this float value)
         {
-            return value * CycleService.DeltaTime;
+            return value * StructureUpdateSystem.DeltaTime;
         }
         
         public static float Period(this float value)
         {
-            return value * CycleService.Period;
+            return value * StructureUpdateSystem.Period;
         }
 
         public static Vector3 DeltaTime(this Vector3 value)
         {
-            return value * CycleService.DeltaTime;
+            return value * StructureUpdateSystem.DeltaTime;
         }
     }
     

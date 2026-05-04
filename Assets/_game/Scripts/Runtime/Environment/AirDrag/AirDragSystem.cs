@@ -1,54 +1,77 @@
 using System;
 using System.Collections.Generic;
+using Core.Misc;
 using Core.Structure;
 using Core.World;
+using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
+using Zenject;
+using ITickable = Core.Misc.ITickable;
 
 namespace Runtime.Environment.AirDrag
 {
-    [CreateAssetMenu(menuName = "SF/Data/AirDrag")]
-    public class AirDragBehaviour : ScriptableObject
+    public class AirDragSystem : MonoBehaviour, ITickable
     {
         private static readonly int SourceProperty = Shader.PropertyToID("source");
         private static readonly int ResultProperty = Shader.PropertyToID("result");
         private static readonly int XResolutionProperty = Shader.PropertyToID("resx");
-        public Material material;
-        public ComputeShader pixelsToNormalsShader;
-        public int resolution = 256;
-        [Space(15)] public float turbulenceImpact = 1f;
-        [Space(15)] public float normalForceImpact = 1f;
-        [Space(15)] [SerializeField] private LayerMask mask;
-        [SerializeField] private int layer;
 
-        [NonSerialized] public Camera Cam;
-        [NonSerialized] public ComputeBuffer ResultBuffer;
-        public const int ResultBufferSize = 7;
+        [SerializeField] private AirDragSettings settings;
+        [NonSerialized] private Camera _cam;
+        [NonSerialized] private ComputeBuffer _resultBuffer;
+        [Inject] private TickService _tickService;
+        [Inject] private StructureUpdateSystem _structureUpdateSystem;
 
-        private RenderTexture texture;
-        private Material[] materialArray;
+        private RenderTexture _texture;
+        private Material[] _materialArray;
 
-        [ShowInInspector, ReadOnly] private readonly Dictionary<IDynamicStructure, AirDragProfile> profiles = new(10);
-        private readonly AirDragCalculator calculator = new AirDragCalculator();
+        [ShowInInspector, ReadOnly] private readonly Dictionary<IDynamicStructure, AirDragProfile> _profiles = new(10);
+        private readonly AirDragCalculator _calculator = new AirDragCalculator();
+        public int TickRate => 1;
 
-        private void OnEnable()
+        static AirDragSystem()
         {
-            materialArray = new Material[10];
-            for (var i = 0; i < materialArray.Length; i++)
-            {
-                materialArray[i] = material;
-            }
+            TickService.SetUpdate(typeof(AirDragSystem), true);
+            TickService.SetOrderAfter(typeof(AirDragSystem), typeof(StructureUpdateSystem));
+        }
 
-            CycleService.OnInitialize.Subscribe(InitializeEntities);
-            CycleService.OnStructureAdd += CalculateDragFor;
-            CycleService.OnStructureRemoved += RemoveStructure;
-            CycleService.OnEndPhysicsTick += PhysicsTick;
+        private void Start()
+        {
+            _materialArray = new Material[10];
+            for (var i = 0; i < _materialArray.Length; i++)
+            {
+                _materialArray[i] = settings.material;
+            }
+            _structureUpdateSystem.OnInitialize.Subscribe(InitializeEntities);
+            _structureUpdateSystem.OnStructureAdd += CalculateDragFor;
+            _structureUpdateSystem.OnStructureRemoved += RemoveStructure;
+        }
+
+        private async void OnEnable()
+        {
+            while(_tickService == null)
+            {
+                await UniTask.Yield();
+            }
+            _tickService.Add(this);
+        }
+
+        private void OnDisable()
+        {
+            _tickService.Remove(this);
+        }
+
+        private void OnDestroy()
+        {
+            _structureUpdateSystem.OnStructureAdd -= CalculateDragFor;
+            _structureUpdateSystem.OnStructureRemoved -= RemoveStructure;
         }
 
         private void InitializeEntities()
         {
-            foreach (IStructure structure in CycleService.Structures())
+            foreach (IStructure structure in _structureUpdateSystem.Structures())
             {
                 if (structure is IDynamicStructure dynamicStructure)
                 {
@@ -57,14 +80,14 @@ namespace Runtime.Environment.AirDrag
             }
         }
 
-        private void PhysicsTick()
+        public void Tick()
         {
-            foreach (KeyValuePair<IDynamicStructure, AirDragProfile> structure in profiles)
+            foreach (KeyValuePair<IDynamicStructure, AirDragProfile> structure in _profiles)
             {
                 ApplyWind(structure.Key, structure.Value);
             }
         }
-
+        
         private void ApplyWind(IDynamicStructure structure, AirDragProfile profile)
         {
             Vector3 windVelocity = -structure.Velocity;
@@ -85,7 +108,7 @@ namespace Runtime.Environment.AirDrag
         {
             if (structure is not IDynamicStructure dynamicStructure) return;
 
-            if (!Cam) CreateCamera();
+            if (!_cam) CreateCamera();
             RecreateBuffer();
             try
             {
@@ -98,8 +121,8 @@ namespace Runtime.Environment.AirDrag
 
             if (!Application.isPlaying)
             {
-                DestroyImmediate(Cam.gameObject);
-                Cam = null;
+                DestroyImmediate(_cam.gameObject);
+                _cam = null;
             }
         }
 
@@ -111,18 +134,18 @@ namespace Runtime.Environment.AirDrag
             foreach (MeshRenderer renderer in structure.transform.GetComponentsInChildren<MeshRenderer>())
             {
                 oldMaterials.Add(renderer, (renderer.sharedMaterials, renderer.gameObject.layer));
-                renderer.gameObject.layer = layer;
+                renderer.gameObject.layer = settings.layer;
                 for (int i = 0; i < renderer.sharedMaterials.Length; i++)
                 {
-                    renderer.sharedMaterials = materialArray;
+                    renderer.sharedMaterials = _materialArray;
                 }
             }
 
 
-            AirDragProfile result = new AirDragProfile(calculator.CalculateAirDrag(structure.transform, this), this);
-            if (!profiles.ContainsKey(structure))
+            AirDragProfile result = new AirDragProfile(_calculator.CalculateAirDrag(structure.transform, settings, _resultBuffer, _cam), settings);
+            if (!_profiles.ContainsKey(structure))
             {
-                profiles.Add(structure, result);
+                _profiles.Add(structure, result);
             }
 
             foreach (KeyValuePair<Renderer, (Material[] materials, int layer)> renderer in oldMaterials)
@@ -138,13 +161,13 @@ namespace Runtime.Environment.AirDrag
         private void RemoveStructure(IStructure structure)
         {
             if (!(structure is IDynamicStructure dynamicStructure)) return;
-            profiles.Remove(dynamicStructure);
+            _profiles.Remove(dynamicStructure);
         }
 
         private void CreateCamera()
         {
-            Cam = new GameObject("AirDragCamera").AddComponent<Camera>();
-            var hd = Cam.gameObject.AddComponent<HDAdditionalCameraData>();
+            _cam = new GameObject("AirDragCamera").AddComponent<Camera>();
+            var hd = _cam.gameObject.AddComponent<HDAdditionalCameraData>();
 
             hd.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
             hd.dithering = false;
@@ -152,26 +175,26 @@ namespace Runtime.Environment.AirDrag
             hd.backgroundColorHDR = Color.clear;
             hd.clearColorMode = HDAdditionalCameraData.ClearColorMode.Color;
 
-            if (texture == null)
+            if (_texture == null)
             {
-                texture = new RenderTexture(resolution, resolution, 0) { enableRandomWrite = true };
-                texture.Create();
+                _texture = new RenderTexture(settings.resolution, settings.resolution, 0) { enableRandomWrite = true };
+                _texture.Create();
             }
 
-            Cam.enabled = false;
-            Cam.orthographic = true;
-            Cam.cullingMask = mask;
-            Cam.targetTexture = texture;
-            Cam.nearClipPlane = 0;
+            _cam.enabled = false;
+            _cam.orthographic = true;
+            _cam.cullingMask = settings.mask;
+            _cam.targetTexture = _texture;
+            _cam.nearClipPlane = 0;
         }
 
         private void RecreateBuffer()
         {
-            ResultBuffer ??= new ComputeBuffer(ResultBufferSize, sizeof(float));
-            ResultBuffer.SetData(new float[ResultBufferSize]);
-            pixelsToNormalsShader.SetBuffer(0, ResultProperty, ResultBuffer);
-            pixelsToNormalsShader.SetTexture(0, SourceProperty, texture);
-            pixelsToNormalsShader.SetInt(XResolutionProperty, resolution);
+            _resultBuffer ??= new ComputeBuffer(AirDragSettings.ResultBufferSize, sizeof(float));
+            _resultBuffer.SetData(new float[AirDragSettings.ResultBufferSize]);
+            settings.pixelsToNormalsShader.SetBuffer(0, ResultProperty, _resultBuffer);
+            settings.pixelsToNormalsShader.SetTexture(0, SourceProperty, _texture);
+            settings.pixelsToNormalsShader.SetInt(XResolutionProperty, settings.resolution);
         }
     }
 }

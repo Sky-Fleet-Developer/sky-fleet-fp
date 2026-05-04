@@ -17,8 +17,9 @@ namespace Runtime.Items
 {
     public class ItemObjectFactory : MonoBehaviour, IMyInstaller, IItemObjectFactory
     {
-        [Inject(Optional = true)] private TablePrefabs _tablePrefabs;
-        [Inject(Optional = true)] private ItemsTable _tableItems;
+        [Inject] private TablePrefabs _tablePrefabs;
+        [Inject] private ItemsTable _tableItems;
+        [Inject] private StructureUpdateSystem _structureUpdateSystem;
         private DiContainer _container;
 
         public void InstallBindings(DiContainer container)
@@ -33,24 +34,24 @@ namespace Runtime.Items
             List<IItemObject> instances = new List<IItemObject>((int)item.Amount);
             foreach (var makeInstance in item.DetachStacks(item.Sign.GetStackSize()))
             {
-                var instance = ConstructItemPrivate(makeInstance, prefab, overrideDiContainer);
+                var instance = ConstructItemPrivate(makeInstance, prefab, false, overrideDiContainer);
                 instances.Add(instance);
             }
 
             return instances;
         }
 
-        public async Task<IItemObject> CreateSingle(ItemInstance item, DiContainer overrideDiContainer = null)
+        public async Task<IItemObject> CreateSingle(ItemInstance item, bool suppressSetup, DiContainer overrideDiContainer = null)
         {
             if (item.Amount > item.Sign.GetStackSize())
             {
                 throw new System.Exception("Cant create ItemObject: amount over limit");
             }
             var prefab = await _tablePrefabs.GetItem(_tableItems.GetItemPrefabGuid(item.Sign.Id)).LoadPrefab();
-            return ConstructItemPrivate(item, prefab, overrideDiContainer);
+            return ConstructItemPrivate(item, prefab, suppressSetup, overrideDiContainer);
         }
 
-        public void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item, DiContainer overrideDiContainer = null)
+        public void SetupInstance(IItemObjectHandle itemObjectHandle, ItemInstance item, bool suppressSetup, DiContainer overrideDiContainer = null)
         {
             var go = itemObjectHandle.transform.gameObject;
             DiContainer currentDiContainer = _container;
@@ -60,7 +61,7 @@ namespace Runtime.Items
             }
             else
             {
-                _container = overrideDiContainer; // we bust to warp inherit items into parent container and restore it after
+                _container = overrideDiContainer; // we must warp inherit items into parent container and restore it after
             }
             
             if (/*item.IsUnique && */item.Sign.TryGetProperty(ItemSign.ContainerTag, out var containerProperty))
@@ -95,9 +96,9 @@ namespace Runtime.Items
             
             itemObjectHandle.SetSourceItem(item);
 
-            if (itemObjectHandle is IStructure structure)
+            if (!suppressSetup && itemObjectHandle is IStructure structure)
             {
-                CycleService.RegisterStructure(structure);
+                _structureUpdateSystem.RegisterStructure(structure);
                 structure.Init();
             }
             
@@ -137,7 +138,7 @@ namespace Runtime.Items
             _container = currentDiContainer;
         }
 
-        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source, DiContainer overrideDiContainer)
+        private IItemObject ConstructItemPrivate(ItemInstance item, GameObject source, bool suppressSetup, DiContainer overrideDiContainer)
         {
             GameObject instance;
             if (Application.isPlaying)
@@ -154,7 +155,7 @@ namespace Runtime.Items
                 return null;
             }
             
-            SetupInstance(itemObjectHandle, item, overrideDiContainer);
+            SetupInstance(itemObjectHandle, item, suppressSetup, overrideDiContainer);
             
             return itemObjectHandle;
         }
@@ -163,7 +164,7 @@ namespace Runtime.Items
         {
             if (itemObject is IStructure structure)
             {
-                CycleService.UnregisterStructure(structure);
+                _structureUpdateSystem.UnregisterStructure(structure);
             }
             if (Application.isPlaying)
             {

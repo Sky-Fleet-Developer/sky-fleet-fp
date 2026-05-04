@@ -32,8 +32,8 @@ namespace Runtime.Structure.Rigging.Control
                 
                 Quaternion horizontalRotation = Quaternion.Euler(Vector3.up * horizontalAngle);
                 Quaternion verticalRotation = Quaternion.Euler(Vector3.right * verticalAngle);
-                horizontalAxis.localRotation = Quaternion.RotateTowards(horizontalAxis.localRotation, horizontalRotation, rotationSpeed * CycleService.DeltaTime);
-                verticalAxis.localRotation = Quaternion.RotateTowards(verticalAxis.localRotation, verticalRotation, rotationSpeed * CycleService.DeltaTime);;
+                horizontalAxis.localRotation = Quaternion.RotateTowards(horizontalAxis.localRotation, horizontalRotation, rotationSpeed * StructureUpdateSystem.DeltaTime);
+                verticalAxis.localRotation = Quaternion.RotateTowards(verticalAxis.localRotation, verticalRotation, rotationSpeed * StructureUpdateSystem.DeltaTime);;
             }
         }
 

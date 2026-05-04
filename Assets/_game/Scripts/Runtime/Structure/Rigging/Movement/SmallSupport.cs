@@ -7,7 +7,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
-using static Core.Structure.CycleService;
+using static Core.Structure.StructureUpdateSystem;
 
 namespace Runtime.Structure.Rigging.Movement
 {

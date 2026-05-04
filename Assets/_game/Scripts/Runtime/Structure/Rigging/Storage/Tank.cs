@@ -5,7 +5,7 @@ using Core.Structure.Rigging;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using static Core.Structure.CycleService;
+using static Core.Structure.StructureUpdateSystem;
 using Utilities = Core.Structure.Rigging.Utilities;
 
 namespace Runtime.Structure.Rigging.Storage

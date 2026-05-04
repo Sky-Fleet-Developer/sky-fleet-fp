@@ -19,7 +19,6 @@ namespace Core
         [Inject]
         private void Inject(DiContainer container)
         {
-            container.Inject(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
                 container.Inject(injectTargets[i]);
@@ -35,7 +34,6 @@ namespace Core
 
         public void InstallBindings(DiContainer container)
         {
-            container.Bind<CycleService>().FromInstance(CycleService.Instance);
             for (var i = 0; i < injectTargets.Length; i++)
             {
                 container.Bind(injectTargets[i].GetType()).FromInstance(injectTargets[i]);

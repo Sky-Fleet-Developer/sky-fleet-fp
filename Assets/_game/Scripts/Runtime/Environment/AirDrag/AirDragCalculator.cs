@@ -12,7 +12,7 @@ namespace Runtime.Environment.AirDrag
     {
         private static readonly int FwdProperty = Shader.PropertyToID("fwd");
 
-        private Vector3[] shootDirections = new Vector3[]
+        private Vector3[] _shootDirections = new Vector3[]
         {
             Vector3.forward,
             Vector3.right,
@@ -22,30 +22,30 @@ namespace Runtime.Environment.AirDrag
             Vector3.down,
         };
         
-        private Transform current;
-        private float radius;
-        private Vector3 center;
-        private AirDragBehaviour data;
+        private Transform _current;
+        private float _radius;
+        private Vector3 _center;
+        private AirDragSettings _data;
 
-        public ShootLayerResult CalculateAirDrag(Transform target, AirDragBehaviour data)
+        public ShootLayerResult CalculateAirDrag(Transform target, AirDragSettings data, ComputeBuffer resultBuffer, Camera camera)
         {
-            this.data = data;
-            current = target;
+            this._data = data;
+            _current = target;
            
 
             ShootLayerResult resultLayer = new ShootLayerResult();
-            foreach (Vector3 direction in shootDirections)
+            foreach (Vector3 direction in _shootDirections)
             {
                 Bounds bounds = target.GetBounds();
                 bounds.center += target.position;
                 DrawBounds(bounds);
-                center = bounds.center;
-                radius = bounds.extents.magnitude;
+                _center = bounds.center;
+                _radius = bounds.extents.magnitude;
 
-                data.Cam.orthographicSize = radius;
-                data.Cam.farClipPlane = radius * 2;
-                var d = current.TransformDirection(direction);
-                TakeSnapshot(center - d * radius, d, resultLayer);
+                camera.orthographicSize = _radius;
+                camera.farClipPlane = _radius * 2;
+                var d = _current.TransformDirection(direction);
+                TakeSnapshot(_center - d * _radius, d, resultLayer, resultBuffer, camera);
             }
 
             resultLayer.Initialize();
@@ -87,65 +87,65 @@ namespace Runtime.Environment.AirDrag
             Debug.DrawLine(v3FrontBottomLeft, v3BackBottomLeft, Color.red);
         }
 
-        private void TakeSnapshot(Vector3 origin, Vector3 direction, ShootLayerResult result)
+        private void TakeSnapshot(Vector3 origin, Vector3 direction, ShootLayerResult result, ComputeBuffer resultBuffer, Camera camera)
         {
-            data.Cam.transform.position = origin;
+            camera.transform.position = origin;
             Vector3 up;
-            if (Mathf.Abs(Vector3.Dot(direction, current.up)) > 0.998f)
+            if (Mathf.Abs(Vector3.Dot(direction, _current.up)) > 0.998f)
             {
-                up = -current.forward;
+                up = -_current.forward;
             }
             else
             {
-                Vector3 cross = Vector3.Cross(current.up, current.forward);
-                up = Vector3.Cross(cross, current.up);
+                Vector3 cross = Vector3.Cross(_current.up, _current.forward);
+                up = Vector3.Cross(cross, _current.up);
                 up.y = Mathf.Abs(up.y);
             }
-            data.Cam.transform.rotation = Quaternion.LookRotation(direction, up);
+            camera.transform.rotation = Quaternion.LookRotation(direction, up);
             
-            data.Cam.Render();
+            camera.Render();
 
-            ExtractRenderInfo(result);
+            ExtractRenderInfo(result, resultBuffer, camera);
         }
-
-        private void ExtractRenderInfo(ShootLayerResult result)
+        
+        private void ExtractRenderInfo(ShootLayerResult result, ComputeBuffer resultBuffer, Camera camera)
         {
-            int k = data.resolution / 8;
-            data.pixelsToNormalsShader.SetVector(FwdProperty, -data.Cam.transform.forward);
-            data.pixelsToNormalsShader.Dispatch(0, k, k, 1);
-            int[] shaderResult = new int[AirDragBehaviour.ResultBufferSize];
-            data.ResultBuffer.GetData(shaderResult);
+            int k = _data.resolution / 8;
+            _data.pixelsToNormalsShader.SetVector(FwdProperty, -camera.transform.forward);
+            _data.pixelsToNormalsShader.Dispatch(0, k, k, 1);
+            int[] shaderResult = new int[AirDragSettings.ResultBufferSize];
+            resultBuffer.GetData(shaderResult);
 
             Vector2 screenOffset = ExtractResult(shaderResult, out Vector3 normal, out int space);
 
-            Ray ray = data.Cam.ScreenPointToRay(new Vector3(screenOffset.x * data.resolution, screenOffset.y * data.resolution, 1));
+            Ray ray = camera.ScreenPointToRay(new Vector3(screenOffset.x * _data.resolution, screenOffset.y * _data.resolution, 1));
             //Debug.Log($"offset = {screenOffset}, origin = {ray.origin}");
             Debug.DrawRay(ray.origin, normal, Color.blue, 15);
-            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(0, 0, 1)).origin, ray.direction, Color.cyan, 15);
-            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(0, data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
-            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(data.resolution, 0, 1)).origin, ray.direction, Color.cyan, 15);
-            Debug.DrawRay(data.Cam.ScreenPointToRay(new Vector3(data.resolution, data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
-            normal = current.InverseTransformDirection(normal);
+            Debug.DrawRay(camera.ScreenPointToRay(new Vector3(0, 0, 1)).origin, ray.direction, Color.cyan, 15);
+            Debug.DrawRay(camera.ScreenPointToRay(new Vector3(0, _data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
+            Debug.DrawRay(camera.ScreenPointToRay(new Vector3(_data.resolution, 0, 1)).origin, ray.direction, Color.cyan, 15);
+            Debug.DrawRay(camera.ScreenPointToRay(new Vector3(_data.resolution, _data.resolution, 1)).origin, ray.direction, Color.cyan, 15);
+            normal = _current.InverseTransformDirection(normal);
             
-            Vector3 normalOffset = Vector3.ProjectOnPlane(ray.origin - current.position, ray.direction);
-            Vector3 dotOffset = Vector3.Project(center - current.position, ray.direction);
+            Vector3 normalOffset = Vector3.ProjectOnPlane(ray.origin - _current.position, ray.direction);
+            Vector3 dotOffset = Vector3.Project(_center - _current.position, ray.direction);
 
-            Vector3 localOffset = current.InverseTransformDirection(normalOffset + dotOffset);
-            Vector3 wo = current.InverseTransformPoint(localOffset);
+            Vector3 localOffset = _current.InverseTransformDirection(normalOffset + dotOffset);
+            Vector3 wo = _current.InverseTransformPoint(localOffset);
             Debug.DrawRay(wo, normal, Color.blue, 15);
 
-            float cameraSpace = radius * radius * 4;
-            float pixelSpace = cameraSpace / (data.resolution * data.resolution);
+            float cameraSpace = _radius * _radius * 4;
+            float pixelSpace = cameraSpace / (_data.resolution * _data.resolution);
             result.WriteResult(space * pixelSpace, normal, localOffset);
             
-            Debug.DrawRay(ray.origin, ray.direction * radius, Color.red, 15);
+            Debug.DrawRay(ray.origin, ray.direction * _radius, Color.red, 15);
             Debug.DrawRay(ray.origin, -ray.direction * normal.magnitude, Color.yellow, 15);
-            Debug.DrawRay(data.Cam.transform.position, data.Cam.transform.forward, Color.black, 5);
+            Debug.DrawRay(camera.transform.position, camera.transform.forward, Color.black, 5);
         }
 
         private Vector2 ExtractResult(int[] shaderResult, out Vector3 normal, out int filledPixelsCount)
         {
-            int res = data.resolution;
+            int res = _data.resolution;
             normal = new Vector3(shaderResult[0] / 255f, shaderResult[1] / 255f, shaderResult[2] / 255f);
             filledPixelsCount = shaderResult[3];
             float dotSum = shaderResult[4] / 255f;
@@ -161,16 +161,16 @@ namespace Runtime.Environment.AirDrag
         }
     }
     
-[ShowInInspector]
+    [ShowInInspector]
     public class AirDragProfile
     {
-        [ShowInInspector] private ShootLayerResult layerResult;
-        private AirDragBehaviour behaviour;
+        [ShowInInspector] private ShootLayerResult _layerResult;
+        private AirDragSettings _settings;
 
-        public AirDragProfile(ShootLayerResult layerResult, AirDragBehaviour behaviour)
+        public AirDragProfile(ShootLayerResult layerResult, AirDragSettings settings)
         {
-            this.layerResult = layerResult;
-            this.behaviour = behaviour;
+            this._layerResult = layerResult;
+            _settings = settings;
         }
 
         public (Vector3 drag, Vector3 normal, Vector3 position) CalculateForce(Vector3 localWindForce)
@@ -183,8 +183,8 @@ namespace Runtime.Environment.AirDrag
             (Vector3 normal, Vector3 position) = CalculateDrag(windDirection);
 
             float dot = Vector3.Dot(localWindForce, normal.normalized);
-            Vector3 drag = -windDirection * (normal.magnitude * behaviour.turbulenceImpact * windSpeed);
-            Vector3 normalForce = normal * (dot * behaviour.normalForceImpact);
+            Vector3 drag = -windDirection * (normal.magnitude * _settings.turbulenceImpact * windSpeed);
+            Vector3 normalForce = normal * (dot * _settings.normalForceImpact);
             return ((drag + normalForce) * windSpeed, normal, position);
         }
         
@@ -196,7 +196,7 @@ namespace Runtime.Environment.AirDrag
             float sqrt = Mathf.Sqrt(Mathf.Abs(direction.y));
             float altitude = sqrt * sign;
             
-            (Vector3 normal, Vector3 position) = layerResult.CalculateForce(azimuth, altitude);
+            (Vector3 normal, Vector3 position) = _layerResult.CalculateForce(azimuth, altitude);
             
             return (normal, position);
         }
@@ -205,9 +205,9 @@ namespace Runtime.Environment.AirDrag
     public class ShootLayerResult
     {
         [ShowInInspector]
-        private List<DirectionSnapshot> snapShots = new List<DirectionSnapshot>();
+        private List<DirectionSnapshot> _snapShots = new List<DirectionSnapshot>();
 
-        private readonly float[] azimuthEdges =
+        private readonly float[] _azimuthEdges =
         {
             0f,
             Mathf.PI / 2f,
@@ -218,56 +218,56 @@ namespace Runtime.Environment.AirDrag
         
         public void WriteResult(float space, Vector3 normal, Vector3 centerOffset)
         {
-            snapShots.Add(new DirectionSnapshot(space, normal, centerOffset));
+            _snapShots.Add(new DirectionSnapshot(space, normal, centerOffset));
         }
 
         public void Initialize()
         {
-            float centerX = (snapShots[4].centerOffset.x + snapShots[5].centerOffset.x) * 0.5f;
-            snapShots[1].centerOffset.x = centerX;
-            snapShots[3].centerOffset.x = centerX;
+            float centerX = (_snapShots[4].CenterOffset.x + _snapShots[5].CenterOffset.x) * 0.5f;
+            _snapShots[1].CenterOffset.x = centerX;
+            _snapShots[3].CenterOffset.x = centerX;
             
-            float centerY = (snapShots[0].centerOffset.y + snapShots[2].centerOffset.y) * 0.5f;
-            snapShots[4].centerOffset.y = centerY;
-            snapShots[5].centerOffset.y = centerY;
+            float centerY = (_snapShots[0].CenterOffset.y + _snapShots[2].CenterOffset.y) * 0.5f;
+            _snapShots[4].CenterOffset.y = centerY;
+            _snapShots[5].CenterOffset.y = centerY;
             
-            float centerZ = (snapShots[4].centerOffset.z + snapShots[5].centerOffset.z) * 0.5f;
-            snapShots[0].centerOffset.z = centerZ;
-            snapShots[2].centerOffset.z = centerZ;
+            float centerZ = (_snapShots[4].CenterOffset.z + _snapShots[5].CenterOffset.z) * 0.5f;
+            _snapShots[0].CenterOffset.z = centerZ;
+            _snapShots[2].CenterOffset.z = centerZ;
         }
 
         public (Vector3 normal, Vector3 position) CalculateForce(float azimuth, float altitude)
         {
             int i;
-            for (i = 0; i < azimuthEdges.Length - 1; i++)
+            for (i = 0; i < _azimuthEdges.Length - 1; i++)
             {
-                if (azimuth > azimuthEdges[i] && azimuth <= azimuthEdges[i + 1]) break;
+                if (azimuth > _azimuthEdges[i] && azimuth <= _azimuthEdges[i + 1]) break;
             }
             
-            float lastAzimuth = azimuthEdges[i];
-            float nextAzimuth = azimuthEdges[(i + 1) % 5];
+            float lastAzimuth = _azimuthEdges[i];
+            float nextAzimuth = _azimuthEdges[(i + 1) % 5];
                 
-            DirectionSnapshot last = snapShots[i];
-            DirectionSnapshot next = snapShots[(i + 1) % 4];
+            DirectionSnapshot last = _snapShots[i];
+            DirectionSnapshot next = _snapShots[(i + 1) % 4];
 
             float lerp = (azimuth - lastAzimuth) / (nextAzimuth - lastAzimuth);
 
-            Vector3 normal = Vector3.Lerp(last.bakedSpace * last.bakedNormal, next.bakedSpace * next.bakedNormal, lerp);
-            Vector3 position = Vector3.Lerp(last.centerOffset, next.centerOffset, lerp);
+            Vector3 normal = Vector3.Lerp(last.BakedSpace * last.BakedNormal, next.BakedSpace * next.BakedNormal, lerp);
+            Vector3 position = Vector3.Lerp(last.CenterOffset, next.CenterOffset, lerp);
 
             DirectionSnapshot yComponent;
             if (altitude > 0)
             {
-                yComponent = snapShots[4];
+                yComponent = _snapShots[4];
             }
             else
             {
                 altitude = -altitude;
-                yComponent = snapShots[5];
+                yComponent = _snapShots[5];
             }
             
-            normal = Vector3.Lerp(normal, yComponent.bakedNormal * yComponent.bakedSpace, altitude);
-            position = Vector3.Lerp(position, yComponent.centerOffset, altitude);
+            normal = Vector3.Lerp(normal, yComponent.BakedNormal * yComponent.BakedSpace, altitude);
+            position = Vector3.Lerp(position, yComponent.CenterOffset, altitude);
             
             return (normal, position);
         }
@@ -275,15 +275,15 @@ namespace Runtime.Environment.AirDrag
     [ShowInInspector]
     public class DirectionSnapshot
     {
-        [ShowInInspector] public float bakedSpace;
-        [ShowInInspector] public Vector3 bakedNormal;
-        [ShowInInspector] public Vector3 centerOffset;
+        [ShowInInspector] public float BakedSpace;
+        [ShowInInspector] public Vector3 BakedNormal;
+        [ShowInInspector] public Vector3 CenterOffset;
 
         public DirectionSnapshot(float bakedSpace, Vector3 bakedNormal, Vector3 centerOffset)
         {
-            this.bakedSpace = bakedSpace;
-            this.bakedNormal = bakedNormal;
-            this.centerOffset = centerOffset;
+            this.BakedSpace = bakedSpace;
+            this.BakedNormal = bakedNormal;
+            this.CenterOffset = centerOffset;
         }
     }
     

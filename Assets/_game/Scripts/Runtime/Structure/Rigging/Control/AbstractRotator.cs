@@ -71,7 +71,7 @@ namespace Runtime.Structure.Rigging.Control
             }
             
             float vel = _velocity;
-            Mathf.SmoothDampAngle(_currentAngle, target, ref vel, 1f / (rotationForce * _inertiaInv), Mathf.Infinity, CycleService.DeltaTime);
+            Mathf.SmoothDampAngle(_currentAngle, target, ref vel, 1f / (rotationForce * _inertiaInv), Mathf.Infinity, StructureUpdateSystem.DeltaTime);
             _power = Mathf.Abs(_velocity - vel);
             
             base.ConsumptionTick();
@@ -117,13 +117,13 @@ namespace Runtime.Structure.Rigging.Control
                 target = Mathf.Clamp(target, minMaxAngle.x, minMaxAngle.y);
             }
             
-            _currentAngle = Mathf.SmoothDampAngle(_currentAngle, target, ref _velocity, 1f / (rotationForce * _availablePower * _inertiaInv), Mathf.Infinity, CycleService.DeltaTime);
+            _currentAngle = Mathf.SmoothDampAngle(_currentAngle, target, ref _velocity, 1f / (rotationForce * _availablePower * _inertiaInv), Mathf.Infinity, StructureUpdateSystem.DeltaTime);
         }
 
         private void Decelerate()
         {
-            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertiaInv) * Mathf.Sign(_velocity) * CycleService.DeltaTime;
-            _currentAngle += _velocity * CycleService.DeltaTime;
+            _velocity -= Mathf.Min(Mathf.Abs(_velocity), dragForce * _inertiaInv) * Mathf.Sign(_velocity) * StructureUpdateSystem.DeltaTime;
+            _currentAngle += _velocity * StructureUpdateSystem.DeltaTime;
             if (!isCycled)
             {
                 if (_currentAngle < minMaxAngle.x)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Configurations;
 using Core.Items;
 using Core.Misc;
+using Core.Structure.Damage;
 using Unity.Collections;
 using UnityEngine;
 using Zenject;
@@ -16,6 +17,7 @@ namespace Core.Weapon
         [SerializeField] private float minSpatialLength = 3f;
         [SerializeField] private bool drawQueries;
         [Inject] private ItemsTable _itemsTable;
+        [Inject] private StructureDamageProfileHub _structureDamageProfileHub;
         private SlotMap<ProjectileInstance> _projectiles = new(512);
         
         //public event Action<int, Vector3, Vector3> OnProjectileWaterInteraction;
@@ -37,7 +39,7 @@ namespace Core.Weapon
                 projectile.Step(Time.fixedDeltaTime);
                 if (projectile.InitialTime + projectileSettings.maxLifetime < Time.time)
                 {
-                    RemoveParticle(projectile);
+                    RemoveProjectile(projectile);
                 }
             }
 
@@ -64,12 +66,20 @@ namespace Core.Weapon
                     {
                         //Debug.DrawRay(commands[i].origin, commands[i].direction * commands[i].distance, Color.red, 5);
                         //Debug.Log($"Collide: {raycastHit.collider.name}");
-                        if (raycastHit.collider.TryGetComponent<IDamagable>(out var damagable))
+                        if (raycastHit.collider.TryGetComponent<StructureDamageModelLink>(out var damageModelLink))
+                        {
+                            RaycastModel(damageModelLink);
+                        }
+                        else if (raycastHit.collider.TryGetComponent<Armor>(out var armor))
+                        {
+                            OnProjectileHitArmor(projectile, armor);
+                        }
+                        else if (raycastHit.collider.TryGetComponent<IDamagable>(out var damagable))
                         {
                             damagable.Hit(projectile, raycastHit.point, raycastHit.normal, ArraySegment<IDamageModifier>.Empty);
                         }
                         projectile.Position = raycastHit.point;
-                        RemoveParticle(projectile);
+                        RemoveProjectile(projectile);
                     }
                     i--;
                 }
@@ -81,7 +91,17 @@ namespace Core.Weapon
             OnPostUpdate?.Invoke();
         }
 
-        private void RemoveParticle(ProjectileInstance instance)
+        private void RaycastModel(StructureDamageModelLink link)
+        {
+            
+        }
+
+        private void OnProjectileHitArmor(ProjectileInstance instance, Armor armor)
+        {
+            
+        }
+
+        private void RemoveProjectile(ProjectileInstance instance)
         {
             OnProjectileRemoved?.Invoke(instance.Id);
             instance.Dispose();

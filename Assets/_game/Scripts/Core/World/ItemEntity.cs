@@ -67,7 +67,7 @@ namespace Core.World
             _itemInstance = _itemInstanceFactory.CreateByDescription(_itemDescription);
             if (_objectInstance is IItemObjectHandle itemObjectHandle)
             {
-                _itemObjectFactory.SetupInstance(itemObjectHandle, _itemInstance, OverrideContainer);
+                _itemObjectFactory.SetupInstance(itemObjectHandle, _itemInstance, overrideDiContainer: OverrideContainer);
             }
 
             if (_objectInstance != null)
@@ -97,7 +97,7 @@ namespace Core.World
             {
                 if(_objectInstance == null)
                 {
-                    _loading = _itemObjectFactory.CreateSingle(_itemInstance, OverrideContainer);
+                    _loading = _itemObjectFactory.CreateSingle(_itemInstance, overrideDiContainer: OverrideContainer);
                     _objectInstance = await _loading;
                     OnSpawn();
                 }
