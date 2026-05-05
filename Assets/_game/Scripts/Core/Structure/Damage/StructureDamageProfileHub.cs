@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Items;
 using Core.Trading;
+using Core.Utilities;
 using Core.Weapon;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -52,7 +53,13 @@ namespace Core.Structure.Damage
         [Inject] private StructureUpdateSystem _structureUpdateSystem;
         [Inject] private BankSystem _bankSystem;
         [Inject] private IItemObjectFactory _itemObjectFactory;
-        private Dictionary<StructureArchetype, StructureDamageModel> _profiles = new();
+        private Dictionary<StructureArchetype, StructureDamageModelPool> _profiles = new();
+
+        private static Dictionary<Type, (Action<Component> action, int order)> setupActions = new();
+        public static void SetupDamageProfileCreationAction(Type type, Action<Component> action, int order = 0) => setupActions[type] = (action, order);
+
+        private Vector3 _offset = Vector3.left * 200;
+        private float _maxBoundInRow;
         //private Dictionary<IStructure, StructureArchetype> _archetypeByStructure = new();
 
         private void Start()
@@ -71,10 +78,14 @@ namespace Core.Structure.Damage
             {
                 var archetype = new StructureArchetype(structure, _bankSystem);
                 //_archetypeByStructure.Add(structure, archetype);
-                if (!_profiles.ContainsKey(archetype))
+                if (!_profiles.TryGetValue(archetype, out var pool))
                 {
                     var profile = CreateProfile(structure);
                     _profiles.Add(archetype, profile);
+                }
+                else
+                {
+                    StructureDamageModelLink.CreateForStructure(structure, pool);
                 }
             });
         }
@@ -84,29 +95,44 @@ namespace Core.Structure.Damage
         //    _archetypeByStructure.Remove(structure);
         //}
 
-        private StructureDamageModel CreateProfile(IStructure structure)
+        private StructureDamageModelPool CreateProfile(IStructure structure)
         {
-            var model = new StructureDamageModel();
-            SetupModel(model, structure).Forget();
-            return model;
+            var pool = new StructureDamageModelPool(4);
+            SetupModel(pool, structure).Forget();
+            return pool;
         }
 
-        private async UniTaskVoid SetupModel(StructureDamageModel model, IStructure structure)
+        private async UniTaskVoid SetupModel(StructureDamageModelPool pool, IStructure structure)
         {
             IItemObject colliderInstance = await _itemObjectFactory.CreateSingle(structure.SourceItem, true);
             colliderInstance.transform.SetParent(transform);
-            colliderInstance.transform.localPosition = Vector3.zero;
+            colliderInstance.transform.localPosition = _offset;
             colliderInstance.transform.localRotation = Quaternion.identity;
+            var boundsSize = colliderInstance.transform.GetBounds().size; 
+            _offset.x += boundsSize.x * 3;
+            _maxBoundInRow = Mathf.Max(_maxBoundInRow, boundsSize.z);
+            if (_offset.x > 200)
+            {
+                _offset.x = -_offset.x;
+                _offset.z += _maxBoundInRow * 3;
+            }
             if (colliderInstance.transform.TryGetComponent(out Rigidbody rigidbody))
             {
                 rigidbody.isKinematic = true;
             }
             
-            //IDamagable[] damagable = colliderInstance.transform.GetComponentsInChildren<IDamagable>();
-            model.Root = colliderInstance.transform;
-            model.Parents = structure.Parents.Select(x => x.Transform).ToArray();
+            foreach (var v in colliderInstance.transform.GetComponentsInChildren<Component>()
+                         .Where(x => setupActions.ContainsKey(x.GetType()))
+                         .Select(x => (setupActions[x.GetType()], x))
+                         .OrderBy(x => x.Item1.order))
+            {
+                v.Item1.action(v.Item2);
+            }
             
-            StructureDamageModelLink.CreateForStructure(structure, model);
+            //IDamagable[] damagable = colliderInstance.transform.GetComponentsInChildren<IDamagable>();
+            pool.Init((IStructure)colliderInstance, colliderInstance.transform.localPosition, Vector3.up * (boundsSize.y * 3));
+            
+            StructureDamageModelLink.CreateForStructure(structure, pool);
         }
 
         public void InstallBindings(DiContainer container)

@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Configurations;
 using Core.Items;
 using Core.Misc;
 using Core.Structure.Damage;
+using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Jobs;
 using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Core.Weapon
 {
+    [BurstCompile]
     public class ProjectileHandler : MonoBehaviour, IMyInstaller
     {
         [SerializeField] private ProjectileSettings projectileSettings;
@@ -19,11 +23,24 @@ namespace Core.Weapon
         [Inject] private ItemsTable _itemsTable;
         [Inject] private StructureDamageProfileHub _structureDamageProfileHub;
         private SlotMap<ProjectileInstance> _projectiles = new(512);
-        
+        private List<StructureRawHit> structureHitsCache = new(32);
+        private Dictionary<StructureDamageModelLink, (int, int)> structureHitsMap = new(); // StructureDamageModelLink, (startIndex, count)
         //public event Action<int, Vector3, Vector3> OnProjectileWaterInteraction;
         public event Action<ProjectileInstance> OnProjectileAdded;
         public event Action<SmKey> OnProjectileRemoved;
         public event Action OnPostUpdate;
+
+        private struct StructureRawHit
+        {
+            public StructureDamageModelLink ModelLink;
+            public ProjectileInstance Projectile;
+
+            public StructureRawHit(StructureDamageModelLink damageModelLink, ProjectileInstance projectile)
+            {
+                ModelLink = damageModelLink;
+                Projectile = projectile;
+            }
+        }
         
         public IReadOnlySlotMap<ProjectileInstance> Projectiles => _projectiles;
         
@@ -52,27 +69,33 @@ namespace Core.Weapon
                 {
                     var vMag = projectile.Velocity.magnitude;
                     commands[i++] = new RaycastCommand(projectile.PreviousPosition, projectile.Velocity / vMag, 
-                        new QueryParameters(layerMask: projectileSettings.layerMask, true, QueryTriggerInteraction.Collide, true), vMag * Time.fixedDeltaTime);
+                        new QueryParameters(layerMask: projectileSettings.regularLayerMask, true, QueryTriggerInteraction.Collide, true), vMag * Time.fixedDeltaTime);
                 }
                 
-                var handle = RaycastCommand.ScheduleBatch(commands, hitsPool, 1);
-                handle.Complete();
+                RaycastCommand.ScheduleBatch(commands, hitsPool, 1).Complete();
                 
                 i = hitsPool.Length - 1;
+                structureHitsCache.Clear();
+                structureHitsMap.Clear();
                 foreach (var projectile in _projectiles.GetValues())
                 {
                     var raycastHit = hitsPool[i];
-                    if (raycastHit.collider != null)
+                    if (raycastHit.collider)
                     {
                         //Debug.DrawRay(commands[i].origin, commands[i].direction * commands[i].distance, Color.red, 5);
                         //Debug.Log($"Collide: {raycastHit.collider.name}");
                         if (raycastHit.collider.TryGetComponent<StructureDamageModelLink>(out var damageModelLink))
                         {
-                            RaycastModel(damageModelLink);
-                        }
-                        else if (raycastHit.collider.TryGetComponent<Armor>(out var armor))
-                        {
-                            OnProjectileHitArmor(projectile, armor);
+                            if (!structureHitsMap.TryGetValue(damageModelLink, out var mapKey))
+                            {
+                                structureHitsMap.Add(damageModelLink, (structureHitsCache.Count, 1));
+                            }
+                            else
+                            {
+                                mapKey.Item2++;
+                                structureHitsMap[damageModelLink] = mapKey;
+                            }
+                            structureHitsCache.Add(new StructureRawHit(damageModelLink, projectile));
                         }
                         else if (raycastHit.collider.TryGetComponent<IDamagable>(out var damagable))
                         {
@@ -86,14 +109,68 @@ namespace Core.Weapon
 
                 commands.Dispose();
                 hitsPool.Dispose();
+
+                RaycastStructures(structureHitsCache, structureHitsMap);
             }
 
             OnPostUpdate?.Invoke();
         }
-
-        private void RaycastModel(StructureDamageModelLink link)
+        
+        private void RaycastStructures(List<StructureRawHit> hits, Dictionary<StructureDamageModelLink, (int, int)> map)
         {
+            if (hits.Count == 0) return;
             
+            NativeArray<int> modelsAddress = new NativeArray<int>(hits.Count, Allocator.TempJob);
+            var models = new StructureDamageModel[map.Count];
+            var modelsPositions = new NativeArray<Vector3>(map.Count, Allocator.TempJob);
+            var sourcesPositions = new NativeArray<Vector3>(map.Count, Allocator.TempJob);
+            var sourcesRotations = new NativeArray<Quaternion>(map.Count, Allocator.TempJob);
+            
+            {
+                int i = 0;
+                foreach (KeyValuePair<StructureDamageModelLink, (int index, int count)> kv in map)
+                {
+                    models[i] = kv.Key.ModelPool.Get();
+                    modelsPositions[i] = models[i].Root.position;
+                    sourcesPositions[i] = kv.Key.Structure.transform.position;
+                    sourcesRotations[i] = kv.Key.Structure.transform.rotation;
+                    for (int j = kv.Value.index; j < kv.Value.index + kv.Value.count; j++)
+                    {
+                        modelsAddress[j] = i;
+                    }
+                    i++;
+                }
+            }
+
+            var hitsPool = new NativeArray<RaycastHit>(hits.Count, Allocator.TempJob);
+            var commands = new NativeArray<RaycastCommand>(hits.Count, Allocator.TempJob);
+            
+            Parallel.For(0, hits.Count, i =>
+            {
+                Vector3 globalPosition = sourcesRotations[modelsAddress[i]] * (hits[i].Projectile.PreviousPosition - sourcesPositions[modelsAddress[i]]);
+                Vector3 localPosition = modelsPositions[modelsAddress[i]] - globalPosition;
+                Vector3 globalVelocity = sourcesRotations[modelsAddress[i]] * hits[i].Projectile.Velocity;
+                
+                var vMag = globalVelocity.magnitude;
+                commands[i] = new RaycastCommand(localPosition,
+                    globalVelocity / vMag,
+                    new QueryParameters(layerMask: projectileSettings.structureHitsLayerMask, true,
+                        QueryTriggerInteraction.Collide,
+                        true), vMag * Time.fixedDeltaTime);
+            });
+            
+            RaycastCommand.ScheduleBatch(commands, hitsPool, 1).Complete();
+
+            for (int i = 0; i < hitsPool.Length; i++)
+            {
+                if (hitsPool[i].collider)
+                {
+                    if (hitsPool[i].collider.TryGetComponent<Armor>(out var armor))
+                    {
+                        OnProjectileHitArmor(hits[i].Projectile, armor);
+                    }
+                }
+            }
         }
 
         private void OnProjectileHitArmor(ProjectileInstance instance, Armor armor)

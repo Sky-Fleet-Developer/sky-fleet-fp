@@ -5,6 +5,7 @@ using Core.Character.Stuff;
 using Core.Items;
 using Core.Misc;
 using Core.Structure;
+using Core.Structure.Damage;
 using Core.Trading;
 using Core.Utilities;
 using UnityEngine;
@@ -28,10 +29,15 @@ namespace Runtime.Items
         private Dictionary<string, SlotLink> _slotLinks = new();
         private Dictionary<string, (string, string)[]> _constantFieldsLinks = new();
 
-        private void Start()
+        static SlotsContainerContentView()
         {
-            TryInit();
+            StructureDamageProfileHub.SetupDamageProfileCreationAction(typeof(SlotsContainerContentView), Destroy, -1);
         }
+        
+        //private void Start()
+        //{
+        //    TryInit();
+        //}
 
         public void TryInit()
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.Structure;
+using Core.Structure.Damage;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -28,6 +29,11 @@ namespace Runtime.Physic
         private List<AerodynamicZone> zones;
         private Vector3[] cachedCorners; // кэшируемые углы для рисования контура
 
+        static AerodynamicSurface()
+        {
+            StructureDamageProfileHub.SetupDamageProfileCreationAction(typeof(AerodynamicSurface), Destroy);
+        }
+        
         private void OnValidate()
         {
             cachedCorners = null;

@@ -5,6 +5,7 @@ using Core.Character.Interaction;
 using Core.Configurations;
 using Core.Game;
 using Core.Items;
+using Core.Structure.Damage;
 using Core.Structure.Rigging;
 using Core.Trading;
 using UnityEngine;
@@ -26,6 +27,11 @@ namespace Runtime.Items
         public float MaxVolume => _maxVolume;
         public float VolumeRemains => _maxVolume - _volumeEmployed;
         public IItemsContainerReadonly Inventory => _inventory;
+
+        static Container()
+        {
+            StructureDamageProfileHub.SetupDamageProfileCreationAction(typeof(Container), Destroy);
+        }
         
         public void Init(string inventoryKey, ContainerInfo containerInfo, float maxVolume)
         {

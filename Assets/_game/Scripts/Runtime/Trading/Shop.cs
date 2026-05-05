@@ -68,7 +68,7 @@ namespace Runtime.Trading
 
         private void OnDestroy()
         {
-            _inventoryTradeAdapter.Dispose();
+            _inventoryTradeAdapter?.Dispose();
         }
 
         public IEnumerable<TradeItem> GetTradeItems()

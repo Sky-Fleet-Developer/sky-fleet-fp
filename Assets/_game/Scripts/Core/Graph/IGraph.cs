@@ -27,6 +27,10 @@ namespace Core.Graph
     {
         public static bool InitGraphFromProperties(this IGraph graph, IPropertiesContainer propertiesContainer)
         {
+            if (propertiesContainer == null)
+            {
+                return false;
+            }
             if (propertiesContainer.TryGetProperty(Property.WiresPropertyName, out var wiresProp) && propertiesContainer.TryGetProperty(Property.AutoConnectPowerWirePropertyName, out var acpwProp))
             {
                 graph.Init(wiresProp.values.Select(x => x.GetObjectValue<WireConfiguration>()), acpwProp.values[0].intValue == 1);

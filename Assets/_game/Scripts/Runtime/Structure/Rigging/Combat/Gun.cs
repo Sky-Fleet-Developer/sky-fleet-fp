@@ -22,7 +22,7 @@ namespace Runtime.Structure.Rigging.Combat
     {
         [SerializeField] private Transform muzzle;
         [SerializeField] private float menaceAbstractDistance = 500f;
-        [Inject] private UnitEntity _myUnit;
+        [Inject(Optional = true)] private UnitEntity _myUnit;
         [Inject] private ProjectileHandler _projectileHandler;
         [Inject] private BankSystem _bankSystem;
         [Inject] private ItemsTable _itemsTable;
@@ -68,7 +68,10 @@ namespace Runtime.Structure.Rigging.Combat
             var myWeapon = _itemsTable.GetKineticWeapon(SourceItem.Sign.Id);
             _myCaliber = myWeapon.caliber;
             _menaceFactor = _myCaliber.DiameterMeters;
-            TryRegisterMenace();
+            if (_myUnit != null)
+            {
+                TryRegisterMenace();
+            }
         }
 
         private void TryRegisterMenace()

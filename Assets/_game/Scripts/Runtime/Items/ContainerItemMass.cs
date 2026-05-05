@@ -1,4 +1,6 @@
-﻿using Core.Items;
+﻿using System;
+using Core.Items;
+using Core.Structure.Damage;
 using Core.Trading;
 using Core.World;
 using UnityEngine;
@@ -14,11 +16,23 @@ namespace Runtime.Items
         private IMassCombinator _massCombinator;
         public float Mass => _mass;
 
+        static ContainerItemMass()
+        {
+            StructureDamageProfileHub.SetupDamageProfileCreationAction(typeof(ContainerItemMass), Destroy, -1);
+        }
+        
         private void Awake()
         {
             _dynamicWorldObject = GetComponent<DynamicWorldObject>();
             _container = GetComponent<Container>();
-            _container.AddListener(this);
+        }
+
+        private void Start()
+        {
+            if (_container && _container.Inventory != null)
+            {
+                _container.AddListener(this);
+            }
         }
 
         private void OnItemInit()
