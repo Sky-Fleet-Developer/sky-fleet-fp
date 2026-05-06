@@ -5,10 +5,12 @@ using Core.Configurations;
 using Core.Items;
 using Core.Misc;
 using Core.Structure.Damage;
+using Core.Utilities;
 using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Jobs;
+using UnityEngine.Profiling;
 using Zenject;
 using Random = UnityEngine.Random;
 
@@ -51,6 +53,13 @@ namespace Core.Weapon
 
         private void FixedUpdate()
         {
+            //if (c > 0)
+            //{
+            //    Debug.Log($"Hit armor: {c} times this frame");
+            //    c = 0;
+            //}
+            Profiler.BeginSample("ProjectileHandler.StepAndRemove");
+
             foreach (var projectile in _projectiles.GetValues())
             {
                 projectile.Step(Time.fixedDeltaTime);
@@ -60,8 +69,12 @@ namespace Core.Weapon
                 }
             }
 
+            Profiler.EndSample();
+            
             if (_projectiles.Count > 0)
             {
+                Profiler.BeginSample("ProjectileHandler.FillCommands_1");
+
                 var hitsPool = new NativeArray<RaycastHit>(_projectiles.Count, Allocator.TempJob);
                 var commands = new NativeArray<RaycastCommand>(_projectiles.Count, Allocator.TempJob);
                 int i = 0;
@@ -71,12 +84,17 @@ namespace Core.Weapon
                     commands[i++] = new RaycastCommand(projectile.PreviousPosition, projectile.Velocity / vMag, 
                         new QueryParameters(layerMask: projectileSettings.regularLayerMask, true, QueryTriggerInteraction.Collide, true), vMag * Time.fixedDeltaTime);
                 }
-                
+                Profiler.EndSample();
+                Profiler.BeginSample("ProjectileHandler.ScheduleBatch_1");
                 RaycastCommand.ScheduleBatch(commands, hitsPool, 1).Complete();
-                
+                Profiler.EndSample();
+
+                Profiler.BeginSample("ProjectileHandler.ClearPreviousHits");
                 i = hitsPool.Length - 1;
                 structureHitsCache.Clear();
                 structureHitsMap.Clear();
+                Profiler.EndSample();
+                Profiler.BeginSample("ProjectileHandler.ExtractHits");
                 foreach (var projectile in _projectiles.GetValues())
                 {
                     var raycastHit = hitsPool[i];
@@ -84,8 +102,12 @@ namespace Core.Weapon
                     {
                         //Debug.DrawRay(commands[i].origin, commands[i].direction * commands[i].distance, Color.red, 5);
                         //Debug.Log($"Collide: {raycastHit.collider.name}");
-                        if (raycastHit.collider.TryGetComponent<StructureDamageModelLink>(out var damageModelLink))
+                        Profiler.BeginSample("ProjectileHandler.TryGetComponent");
+                        bool r = raycastHit.collider.TryGetComponent<StructureDamageModelLink>(out var damageModelLink);
+                        Profiler.EndSample();
+                        if (r)
                         {
+                            Profiler.BeginSample("ProjectileHandler.InsertToMap");
                             if (!structureHitsMap.TryGetValue(damageModelLink, out var mapKey))
                             {
                                 structureHitsMap.Add(damageModelLink, (structureHitsCache.Count, 1));
@@ -95,17 +117,22 @@ namespace Core.Weapon
                                 mapKey.Item2++;
                                 structureHitsMap[damageModelLink] = mapKey;
                             }
+                            Profiler.EndSample();
+                            Profiler.BeginSample("ProjectileHandler.AddToCache");
                             structureHitsCache.Add(new StructureRawHit(damageModelLink, projectile));
+                            Profiler.EndSample();
                         }
                         else if (raycastHit.collider.TryGetComponent<IDamagable>(out var damagable))
                         {
-                            damagable.Hit(projectile, raycastHit.point, raycastHit.normal, ArraySegment<IDamageModifier>.Empty);
+                            damagable.Hit(projectile, new HitData(raycastHit.point, raycastHit.normal), ArraySegment<IDamageModifier>.Empty);
                         }
+
                         projectile.Position = raycastHit.point;
                         RemoveProjectile(projectile);
                     }
                     i--;
                 }
+                Profiler.EndSample();
 
                 commands.Dispose();
                 hitsPool.Dispose();
@@ -120,12 +147,14 @@ namespace Core.Weapon
         {
             if (hits.Count == 0) return;
             
+            Profiler.BeginSample("ProjectileHandler.AllocateData");
             NativeArray<int> modelsAddress = new NativeArray<int>(hits.Count, Allocator.TempJob);
             var models = new StructureDamageModel[map.Count];
             var modelsPositions = new NativeArray<Vector3>(map.Count, Allocator.TempJob);
             var sourcesPositions = new NativeArray<Vector3>(map.Count, Allocator.TempJob);
             var sourcesRotations = new NativeArray<Quaternion>(map.Count, Allocator.TempJob);
-            
+            Profiler.EndSample();
+            Profiler.BeginSample("ProjectileHandler.SetupData");
             {
                 int i = 0;
                 foreach (KeyValuePair<StructureDamageModelLink, (int index, int count)> kv in map)
@@ -141,25 +170,37 @@ namespace Core.Weapon
                     i++;
                 }
             }
+            Profiler.EndSample();
+            Profiler.BeginSample("ProjectileHandler.AllocateCommands");
 
             var hitsPool = new NativeArray<RaycastHit>(hits.Count, Allocator.TempJob);
             var commands = new NativeArray<RaycastCommand>(hits.Count, Allocator.TempJob);
+            float fixedDeltaTime = Time.fixedDeltaTime;
+            Profiler.EndSample();
+            Profiler.BeginSample("ProjectileHandler.FillCommands");
+
+            Parallel.For(0, hits.Count, FillCommands);
             
-            Parallel.For(0, hits.Count, i =>
+            Profiler.EndSample();
+
+            void FillCommands(int i)
             {
-                Vector3 globalPosition = sourcesRotations[modelsAddress[i]] * (hits[i].Projectile.PreviousPosition - sourcesPositions[modelsAddress[i]]);
-                Vector3 localPosition = modelsPositions[modelsAddress[i]] - globalPosition;
-                Vector3 globalVelocity = sourcesRotations[modelsAddress[i]] * hits[i].Projectile.Velocity;
+                var invRot = Quaternion.Inverse(sourcesRotations[modelsAddress[i]]);
+                Vector3 posRelativeToSource = invRot * (hits[i].Projectile.PreviousPosition - sourcesPositions[modelsAddress[i]]);
+                Vector3 globalPosForModel = posRelativeToSource + modelsPositions[modelsAddress[i]];
+                Vector3 velRelativeToModel = invRot * hits[i].Projectile.Velocity;
                 
-                var vMag = globalVelocity.magnitude;
-                commands[i] = new RaycastCommand(localPosition,
-                    globalVelocity / vMag,
+                //Debug.DrawRay(globalPosForModel, velRelativeToModel, Color.red, 5);
+                var vMag = velRelativeToModel.magnitude;
+                commands[i] = new RaycastCommand(globalPosForModel,
+                    velRelativeToModel / vMag,
                     new QueryParameters(layerMask: projectileSettings.structureHitsLayerMask, true,
                         QueryTriggerInteraction.Collide,
-                        true), vMag * Time.fixedDeltaTime);
-            });
-            
+                        true), vMag * fixedDeltaTime);
+            }
+            Profiler.BeginSample("ProjectileHandler.ScheduleBatch");
             RaycastCommand.ScheduleBatch(commands, hitsPool, 1).Complete();
+            Profiler.EndSample();
 
             for (int i = 0; i < hitsPool.Length; i++)
             {
@@ -171,11 +212,23 @@ namespace Core.Weapon
                     }
                 }
             }
+            
+            Profiler.BeginSample("ProjectileHandler.Dispose");
+            foreach (var k in map.Keys)
+            {
+                k.ModelPool.Reset();
+            }
+            modelsPositions.Dispose();
+            sourcesPositions.Dispose();
+            sourcesRotations.Dispose();
+            modelsAddress.Dispose();
+            Profiler.EndSample();
         }
 
+        private int c = 0;
         private void OnProjectileHitArmor(ProjectileInstance instance, Armor armor)
         {
-            
+            c++;
         }
 
         private void RemoveProjectile(ProjectileInstance instance)

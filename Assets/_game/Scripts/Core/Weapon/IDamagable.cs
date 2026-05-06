@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace Core.Weapon
 {
@@ -10,6 +9,6 @@ namespace Core.Weapon
     
     public interface IDamagable
     {
-        public void Hit(ProjectileInstance projectile, Vector3 hitPoint, Vector3 hitNormal, IEnumerable<IDamageModifier> modifiers);
+        public void Hit(IDamageSource damageSource, HitData data, IEnumerable<IDamageModifier> modifiers);
     }
 }

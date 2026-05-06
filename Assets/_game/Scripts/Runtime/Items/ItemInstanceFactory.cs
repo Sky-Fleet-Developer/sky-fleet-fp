@@ -32,7 +32,10 @@ namespace Runtime.Items
 
         public ItemInstance CreateByDescription(ItemDescription description)
         {
-            var sign = _itemsTable.GetItem(description.signId);
+            if (!_itemsTable.TryGetItem(description.signId, out var sign))
+            {
+                sign = _itemsTable.GetItem(ItemSign.Unknown);
+            }
             ItemInstance instance = new ItemInstance(sign, description, _bankSystem.BindInventoryToContainerSettings, _bankSystem.UnbindInventoryToContainerSettings);
             if(instance.IsContainer && description.nestedItems is { Count: > 0 })
             {
@@ -50,7 +53,6 @@ namespace Runtime.Items
                 }
             }
             return instance;
-            
         }
 
         private void TryAddNestedInSlots(ItemDescription description, ISlotsGridSource slotsGridSource)

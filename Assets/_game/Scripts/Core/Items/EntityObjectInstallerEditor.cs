@@ -124,26 +124,34 @@ namespace Core.Items
         {
             if (!Application.isPlaying)
             {
-                EnsureObjects();
-                if (itemDescription.amount <= 0)
-                {
-                    itemDescription.amount = 1;
-                }
-
-                SetupItem(_itemObjectEditor, ref itemDescription);
+                Refresh();
             }
             else
             {
                 enabled = false;
             }
         }
-        
+
+        private void Refresh()
+        {
+            EnsureObjects();
+            if (itemDescription.amount <= 0)
+            {
+                itemDescription.amount = 1;
+            }
+            bool hasChanges = false;
+            SetupItem(_itemObjectEditor, ref itemDescription, ref hasChanges);
+            if (hasChanges)
+            {
+                EditorUtility.SetDirty(this);
+            }
+        }
+
         private void OnTransformChildrenChanged()
         {
             if (!Application.isPlaying)
             {
-                EnsureObjects();
-                SetupNestedItems(_itemObjectEditor, ref itemDescription, this);
+                Refresh();
             }
         }
 
@@ -151,18 +159,12 @@ namespace Core.Items
         {
             if (!Application.isPlaying)
             {
-                EnsureObjects();
-                SetupNestedItems(_itemObjectEditor, ref itemDescription, this);
+                Refresh();
             }
         }
 
-        private static void SetupItem(IItemObject itemObject, ref ItemDescription itemDescription) //TODO: add nested items to nested items
+        private static void SetupItem(IItemObject itemObject, ref ItemDescription itemDescription, ref bool hasChanges) //TODO: add nested items to nested items
         {
-            if (string.IsNullOrEmpty(itemDescription.signId))
-            {
-                return;
-            }
-
             int property;
             //var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
             /*if (sign.HasTag(ItemSign.IdentifiableTag))
@@ -181,19 +183,26 @@ namespace Core.Items
                     _registeredGUIDsEditor.Add(guid, itemObject);
                 }
             }*/
-
             property = FindOrAddProperty(ref itemDescription, Property.PositionPropertyName, 3);
             for (int i = 0; i < 3; i++)
             {
-                itemDescription.properties[property].values[i] =
-                    new PropertyValue(itemObject.transform.localPosition[i]);
+                var newValue = new PropertyValue(itemObject.transform.localPosition[i]);
+                if (!Mathf.Approximately(itemDescription.properties[property].values[i].floatValue, newValue.floatValue))
+                {
+                    hasChanges = true;
+                    itemDescription.properties[property].values[i] = newValue;
+                }
             }
 
             property = FindOrAddProperty(ref itemDescription, Property.RotationPropertyName, 4);
             for (int i = 0; i < 4; i++)
             {
-                itemDescription.properties[property].values[i] =
-                    new PropertyValue(itemObject.transform.localRotation[i]);
+                var newValue = new PropertyValue(itemObject.transform.localRotation[i]);
+                if (!Mathf.Approximately(itemDescription.properties[property].values[i].floatValue, newValue.floatValue))
+                {
+                    hasChanges = true;
+                    itemDescription.properties[property].values[i] = newValue;
+                }
             }
 
             if (itemObject is IBlock block)
@@ -202,12 +211,16 @@ namespace Core.Items
                 {
                     string value = propertyInfo.GetValue(block).ToString();
                     property = FindOrAddProperty(ref itemDescription, propertyInfo.Name, 1);
-                    itemDescription.properties[property].values[0] = new PropertyValue(value);
+                    if (value != itemDescription.properties[property].values[0].stringValue)
+                    {
+                        hasChanges = true;
+                        itemDescription.properties[property].values[0] = new PropertyValue(value);
+                    }
                 }
             }
         }
 
-        private static void SetupNestedItems(IItemObject itemObject, ref ItemDescription itemDescription, EntityObjectInstaller instance)
+        private static void SetupNestedItems(IItemObject itemObject, ref ItemDescription itemDescription, EntityObjectInstaller instance, ref bool hasChanges)
         {
             if (string.IsNullOrEmpty(itemDescription.signId))
             {
@@ -217,35 +230,34 @@ namespace Core.Items
             var sign = EditorReferences.ItemsTableEditor.GetItem(itemDescription.signId);
             if (sign.HasTag(ItemSign.ContainerTag))
             {
-                CollectContainerContent(ref itemDescription, itemObject, instance);
+                CollectContainerContent(ref itemDescription, itemObject, instance, ref hasChanges);
             }
         }
 
         private static void CollectContainerContent(ref ItemDescription root, IItemObject itemObject,
-            EntityObjectInstaller instance)
+            EntityObjectInstaller instance, ref bool hasChanges)
         {
             //root.nestedItems?.Clear();
 
-            CollectChildrenRecursive(ref root, itemObject.transform);
+            CollectChildrenRecursive(ref root, itemObject.transform, ref hasChanges);
 
-            void CollectChildrenRecursive(ref ItemDescription root, Transform transform)
+            void CollectChildrenRecursive(ref ItemDescription root, Transform transform, ref bool hasChanges)
             {
                 foreach (Transform child in transform)
                 {
                     if (child.TryGetComponent(out IItemObject childItemObject))
                     {
-                        AddNestedItem(ref root, childItemObject, instance);
+                        AddNestedItem(ref root, childItemObject, instance, ref hasChanges);
                     }
                     else
                     {
-                        CollectChildrenRecursive(ref root, child);
+                        CollectChildrenRecursive(ref root, child, ref hasChanges);
                     }
                 }
             }
         }
 
-        private static void AddNestedItem(ref ItemDescription root, IItemObject childItemObject,
-            EntityObjectInstaller instance)
+        private static void AddNestedItem(ref ItemDescription root, IItemObject childItemObject, EntityObjectInstaller instance, ref bool hasChanges)
         {
             root.nestedItems ??= new ();
             var item = EnumerateAbleItems(childItemObject.AssetId).FirstOrDefault();
@@ -277,7 +289,8 @@ namespace Core.Items
             //    var ammo = description.nestedItems.FirstOrDefault(x => x.signId == ItemSign.ShellTag);
             //    instance._weapon.Add(new AmmoItemWarp{weapon = description, ammoItem = ammo});
             //}
-            SetupItem(childItemObject, ref description);
+            
+            SetupItem(childItemObject, ref description, ref hasChanges);
             if (isNew)
             {
                 root.nestedItems.Add(description);

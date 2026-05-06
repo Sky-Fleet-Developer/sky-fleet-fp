@@ -104,7 +104,17 @@ namespace Core.Structure.Damage
 
         private async UniTaskVoid SetupModel(StructureDamageModelPool pool, IStructure structure)
         {
-            IItemObject colliderInstance = await _itemObjectFactory.CreateSingle(structure.SourceItem, true);
+            IItemObject colliderInstance;
+            if (structure.SourceItem.Sign.Id.Equals(ItemSign.Unknown))
+            {
+                colliderInstance = Instantiate(structure.transform).GetComponent<IItemObject>();
+                _itemObjectFactory.SetupInstance((IItemObjectHandle)colliderInstance, structure.SourceItem, true);
+            }
+            else
+            {
+                colliderInstance = await _itemObjectFactory.CreateSingle(structure.SourceItem, true);
+            }
+
             colliderInstance.transform.SetParent(transform);
             colliderInstance.transform.localPosition = _offset;
             colliderInstance.transform.localRotation = Quaternion.identity;

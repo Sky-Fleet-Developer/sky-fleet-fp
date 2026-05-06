@@ -8,5 +8,6 @@ namespace Core.Weapon
         public CaliberSign caliber;
         public string chargeType;
         public float airDrag;
+        public float mass;
     }
 }

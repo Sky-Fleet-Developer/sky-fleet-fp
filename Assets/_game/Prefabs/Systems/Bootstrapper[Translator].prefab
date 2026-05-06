@@ -3694,9 +3694,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::Core.Weapon.ProjectileHandler
   projectileSettings:
-    layerMask:
+    regularLayerMask:
       serializedVersion: 2
       m_Bits: 196609
+    structureHitsLayerMask:
+      serializedVersion: 2
+      m_Bits: 262144
     maxLifetime: 5
   minSpatialLength: 3
   drawQueries: 0

@@ -1126,7 +1126,7 @@ MonoBehaviour:
         objectValue: 
       - stringValue: 0
         intValue: 0
-        floatValue: 1827.81
+        floatValue: 0
         objectValue: 
     - name: wires
       values:
@@ -1818,6 +1818,7 @@ MonoBehaviour:
         gridSlot: main
         properties: []
         nestedItems: []
+  distributedStructure: 0
 --- !u!4 &2215091536317530287 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7417072664693235948, guid: 9b1a814305bc6ca4f8c0fc8a154b8eb1, type: 3}

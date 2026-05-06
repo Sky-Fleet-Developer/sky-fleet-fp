@@ -109,6 +109,45 @@ MonoBehaviour:
   m_Name: ItemsTable
   m_EditorClassIdentifier: 
   items:
+  - id: '[unknown]'
+    tags:
+    - mass
+    - container
+    - identifiable
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+    - name: container
+      values:
+      - stringValue: 9999999
+        intValue: 9999999
+        floatValue: 9999999
+        objectValue: 
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+        objectValue: 
+      - stringValue: 
+        intValue: 0
+        floatValue: 0
+        objectValue: 
   - id: iron_ore
     tags:
     - T0
@@ -843,6 +882,8 @@ MonoBehaviour:
         floatValue: 0.25
         objectValue: 
   linksToPrefabs:
+  - signId: '[unknown]'
+    prefabGuid: '[unknown]'
   - signId: iron_ore
     prefabGuid: iron_ore
   - signId: iron_ingot
@@ -908,6 +949,11 @@ MonoBehaviour:
   - signId: 11x95-ap_projectile
     prefabGuid: 11x95-ap_projectile
   containerInfos:
+  - signId: '[unknown]'
+    includeTags: []
+    excludeTags: []
+    maxVolume: 9999999
+    gridPrefix: 
   - signId: cube_box
     includeTags:
     - tags:
@@ -948,6 +994,7 @@ MonoBehaviour:
         length: 950
       chargeType: ap
       airDrag: 0.25
+      mass: 0.04
   kineticWeaponInfos:
   - signId: aircraft-cannon-11x95_part
     weaponData:

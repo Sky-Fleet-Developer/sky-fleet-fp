@@ -33,6 +33,7 @@ namespace Core.Items
         public const string ShellTag = "shell";
         public const string KineticWeaponTag = "kinetic-weapon";
         public const string AllTag = "All";
+        public const string Unknown = "[unknown]";
 
         [SerializeField] private string id;
         [SerializeField] private string[] tags;

@@ -31,12 +31,12 @@ namespace Core.Graph
 
         public void Init(IEnumerable<WireConfiguration> wires, bool autoConnectPowerWires)
         {
-            if(_isInitialized && Application.isPlaying) return;
+            //if(_isInitialized && Application.isPlaying) return;
             _autoConnectPowerWires = autoConnectPowerWires;
-            _powerPortProcessor = new PowerPortProcessor(this);
-            _nodes = new List<IGraphNode>();
-            _wires = new List<Wire>();
-            _addressBook = new PortsAndWiresAddressBook(wires);
+            _powerPortProcessor ??= new PowerPortProcessor(this);
+            _nodes ??= new List<IGraphNode>();
+            _wires ??= new List<Wire>();
+            _addressBook ??= new PortsAndWiresAddressBook(wires);
             /*
 
                        portsPointers = GetAllPorts();

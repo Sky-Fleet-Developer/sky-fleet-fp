@@ -28,7 +28,7 @@ namespace Core.Items
         {
             StructureDamageProfileHub.SetupDamageProfileCreationAction(typeof(EntityObjectInstaller), Destroy);
         }
-            
+
         private void Start()
         {
             if (!Application.isPlaying)

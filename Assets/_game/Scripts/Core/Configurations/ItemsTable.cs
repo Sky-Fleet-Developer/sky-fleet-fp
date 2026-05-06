@@ -68,6 +68,12 @@ namespace Core.Configurations
             return _itemById[id];
         }
 
+        public bool TryGetItem(string id, out ItemSign item)
+        {
+            _itemById ??= items.ToDictionary(x => x.Id);
+            return _itemById.TryGetValue(id, out item);
+        }
+
         public ContainerInfo GetContainer(string id)
         {
             _containerById ??= containerInfos.ToDictionary(x => x.SignId);
@@ -144,6 +150,7 @@ namespace Core.Configurations
                         shellInfo.shellData.caliber = caliberData.Substring(0, dividerIndex);
                         shellInfo.shellData.chargeType = caliberData.Substring(dividerIndex + 1);
                         shellInfo.shellData.airDrag = shellProperty.values[Property.Shell_AirDrag].floatValue;
+                        shellInfo.shellData.mass = newItem.GetSingleMass();
                         shellsInfos.Add(shellInfo);
                     }
 

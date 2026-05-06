@@ -7,14 +7,19 @@ namespace Core.Weapon
     {
         private IDamagable _parent;
 
+        private void Reset()
+        {
+            gameObject.layer = LayerMask.NameToLayer("Damagable");
+        }
+        
         private void Awake()
         {
             _parent = transform.parent.GetComponentInParent<IDamagable>();
         }
 
-        public void Hit(ProjectileInstance projectile, Vector3 hitPoint, Vector3 hitNormal, IEnumerable<IDamageModifier> modifiers)
+        public void Hit(IDamageSource damageSource, HitData data, IEnumerable<IDamageModifier> modifiers)
         {
-            _parent.Hit(projectile, hitPoint, hitNormal, modifiers);
+            _parent.Hit(damageSource, data, modifiers);
         }
     }
 }

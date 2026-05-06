@@ -26,7 +26,7 @@ namespace Core.Items
         public string signId;
         public float amount;
         public string gridSlot;
-        public List<Property> properties;
+        public List<Property> properties = new();
         [CanBeNull, ShowInInspector] public List<ItemDescription> nestedItems = new();
         public IReadOnlyList<Property> Properties => properties;
         public ItemDescription(){}
@@ -35,7 +35,7 @@ namespace Core.Items
         {
             signId = instance.Sign.Id;
             amount = instance.Amount;
-            properties = instance.Properties.ToList();
+            properties.AddRange(instance.Properties.ToList());
             nestedItems = null;
             gridSlot = null;
         }

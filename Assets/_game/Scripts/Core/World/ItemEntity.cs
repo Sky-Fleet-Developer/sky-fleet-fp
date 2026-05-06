@@ -60,6 +60,7 @@ namespace Core.World
             _itemDescription = itemDescription;
             _objectInstance = objectInstance;
             _positionCache = objectInstance.transform.position; // Do not remove. This is important for initial cell definition
+            _rotationCache = objectInstance.transform.rotation;
         }
         
         public virtual void Initialize()

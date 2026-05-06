@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Core.Weapon
 {
-    public class ProjectileInstance
+    public class ProjectileInstance : IDamageSource
     {
         private const float G = 9.8f;
         public SmKey Id { get; private set; }
@@ -21,7 +21,10 @@ namespace Core.Weapon
         private Vector3 _velocity;
         private Vector3 _position;
         private Vector3 _previousPosition;
-
+        public float Size => ShellData.caliber.DiameterMeters;
+        public float Durability => 2200;
+        public float Impulse => _velocity.magnitude * ShellData.mass;
+        
         public ProjectileInstance(Vector3 origin, Vector3 nonUnitDirection, Vector3 initialVelocity, float speed, ShellData shellData)
         {
             ShellData = shellData;
