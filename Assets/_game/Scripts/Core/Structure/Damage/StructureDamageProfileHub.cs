@@ -6,6 +6,7 @@ using Core.Items;
 using Core.Trading;
 using Core.Utilities;
 using Core.Weapon;
+using Core.World;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -53,6 +54,7 @@ namespace Core.Structure.Damage
         [Inject] private StructureUpdateSystem _structureUpdateSystem;
         [Inject] private BankSystem _bankSystem;
         [Inject] private IItemObjectFactory _itemObjectFactory;
+        [Inject] private ProjectileHandler _projectileHandler;
         private Dictionary<StructureArchetype, StructureDamageModelPool> _profiles = new();
 
         private static Dictionary<Type, (Action<Component> action, int order)> setupActions = new();
@@ -77,7 +79,6 @@ namespace Core.Structure.Damage
             structure.OnInitComplete.Subscribe(() =>
             {
                 var archetype = new StructureArchetype(structure, _bankSystem);
-                //_archetypeByStructure.Add(structure, archetype);
                 if (!_profiles.TryGetValue(archetype, out var pool))
                 {
                     var profile = CreateProfile(structure);
@@ -87,17 +88,13 @@ namespace Core.Structure.Damage
                 {
                     StructureDamageModelLink.CreateForStructure(structure, pool);
                 }
+                structure.transform.InitAsStructurePart(_projectileHandler);
             });
         }
 
-        //private void StructureRemoved(IStructure structure)
-        //{
-        //    _archetypeByStructure.Remove(structure);
-        //}
-
         private StructureDamageModelPool CreateProfile(IStructure structure)
         {
-            var pool = new StructureDamageModelPool(4);
+            var pool = new StructureDamageModelPool(4, _projectileHandler);
             SetupModel(pool, structure).Forget();
             return pool;
         }
@@ -114,10 +111,14 @@ namespace Core.Structure.Damage
             {
                 colliderInstance = await _itemObjectFactory.CreateSingle(structure.SourceItem, true);
             }
-
+            colliderInstance.transform.name = $"{structure.transform.name}_colliderReference_(0)";
             colliderInstance.transform.SetParent(transform);
             colliderInstance.transform.localPosition = _offset;
             colliderInstance.transform.localRotation = Quaternion.identity;
+            if (colliderInstance.transform.TryGetComponent(out WorldOffsetAnchor anchor))
+            {
+                Destroy(anchor);
+            }
             var boundsSize = colliderInstance.transform.GetBounds().size; 
             _offset.x += boundsSize.x * 3;
             _maxBoundInRow = Mathf.Max(_maxBoundInRow, boundsSize.z);

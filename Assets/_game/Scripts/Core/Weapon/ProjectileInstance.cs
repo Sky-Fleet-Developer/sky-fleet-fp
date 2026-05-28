@@ -24,6 +24,7 @@ namespace Core.Weapon
         public float Size => ShellData.caliber.DiameterMeters;
         public float Durability => 2200;
         public float Impulse => _velocity.magnitude * ShellData.mass;
+        public Vector3 ImpulseVector => _velocity * ShellData.mass;
         
         public ProjectileInstance(Vector3 origin, Vector3 nonUnitDirection, Vector3 initialVelocity, float speed, ShellData shellData)
         {
@@ -51,6 +52,11 @@ namespace Core.Weapon
         public void Reflect(Vector3 normal)
         {
             _velocity = Vector3.Reflect(_velocity, normal) * 0.6f;
+        }
+
+        public void SlowDown(float factor)
+        {
+            _velocity *= factor;
         }
 
         public void Dispose()

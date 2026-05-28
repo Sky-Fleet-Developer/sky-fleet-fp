@@ -136,7 +136,7 @@ MonoBehaviour:
         intValue: 9999999
         floatValue: 9999999
         objectValue: 
-      - stringValue: 
+      - stringValue: all
         intValue: 0
         floatValue: 0
         objectValue: 
@@ -950,7 +950,9 @@ MonoBehaviour:
     prefabGuid: 11x95-ap_projectile
   containerInfos:
   - signId: '[unknown]'
-    includeTags: []
+    includeTags:
+    - tags:
+      - all
     excludeTags: []
     maxVolume: 9999999
     gridPrefix: 
@@ -992,7 +994,7 @@ MonoBehaviour:
       caliber:
         diameter: 110
         length: 950
-      chargeType: ap
+      chargeType: 0
       airDrag: 0.25
       mass: 0.04
   kineticWeaponInfos:

@@ -1565,8 +1565,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a58619679d8b4d0e99ab01385f880b23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Core.Weapon.Armor
-  thickness: 0
-  durability: 2200
+  armorData:
+    thickness: 10
+    durability: 2200
 --- !u!1 &1486630871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2525,15 +2526,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 292240730882976176, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 292240730882976176, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 292240730882976176, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -17
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2653,11 +2654,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4518376856425908888, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -572.02637
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4518376856425908888, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4518376856425908888, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_AnchoredPosition.y

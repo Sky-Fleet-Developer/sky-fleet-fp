@@ -1,16 +1,25 @@
 ﻿using System;
+using Core.Structure.Damage;
+using Core.Structure.Rigging;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Weapon
 {
-    public class Armor : MonoBehaviour
+    [RequireComponent(typeof(Collider))]
+    public class Armor : MonoBehaviour, IInitAsDamageModel
     {
-        public float thickness;
-        public float durability = 2200;
+        public ArmorData armorData = new ArmorData { durability = 2200, thickness = 20 };
 
-        private void Reset()
+        public void InitAsDamageModel(ProjectileHandler projectileHandler)
         {
             gameObject.layer = LayerMask.NameToLayer("Damagable");
+            projectileHandler.RegisterArmor(GetComponent<Collider>().GetInstanceID(), armorData);
+        }
+
+        public void InitAsStructurePart(ProjectileHandler projectileHandler)
+        {
+            enabled = false;
         }
     }
 }

@@ -148,7 +148,11 @@ namespace Core.Configurations
                         var caliberData = shellProperty.values[Property.Shell_Caliber].stringValue;
                         var dividerIndex = caliberData.IndexOf('-');
                         shellInfo.shellData.caliber = caliberData.Substring(0, dividerIndex);
-                        shellInfo.shellData.chargeType = caliberData.Substring(dividerIndex + 1);
+                        bool canParseChargeType = Enum.TryParse(caliberData.Substring(dividerIndex + 1), true, out shellInfo.shellData.chargeType);
+                        if (!canParseChargeType)
+                        {
+                            Debug.LogError($"Can't parse charge type {caliberData.Substring(dividerIndex + 1)}");
+                        }
                         shellInfo.shellData.airDrag = shellProperty.values[Property.Shell_AirDrag].floatValue;
                         shellInfo.shellData.mass = newItem.GetSingleMass();
                         shellsInfos.Add(shellInfo);

@@ -8,7 +8,8 @@ namespace Core.Weapon
         public int diameter;
         public int length;
         
-        public float DiameterMeters => diameter / 1000f;
+        public float DiameterMeters => diameter / 10000f;
+        public float DiameterDecimeters => diameter / 1000f;
 
         /// <param name="value">example: "762x590"</param>
         public static implicit operator CaliberSign(string value)

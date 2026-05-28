@@ -5,6 +5,7 @@ using Core.Configurations;
 using Core.Items;
 using Core.Misc;
 using Core.Structure.Damage;
+using Core.Structure.Rigging;
 using Core.Utilities;
 using Unity.Burst;
 using Unity.Collections;
@@ -22,25 +23,56 @@ namespace Core.Weapon
         [SerializeField] private ProjectileSettings projectileSettings;
         [SerializeField] private float minSpatialLength = 3f;
         [SerializeField] private bool drawQueries;
+        [SerializeField] private float returnImpulseMultiplier = 2f;
         [Inject] private ItemsTable _itemsTable;
         [Inject] private StructureDamageProfileHub _structureDamageProfileHub;
         private SlotMap<ProjectileInstance> _projectiles = new(512);
-        private List<StructureRawHit> structureHitsCache = new(32);
-        private Dictionary<StructureDamageModelLink, (int, int)> structureHitsMap = new(); // StructureDamageModelLink, (startIndex, count)
+        private List<StructureRawHit> _structureHitsCacheA = new(32);
+        private List<StructureRawHit> _structureHitsCacheB = new(32);
+        private List<StructureRawHit> _structureHitsCacheOriginal = new(32);
+        private Dictionary<int, ArmorData> _armorMap = new(128);
+        private Dictionary<int, IDamagable> _damagableMap = new(128);
+        private Dictionary<StructureDamageModelLink, (int, int)> _structureHitsMap = new(); // StructureDamageModelLink, (startIndex, count)
         //public event Action<int, Vector3, Vector3> OnProjectileWaterInteraction;
+        private bool _hitsCacheReverse;
+        private List<StructureRawHit> HitsCache => _hitsCacheReverse ? _structureHitsCacheB : _structureHitsCacheA;
         public event Action<ProjectileInstance> OnProjectileAdded;
         public event Action<SmKey> OnProjectileRemoved;
         public event Action OnPostUpdate;
 
-        private struct StructureRawHit
+
+
+        private enum StructureHitResult
+        {
+            Mess = 0,
+            Penetrated = 1,
+            Stacked = 2,
+        }
+        private class StructureRawHit
         {
             public StructureDamageModelLink ModelLink;
             public ProjectileInstance Projectile;
+            public StructureHitResult Result;
+            public Vector3 ActualPosition;
+            public Vector3 RemainingTravel;
 
-            public StructureRawHit(StructureDamageModelLink damageModelLink, ProjectileInstance projectile)
+            public StructureRawHit(StructureDamageModelLink damageModelLink, ProjectileInstance projectile, float fixedDeltaTime)
             {
                 ModelLink = damageModelLink;
                 Projectile = projectile;
+                RemainingTravel = projectile.Velocity * fixedDeltaTime;
+                ActualPosition = projectile.PreviousPosition;
+                Result = StructureHitResult.Mess;
+            }
+
+            public void StepTo(Vector3 position)
+            {
+                Vector3 delta = position - ActualPosition;
+                Debug.DrawLine(ActualPosition, position, Color.green * 0.5f, 5);
+                Debug.DrawRay(ActualPosition, Vector3.up * 0.2f, Color.green * 0.5f, 5);
+                Debug.DrawRay(position, Vector3.Cross(delta, Vector3.up).normalized * 0.2f, Color.green, 5);
+                RemainingTravel -= delta;
+                ActualPosition = position;
             }
         }
         
@@ -50,7 +82,42 @@ namespace Core.Weapon
         {
             container.Bind<ProjectileHandler>().FromInstance(this).AsSingle();
         }
+        
+        public bool PullTrigger(IKineticWeapon weapon, ItemInstance shell, out Vector3 returnImpulse)
+        {
+            var weaponData = _itemsTable.GetKineticWeapon(weapon.SourceItem.Sign.Id);
+            var shellData = _itemsTable.GetShell(shell.Sign.Id);
+            Vector3 spread = Random.insideUnitSphere * (weaponData.spread * 0.01f);
+            float speed = weaponData.impulse / shell.Sign.GetSingleMass();
 
+            Vector3 fwd = weapon.Muzzle.forward + spread;
+            ProjectileInstance instance = new ProjectileInstance(weapon.Muzzle.position, fwd, weapon.Velocity, speed, shellData);
+            AddProjectile(instance);
+            OnProjectileAdded?.Invoke(instance);
+            returnImpulse = fwd * (-weaponData.impulse * returnImpulseMultiplier);
+            return true;
+        }
+        
+        public void RegisterArmor(int instanceId, ArmorData armorData)
+        {
+            _armorMap[instanceId] = armorData;
+        }
+
+        public void UnregisterArmor(int instanceId)
+        {
+            _armorMap.Remove(instanceId);
+        }
+
+        public void RegisterDamagable(int instanceId, IDamagable damagable)
+        {
+            _damagableMap[instanceId] = damagable;
+        }
+
+        public void UnregisterDamagable(int instanceId)
+        {
+            _damagableMap.Remove(instanceId);
+        }
+        
         private void FixedUpdate()
         {
             //if (c > 0)
@@ -91,8 +158,9 @@ namespace Core.Weapon
 
                 Profiler.BeginSample("ProjectileHandler.ClearPreviousHits");
                 i = hitsPool.Length - 1;
-                structureHitsCache.Clear();
-                structureHitsMap.Clear();
+                _hitsCacheReverse = false;
+                HitsCache.Clear();
+                _structureHitsMap.Clear();
                 Profiler.EndSample();
                 Profiler.BeginSample("ProjectileHandler.ExtractHits");
                 foreach (var projectile in _projectiles.GetValues())
@@ -108,18 +176,18 @@ namespace Core.Weapon
                         if (r)
                         {
                             Profiler.BeginSample("ProjectileHandler.InsertToMap");
-                            if (!structureHitsMap.TryGetValue(damageModelLink, out var mapKey))
+                            if (!_structureHitsMap.TryGetValue(damageModelLink, out var mapKey))
                             {
-                                structureHitsMap.Add(damageModelLink, (structureHitsCache.Count, 1));
+                                _structureHitsMap.Add(damageModelLink, (HitsCache.Count, 1));
                             }
                             else
                             {
                                 mapKey.Item2++;
-                                structureHitsMap[damageModelLink] = mapKey;
+                                _structureHitsMap[damageModelLink] = mapKey;
                             }
                             Profiler.EndSample();
                             Profiler.BeginSample("ProjectileHandler.AddToCache");
-                            structureHitsCache.Add(new StructureRawHit(damageModelLink, projectile));
+                            HitsCache.Add(new StructureRawHit(damageModelLink, projectile, Time.fixedDeltaTime));
                             Profiler.EndSample();
                         }
                         else if (raycastHit.collider.TryGetComponent<IDamagable>(out var damagable))
@@ -137,15 +205,86 @@ namespace Core.Weapon
                 commands.Dispose();
                 hitsPool.Dispose();
 
-                RaycastStructures(structureHitsCache, structureHitsMap);
+                _structureHitsCacheOriginal.Clear();
+                _structureHitsCacheOriginal.AddRange(HitsCache);
+
+                while (RaycastDamageModels(HitsCache, _structureHitsMap) > 0)
+                {
+                    var oldHits = HitsCache;
+                    _hitsCacheReverse = !_hitsCacheReverse;
+                    List<StructureRawHit> aliveHits = HitsCache;
+                    aliveHits.Clear();
+                    for (var j = 0; j < oldHits.Count; j++)
+                    {
+                        if(oldHits[j].RemainingTravel.sqrMagnitude > 0.001f)
+                        {
+                            aliveHits.Add(oldHits[j]);
+                        }
+                    }
+                }
+                RaycastStructures(_structureHitsCacheOriginal, _structureHitsMap);
             }
 
             OnPostUpdate?.Invoke();
         }
-        
+
         private void RaycastStructures(List<StructureRawHit> hits, Dictionary<StructureDamageModelLink, (int, int)> map)
         {
-            if (hits.Count == 0) return;
+            Profiler.BeginSample("ProjectileHandler.AllocateCommands");
+            const int hitsPerCommand = 4;
+            var hitsPool = new NativeArray<RaycastHit>(hits.Count * hitsPerCommand, Allocator.TempJob);
+            var commands = new NativeArray<RaycastCommand>(hits.Count, Allocator.TempJob);
+            Profiler.EndSample();
+            Profiler.BeginSample("ProjectileHandler.FillCommands");
+
+            Parallel.For(0, hits.Count, FillCommands);
+            
+            Profiler.EndSample();
+            
+            void FillCommands(int i)
+            {
+                //Debug.DrawRay(globalPosForModel, velRelativeToModel, Color.red, 5);
+                Vector3 travel = hits[i].ActualPosition + hits[i].RemainingTravel - hits[i].Projectile.PreviousPosition;
+                float travelMag = travel.magnitude;
+                commands[i] = new RaycastCommand(hits[i].Projectile.PreviousPosition,
+                    travel / travelMag,
+                    new QueryParameters(layerMask: projectileSettings.structureHitsLayerMask, true,
+                        QueryTriggerInteraction.Collide,
+                        true), travelMag);
+            }
+            
+            Profiler.BeginSample("ProjectileHandler.ScheduleBatch");
+            RaycastCommand.ScheduleBatch(commands, hitsPool, 1, hitsPerCommand).Complete();
+            Profiler.EndSample();
+            
+            for (var i = 0; i < hits.Count; i++)
+            {
+                for (int j = 0; j < hitsPerCommand; j++)
+                {
+                    var hit = hitsPool[i * hitsPerCommand + j];
+                    if (hit.colliderInstanceID != 0)
+                    {
+                        if (_damagableMap.TryGetValue(hit.colliderInstanceID, out var damagable))
+                        {
+                            Vector3 cross = Vector3.Cross(hits[i].ActualPosition - hits[i].Projectile.PreviousPosition, Vector3.up).normalized;
+                            Debug.DrawLine(hits[i].Projectile.PreviousPosition, hit.point, Color.red, 5);
+                            Debug.DrawRay(hit.point, cross * 0.2f, Color.red, 5);
+                            Debug.DrawRay(hit.point, -cross * 0.2f, Color.red, 5);
+                            damagable.Hit(hits[i].Projectile, new HitData(hit.point, hit.normal), ArraySegment<IDamageModifier>.Empty);
+                        }
+                    }
+                }
+
+                if (hits[i].Result == StructureHitResult.Stacked)
+                {
+                    RemoveProjectile(hits[i].Projectile);
+                }
+            }
+        }
+        
+        private int RaycastDamageModels(List<StructureRawHit> hits, Dictionary<StructureDamageModelLink, (int, int)> map)
+        {
+            if (hits.Count == 0) return 0;
             
             Profiler.BeginSample("ProjectileHandler.AllocateData");
             NativeArray<int> modelsAddress = new NativeArray<int>(hits.Count, Allocator.TempJob);
@@ -175,42 +314,52 @@ namespace Core.Weapon
 
             var hitsPool = new NativeArray<RaycastHit>(hits.Count, Allocator.TempJob);
             var commands = new NativeArray<RaycastCommand>(hits.Count, Allocator.TempJob);
-            float fixedDeltaTime = Time.fixedDeltaTime;
             Profiler.EndSample();
             Profiler.BeginSample("ProjectileHandler.FillCommands");
 
             Parallel.For(0, hits.Count, FillCommands);
             
             Profiler.EndSample();
-
+            
             void FillCommands(int i)
             {
                 var invRot = Quaternion.Inverse(sourcesRotations[modelsAddress[i]]);
-                Vector3 posRelativeToSource = invRot * (hits[i].Projectile.PreviousPosition - sourcesPositions[modelsAddress[i]]);
+                Vector3 posRelativeToSource = invRot * (hits[i].ActualPosition - sourcesPositions[modelsAddress[i]]);
                 Vector3 globalPosForModel = posRelativeToSource + modelsPositions[modelsAddress[i]];
-                Vector3 velRelativeToModel = invRot * hits[i].Projectile.Velocity;
+                Vector3 travelRelativeToModel = invRot * hits[i].RemainingTravel;
                 
                 //Debug.DrawRay(globalPosForModel, velRelativeToModel, Color.red, 5);
-                var vMag = velRelativeToModel.magnitude;
+                var travelMag = travelRelativeToModel.magnitude;
                 commands[i] = new RaycastCommand(globalPosForModel,
-                    velRelativeToModel / vMag,
+                    travelRelativeToModel / travelMag,
                     new QueryParameters(layerMask: projectileSettings.structureHitsLayerMask, true,
                         QueryTriggerInteraction.Collide,
-                        true), vMag * fixedDeltaTime);
+                        true), travelMag);
             }
+            
+            
+            
+            
             Profiler.BeginSample("ProjectileHandler.ScheduleBatch");
             RaycastCommand.ScheduleBatch(commands, hitsPool, 1).Complete();
             Profiler.EndSample();
+            
+            
 
+            int aliveProjectiles = 0;
             for (int i = 0; i < hitsPool.Length; i++)
             {
-                if (hitsPool[i].collider)
+                var hit = hits[i];
+                if (hitsPool[i].colliderInstanceID == 0 || !ProcessHit(ref hit, 
+                        hitsPool[i], 
+                        modelsPositions[modelsAddress[i]], 
+                        sourcesRotations[modelsAddress[i]],
+                        sourcesPositions[modelsAddress[i]],
+                        ref aliveProjectiles))
                 {
-                    if (hitsPool[i].collider.TryGetComponent<Armor>(out var armor))
-                    {
-                        OnProjectileHitArmor(hits[i].Projectile, armor);
-                    }
+                    hit.StepTo(hit.ActualPosition + hit.RemainingTravel);
                 }
+                hits[i] = hit;
             }
             
             Profiler.BeginSample("ProjectileHandler.Dispose");
@@ -223,37 +372,77 @@ namespace Core.Weapon
             sourcesRotations.Dispose();
             modelsAddress.Dispose();
             Profiler.EndSample();
-        }
-
-        private int c = 0;
-        private void OnProjectileHitArmor(ProjectileInstance instance, Armor armor)
-        {
-            c++;
-        }
-
-        private void RemoveProjectile(ProjectileInstance instance)
-        {
-            OnProjectileRemoved?.Invoke(instance.Id);
-            instance.Dispose();
-            _projectiles.Remove(instance.Id);
-        }
-
-        public void MakeProjectile(IKineticWeapon weapon, ItemInstance shell)
-        {
-            var weaponData = _itemsTable.GetKineticWeapon(weapon.SourceItem.Sign.Id);
-            var shellData = _itemsTable.GetShell(shell.Sign.Id);
-            Vector3 spread = Random.insideUnitSphere * (weaponData.spread * 0.01f);
-            float speed = weaponData.impulse / shell.Sign.GetSingleMass();
             
-            ProjectileInstance instance = new ProjectileInstance(weapon.Muzzle.position, weapon.Muzzle.forward + spread, weapon.Velocity, speed, shellData);
-            AddProjectile(instance);
-            OnProjectileAdded?.Invoke(instance);
+            return aliveProjectiles;
+        }
+
+        private bool ProcessHit(ref StructureRawHit hit, RaycastHit raycastHit, Vector3 modelsPosition, Quaternion sourcesRotation, Vector3 sourcePosition, ref int aliveProjectiles)
+        {
+            if (_armorMap.TryGetValue(raycastHit.colliderInstanceID, out var armorData))
+            {
+                bool stepDone = false;
+                switch (hit.Projectile.ShellData.chargeType)
+                {
+                    case ChargeType.Ap:
+                        float velMag = hit.Projectile.Velocity.magnitude;
+                        float dot = Vector3.Dot(hit.Projectile.Velocity / velMag, raycastHit.normal);
+                        float maxThickness = GetMaxArmorThickness(hit.Projectile.ShellData.mass,
+                            hit.Projectile.ShellData.caliber.DiameterDecimeters,
+                            velMag, dot, armorData.durability);
+                            
+                        hit.Projectile.SlowDown(Mathf.Max((maxThickness - armorData.thickness) / maxThickness, 0));
+                        Vector3 localPoint = raycastHit.point - modelsPosition;
+                        hit.StepTo(sourcesRotation * localPoint + sourcePosition);
+                            
+                        if (maxThickness < armorData.thickness)
+                        {
+                            hit.RemainingTravel = Vector3.zero;
+                            hit.Result = StructureHitResult.Stacked;
+                        }
+                        else
+                        {
+                            hit.Result = StructureHitResult.Penetrated;
+                        }
+
+                        stepDone = true;
+                        break;
+                }
+                
+                if (hit.RemainingTravel.sqrMagnitude > 0.001f)
+                {
+                    aliveProjectiles++;
+                }
+                return stepDone;
+            }
+
+            return false;
         }
 
         private void AddProjectile(ProjectileInstance instance)
         {
             var key = _projectiles.Add(instance);
             instance.InjectKey(key);
+        }
+        
+        private void RemoveProjectile(ProjectileInstance instance)
+        {
+            OnProjectileRemoved?.Invoke(instance.Id);
+            instance.Dispose();
+            _projectiles.Remove(instance.Id);
+        }
+        
+        /// <summary>
+        /// Returns max thickness of armor in mm can be penetrated by projectile
+        /// </summary>
+        /// <param name="shellMass">mass, kg</param>
+        /// <param name="caliber">caliber, decimeters</param>
+        /// <param name="shellSpeed">shell's speed, meters per second</param>
+        /// <param name="dot">cosine of angle between shell velocity and normal of armor surface</param>
+        /// <param name="armorDurabilityCoefficient"></param>
+        /// <returns>max penetration thickness in millimeters</returns>
+        public static float GetMaxArmorThickness(float shellMass, float caliber, float shellSpeed, float dot, float armorDurabilityCoefficient) //https://ru.wikipedia.org/wiki/%D0%91%D1%80%D0%BE%D0%BD%D0%B5%D0%BF%D1%80%D0%BE%D0%B1%D0%B8%D0%B2%D0%B0%D0%B5%D0%BC%D0%BE%D1%81%D1%82%D1%8C
+        {
+            return Mathf.Pow(shellSpeed / armorDurabilityCoefficient, 1.43f) * (Mathf.Pow(shellMass, 0.71f) / Mathf.Pow(caliber, 1.07f)) * Mathf.Pow(dot, 1.4f) * 100;
         }
     }
 }

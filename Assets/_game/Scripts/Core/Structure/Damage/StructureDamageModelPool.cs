@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Core.Weapon;
 using UnityEngine;
 
 namespace Core.Structure.Damage
@@ -10,9 +11,11 @@ namespace Core.Structure.Damage
         private int _bisy;
         private Vector3 _initialPoint;
         private Vector3 _offset;
+        private ProjectileHandler _projectileHandler;
 
-        public StructureDamageModelPool(int initialSize)
+        public StructureDamageModelPool(int initialSize, ProjectileHandler handler)
         {
+            _projectileHandler = handler;
             _instances = new List<StructureDamageModel>(initialSize);
         }
         
@@ -24,6 +27,7 @@ namespace Core.Structure.Damage
             for (int i = 1; i < _instances.Capacity; i++)
             {
                 var instance = Object.Instantiate(source.transform, initialPoint + offset * i, Quaternion.identity, source.transform.parent);
+                instance.name = source.transform.name[..^3] + "(" + i + ")";
                 Add(instance.GetComponent<IStructure>());
             }
         }
@@ -33,6 +37,7 @@ namespace Core.Structure.Damage
             StructureDamageModel model = new StructureDamageModel();
             model.Root = instance.transform;
             model.Parents = instance.Parents.Select(x => x.Transform).ToArray();
+            model.Root.InitAsDamageModel(_projectileHandler);
             _instances.Add(model);
         }
 

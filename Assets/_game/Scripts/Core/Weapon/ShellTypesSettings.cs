@@ -19,7 +19,7 @@ namespace Core.Weapon
         }
         
         
-        public string id;
+        public ChargeType type;
         [Tooltip("Place items in order of caliber diameter from smallest to largest")]
         [SerializeField] private VfxPerCaliberDiameter[] vfxPerCaliberDiameter;
         
@@ -56,12 +56,12 @@ namespace Core.Weapon
     public class ShellTypesSettings : ScriptableObject
     {
         [SerializeField] private ShellType[] shellTypeSettings;
-        private Dictionary<string, ShellType> _dataOverType;
+        private Dictionary<ChargeType, ShellType> _dataOverType;
         
-        public ShellType GetShellTypeSettings(string id)
+        public ShellType GetShellTypeSettings(ChargeType chargeType)
         {
-            _dataOverType ??= shellTypeSettings.ToDictionary(x => x.id, x => x);
-            return _dataOverType[id];
+            _dataOverType ??= shellTypeSettings.ToDictionary(x => x.type, x => x);
+            return _dataOverType[chargeType];
         }
     }
 }

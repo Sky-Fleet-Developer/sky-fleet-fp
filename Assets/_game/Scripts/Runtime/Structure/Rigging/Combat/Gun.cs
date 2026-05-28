@@ -18,7 +18,7 @@ using Zenject;
 
 namespace Runtime.Structure.Rigging.Combat
 {
-    public class Gun : BlockWithNode, IMenace, IKineticWeapon, IWeaponHandler
+    public class Gun : BlockWithNode, IMenace, IKineticWeapon, IWeaponHandler, IForceUser
     {
         [SerializeField] private Transform muzzle;
         [SerializeField] private float menaceAbstractDistance = 500f;
@@ -37,7 +37,9 @@ namespace Runtime.Structure.Rigging.Combat
         private bool _isRegisteredInMenacesWatcher = false;
         private Vector3 _muzzleLocalPos;
         private Quaternion _muzzleLocalRot;
-                
+        private Vector3 _storedImpulse;
+        protected IDynamicStructure _dynamicStructure;
+
         public UnitEntity MyUnit => _myUnit;
         public float MenaceDistance => menaceAbstractDistance;
         public Ray AimingRay => new Ray(_myUnit.GetGlobalPositionThreadSafe(_muzzleLocalPos), _myUnit.GetGlobalRotationThreadSafe(_muzzleLocalRot) * Vector3.forward);
@@ -60,8 +62,21 @@ namespace Runtime.Structure.Rigging.Combat
             _muzzleLocalPos = structure.transform.InverseTransformPoint(muzzle.position);
             _muzzleLocalRot = Quaternion.Inverse(structure.transform.rotation) * muzzle.rotation;
             _transformCacheSystem.AddTarget(muzzle);
+            if (structure is IDynamicStructure dynamicStructure)
+            {
+                _dynamicStructure = dynamicStructure;
+            }
         }
-        
+
+        public void ApplyForce()
+        {
+            if (_dynamicStructure != null)
+            {
+                _dynamicStructure.AddForce(_storedImpulse, muzzle.position);
+            }
+            _storedImpulse = Vector3.zero;
+        }
+
         protected override void OnItemSet()
         {
             base.OnItemSet();
@@ -118,7 +133,10 @@ namespace Runtime.Structure.Rigging.Combat
             
             if (_inventory.TryPullItem(_shell, 1, out var projectile))
             {
-                _projectileHandler.MakeProjectile(this, projectile);
+                if (_projectileHandler.PullTrigger(this, projectile, out var impulse))
+                {
+                    _storedImpulse += impulse;
+                }
             }
         }
         

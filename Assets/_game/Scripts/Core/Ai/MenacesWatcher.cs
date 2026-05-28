@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Character.Interaction;
 using Core.Misc;
-using Core.Structure;
+using Core.Utilities;
 using Core.World;
 using UnityEngine;
 using Zenject;

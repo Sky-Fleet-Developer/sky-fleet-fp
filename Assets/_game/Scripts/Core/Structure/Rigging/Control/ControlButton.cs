@@ -15,25 +15,8 @@ namespace Core.Structure.Rigging.Control
     [Serializable]
     public class ControlButton : IControlElement
     {
-        public string GetName()
-        {
-            return computerInput;
-            /*
-            if (keyDetected.IsNone())
-            {
-                return computerInput;
-            }
-            else
-            {
-                string res = computerInput;
-                for(int i = 0; i < keyDetected.Keys.Count;i++)
-                {
-                    res += " ";
-                    res += keyDetected.Keys[i].ToString();                 
-                }
-                return res;
-            }*/
-        }
+        private enum CallType {OnStart, OnPress, OnRelease}
+        [SerializeField] private CallType callType;
         public Transform Root => _device ? _device.transform : null;
         public (bool canInteract, string data) RequestInteractive(ICharacterController character)
         {
@@ -48,14 +31,29 @@ namespace Core.Structure.Rigging.Control
         
         [ShowInInspector]
         public IDevice Device { get => _device; set => _device = (DeviceBase<ActionPort>)value; }
-
+        public string GetName()
+        {
+            return computerInput;
+        }
+        
         public void Init(IGraph graph, IDriveInterface block)
         {
             //graph.ConnectPorts(new PortPointer(block, _device.Port, GetName(), nameof(port)), );
-            bindings.performed += OnPerformed;   
+            switch (callType)
+            {
+                case CallType.OnStart:
+                    bindings.started += Call;   
+                    break;
+                case CallType.OnPress:
+                    bindings.performed += Call;   
+                    break;
+                case CallType.OnRelease:
+                    bindings.started += Call;   
+                    break;
+            }
         }
 
-        private void OnPerformed(InputAction.CallbackContext obj)
+        private void Call(InputAction.CallbackContext obj)
         {
             port.Call();
             _device?.Port.Call();

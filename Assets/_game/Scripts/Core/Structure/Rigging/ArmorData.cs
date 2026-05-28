@@ -3,7 +3,7 @@
     [System.Serializable]
     public struct ArmorData
     {
-        public float tickness;
-        public float quality;
+        public float thickness;
+        public float durability;
     }
 }
