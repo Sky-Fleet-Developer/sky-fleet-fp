@@ -4,6 +4,7 @@ using System.Linq;
 using Core.Character;
 using Core.Character.Interaction;
 using Core.Data;
+using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Control;
@@ -16,6 +17,7 @@ namespace Runtime.Structure.Rigging.Control
     public class SimpleCockpit : BlockWithNode, IDriveInterface, IUpdatableBlock, IInteractiveObject
     {
         public int GetAttachedControllersCount => isUnderControl ? 1 : 0;
+        public bool RejectDirectInput => CursorBehaviour.RotationLocked;
 
         [ReadOnly, ShowInInspector] private bool isUnderControl;
         public List<ControlAxis> axes;
@@ -28,19 +30,25 @@ namespace Runtime.Structure.Rigging.Control
         public CharacterDetachData detachData;
         [SerializeField] private bool canAttachController = true;
         [System.NonSerialized, ShowInInspector] public ICharacterController controller;
-        private List<IControlElement> controlElementsCache;
+        private List<IControlElement> controlElementsCache = new ();
         public List<IDeviceWithPort> singleDevices = new ();
-        
+
+        public override void RawInit()
+        {
+            devices = GetComponentsInChildren<IDevice>();
+            CollectControlElements();
+            singleDevices.Clear();
+            singleDevices.AddRange(devices.OfType<IDeviceWithPort>().Where(x => controlElementsCache.Count(v => v.Device == x) == 0));
+        }
+
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);
-            devices = GetComponentsInChildren<IDevice>();
             structure.OnInitComplete.Subscribe(OnInitComplete);
         }
 
         private void OnInitComplete()
         {
-            CollectControlElements();
             foreach (IDevice device in devices)
             {
                 device.Init(Graph, this);
@@ -50,12 +58,11 @@ namespace Runtime.Structure.Rigging.Control
             {
                 controlElement.Init(Graph, this);
             }
-            singleDevices = devices.OfType<IDeviceWithPort>().Where(x => controlElementsCache.Count(v => v.Device == x) == 0).ToList();
         }
         
         private void CollectControlElements()
         {
-            controlElementsCache = new List<IControlElement>();
+            controlElementsCache.Clear();
             controlElementsCache.AddRange(axes);
             controlElementsCache.AddRange(buttons);
             controlElementsCache.AddRange(toggles);
@@ -107,6 +114,7 @@ namespace Runtime.Structure.Rigging.Control
 
         public virtual void UpdateBlock()
         {
+            if (!isUnderControl) return;
             foreach (IDevice device in devices)
             {
                 device.UpdateDevice();

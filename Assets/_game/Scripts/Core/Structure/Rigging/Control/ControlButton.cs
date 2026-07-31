@@ -38,6 +38,7 @@ namespace Core.Structure.Rigging.Control
         
         public void Init(IGraph graph, IDriveInterface block)
         {
+            _block = block;
             //graph.ConnectPorts(new PortPointer(block, _device.Port, GetName(), nameof(port)), );
             switch (callType)
             {
@@ -55,6 +56,10 @@ namespace Core.Structure.Rigging.Control
 
         private void Call(InputAction.CallbackContext obj)
         {
+            if (_block.RejectDirectInput)
+            {
+                return;
+            }
             port.Call();
             _device?.Port.Call();
         }
@@ -74,9 +79,14 @@ namespace Core.Structure.Rigging.Control
         [SerializeField] private bool repeatWhenHeld;
 
         [SerializeField] protected InputAction bindings;
+        private IDriveInterface _block;
 
         public void Tick()
         {
+            if (_block.RejectDirectInput)
+            {
+                return;
+            }
             if (repeatWhenHeld && bindings.IsPressed())
             {
                 port.Call();

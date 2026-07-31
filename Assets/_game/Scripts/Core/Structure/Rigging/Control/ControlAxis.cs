@@ -42,6 +42,16 @@ namespace Core.Structure.Rigging.Control
         public void Init(IGraph graph, IDriveInterface block)
         {
             GetPort();
+            if (_device)
+            {
+                Wire wire = port.GetWire();
+                if (wire == null)
+                {
+                    wire = port.CreateWire();
+                    port.SetWire(wire);
+                }
+                _device.Port.SetWire(wire);
+            }
         }
 
         public void Enable()
@@ -65,10 +75,6 @@ namespace Core.Structure.Rigging.Control
         {
             _inputValue = value;
             port.Value = _inputValue;
-            if (_device)
-            {
-                _device.Port.Value = _inputValue;
-            }
         }
 
         public void Tick()
@@ -76,12 +82,7 @@ namespace Core.Structure.Rigging.Control
             if (bindings.IsInProgress())
             {
                 _inputValue = bindings.ReadValue<float>();
-            }
-
-            port.Value = _inputValue;
-            if (_device)
-            {
-                _device.Port.Value = _inputValue;
+                port.Value = _inputValue;
             }
         }
     }

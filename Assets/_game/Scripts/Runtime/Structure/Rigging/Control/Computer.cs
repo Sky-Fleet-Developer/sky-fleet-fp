@@ -12,6 +12,7 @@ namespace Runtime.Structure.Rigging.Control
         public bool IsWork { get; private set; }
         public float Consumption => maxConsumption;
         public PowerPort Power => power;
+        public float PowerValue { get; set; }
 
         public int updateFrequency = 1;
 

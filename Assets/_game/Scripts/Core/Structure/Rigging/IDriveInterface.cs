@@ -7,6 +7,7 @@ namespace Core.Structure.Rigging
     public interface IDriveInterface : IBlock, IDriveHandler
     {
         int GetAttachedControllersCount { get; }
+        bool RejectDirectInput { get; }
         CharacterAttachData GetAttachData();
         CharacterDetachData GetDetachData();
         void ReadInput();

@@ -33,10 +33,10 @@ namespace Core.Graph
         {
             //if(_isInitialized && Application.isPlaying) return;
             _autoConnectPowerWires = autoConnectPowerWires;
-            _powerPortProcessor ??= new PowerPortProcessor(this);
-            _nodes ??= new List<IGraphNode>();
-            _wires ??= new List<Wire>();
-            _addressBook ??= new PortsAndWiresAddressBook(wires);
+            _powerPortProcessor = new PowerPortProcessor(this);
+            _nodes = new List<IGraphNode>();
+            _wires = new List<Wire>();
+            _addressBook = new PortsAndWiresAddressBook(wires);
             /*
 
                        portsPointers = GetAllPorts();
@@ -177,9 +177,9 @@ namespace Core.Graph
             OnWireRemoved?.Invoke(wire);
         }
 
-        public PortPointer GetPort(string id)
+        public bool TryGetPort(string id, out PortPointer port)
         {
-            return _addressBook.GetPort(id);
+            return _addressBook.TryGetPort(id, out port);
         }
         
         /*private void ConnectPorts(params PortPointer[] ports)

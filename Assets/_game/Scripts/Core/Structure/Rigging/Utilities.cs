@@ -38,15 +38,16 @@ namespace Core.Structure.Rigging
 
         private const float deltaConsumption = 0.02f;
         
-        public static void CalculateConsumerTickA(this IConsumer consumer)
+        public static void CalculateConsumerTickA(this IPowerConsumer consumer)
         {
             consumer.Power.charge = 0;
             consumer.Power.maxInput = (0.1f + consumer.Consumption) * StructureUpdateSystem.DeltaTime;
             consumer.Power.maxOutput = 0;
         }
 
-        public static bool CalculateConsumerTickB(this IConsumer consumer)
+        public static bool CalculateConsumerTickB(this IPowerConsumer consumer)
         {
+            consumer.PowerValue = consumer.Power.charge / consumer.Power.maxInput;
             return true; //consumer.Power.charge >= (consumer.Consumption * StructureUpdateModule.DeltaTime - deltaConsumption * consumer.Consumption) * 0.9f;
         }
     }

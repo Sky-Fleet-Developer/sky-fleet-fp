@@ -121,6 +121,7 @@ namespace Core.Graph
                 result.Add(new PortPointer(node, field.GetValue(node) as Port, field.Name, group));
             }
             var listPortFields = GetNestedPortUserFields(node);
+            node.RawInit();
             foreach (var field in listPortFields)
             {
                 if (field.GetValue(node) is IList list)

@@ -73,9 +73,9 @@ namespace Core.Graph
             _portsByNode.Remove(nodeId);
         }
 
-        public PortPointer GetPort(string id)
+        public bool TryGetPort(string id, out PortPointer port)
         {
-            return _portsById[id];
+            return _portsById.TryGetValue(id, out port);
         }
     }
 }

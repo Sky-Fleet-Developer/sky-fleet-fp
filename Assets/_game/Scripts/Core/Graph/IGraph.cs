@@ -13,7 +13,7 @@ namespace Core.Graph
     {
         void Init(IEnumerable<WireConfiguration> wires, bool autoConnectPowerWires);
         void UpdateGraph();
-        PortPointer GetPort(string id);
+        bool TryGetPort(string id, out PortPointer port);
         IEnumerable<IGraphNode> Nodes { get; }
         IEnumerable<Wire> Wires { get; }
         public void AddNode(IGraphNode node);
@@ -39,6 +39,7 @@ namespace Core.Graph
 
     public interface IGraphNode
     {
+        void RawInit();
         void InitNode(IGraph graph);
         string NodeId { get; }
     }

@@ -191,14 +191,17 @@ namespace WorldEditor
                     List<IPortsContainer> wire = new List<IPortsContainer>();
                     foreach (string portId in configWire.ports)
                     {
-                        var port = currentGraph.GetPort(portId);
-                        if (!port.IsNull())
+                        if (currentGraph.TryGetPort(portId, out var port))
                         {
                             var container = FindContainerForPort(port);
                             if (container != null)
                             {
                                 wire.Add(container);
                             }
+                        }
+                        else
+                        {
+                            Debug.LogError($"Cant find port with id {portId}");
                         }
                     }
 

@@ -216,7 +216,7 @@ namespace Core.Weapon
                     aliveHits.Clear();
                     for (var j = 0; j < oldHits.Count; j++)
                     {
-                        if(oldHits[j].RemainingTravel.sqrMagnitude > 0.001f)
+                        if(oldHits[j].RemainingTravel.sqrMagnitude > 0.00001f)
                         {
                             aliveHits.Add(oldHits[j]);
                         }

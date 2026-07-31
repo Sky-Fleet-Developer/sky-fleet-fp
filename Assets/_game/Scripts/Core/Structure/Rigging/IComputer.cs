@@ -1,6 +1,6 @@
 ﻿namespace Core.Structure.Rigging
 {
-    public interface IComputer : IUpdatableBlock, IConsumer
+    public interface IComputer : IUpdatableBlock, IPowerConsumer
     {
     }
 }

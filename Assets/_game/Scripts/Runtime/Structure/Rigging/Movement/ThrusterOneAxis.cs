@@ -12,7 +12,7 @@ namespace Runtime.Structure.Rigging.Movement
         
         protected override void ApplyThrust(float thrust)
         {
-            root.AddForce(nozzle.forward * thrust, nozzle.position);
+            Root.AddForce(nozzle.forward * thrust, nozzle.position);
         }
 
         public void UpdateBlock()

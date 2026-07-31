@@ -4,14 +4,15 @@ using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Power
 {
-    public abstract class PowerUserBlock : BlockWithNode, IConsumer
+    public abstract class PowerUserBlock : BlockWithNode, IPowerConsumer
     {
         [SerializeField] private PowerPort power = new PowerPort();
 
         public bool IsWork { get; private set; }
         public abstract float Consumption { get; }
         public PowerPort Power => power;
-        
+        public float PowerValue { get; set; }
+
         public virtual void ConsumptionTick()
         {
             this.CalculateConsumerTickA();

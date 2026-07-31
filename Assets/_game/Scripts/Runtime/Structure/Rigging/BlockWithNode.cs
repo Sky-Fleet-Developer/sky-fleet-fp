@@ -5,6 +5,9 @@ namespace Runtime.Structure.Rigging
     public abstract class BlockWithNode : Block, IGraphNode
     {
         public IGraph Graph { get; private set; }
+        public virtual void RawInit()
+        {
+        }
         public virtual void InitNode(IGraph graph)
         {
             Graph = graph;

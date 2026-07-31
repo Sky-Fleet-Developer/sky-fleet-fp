@@ -29,7 +29,7 @@ namespace Runtime.Structure.Rigging
         public virtual Vector3 LocalCenterOfMass => Vector3.zero;
         [SerializeField, HideInInspector] private string mountingType;
         private float _mass;
-
+        
         public virtual void InitBlock(IStructure structure, Parent parent)
         {
             Parent = parent;

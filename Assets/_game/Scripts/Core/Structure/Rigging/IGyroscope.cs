@@ -1,6 +1,6 @@
 ﻿namespace Core.Structure.Rigging
 {
-    public interface IGyroscope : IUpdatableBlock, IConsumer
+    public interface IGyroscope : IUpdatableBlock, IPowerConsumer
     {
     }
 }

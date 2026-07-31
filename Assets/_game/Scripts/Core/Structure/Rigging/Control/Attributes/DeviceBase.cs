@@ -61,7 +61,7 @@ namespace Core.Structure.Rigging.Control.Attributes
         }
     }
 
-    public abstract class DeviceBase<T> : DeviceBase, IDeviceWithPort, IDeviceHandler where T : Port
+    public abstract class DeviceBase<T> : DeviceBase, IDeviceWithPort, IInteractiveObject, IDeviceHandler where T : Port
     {
         public abstract void MoveValueInteractive(float val);
         public abstract void ExitControl();

@@ -634,6 +634,26 @@ MonoBehaviour:
         intValue: 1
         floatValue: 1
         objectValue: 
+  - id: test-climbing-engine_part
+    tags:
+    - block
+    - mass
+    basicCost: 1
+    properties:
+    - name: mass
+      values:
+      - stringValue: 20
+        intValue: 20
+        floatValue: 20
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
+      - stringValue: 1
+        intValue: 1
+        floatValue: 1
+        objectValue: 
   - id: small-liquid-tank_part
     tags:
     - block
@@ -928,6 +948,8 @@ MonoBehaviour:
     prefabGuid: front-wheel-rotator_part
   - signId: test-jet_part
     prefabGuid: test-jet_part
+  - signId: test-climbing-engine_part
+    prefabGuid: test-climbing-engine_part
   - signId: small-liquid-tank_part
     prefabGuid: small-liquid-tank_part
   - signId: small-fuel-power-generator_part

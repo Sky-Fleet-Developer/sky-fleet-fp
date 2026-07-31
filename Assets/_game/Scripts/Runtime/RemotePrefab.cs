@@ -38,7 +38,7 @@ namespace Runtime
             }
         }
 
-        private void OnValidate()
+        protected virtual void OnValidate()
         {
             if (string.IsNullOrEmpty(assetId))
             {

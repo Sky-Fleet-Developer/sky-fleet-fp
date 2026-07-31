@@ -11,41 +11,41 @@ namespace Runtime.Structure.Rigging.Movement
         public AnimationCurve thrustPerFuel;
         public AnimationCurve fuelPerThrottle;
         public float MaximalThrust => maximalThrust;
-        public float CurrentThrust => currentThrust; 
+        public float CurrentThrust => _currentThrust; 
 
         [SerializeField] private float maximalThrust;
         [SerializeField] private float fuelConsumptionMul = 1;
 
-        protected IDynamicStructure root;
+        protected IDynamicStructure Root;
 
         public Port<float> throttle = new Port<float>(PortType.Thrust);
         public StoragePort fuel = new StoragePort(typeof(Hydrogen));
 
-        private float fuelPerSec;
-        [ShowInInspector, ReadOnly] private float currentThrust;
+        private float _consumedFuel;
+        [ShowInInspector, ReadOnly] private float _currentThrust;
 
         public override void InitBlock(IStructure structure, Parent parent)
         {
             base.InitBlock(structure, parent);
-            if (structure is IDynamicStructure dynamicStructure) root = dynamicStructure;
+            if (structure is IDynamicStructure dynamicStructure) Root = dynamicStructure;
         }
 
         void IFuelUser.FuelTick()
         {
             float amount = Mathf.Clamp(fuelPerThrottle.Evaluate(throttle.Value) * fuelConsumptionMul, 0f, fuel.Value);
-            fuelPerSec = amount;
+            _consumedFuel = amount;
             fuel.Value -= amount.DeltaTime();
         }
         
         void IForceUser.ApplyForce()
         {
-            currentThrust = maximalThrust * thrustPerFuel.Evaluate(fuelPerSec / fuelConsumptionMul);
-            ApplyThrust(currentThrust);
+            _currentThrust = maximalThrust * thrustPerFuel.Evaluate(_consumedFuel / fuelConsumptionMul);
+            ApplyThrust(_currentThrust);
         }
 
         protected virtual void ApplyThrust(float thrust)
         {
-            root.AddForce(transform.forward * thrust, transform.position);
+            Root.AddForce(transform.forward * thrust, transform.position);
         }
     }
 }
