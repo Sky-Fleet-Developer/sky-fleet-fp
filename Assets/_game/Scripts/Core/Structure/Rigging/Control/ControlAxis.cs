@@ -17,6 +17,8 @@ namespace Core.Structure.Rigging.Control
         [SerializeField] protected InputAction bindings;
         [SerializeField, DrawWithUnity] private PortType portType = PortType.Thrust;
         private Port<float> port;
+        private bool _wasChangedByInput;
+        private bool _isInputInProgress;
         public bool EnableInteraction => enableInteraction;
         public Transform Root => _device?.transform;
         [ShowInInspector]
@@ -52,6 +54,26 @@ namespace Core.Structure.Rigging.Control
                 }
                 _device.Port.SetWire(wire);
             }
+            bindings.started += Started;
+            bindings.performed += Performed;
+            bindings.canceled += Cancelled;
+        }
+
+        private void Started(InputAction.CallbackContext obj)
+        {
+            _isInputInProgress = true;
+            _wasChangedByInput = true;
+        }
+        
+        private void Performed(InputAction.CallbackContext obj)
+        {
+            _wasChangedByInput = true;
+        }
+
+        private void Cancelled(InputAction.CallbackContext obj)
+        {
+            _isInputInProgress = false;
+            //_wasChangedByInput = true;
         }
 
         public void Enable()
@@ -79,10 +101,11 @@ namespace Core.Structure.Rigging.Control
 
         public void Tick()
         {
-            if (bindings.IsInProgress())
+            if (_wasChangedByInput || _isInputInProgress)
             {
                 _inputValue = bindings.ReadValue<float>();
                 port.Value = _inputValue;
+                _wasChangedByInput = false;
             }
         }
     }

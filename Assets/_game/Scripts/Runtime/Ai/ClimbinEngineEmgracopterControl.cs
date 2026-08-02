@@ -7,9 +7,8 @@ using UnityEngine;
 
 namespace Runtime.Ai
 {
-
     [RequireComponent((typeof(DynamicStructure)))]
-    public class EmgracopterControl : MonoBehaviour, IUnitControl
+    public class ClimbinEngineEmgracopterControl : MonoBehaviour, IUnitControl
     {
         [SerializeField] private float pitchSensitivity = 1;
         [SerializeField] private float pitchDumper = 0.1f;
@@ -33,8 +32,7 @@ namespace Runtime.Ai
         private float _predictionTime;
         private float _acuity = 1;
         private IDirectionData _aimingDirection;
-        //private Ray _currentAimingRay;
-
+        
         public bool IsActive => _mainDriveHandler != null;
 
         public bool IsWeaponActive => _mainWeaponHandler != null;
@@ -99,9 +97,9 @@ namespace Runtime.Ai
             float suppressionBySpeed = suppressControlBySpeed.Evaluate(velocity.magnitude);
             _mainDriveHandler.PitchAxis = Mathf.Clamp((-fwd.y * pitchSensitivity - angularVelocity.x * pitchDumper) * _acuity, -suppressionBySpeed, suppressionBySpeed);
             _mainDriveHandler.RollAxis = Mathf.Clamp(((-fwd.x * (1 - _rollYawFactor) //turn by roll
-                                                      - upVal * (_rollYawFactor + _rollBackFactor) //align to up
-                                                      + velocity.x * _driftCompensation) * rollSensitivity 
-                                                     - angularVelocity.z * rollDumper) * _acuity,
+                                                       - upVal * (_rollYawFactor + _rollBackFactor) //align to up
+                                                       + velocity.x * _driftCompensation) * rollSensitivity 
+                                                      - angularVelocity.z * rollDumper) * _acuity,
                 -suppressionBySpeed, suppressionBySpeed);
 
             float yawControlValue = fwd.x * _rollYawFactor * yawSensitivity; //turn by yaw

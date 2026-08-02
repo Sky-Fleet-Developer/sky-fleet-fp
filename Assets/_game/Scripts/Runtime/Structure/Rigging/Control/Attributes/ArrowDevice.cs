@@ -30,7 +30,7 @@ namespace Runtime.Structure.Rigging.Control.Attributes
             {
                 v = Mathf.Clamp(v, map.x, map.y);
             }
-            arrow.localRotation = Quaternion.Euler(_eulerStart) * Quaternion.AngleAxis(v, axis);
+            arrow.localRotation = Quaternion.Euler(_eulerStart) * Quaternion.AngleAxis(v * 360, axis);
         }
     }
 }

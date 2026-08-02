@@ -39,6 +39,11 @@ namespace Runtime.Environment.AirDrag
 
         private void Start()
         {
+            if (!settings || !settings.enableAirDrag)
+            {
+                enabled = false;
+                return;
+            }
             _materialArray = new Material[10];
             for (var i = 0; i < _materialArray.Length; i++)
             {

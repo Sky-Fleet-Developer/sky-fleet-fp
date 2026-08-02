@@ -5,6 +5,7 @@ namespace Runtime.Environment.AirDrag
     [CreateAssetMenu(menuName = "SF/Data/AirDrag")]
     public class AirDragSettings : ScriptableObject
     {
+        public bool enableAirDrag = true;
         public const int ResultBufferSize = 7;
         public Material material;
         public ComputeShader pixelsToNormalsShader;
