@@ -22,7 +22,8 @@ namespace Core.TerrainGenerator.Settings
         [Button]
         public void ReadFromTerrain()
         {
-            Terrain[] terrains = Core.GetTerrainsContacts();
+            throw new NotImplementedException();
+            /*Terrain[] terrains = Core.GetTerrainsContacts();
             Trees = new List<TreeInstance>();
 
             Rect rectCore = new Rect(Core.LocalRect.x - Core.LocalRect.z / 2, Core.LocalRect.y - Core.LocalRect.w / 2, Core.LocalRect.z, Core.LocalRect.w);
@@ -40,7 +41,7 @@ namespace Core.TerrainGenerator.Settings
                         Trees.Add(tree);
                     }
                 }
-            }
+            }*/
         }
 
 

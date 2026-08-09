@@ -26,7 +26,7 @@ namespace Core.TerrainGenerator
             return null;
         }
 
-        public Quaternion Rotation => transform.rotation;
+        public float Rotation => transform.eulerAngles.y;
         public Vector3 Position => transform.position - WorldOffset.Offset;
         public Rect AxisAlignedRect => CalculateAxisAlignedRect();
 
@@ -123,12 +123,12 @@ namespace Core.TerrainGenerator
         }
 
         private Vector3 lastCalculationPosition;
-        private Quaternion lastCalculationRotation;
+        private float lastCalculationRotation;
         public Rect CalculateAxisAlignedRect()
         {
             Vector3 position = Position;
-            Quaternion rotation = transform.rotation;
-            if(lastCalculationPosition == position && lastCalculationRotation == rotation) return axisAlignedRect;
+            float rotation = transform.eulerAngles.y;
+            if(lastCalculationPosition == position && Mathf.Approximately(lastCalculationRotation, rotation)) return axisAlignedRect;
 
             lastCalculationPosition = position;
             lastCalculationRotation = rotation;

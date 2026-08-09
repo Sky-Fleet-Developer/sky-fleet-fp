@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Core.TerrainGenerator.Settings;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -64,7 +66,7 @@ namespace Core.TerrainGenerator
                 int x = i / pieces;
                 int y = i % pieces;
                 Subchunk subchunk = new Subchunk($"{name}_{i}", parent, settings.ChunkSize / pieces, settings.Height,
-                    pieceResolution, new Vector2Int(x, y), pieces, material);
+                    pieceResolution, new Vector2Int(x, y), pieces, material, settings.Settings.OfType<MeshHeightmapChannelSettings>().First().GpuWorker);
 
 
                 Vector2Int min = new Vector2Int(x * pieceResolution, y * pieceResolution);
@@ -85,7 +87,7 @@ namespace Core.TerrainGenerator
             return resolution * resolution * 4 <= MaxMeshVertices;
         }
 
-        public async Task SetHeights(float[,] heights)
+        public async Task SetHeights(ComputeBuffer heights)
         {
             //int xSize = heights.GetLength(0);
             //int ySize = heights.GetLength(1);

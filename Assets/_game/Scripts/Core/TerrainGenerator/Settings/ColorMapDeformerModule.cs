@@ -23,7 +23,7 @@ namespace Core.TerrainGenerator.Settings
         [Button]
         public void ReadFromTerrain()
         {
-            Terrain[] terrains = Core.GetTerrainsContacts();
+           /* Terrain[] terrains = Core.GetTerrainsContacts();
             Vector4 rect = Core.LocalRect;
 
             CountLayers = terrains.Max(x => x.terrainData.terrainLayers.Length);
@@ -34,7 +34,8 @@ namespace Core.TerrainGenerator.Settings
             {
                 for (int y = 0; y < Resolution.y; y++)
                 {
-                    Vector3 pos = Core.Rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0,
+                    //TODO: replace Rotation by sin and cos
+                    //Vector3 pos = Core.Rotation * new Vector3((x / (Resolution.x - 1f) - 0.5f) * rect.z + rect.x, 0,
                         (y / (Resolution.y - 1f) - 0.5f) * rect.w + rect.y) + Core.Position;
 
                     Terrain tr = GetTerrainInPos(terrains, pos);
@@ -58,7 +59,7 @@ namespace Core.TerrainGenerator.Settings
                         SplatMaps[0, x, y] = 1;
                     }
                 }
-            }
+            }*/
         }
 
         private Terrain GetTerrainInPos(Terrain[] terrains, Vector3 pos)
@@ -81,8 +82,8 @@ namespace Core.TerrainGenerator.Settings
             Vector3 localPos = terrain.transform.InverseTransformPoint(pos);
             Vector2 normalized = new Vector2(localPos.x / terrain.terrainData.size.x,
                 localPos.z / terrain.terrainData.size.z);
-            float[,,] alpha = terrain.terrainData.GetAlphamaps((int) (normalized.x * terrain.terrainData.alphamapWidth),
-                (int) (normalized.y * terrain.terrainData.alphamapWidth), 1, 1);
+            float[,,] alpha = terrain.terrainData.GetAlphamaps((int)(normalized.x * terrain.terrainData.alphamapWidth),
+                (int)(normalized.y * terrain.terrainData.alphamapWidth), 1, 1);
             float[] alphaNormal = new float[alpha.Length];
             for (int i = 0; i < alpha.Length; i++)
             {
@@ -106,7 +107,10 @@ namespace Core.TerrainGenerator.Settings
 
             //float[,,] alphamap = GetSourceLayer(module.Core);//terrainData.GetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, rectangleSettings.deltaX, rectangleSettings.deltaY);
 
-            float[] source = channel.GetSourceLayer(Core); //channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
+            float[]
+                source = channel
+                    .GetSourceLayer(
+                        Core); //channel.terrainData.GetAlphamaps(settings.minX, settings.minY, settings.deltaX, settings.deltaY);
             float[][] destination = channel.GetDestinationLayers(Core).ToArray();
 
             WriteToAlphamaps(source, destination, settings.minX, settings.minY, settings, channel.Position,
@@ -128,10 +132,12 @@ namespace Core.TerrainGenerator.Settings
             Vector3 terrainPosition, float chunkSize)
         {
             float ceilSize = chunkSize / settings.resolution;
+            float deltaX = settings.maxX - settings.minX;
+            float deltaY = settings.maxY - settings.minY;
 
-            for (int x = 0; x < settings.deltaX; x++)
+            for (int x = 0; x < deltaX; x++)
             {
-                for (int y = 0; y < settings.deltaY; y++)
+                for (int y = 0; y < deltaY; y++)
                 {
                     Vector3 worldPos = terrainPosition +
                                        new Vector3((settings.minX + x) * ceilSize, 0, (settings.minY + y) * ceilSize);
@@ -147,8 +153,13 @@ namespace Core.TerrainGenerator.Settings
                     {
                         for (int d = 0; d < destination.Length; d++)
                         {
-                            destination[d][ xBegin + x + (yBegin + y) * settings.resolution + i * settings.resolution * settings.resolution] =
-                                source[xBegin + x + (yBegin + y) * settings.resolution + i * settings.resolution * settings.resolution] * (1 - opacity) + alphasR[i] * opacity;
+                            destination[d][
+                                    xBegin + x + (yBegin + y) * settings.resolution +
+                                    i * settings.resolution * settings.resolution] =
+                                source[
+                                    xBegin + x + (yBegin + y) * settings.resolution +
+                                    i * settings.resolution * settings.resolution] * (1 - opacity) +
+                                alphasR[i] * opacity;
                         }
                     }
 

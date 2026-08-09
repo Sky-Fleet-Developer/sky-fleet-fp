@@ -8,24 +8,33 @@ using Sirenix.OdinInspector;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class HeightChannel : DeformationChannel<float[,], HeightMapDeformerModule>
+    public class HeightChannel : DeformationChannel<ComputeBuffer, HeightMapDeformerModule>
     {
+        private HeightmapGpuWorker _gpuWorker;
         public Chunk chunk { get; private set; }
         public int Resolution { get; }
 
-        public HeightChannel(Chunk chunk, int resolution, float chunkSize, Vector2Int coordinates, string path) : base(coordinates, chunkSize)
+        public HeightChannel(HeightmapGpuWorker gpuWorker, Chunk chunk, int resolution, float chunkSize,
+            Vector2Int coordinates, string path) : base(coordinates, chunkSize)
         {
+            _gpuWorker = gpuWorker;
             this.chunk = chunk;
             Resolution = resolution;
             ReadTex(path, resolution);
         }
+        
+        public HeightmapGpuWorker GetGpuWorker() => _gpuWorker;
 
         private async void ReadTex(string path, int resolution)
         {
-            float debugTime = Time.realtimeSinceStartup;
-            Debug.Log("TIMING: begin read tex " + path);
-            deformationLayersCache.Add(path != null ? await RawReader.ReadAsync(path) : new float[resolution + 1, resolution + 1]);
-            Debug.Log("TIMING: end read tex " + (Time.realtimeSinceStartup - debugTime));
+            ComputeBuffer verticesBuffer = new ComputeBuffer((resolution + 1) * (resolution + 1), sizeof(float));
+            if (path != null)
+            {
+                var data = await RawReader.ReadAsync(path);
+                verticesBuffer.SetData(data);
+            }
+            deformationLayersCache.Add(verticesBuffer);
+
             loading.SetResult(true);
         }
 
@@ -55,9 +64,9 @@ namespace Core.TerrainGenerator
             return chunk.PostProcess();
         }
 
-        protected override float[,] GetLayerCopy(float[,] source)
+        protected override ComputeBuffer GetLayerCopy(ComputeBuffer source)
         {
-            return source.Clone() as float[,];
+            return _gpuWorker.CopyHeightBuffer(source);
         }
     }
 }

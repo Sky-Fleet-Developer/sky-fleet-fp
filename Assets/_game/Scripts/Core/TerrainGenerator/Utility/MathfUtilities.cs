@@ -5,13 +5,15 @@ namespace Core.TerrainGenerator.Utility
 {
     public static class MathfUtilities
     {
-        public static (Vector2 min, Vector2 max) GetAxisAlignedRect(Vector4 localRect, Quaternion rotation,
+        public static (Vector2 min, Vector2 max) GetAxisAlignedRect(Vector4 localRect, float rotation,
             Vector3 position)
         {
-            Vector3 leftDown = rotation * new Vector3(localRect.x - localRect.z * 0.5f, 0, localRect.y - localRect.w * 0.5f) + position;
-            Vector3 leftUp = rotation * new Vector3(localRect.x - localRect.z * 0.5f, 0, localRect.y + localRect.w * 0.5f) + position;
-            Vector3 rightDown = rotation * new Vector3(localRect.x + localRect.z * 0.5f, 0, localRect.y - localRect.w * 0.5f) + position;
-            Vector3 rightUp = rotation * new Vector3(localRect.x + localRect.z * 0.5f, 0, localRect.y + localRect.w * 0.5f) + position;
+            float sin = Mathf.Sin(rotation);
+            float cos = Mathf.Cos(rotation);
+            Vector3 leftDown = new Vector3((localRect.x - localRect.z * 0.5f) * sin, 0, (localRect.y - localRect.w * 0.5f) * cos) + position;
+            Vector3 leftUp = new Vector3((localRect.x - localRect.z * 0.5f) * sin, 0, (localRect.y + localRect.w * 0.5f) * cos) + position;
+            Vector3 rightDown = new Vector3((localRect.x + localRect.z * 0.5f) * sin, 0, (localRect.y - localRect.w * 0.5f) * cos) + position;
+            Vector3 rightUp = new Vector3((localRect.x + localRect.z * 0.5f) * sin, 0, (localRect.y + localRect.w * 0.5f) * cos) + position;
             Vector2 min = new Vector2(Mathf.Min(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Min(leftDown.z, leftUp.z, rightDown.z, rightUp.z));
             Vector2 max = new Vector2(Mathf.Max(leftDown.x, leftUp.x, rightDown.x, rightUp.x), Mathf.Max(leftDown.z, leftUp.z, rightDown.z, rightUp.z));
             return (min, max);

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Core.TerrainGenerator.Utility;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -12,12 +12,15 @@ namespace Core.TerrainGenerator.Settings
         public float[] Heights;
         public Vector2Int Resolution;
         public bool alignWithTerrain = true;
+        private ComputeBuffer _dataBuffer;
         //public Dictionary<DeformationChannel, Dictionary<Vector2Int, HeightCache>> cache;
         
         [JsonIgnore] public IDeformer Core { get; set; }
         public void Init(IDeformer core)
         {
             Core = core;
+            _dataBuffer = new ComputeBuffer(Heights.Length, Marshal.SizeOf(typeof(float)));
+            _dataBuffer.SetData(Heights);
         }
         
         public void ReadFromTerrain()
@@ -39,6 +42,11 @@ namespace Core.TerrainGenerator.Settings
                     }
                 }
             }
+
+            if (_dataBuffer != null)
+            {
+                _dataBuffer.SetData(Heights);
+            }
         }
 
         /*[Button]
@@ -52,14 +60,20 @@ namespace Core.TerrainGenerator.Settings
             if (!(sourceChannel is HeightChannel channel)) return;
 
             RectangleAffectSettings settings = sourceChannel.GetAffectSettingsForDeformer(Core);
+            var worker = channel.GetGpuWorker();
+            int settingsBindId = worker.BindRectSettings(settings);
+            worker.ApplyDeformation(settingsBindId, _dataBuffer, channel.GetSourceLayer(Core), channel.GetDestinationLayers(Core), channel.chunk.ChunkSize, channel.chunk.Height, settings.resolution);
+            worker.UnbindRectSettings(settingsBindId);
+            
+            //float[,] source = channel.GetSourceLayer(Core);
+            //float[][,] destination = channel.GetDestinationLayers(Core).ToArray();
+            //
+            //Dictionary<Vector2Int, HeightCache>
+            //    map = CalculateMap(settings, channel.Position, channel.chunk.ChunkSize, channel.chunk.Height);*/
 
-            float[,] source = channel.GetSourceLayer(Core);
-            float[][,] destination = channel.GetDestinationLayers(Core).ToArray();
-
-            Dictionary<Vector2Int, HeightCache>
-                map = CalculateMap(settings, channel.Position, channel.chunk.ChunkSize, channel.chunk.Height);
-
-            WriteToHeightmap(map, source, destination, settings);
+            // map contains data calculated for current deformer rectangle
+            // method calculates destination heights (vDest = source + (mapHeight - source) * mapAlpha)
+            //WriteToHeightmap(map, source, destination, settings);
 
 /*#if UNITY_EDITOR
 Undo.RecordObject(terrain.terrainData, "change terrain");
@@ -84,12 +98,13 @@ EditorUtility.SetDirty(terrain.terrainData);
             float ceilSize = size / rectSettings.resolution;
             float heightInv = 1f / height;
             float hMid = Core.Position.y;
-
+            int deltaX = rectSettings.maxX - rectSettings.minX;
+            int deltaY = rectSettings.maxY - rectSettings.minY;
             Dictionary<Vector2Int, HeightCache> map = new  Dictionary<Vector2Int, HeightCache>();
                 
-            for (int x = 0; x < rectSettings.deltaX; x++)
+            for (int x = 0; x < deltaX; x++)
             {
-                for (int y = 0; y < rectSettings.deltaY; y++)
+                for (int y = 0; y < deltaY; y++)
                 {
                     Vector3 worldPos = terrainPosition + new Vector3((rectSettings.minX + x) * ceilSize, 0, (rectSettings.minY + y) * ceilSize);
 
@@ -108,9 +123,11 @@ EditorUtility.SetDirty(terrain.terrainData);
 
         public void WriteToHeightmap(Dictionary<Vector2Int, HeightCache> map, float[,] source, float[][,] destination, RectangleAffectSettings settings)
         {
-            for (int x = 0; x < settings.deltaX; x++)
+            int deltaX = settings.maxX - settings.minX;
+            int deltaY = settings.maxY - settings.minY;
+            for (int x = 0; x < deltaX; x++)
             {
-                for (int y = 0; y < settings.deltaY; y++)
+                for (int y = 0; y < deltaY; y++)
                 {
                     if (!map.TryGetValue(new Vector2Int(x, y), out HeightCache m)) continue;
 
@@ -175,48 +192,6 @@ EditorUtility.SetDirty(terrain.terrainData);
         {
             this.height = height;
             this.alpha = alpha;
-        }
-    }
-
-    public class RectangleAffectSettings
-    {
-        public int resolution;
-        public int minX;
-        public int minY;
-        public int maxX;
-        public int maxY;
-        public int deltaX;
-        public int deltaY;
-
-        public RectangleAffectSettings(Terrain terrain, IDeformer deformer)
-        {
-            resolution = terrain.terrainData.heightmapResolution;
-            Rect rect = MathfUtilities.GetAffectRectangle(terrain, deformer.AxisAlignedRect);
-            minX = Mathf.CeilToInt(rect.x * resolution);
-            minY = Mathf.CeilToInt(rect.y * resolution);
-            minX = Mathf.Max(minX, 0);
-            minY = Mathf.Max(minY, 0);
-            maxX = Mathf.FloorToInt(rect.xMax * resolution);
-            maxY = Mathf.FloorToInt(rect.yMax * resolution);
-            maxX = Mathf.Min(maxX, resolution);
-            maxY = Mathf.Min(maxY, resolution);
-            deltaX = maxX - minX;
-            deltaY = maxY - minY;
-        }
-        public RectangleAffectSettings(Chunk chunk, Vector3 terrainPosition, int resolution, IDeformer deformer)
-        {
-            this.resolution = resolution;
-            Rect rect = MathfUtilities.GetAffectRectangle(chunk, terrainPosition, deformer.AxisAlignedRect);
-            minX = Mathf.CeilToInt(rect.x * resolution);
-            minY = Mathf.CeilToInt(rect.y * resolution);
-            minX = Mathf.Max(minX, 0);
-            minY = Mathf.Max(minY, 0);
-            maxX = Mathf.FloorToInt(rect.xMax * resolution);
-            maxY = Mathf.FloorToInt(rect.yMax * resolution);
-            maxX = Mathf.Min(maxX, resolution);
-            maxY = Mathf.Min(maxY, resolution);
-            deltaX = maxX - minX;
-            deltaY = maxY - minY;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Core.TerrainGenerator
     /// </summary>
     public interface IDeformer
     {
-        Quaternion Rotation { get; }
+        float Rotation { get; }
         Vector3 Position { get; }
         Rect AxisAlignedRect { get; }
         Vector4 LocalRect { get; }

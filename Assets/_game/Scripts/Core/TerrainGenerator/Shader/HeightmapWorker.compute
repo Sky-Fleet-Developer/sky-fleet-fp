@@ -1,0 +1,67 @@
+#include "rectangle_affect_settings.hlsl"
+#include "packed_vertex.hlsl"
+
+StructuredBuffer<float> source_heightmap;
+RWStructuredBuffer<float> destination_heightmap;
+StructuredBuffer<rectangle_affect_settings> deformation_rectangle_settings;
+StructuredBuffer<float> deformation_heightmap;
+RWStructuredBuffer<packed_vertex> vertices;
+float chunk_size;
+float chunk_height;
+uint vertices_count;
+uint vertices_width_count;
+float normal_dx;
+float normal_dx_inv;
+
+
+
+#pragma kernel CSCopyHeightmap
+
+
+[numthreads(64,1,1)]
+void CSCopyHeightmap (uint id : SV_DispatchThreadID)
+{
+    destination_heightmap[id] = source_heightmap[id];
+}
+
+
+#pragma kernel CSApplyDeformation
+
+
+[numthreads(8,8,1)]
+void CSApplyDeformation (uint2 id : SV_DispatchThreadID)
+{
+    
+}
+
+#pragma kernel CSTestAlignSine
+float get_height_test_sine(float3 pos)
+{
+    return sin(pos.x * 0.5) * cos(pos.z * 0.5);
+}
+
+[numthreads(64,1,1)]
+void CSTestAlignSine (uint id : SV_DispatchThreadID)
+{
+    if (id > vertices_count)
+    {
+        return;
+    }
+    packed_vertex vert = vertices[id];
+    
+    vert.position.y = get_height_test_sine(vert.position);
+
+    // 3. Берем выборки высоты для расчета градиента (смещение по X и Z)
+    float height_x = get_height_test_sine(vert.position + float3(normal_dx, 0.0, 0.0));
+    float height_z = get_height_test_sine(vert.position + float3(0.0, 0.0, normal_dx));
+
+    // 4. Вычисляем частные производные (конечные разности)
+    float dfdx = (height_x - vert.position.y) * normal_dx_inv;
+    float dfdz = (height_z - vert.position.y) * normal_dx_inv;
+
+    // 5. Формируем и нормализуем вектор нормали
+    float3 normal = float3(-dfdx, 1.0, -dfdz);
+    vert.normal = normalize(normal);
+    
+    vertices[id] = vert;
+}
