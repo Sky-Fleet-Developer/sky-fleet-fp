@@ -1,8 +1,6 @@
-﻿using System;
-using Core.Character;
+﻿using Core.Character;
 using Core.Character.Interaction;
 using Core.Character.Interface;
-using Core.Items;
 using Core.Patterns.State;
 using Core.UIStructure.Utilities;
 using Runtime.Trading.UI;

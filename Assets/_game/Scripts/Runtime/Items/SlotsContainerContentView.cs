@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Core.Character.Stuff;
 using Core.Items;
 using Core.Misc;
 using Core.Structure;
 using Core.Structure.Damage;
-using Core.Trading;
 using Core.Utilities;
 using UnityEngine;
 using Zenject;

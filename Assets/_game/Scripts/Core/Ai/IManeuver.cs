@@ -1,6 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-
-namespace Core.Ai
+﻿namespace Core.Ai
 {
     public interface IManeuver
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core;
-using Core.Data;
 using Core.World;
-using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Profiling;
 using Zenject;

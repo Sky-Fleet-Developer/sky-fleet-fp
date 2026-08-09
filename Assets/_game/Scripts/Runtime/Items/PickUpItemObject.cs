@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Character.Interaction;
-using Core.Items;
+﻿using Core.Character.Interaction;
 using Core.Trading;
 using Runtime.Physic;
 using UnityEngine;

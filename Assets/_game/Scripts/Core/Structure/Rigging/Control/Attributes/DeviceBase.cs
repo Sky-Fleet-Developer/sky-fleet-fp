@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
-using Core.Character;
 using Core.Character.Interaction;
 using Core.Graph;
 using Core.Graph.Wires;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Character;
+﻿using System.Collections.Generic;
 using Core.Character.Interface;
 using Core.Patterns.State;
 using Core.UIStructure;

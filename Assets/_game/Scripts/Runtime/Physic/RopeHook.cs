@@ -1,5 +1,4 @@
-﻿using Core.Character;
-using Core.Character.Interaction;
+﻿using Core.Character.Interaction;
 using Core.Structure.Rigging;
 using UnityEngine;
 

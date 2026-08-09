@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.Configurations;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Core.Items
 {

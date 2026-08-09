@@ -1,9 +1,6 @@
-﻿using Core.Configurations;
-using Core.Data;
-using Core.Items;
+﻿using Core.Items;
 using Core.Localization;
 using Core.Trading;
-using UnityEngine;
 using Zenject;
 
 namespace Runtime.Trading

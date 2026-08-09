@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.CustomSerializers;
-using Core.Structure.Rigging;
-using Core.Structure.Serialization;
 using Sirenix.Utilities;
 using UnityEngine;
 

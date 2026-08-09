@@ -1,6 +1,5 @@
 ﻿using System;
 using Core.Patterns.State;
-using UnityEngine;
 
 namespace Core.Character.Interface
 {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Core.Misc;
 using Core.World;
-using Zenject;
 using ITickable = Core.Misc.ITickable;
 
 namespace Core.Ai

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Core.Graph.Wires;
 using Sirenix.Utilities;
-using UnityEngine;
 
 namespace Core.Graph
 {

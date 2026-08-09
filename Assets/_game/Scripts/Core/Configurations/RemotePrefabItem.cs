@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Core.ContentSerializer.Bundles;
 using Core.Explorer.Content;
-using Core.Structure;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;

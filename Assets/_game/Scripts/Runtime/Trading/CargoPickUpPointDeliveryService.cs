@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Core.Configurations;
-using Core.Data;
-using Core.Game;
+﻿using Core.Configurations;
 using Core.Items;
 using Core.Localization;
 using Core.Trading;

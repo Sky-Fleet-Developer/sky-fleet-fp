@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Core.Ai;
 using Core.Character.Stuff;
-using Core.Configurations;
 using Core.Data;
-using Core.Items;
 using Core.Misc;
 using Core.Structure;
 using Core.Structure.Serialization;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Core.Items
 {

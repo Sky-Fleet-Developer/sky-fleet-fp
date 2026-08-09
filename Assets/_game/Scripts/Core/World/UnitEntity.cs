@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Core.Ai;
 using Core.ContentSerializer;
-using Core.Data;
-using Core.Game;
 using Core.Items;
 using Core.Misc;
-using Core.Structure;
-using Core.Structure.Serialization;
-using Core.Utilities;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using UnityEngine;
 using Zenject;
 

@@ -2,8 +2,6 @@
 using Core.Ai;
 using Core.Misc;
 using Core.World;
-using Runtime.Ai.Maneuvers;
-using UnityEngine;
 
 namespace Runtime.Ai
 {

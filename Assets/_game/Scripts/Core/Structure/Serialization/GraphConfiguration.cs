@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.ContentSerializer;
-using Core.Graph;
 using Core.Graph.Wires;
 using Core.Items;
 using Core.Misc;

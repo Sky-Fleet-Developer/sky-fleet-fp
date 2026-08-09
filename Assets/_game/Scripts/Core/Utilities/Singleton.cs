@@ -85,6 +85,7 @@ namespace Core.Utilities
             object attribute = typeof(T).GetCustomAttributes(true).FirstOrDefault(x => x is DontDestroyOnLoad);
             if (attribute != null && Application.isPlaying)
             {
+                _instance.transform.SetParent(null);
                 DontDestroyOnLoad(_instance);
             }
         }

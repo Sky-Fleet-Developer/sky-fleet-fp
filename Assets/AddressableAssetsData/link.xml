@@ -1,0 +1,168 @@
+<linker>
+  <assembly fullname="Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Core.Graph.StructureGraph" preserve="all" />
+    <type fullname="Core.TerrainGenerator.Deformer" preserve="all" />
+    <type fullname="Core.Weapon.DefaultVfx" preserve="all" />
+    <type fullname="Core.Weapon.ShellTypesSettings" preserve="all" />
+    <type fullname="Core.World.DynamicWorldObject" preserve="all" />
+    <type fullname="Core.Graph.Wires.Port`1" preserve="nothing" serialized="true" />
+    <type fullname="Core.Graph.Wires.PowerPort" preserve="nothing" serialized="true" />
+    <type fullname="Core.Graph.Wires.StoragePort" preserve="nothing" serialized="true" />
+    <type fullname="Core.Structure.Rigging.CharacterAttachData" preserve="nothing" serialized="true" />
+    <type fullname="Core.Structure.Rigging.CharacterDetachData" preserve="nothing" serialized="true" />
+    <type fullname="Core.Structure.Rigging.Control.ControlButton" preserve="nothing" serialized="true" />
+    <type fullname="Core.Utilities.DOTweenTransition" preserve="nothing" serialized="true" />
+    <type fullname="Core.Structure.Rigging.Control.ControlAxis" preserve="nothing" serialized="true" />
+    <type fullname="Core.Ai.UnitTechCharacteristic" preserve="nothing" serialized="true" />
+    <type fullname="Core.TerrainGenerator.SerializedDeformerModule" preserve="nothing" serialized="true" />
+    <type fullname="Core.Weapon.IVfx" preserve="nothing" serialized="true" />
+    <type fullname="Core.Weapon.ShellType" preserve="nothing" serialized="true" />
+    <type fullname="Core.Weapon.ShellType/VfxPerCaliberDiameter" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="NWH.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="NWH.Common.Vehicles.FrictionPreset" preserve="all" />
+  </assembly>
+  <assembly fullname="NWH.WheelController, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="NWH.WheelController3D.WheelController" preserve="all" />
+    <type fullname="NWH.WheelController3D.Damper" preserve="nothing" serialized="true" />
+    <type fullname="NWH.WheelController3D.Friction" preserve="nothing" serialized="true" />
+    <type fullname="NWH.WheelController3D.Spring" preserve="nothing" serialized="true" />
+    <type fullname="NWH.WheelController3D.Wheel" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Runtime.Ai.JetEmgracopterControl" preserve="all" />
+    <type fullname="Runtime.Ai.StructureUnit" preserve="all" />
+    <type fullname="Runtime.Cargo.CargoLoadingArea" preserve="all" />
+    <type fullname="Runtime.Cargo.CargoVolumeView" preserve="all" />
+    <type fullname="Runtime.Cargo.TrunkVolumeView" preserve="all" />
+    <type fullname="Runtime.Items.Container" preserve="all" />
+    <type fullname="Runtime.Items.ItemObject" preserve="all" />
+    <type fullname="Runtime.Items.PickUpItemObject" preserve="all" />
+    <type fullname="Runtime.Items.SlotsContainerContentView" preserve="all" />
+    <type fullname="Runtime.Physic.AerodynamicSurface" preserve="all" />
+    <type fullname="Runtime.Physic.InteractiveDynamicObject" preserve="all" />
+    <type fullname="Runtime.Physic.RopeHookAnchor" preserve="all" />
+    <type fullname="Runtime.Physic.WheelRaycast" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Cargo.CargoTrunk" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Combat.Gun" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.AimingComputer" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.AltitudeIndicator" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.ArrowDevice" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.ArrowIndicator" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.ButtonDevice" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.HelmDevice" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.LampIndicator" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.ToggleDevice" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.TrackballDevice" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.CockpitWithPeriscope" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.ElevonsThrustDistributor" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Gyroscope" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Periscope" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.QuadroFlyComputer" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Rotator" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.SimpleCockpit" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.StabilizationComputer" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.ThrustInverse" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Movement.ClimbingEngine" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Movement.SimpleThruster" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Movement.SmallSupport" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Movement.SupportTopCutoffModule" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Movement.ThrusterOneAxis" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Power.HydrogenStorageTest" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Power.SmallBattery" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Power.SmallFuelPowerGenerator" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Storage.Tank" preserve="all" />
+    <type fullname="Runtime.Structure.Ship.DynamicStructure" preserve="all" />
+    <type fullname="Runtime.Structure.Structure" preserve="all" />
+    <type fullname="Runtime.Trading.CargoPickUpPointDeliveryService" preserve="all" />
+    <type fullname="Runtime.Trading.ItemsTrigger" preserve="all" />
+    <type fullname="Runtime.Trading.Shop" preserve="all" />
+    <type fullname="Runtime.Structure.Rigging.Control.Attributes.ArrowIndicator/ArrowSetting" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.Addressables, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.AddressableAssets.Addressables" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.Cinemachine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Unity.Cinemachine.CinemachineCamera" preserve="all" />
+    <type fullname="Unity.Cinemachine.CameraTarget" preserve="nothing" serialized="true" />
+    <type fullname="Unity.Cinemachine.LensSettings" preserve="nothing" serialized="true" />
+    <type fullname="Unity.Cinemachine.LensSettings/PhysicalSettings" preserve="nothing" serialized="true" />
+    <type fullname="Unity.Cinemachine.PrioritySettings" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.Localization, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Localization.Locale" preserve="all" />
+    <type fullname="UnityEngine.Localization.Tables.SharedTableData" preserve="all" />
+    <type fullname="UnityEngine.Localization.Tables.StringTable" preserve="all" />
+    <type fullname="UnityEngine.Localization.Metadata.MetadataCollection" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Localization.Tables.DistributedUIDGenerator" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Localization.Tables.SharedTableData/SharedTableEntry" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Localization.LocaleIdentifier" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Localization.Tables.TableEntryData" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.RenderPipelines.HighDefinition.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Rendering.HighDefinition.HDAdditionalLightData" preserve="all" />
+    <type fullname="UnityEngine.Rendering.HighDefinition.BoolScalableSettingValue" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.HighDefinition.IntScalableSettingValue" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.InstanceProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.SceneProvider" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Animations.LookAtConstraint" preserve="all" />
+    <type fullname="UnityEngine.Animations.RotationConstraint" preserve="all" />
+    <type fullname="UnityEngine.Animator" preserve="all" />
+    <type fullname="UnityEngine.Avatar" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AudioClip" preserve="all" />
+    <type fullname="UnityEngine.AudioHighPassFilter" preserve="all" />
+    <type fullname="UnityEngine.AudioLowPassFilter" preserve="all" />
+    <type fullname="UnityEngine.AudioSource" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.ComputeShader" preserve="all" />
+    <type fullname="UnityEngine.GameObject" preserve="all" />
+    <type fullname="UnityEngine.Light" preserve="all" />
+    <type fullname="UnityEngine.LODGroup" preserve="all" />
+    <type fullname="UnityEngine.Material" preserve="all" />
+    <type fullname="UnityEngine.Mesh" preserve="all" />
+    <type fullname="UnityEngine.MeshFilter" preserve="all" />
+    <type fullname="UnityEngine.MeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Object" preserve="all" />
+    <type fullname="UnityEngine.Rendering.SortingGroup" preserve="all" />
+    <type fullname="UnityEngine.Shader" preserve="all" />
+    <type fullname="UnityEngine.SkinnedMeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Sprite" preserve="all" />
+    <type fullname="UnityEngine.Texture2D" preserve="all" />
+    <type fullname="UnityEngine.TrailRenderer" preserve="all" />
+    <type fullname="UnityEngine.Transform" preserve="all" />
+    <type fullname="UnityEngine.Vector3" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Vector2" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.ParticleSystem" preserve="all" />
+    <type fullname="UnityEngine.ParticleSystemRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.BoxCollider" preserve="all" />
+    <type fullname="UnityEngine.CapsuleCollider" preserve="all" />
+    <type fullname="UnityEngine.MeshCollider" preserve="all" />
+    <type fullname="UnityEngine.Rigidbody" preserve="all" />
+    <type fullname="UnityEngine.SphereCollider" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.VFXModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.VFX.VFXRenderer" preserve="all" />
+    <type fullname="UnityEngine.VFX.VisualEffect" preserve="all" />
+    <type fullname="UnityEngine.VFX.VisualEffectAsset" preserve="all" />
+  </assembly>
+  <assembly fullname="AYellowpaper.SerializeInterfaces">
+    <type fullname="AYellowpaper.InterfaceReference`2" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.InputSystem">
+    <type fullname="UnityEngine.InputSystem.InputAction" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.InputBinding" preserve="nothing" serialized="true" />
+  </assembly>
+</linker>

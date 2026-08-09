@@ -1,28 +1,22 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Core.Cargo;
 using Core.Character.Interaction;
-using Core.Character.Stuff;
 using Core.Data;
 using Core.Data.GameSettings;
 using Core.Game;
-using Core.Items;
 using Core.Patterns.State;
 using Core.SessionManager.GameProcess;
 using Core.Structure;
 using Core.Structure.Rigging;
-using Core.Structure.Rigging.Control;
 using Core.Trading;
 using Core.World;
 using DG.Tweening;
-using Runtime;
 using Runtime.Character;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Zenject;
 using InputAxis = Core.Data.GameSettings.InputAxis;
 
 namespace Core.Character

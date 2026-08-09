@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Core.Ai;
 using Core.Character.Interaction;
 using Core.Configurations;
@@ -13,7 +11,6 @@ using Core.Trading;
 using Core.Weapon;
 using Core.World;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace Runtime.Structure.Rigging.Combat

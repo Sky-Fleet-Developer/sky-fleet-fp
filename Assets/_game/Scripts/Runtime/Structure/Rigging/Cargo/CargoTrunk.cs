@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Cargo;
-using Core.Character;
 using Core.Configurations;
 using Core.Data;
-using Core.Game;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Structure.Rigging.Cargo;
@@ -13,7 +10,6 @@ using Runtime.Cargo;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Zenject;
 
 namespace Runtime.Structure.Rigging.Cargo

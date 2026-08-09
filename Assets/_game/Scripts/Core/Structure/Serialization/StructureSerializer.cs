@@ -6,7 +6,6 @@ using Core.ContentSerializer.Bundles;
 using Core.ContentSerializer.Providers;
 using Core.GameSerialization;
 using Core.Patterns.State;
-using Core.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

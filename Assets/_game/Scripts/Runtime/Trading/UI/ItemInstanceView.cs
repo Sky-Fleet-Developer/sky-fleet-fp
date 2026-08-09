@@ -1,13 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Core.Items;
-using Core.Trading;
 using Core.UIStructure.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Zenject;
 
 namespace Runtime.Trading.UI
 {

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Character;
+﻿using Core.Character;
 using Core.Character.Interaction;
 
 namespace Core.Structure.Rigging

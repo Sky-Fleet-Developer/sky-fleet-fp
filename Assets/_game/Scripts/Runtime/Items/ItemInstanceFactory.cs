@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using Core.Character.Stuff;
+﻿using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Items;
-using Core.Misc;
 using Core.Trading;
 using Zenject;
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Core.Trading
+﻿namespace Core.Trading
 {
     public class Transaction
     {

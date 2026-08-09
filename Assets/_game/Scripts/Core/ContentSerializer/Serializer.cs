@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Core.ContentSerializer.Bundles;
-using Core.Structure;
 using UnityEngine;
 using AssetBundle = Core.ContentSerializer.Bundles.AssetBundle;
 using Object = UnityEngine.Object;

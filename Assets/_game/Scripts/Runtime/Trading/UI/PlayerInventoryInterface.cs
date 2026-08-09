@@ -1,7 +1,6 @@
 ﻿using Core.Character.Interface;
 using Core.Patterns.State;
 using Core.Trading;
-using Core.UiStructure;
 using Core.UIStructure.Utilities;
 using UnityEngine;
 using Zenject;

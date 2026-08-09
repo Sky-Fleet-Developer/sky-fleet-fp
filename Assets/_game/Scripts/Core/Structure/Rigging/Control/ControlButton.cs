@@ -6,7 +6,6 @@ using Core.Structure.Rigging.Control.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using InputControl = Core.Data.GameSettings.InputControl;
 
 
 namespace Core.Structure.Rigging.Control

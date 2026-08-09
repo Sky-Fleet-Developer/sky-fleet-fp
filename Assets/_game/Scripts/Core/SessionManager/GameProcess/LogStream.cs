@@ -4,9 +4,9 @@ using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
-using Core.Boot_strapper;
 using System.Threading.Tasks;
 using System.Text;
+using Core.Explorer;
 
 namespace Core.SessionManager.GameProcess
 {
@@ -32,6 +32,7 @@ namespace Core.SessionManager.GameProcess
             else
             {
                 _initialized = true;
+                transform.SetParent(null);
                 DontDestroyOnLoad(gameObject);
                 string pathBase = PathStorage.GetPathToLogs();
                 if (!Directory.Exists(pathBase))

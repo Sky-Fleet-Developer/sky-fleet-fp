@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.Items;
 using Core.Localization;
-using Core.Trading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;

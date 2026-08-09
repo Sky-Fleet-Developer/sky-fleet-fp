@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Misc;
-using UnityEngine;
+﻿using Core.Misc;
 
 namespace Core.Character.Interaction
 {

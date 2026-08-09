@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Core.Items;
 using Core.Trading;
 
 namespace Core.Character.Stuff

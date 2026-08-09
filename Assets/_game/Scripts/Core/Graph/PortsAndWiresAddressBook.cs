@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.Graph.Wires;
 using Core.Structure.Serialization;
-using UnityEngine;
 
 namespace Core.Graph
 {

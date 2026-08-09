@@ -1,12 +1,9 @@
 ﻿#define OUT_TO_TEX
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
-using UnityEngine.Rendering.RendererUtils;
-using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.UI;
 
 namespace Runtime.Environment.MacroShading

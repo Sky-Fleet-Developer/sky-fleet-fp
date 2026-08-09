@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Character;
+﻿using System.Collections.Generic;
 using Core.Character.Interaction;
-using Core.Configurations;
-using Core.Game;
 using Core.Items;
 using Core.Structure.Damage;
 using Core.Structure.Rigging;

@@ -1,8 +1,6 @@
-﻿using System;
-using Core.Structure.Damage;
+﻿using Core.Structure.Damage;
 using Core.Structure.Rigging;
 using UnityEngine;
-using Zenject;
 
 namespace Core.Weapon
 {

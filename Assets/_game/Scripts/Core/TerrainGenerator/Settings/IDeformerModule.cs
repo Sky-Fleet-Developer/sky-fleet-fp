@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Core.TerrainGenerator.Settings
 {
     /// <summary>

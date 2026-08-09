@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Items;
+﻿using Core.Items;
 using Core.Trading;
 using Zenject;
 

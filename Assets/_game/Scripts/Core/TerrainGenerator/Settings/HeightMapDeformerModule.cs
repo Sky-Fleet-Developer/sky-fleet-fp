@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.TerrainGenerator.Utility;
 using Newtonsoft.Json;
-using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.Settings

@@ -1,6 +1,5 @@
 ﻿using Core.Graph;
 using Core.Graph.Wires;
-using Core.Structure;
 using Runtime.Structure.Rigging.Power;
 using Sirenix.OdinInspector;
 using UnityEngine;

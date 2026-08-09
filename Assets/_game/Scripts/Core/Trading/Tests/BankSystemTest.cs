@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Character.Interaction;
-using Core.Configurations;
 using Core.Items;
 using NUnit.Framework;
 using UnityEngine;

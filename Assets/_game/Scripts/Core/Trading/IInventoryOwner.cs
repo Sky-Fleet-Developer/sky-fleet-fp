@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Items;
-using Zenject;
+﻿using Core.Items;
 
 namespace Core.Trading
 {

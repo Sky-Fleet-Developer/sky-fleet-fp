@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Configurations.GoogleSheets;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Core.Ai
 {

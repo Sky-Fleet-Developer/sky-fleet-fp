@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Core.Character;
 using Core.Character.Interaction;
 using Core.Configurations;
 using Core.Items;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Core.Trading;
-using Newtonsoft.Json;
 using Runtime.Structure.Rigging;
 using UnityEngine;
 using Zenject;

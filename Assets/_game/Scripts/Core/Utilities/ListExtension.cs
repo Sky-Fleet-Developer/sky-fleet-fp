@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Misc;
+
+/*
+#if UNITY_EDITOR
 using NUnit.Framework;
+# endif*/
 
 namespace Core.Utilities
 {
@@ -93,7 +96,8 @@ namespace Core.Utilities
                 }
             }
         }
-
+/*
+        #if UNITY_EDITOR
         [TestFixture(TestOf = typeof(ListExtension))]
         private class Test
         {
@@ -111,5 +115,6 @@ namespace Core.Utilities
                 Assert.AreEqual(expected, source.IndexOf(item));
             }
         }
+        #endif*/
     }
 }

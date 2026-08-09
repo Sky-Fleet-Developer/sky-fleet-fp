@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Core.Character.Interaction;
 using Core.Trading;
 using Core.UIStructure.Utilities;

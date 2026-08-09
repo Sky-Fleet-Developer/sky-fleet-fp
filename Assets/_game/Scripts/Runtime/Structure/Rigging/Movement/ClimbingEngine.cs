@@ -1,12 +1,10 @@
-﻿using System;
-using Core.Graph.Wires;
+﻿using Core.Graph.Wires;
 using Core.Structure;
 using Core.Structure.Rigging;
 using Runtime.Structure.Rigging.Power;
 using Runtime.Structure.Ship;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Runtime.Structure.Rigging.Movement
 {

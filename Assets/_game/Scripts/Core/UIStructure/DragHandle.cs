@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Utilities.AsyncAwaitUtil.Source;
+﻿using Core.Utilities.AsyncAwaitUtil.Source;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

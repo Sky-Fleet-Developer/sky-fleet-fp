@@ -1,5 +1,4 @@
 ﻿using Core.Character.Interaction;
-using UnityEngine;
 
 namespace Core.Ai
 {

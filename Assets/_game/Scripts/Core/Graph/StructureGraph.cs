@@ -1,13 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Core.Graph.Wires;
-using Core.Items;
-using Core.Structure;
 using Core.Structure.Serialization;
 using Sirenix.OdinInspector;
-using UnityEngine;
 
 namespace Core.Graph
 {

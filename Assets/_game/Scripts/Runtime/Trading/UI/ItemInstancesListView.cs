@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Items;
+﻿using Core.Items;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 

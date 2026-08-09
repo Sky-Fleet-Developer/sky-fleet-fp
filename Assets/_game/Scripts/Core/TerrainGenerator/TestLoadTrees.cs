@@ -1,9 +1,4 @@
-using Sirenix.OdinInspector;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Core.TerrainGenerator;
-using Core.TerrainGenerator.Utility;
 
 
 public class TestLoadTrees : MonoBehaviour

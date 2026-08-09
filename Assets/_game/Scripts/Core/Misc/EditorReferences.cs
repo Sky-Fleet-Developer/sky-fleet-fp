@@ -3,10 +3,9 @@ using Core.Ai;
 using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Data;
-using Core.Weapon;
-using Cysharp.Threading.Tasks;
+#if UNITY_EDITOR
 using UnityEditor;
-using UnityEngine;
+#endif
 
 namespace Core.Misc
 {

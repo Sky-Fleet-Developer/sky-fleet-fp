@@ -4,7 +4,6 @@ using System.Linq;
 using Core.Graph.Wires;
 using Core.Items;
 using Core.Misc;
-using Core.Structure;
 using Core.Structure.Serialization;
 
 namespace Core.Graph

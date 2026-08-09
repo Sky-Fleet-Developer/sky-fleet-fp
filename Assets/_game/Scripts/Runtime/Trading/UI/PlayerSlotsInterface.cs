@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Character.Interface;
 using Core.Character.Stuff;
 using Core.Patterns.State;
 using Core.Trading;
-using Core.UiStructure;
 using Core.Utilities;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace Runtime.Trading.UI

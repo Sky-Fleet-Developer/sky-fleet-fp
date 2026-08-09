@@ -2,7 +2,9 @@
 #if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
 #endif
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Core.Utilities

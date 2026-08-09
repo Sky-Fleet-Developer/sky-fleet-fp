@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Items;
-using Core.Misc;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -304,17 +302,19 @@ namespace Core.Trading
             walletSource.SaveWallet(wallet);
         }
 
+        #if UNITY_INCLUDE_TESTS
         // For testing
-        internal Wallet TestCreateWallet(string key, int currency) => _wallets[key] = new Wallet(key, currency);
+        public Wallet TestCreateWallet(string key, int currency) => _wallets[key] = new Wallet(key, currency);
 
-        internal void TestDeleteInventory(string key)
+        public void TestDeleteInventory(string key)
         {
             _inventories[key].Dispose();
             _inventories.Remove(key);
         }
 
-        internal void TestDeleteWallet(string key) => _wallets.Remove(key);
-
+        public void TestDeleteWallet(string key) => _wallets.Remove(key);
+#endif
+        
 #if UNITY_EDITOR
         [Button]
         private void ClearWalletsCache()

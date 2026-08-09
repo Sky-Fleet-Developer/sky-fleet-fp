@@ -1,14 +1,15 @@
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using Core.TerrainGenerator.Utility;
 
 #if UNITY_EDITOR
-namespace Core.TerrainGenerator.Editor
+namespace Core.TerrainGenerator
 {
     public class GeneratorTreeLayer : ScriptableWizard
     {
@@ -16,13 +17,10 @@ namespace Core.TerrainGenerator.Editor
 
         public string pathToSave;
 
-        [Space]
-        public int sizeRandomMap;
+        [Space] public int sizeRandomMap;
 
-        [Range(0, 1)]
-        public float minValueFilter;
-        [Range(0.0f, 0.5f)]
-        public float minDist;
+        [Range(0, 1)] public float minValueFilter;
+        [Range(0.0f, 0.5f)] public float minDist;
 
         private Texture2D generateRandomPos;
         private Texture2D loadMapTrees;
@@ -35,7 +33,6 @@ namespace Core.TerrainGenerator.Editor
             {
                 ParamsBakingModels.Params[i].SetValue(this, ParamsBakingModels.ValueParams[i]);
             }
-            
         }
 
         [MenuItem("Factory/Tree layer generator")]
@@ -60,12 +57,12 @@ namespace Core.TerrainGenerator.Editor
             {
                 ParamsBakingModels.ValueParams[i] = params_type[i].GetValue(this);
             }
+
             base.SaveChanges();
         }
 
         private void OnWizardUpdate()
         {
-
         }
 
         void OnWizardCreate()
@@ -87,29 +84,34 @@ namespace Core.TerrainGenerator.Editor
                         bool lockB = false;
                         for (int i4 = 0; i4 < colors.Length; i4++)
                         {
-
                             if (!lockR && colors[i4].a * colors[i4].r * currectPixelR.r > minValueFilter)
                             {
                                 lockR = true;
-                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
+                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) +
+                                              (GetAdditionalPos() / sizeRandomMap);
                                 trees.Add(new TreePos(i4 * 3, 0, GetRotate(), pos));
                             }
+
                             if (!lockG && colors[i4].a * colors[i4].g * currectPixelR.r > minValueFilter)
                             {
                                 lockG = true;
-                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
+                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) +
+                                              (GetAdditionalPos() / sizeRandomMap);
                                 trees.Add(new TreePos(i4 * 3 + 1, 0, GetRotate(), pos));
                             }
+
                             if (!lockB && colors[i4].a * colors[i4].b * currectPixelR.r > minValueFilter)
                             {
                                 lockB = true;
-                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) + (GetAdditionalPos() / sizeRandomMap);
+                                Vector2 pos = new Vector2((float)i / sizeRandomMap, (float)i2 / sizeRandomMap) +
+                                              (GetAdditionalPos() / sizeRandomMap);
                                 trees.Add(new TreePos(i4 * 3 + 2, 0, GetRotate(), pos));
                             }
                         }
                     }
                 }
             }
+
             Debug.Log(trees.Count);
             TreesLayerFiles.SaveTreeLayer(pathToSave, trees);
             SaveChanges();
@@ -117,7 +119,8 @@ namespace Core.TerrainGenerator.Editor
 
         private Vector2 GetAdditionalPos()
         {
-            return new Vector2(UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist), UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist));
+            return new Vector2(UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist),
+                UnityEngine.Random.Range(0.0f + minDist, 1.0f - minDist));
         }
 
         private float GetRotate()
@@ -150,8 +153,6 @@ namespace Core.TerrainGenerator.Editor
             public static FieldInfo[] Params = new FieldInfo[0];
             public static object[] ValueParams = new object[0];
         }
-
-
     }
 }
 #endif

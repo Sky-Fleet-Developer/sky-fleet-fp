@@ -7,11 +7,9 @@ using Core.Localization;
 using Core.Trading;
 using Core.UIStructure.Utilities;
 using TMPro;
-using UniRx;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Runtime.Trading.UI

@@ -1,6 +1,4 @@
-﻿using System;
-using Core.Patterns.State;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace Core.Character.Interface

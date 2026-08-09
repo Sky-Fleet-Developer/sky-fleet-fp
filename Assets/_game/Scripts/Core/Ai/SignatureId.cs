@@ -21,9 +21,11 @@ namespace Core.Ai
         
         public static implicit operator string(SignatureId signature) => signature.signature;
         
+        #if UNITY_EDITOR
         private IEnumerable<string> GetAbleSignatures()
         {
             return EditorReferences.RelationsTableEditor.GetAllRegisteredSignatures();
         }
+        #endif
     }
 }

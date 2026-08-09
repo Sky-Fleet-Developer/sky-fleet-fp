@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Items;
+﻿using Core.Items;
 using Core.World;
 using UnityEngine;
 using Zenject;

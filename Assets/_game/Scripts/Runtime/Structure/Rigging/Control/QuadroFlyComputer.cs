@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Core.Graph.Wires;
-using Core.Structure.Rigging.Control;
 using UnityEngine;
 
 namespace Runtime.Structure.Rigging.Control

@@ -95,9 +95,9 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ext.nunit": {
-      "version": "2.0.5",
-      "depth": 1,
-      "source": "builtin",
+      "version": "file:../com.unity.ext.nunit@031a54704bff",
+      "depth": 0,
+      "source": "local",
       "dependencies": {}
     },
     "com.unity.ide.rider": {
@@ -281,7 +281,7 @@
     },
     "com.unity.test-framework": {
       "version": "1.5.1",
-      "depth": 0,
+      "depth": 1,
       "source": "builtin",
       "dependencies": {
         "com.unity.ext.nunit": "2.0.3",

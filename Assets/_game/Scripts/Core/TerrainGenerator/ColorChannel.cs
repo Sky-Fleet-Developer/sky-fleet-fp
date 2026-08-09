@@ -1,22 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using Core.TerrainGenerator.Settings;
 using UnityEngine;
-
-using Core.TerrainGenerator.Utility;
 using Core.Utilities;
-using Core.Utilities.AsyncAwaitUtil.Source;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine.Networking;
-using Color = UnityEngine.Color;
-using Object = UnityEngine.Object;
 
 namespace Core.TerrainGenerator
 {
@@ -24,14 +16,19 @@ namespace Core.TerrainGenerator
     public class ColorChannel : DeformationChannel<float[], ColorMapDeformerModule>
     {
         private static readonly Semaphore Semaphore = new Semaphore(3, 3);
-        private static Utilities.AsyncThreadDelegate<float[]> _readWorker = new Utilities.AsyncThreadDelegate<float[]>(Semaphore);
+
+        private static Utilities.AsyncThreadDelegate<float[]> _readWorker =
+            new Utilities.AsyncThreadDelegate<float[]>(Semaphore);
+
         [ShowInInspector, ReadOnly] public Chunk Chunk { get; private set; }
         private readonly int layersCount;
         private readonly bool normalizeAlphamap;
         private readonly string layerMaskProperty;
         private readonly RenderTexture texture;
         private readonly ComputeShader blitShader;
-        public ColorChannel(Chunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap, int layersCount, List<string> paths, Vector2Int position) : base(position, chunk.ChunkSize)
+
+        public ColorChannel(Chunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap,
+            int layersCount, List<string> paths, Vector2Int position) : base(position, chunk.ChunkSize)
         {
             this.layersCount = layersCount;
             this.Chunk = chunk;
@@ -45,7 +42,7 @@ namespace Core.TerrainGenerator
             texture.Create();
             Load(paths);
         }
-        
+
 
         protected override float[] GetLayerCopy(float[] source)
         {
@@ -56,9 +53,10 @@ namespace Core.TerrainGenerator
         {
             //RectangleAffectSettings rectangleSettings = GetAffectSettingsForDeformer(module.Core);
 
-            module.WriteToChannel(this);//, rectangleSettings.minX, rectangleSettings.minY, rectangleSettings, Position, terrainData.size, layersCount);
-            
-           // terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
+            module.WriteToChannel(
+                this); //, rectangleSettings.minX, rectangleSettings.minY, rectangleSettings, Position, terrainData.size, layersCount);
+
+            // terrainData.SetAlphamaps(rectangleSettings.minX, rectangleSettings.minY, alphamap);
         }
 
         protected override Task ApplyToTerrain()
@@ -74,23 +72,25 @@ namespace Core.TerrainGenerator
         private void Blit()
         {
             int kernelHandle = blitShader.FindKernel("BlitRGBA");
-            using (ComputeBuffer buffer = new ComputeBuffer(Chunk.ColorMapResolution * Chunk.ColorMapResolution * layersCount, sizeof(float)))
+            using (ComputeBuffer buffer =
+                   new ComputeBuffer(Chunk.ColorMapResolution * Chunk.ColorMapResolution * layersCount, sizeof(float)))
             {
                 buffer.SetData(GetLastLayer());
                 blitShader.SetBuffer(kernelHandle, "input", buffer);
                 blitShader.SetTexture(kernelHandle, "resultRGBA", texture);
                 blitShader.SetInt("resolution", Chunk.ColorMapResolution);
                 blitShader.SetInt("layersCount", layersCount);
-                blitShader.Dispatch(kernelHandle, 
+                blitShader.Dispatch(kernelHandle,
                     Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f),
-                    Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f), 
+                    Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f),
                     1);
             }
 
             RenderTexture.active = texture;
         }
 
-        public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) => new RectangleAffectSettings(Chunk, Position, Chunk.Resolution, deformer);
+        public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
+            new RectangleAffectSettings(Chunk, Position, Chunk.Resolution, deformer);
 
         /*private float GetColorPerIndex(int layer, int x, int y, int n)
         {
@@ -101,24 +101,26 @@ namespace Core.TerrainGenerator
             IsDirty = true;
             Chunk = chunk;
         }
+
         #region Loading
+
         private async void Load(List<string> paths)
         {
             int idx = 0;
             await Task.WhenAll(paths.Select(x => LoadAndApply(x, idx++)));
 
             //if(normalizeAlphamap) Normalize();
-            
+
             loading.SetResult(true);
         }
 
         private async Task LoadAndApply(string path, int index)
         {
-            if(path == null) return;
+            if (path == null) return;
             //deformationLayersCache.Add(LoadAtPath(path));
             deformationLayersCache.Add(await _readWorker.RunAsync(() => LoadAtPath(path)));
         }
-        
+
         private byte GetColorChannel(System.Drawing.Color value, int channelIdx)
         {
             switch (channelIdx)
@@ -129,7 +131,7 @@ namespace Core.TerrainGenerator
                 default: return value.A;
             }
         }
-        
+
         private float[] LoadAtPath(string path) // TODO: get texture in edit-mode
         {
             const float divider = 1f / 255f;
@@ -154,7 +156,7 @@ namespace Core.TerrainGenerator
             /*PNGReader.ReadPNG(path, cacheTexture);
             float[] result = new float[resolution * resolution * layersCount];
             Color[] pixels = cacheTexture.GetPixels();
-            
+
             for (int u = 0; u < resolution; u++)
             {
                 for (int v = 0; v < resolution; v++)
@@ -200,12 +202,11 @@ namespace Core.TerrainGenerator
         }*/
 
 
-
         private void Normalize()
         {
             throw new NotImplementedException();
             /*if(deformationLayersCache.Count == 0) return;
-            
+
             float[,,] colors = deformationLayersCache[0];
             int w = colors.GetLength(1);
             int h = colors.GetLength(0);
@@ -246,6 +247,7 @@ namespace Core.TerrainGenerator
                 }
             }*/
         }
+
         #endregion
     }
 }

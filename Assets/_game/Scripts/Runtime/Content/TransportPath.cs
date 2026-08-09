@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using AYellowpaper;
+﻿using AYellowpaper;
 using Core.Ai;
-using Core.Data;
 using Core.Items;
 using Core.World;
 using Runtime.Misc;

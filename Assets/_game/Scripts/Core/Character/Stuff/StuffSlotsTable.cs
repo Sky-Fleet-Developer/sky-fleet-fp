@@ -4,7 +4,6 @@ using Core.Configurations;
 using Core.Configurations.GoogleSheets;
 using Core.Misc;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace Core.Character.Stuff

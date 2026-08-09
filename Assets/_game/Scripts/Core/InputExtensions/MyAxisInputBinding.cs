@@ -1,8 +1,9 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Composites;
-using UnityEngine.InputSystem.Layouts;
 
 namespace Core.InputExtensions
 {

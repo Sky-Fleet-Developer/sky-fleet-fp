@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Structure;
-using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;

@@ -1,5 +1,4 @@
 using Core.Character;
-using Core.Data.GameSettings;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure.Rigging.Control.Attributes;

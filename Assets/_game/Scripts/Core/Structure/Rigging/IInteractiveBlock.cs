@@ -1,5 +1,3 @@
-﻿using Core.Character;
-
-namespace Core.Structure.Rigging
+﻿namespace Core.Structure.Rigging
 {
 }

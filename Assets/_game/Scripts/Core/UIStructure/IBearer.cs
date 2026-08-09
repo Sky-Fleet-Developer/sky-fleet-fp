@@ -1,10 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Core.UiStructure;
-using UnityEngine;
-using UnityEngine.UI;
-
 namespace Core.UIStructure
 {
     /*public interface IBearer

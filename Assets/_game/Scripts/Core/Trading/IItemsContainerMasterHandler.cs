@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Items;
+﻿using Core.Items;
 
 namespace Core.Trading
 {

@@ -1,4 +1,3 @@
-using System;
 using Core.Graph;
 using Core.Graph.Wires;
 using Core.Structure;

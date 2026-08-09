@@ -1,6 +1,4 @@
-using System.Collections;
 using Core.Character.Interaction;
-using Core.Structure.Rigging;
 
 namespace Core.Character
 {

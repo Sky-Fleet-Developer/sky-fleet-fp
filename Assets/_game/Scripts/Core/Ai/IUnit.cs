@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Ai;
-using Core.World;
+﻿using Core.World;
 
 namespace Core.Ai
 {

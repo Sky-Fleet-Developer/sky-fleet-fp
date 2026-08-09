@@ -1,8 +1,8 @@
 using Core.UIStructure;
 using UnityEngine;
 using Core.SessionManager.GameProcess;
-using Core.Boot_strapper;
 using System.Threading.Tasks;
+using Core.Explorer;
 
 namespace Runtime.Explorer.SessionUI
 {

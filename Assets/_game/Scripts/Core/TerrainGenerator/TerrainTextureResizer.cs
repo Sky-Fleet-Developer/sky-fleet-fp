@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-using Core.Boot_strapper;
+using Core.Explorer;
 using Core.TerrainGenerator.Utility;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Color = UnityEngine.Color;
-using Graphics = UnityEngine.Graphics;
 
 namespace Core.TerrainGenerator
 {

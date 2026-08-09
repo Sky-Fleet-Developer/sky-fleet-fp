@@ -4,7 +4,6 @@ using Core.Items;
 using Core.UIStructure.Utilities;
 using UniRx;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Core.Trading
 {

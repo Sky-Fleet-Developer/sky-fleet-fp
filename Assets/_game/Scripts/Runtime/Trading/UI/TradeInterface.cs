@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Core.Character;
 using Core.Character.Interaction;
@@ -8,9 +7,7 @@ using Core.Patterns.State;
 using Core.Trading;
 using Core.UiStructure;
 using Core.UIStructure.Utilities;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Zenject;
 

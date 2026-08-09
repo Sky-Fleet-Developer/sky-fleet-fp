@@ -1,11 +1,9 @@
 using System.Linq;
-using System.Threading.Tasks;
-using Core.Boot_strapper;
+using Core.Explorer;
 using Core.Misc;
 using Core.SessionManager;
 using Core.Utilities;
 using Cysharp.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -28,14 +26,14 @@ namespace Core
             _bootstrapper.Run();
             //TypeExtensions.Init();
 #if UNITY_EDITOR
-            EditorApplication.playModeStateChanged += OnStateChanged;
-            void OnStateChanged(PlayModeStateChange state)
+            UnityEditor.EditorApplication.playModeStateChanged += OnStateChanged;
+            void OnStateChanged(UnityEditor.PlayModeStateChange state)
             {
-                if (state == PlayModeStateChange.ExitingPlayMode)
+                if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
                 {
                     _bootstrapper.Stop();
                     _bootstrapper = null;
-                    EditorApplication.playModeStateChanged -= OnStateChanged;
+                    UnityEditor.EditorApplication.playModeStateChanged -= OnStateChanged;
                 }
             }
 #endif
@@ -132,7 +130,14 @@ namespace Core
                 }
                 foreach (var monoBehaviour in entry.GetComponents<MonoBehaviour>())
                 {
-                    container.Inject(monoBehaviour);
+                    try
+                    {
+                        container.Inject(monoBehaviour);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
                 }
                 if (entry.name.Contains("[Translator]"))
                 {
@@ -140,7 +145,14 @@ namespace Core
                     {
                         foreach (var monoBehaviour in entry.transform.GetChild(i).GetComponents<MonoBehaviour>())
                         {
-                            container.Inject(monoBehaviour);
+                            try
+                            {
+                                container.Inject(monoBehaviour);
+                            }
+                            catch (System.Exception e)
+                            {
+                                Debug.LogException(e);
+                            }
                         }
                     }
                 }
@@ -153,23 +165,36 @@ namespace Core
             {
                 foreach (var load in entry.transform.GetComponents<ILoadAtStart>())
                 {
-                    if (load.enabled)
+                    try
                     {
-                        //Debug.Log($"BOOTSTRAPPER: Begin load {load}");
-                        await load.Load();
+                        if (load.enabled)
+                        {
+                            //Debug.Log($"BOOTSTRAPPER: Begin load {load}");
+                            await load.Load();
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogException(e);
                     }
                 }
 
                 if (entry.name.Contains("[Translator]"))
                 {
-                    for (int i = 0; i < entry.transform.childCount; i++)
+                    for (int i = entry.transform.childCount - 1; i >= 0; i--)
                     {
                         foreach (var load in entry.transform.GetChild(i).GetComponents<ILoadAtStart>())
                         {
-                            if (load.enabled)
+                            try
                             {
-                                //Debug.Log($"BOOTSTRAPPER: Begin load {load}");
-                                await load.Load();
+                                if (load.enabled)
+                                {
+                                    await load.Load();
+                                }
+                            }
+                            catch (System.Exception e)
+                            {
+                                Debug.LogException(e);
                             }
                         }
                     }

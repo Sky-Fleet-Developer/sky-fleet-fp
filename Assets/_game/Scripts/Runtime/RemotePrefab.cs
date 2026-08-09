@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Core.Configurations;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -44,6 +45,10 @@ namespace Runtime
             {
                 Reset();
             }
+        }
+#else
+        protected virtual void OnValidate()
+        {
         }
 #endif
     }

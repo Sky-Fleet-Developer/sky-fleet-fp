@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Items;
 using UnityEngine;
-using Zenject;
 
 namespace Core.Trading
 {

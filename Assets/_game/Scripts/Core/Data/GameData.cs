@@ -1,16 +1,14 @@
 using System.Collections.Generic;
-using Core.Structure;
 using Core.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace Core.Data
 {
     [CreateAssetMenu(menuName = "SF/Data/GameData")]
     [DefaultExecutionOrder(-1000)]
-    public class GameData : CompoundScriptableObject
+    public class GameData : CompoundScriptableObject, ISerializationCallbackReceiver
     {
         [InlineProperty(LabelWidth = 160), SerializeField] private SharedGameData serializedSharedData;
         [InlineProperty(LabelWidth = 160), SerializeField] private PrivateGameData serializedPrivateData;
@@ -26,10 +24,8 @@ namespace Core.Data
             }
         }
         
-        public void Initialize()
+        private void Initialize()
         {
-            Data = serializedSharedData;
-            PrivateData = serializedPrivateData;
             Data.lodDistances.Init();
         }
 
@@ -50,6 +46,18 @@ namespace Core.Data
 
         private void OnValidate()
         {
+            Initialize();
+        }
+
+        public void OnBeforeSerialize()
+        {
+            
+        }
+
+        public void OnAfterDeserialize()
+        {
+            Data = serializedSharedData;
+            PrivateData = serializedPrivateData;
             Initialize();
         }
     }

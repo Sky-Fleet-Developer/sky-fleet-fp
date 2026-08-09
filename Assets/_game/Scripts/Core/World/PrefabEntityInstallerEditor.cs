@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Configurations;
-using Sirenix.OdinInspector;
-using UnityEngine;
-
-namespace Core.World
+﻿namespace Core.World
 {
     /*public partial class PrefabEntityInstaller
     {

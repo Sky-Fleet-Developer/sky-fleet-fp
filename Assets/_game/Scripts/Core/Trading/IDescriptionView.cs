@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Core.Trading
+﻿namespace Core.Trading
 {
     public interface IDescriptionView
     {

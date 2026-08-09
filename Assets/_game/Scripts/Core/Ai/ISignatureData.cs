@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Core.Ai
+﻿namespace Core.Ai
 {
     public interface ISignatureData : ITargetData
     {

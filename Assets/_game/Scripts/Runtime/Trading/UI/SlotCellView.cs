@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Core.Character.Interface;
+﻿using Core.Character.Interface;
 using Core.Character.Stuff;
 using Core.Items;
 using Core.Trading;

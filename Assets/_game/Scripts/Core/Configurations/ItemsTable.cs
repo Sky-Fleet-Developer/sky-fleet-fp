@@ -5,11 +5,8 @@ using System.Linq;
 using Core.Configurations.GoogleSheets;
 using Core.Items;
 using Core.Misc;
-using Core.Trading;
 using Core.Weapon;
-using Unity.Properties;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Core.Configurations
 {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 using Zenject;
 
 #if FLAT_SPACE
@@ -8,7 +7,6 @@ using VectorInt = UnityEngine.Vector2Int;
 using VolumeInt = UnityEngine.RectInt;
 #else
 using VectorInt = UnityEngine.Vector3Int;
-using VolumeInt = UnityEngine.BoundsInt;
 #endif
 
 namespace Core.World

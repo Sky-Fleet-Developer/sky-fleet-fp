@@ -1,7 +1,8 @@
-﻿using System;
-using Core.Configurations;
+﻿using Core.Configurations;
 using Core.Items;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using Zenject;

@@ -6,7 +6,9 @@ using Core.Data;
 using Core.Explorer.Content;
 using Core.Utilities;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 

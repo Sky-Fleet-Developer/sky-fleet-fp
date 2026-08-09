@@ -2,8 +2,8 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Core;
-using Core.Boot_strapper;
 using Core.Character;
+using Core.Explorer;
 using Runtime.Character;
 using Sirenix.OdinInspector;
 using SphereWorld.Environment.Wind;

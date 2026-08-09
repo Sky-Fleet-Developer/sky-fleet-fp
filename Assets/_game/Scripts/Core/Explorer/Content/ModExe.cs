@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Core.Explorer.Content
 {
     public abstract class ModExe

@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Items;
+﻿using Core.Items;
 using Core.Structure.Damage;
 using Core.Trading;
 using Core.World;

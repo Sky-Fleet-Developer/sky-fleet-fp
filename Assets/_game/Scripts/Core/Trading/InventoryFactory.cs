@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Core.Character.Stuff;
-using Core.Configurations;
+﻿using Core.Character.Stuff;
 using UnityEngine;
 using Zenject;
 

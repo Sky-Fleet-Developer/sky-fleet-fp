@@ -1,5 +1,4 @@
 ﻿using Core.Ai;
-using Core.World;
 using UnityEngine;
 
 namespace Runtime.Ai.Maneuvers

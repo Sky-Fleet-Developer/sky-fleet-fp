@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Core.Ai;
+﻿using Core.Ai;
 using UnityEngine;
 
 namespace Runtime.Ai

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Core.Boot_strapper
+namespace Core.Explorer
 {
     public interface ILoadAtStart
     {
