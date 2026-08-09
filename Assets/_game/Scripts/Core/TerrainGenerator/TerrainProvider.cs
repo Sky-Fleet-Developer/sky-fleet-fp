@@ -23,6 +23,7 @@ namespace Core.TerrainGenerator
             Task Initialize();
             Task LoadPropsForCurrentPosition();
             Task Unload();
+            bool Enabled { get; }
         }
         
         public static readonly LateEvent<TerrainProvider> OnInitialize = new LateEvent<TerrainProvider>();
@@ -87,6 +88,9 @@ namespace Core.TerrainGenerator
         {
             return Unload();
         }
+
+        public bool Enabled => gameObject.activeInHierarchy && enabled;
+
         private async Task Unload()
         {
             foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)

@@ -10,7 +10,7 @@ namespace Core.TerrainGenerator.Settings
 
         public override DeformationChannel MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory)
         {
-            string path = formatMap.SearchInFolder(position, directory);
+            string path = formatMap.SearchInFolder(position + terrain.settings.ChunksCenter, directory);
 
             return new HeightChannel(terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkSize, position, path);
         }

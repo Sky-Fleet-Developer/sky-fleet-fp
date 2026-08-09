@@ -15,7 +15,7 @@ namespace Core.TerrainGenerator
     /// Saves info about deformation channels and chunk values
     /// </summary>
     [System.Serializable, CreateAssetMenu]
-    public class TerrainGenerationSettings : ScriptableObject
+    public class TerrainGenerationSettings : ScriptableObject, ISerializationCallbackReceiver
     {
         [SerializeField] private string targetDirectory;
         [Space, SerializeField] private Material material;
@@ -26,6 +26,7 @@ namespace Core.TerrainGenerator
         [Space(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private List<ChannelSettings> settings;
+        [SerializeField] private Vector2Int chunksCenter;
         public ComputeShader blitArrayToTexShader;
 
 
@@ -36,15 +37,10 @@ namespace Core.TerrainGenerator
         public float ChunksRefreshDistance => chunksRefreshDistance;
         public int HeightmapResolution => heightmapResolution;
         public int AlphamapResolution => alphamapResolution;
+        public Vector2Int ChunksCenter => chunksCenter;
         public int Height => height;
         public Material Material => material;
-
-        private void OnEnable()
-        {
-            directory = DirectoryUtilities.GetDirectory(targetDirectory);
-            if (directory == null) Debug.LogWarning("Wrong directory!");
-        }
-
+        
         private void OnValidate()
         {
             directory = DirectoryUtilities.GetDirectory(targetDirectory);
@@ -94,6 +90,16 @@ namespace Core.TerrainGenerator
             {
                 Directory.CreateDirectory(path);
             }
+        }
+
+        public void OnBeforeSerialize()
+        {
+        }
+
+        public void OnAfterDeserialize()
+        {
+            directory = DirectoryUtilities.GetDirectory(targetDirectory);
+            if (directory == null) Debug.LogWarning("Wrong directory!");
         }
     }
 }

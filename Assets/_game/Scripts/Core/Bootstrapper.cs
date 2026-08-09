@@ -210,7 +210,14 @@ namespace Core
             var configsLoading = remoteConfigurationHandler.LoadConfigurations();
             container.Bind<RemoteConfigurationHandler>().FromInstance(remoteConfigurationHandler);
             var tickService = new GameObject("[Tick]").AddComponent<TickService>();
-            Object.DontDestroyOnLoad(tickService.gameObject);
+            if (Application.isPlaying)
+            {
+                Object.DontDestroyOnLoad(tickService.gameObject);
+            }
+            else
+            {
+                tickService.hideFlags = HideFlags.DontSave;
+            }
             container.BindInstance(tickService);
             TransformCacheSystem transformCacheSystem = new TransformCacheSystem();
             tickService.Add(transformCacheSystem);

@@ -6,9 +6,11 @@ using Core;
 using Core.Configurations;
 using Core.Data;
 using Core.Items;
+using Core.Misc;
 using Core.Structure;
 using Core.TerrainGenerator;
 using Core.World;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Runtime.Items;
 using Runtime.Structure;
@@ -18,7 +20,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
-
 #if FLAT_SPACE
 using VectorInt = UnityEngine.Vector2Int;
 using VolumeInt = UnityEngine.RectInt;
@@ -64,6 +65,10 @@ namespace WorldEditor
 
         private ChunkPositionMode _chunkPositionMode = ChunkPositionMode.None;
         private EntityObjectInstaller[] _entityObjectSources;
+
+        private RemoteConfigurationHandler _remoteConfigurationHandler;
+
+        private TickService _tickService;
         //private ItemsTable _itemsTable;
 
         private ChunkPositionMode ChunkPositionMode
@@ -166,9 +171,16 @@ namespace WorldEditor
             diContainer.Bind<IItemInstanceFactory>().FromInstance(itemsFactory);*/
             var scene = SceneManager.GetActiveScene();
             Bootstrapper.BindScene(scene, diContainer);
-            
+            _remoteConfigurationHandler?.Dispose();
+            _remoteConfigurationHandler = null;
+            if (_tickService)
+            {
+                DestroyImmediate(_tickService.gameObject);
+            }
+            Bootstrapper.SetupSingletons(diContainer, ref _remoteConfigurationHandler);
             _chunksSet = diContainer.Resolve<LocationChunksSet>();
             _worldGrid = diContainer.Resolve<WorldGrid>();
+            _tickService = diContainer.Resolve<TickService>();
             _dynamicPositionFromWorldRect = diContainer.ResolveId<IDynamicPositionProvider>("Player");
             _worldOffsetHandler = diContainer.TryResolve<WorldOffset.IWorldOffsetHandler>();
             _dynamicPositionFromWorldRect = new DynamicPositionFromWorldRect(_worldGrid, _chunksSet);
@@ -187,7 +199,7 @@ namespace WorldEditor
             //diContainer.Inject(_itemObjectFactory);
 
             _worldOffsetHandler?.TakeControl();
-            if(_terrainProvider) _terrainProviderHandler = diContainer.TryResolve<TerrainProvider.ITerrainProviderHandler>();
+            if(_terrainProvider) _terrainProviderHandler = diContainer.ResolveAll<TerrainProvider.ITerrainProviderHandler>().FirstOrDefault(x => x.Enabled);
 
             _worldGrid.Load();
             
@@ -204,6 +216,11 @@ namespace WorldEditor
         {
             _chunksSet?.Unload();
             _worldOffsetHandler?.ReleaseControl();
+            _remoteConfigurationHandler?.Dispose();
+            if (_tickService)
+            {
+                DestroyImmediate(_tickService);
+            }
             UnityEditor.Compilation.CompilationPipeline.compilationStarted -= OnCompilation;
             UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
         }
@@ -483,7 +500,12 @@ namespace WorldEditor
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("Get range from camera",GUILayout.Width(180), GUILayout.Height(30)))
                 {
+#if FLAT_SPACE
+                    var p = _worldGrid.Grid.PositionToCell(SceneView.lastActiveSceneView.camera.transform.position);
+                    _rangeSettings.position = new Vector2Int(p.x, p.z) -  _currentContentRange.size / 2;
+#else
                     _rangeSettings.position = _worldGrid.Grid.PositionToCell(SceneView.lastActiveSceneView.camera.transform.position) - _currentContentRange.size / 2;
+#endif
                 }
                 if (GUILayout.Button("Load", GUILayout.Width(180), GUILayout.Height(30)))
                 {
@@ -558,14 +580,25 @@ namespace WorldEditor
 
         private void Load(VolumeInt rangeSettings)
         {
-            Debug.Log($"Loading content range: {rangeSettings}");
-            
-            UpdateWorldOffset(rangeSettings);
-            
-            _loading = LoadProcess(rangeSettings);
-            _loading.Wait();
+            #if FLAT_SPACE
+            rangeSettings.min += _terrainProvider.settings.ChunksCenter;
+            rangeSettings.max += _terrainProvider.settings.ChunksCenter;
+            #else
+            Vector3Int offset = new Vector3Int(_terrainProvider.settings.ChunksCenter.x, 0, _terrainProvider.settings.ChunksCenter.y);
+            rangeSettings.min += offset;
+            rangeSettings.max += offset;
+            #endif
+            LoadAsync(rangeSettings).Forget();
         }
 
+        private async UniTask LoadAsync(VolumeInt rangeSettings)
+        {
+            Debug.Log($"Loading content range: {rangeSettings}");
+            UpdateWorldOffset(rangeSettings);
+            _loading = LoadProcess(rangeSettings);
+            await _loading;
+        }
+        
         private void UpdateWorldOffset(VolumeInt rangeSettings)
         {
             if (_worldOffsetHandler != null)
