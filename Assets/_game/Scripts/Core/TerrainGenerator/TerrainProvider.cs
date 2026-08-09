@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -95,7 +96,7 @@ namespace Core.TerrainGenerator
         {
             foreach (KeyValuePair<Vector2Int, Chunk> chunk in chunks)
             {
-                chunk.Value.Destroy();
+                chunk.Value?.Destroy();
             }
             chunks.Clear();
         }
@@ -150,7 +151,12 @@ namespace Core.TerrainGenerator
 
             foreach (Vector2Int coord in toCreate)
             {
-                chunks[coord] = CreateTerrain(coord);
+                var t = CreateTerrain(coord);
+                if (t == null)
+                {
+                    continue;
+                }
+                chunks[coord] = t;
                 if (channels.TryGetValue(coord, out List<DeformationChannel> channelsList))
                 {
                     foreach (var deformationChannel in channelsList)
@@ -249,13 +255,21 @@ namespace Core.TerrainGenerator
 
         private Chunk CreateTerrain(Vector2Int prop)
         {
-            Chunk chunk = new Chunk($"Terrain ({prop.x}, {prop.y})", transform, settings);
+            try
+            {
+                Chunk chunk = new Chunk($"Terrain ({prop.x}, {prop.y})", transform, settings);
 
-            Vector3 selfPos = WorldOffset.Offset;
-            chunk.Position = new Vector3(selfPos.x + prop.x * settings.ChunkSize, selfPos.y,
-                selfPos.z + prop.y * settings.ChunkSize);
+                Vector3 selfPos = WorldOffset.Offset;
+                chunk.Position = new Vector3(selfPos.x + prop.x * settings.ChunkSize, selfPos.y,
+                    selfPos.z + prop.y * settings.ChunkSize);
 
-            return chunk;
+                return chunk;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return null;
+            }
         }
 
         private Task deformersQueueTimer;

@@ -16,8 +16,12 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int VerticesWidthCount = Shader.PropertyToID("vertices_width_count");
         private static readonly int NormalDx = Shader.PropertyToID("normal_dx");
         private static readonly int NormalDxInv = Shader.PropertyToID("normal_dx_inv");
+        private static readonly int HeightmapStartX = Shader.PropertyToID("heightmap_start_x");
+        private static readonly int HeightmapStartY = Shader.PropertyToID("heightmap_start_y");
+        private static readonly int HeightmapWidthCount = Shader.PropertyToID("heightmap_width_count");
         private readonly int _copyHeightmapKernel;
         private readonly int _applyDeformationKernel;
+        private readonly int _alignVerticesToHeightmapKernel;
         private readonly int _testAlignSineKernel;
         
         private ComputeShader _shader;
@@ -30,6 +34,7 @@ namespace Core.TerrainGenerator.Settings
             _shader = shader;
             _copyHeightmapKernel = _shader.FindKernel("CSCopyHeightmap");
             _applyDeformationKernel = _shader.FindKernel("CSApplyDeformation");
+            _alignVerticesToHeightmapKernel = _shader.FindKernel("CSAlignVerticesToHeightmap");
             _testAlignSineKernel = _shader.FindKernel("CSTestAlignSine");
         }
 
@@ -82,6 +87,33 @@ namespace Core.TerrainGenerator.Settings
             }
         }
 
+        public void AlignVerticesToHeightmap(GraphicsBuffer vertexBuffer, ComputeBuffer heightmap, int resolution, float chunkSize, float chunkHeight)
+        {
+            AlignVerticesToHeightmap(vertexBuffer, heightmap, resolution, resolution, chunkSize, chunkHeight, Vector2Int.zero, new Vector2Int(resolution, resolution));
+        }
+        
+        public void AlignVerticesToHeightmap(GraphicsBuffer vertexBuffer, ComputeBuffer heightmap, int resolution, int heightmapResolution, float chunkSize, float chunkHeight, Vector2Int minCoverage, Vector2Int maxCoverage)
+        {
+            lock (_shader)
+            {
+                //Debug.LogError($"AlignVerticesToHeightmap: vertices = {vertexBuffer.count}, heightmap = {heightmap.count}, {resolution}, {chunkSize}, {chunkHeight}");
+                int treadGroups = vertexBuffer.count / 8 + (vertexBuffer.count % 8 > 0 ? 1 : 0);
+                _shader.SetBuffer(_alignVerticesToHeightmapKernel, Vertices, vertexBuffer);
+                _shader.SetBuffer(_alignVerticesToHeightmapKernel, SourceHeightmap, heightmap);
+                _shader.SetInt(VerticesCount, vertexBuffer.count);
+                _shader.SetInt(VerticesWidthCount, resolution + 1);
+                _shader.SetInt(HeightmapWidthCount, heightmapResolution + 1);
+                _shader.SetInt(HeightmapStartX, minCoverage.x);
+                _shader.SetInt(HeightmapStartY, minCoverage.y);
+                _shader.SetFloat(ChunkSize, chunkSize);
+                _shader.SetFloat(ChunkHeight, chunkHeight);
+                _shader.SetFloat(NormalDx, chunkSize / (resolution - 1));
+                _shader.SetFloat(NormalDxInv, (resolution - 1) / chunkSize);
+
+                _shader.Dispatch(_alignVerticesToHeightmapKernel, treadGroups, treadGroups, 1);
+            }
+        }
+        
         public void TestAlignSine(GraphicsBuffer vertexBuffer, int resolution, float chunkSize)
         {
             int treadGroups = vertexBuffer.count / 64 + (vertexBuffer.count % 64 > 0 ? 1 : 0);

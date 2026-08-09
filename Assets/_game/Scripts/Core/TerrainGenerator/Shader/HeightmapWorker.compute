@@ -10,8 +10,11 @@ float chunk_size;
 float chunk_height;
 uint vertices_count;
 uint vertices_width_count;
+uint heightmap_width_count;
 float normal_dx;
 float normal_dx_inv;
+uint heightmap_start_x;
+uint heightmap_start_y;
 
 
 
@@ -60,8 +63,66 @@ void CSTestAlignSine (uint id : SV_DispatchThreadID)
     float dfdz = (height_z - vert.position.y) * normal_dx_inv;
 
     // 5. Формируем и нормализуем вектор нормали
-    float3 normal = float3(-dfdx, 1.0, -dfdz);
+    float y_len = sqrt(1 - (dfdx*dfdx + dfdz*dfdz));
+    float3 normal = float3(-dfdx, y_len, -dfdz);
     vert.normal = normalize(normal);
     
     vertices[id] = vert;
+}
+
+#pragma kernel CSAlignVerticesToHeightmap
+float get_height_from_heightmap(uint2 id)
+{
+    return source_heightmap[id.x * heightmap_width_count + id.y];
+}
+float get_height_from_heightmap(uint2 id, float2 interpolation)
+{
+    uint id_single = id.x * vertices_width_count + id.y;
+    float top_left = source_heightmap[id_single];
+    float top_right = source_heightmap[id_single + vertices_width_count];
+    float bottom_left = source_heightmap[id_single + 1];
+    float bottom_right = source_heightmap[id_single + vertices_width_count + 1];
+    float top = top_right + (top_left - top_right) * interpolation.x;
+    float bottom = bottom_right + (bottom_left - bottom_right) * interpolation.x;
+    return bottom + (top - bottom) * interpolation.y;
+}
+
+[numthreads(8,8,1)]
+void CSAlignVerticesToHeightmap (uint2 id : SV_DispatchThreadID)
+{
+    if (id.x >= vertices_width_count || id.y >= vertices_width_count)
+    {
+        return;
+    }
+    packed_vertex vert = vertices[id.x * vertices_width_count + id.y];
+    
+    vert.position.y = get_height_from_heightmap(id + uint2(heightmap_start_x, heightmap_start_y));
+
+    // 3. Берем выборки высоты для расчета градиента (смещение по X и Z)
+    uint2 id_top_left = id - uint2(1, 1);
+    float x_dir = -1;
+    if (id.x == 0)
+    {
+        x_dir = 1;
+        id_top_left.x += 1;
+    }
+    float z_dir = -1;
+    if (id.y == 0)
+    {
+        z_dir = 1;
+        id_top_left.y += 1;
+    }
+    float height_x = get_height_from_heightmap(id_top_left, float2(normal_dx * x_dir, 0.0));
+    float height_z = get_height_from_heightmap(id_top_left, float2(0.0, normal_dx * z_dir));
+
+    // 4. Вычисляем частные производные (конечные разности)
+    float dfdx = (height_x - vert.position.y) * normal_dx_inv;
+    float dfdz = (height_z - vert.position.y) * normal_dx_inv;
+
+    // 5. Формируем и нормализуем вектор нормали
+    float y_len = sqrt(1 - (dfdx*dfdx + dfdz*dfdz));
+    float3 normal = float3(-dfdx * x_dir, y_len, -dfdz * z_dir);
+    vert.normal = normalize(normal);
+    vert.position.y *= chunk_height;
+    vertices[id.x * vertices_width_count + id.y] = vert;
 }

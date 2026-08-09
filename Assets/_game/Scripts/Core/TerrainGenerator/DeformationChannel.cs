@@ -38,7 +38,7 @@ namespace Core.TerrainGenerator
         {
         }
         
-        protected DataT GetLastLayer() => deformationLayersCache[deformationLayersCache.Count - 1];
+        protected DataT GetLastLayer() => deformationLayersCache[^1];
         public DataT GetSourceLayer(IDeformer deformer)
         {
             int l = GetPreviousLayerIdx(deformer.Layer);

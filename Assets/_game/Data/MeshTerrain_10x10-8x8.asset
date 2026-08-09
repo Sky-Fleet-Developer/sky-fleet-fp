@@ -16,6 +16,7 @@ MonoBehaviour:
   formatMap:
     format: 10x10-8x8Height_{x}-{y}
     extension: r16
+  gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
 --- !u!114 &-1368039965201892930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48,6 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fa131243efcf674d96d76c9966c3bee, type: 3}
   m_Name: MeshTerrain_10x10-8x8
   m_EditorClassIdentifier: 
+  children:
+  - {fileID: -1368039965201892930}
+  - {fileID: -7671948353902161526}
+  - {fileID: 4259751407393431562}
   targetDirectory: 10x10-8x8
   material: {fileID: 2100000, guid: 8c7157b6424ca0b4fa88c766adc1682e, type: 2}
   chunkSize: 3600
@@ -56,9 +61,7 @@ MonoBehaviour:
   alphamapResolution: 257
   visibleDistance: 5000
   chunksRefreshDistance: 1000
-  settings:
-  - {fileID: -7671948353902161526}
-  - {fileID: -1368039965201892930}
+  chunksCenter: {x: 0, y: 0}
   blitArrayToTexShader: {fileID: 0}
 --- !u!114 &4259751407393431562
 MonoBehaviour:
@@ -78,24 +81,3 @@ MonoBehaviour:
     extension: trs
   prototypes:
   - {fileID: 6307873901052613052, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}
---- !u!114 &5765027533259470609
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: Far heightmap
-  m_EditorClassIdentifier: 
-  container: {fileID: 11400000}
-  originalFormatMap:
-    format: 10x10-8x8Height_{x}-{y}
-    extension: r16
-  compressedFormatMap:
-    format: 10x10-8x8Height_low_{x}-{y}
-    extension: r16
-  downSamplingShader: {fileID: 7200000, guid: c015f54267923954fbe8a0ad23a2bcb1, type: 3}
-  compressionRatio: 2

@@ -21,7 +21,6 @@ namespace Core.TerrainGenerator
         //    new Dictionary<Subchunk, (Vector2Int min, Vector2Int max)>();
         private readonly int pieces = 1;
         private readonly Material material;
-        private readonly RenderTexture heightmapTexture;
         public bool IsChunkVisible;
 
         public Vector3 Position
@@ -58,16 +57,14 @@ namespace Core.TerrainGenerator
             int pieceResolution = settings.HeightmapResolution / pieces;
             material = Object.Instantiate(settings.Material);
 
-            heightmapTexture = RenderTexture.GetTemporary(settings.HeightmapResolution, settings.HeightmapResolution, 1,
-                RenderTextureFormat.R16);
-
+            var worker = settings.Settings.OfType<MeshHeightmapChannelSettings>().First().GpuWorker;
             for (int i = 0; i < pieces * pieces; i++)
             {
                 int x = i / pieces;
                 int y = i % pieces;
+                var invertedLocalCoord = new Vector2Int(y, x); // need to invert local coords for chunks for correct order
                 Subchunk subchunk = new Subchunk($"{name}_{i}", parent, settings.ChunkSize / pieces, settings.Height,
-                    pieceResolution, new Vector2Int(x, y), pieces, material, settings.Settings.OfType<MeshHeightmapChannelSettings>().First().GpuWorker);
-
+                    pieceResolution, settings.HeightmapResolution, invertedLocalCoord, pieces, material, worker);
 
                 Vector2Int min = new Vector2Int(x * pieceResolution, y * pieceResolution);
                 Vector2Int max = new Vector2Int(min.x + pieceResolution, min.y + pieceResolution);
@@ -87,7 +84,7 @@ namespace Core.TerrainGenerator
             return resolution * resolution * 4 <= MaxMeshVertices;
         }
 
-        public async Task SetHeights(ComputeBuffer heights)
+        public void SetHeights(ComputeBuffer heights)
         {
             //int xSize = heights.GetLength(0);
             //int ySize = heights.GetLength(1);
@@ -97,8 +94,7 @@ namespace Core.TerrainGenerator
                 //(Vector2Int min, Vector2Int max) = coverage[subchunk];
                 //if (IsIntersecting(min, max, startX, startY, xMax, yMax))
                 //{
-                await subchunk.SetHeights(heights);
-                await Task.Yield();
+                subchunk.SetHeights(heights);
                 //}
             }
 
@@ -160,8 +156,6 @@ namespace Core.TerrainGenerator
             {
                 subchunk.Destroy();
             }
-
-            RenderTexture.ReleaseTemporary(heightmapTexture);
 
             if (Application.isPlaying)
             {

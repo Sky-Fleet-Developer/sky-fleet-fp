@@ -15,25 +15,25 @@ namespace Core.TerrainGenerator
         {
             public Mesh Mesh
             {
-                get => meshFilter?.sharedMesh;
+                get => MeshFilter?.sharedMesh;
                 set
                 {
-                    meshFilter.sharedMesh = value;
-                    collider.sharedMesh = value;
+                    MeshFilter.sharedMesh = value;
+                    Collider.sharedMesh = value;
                 }
             }
-            public Transform transform;
-            public MeshRenderer renderer;
-            public MeshCollider collider;
-            public MeshFilter meshFilter;
+            public Transform Transform;
+            public MeshRenderer Renderer;
+            public MeshCollider Collider;
+            public MeshFilter MeshFilter;
 
             public View(string name, Material material)
             {
-                transform = new GameObject(name).transform;
-                renderer = transform.gameObject.AddComponent<MeshRenderer>();
-                renderer.sharedMaterial = material;
-                meshFilter = transform.gameObject.AddComponent<MeshFilter>();
-                collider = transform.gameObject.AddComponent<MeshCollider>();
+                Transform = new GameObject(name).transform;
+                Renderer = Transform.gameObject.AddComponent<MeshRenderer>();
+                Renderer.sharedMaterial = material;
+                MeshFilter = Transform.gameObject.AddComponent<MeshFilter>();
+                Collider = Transform.gameObject.AddComponent<MeshCollider>();
             }
         }
         public struct PackedVertex
@@ -47,67 +47,69 @@ namespace Core.TerrainGenerator
             = new Dictionary<int, Queue<View>>();
         public static void ClearPool() => _pool.Clear();
 
-        private View view;
-        private readonly float height;
-        private readonly int resolution;
-        private readonly float size;
-        private readonly int key;
-        private readonly Vector2Int localCoordinates;
-        private readonly int piecesAmount;
-        private Vector2Int minCoverage;
-        private Vector2Int maxCoverage;
+        private View _view;
+        private readonly float _height;
+        private readonly int _subchunkResolution;
+        private readonly float _size;
+        private readonly int _key;
+        private readonly Vector2Int _localCoordinates;
+        private readonly int _piecesAmount;
+        private Vector2Int _minCoverage;
+        private Vector2Int _maxCoverage;
         private HeightmapGpuWorker _heightmapGpuWorker;
         private GraphicsBuffer _vertexBuffer;
+        private int _heightmapResolution;
         public Task GenerationTask { get; private set; }
         public GraphicsBuffer VertexBuffer => _vertexBuffer;
 
         public Vector3 Position
         {
-            get => view.transform.position;
-            set => view.transform.position = value + new Vector3(localCoordinates.x * size, 0, localCoordinates.y * size);
+            get => _view.Transform.position;
+            set => _view.Transform.position = value + new Vector3(_localCoordinates.x * _size, 0, _localCoordinates.y * _size);
         }
 
         public void SetMinMaxCoverage(Vector2Int min, Vector2Int max)
         {
-            minCoverage = min;
-            maxCoverage = max;
+            _minCoverage = min;
+            _maxCoverage = max;
         }
 
-        public Subchunk(string name, Transform parent, float size, float height, int resolution, Vector2Int localCoordinates, int piecesAmount, Material material, HeightmapGpuWorker heightmapGpuWorker)
+        public Subchunk(string name, Transform parent, float size, float height, int subchunkResolution, int heightmapResolution, Vector2Int localCoordinates, int piecesAmount, Material material, HeightmapGpuWorker heightmapGpuWorker)
         {
             _heightmapGpuWorker = heightmapGpuWorker;
-            this.height = height;
-            this.resolution = resolution;
-            this.size = size;
-            this.localCoordinates = localCoordinates;
-            this.piecesAmount = piecesAmount;
-            key = resolution * (int) size;
+            _height = height;
+            _subchunkResolution = subchunkResolution;
+            _heightmapResolution = heightmapResolution;
+            _size = size;
+            _localCoordinates = localCoordinates;
+            _piecesAmount = piecesAmount;
+            _key = subchunkResolution * (int) size;
 
             if (!TryAssignViewFromPool(name, material))
             {
                 MakeNewView(name, material);
             }
 
-            view.transform.gameObject.layer = parent.gameObject.layer;
-            view.transform.SetParent(parent);
+            _view.Transform.gameObject.layer = parent.gameObject.layer;
+            _view.Transform.SetParent(parent);
         }
 
         private bool TryAssignViewFromPool(string name, Material material)
         {
-            if (!_pool.TryGetValue(key, out Queue<View> views)) return false;
+            if (!_pool.TryGetValue(_key, out Queue<View> views)) return false;
             if (views.Count <= 0) return false;
-            view = views.Dequeue();
-            view.transform.name = name;
-            view.Mesh.name = name;
-            view.renderer.material = material;
-            _vertexBuffer = view.Mesh.GetVertexBuffer(0);
+            _view = views.Dequeue();
+            _view.Transform.name = name;
+            _view.Mesh.name = name;
+            _view.Renderer.material = material;
+            _vertexBuffer = _view.Mesh.GetVertexBuffer(0);
             GenerationTask = Task.CompletedTask;
             return true;
         }
 
         private void MakeNewView(string name, Material material)
         {
-            view = new View(name, material);
+            _view = new View(name, material);
             GenerationTask = GenerateMesh();
         }
 
@@ -116,9 +118,9 @@ namespace Core.TerrainGenerator
         {
             //float debugTime = Time.realtimeSinceStartup;
             //Debug.Log("TIMING: begin generate mesh " + view.transform.name);
-            view.Mesh = new Mesh {name = view.transform.name};
-            int triangleCount = resolution * resolution * 6;
-            int verticesPerSide = resolution + 1;
+            _view.Mesh = new Mesh {name = _view.Transform.name};
+            int triangleCount = _subchunkResolution * _subchunkResolution * 6;
+            int verticesPerSide = _subchunkResolution + 1;
             int vertexCount = verticesPerSide * verticesPerSide;
 
             SubMeshDescriptor subMeshDescriptor = new SubMeshDescriptor();
@@ -137,24 +139,24 @@ namespace Core.TerrainGenerator
                 new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
                 new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2),
             };
-            view.Mesh.SetVertexBufferParams(vertexCount, layout);
-            view.Mesh.SetIndexBufferParams(triangleCount, IndexFormat.UInt32);
-            view.Mesh.indexBufferTarget |= GraphicsBuffer.Target.Raw;
-            view.Mesh.vertexBufferTarget |= GraphicsBuffer.Target.Structured;
+            _view.Mesh.SetVertexBufferParams(vertexCount, layout);
+            _view.Mesh.SetIndexBufferParams(triangleCount, IndexFormat.UInt32);
+            _view.Mesh.indexBufferTarget |= GraphicsBuffer.Target.Raw;
+            _view.Mesh.vertexBufferTarget |= GraphicsBuffer.Target.Structured;
             int counter = 0;
-            float step = size / (resolution);
-            float resInv = 1f / resolution;
-            Vector2 uvOffset = ((Vector2)localCoordinates) / piecesAmount;
-            float uvScale = 1f / piecesAmount;
+            float step = _size / (_subchunkResolution);
+            float resInv = 1f / _subchunkResolution;
+            Vector2 uvOffset = ((Vector2)_localCoordinates) / _piecesAmount;
+            float uvScale = 1f / _piecesAmount;
             PackedVertex[] initVertexData = new PackedVertex[vertexCount];
 
             int[] triangles = new int[triangleCount]; 
 
             int tIndex = 0;
 
-            for (int i = 0; i <= resolution; i++)
+            for (int j = 0; j <= _subchunkResolution; j++)
             {
-                for (int j = 0; j <= resolution; j++)
+                for (int i = 0; i <= _subchunkResolution; i++)
                 {
                     int vIndex = i * verticesPerSide + j;
         
@@ -164,7 +166,7 @@ namespace Core.TerrainGenerator
                     vert.UV = new float2(j * resInv * uvScale + uvOffset.x, i * resInv * uvScale + uvOffset.y);
                     initVertexData[vIndex] = vert;
 
-                    if (i < resolution && j < resolution)
+                    if (i < _subchunkResolution && j < _subchunkResolution)
                     {
                         // Индексы четырех вершин текущего квадрата
                         int bottomLeft = vIndex;
@@ -185,17 +187,18 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            view.Mesh.SetVertexBufferData(initVertexData, 0, 0, vertexCount, 0,
+            _view.Mesh.SetVertexBufferData(initVertexData, 0, 0, vertexCount, 0,
                 MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
                 MeshUpdateFlags.DontValidateIndices);
 
-            view.Mesh.SetIndexBufferData(triangles, 0, 0, triangleCount,
+            _view.Mesh.SetIndexBufferData(triangles, 0, 0, triangleCount,
                 MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
                 MeshUpdateFlags.DontValidateIndices);
 
-            _vertexBuffer = view.Mesh.GetVertexBuffer(0);
-            view.Mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
-            view.Mesh.SetSubMeshes(subMeshes, MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds);
+            _vertexBuffer = _view.Mesh.GetVertexBuffer(0);
+            Vector3 boundsSize = new Vector3(_size, _height, _size);
+            _view.Mesh.bounds = new Bounds(boundsSize * 0.5f, boundsSize);
+            _view.Mesh.SetSubMeshes(subMeshes, MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds);
 
 
             /*vertices = new Vector3[resolution * resolution * 4];
@@ -241,12 +244,13 @@ namespace Core.TerrainGenerator
             //Debug.Log("TIMING: end generate mesh " + (Time.realtimeSinceStartup - debugTime));
         }
 
-        public async Task SetHeights(ComputeBuffer heights)
+        public void SetHeights(ComputeBuffer heights)
         {
+            _heightmapGpuWorker.AlignVerticesToHeightmap(_vertexBuffer, heights, _subchunkResolution, _heightmapResolution, _size, _height, _minCoverage, _maxCoverage);
             /*
             int xOffset = localCoordinates.x * resolution;
             int yOffset = localCoordinates.y * resolution;
-            
+
             int t = System.Environment.TickCount + MaxTicksForFrame;
             for (int y = 0; y < resolution; y++)
             {
@@ -287,19 +291,19 @@ namespace Core.TerrainGenerator
         {
             if (Application.isPlaying)
             {
-                if (!_pool.ContainsKey(key))
+                if (!_pool.ContainsKey(_key))
                 {
-                    _pool.Add(key, new Queue<View>());
+                    _pool.Add(_key, new Queue<View>());
                 }
-                Debug.Log("Hide " + view.transform.name);
+                Debug.Log("Hide " + _view.Transform.name);
 
-                view.transform.gameObject.SetActive(false);
-                _pool[key].Enqueue(view);
+                _view.Transform.gameObject.SetActive(false);
+                _pool[_key].Enqueue(_view);
             }
             else
             {
-                Object.DestroyImmediate(view.Mesh);
-                Object.DestroyImmediate(view.transform.gameObject);
+                Object.DestroyImmediate(_view.Mesh);
+                Object.DestroyImmediate(_view.Transform.gameObject);
             }
         }
     }

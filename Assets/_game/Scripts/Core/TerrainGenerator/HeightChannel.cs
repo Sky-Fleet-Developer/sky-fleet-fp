@@ -54,9 +54,12 @@ namespace Core.TerrainGenerator
 
         protected override Task ApplyToTerrain()
         {
-            if(deformationLayersCache[0] == null) return Task.CompletedTask;
-            
-            return chunk.SetHeights(GetLastLayer());
+            if (deformationLayersCache[0] != null)
+            {
+                chunk.SetHeights(GetLastLayer());
+            }
+
+            return Task.CompletedTask;
         }
 
         public override Task PostApply()

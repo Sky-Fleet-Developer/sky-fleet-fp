@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 #if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
 #endif
@@ -22,7 +23,7 @@ namespace Core.Utilities
                     yield return t;
                 }
             }
-        } 
+        }
     }
     
     #if UNITY_EDITOR
@@ -33,12 +34,36 @@ namespace Core.Utilities
         private bool _assetSelectionMode;
         private Object _selectedAsset;
         private SerializedProperty _children;
+        private List<Editor> _childObjects;
         protected override void OnEnable()
         {
             base.OnEnable();
         
             targetSO = (CompoundScriptableObject)target;
             _children = new SerializedObject(target).FindProperty("children");
+            
+            var path = AssetDatabase.GetAssetPath(targetSO);
+            var allAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+            bool wasChanged = false;
+            for (var i = 0; i < allAssets.Length; i++)
+            {
+                if (!targetSO.children.Contains(allAssets[i]) && allAssets[i] != targetSO)
+                {
+                    targetSO.children.Add(allAssets[i]);
+                    wasChanged = true;
+                }
+            }
+            _childObjects = new List<Editor>();
+            for (var i = 0; i < targetSO.children.Count; i++)
+            {
+                _childObjects.Add(CreateEditor(targetSO.children[i]));
+                _childObjects[i].CreateInspectorGUI();
+            }
+
+            if (wasChanged)
+            {
+                EditorUtility.SetDirty(this);
+            }
         }
 
         public override void OnInspectorGUI()
@@ -78,8 +103,15 @@ namespace Core.Utilities
 
                     if (toRemove >= 0)
                     {
+                        _childObjects.RemoveAt(toRemove);
                         _children.DeleteArrayElementAtIndex(toRemove);
                         targetSO.children.RemoveAt(toRemove);
+                    }
+
+                    for (int i = 0; i < _childObjects.Count; i++)
+                    {
+                        _childObjects[i].DrawHeader();
+                        _childObjects[i].OnInspectorGUI();
                     }
                 }
             }
@@ -104,6 +136,7 @@ namespace Core.Utilities
             clone.name = otherAsset.name;
             AssetDatabase.AddObjectToAsset(clone, myPath);
             targetSO.children.Add(clone);
+            _childObjects.Add(CreateEditor(clone));
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }

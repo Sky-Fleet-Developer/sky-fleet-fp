@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
+using Core.Utilities;
 using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,7 +16,7 @@ namespace Core.TerrainGenerator
     /// Saves info about deformation channels and chunk values
     /// </summary>
     [System.Serializable, CreateAssetMenu]
-    public class TerrainGenerationSettings : ScriptableObject, ISerializationCallbackReceiver
+    public class TerrainGenerationSettings : CompoundScriptableObject, ISerializationCallbackReceiver
     {
         [SerializeField] private string targetDirectory;
         [Space, SerializeField] private Material material;
@@ -25,13 +26,13 @@ namespace Core.TerrainGenerator
         [SerializeField] private int alphamapResolution = 257;
         [Space(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
-        [SerializeField] private List<ChannelSettings> settings;
         [SerializeField] private Vector2Int chunksCenter;
         public ComputeShader blitArrayToTexShader;
+        private List<ChannelSettings> _settings;
 
 
         public DirectoryInfo directory;
-        public List<ChannelSettings> Settings => settings;
+        public IEnumerable<ChannelSettings> Settings => _settings;
         public float ChunkSize => chunkSize;
         public float VisibleDistance => visibleDistance;
         public float ChunksRefreshDistance => chunksRefreshDistance;
@@ -44,6 +45,9 @@ namespace Core.TerrainGenerator
         private void OnValidate()
         {
             directory = DirectoryUtilities.GetDirectory(targetDirectory);
+            _settings ??= new List<ChannelSettings>();
+            _settings.Clear();
+            _settings.AddRange(children.OfType<ChannelSettings>());
         }
 
 #if UNITY_EDITOR
@@ -72,7 +76,7 @@ namespace Core.TerrainGenerator
             T newSettings = CreateInstance<T>();
             newSettings.name = n;
             newSettings.Initialize(this);
-            Settings.Add(newSettings);
+            children.Add(newSettings);
 
             AssetDatabase.AddObjectToAsset(newSettings, this);
             AssetDatabase.SaveAssets();
@@ -94,6 +98,7 @@ namespace Core.TerrainGenerator
 
         public void OnBeforeSerialize()
         {
+            
         }
 
         public void OnAfterDeserialize()
