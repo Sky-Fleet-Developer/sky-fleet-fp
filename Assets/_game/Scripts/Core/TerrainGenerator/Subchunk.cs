@@ -43,15 +43,27 @@ namespace Core.TerrainGenerator
             public float2 UV;
         };
         
-        private static Dictionary<int, Queue<View>> _pool
-            = new Dictionary<int, Queue<View>>();
-        public static void ClearPool() => _pool.Clear();
+        private static List<View> _pool = new ();
+        public static void ClearPool()
+        {
+            foreach (var view in _pool)
+            {
+                
+            }
+
+            _pool.Clear();
+        }
+#if UNITY_EDITOR
+        static Subchunk()
+        {
+            UnityEditor.EditorApplication.playModeStateChanged += (state) => ClearPool();
+        }
+        #endif
 
         private View _view;
         private readonly float _height;
         private readonly int _subchunkResolution;
         private readonly float _size;
-        private readonly int _key;
         private readonly Vector2Int _localCoordinates;
         private readonly int _piecesAmount;
         private Vector2Int _minCoverage;
@@ -61,20 +73,19 @@ namespace Core.TerrainGenerator
         private int _heightmapResolution;
         public Task GenerationTask { get; private set; }
         public GraphicsBuffer VertexBuffer => _vertexBuffer;
-
-        public Vector3 Position
-        {
-            get => _view.Transform.position;
-            set => _view.Transform.position = value + new Vector3(_localCoordinates.x * _size, 0, _localCoordinates.y * _size);
-        }
-
+        
         public void SetMinMaxCoverage(Vector2Int min, Vector2Int max)
         {
             _minCoverage = min;
             _maxCoverage = max;
         }
-
-        public Subchunk(string name, Transform parent, float size, float height, int subchunkResolution, int heightmapResolution, Vector2Int localCoordinates, int piecesAmount, Material material, HeightmapGpuWorker heightmapGpuWorker)
+        
+        public void SetChunkPosition(Vector3 position)
+        {
+            _view.Transform.position = position + new Vector3(_localCoordinates.x * _size, 0, _localCoordinates.y * _size);
+        }
+        
+        public Subchunk(string name, Transform parent, Vector3 chunkPosition, float size, float height, int subchunkResolution, int heightmapResolution, Vector2Int localCoordinates, int piecesAmount, Material material, HeightmapGpuWorker heightmapGpuWorker)
         {
             _heightmapGpuWorker = heightmapGpuWorker;
             _height = height;
@@ -83,7 +94,6 @@ namespace Core.TerrainGenerator
             _size = size;
             _localCoordinates = localCoordinates;
             _piecesAmount = piecesAmount;
-            _key = subchunkResolution * (int) size;
 
             if (!TryAssignViewFromPool(name, material))
             {
@@ -92,14 +102,16 @@ namespace Core.TerrainGenerator
 
             _view.Transform.gameObject.layer = parent.gameObject.layer;
             _view.Transform.SetParent(parent);
+            SetChunkPosition(chunkPosition);
         }
 
         private bool TryAssignViewFromPool(string name, Material material)
         {
-            if (!_pool.TryGetValue(_key, out Queue<View> views)) return false;
-            if (views.Count <= 0) return false;
-            _view = views.Dequeue();
+            if (_pool.Count == 0) return false;
+            _view = _pool[^1];
+            _pool.RemoveAt(_pool.Count - 1);
             _view.Transform.name = name;
+            _view.Transform.gameObject.SetActive(true);
             _view.Mesh.name = name;
             _view.Renderer.material = material;
             _vertexBuffer = _view.Mesh.GetVertexBuffer(0);
@@ -291,14 +303,10 @@ namespace Core.TerrainGenerator
         {
             if (Application.isPlaying)
             {
-                if (!_pool.ContainsKey(_key))
-                {
-                    _pool.Add(_key, new Queue<View>());
-                }
-                Debug.Log("Hide " + _view.Transform.name);
+                //Debug.Log("Hide " + _view.Transform.name);
 
                 _view.Transform.gameObject.SetActive(false);
-                _pool[_key].Enqueue(_view);
+                _pool.Add(_view);
             }
             else
             {

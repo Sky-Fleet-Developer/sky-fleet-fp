@@ -29,7 +29,7 @@ namespace WorldEditor
         public Vector3 SpacePosition => WorldPosition - WorldOffset.Offset;
   
         public Vector3 StoredVelocity => Vector3.zero;
-        public Vector3 GetPredictedWorldPosition(float time)
+        public Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity)
         {
             return WorldPosition;
         }

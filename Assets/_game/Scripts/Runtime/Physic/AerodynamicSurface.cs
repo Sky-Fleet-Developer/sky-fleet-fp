@@ -40,14 +40,24 @@ namespace Runtime.Physic
             InitializeZones();
         }
 
-        void Start()
+        private void Start()
         {
             parentRigidbody = GetComponentInParent<IDynamicStructure>();
             if (parentRigidbody == null)
+            {
                 Debug.LogError("RigidBody не найден в иерархии!");
+                return;
+            }
 
+            enabled = false;
+            parentRigidbody.OnInitComplete.Subscribe(OnInitComplete);
+        }
+
+        private void OnInitComplete()
+        {
+            enabled = true;
             InitializeZones();
-            cachedCorners = CalculateCorners(); // сохраняем вершины крыла один раз
+            cachedCorners = CalculateCorners();
         }
 
         private void InitializeZones()
@@ -82,7 +92,7 @@ namespace Runtime.Physic
             }
         }
 
-        void FixedUpdate()
+        private void FixedUpdate()
         {
             foreach (var zone in zones)
             {

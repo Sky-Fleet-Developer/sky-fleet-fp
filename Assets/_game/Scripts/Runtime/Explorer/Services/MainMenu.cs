@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
 using Core.UiStructure;
+using Core.UIStructure;
 using Core.Utilities;
 using Runtime.UI;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zenject;
 
 namespace Runtime.Explorer.Services
 {
     public class MainMenu : Service
     {
+        [Inject] private ServiceIssue _serviceIssue;
         public List<StartMenuItem> menus;
         [FoldoutGroup("Style")]
         public ButtonItemPointer buttonSource;
@@ -37,9 +40,23 @@ namespace Runtime.Explorer.Services
         private void InsertMenuButton(StartMenuItem menu)
         {
             ButtonItemPointer buttonInstance = DynamicPool.Instance.Get(buttonSource, buttonsRoot);
-            menu.Apply(buttonInstance, OnBlockWasOpened);
-            buttonInstance.SetVisual(fontSize);
+            menu.OnBlockWasOpen = OnBlockWasOpened;
+            buttonInstance.SetVisual(menu.description, menu.style, menu.alignment, (Action)(() => OpenBlock(menu)), fontSize);
             buttons.Add(buttonInstance);
+        }
+        
+        private void OpenBlock(StartMenuItem item)
+        {
+            IService[] services = new IService[item.blocks.Length];
+            var window = _serviceIssue.CreateWindow<FramedWindow>();
+            for (int i = 0; i < item.blocks.Length; i++)
+            {
+                services[i] = window.Bearer.Create(item.blocks[i], window);
+            }
+
+            window.Apply(Window.LayoutType.Horizontal, services);
+            window.Open();
+            item.OnBlockWasOpen?.Invoke(services);
         }
 
         public void AddMenu(StartMenuItem menu)

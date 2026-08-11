@@ -16,8 +16,19 @@ namespace Core.World
         [ShowInInspector] public Vector3 StoredVelocity => _storedVelocity;
         [ShowInInspector] public Vector3 WorldPosition => _isInitialized ? _history[_historyPointer] : Vector3.zero;
         public Vector3 SpacePosition => _isInitialized ? _history[_historyPointer] + WorldOffset.Offset : Vector3.zero;
-        
-        public Vector3 GetPredictedWorldPosition(float time) => WorldPosition + _storedVelocity * time;
+
+        public Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity)
+        {
+            Vector3 deviation = _storedVelocity * time;
+            float maxDeviationSqr = maxDeviation * maxDeviation;
+            float deviationSqr = deviation.sqrMagnitude;
+            if (deviationSqr > maxDeviationSqr)
+            {
+                float scale = Mathf.Sqrt(maxDeviationSqr / deviationSqr);
+                deviation *= scale;
+            }
+            return WorldPosition + deviation;
+        }
         private bool _isInitialized;
         public void Awake()
         {

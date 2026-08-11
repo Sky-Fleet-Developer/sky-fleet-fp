@@ -30,6 +30,7 @@ namespace Core.TerrainGenerator
             ComputeBuffer verticesBuffer = new ComputeBuffer((resolution + 1) * (resolution + 1), sizeof(float));
             if (path != null)
             {
+                Debug.Log($"Load chunk {path}");
                 var data = await RawReader.ReadAsync(path);
                 verticesBuffer.SetData(data);
             }

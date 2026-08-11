@@ -28,7 +28,7 @@ namespace WorldEditor
             }
         }
 
-        public Vector3 GetPredictedWorldPosition(float time)
+        public Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity)
         {
             return WorldPosition;
         }

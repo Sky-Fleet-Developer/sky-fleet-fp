@@ -10,11 +10,13 @@ using Paterns.AbstractFactory;
 using Runtime.Explorer.Services;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace Runtime.Explorer.Options
 {
     public class SettingUI : Service
     {
+        [Inject] private ServiceIssue _serviceIssue;
 
         [SerializeField] private ItemPointer prefabCategory;
         [SerializeField] private ItemPointer prefabButton;
@@ -167,7 +169,7 @@ namespace Runtime.Explorer.Options
 
         private void CallAddInputButton(InputButtons input, ItemPointer pointerUI)
         {
-            InputReader reader = ServiceIssue.Instance.CreateService<InputReader>();
+            InputReader reader = _serviceIssue.CreateService<InputReader>();
             reader.Window.RectTransform.Fullscreen();
             reader.GetInputButtons(x => { OnAddInputButton(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;
@@ -175,7 +177,7 @@ namespace Runtime.Explorer.Options
 
         private void CallAddInputAxis(InputAxis input, ItemPointer pointerUI)
         {
-            InputReader reader = ServiceIssue.Instance.CreateService<InputReader>();
+            InputReader reader = _serviceIssue.CreateService<InputReader>();
             reader.Window.RectTransform.Fullscreen();
             reader.GetInputAxis(x => { OnAddInputAxis(x, input, pointerUI); });
             pointerUI.GetPointer<Button>("AddKey").interactable = false;

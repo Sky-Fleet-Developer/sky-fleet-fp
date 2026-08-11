@@ -12,7 +12,6 @@ namespace Core.UIStructure
 {
     public class ServiceIssue : MonoBehaviour, IMyInstaller, ILoadAtStart
     {
-        public static ServiceIssue Instance;
         [SerializeField] private BearerCanvas bearerPrefab;
         [SerializeField] private List<Service> handMadeServices;
         [SerializeField] private List<Window> availableFrames;
@@ -25,17 +24,7 @@ namespace Core.UIStructure
 
         public Task Load()
         {
-            if (Instance)
-            {
-                Destroy(gameObject);
-            }
-            else
-            {
-                Instance = this;
-                DontDestroyOnLoad(Instance);
-                _availableServices.AddRange(handMadeServices);
-            }
-
+            _availableServices.AddRange(handMadeServices);
             return Task.CompletedTask;
         }
 

@@ -13,6 +13,6 @@ namespace Core.World
         /// </summary>
         Vector3 SpacePosition { get; }
         Vector3 StoredVelocity { get; }
-        Vector3 GetPredictedWorldPosition(float time);
+        Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity);
     }
 }

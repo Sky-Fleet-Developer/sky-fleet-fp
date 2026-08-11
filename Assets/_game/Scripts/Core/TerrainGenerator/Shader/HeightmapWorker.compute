@@ -2,10 +2,19 @@
 #include "packed_vertex.hlsl"
 
 StructuredBuffer<float> source_heightmap;
+//StructuredBuffer<float> neighbour_x_min_heightmap;
+//StructuredBuffer<float> neighbour_x_max_heightmap;
+//StructuredBuffer<float> neighbour_z_min_heightmap;
+//StructuredBuffer<float> neighbour_z_max_heightmap;
 RWStructuredBuffer<float> destination_heightmap;
 StructuredBuffer<rectangle_affect_settings> deformation_rectangle_settings;
 StructuredBuffer<float> deformation_heightmap;
 RWStructuredBuffer<packed_vertex> vertices;
+//const uint source_hm_id = 0;
+//const uint xmin_hm_id = 1;
+//const uint xmax_hm_id = 2;
+//const uint zmin_hm_id = 3;
+//const uint zmax_hm_id = 4;
 float chunk_size;
 float chunk_height;
 uint vertices_count;
@@ -75,13 +84,39 @@ float get_height_from_heightmap(uint2 id)
 {
     return source_heightmap[id.x * heightmap_width_count + id.y];
 }
-float get_height_from_heightmap(uint2 id, float2 interpolation)
+
+float read_height(uint index/*, uint buffer_id*/)
+{
+    //[branch]
+    //if(buffer_id == xmin_hm_id)
+    //{
+    //    return neighbour_x_min_heightmap[index];
+    //}
+    //else if(buffer_id == xmax_hm_id)
+    //{
+    //    return neighbour_x_max_heightmap[index];
+    //}
+    //else if(buffer_id == zmin_hm_id)
+    //{
+    //    return neighbour_z_min_heightmap[index];
+    //}
+    //else if(buffer_id == zmax_hm_id)
+    //{
+    //    return neighbour_z_max_heightmap[index];
+    //}
+    //else
+    //{
+        return source_heightmap[index];
+    //}
+}
+
+float get_height_from_heightmap(uint2 id, float2 interpolation/*, uint heightmap_id*/)
 {
     uint id_single = id.x * vertices_width_count + id.y;
-    float top_left = source_heightmap[id_single];
-    float top_right = source_heightmap[id_single + vertices_width_count];
-    float bottom_left = source_heightmap[id_single + 1];
-    float bottom_right = source_heightmap[id_single + vertices_width_count + 1];
+    float top_left = read_height(id_single);
+    float top_right =  read_height(id_single + vertices_width_count);
+    float bottom_left =  read_height(id_single + 1);
+    float bottom_right =  read_height(id_single + vertices_width_count + 1);
     float top = top_right + (top_left - top_right) * interpolation.x;
     float bottom = bottom_right + (bottom_left - bottom_right) * interpolation.x;
     return bottom + (top - bottom) * interpolation.y;
@@ -95,11 +130,11 @@ void CSAlignVerticesToHeightmap (uint2 id : SV_DispatchThreadID)
         return;
     }
     packed_vertex vert = vertices[id.x * vertices_width_count + id.y];
-    
-    vert.position.y = get_height_from_heightmap(id + uint2(heightmap_start_x, heightmap_start_y));
+    uint2 heightmap_space_id = id + uint2(heightmap_start_x, heightmap_start_y);
+    vert.position.y = get_height_from_heightmap(heightmap_space_id);
 
     // 3. Берем выборки высоты для расчета градиента (смещение по X и Z)
-    uint2 id_top_left = id - uint2(1, 1);
+    uint2 id_top_left = heightmap_space_id - uint2(1, 1);
     float x_dir = -1;
     if (id.x == 0)
     {
@@ -116,8 +151,8 @@ void CSAlignVerticesToHeightmap (uint2 id : SV_DispatchThreadID)
     float height_z = get_height_from_heightmap(id_top_left, float2(0.0, normal_dx * z_dir));
 
     // 4. Вычисляем частные производные (конечные разности)
-    float dfdx = (height_x - vert.position.y) * normal_dx_inv;
-    float dfdz = (height_z - vert.position.y) * normal_dx_inv;
+    float dfdx = (height_x - vert.position.y) * normal_dx_inv * chunk_height;
+    float dfdz = (height_z - vert.position.y) * normal_dx_inv * chunk_height;
 
     // 5. Формируем и нормализуем вектор нормали
     float y_len = sqrt(1 - (dfdx*dfdx + dfdz*dfdz));
