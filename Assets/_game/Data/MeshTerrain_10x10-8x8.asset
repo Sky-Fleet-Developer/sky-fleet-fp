@@ -61,8 +61,11 @@ MonoBehaviour:
   alphamapResolution: 257
   visibleDistance: 10000
   chunksRefreshDistance: 1000
-  chunksCenter: {x: 5, y: 5}
-  blitArrayToTexShader: {fileID: 0}
+  chunksCenter: {x: 5, y: 3}
+  collisionSettings:
+    range: 500
+    physicsMaterial: {fileID: 0}
+    layer: 0
 --- !u!114 &4259751407393431562
 MonoBehaviour:
   m_ObjectHideFlags: 0

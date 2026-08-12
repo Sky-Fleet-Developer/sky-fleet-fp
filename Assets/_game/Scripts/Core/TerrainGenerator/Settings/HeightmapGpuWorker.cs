@@ -15,7 +15,7 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int VerticesCount = Shader.PropertyToID("vertices_count");
         private static readonly int VerticesWidthCount = Shader.PropertyToID("vertices_width_count");
         private static readonly int NormalDx = Shader.PropertyToID("normal_dx");
-        private static readonly int NormalDxInv = Shader.PropertyToID("normal_dx_inv");
+        private static readonly int NormalDt = Shader.PropertyToID("normal_dt");
         private static readonly int HeightmapStartX = Shader.PropertyToID("heightmap_start_x");
         private static readonly int HeightmapStartY = Shader.PropertyToID("heightmap_start_y");
         private static readonly int HeightmapWidthCount = Shader.PropertyToID("heightmap_width_count");
@@ -107,8 +107,8 @@ namespace Core.TerrainGenerator.Settings
                 _shader.SetInt(HeightmapStartY, minCoverage.y);
                 _shader.SetFloat(ChunkSize, chunkSize);
                 _shader.SetFloat(ChunkHeight, chunkHeight);
-                _shader.SetFloat(NormalDx, chunkSize / (resolution - 1));
-                _shader.SetFloat(NormalDxInv, (resolution - 1) / chunkSize);
+                _shader.SetFloat(NormalDx, chunkSize / (resolution - 1) * 2);
+                _shader.SetFloat(NormalDt, (resolution - 1) / chunkSize * 0.5f);
 
                 _shader.Dispatch(_alignVerticesToHeightmapKernel, treadGroups, treadGroups, 1);
             }
@@ -122,7 +122,7 @@ namespace Core.TerrainGenerator.Settings
             _shader.SetInt(VerticesWidthCount, resolution + 1);
             _shader.SetFloat(ChunkSize, chunkSize);
             _shader.SetFloat(NormalDx, chunkSize / (resolution - 1));
-            _shader.SetFloat(NormalDxInv, (resolution - 1) / chunkSize);
+            _shader.SetFloat(NormalDt, (resolution - 1) / chunkSize);
 
             _shader.Dispatch(_testAlignSineKernel, treadGroups, 1, 1);
         }

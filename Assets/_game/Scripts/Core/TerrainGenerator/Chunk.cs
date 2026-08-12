@@ -13,10 +13,9 @@ namespace Core.TerrainGenerator
         private const int MaxMeshVertices = 10000;
 
         private bool _isHeightDirty = true;
-        private bool _isEdgesHeightEdited = true;
         private readonly TerrainGenerationSettings _settings;
 
-        private readonly List<Subchunk> _subchunks = new List<Subchunk>();
+        private readonly List<SubChunk> _subchunks = new List<SubChunk>();
 
         //private readonly Dictionary<Subchunk, (Vector2Int min, Vector2Int max)> coverage =
         //    new Dictionary<Subchunk, (Vector2Int min, Vector2Int max)>();
@@ -86,17 +85,22 @@ namespace Core.TerrainGenerator
                 int x = i / _pieces;
                 int y = i % _pieces;
                 var invertedLocalCoord = new Vector2Int(y, x); // need to invert local coords for chunks for correct order
-                Subchunk subchunk = new Subchunk($"{name}_{i}", parent, position, settings.ChunkSize / _pieces, settings.Height,
-                    pieceResolution, settings.HeightmapResolution, invertedLocalCoord, _pieces, _material, worker);
+                SubChunk subChunk = new SubChunk($"{name}_{i}", parent, position, settings.ChunkSize / _pieces, settings.Height,
+                    pieceResolution, settings.HeightmapResolution, _coord, invertedLocalCoord, _pieces, _material, worker);
 
                 Vector2Int min = new Vector2Int(x * pieceResolution, y * pieceResolution);
                 Vector2Int max = new Vector2Int(min.x + pieceResolution, min.y + pieceResolution);
 
-                subchunk.SetMinMaxCoverage(min, max);
+                subChunk.SetMinMaxCoverage(min, max);
 
-                _subchunks.Add(subchunk);
-                //coverage.Add(subchunk, (min, max));
+                _subchunks.Add(subChunk);
+                //coverage.Add(subChunk, (min, max));
             }
+        }
+        
+        public IReadOnlyList<SubChunk> GetSubChunks()
+        {
+            return _subchunks;
         }
 
         private Vector3 GetMyWorldPosition()
@@ -115,48 +119,20 @@ namespace Core.TerrainGenerator
         public void RefreshPosition()
         {
             Vector3 position = GetMyWorldPosition();
-            foreach (Subchunk subchunk in _subchunks)
+            foreach (SubChunk subChunk in _subchunks)
             {
-                subchunk.SetChunkPosition(position);
+                subChunk.SetChunkPosition(position);
             }
         }
 
         public void SetHeights(ComputeBuffer heights)
         {
-            //int xSize = heights.GetLength(0);
-            //int ySize = heights.GetLength(1);
-
-            foreach (Subchunk subchunk in _subchunks)
+            foreach (SubChunk subchunk in _subchunks)
             {
-                //(Vector2Int min, Vector2Int max) = coverage[subchunk];
-                //if (IsIntersecting(min, max, startX, startY, xMax, yMax))
-                //{
                 subchunk.SetHeights(heights);
-                //}
             }
-
-            /*int kernelHandle = settings.blitArrayToTexShader.FindKernel("BlitR16");
-            using (ComputeBuffer buffer = new ComputeBuffer(settings.HeightmapResolution * settings.HeightmapResolution,
-                sizeof(float)))
-            {
-                buffer.SetData(heights);
-                settings.blitArrayToTexShader.SetBuffer(kernelHandle, "input", buffer);
-                settings.blitArrayToTexShader.SetTexture(kernelHandle, "resultR16", heightmapTexture);
-                settings.blitArrayToTexShader.SetInt("resolution", settings.HeightmapResolution);
-                settings.blitArrayToTexShader.Dispatch(kernelHandle,
-                    Mathf.CeilToInt(settings.HeightmapResolution / 8f + 0.5f),
-                    Mathf.CeilToInt(settings.HeightmapResolution / 8f + 0.5f),
-                    1);
-            }
-
-            RenderTexture.active = heightmapTexture;*/
-            
-            
-            
-            _isEdgesHeightEdited = true; //startX < 2 || startY < 2 || xMax > Resolution - 1 || yMax > Resolution - 1;
 
             _isHeightDirty = true;
-            //mesh.vertices = vertices;
         }
 
         private bool IsIntersecting(Vector2Int aMin, Vector2Int aMax, int bMinX, int bMinY, int bMaxX, int bMaxY)
@@ -164,32 +140,23 @@ namespace Core.TerrainGenerator
             return aMin.x <= bMaxX && aMax.x >= bMinX && aMin.y <= bMaxY && aMax.y >= bMinY;
         }
 
-        public async Task PostProcess()
+        public Task PostProcess()
         {
             if (_isHeightDirty)
             {
-                foreach (Subchunk subchunk in _subchunks)
+                foreach (SubChunk subchunk in _subchunks)
                 {
                     subchunk.Recalculate();
                 }
 
                 _isHeightDirty = false;
-                if (_isEdgesHeightEdited)
-                {
-                    foreach (Subchunk subchunk in _subchunks)
-                    {
-                        //subchunk.SetNeighbors();
-                        await Task.Yield();
-                    }
-
-                    _isEdgesHeightEdited = false;
-                }
             }
+            return Task.CompletedTask;
         }
 
         public void Destroy()
         {
-            foreach (Subchunk subchunk in _subchunks)
+            foreach (SubChunk subchunk in _subchunks)
             {
                 subchunk.Destroy();
             }

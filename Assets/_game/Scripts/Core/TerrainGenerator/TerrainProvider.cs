@@ -11,6 +11,7 @@ using Sirenix.OdinInspector;
 using Core.World;
 using Cysharp.Threading.Tasks;
 using Runtime.Character;
+using Unity.Collections;
 using Zenject;
 using ITickable = Core.Misc.ITickable;
 
@@ -42,8 +43,17 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, Chunk> _chunks = new ();
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
+        private Collision _collision;
 
         public int TickRate => 60;
+
+        public IEnumerable<(Vector2Int, HeightChannel)> EnumerateActiveSurfaceChannels()
+        {
+            foreach (var activeChunkChannel in _activeChunkChannels)
+            {
+                yield return (activeChunkChannel.Key, activeChunkChannel.Value[_heightChannelIndex] as HeightChannel);
+            }
+        }
 
         public Chunk GetChunk(Vector2Int position)
         {
@@ -75,6 +85,16 @@ namespace Core.TerrainGenerator
             {
                 _tickService.Add(this);
             }
+            for (var i = 0; i < settings.Settings.Count; i++)
+            {
+                if (settings.Settings[i] is MeshHeightmapChannelSettings)
+                {
+                    _heightChannelIndex = i;
+                    break;
+                }
+            }
+
+            _collision = new Collision(this, settings.CollisionSettings);
             await LoadPropsForCurrentPosition();
             OnInitialize.Invoke(this);
             if (_deformersQueueTask != null)
@@ -210,6 +230,7 @@ namespace Core.TerrainGenerator
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(WaitForChannelLoadingAndApply)));
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(v => v.PostApply())));
             UnityEngine.Profiling.Profiler.EndSample();
+            _collision.UpdateTrackerPosition(_lastViewPosition, _lastViewCoord);
         }
 
         private async Task WaitForChannelLoadingAndApply(DeformationChannel channel)
@@ -236,11 +257,11 @@ namespace Core.TerrainGenerator
             float sI = 1f / settings.ChunkSize;
             Vector2 viewCell = new Vector2(viewPosition.x * sI, viewPosition.z * sI);
 
-            Vector2Int viewPositionInt = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
+            _lastViewCoord = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
 
-            for (int x = viewPositionInt.x - 8; x <= viewPositionInt.x + 8; x++)
+            for (int x = _lastViewCoord.x - 8; x <= _lastViewCoord.x + 8; x++)
             {
-                for (int y = viewPositionInt.y - 8; y <= viewPositionInt.y + 8; y++)
+                for (int y = _lastViewCoord.y - 8; y <= _lastViewCoord.y + 8; y++)
                 {
                     Vector2Int position = new Vector2Int(x, y);
                     if (IsPropInView(position, viewPosition)) yield return position;
@@ -265,9 +286,9 @@ namespace Core.TerrainGenerator
             {
                 return FindAnyObjectByType<SpawnPerson>().transform.position;
             }
-            Vector3 pos = _playerTracker.GetPredictedWorldPosition(2, 600);
-            pos.y = 0;
-            return pos;
+            _lastViewPosition = _playerTracker.GetPredictedWorldPosition(2, 600);
+            _lastViewPosition.y = 0;
+            return _lastViewPosition;
         }
         
 
@@ -288,6 +309,10 @@ namespace Core.TerrainGenerator
 
         private Task _deformersQueueTimer;
         private Task _deformersQueueTask;
+        private Vector3 _lastViewPosition;
+        private Vector2Int _lastViewCoord;
+        private int _heightChannelIndex;
+
         public void RegisterDeformer(IDeformer deformer)
         {
             _deformersQueue.Add(deformer);

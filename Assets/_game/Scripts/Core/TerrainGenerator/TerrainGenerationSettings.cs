@@ -27,12 +27,12 @@ namespace Core.TerrainGenerator
         [Space(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private Vector2Int chunksCenter;
-        public ComputeShader blitArrayToTexShader;
+        [SerializeField] private CollisionGenerationSettings collisionSettings;
         private List<ChannelSettings> _settings;
 
 
         public DirectoryInfo directory;
-        public IEnumerable<ChannelSettings> Settings => _settings;
+        public IReadOnlyList<ChannelSettings> Settings => _settings;
         public float ChunkSize => chunkSize;
         public float VisibleDistance => visibleDistance;
         public float ChunksRefreshDistance => chunksRefreshDistance;
@@ -41,6 +41,7 @@ namespace Core.TerrainGenerator
         public Vector2Int ChunksCenter => chunksCenter;
         public int Height => height;
         public Material Material => material;
+        public CollisionGenerationSettings CollisionSettings => collisionSettings;
         
         private void OnValidate()
         {
