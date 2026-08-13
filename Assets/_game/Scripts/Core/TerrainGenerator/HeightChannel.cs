@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Core.TerrainGenerator.Settings;
@@ -17,8 +18,8 @@ namespace Core.TerrainGenerator
         public int Resolution { get; }
         private HeightmapData _data;
         private TerrainProvider _terrain;
-        private Vector2Int _keyToReleaseAfterUse;
-        private bool _isLoaded;
+        private Vector3Int _keyToReleaseAfterUse;
+        private bool _hasReleaseKey;
         private float[,] _heightmapData;
 
         public HeightChannel(TerrainProvider terrain, HeightmapGpuWorker gpuWorker, Chunk chunk, int resolution,
@@ -51,12 +52,14 @@ namespace Core.TerrainGenerator
                 {
                     Debug.LogError("Has no free slot in heightmap! Increase TerrainGenerationSettings.maxLoadedChunks value!");
                 }
-                
+                _hasReleaseKey = true;
                 Task<ComputeBuffer> t1 = _data.GetLoadDataBuffer();
                 Task<float[,]> t2 = RawReader.ReadAsync(path);
                 ComputeBuffer buffer = await t1;
                 _heightmapData = await t2;
-                ApplyHeightmap(buffer);
+                LoadHeightmapToTexture(buffer);
+                _data.ReleaseLoadDataBuffer();
+
                 //verticesBuffer.SetData(data);
             }
             //deformationLayersCache.Add(verticesBuffer);
@@ -64,17 +67,17 @@ namespace Core.TerrainGenerator
             loading.SetResult(true);
         }
 
-        private void ApplyHeightmap(ComputeBuffer buffer)
+        private void LoadHeightmapToTexture(ComputeBuffer buffer)
         {
             buffer.SetData(_heightmapData);
-            _gpuWorker.InsertDataToBuffer(buffer, _data.Texture, _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize), Coordinates - mapMin, mapSize, Resolution);
-            _data.ReleaseLoadDataBuffer();
-            _isLoaded = true;
+            var mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
+            //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
+            _gpuWorker.InsertDataToBuffer(buffer, _data.Texture, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
         }
 
         protected override void ApplyToCache(HeightMapDeformerModule module)
         {
-            if (!_isLoaded)
+            if (!_hasReleaseKey)
             {
                 return;
             }
@@ -86,14 +89,14 @@ namespace Core.TerrainGenerator
 
         public override void SetChunk(Chunk chunk)
         {
-            IsDirty = true;
             this.chunk = chunk;
         }
 
         protected override Task ApplyToTerrain()
         {
-            if (_isLoaded)
+            if (_hasReleaseKey)
             {
+                //Debug.Log($"Set heights to mesh by {Coordinates}");
                 chunk.SetHeights(_data.Texture, _data.GetMapBuffer(out var mapMin, out var mapSize), Coordinates - mapMin, mapSize);
             }
             return Task.CompletedTask;
@@ -101,7 +104,7 @@ namespace Core.TerrainGenerator
 
         public override Task PostApply()
         {
-            if (!_isLoaded)
+            if (!_hasReleaseKey)
             {
                 return Task.CompletedTask;
             }
@@ -116,16 +119,43 @@ namespace Core.TerrainGenerator
 
         private async UniTask LoadAgainAsync()
         {
-            Debug.Log($"Load again {Coordinates}");
-            ApplyHeightmap(await _data.GetLoadDataBuffer());
-            chunk.SetHeights(_data.Texture, _data.GetMapBuffer(out var mapMin, out var mapSize), Coordinates - mapMin, mapSize);
+            if (_heightmapData == null)
+            {
+                return;
+            }
+            //Debug.Log($"Load again {Coordinates}");
+            if (!_data.SetChunkToMap(Coordinates, out _keyToReleaseAfterUse))
+            {
+                Debug.LogError("Has no free slot in heightmap! Increase TerrainGenerationSettings.maxLoadedChunks value!");
+            }
+            else
+            {
+                _hasReleaseKey = true;
+            }
+
+            var buffer = await _data.GetLoadDataBuffer();
+            try
+            {
+                //Debug.Log($"Begin send heights to texture: {Coordinates}");
+                LoadHeightmapToTexture(buffer);
+                //Debug.Log($"End send heights to texture");
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            _data.ReleaseLoadDataBuffer();
+            IsDirty = true;
+            //chunk.SetHeights(_data.Texture, _data.GetMapBuffer(out var mapMin, out var mapSize), Coordinates - mapMin, mapSize);
+            //Debug.Log($"Set heights to mesh by {Coordinates}");
         }
 
         public override void OnChunkUnload()
         {
-            if (_isLoaded)
+            if (_hasReleaseKey)
             {
                 _data.ReleaseChunk(_keyToReleaseAfterUse);
+                _hasReleaseKey = false;
             }
 
             base.OnChunkUnload();

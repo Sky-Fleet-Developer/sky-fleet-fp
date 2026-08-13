@@ -58,14 +58,14 @@ MonoBehaviour:
   chunkSize: 3600
   height: 2000
   heightmapResolution: 257
-  maxLoadedChunksByOneSide: 7
+  maxLoadedChunksByOneSide: 9
   alphamapResolution: 257
   visibleDistance: 7200
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
   collisionSettings:
     refreshThreshold: 100
-    range: 1200
+    range: 1000
     physicsMaterial: {fileID: 0}
     layer: 0
 --- !u!114 &4259751407393431562

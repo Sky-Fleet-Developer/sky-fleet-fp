@@ -18,6 +18,7 @@ using ITickable = Core.Misc.ITickable;
 
 namespace Core.TerrainGenerator
 {
+    
     /// <summary>
     /// runtime generating terrain chunks by TerrainGenerationSettings
     /// </summary>
@@ -44,8 +45,9 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
         private Collision _collision;
-        private HeightmapData _heightmapData;
+        [ShowInInspector] private HeightmapData _heightmapData;
         [ShowInInspector] RenderTexture HeightmapTexture => _heightmapData?.Texture;
+        [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _heightmapData?._activeChunks;
 
         public int TickRate => 60;
         

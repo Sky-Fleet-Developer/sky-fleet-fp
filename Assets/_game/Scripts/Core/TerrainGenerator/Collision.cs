@@ -19,29 +19,36 @@ namespace Core.TerrainGenerator
         public int layer;
     }
     
-    public class Collision
+    public class Collision : IDisposable
     {
         private TerrainProvider _terrainProvider;
         private CollisionGenerationSettings _settings;
-        private Dictionary<SubChunkId, Mesh> _meshesPool;
+        private Dictionary<SubChunkId, MeshCollider> _activeColliders;
         private Dictionary<SubChunkId, Mesh> _cooking;
+        private List<Mesh> _inactiveMeshesPool;
         private bool _isBaking;
-
+        private List<SubChunk> _pendingBake = new();
+        private List<SubChunk> _bakingQueue = new();
+        private HashSet<SubChunkId> _buffer = new(); 
+        
         public Collision(TerrainProvider terrainProvider, CollisionGenerationSettings settings)
         {
             _settings = settings;
             _terrainProvider = terrainProvider;
-            _meshesPool = new ();
+            _activeColliders = new ();
             _cooking = new ();
+            _inactiveMeshesPool = new ();
         }
-
-        private List<SubChunk> _pendingBake = new();
-        private List<SubChunk> _bakingQueue = new();
+        
         public void UpdateTrackerPosition(Vector3 position, Vector2Int coord)
         {
             if (Vector3.SqrMagnitude(_prevPosition - position) < _settings.refreshThreshold * _settings.refreshThreshold)
             {
                 return;
+            }
+            foreach (var key in _activeColliders.Keys)
+            {
+                _buffer.Add(key);
             }
             _prevPosition = position;
             float chunkSize = _terrainProvider.settings.ChunkSize;
@@ -60,11 +67,21 @@ namespace Core.TerrainGenerator
                         Debug.DrawRay(WorldOffset.WorldToSpace(subChunkCenter), Vector3.up * 1000, dSqr < rangeSqr ? Color.green : Color.red, 5);
                         if (dSqr < rangeSqr)
                         {
-                            TryCreateCollider(subChunk, channel.chunk);
+                            _buffer.Remove(subChunk.Id);
+                            EnsureCollider(subChunk);
                         }
                     }
                 }
             }
+            
+            foreach (var subChunkId in _buffer)
+            {
+                var collider = _activeColliders[subChunkId];
+                _inactiveMeshesPool.Add(collider.sharedMesh);
+                _activeColliders.Remove(subChunkId);
+                collider.sharedMesh = null;
+            }
+            _buffer.Clear();
 
             if (_pendingBake.Count > 0 && !_isBaking)
             {
@@ -84,6 +101,7 @@ namespace Core.TerrainGenerator
         
         private List<VertexDataWrapper> _verticesBufferPool = new(4);
         private Vector3 _prevPosition;
+        private int[] _sourceTriangles;
 
         private async UniTask BakeMeshesAsync()
         {
@@ -104,13 +122,39 @@ namespace Core.TerrainGenerator
                     int closureI = i;
                     AsyncGPUReadback.RequestIntoNativeArray(ref _verticesBufferPool[i].Vertices, _bakingQueue[i].VertexBuffer, v =>
                     {
-                        var mesh = CreateCollisionMesh(_bakingQueue[closureI].Id, ref _verticesBufferPool[closureI].Vertices, _bakingQueue[closureI].Resolution, _bakingQueue[closureI].Size);
-                        //Debug.Log($"Add {_bakingQueue[closureI].Id} to cooking, mesh {mesh}");
-                        _cooking[_bakingQueue[closureI].Id] = mesh;
-                        new BakeSingleMeshJob(mesh.GetInstanceID()).Schedule(jobHandle);
-                        if (++finishedCounter == _bakingQueue.Count)
+                        Mesh mesh;
+                        if (_inactiveMeshesPool.Count > 0)
                         {
-                            tcs.TrySetResult();
+                            mesh = _inactiveMeshesPool[^1];
+                            _inactiveMeshesPool.RemoveAt(_inactiveMeshesPool.Count - 1);
+                            
+                            mesh.SetVertexBufferData(_verticesBufferPool[closureI].Vertices, 0, 0, _verticesBufferPool[closureI].Vertices.Length, 0,
+                                MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
+                                MeshUpdateFlags.DontValidateIndices);
+
+                            /*mesh.SetIndexBufferData(_sourceTriangles, 0, 0, _sourceTriangles.Length,
+                                MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
+                                MeshUpdateFlags.DontValidateIndices);*/
+                        }
+                        else
+                        {
+                            mesh = CreateCollisionMesh(_bakingQueue[closureI].Id,
+                                ref _verticesBufferPool[closureI].Vertices, _bakingQueue[closureI].Resolution,
+                                _bakingQueue[closureI].Size);
+                        } //Debug.Log($"Add {_bakingQueue[closureI].Id} to cooking, mesh {mesh}");
+
+                        _cooking[_bakingQueue[closureI].Id] = mesh;
+                        try
+                        {
+                            new BakeSingleMeshJob(mesh.GetInstanceID()).Schedule(jobHandle);
+                            if (++finishedCounter == _bakingQueue.Count)
+                            {
+                                tcs.TrySetResult();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            tcs.TrySetException(e);
                         }
                     });
                 }
@@ -125,8 +169,10 @@ namespace Core.TerrainGenerator
                     {
                         Debug.LogError($"Failed to bake mesh {_bakingQueue[i].Id}");
                     }
-                    _meshesPool[_bakingQueue[i].Id] = mesh;
-                    _bakingQueue[i].GetOrCreateColliderComponent().sharedMesh = mesh;
+
+                    var collider = _bakingQueue[i].GetOrCreateColliderComponent();
+                    collider.sharedMesh = mesh;
+                    _activeColliders[_bakingQueue[i].Id] = collider;
                 }
                 //Debug.Log($"Baked {count} meshes");
                 _bakingQueue.Clear();
@@ -193,29 +239,32 @@ namespace Core.TerrainGenerator
             mesh.indexBufferTarget |= GraphicsBuffer.Target.Raw;
             mesh.vertexBufferTarget |= GraphicsBuffer.Target.Structured;
 
-            int[] triangles = new int[triangleCount]; 
-
-            int tIndex = 0;
-
-            for (int j = 0; j <= subChunkResolution; j++)
+            if (_sourceTriangles == null)
             {
-                for (int i = 0; i <= subChunkResolution; i++)
+                _sourceTriangles = new int[triangleCount];
+
+                int tIndex = 0;
+
+                for (int j = 0; j <= subChunkResolution; j++)
                 {
-                    int vIndex = i * verticesPerSide + j;
-                    if (i < subChunkResolution && j < subChunkResolution)
+                    for (int i = 0; i <= subChunkResolution; i++)
                     {
-                        int bottomLeft = vIndex;
-                        int bottomRight = vIndex + 1;
-                        int topLeft = vIndex + verticesPerSide;
-                        int topRight = vIndex + verticesPerSide + 1;
+                        int vIndex = i * verticesPerSide + j;
+                        if (i < subChunkResolution && j < subChunkResolution)
+                        {
+                            int bottomLeft = vIndex;
+                            int bottomRight = vIndex + 1;
+                            int topLeft = vIndex + verticesPerSide;
+                            int topRight = vIndex + verticesPerSide + 1;
 
-                        triangles[tIndex++] = bottomLeft;
-                        triangles[tIndex++] = topLeft;
-                        triangles[tIndex++] = bottomRight;
+                            _sourceTriangles[tIndex++] = bottomLeft;
+                            _sourceTriangles[tIndex++] = topLeft;
+                            _sourceTriangles[tIndex++] = bottomRight;
 
-                        triangles[tIndex++] = bottomRight;
-                        triangles[tIndex++] = topLeft;
-                        triangles[tIndex++] = topRight;
+                            _sourceTriangles[tIndex++] = bottomRight;
+                            _sourceTriangles[tIndex++] = topLeft;
+                            _sourceTriangles[tIndex++] = topRight;
+                        }
                     }
                 }
             }
@@ -224,7 +273,7 @@ namespace Core.TerrainGenerator
                 MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
                 MeshUpdateFlags.DontValidateIndices);
 
-            mesh.SetIndexBufferData(triangles, 0, 0, triangleCount,
+            mesh.SetIndexBufferData(_sourceTriangles, 0, 0, triangleCount,
                 MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
                 MeshUpdateFlags.DontValidateIndices);
 
@@ -234,28 +283,27 @@ namespace Core.TerrainGenerator
             return mesh;
         }
         
-        private void TryCreateCollider(SubChunk subChunk, Chunk chunk)
+        private void EnsureCollider(SubChunk subChunk)
         {
-            MeshCollider collider = subChunk.GetOrCreateColliderComponent();
-            if(_meshesPool.TryGetValue(subChunk.Id, out Mesh mesh))
-            {
-                if (collider.sharedMesh != mesh)
-                {
-                    try
-                    {
-                        //Debug.Log($"Update collider {subChunk.Id} - {mesh.name}");
-                        collider.sharedMesh = mesh;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-
-                }
-            }
-            else
+            if(!_activeColliders.ContainsKey(subChunk.Id))
             {
                 _pendingBake.Add(subChunk);
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var mesh in _activeColliders.Values)
+            {
+                UnityEngine.Object.Destroy(mesh);
+            }
+            foreach (var mesh in _cooking.Values)
+            {
+                UnityEngine.Object.Destroy(mesh);
+            }
+            foreach (var mesh in _inactiveMeshesPool)
+            {
+                UnityEngine.Object.Destroy(mesh);
             }
         }
     }

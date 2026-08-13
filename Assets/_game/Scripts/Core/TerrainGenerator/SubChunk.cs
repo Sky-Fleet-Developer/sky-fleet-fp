@@ -164,7 +164,7 @@ namespace Core.TerrainGenerator
 
             _view = _pool[index][^1];
             _pool[index].RemoveAt(_pool[index].Count - 1);
-            _view.Transform.name = name;
+            _view.Transform.name = name + "<" + _view.Transform.name.Substring(0, Mathf.Min(25, _view.Transform.name.Length));
             _view.Transform.gameObject.SetActive(true);
             _view.Mesh.name = name;
             _view.Renderer.material = material;

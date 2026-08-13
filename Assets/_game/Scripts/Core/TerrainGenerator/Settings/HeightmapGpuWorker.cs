@@ -141,11 +141,14 @@ namespace Core.TerrainGenerator.Settings
 
         public void InsertDataToBuffer(ComputeBuffer chunkSourceData, RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int heightmapChunkResolution)
         {
-            int treadGroups = heightmapChunkResolution / 8 + (heightmapChunkResolution % 8 > 0 ? 1 : 0);
-            BindMap(_insertRawDataToTexKernel, mapBuffer, chunkCoordMapSpace, mapSize);
-            BindHeightmapAsDestination(_insertRawDataToTexKernel, heightmap, heightmapChunkResolution);
-            _shader.SetBuffer(_insertRawDataToTexKernel, ChunkHeightmap, chunkSourceData);
-            _shader.Dispatch(_insertRawDataToTexKernel, treadGroups, treadGroups, 1);
+            lock (_shader)
+            {
+                int treadGroups = heightmapChunkResolution / 8 + (heightmapChunkResolution % 8 > 0 ? 1 : 0);
+                BindMap(_insertRawDataToTexKernel, mapBuffer, chunkCoordMapSpace, mapSize);
+                BindHeightmapAsDestination(_insertRawDataToTexKernel, heightmap, heightmapChunkResolution);
+                _shader.SetBuffer(_insertRawDataToTexKernel, ChunkHeightmap, chunkSourceData);
+                _shader.Dispatch(_insertRawDataToTexKernel, treadGroups, treadGroups, 1);
+            }
         }
 
         private void BindMap(int kernelIndex, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize)

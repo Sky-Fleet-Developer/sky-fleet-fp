@@ -24,7 +24,8 @@ namespace Core.TerrainGenerator
         private Queue<int2> _freeTextureSlots;
 
         // Словарь активных чанков: Мировая координата -> Позиция в текстуре
-        private Dictionary<Vector2Int, int2> _activeChunks;
+        public Dictionary<Vector2Int, int2> _activeChunks;
+        public Dictionary<Vector2Int, int> _versions;
 
         // Очередь для вытеснения самых старых чанков, если лимит N*N превышен
         private Queue<Vector2Int> _chunkInsertionOrder;
@@ -51,6 +52,7 @@ namespace Core.TerrainGenerator
 
             _activeChunks = new Dictionary<Vector2Int, int2>(maxChunksTotal);
             _chunkInsertionOrder = new Queue<Vector2Int>(maxChunksTotal);
+            _versions = new Dictionary<Vector2Int, int>(maxChunksTotal);
 
             // Инициализируем пул всех доступных позиций на сетке текстуры
             _freeTextureSlots = new Queue<int2>(maxChunksTotal);
@@ -66,41 +68,56 @@ namespace Core.TerrainGenerator
             _loadDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, 4);
         }
 
-        private Queue<TaskCompletionSource<bool>> _queue = new();
+        private Queue<TaskCompletionSource<ComputeBuffer>> _queue = new();
+        private TaskCompletionSource<ComputeBuffer> _last;
 
-        public async Task<ComputeBuffer> GetLoadDataBuffer()
+        public Task<ComputeBuffer> GetLoadDataBuffer()
         {
-            while (_queue.Count > 0)
+            var tcs = new TaskCompletionSource<ComputeBuffer>();
+            _queue.Enqueue(tcs);
+            //Debug.Log($"Enqueue load data => {_queue.Count}");
+            var toReturn = _last;
+            _last = tcs;
+            if (toReturn != null)
             {
-                await _queue.Peek().Task;
+                return toReturn.Task;
             }
-
-            _queue.Enqueue(new TaskCompletionSource<bool>());
-            return _loadDataBuffer;
+            else
+            {
+                return Task.FromResult(_loadDataBuffer);
+            }
         }
 
         public void ReleaseLoadDataBuffer()
         {
-            _queue.Dequeue().SetResult(true);
+            //Debug.Log($"Dequeue load data => {_queue.Count - 1}");
+            _queue.Dequeue().SetResult(_loadDataBuffer);
+            if (_queue.Count == 0)
+            {
+                _last = null;
+            }
         }
 
-        public bool SetChunkToMap(Vector2Int coord, out Vector2Int keyToReleaseAfterUse)
+        public bool SetChunkToMap(Vector2Int coord, out Vector3Int keyToReleaseAfterUse)
         {
             // Значение по умолчанию, означающее, что ничего вытеснять не пришлось
-            keyToReleaseAfterUse = new Vector2Int(int.MinValue, int.MinValue);
+            keyToReleaseAfterUse = new Vector3Int(int.MinValue, int.MinValue, int.MinValue);
 
             if (_activeChunks.ContainsKey(coord))
+            {
+                keyToReleaseAfterUse = new Vector3Int(coord.x, coord.y, _versions[coord]);
                 return true; // Чанк уже загружен в память
+            }
 
             // Если свободных слотов нет, вытесняем самый старый чанк (FIFO)
             if (_freeTextureSlots.Count == 0)
             {
                 if (_chunkInsertionOrder.Count > 0)
                 {
-                    keyToReleaseAfterUse = _chunkInsertionOrder.Dequeue();
-                    int2 freedSlot = _activeChunks[keyToReleaseAfterUse];
+                    var releaseKey = _chunkInsertionOrder.Dequeue();
+                    int2 freedSlot = _activeChunks[releaseKey];
 
-                    _activeChunks.Remove(keyToReleaseAfterUse);
+                    _activeChunks.Remove(releaseKey);
                     _freeTextureSlots.Enqueue(freedSlot);
                 }
                 else
@@ -111,22 +128,28 @@ namespace Core.TerrainGenerator
 
             // Забираем свободный слот под новый чанк
             int2 slot = _freeTextureSlots.Dequeue();
-            Debug.Log($"Bind chunk {coord} to slot {slot}");
+            //Debug.Log($"Bind chunk {coord} to slot {slot}");
             _activeChunks.Add(coord, slot);
+            var version = _versions.GetValueOrDefault(coord, -1) + 1;
+            _versions[coord] = version;
             _chunkInsertionOrder.Enqueue(coord);
-
+            keyToReleaseAfterUse = new Vector3Int(coord.x, coord.y, version);
             _mapDirty = true;
             return true;
         }
 
-        public void ReleaseChunk(Vector2Int xy)
+        public void ReleaseChunk(Vector3Int key)
         {
-            if (_activeChunks.TryGetValue(xy, out int2 slot))
+            var xy = new Vector2Int(key.x, key.y);
+            if (_versions.TryGetValue(xy, out int version) && version != key.z)
             {
-                _activeChunks.Remove(xy);
+                return;
+            }
+            if (_activeChunks.Remove(xy, out int2 slot))
+            {
                 _freeTextureSlots.Enqueue(slot);
                 _mapDirty = true;
-                Debug.Log($"Release chunk {xy}");
+                //Debug.Log($"Release chunk {xy}");
                 // Пересобираем очередь (не самое дешевое действие, но при N <= 32 работает мгновенно)
                 RebuildInsertionOrder();
             }
@@ -206,4 +229,5 @@ namespace Core.TerrainGenerator
             _mapBuffer?.Dispose();
         }
     }
+    
 }
