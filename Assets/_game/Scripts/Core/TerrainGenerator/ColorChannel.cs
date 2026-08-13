@@ -13,7 +13,7 @@ using UnityEngine.Networking;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class ColorChannel : DeformationChannel<float[], ColorMapDeformerModule>
+    public class ColorChannel : LayeredDeformationChannel<float[], ColorMapDeformerModule>
     {
         private static readonly Semaphore Semaphore = new Semaphore(3, 3);
 
@@ -27,8 +27,8 @@ namespace Core.TerrainGenerator
         private readonly RenderTexture texture;
         private readonly ComputeShader blitShader;
 
-        public ColorChannel(Chunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap,
-            int layersCount, List<string> paths, Vector2Int position) : base(position, chunk.ChunkSize)
+        public ColorChannel(TerrainProvider terrain, Chunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap,
+            int layersCount, List<string> paths, Vector2Int position) : base(terrain, position, chunk.ChunkSize)
         {
             this.layersCount = layersCount;
             this.Chunk = chunk;

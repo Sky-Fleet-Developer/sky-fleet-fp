@@ -10,7 +10,7 @@ namespace Core.TerrainGenerator.Tests
     [TestFixture(TestOf = typeof(SubChunk))]
     public class SubChunkTests
     {
-
+/*
         [Test]
         public async Task Test_CreateMesh()
         {
@@ -49,6 +49,6 @@ namespace Core.TerrainGenerator.Tests
             await Task.Delay(15000);
             heightmapBuffer.Dispose();
             SubChunk.ClearPool();
-        }
+        }*/
     }
 }

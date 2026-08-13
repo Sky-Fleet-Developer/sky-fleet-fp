@@ -1,12 +1,8 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Collections.Generic;
 using Core.TerrainGenerator.Settings;
-using Core.World;
-using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Core.TerrainGenerator
 {
@@ -14,65 +10,14 @@ namespace Core.TerrainGenerator
     /// Runtime state and management for single chunk
     /// </summary>
     [ShowInInspector]
-    public abstract class DeformationChannel<DataT, TModule> : DeformationChannel where TModule : class, IDeformerModule
+    public abstract class DeformationChannel<TModule> : DeformationChannel where TModule : class, IDeformerModule
     {
-        protected List<DataT> deformationLayersCache = new List<DataT>();
         protected Dictionary<int, List<TModule>> deformers = new  Dictionary<int, List<TModule>>();
         protected Dictionary<int, List<TModule>> dirtyDeformers = new  Dictionary<int, List<TModule>>();
         protected int maxDeformerLayer = -1;
-        private int i;
-        public int I
-        {
-            get
-            {
-                if (i == 0)
-                {
-                    i = Random.Range(0, 1000);
-                }
 
-                return i;
-            }
-        }
-        
-        protected DeformationChannel(Vector2Int coordinates, float chunkSize) : base(coordinates, chunkSize)
+        protected DeformationChannel(TerrainProvider terrain, Vector2Int coordinates, float chunkSize) : base(terrain, coordinates, chunkSize)
         {
-        }
-        
-        protected DataT GetLastLayer() => deformationLayersCache[^1];
-        public DataT GetSourceLayer(IDeformer deformer)
-        {
-            int l = GetPreviousLayerIdx(deformer.Layer);
-            var dlc = deformationLayersCache;
-            try
-            {
-                return dlc[l];
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(JsonConvert.SerializeObject(dlc));
-                throw;
-            }
-        }
-
-        public IEnumerable<DataT> GetDestinationLayers(IDeformer deformer)
-        {
-            int prev = GetPreviousLayerIdx(deformer.Layer);
-            if (deformationLayersCache.Count == prev + 1)
-            {
-                deformationLayersCache.Add(GetLayerCopy(deformationLayersCache[prev]));   
-            }
-
-            for (int i = prev + 1; i < deformationLayersCache.Count; i++)
-            {
-                yield return deformationLayersCache[i];
-            }
-        }
-
-        protected abstract DataT GetLayerCopy(DataT source);
-        
-        private int GetPreviousLayerIdx(int idx)
-        {
-            return Mathf.Max(0, Mathf.Min(deformationLayersCache.Count-1, idx));
         }
         
         protected void AddDeformer(TModule deformer)
@@ -151,43 +96,5 @@ namespace Core.TerrainGenerator
                 }
             }
         }
-    }
-
-    [ShowInInspector]
-    public abstract class DeformationChannel
-    {
-        public Vector2Int Coordinates { get; }
-        public Vector3 Position { get; }
-        public Vector3 WorldPosition => Position - WorldOffset.Offset;
-        public bool IsDirty { get; protected set; }
-
-        public DeformationChannel(Vector2Int coordinates, float chunkSize)
-        {
-            Coordinates = coordinates;
-            Position = new Vector3(coordinates.x * chunkSize, 0, coordinates.y * chunkSize);
-            IsDirty = true;
-        }
-
-        public abstract void RegisterDeformer(IDeformer deformer);
-        public abstract void ApplyDirtyToCache();
-
-        public async Task Apply()
-        {
-            if(!LoadingTask.IsCompleted || applyToTerrainTask != null) return;
-            applyToTerrainTask = ApplyToTerrain();
-            await applyToTerrainTask;
-            applyToTerrainTask = null;
-            IsDirty = false;
-        }
-
-        protected abstract Task ApplyToTerrain();
-        public virtual Task PostApply() => Task.CompletedTask;
-
-        protected readonly TaskCompletionSource<bool> loading = new TaskCompletionSource<bool>();
-        [ShowInInspector] public Task<bool> LoadingTask => loading.Task;
-        private Task applyToTerrainTask = null;
-        public abstract RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer);
-
-        public abstract void SetChunk(Chunk chunk);
     }
 }

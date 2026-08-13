@@ -59,7 +59,7 @@ namespace Core.TerrainGenerator.Settings
             }
 
             Chunk chunk = terrain.GetChunk(position);
-            return new ColorChannel(chunk, blitShader, layerMaskProperty, normalizeAlphamap, layersCount, paths, position);
+            return new ColorChannel(terrain, chunk, blitShader, layerMaskProperty, normalizeAlphamap, layersCount, paths, position);
         }
     }
 }

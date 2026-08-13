@@ -11,11 +11,11 @@ using Core.Utilities;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class TreesChannel : DeformationChannel<List<TreePos>, TreesMapDeformerModule>
+    public class TreesChannel : LayeredDeformationChannel<List<TreePos>, TreesMapDeformerModule>
     {
         public Chunk Chunk;
 
-        public TreesChannel(Chunk chunk, float chunkSize, string path, Vector2Int position, GameObject[] prototypes) : base(position, chunkSize)
+        public TreesChannel(TerrainProvider terrain, Chunk chunk, float chunkSize, string path, Vector2Int position, GameObject[] prototypes) : base(terrain, position, chunkSize)
         {
             this.Chunk = chunk;
             SetPrototypes(prototypes);

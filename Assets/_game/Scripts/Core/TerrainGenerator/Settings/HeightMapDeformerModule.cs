@@ -59,11 +59,11 @@ namespace Core.TerrainGenerator.Settings
         {
             if (!(sourceChannel is HeightChannel channel)) return;
 
-            RectangleAffectSettings settings = sourceChannel.GetAffectSettingsForDeformer(Core);
-            var worker = channel.GetGpuWorker();
-            int settingsBindId = worker.BindRectSettings(settings);
-            worker.ApplyDeformation(settingsBindId, _dataBuffer, channel.GetSourceLayer(Core), channel.GetDestinationLayers(Core), channel.chunk.ChunkSize, channel.chunk.Height, settings.resolution);
-            worker.UnbindRectSettings(settingsBindId);
+            //RectangleAffectSettings settings = sourceChannel.GetAffectSettingsForDeformer(Core);
+            //var worker = channel.GetGpuWorker();
+            //int settingsBindId = worker.BindRectSettings(settings);
+            //worker.ApplyDeformation(settingsBindId, _dataBuffer, channel.GetSourceLayer(Core), channel.GetDestinationLayers(Core), channel.chunk.ChunkSize, channel.chunk.Height, settings.resolution);
+            //worker.UnbindRectSettings(settingsBindId);
             
             //float[,] source = channel.GetSourceLayer(Core);
             //float[][,] destination = channel.GetDestinationLayers(Core).ToArray();

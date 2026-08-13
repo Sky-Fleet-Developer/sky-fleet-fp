@@ -1,20 +1,13 @@
 #include "rectangle_affect_settings.hlsl"
 #include "packed_vertex.hlsl"
 
-StructuredBuffer<float> source_heightmap;
-//StructuredBuffer<float> neighbour_x_min_heightmap;
-//StructuredBuffer<float> neighbour_x_max_heightmap;
-//StructuredBuffer<float> neighbour_z_min_heightmap;
-//StructuredBuffer<float> neighbour_z_max_heightmap;
-RWStructuredBuffer<float> destination_heightmap;
-StructuredBuffer<rectangle_affect_settings> deformation_rectangle_settings;
-StructuredBuffer<float> deformation_heightmap;
+Texture2D<float> source_heightmap;
+RWTexture2D<float> destination_heightmap;
+StructuredBuffer<float> chunk_heightmap;
+StructuredBuffer<uint2> map;
+//StructuredBuffer<rectangle_affect_settings> deformation_rectangle_settings;
+//StructuredBuffer<float> deformation_heightmap;
 RWStructuredBuffer<packed_vertex> vertices;
-//const uint source_hm_id = 0;
-//const uint xmin_hm_id = 1;
-//const uint xmax_hm_id = 2;
-//const uint zmin_hm_id = 3;
-//const uint zmax_hm_id = 4;
 float chunk_size;
 float chunk_height;
 uint vertices_count;
@@ -22,101 +15,119 @@ uint vertices_width_count;
 uint heightmap_width_count;
 float normal_dx;
 float normal_dt;
+int chunk_coord_x;
+int chunk_coord_y;
+int map_size;
 uint heightmap_start_x;
 uint heightmap_start_y;
 
 
 
-#pragma kernel CSCopyHeightmap
+//#pragma kernel CSCopyHeightmap
+//
+//
+//[numthreads(64,1,1)]
+//void CSCopyHeightmap (uint id : SV_DispatchThreadID)
+//{
+//    destination_heightmap[id] = source_heightmap[id];
+//}
 
 
-[numthreads(64,1,1)]
-void CSCopyHeightmap (uint id : SV_DispatchThreadID)
+//#pragma kernel CSApplyDeformation
+//
+//
+//[numthreads(8,8,1)]
+//void CSApplyDeformation (uint2 id : SV_DispatchThreadID)
+//{
+//    
+//}
+
+//#pragma kernel CSTestAlignSine
+//float get_height_test_sine(float3 pos)
+//{
+//    return sin(pos.x * 0.5) * cos(pos.z * 0.5);
+//}
+//
+//[numthreads(64,1,1)]
+//void CSTestAlignSine (uint id : SV_DispatchThreadID)
+//{
+//    if (id > vertices_count)
+//    {
+//        return;
+//    }
+//    packed_vertex vert = vertices[id];
+//    
+//    vert.position.y = get_height_test_sine(vert.position);
+//
+//    // 3. Берем выборки высоты для расчета градиента (смещение по X и Z)
+//    float height_x = get_height_test_sine(vert.position + float3(normal_dx, 0.0, 0.0));
+//    float height_z = get_height_test_sine(vert.position + float3(0.0, 0.0, normal_dx));
+//
+//    // 4. Вычисляем частные производные (конечные разности)
+//    float dfdx = (height_x - vert.position.y) * normal_dt;
+//    float dfdz = (height_z - vert.position.y) * normal_dt;
+//
+//    // 5. Формируем и нормализуем вектор нормали
+//    float y_len = sqrt(1 - (dfdx*dfdx + dfdz*dfdz));
+//    float3 normal = float3(-dfdx, y_len, -dfdz);
+//    vert.normal = normalize(normal);
+//    
+//    vertices[id] = vert;
+//}
+
+
+#pragma kernel CSInsertRawDataToTex
+
+bool HalfToCoord(half value, out uint2 coord)
 {
-    destination_heightmap[id] = source_heightmap[id];
+    uint rawBits = f32tof16((float)value);
+    [branch] if (rawBits == 0)
+    {
+        coord = uint2(0,0);
+        return false;
+    }
+    else
+    {
+        rawBits--;
+        coord.x = rawBits & 0xFF;
+        coord.y = (rawBits >> 8) & 0xFF;
+        return true;
+    }
 }
 
 
-#pragma kernel CSApplyDeformation
+float get_height_from_heightmap(uint2 slot, uint2 pixel_coord)
+{
+    return source_heightmap[slot * heightmap_width_count + pixel_coord];
+}
 
+void set_height_to_heightmap(uint2 slot, uint2 pixel_coord, float value)
+{
+    destination_heightmap[slot * heightmap_width_count + pixel_coord] = value;
+}
 
 [numthreads(8,8,1)]
-void CSApplyDeformation (uint2 id : SV_DispatchThreadID)
+void CSInsertRawDataToTex (uint2 id : SV_DispatchThreadID)
 {
-    
-}
-
-#pragma kernel CSTestAlignSine
-float get_height_test_sine(float3 pos)
-{
-    return sin(pos.x * 0.5) * cos(pos.z * 0.5);
-}
-
-[numthreads(64,1,1)]
-void CSTestAlignSine (uint id : SV_DispatchThreadID)
-{
-    if (id > vertices_count)
+    if (id.x >= heightmap_width_count || id.y >= heightmap_width_count)
     {
         return;
     }
-    packed_vertex vert = vertices[id];
-    
-    vert.position.y = get_height_test_sine(vert.position);
-
-    // 3. Берем выборки высоты для расчета градиента (смещение по X и Z)
-    float height_x = get_height_test_sine(vert.position + float3(normal_dx, 0.0, 0.0));
-    float height_z = get_height_test_sine(vert.position + float3(0.0, 0.0, normal_dx));
-
-    // 4. Вычисляем частные производные (конечные разности)
-    float dfdx = (height_x - vert.position.y) * normal_dt;
-    float dfdz = (height_z - vert.position.y) * normal_dt;
-
-    // 5. Формируем и нормализуем вектор нормали
-    float y_len = sqrt(1 - (dfdx*dfdx + dfdz*dfdz));
-    float3 normal = float3(-dfdx, y_len, -dfdz);
-    vert.normal = normalize(normal);
-    
-    vertices[id] = vert;
+    uint2 slot = map[chunk_coord_x * map_size + chunk_coord_y];
+    if (slot.x != -1)
+    {
+        set_height_to_heightmap(slot, id, chunk_heightmap[id.x * heightmap_width_count + id.y]);
+    }
 }
 
 #pragma kernel CSAlignVerticesToHeightmap
-float get_height_from_heightmap(uint2 id)
-{
-    return source_heightmap[id.x * heightmap_width_count + id.y];
-}
 
-float read_height(uint index/*, uint buffer_id*/)
+float get_height_from_heightmap(uint2 slot, uint2 pixel_coord, float2 interpolation)
 {
-    //[branch]
-    //if(buffer_id == xmin_hm_id)
-    //{
-    //    return neighbour_x_min_heightmap[index];
-    //}
-    //else if(buffer_id == xmax_hm_id)
-    //{
-    //    return neighbour_x_max_heightmap[index];
-    //}
-    //else if(buffer_id == zmin_hm_id)
-    //{
-    //    return neighbour_z_min_heightmap[index];
-    //}
-    //else if(buffer_id == zmax_hm_id)
-    //{
-    //    return neighbour_z_max_heightmap[index];
-    //}
-    //else
-    //{
-        return source_heightmap[index];
-    //}
-}
-
-float get_height_from_heightmap(uint2 id, float2 interpolation/*, uint heightmap_id*/)
-{
-    uint id_single = id.x * heightmap_width_count + id.y;
-    float top_left = read_height(id_single);
-    float top_right =  read_height(id_single + heightmap_width_count);
-    float bottom_left =  read_height(id_single + 1);
-    float bottom_right =  read_height(id_single + heightmap_width_count + 1);
+    float top_left = get_height_from_heightmap(slot, pixel_coord);
+    float top_right =  get_height_from_heightmap(slot, pixel_coord + int2(1, 0));
+    float bottom_left =  get_height_from_heightmap(slot, pixel_coord + int2(1, 1));
+    float bottom_right =  get_height_from_heightmap(slot, pixel_coord + int2(1, 1));
     float top = top_right + (top_left - top_right) * interpolation.x;
     float bottom = bottom_right + (bottom_left - bottom_right) * interpolation.x;
     return bottom + (top - bottom) * interpolation.y;
@@ -129,9 +140,16 @@ void CSAlignVerticesToHeightmap (uint2 id : SV_DispatchThreadID)
     {
         return;
     }
+    uint2 slot = map[chunk_coord_x * map_size + chunk_coord_y];
+    if (slot.x == -1)
+    {
+        return;
+    }
+    
     packed_vertex vert = vertices[id.x * vertices_width_count + id.y];
+
     uint2 heightmap_space_id = id + uint2(heightmap_start_x, heightmap_start_y);
-    vert.position.y = get_height_from_heightmap(heightmap_space_id);
+    vert.position.y =  get_height_from_heightmap(slot, heightmap_space_id);
 
     // 3. Берем выборки высоты для расчета градиента (смещение по X и Z)
     uint2 id_top_left = heightmap_space_id - uint2(1, 1);

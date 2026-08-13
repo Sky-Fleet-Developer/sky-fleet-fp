@@ -68,7 +68,7 @@ namespace Core.TerrainGenerator
                 buffer.Dispose();
                 outBuffer.Dispose();
             
-                RawReader.WriteRaw16(result, resizedPath);
+                RawReader.WriteArray(result, resizedPath);
             }
             
             public override void SyncHorizontal(string right, string left)
@@ -84,8 +84,8 @@ namespace Core.TerrainGenerator
                     r[i, 0] = mid;
                     l[i, last] = mid;
                 }
-                RawReader.WriteRaw16(r, right);
-                RawReader.WriteRaw16(l, left);
+                RawReader.WriteArray(r, right);
+                RawReader.WriteArray(l, left);
             }
 
             public override void SyncVertical(string top, string bottom)
@@ -101,8 +101,8 @@ namespace Core.TerrainGenerator
                     t[0, i] = mid;
                     b[last, i] = mid;
                 }
-                RawReader.WriteRaw16(t, top);
-                RawReader.WriteRaw16(b, bottom);
+                RawReader.WriteArray(t, top);
+                RawReader.WriteArray(b, bottom);
             }
 
             public override void Cut(string path, string blPath, string brPath, string tlPath, string trPath)
@@ -113,13 +113,13 @@ namespace Core.TerrainGenerator
                 float[,] cache = new float[partRes, partRes];
 
                 CopyFromTo(origin, cache, 0, 0);
-                RawReader.WriteRaw16(cache, blPath);
+                RawReader.WriteArray(cache, blPath);
                 CopyFromTo(origin, cache, partRes - 1, 0);
-                RawReader.WriteRaw16(cache, brPath);
+                RawReader.WriteArray(cache, brPath);
                 CopyFromTo(origin, cache, 0, partRes - 1);
-                RawReader.WriteRaw16(cache, tlPath);
+                RawReader.WriteArray(cache, tlPath);
                 CopyFromTo(origin, cache, partRes - 1, partRes - 1);
-                RawReader.WriteRaw16(cache, trPath);
+                RawReader.WriteArray(cache, trPath);
             }
 
             private void CopyFromTo(float[,] origin, float[,] destination, int startX, int startY)

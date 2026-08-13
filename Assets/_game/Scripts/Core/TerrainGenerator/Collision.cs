@@ -243,7 +243,7 @@ namespace Core.TerrainGenerator
                 {
                     try
                     {
-                        Debug.Log($"Update collider {subChunk.Id} - {mesh.name}");
+                        //Debug.Log($"Update collider {subChunk.Id} - {mesh.name}");
                         collider.sharedMesh = mesh;
                     }
                     catch (Exception e)

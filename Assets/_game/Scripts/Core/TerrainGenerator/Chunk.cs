@@ -130,11 +130,11 @@ namespace Core.TerrainGenerator
             }
         }
 
-        public void SetHeights(ComputeBuffer heights)
+        public void SetHeights(RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize)
         {
             foreach (SubChunk subchunk in _subchunks)
             {
-                subchunk.SetHeights(heights);
+                subchunk.SetHeights(heightmap, mapBuffer, chunkCoordMapSpace, mapSize);
             }
 
             _isHeightDirty = true;

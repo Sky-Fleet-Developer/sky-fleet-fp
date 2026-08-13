@@ -9,6 +9,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Core.TerrainGenerator
 {
@@ -23,6 +24,7 @@ namespace Core.TerrainGenerator
         [Space, SerializeField] private int chunkSize = 1000;
         [SerializeField] private int height = 600;
         [Space, SerializeField] private int heightmapResolution = 257;
+        [SerializeField] private int maxLoadedChunksByOneSide = 7;
         [SerializeField] private int alphamapResolution = 257;
         [Space(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
@@ -36,6 +38,7 @@ namespace Core.TerrainGenerator
         public float ChunkSize => chunkSize;
         public float VisibleDistance => visibleDistance;
         public float ChunksRefreshDistance => chunksRefreshDistance;
+        public int MaxLoadedChunksByOneSide => maxLoadedChunksByOneSide;
         public int HeightmapResolution => heightmapResolution;
         public int AlphamapResolution => alphamapResolution;
         public Vector2Int ChunksCenter => chunksCenter;

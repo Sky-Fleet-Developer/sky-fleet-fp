@@ -12,12 +12,12 @@ using Core.World;
 using Cysharp.Threading.Tasks;
 using Runtime.Character;
 using Unity.Collections;
+using Unity.Mathematics;
 using Zenject;
 using ITickable = Core.Misc.ITickable;
 
 namespace Core.TerrainGenerator
 {
-    
     /// <summary>
     /// runtime generating terrain chunks by TerrainGenerationSettings
     /// </summary>
@@ -44,8 +44,15 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
         private Collision _collision;
+        private HeightmapData _heightmapData;
+        [ShowInInspector] RenderTexture HeightmapTexture => _heightmapData?.Texture;
 
         public int TickRate => 60;
+        
+        public HeightmapData GetHeightmapData()
+        {
+            return _heightmapData;
+        }
 
         public IEnumerable<(Vector2Int, HeightChannel)> EnumerateActiveSurfaceChannels()
         {
@@ -94,6 +101,7 @@ namespace Core.TerrainGenerator
                 }
             }
 
+            _heightmapData = new HeightmapData(settings.MaxLoadedChunksByOneSide, settings.HeightmapResolution);
             _collision = new Collision(this, settings.CollisionSettings);
             await LoadPropsForCurrentPosition();
             OnInitialize.Invoke(this);
@@ -118,8 +126,6 @@ namespace Core.TerrainGenerator
             var props = GetCurrentProps();
             await Load(props);
         }
-
-
 
         public bool Enabled => gameObject.activeInHierarchy && enabled;
 
@@ -177,7 +183,12 @@ namespace Core.TerrainGenerator
             foreach (Vector2Int coord in toRemove)
             {
                 _chunks.Remove(coord);
-                _inactiveChunkChannels[coord] = _activeChunkChannels[coord];
+                var channels = _activeChunkChannels[coord];
+                foreach (var deformationChannel in channels)
+                {
+                    deformationChannel.OnChunkUnload();
+                }
+                _inactiveChunkChannels[coord] = channels;
                 _activeChunkChannels.Remove(coord);
             }
 
@@ -189,11 +200,15 @@ namespace Core.TerrainGenerator
                     continue;
                 }
                 _chunks[coord] = t;
-                if (_inactiveChunkChannels.Remove(coord, out List<DeformationChannel> channelsList))
+                if (_inactiveChunkChannels.Remove(coord, out List<DeformationChannel> channels))
                 {
                     //Debug.Log($"Reuse chunk {coord}");
-                    _activeChunkChannels.Add(coord, channelsList);
-                    foreach (var deformationChannel in channelsList)
+                    foreach (var deformationChannel in channels)
+                    {
+                        deformationChannel.OnChunkLoad();
+                    }
+                    _activeChunkChannels.Add(coord, channels);
+                    foreach (var deformationChannel in channels)
                     {
                         deformationChannel.SetChunk(_chunks[coord]);
                     }
@@ -398,6 +413,7 @@ namespace Core.TerrainGenerator
 
         private void OnDestroy()
         {
+            _heightmapData.Dispose();
             _activeChunkChannels.Clear();
             _inactiveChunkChannels.Clear();
             _chunks.Clear(); 

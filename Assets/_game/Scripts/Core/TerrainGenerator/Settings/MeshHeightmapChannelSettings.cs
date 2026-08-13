@@ -22,7 +22,7 @@ namespace Core.TerrainGenerator.Settings
         {
             string path = formatMap.SearchInFolder(position + terrain.settings.ChunksCenter, directory);
 
-            return new HeightChannel(GpuWorker, terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkSize, position, path);
+            return new HeightChannel(terrain, GpuWorker, terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkSize, position, path);
         }
     }
 }

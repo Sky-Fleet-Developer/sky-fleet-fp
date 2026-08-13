@@ -264,9 +264,9 @@ namespace Core.TerrainGenerator
             _view.Mesh.SetSubMeshes(subMeshes, MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds);
         }
 
-        public void SetHeights(ComputeBuffer heights)
+        public void SetHeights(RenderTexture heights, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize)
         {
-            _heightmapGpuWorker.AlignVerticesToHeightmap(_vertexBuffer, heights, _subChunkResolution, _heightmapResolution, _size, _height, _minCoverage, _maxCoverage);
+            _heightmapGpuWorker.AlignVerticesToHeightmap(_vertexBuffer, heights, mapBuffer, chunkCoordMapSpace, mapSize, _subChunkResolution + 1, _heightmapResolution, _size, _height, _minCoverage);
         }
 
         public void Recalculate()
