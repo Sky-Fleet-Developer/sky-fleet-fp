@@ -624,7 +624,7 @@ namespace WorldEditor
                 }
                 else
                 {
-                    await _terrainProviderHandler.Unload();
+                    _terrainProviderHandler.Unload();
                 }
             }
         }

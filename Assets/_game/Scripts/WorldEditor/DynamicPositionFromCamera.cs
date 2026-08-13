@@ -7,7 +7,6 @@ namespace WorldEditor
 {
     public class DynamicPositionFromCamera : IDynamicPositionProvider
     {
-        public Vector3 WorldPosition => SceneView.pivot - WorldOffset.Offset;
         public Vector3 SpacePosition => SceneView.pivot;
         public Vector3 StoredVelocity => Vector3.zero;
         private SceneView _sceneView;
@@ -28,9 +27,9 @@ namespace WorldEditor
             }
         }
 
-        public Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity)
+        public Vector3 GetPredictedSpacePosition(float time, float maxDeviation = Mathf.Infinity)
         {
-            return WorldPosition;
+            return SpacePosition;
         }
     }
 }

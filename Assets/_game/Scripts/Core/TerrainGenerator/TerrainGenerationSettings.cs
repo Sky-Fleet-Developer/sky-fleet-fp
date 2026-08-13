@@ -45,7 +45,13 @@ namespace Core.TerrainGenerator
         
         private void OnValidate()
         {
+            Setup();
+        }
+
+        private void Setup()
+        {
             directory = DirectoryUtilities.GetDirectory(targetDirectory);
+            if (directory == null) Debug.LogWarning("Wrong directory!");
             _settings ??= new List<ChannelSettings>();
             _settings.Clear();
             _settings.AddRange(children.OfType<ChannelSettings>());
@@ -104,8 +110,7 @@ namespace Core.TerrainGenerator
 
         public void OnAfterDeserialize()
         {
-            directory = DirectoryUtilities.GetDirectory(targetDirectory);
-            if (directory == null) Debug.LogWarning("Wrong directory!");
+            Setup();
         }
     }
 }

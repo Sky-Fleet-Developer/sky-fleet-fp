@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.World;
 using Cysharp.Threading.Tasks;
 using Unity.Collections;
 using Unity.Jobs;
@@ -23,7 +24,7 @@ namespace Core.TerrainGenerator
         private TerrainProvider _terrainProvider;
         private CollisionGenerationSettings _settings;
         private Dictionary<SubChunkId, Mesh> _meshesPool;
-        private Dictionary<SubChunkId, Mesh> _coocking;
+        private Dictionary<SubChunkId, Mesh> _cooking;
         private bool _isBaking;
 
         public Collision(TerrainProvider terrainProvider, CollisionGenerationSettings settings)
@@ -31,10 +32,11 @@ namespace Core.TerrainGenerator
             _settings = settings;
             _terrainProvider = terrainProvider;
             _meshesPool = new ();
-            _coocking = new ();
+            _cooking = new ();
         }
 
-        private List<(Chunk, SubChunk)> _bakingQueue = new();
+        private List<SubChunk> _pendingBake = new();
+        private List<SubChunk> _bakingQueue = new();
         public void UpdateTrackerPosition(Vector3 position, Vector2Int coord)
         {
             if (Vector3.SqrMagnitude(_prevPosition - position) < _settings.refreshThreshold * _settings.refreshThreshold)
@@ -52,9 +54,10 @@ namespace Core.TerrainGenerator
                 {
                     foreach (var subChunk in channel.chunk.GetSubChunks())
                     {
-                        Vector3 subChunkCenter = subChunk.SelfCenter;
+                        Vector3 subChunkCenter = subChunk.SelfWorldCenter;
                         
                         float dSqr = (subChunkCenter - position).sqrMagnitude;
+                        Debug.DrawRay(WorldOffset.WorldToSpace(subChunkCenter), Vector3.up * 1000, dSqr < rangeSqr ? Color.green : Color.red, 5);
                         if (dSqr < rangeSqr)
                         {
                             TryCreateCollider(subChunk, channel.chunk);
@@ -63,7 +66,7 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            if (_bakingQueue.Count > 0 && !_isBaking)
+            if (_pendingBake.Count > 0 && !_isBaking)
             {
                 BakeMeshesAsync().Forget();
             }
@@ -84,14 +87,14 @@ namespace Core.TerrainGenerator
 
         private async UniTask BakeMeshesAsync()
         {
-            Debug.Log($"Start baking {_bakingQueue.Count} meshes");
+            //Debug.Log($"Start baking {_bakingQueue.Count} meshes");
             _isBaking = true;
-            while (_bakingQueue.Count > 0)
+            while (_pendingBake.Count > 0)
             {
-                int count = _bakingQueue.Count;
-                while (_verticesBufferPool.Count < count)
+                (_bakingQueue, _pendingBake) = (_pendingBake, _bakingQueue);
+                while (_verticesBufferPool.Count < _bakingQueue.Count)
                 {
-                    _verticesBufferPool.Add(new VertexDataWrapper(new NativeArray<SubChunk.PackedVertex>((_bakingQueue[0].Item2.Resolution + 1)  * (_bakingQueue[0].Item2.Resolution + 1), Allocator.Persistent)));
+                    _verticesBufferPool.Add(new VertexDataWrapper(new NativeArray<SubChunk.PackedVertex>((_bakingQueue[0].Resolution + 1)  * (_bakingQueue[0].Resolution + 1), Allocator.Persistent)));
                 }
                 int finishedCounter = 0;
                 UniTaskCompletionSource tcs = new();
@@ -99,12 +102,13 @@ namespace Core.TerrainGenerator
                 for (var i = 0; i < _bakingQueue.Count; i++)
                 {
                     int closureI = i;
-                    AsyncGPUReadback.RequestIntoNativeArray(ref _verticesBufferPool[i].Vertices, _bakingQueue[i].Item2.VertexBuffer, v =>
+                    AsyncGPUReadback.RequestIntoNativeArray(ref _verticesBufferPool[i].Vertices, _bakingQueue[i].VertexBuffer, v =>
                     {
-                        var mesh = CreateCollisionMesh(_bakingQueue[closureI].Item2.Id, ref _verticesBufferPool[closureI].Vertices, _bakingQueue[closureI].Item2.Resolution, _bakingQueue[closureI].Item2.Size);
-                        _coocking[_bakingQueue[closureI].Item2.Id] = mesh;
+                        var mesh = CreateCollisionMesh(_bakingQueue[closureI].Id, ref _verticesBufferPool[closureI].Vertices, _bakingQueue[closureI].Resolution, _bakingQueue[closureI].Size);
+                        //Debug.Log($"Add {_bakingQueue[closureI].Id} to cooking, mesh {mesh}");
+                        _cooking[_bakingQueue[closureI].Id] = mesh;
                         new BakeSingleMeshJob(mesh.GetInstanceID()).Schedule(jobHandle);
-                        if (++finishedCounter == count)
+                        if (++finishedCounter == _bakingQueue.Count)
                         {
                             tcs.TrySetResult();
                         }
@@ -114,17 +118,20 @@ namespace Core.TerrainGenerator
                 await tcs.Task;
                 jobHandle.Complete();
                 
-                int start = _bakingQueue.Count - count;
-                for (var i = start; i < _bakingQueue.Count; i++)
+                for (var i = 0; i < _bakingQueue.Count; i++)
                 {
-                    _coocking.Remove(_bakingQueue[i].Item2.Id, out Mesh mesh);
-                    _meshesPool[_bakingQueue[i].Item2.Id] = mesh;
-                    _bakingQueue[i].Item2.GetOrCreateColliderComponent().sharedMesh = mesh;
+                    _cooking.Remove(_bakingQueue[i].Id, out Mesh mesh);
+                    if (!mesh)
+                    {
+                        Debug.LogError($"Failed to bake mesh {_bakingQueue[i].Id}");
+                    }
+                    _meshesPool[_bakingQueue[i].Id] = mesh;
+                    _bakingQueue[i].GetOrCreateColliderComponent().sharedMesh = mesh;
                 }
-                Debug.Log($"Baked {count} meshes");
-                _bakingQueue.RemoveRange(start, count);
-                _isBaking = false;
+                //Debug.Log($"Baked {count} meshes");
+                _bakingQueue.Clear();
             }
+            _isBaking = false;
         }
 
         private struct BakeJob : IJobParallelFor
@@ -234,13 +241,21 @@ namespace Core.TerrainGenerator
             {
                 if (collider.sharedMesh != mesh)
                 {
-                    Debug.Log($"Update collider {subChunk.Id} - {mesh.name}");
-                    collider.sharedMesh = mesh;
+                    try
+                    {
+                        Debug.Log($"Update collider {subChunk.Id} - {mesh.name}");
+                        collider.sharedMesh = mesh;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
                 }
             }
             else
             {
-                _bakingQueue.Add((chunk, subChunk));
+                _pendingBake.Add(subChunk);
             }
         }
     }

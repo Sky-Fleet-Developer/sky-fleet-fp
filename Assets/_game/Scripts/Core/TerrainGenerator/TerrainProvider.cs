@@ -27,7 +27,7 @@ namespace Core.TerrainGenerator
         {
             Task Initialize();
             Task LoadPropsForCurrentPosition();
-            Task Unload();
+            void Unload();
             bool Enabled { get; }
         }
         
@@ -119,14 +119,11 @@ namespace Core.TerrainGenerator
             await Load(props);
         }
 
-        Task ITerrainProviderHandler.Unload()
-        {
-            return Unload();
-        }
+
 
         public bool Enabled => gameObject.activeInHierarchy && enabled;
 
-        private async Task Unload()
+        void ITerrainProviderHandler.Unload()
         {
             foreach (KeyValuePair<Vector2Int, Chunk> chunk in _chunks)
             {
@@ -194,7 +191,7 @@ namespace Core.TerrainGenerator
                 _chunks[coord] = t;
                 if (_inactiveChunkChannels.Remove(coord, out List<DeformationChannel> channelsList))
                 {
-                    Debug.Log($"Reuse chunk {coord}");
+                    //Debug.Log($"Reuse chunk {coord}");
                     _activeChunkChannels.Add(coord, channelsList);
                     foreach (var deformationChannel in channelsList)
                     {
@@ -203,7 +200,7 @@ namespace Core.TerrainGenerator
                 }
                 else
                 {
-                    Debug.Log($"Create chunk {coord}");
+                    //Debug.Log($"Create chunk {coord}");
                     _activeChunkChannels.Add(coord, new List<DeformationChannel>());
                     foreach (ChannelSettings layerSettings in settings.Settings)
                     {
@@ -230,7 +227,7 @@ namespace Core.TerrainGenerator
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(WaitForChannelLoadingAndApply)));
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(v => v.PostApply())));
             UnityEngine.Profiling.Profiler.EndSample();
-            _collision.UpdateTrackerPosition(_lastViewPosition, _lastViewCoord);
+            _collision?.UpdateTrackerPosition(_lastViewPosition, _lastViewCoord);
         }
 
         private async Task WaitForChannelLoadingAndApply(DeformationChannel channel)
@@ -286,7 +283,7 @@ namespace Core.TerrainGenerator
             {
                 return FindAnyObjectByType<SpawnPerson>().transform.position;
             }
-            _lastViewPosition = _playerTracker.GetPredictedWorldPosition(2, 600);
+            _lastViewPosition = _playerTracker.GetPredictedWorldPosition(2, 100);
             _lastViewPosition.y = 0;
             return _lastViewPosition;
         }
@@ -302,7 +299,7 @@ namespace Core.TerrainGenerator
             }
             catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogException(e);
                 return null;
             }
         }

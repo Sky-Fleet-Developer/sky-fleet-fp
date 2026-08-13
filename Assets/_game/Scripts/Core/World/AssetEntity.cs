@@ -24,7 +24,7 @@ namespace Core.World
         private GameObject _objectInstance;
         public int Id { get; } = IWorldEntity.IdCounter++;
 
-        public Vector3 Position => _positionCache;
+        public Vector3 SpacePosition => _positionCache;
         
         public AssetEntity(){}
 

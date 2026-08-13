@@ -85,13 +85,13 @@ namespace Runtime.Ai
                     ControlledEntity.Unit.SetManeuvers(new RotateTowards(Target), new Aiming(Target, true));
                     break;
                 case State.Retreating:
-                    if (Target.Position.y > ControlledEntity.Position.y)
+                    if (Target.Position.y > ControlledEntity.SpacePosition.y)
                     {
                         ControlledEntity.Unit.SetManeuvers(new DownAway());
                     }
                     else
                     {
-                        ControlledEntity.Unit.SetManeuvers(new UpAway(ControlledEntity.Position.y + 150,
+                        ControlledEntity.Unit.SetManeuvers(new UpAway(ControlledEntity.SpacePosition.y + 150,
                             ControlledEntity.GetTechCharacteristic().cruiseLiftAngle, 15));
                     }
 

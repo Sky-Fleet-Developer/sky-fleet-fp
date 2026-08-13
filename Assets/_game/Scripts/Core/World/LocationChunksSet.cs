@@ -221,7 +221,7 @@ namespace Core.World
 
         public void AddEntityToChunk(VectorInt cell, IWorldEntity entity)
         {
-            Debug.Log($"CELLS: add ({entity}) to chunk ({cell})");
+            //Debug.Log($"CELLS: add ({entity}) to chunk ({cell})");
             if (!_chunks.ContainsKey(cell))
             {
                 //_notSorted.Add((entity, cell));
@@ -233,7 +233,7 @@ namespace Core.World
 
         public void RemoveEntityFromChunk(VectorInt cell, IWorldEntity entity)
         {
-            Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
+            //Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
             if (!_chunks.ContainsKey(cell))
             {
                 if (_frozen.ContainsKey(cell))

@@ -62,6 +62,11 @@ namespace Runtime.Structure
             _isInitialized = true;
         }
 
+        //private void OnDisable()
+        //{
+        //    Debug.Log("Structure disabled");
+        //}
+
         protected virtual void OnDestroy()
         {
             _graph?.Dispose();

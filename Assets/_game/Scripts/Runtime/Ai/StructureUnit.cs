@@ -167,7 +167,7 @@ namespace Runtime.Ai
                 {
                     if (!ReferenceEquals(entity, this) && entity is UnitEntity unitEntity)
                     {
-                        float distance = (unitEntity.Position - _sensor.Position).sqrMagnitude;
+                        float distance = (unitEntity.SpacePosition - _sensor.Position).sqrMagnitude;
 
                         int insertIndex = 0;
                         while (insertIndex < _sensor.NeighbourSignatures.Count)

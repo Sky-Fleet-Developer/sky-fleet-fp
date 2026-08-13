@@ -37,7 +37,7 @@ namespace Core.World
         public Rigidbody Rigidbody => _rigidbody;
 
         public ItemInstance ItemInstance => _itemInstance;
-        public Vector3 Position => _objectInstance == null ? _positionCache : _transformCacheSystem.Read(_objectInstanceTransform).Position;
+        public Vector3 SpacePosition => _objectInstance == null ? _positionCache : _transformCacheSystem.Read(_objectInstanceTransform).Position;
         public Quaternion Rotation => _objectInstance == null ? _rotationCache : _transformCacheSystem.Read(_objectInstanceTransform).Rotation;
 
         public ItemEntity()
@@ -210,7 +210,7 @@ namespace Core.World
         
         public Vector3 GetGlobalPositionThreadSafe(Vector3 relativePosition)
         {
-            return Rotation * relativePosition + Position;
+            return Rotation * relativePosition + SpacePosition;
         }
 
         public Quaternion GetGlobalRotationThreadSafe(Quaternion relativeRotation)

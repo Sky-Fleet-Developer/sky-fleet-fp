@@ -16,6 +16,7 @@ namespace Core.World
         private string _cachedName;
         public IUnit Unit => _unit;
 
+        Vector3 ITargetData.Position => SpacePosition;
         public Vector3 Velocity => Rigidbody?.linearVelocity ?? Vector3.zero;
         public string SignatureId => _signature;
         public UnitTechCharacteristic GetTechCharacteristic() => _unit?.GetTechCharacteristic() ?? default;

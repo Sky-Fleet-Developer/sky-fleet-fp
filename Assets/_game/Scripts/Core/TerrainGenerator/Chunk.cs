@@ -105,7 +105,12 @@ namespace Core.TerrainGenerator
 
         private Vector3 GetMyWorldPosition()
         {
-            return WorldOffset.Offset + new Vector3(_coord.x * ChunkSize, 0, _coord.y * ChunkSize);
+            return new Vector3(_coord.x * ChunkSize, 0, _coord.y * ChunkSize);
+        }
+
+        private Vector3 GetMySpacePosition()
+        {
+            return WorldOffset.WorldToSpace(new Vector3(_coord.x * ChunkSize, 0, _coord.y * ChunkSize));
         }
 
         private bool IsPiecesAmountEnough(int pieces, int resolution)

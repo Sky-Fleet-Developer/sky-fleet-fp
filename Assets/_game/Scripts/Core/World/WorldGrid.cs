@@ -103,7 +103,7 @@ namespace Core.World
             #if FLAT_SPACE
             VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
             #else
-            VectorInt cell = _grid.PositionToCell(entity.Position);
+            VectorInt cell = _grid.PositionToCell(entity.SpacePosition);
             #endif
             var id = entity.Id;
             _entities.Add(id, entity);
@@ -121,7 +121,7 @@ namespace Core.World
 #if FLAT_SPACE
             VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
 #else
-            VectorInt cell = _grid.PositionToCell(entity.Position);
+            VectorInt cell = _grid.PositionToCell(entity.SpacePosition);
 #endif
             var id = entity.Id;
             _chunksSet.RemoveEntityFromChunk(cell, entity);
@@ -144,16 +144,6 @@ namespace Core.World
 
         public void Tick()
         {
-            if (_grid.Update(_playerTracker.WorldPosition, out Vector3Int cell3d))
-            {
-#if FLAT_SPACE
-                VectorInt cell = new VectorInt(cell3d.x, cell3d.z);
-#else
-                VectorInt cell = cell3d;
-#endif
-                _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2)));
-            }
-            
             if (_refreshCounter++ >= Settings.refreshPeriod)
             {
                 _refreshCounter = 0;
@@ -162,6 +152,16 @@ namespace Core.World
                 {
                     UpdateEntity(i);
                 }*/
+            }
+            
+            if (_grid.Update(_playerTracker.WorldPosition, out Vector3Int cell3d))
+            {
+#if FLAT_SPACE
+                VectorInt cell = new VectorInt(cell3d.x, cell3d.z);
+#else
+                VectorInt cell = cell3d;
+#endif
+                _chunksSet.SetRange(new VolumeInt(cell - VectorInt.one * _refreshNeighboursRadius, VectorInt.one * (_refreshNeighboursRadius * 2)));
             }
 
             foreach ((IWorldEntity entity, VectorInt cell) in EnumerateNeighbours(_playerTracker.WorldPosition, _refreshNeighboursRadius))
@@ -186,9 +186,9 @@ namespace Core.World
         private void UpdateEntity(KeyValuePair<int, IWorldEntity> keyValuePair)
         {
 #if FLAT_SPACE
-            VectorInt cell = new VectorInt(_grid.PositionToCell(entity.Position.x), _grid.PositionToCell(entity.Position.z));
+            VectorInt cell = new VectorInt(_grid.PositionToCell(entity.WorldPosition.x), _grid.PositionToCell(entity.WorldPosition.z));
 #else
-            VectorInt cell = _grid.PositionToCell(keyValuePair.Value.Position);
+            VectorInt cell = _grid.PositionToCell(keyValuePair.Value.WorldPosition);
 #endif
             if (_coordinatesCache[keyValuePair.Key] != cell)
             {
@@ -205,6 +205,7 @@ namespace Core.World
                         keyValuePair.Value.OnLodChanged(Settings.maxRefreshLod + 1);
                     }
                 }
+                //Debug.Log($"Move entity {keyValuePair.Key} from {_coordinatesCache[keyValuePair.Key]} to {cell}");
                 _chunksSet.RemoveEntityFromChunk(_coordinatesCache[keyValuePair.Key], keyValuePair.Value);
                 _coordinatesCache[keyValuePair.Key] = cell;
                 _chunksSet.AddEntityToChunk(cell, keyValuePair.Value);
@@ -213,7 +214,7 @@ namespace Core.World
 
         private void SetLodForEntity(IWorldEntity entity)
         {
-            float dSqr = Vector3.SqrMagnitude(entity.Position - _playerTracker.WorldPosition);
+            float dSqr = Vector3.SqrMagnitude(entity.SpacePosition - _playerTracker.SpacePosition);
             var lod = GameData.Data.lodDistances.GetLodSqr(dSqr);
             if (_lods[entity.Id] != lod)
             {
@@ -228,7 +229,7 @@ namespace Core.World
             float sqrRadius = radius * radius;
             foreach ((IWorldEntity entity, VectorInt cell) in EnumerateNeighbours(center, range))
             {
-                if (Vector3.SqrMagnitude(entity.Position - _playerTracker.WorldPosition) < sqrRadius)
+                if (Vector3.SqrMagnitude(entity.SpacePosition - _playerTracker.WorldPosition) < sqrRadius)
                 {
                     yield return (entity, cell);
                 }

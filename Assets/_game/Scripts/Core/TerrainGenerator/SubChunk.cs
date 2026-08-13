@@ -14,7 +14,7 @@ namespace Core.TerrainGenerator
         private int _id;
         public SubChunkId(int x, int y)
         {
-            _id = x << 16 | y;
+            _id = HashCode.Combine(x, y);
         }
 
         public bool Equals(SubChunkId other)
@@ -71,15 +71,14 @@ namespace Core.TerrainGenerator
             public float2 UV;
         };
         
-        private static List<View> _pool = new ();
+        private static List<View>[] _pool;
         public static void ClearPool()
         {
-            foreach (var view in _pool)
+            for (var i = 0; i < _pool.Length; i++)
             {
-                
+                _pool[i].Clear();   
             }
 
-            _pool.Clear();
         }
 #if UNITY_EDITOR
         static SubChunk()
@@ -112,10 +111,10 @@ namespace Core.TerrainGenerator
         
         public void SetChunkPosition(Vector3 position)
         {
-            _view.Transform.position = position + new Vector3(_coordsInChunk.x * _size, 0, _coordsInChunk.y * _size);
+            _view.Transform.localPosition = position + new Vector3(_coordsInChunk.x * _size, 0, _coordsInChunk.y * _size);
         }
         
-        public Vector3 SelfCenter => _view.Transform.position + new Vector3(_size * 0.5f, 0, _size * 0.5f);
+        public Vector3 SelfWorldCenter => _view.Transform.localPosition + new Vector3(_size * 0.5f, 0, _size * 0.5f);
         public int Resolution => _subChunkResolution;
         public float Size => _size;
 
@@ -135,6 +134,14 @@ namespace Core.TerrainGenerator
             _chunkCoords = chunkCoords;
             _piecesAmount = piecesAmount;
             _id = new SubChunkId(chunkCoords.x * _piecesAmount + _coordsInChunk.x, chunkCoords.y * _piecesAmount + _coordsInChunk.y);
+            if (_pool == null)
+            {
+                _pool = new List<View>[_piecesAmount * _piecesAmount];
+                for (int i = 0; i < _pool.Length; i++)
+                {
+                    _pool[i] = new List<View>(16);
+                }
+            }
 
             if (!TryAssignViewFromPool(name, material))
             {
@@ -148,9 +155,15 @@ namespace Core.TerrainGenerator
 
         private bool TryAssignViewFromPool(string name, Material material)
         {
-            if (_pool.Count == 0) return false;
-            _view = _pool[^1];
-            _pool.RemoveAt(_pool.Count - 1);
+            if (_pool == null) return false;
+            int index = _coordsInChunk.x * _piecesAmount + _coordsInChunk.y;
+            if(_pool[index].Count == 0)
+            {
+                return false;
+            }
+
+            _view = _pool[index][^1];
+            _pool[index].RemoveAt(_pool[index].Count - 1);
             _view.Transform.name = name;
             _view.Transform.gameObject.SetActive(true);
             _view.Mesh.name = name;
@@ -269,7 +282,7 @@ namespace Core.TerrainGenerator
                 //Debug.Log("Hide " + _view.Transform.name);
 
                 _view.Transform.gameObject.SetActive(false);
-                _pool.Add(_view);
+                _pool[_coordsInChunk.x * _piecesAmount + _coordsInChunk.y].Add(_view);
             }
             else
             {

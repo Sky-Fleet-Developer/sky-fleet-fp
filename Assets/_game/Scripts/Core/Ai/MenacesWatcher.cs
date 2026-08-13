@@ -121,7 +121,7 @@ namespace Core.Ai
                         {
                             continue;
                         }
-                        Vector3 delta = worldEntity.Position - ray.origin;
+                        Vector3 delta = worldEntity.SpacePosition - ray.origin;
                         float deltaLen = delta.magnitude;
                         float dot = Vector3.Dot(ray.direction, delta / deltaLen);
                         if (dot < menaceDotThreshold)
@@ -135,7 +135,7 @@ namespace Core.Ai
                         }
 
                         Debug.DrawRay(ray.origin, ray.direction * deltaLen, Color.magenta, 0.05f);
-                        Debug.DrawLine(worldEntity.Position, ray.origin, Color.blueViolet, 0.05f);
+                        Debug.DrawLine(worldEntity.SpacePosition, ray.origin, Color.blueViolet, 0.05f);
                         
                         if (_unitsWithMenaces.TryGetValue(unitEntity, out var data))
                         {

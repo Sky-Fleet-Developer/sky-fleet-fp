@@ -63,7 +63,8 @@ MonoBehaviour:
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
   collisionSettings:
-    range: 500
+    refreshThreshold: 100
+    range: 1200
     physicsMaterial: {fileID: 0}
     layer: 0
 --- !u!114 &4259751407393431562

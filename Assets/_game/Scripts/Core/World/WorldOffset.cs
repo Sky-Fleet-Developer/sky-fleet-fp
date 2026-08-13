@@ -17,6 +17,8 @@ namespace Core.World
             get; 
             set; 
         }
+        public static Vector3 SpaceToWorld(Vector3 point) => point - Offset;
+        public static Vector3 WorldToSpace(Vector3 point) => point + Offset;
         public static event Action<Vector3> OnWorldOffsetChange;
         public static event Action<Vector3> OnWorldOffsetPreChanged;
 
@@ -81,14 +83,14 @@ namespace Core.World
         {
             OnWorldOffsetPreChanged?.Invoke(offset);
             Offset += offset;
-            Debug.Log($"WORLD_OFFSET: current offset: {Offset}, added value: {offset}");
+            //Debug.Log($"WORLD_OFFSET: current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);
         }
         private void MakeOffset(Vector3 offset)
         {
             OnWorldOffsetPreChanged?.Invoke(offset);
             Offset += offset;
-            Debug.Log($"WORLD_OFFSET: current offset: {Offset}, added value: {offset}");
+            //Debug.Log($"WORLD_OFFSET: current offset: {Offset}, added value: {offset}");
             OnWorldOffsetChange?.Invoke(offset);
         }
 

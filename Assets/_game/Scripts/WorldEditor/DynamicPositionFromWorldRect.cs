@@ -14,7 +14,7 @@ namespace WorldEditor
             _grid = grid;
         }
 
-        public Vector3 WorldPosition
+        public Vector3 SpacePosition
         {
             get
             {
@@ -22,16 +22,15 @@ namespace WorldEditor
 #if FLAT_SPACE
                 return new Vector3(center.x, 0, center.y) * _grid.GetCellSize();
 #else
-                return center * _grid.GetCellSize();
+                return center * _grid.GetCellSize() - WorldOffset.Offset;
 #endif
             }
         }
-        public Vector3 SpacePosition => WorldPosition - WorldOffset.Offset;
   
         public Vector3 StoredVelocity => Vector3.zero;
-        public Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity)
+        public Vector3 GetPredictedSpacePosition(float time, float maxDeviation = Mathf.Infinity)
         {
-            return WorldPosition;
+            return SpacePosition;
         }
     }
 }

@@ -40,9 +40,9 @@ namespace Runtime.Ai
             MenaceRef mainMenace = _sensor.Menaces[0];
             Vector3 blindZoneUnitSpace = mainMenace.Menace.MyUnit.GetTechCharacteristic().blindZone.normalized;
             Vector3 blindZone = mainMenace.Menace.MyUnit.GetGlobalDirectionThreadSafe(blindZoneUnitSpace);
-            Vector3 projection = _sensor.Position - mainMenace.Menace.MyUnit.Position;
+            Vector3 projection = _sensor.Position - mainMenace.Menace.MyUnit.SpacePosition;
             Vector3 projectedDirection = Vector3.ProjectOnPlane(blindZone, projection).normalized;
-            _targetData.Position = mainMenace.Menace.MyUnit.Position + projectedDirection * Mathf.Max(60, projection.magnitude);
+            _targetData.Position = mainMenace.Menace.MyUnit.SpacePosition + projectedDirection * Mathf.Max(60, projection.magnitude);
             _targetData.Rotation = Quaternion.identity;
             _targetData.Velocity = mainMenace.Menace.MyUnit.Velocity;
             return Vector3.Dot(projection, blindZone) > 0.8f;

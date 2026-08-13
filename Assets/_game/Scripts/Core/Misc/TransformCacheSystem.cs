@@ -32,7 +32,7 @@ namespace Core.Misc
         {
             _transformMap.Add(transform, _transforms.length);
             _transforms.Add(transform);
-            _caches.Add(default);
+            _caches.Add(new TransformCache{Position = transform.position, Rotation = transform.rotation});
 #if UNITY_EDITOR
             _testCache[transform] = default;
 #endif

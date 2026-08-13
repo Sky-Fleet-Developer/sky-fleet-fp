@@ -124,7 +124,7 @@ namespace WorldEditor
             }
             else
             {
-                _fakeTarget.position = CurrentEntity.Position;
+                _fakeTarget.position = CurrentEntity.SpacePosition;
                 virtualCamera.Follow = _fakeTarget;
             }
         }
@@ -133,7 +133,7 @@ namespace WorldEditor
         {
             if (CurrentEntity is not IObjectEntity)
             {
-                _fakeTarget.position = CurrentEntity.Position;
+                _fakeTarget.position = CurrentEntity.SpacePosition;
             }
         }
         private const float Width = 500;
@@ -145,7 +145,7 @@ namespace WorldEditor
                 GUI.skin.label.fontSize = 20;
                 GUILayout.BeginArea(new Rect(Screen.width - Width - 50, 50, Width, Height));
                 GUILayout.Label(CurrentEntity.ToString());
-                GUILayout.Label($"Cell: {_worldGrid.Grid.PositionToCell(CurrentEntity.Position).ToString("F1")}");
+                GUILayout.Label($"Cell: {_worldGrid.Grid.PositionToCell(CurrentEntity.SpacePosition).ToString("F1")}");
                 if (CurrentEntity is UnitEntity unitEntity)
                 {
                     GUILayout.Label($"Tactic: {unitEntity.GetTactic()?.GetType().Name ?? "none"}");

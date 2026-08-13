@@ -59,7 +59,7 @@ namespace Core.Structure.Damage
         private static Dictionary<Type, (Action<Component> action, int order)> setupActions = new();
         public static void SetupDamageProfileCreationAction(Type type, Action<Component> action, int order = 0) => setupActions[type] = (action, order);
 
-        private Vector3 _offset = Vector3.left * 200;
+        private Vector3 _offset = Vector3.down * 500;
         private float _maxBoundInRow;
         //private Dictionary<IStructure, StructureArchetype> _archetypeByStructure = new();
 

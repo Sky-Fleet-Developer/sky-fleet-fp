@@ -60,7 +60,7 @@ namespace Runtime.Content
             var entities = attachedStrategy.Value.GetControllableUnits();
             for (var i = 0; i < entities.Count; i++)
             {
-                if ((entities[i].Position - _playerTracker.SpacePosition).sqrMagnitude > _viewRangeSqr)
+                if ((entities[i].SpacePosition - _playerTracker.SpacePosition).sqrMagnitude > _viewRangeSqr)
                 {
                     var e = entities[i];
                     attachedStrategy.Value.RemoveControllableUnit(e);

@@ -434,11 +434,11 @@ namespace Core.Character
             {
                 if (!Master.CanMove)
                 {
-                    Debug.Log($"FIRST_PERSON_CONTROLLER: world offset blocked");
+                    //Debug.Log($"FIRST_PERSON_CONTROLLER: world offset blocked");
                     return;
                 }
                 Master.motor.MoveOffset(offset);
-                Debug.Log($"FIRST_PERSON_CONTROLLER: Moved by world offset to {Master.transform.position}");
+                //Debug.Log($"FIRST_PERSON_CONTROLLER: Moved by world offset to {Master.transform.position}");
                 base.OnWorldOffsetChange(offset);
             }
             public override void Run()

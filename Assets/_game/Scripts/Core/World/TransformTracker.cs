@@ -6,7 +6,7 @@ namespace Core.World
     public class TransformTracker : MonoBehaviour, IDynamicPositionProvider
     {
         [SerializeField] private int historyLength = 50; 
-        [SerializeField] private float cachePositionDelay = 1f;
+        [SerializeField] private float cachePositionDelay = .2f;
         [SerializeField] private float minimalCacheDistance = 50;
         private float _previousCacheTime;
         private Vector3[] _history;
@@ -14,10 +14,10 @@ namespace Core.World
         private Vector3 _storedVelocity;
         private int _historyPointer;
         [ShowInInspector] public Vector3 StoredVelocity => _storedVelocity;
-        [ShowInInspector] public Vector3 WorldPosition => _isInitialized ? _history[_historyPointer] : Vector3.zero;
-        public Vector3 SpacePosition => _isInitialized ? _history[_historyPointer] + WorldOffset.Offset : Vector3.zero;
+        public Vector3 WorldPosition => _isInitialized ? _history[_historyPointer] : Vector3.zero;
+        public Vector3 SpacePosition => WorldOffset.WorldToSpace(WorldPosition);
 
-        public Vector3 GetPredictedWorldPosition(float time, float maxDeviation = Mathf.Infinity)
+        public Vector3 GetPredictedSpacePosition(float time, float maxDeviation = Mathf.Infinity)
         {
             Vector3 deviation = _storedVelocity * time;
             float maxDeviationSqr = maxDeviation * maxDeviation;
@@ -27,7 +27,7 @@ namespace Core.World
                 float scale = Mathf.Sqrt(maxDeviationSqr / deviationSqr);
                 deviation *= scale;
             }
-            return WorldPosition + deviation;
+            return SpacePosition + deviation;
         }
         private bool _isInitialized;
         public void Awake()
@@ -68,7 +68,7 @@ namespace Core.World
         {
             _historyPointer++;
             _historyPointer %= historyLength;
-            _history[_historyPointer] = transform.position - WorldOffset.Offset;
+            _history[_historyPointer] = WorldOffset.SpaceToWorld(transform.position);
             _historyTimeMarks[_historyPointer] = Time.time;
         }
 

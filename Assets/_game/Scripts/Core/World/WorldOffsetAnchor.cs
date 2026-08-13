@@ -30,7 +30,7 @@ namespace Core.World
                 transform.position += offset;
             }
 
-            Debug.Log($"WORLD_OFFSET_ANCHOR: {name} moved from {prev} to {transform.position}");
+            //Debug.Log($"WORLD_OFFSET_ANCHOR: {name} moved from {prev} to {transform.position}");
         }
     }
 
