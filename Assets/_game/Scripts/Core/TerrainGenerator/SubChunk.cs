@@ -58,6 +58,7 @@ namespace Core.TerrainGenerator
             public View(string name, Material material)
             {
                 Transform = new GameObject(name).transform;
+                Transform.gameObject.hideFlags = HideFlags.DontSave;
                 Renderer = Transform.gameObject.AddComponent<MeshRenderer>();
                 Renderer.sharedMaterial = material;
                 MeshFilter = Transform.gameObject.AddComponent<MeshFilter>();
