@@ -13,9 +13,9 @@ namespace Core.TerrainGenerator
     [ShowInInspector]
     public class TreesChannel : LayeredDeformationChannel<List<TreePos>, TreesMapDeformerModule>
     {
-        public Chunk Chunk;
+        public IChunk Chunk;
 
-        public TreesChannel(TerrainProvider terrain, Chunk chunk, float chunkSize, string path, Vector2Int position, GameObject[] prototypes) : base(terrain, position, chunkSize)
+        public TreesChannel(TerrainProvider terrain, IChunk chunk, float chunkSize, string path, Vector2Int position, GameObject[] prototypes) : base(terrain, position, chunkSize)
         {
             this.Chunk = chunk;
             SetPrototypes(prototypes);
@@ -74,7 +74,7 @@ namespace Core.TerrainGenerator
             throw new NotImplementedException();
         // new RectangleAffectSettings(terrainData, Position, terrainData.detailResolution, deformer);
         
-        public override void SetChunk(Chunk chunk)
+        public override void SetChunk(IChunk chunk)
         {
             IsDirty = true;
             Chunk = chunk;

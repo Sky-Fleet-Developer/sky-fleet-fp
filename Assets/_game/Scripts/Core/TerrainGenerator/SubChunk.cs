@@ -9,6 +9,17 @@ using Object = UnityEngine.Object;
 
 namespace Core.TerrainGenerator
 {
+    public struct PackedVertex
+    {
+        public float3 Position;
+        public float3 Normal;
+        public float2 UV;
+
+        public PackedVertex(float3 position, float3 normal, float2 uv)
+        {
+            Position = position; Normal = normal; UV = uv;
+        }
+    };
     public struct SubChunkId : IEquatable<SubChunkId>
     {
         private int _id;
@@ -65,12 +76,6 @@ namespace Core.TerrainGenerator
                 Collider = null;
             }
         }
-        public struct PackedVertex
-        {
-            public float3 Position;
-            public float3 Normal;
-            public float2 UV;
-        };
         
         private static List<View>[] _pool;
         public static void ClearPool()
@@ -84,7 +89,10 @@ namespace Core.TerrainGenerator
 #if UNITY_EDITOR
         static SubChunk()
         {
-            UnityEditor.EditorApplication.playModeStateChanged += (state) => ClearPool();
+            UnityEditor.EditorApplication.playModeStateChanged += (state) =>
+            {
+                if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode) ClearPool();
+            };
         }
         #endif
 

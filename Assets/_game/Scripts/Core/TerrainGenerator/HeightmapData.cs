@@ -171,7 +171,7 @@ namespace Core.TerrainGenerator
         {
             mapSize = _maxChunksSide;
 
-            if (_mapDirty)
+            //if (_mapDirty)
             {
                 // 1. Вычисляем mapMin (левый нижний угол активной области)
                 if (_activeChunks.Count > 0)
@@ -220,11 +220,23 @@ namespace Core.TerrainGenerator
             mapMin = _currentMapMin;
             return _mapBuffer;
         }
+        
+        ~HeightmapData() => Dispose();
 
         public void Dispose()
         {
-            _texture.Release();
-            UnityEngine.Object.Destroy(_texture);
+            if (_texture)
+            {
+                _texture.Release();
+                if (Application.isPlaying)
+                {
+                    UnityEngine.Object.Destroy(_texture);
+                }
+                else
+                {
+                    UnityEngine.Object.DestroyImmediate(_texture);
+                }
+            }
             _loadDataBuffer?.Dispose();
             _mapBuffer?.Dispose();
         }

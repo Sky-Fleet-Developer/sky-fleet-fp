@@ -42,6 +42,7 @@ namespace Core.TerrainGenerator
         
         public void UpdateTrackerPosition(Vector3 position, Vector2Int coord)
         {
+            return;
             if (Vector3.SqrMagnitude(_prevPosition - position) < _settings.refreshThreshold * _settings.refreshThreshold)
             {
                 return;
@@ -59,7 +60,7 @@ namespace Core.TerrainGenerator
                 float distSqr = (coord - channelCoord).sqrMagnitude * chunkSize * chunkSize;
                 if (distSqr < chunkComparisonRangeSqr)
                 {
-                    foreach (var subChunk in channel.chunk.GetSubChunks())
+                    /*foreach (var subChunk in channel.chunk.GetSubChunks())
                     {
                         Vector3 subChunkCenter = subChunk.SelfWorldCenter;
                         
@@ -70,7 +71,7 @@ namespace Core.TerrainGenerator
                             _buffer.Remove(subChunk.Id);
                             EnsureCollider(subChunk);
                         }
-                    }
+                    }*/
                 }
             }
             
@@ -91,9 +92,9 @@ namespace Core.TerrainGenerator
 
         private class VertexDataWrapper
         {
-            public NativeArray<SubChunk.PackedVertex> Vertices;
+            public NativeArray<PackedVertex> Vertices;
 
-            public VertexDataWrapper(NativeArray<SubChunk.PackedVertex> vertices)
+            public VertexDataWrapper(NativeArray<PackedVertex> vertices)
             {
                 Vertices = vertices;
             }
@@ -112,7 +113,7 @@ namespace Core.TerrainGenerator
                 (_bakingQueue, _pendingBake) = (_pendingBake, _bakingQueue);
                 while (_verticesBufferPool.Count < _bakingQueue.Count)
                 {
-                    _verticesBufferPool.Add(new VertexDataWrapper(new NativeArray<SubChunk.PackedVertex>((_bakingQueue[0].Resolution + 1)  * (_bakingQueue[0].Resolution + 1), Allocator.Persistent)));
+                    _verticesBufferPool.Add(new VertexDataWrapper(new NativeArray<PackedVertex>((_bakingQueue[0].Resolution + 1)  * (_bakingQueue[0].Resolution + 1), Allocator.Persistent)));
                 }
                 int finishedCounter = 0;
                 UniTaskCompletionSource tcs = new();
@@ -210,7 +211,7 @@ namespace Core.TerrainGenerator
             }
         }
 
-        private Mesh CreateCollisionMesh(SubChunkId chunkId, ref NativeArray<SubChunk.PackedVertex> vertices,
+        private Mesh CreateCollisionMesh(SubChunkId chunkId, ref NativeArray<PackedVertex> vertices,
             int subChunkResolution, float subChunkSize)
         {
             var mesh = new Mesh {name = chunkId.GetHashCode().ToString()};

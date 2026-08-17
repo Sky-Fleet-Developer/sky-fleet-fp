@@ -20,14 +20,14 @@ namespace Core.TerrainGenerator
         private static Utilities.AsyncThreadDelegate<float[]> _readWorker =
             new Utilities.AsyncThreadDelegate<float[]>(Semaphore);
 
-        [ShowInInspector, ReadOnly] public Chunk Chunk { get; private set; }
+        [ShowInInspector, ReadOnly] public IChunk Chunk { get; private set; }
         private readonly int layersCount;
         private readonly bool normalizeAlphamap;
         private readonly string layerMaskProperty;
         private readonly RenderTexture texture;
         private readonly ComputeShader blitShader;
 
-        public ColorChannel(TerrainProvider terrain, Chunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap,
+        public ColorChannel(TerrainProvider terrain, IChunk chunk, ComputeShader blitShader, string layerMaskProperty, bool normalizeAlphamap,
             int layersCount, List<string> paths, Vector2Int position) : base(terrain, position, chunk.ChunkSize)
         {
             this.layersCount = layersCount;
@@ -35,7 +35,7 @@ namespace Core.TerrainGenerator
             this.blitShader = blitShader;
             this.layerMaskProperty = layerMaskProperty;
             this.normalizeAlphamap = normalizeAlphamap;
-            texture = new RenderTexture(chunk.ColorMapResolution, chunk.ColorMapResolution, 0);
+            texture = new RenderTexture(terrain.settings.AlphamapResolution, terrain.settings.AlphamapResolution, 0);
             texture.filterMode = FilterMode.Bilinear;
             texture.wrapMode = TextureWrapMode.Clamp;
             texture.enableRandomWrite = true;
@@ -73,16 +73,16 @@ namespace Core.TerrainGenerator
         {
             int kernelHandle = blitShader.FindKernel("BlitRGBA");
             using (ComputeBuffer buffer =
-                   new ComputeBuffer(Chunk.ColorMapResolution * Chunk.ColorMapResolution * layersCount, sizeof(float)))
+                   new ComputeBuffer(Terrain.settings.AlphamapResolution * Terrain.settings.AlphamapResolution * layersCount, sizeof(float)))
             {
                 buffer.SetData(GetLastLayer());
                 blitShader.SetBuffer(kernelHandle, "input", buffer);
                 blitShader.SetTexture(kernelHandle, "resultRGBA", texture);
-                blitShader.SetInt("resolution", Chunk.ColorMapResolution);
+                blitShader.SetInt("resolution", Terrain.settings.AlphamapResolution);
                 blitShader.SetInt("layersCount", layersCount);
                 blitShader.Dispatch(kernelHandle,
-                    Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f),
-                    Mathf.CeilToInt(Chunk.ColorMapResolution / 8f + 0.5f),
+                    Mathf.CeilToInt(Terrain.settings.AlphamapResolution / 8f + 0.5f),
+                    Mathf.CeilToInt(Terrain.settings.AlphamapResolution / 8f + 0.5f),
                     1);
             }
 
@@ -90,13 +90,13 @@ namespace Core.TerrainGenerator
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
-            new RectangleAffectSettings(Chunk, Position, Chunk.Resolution, deformer);
+            new RectangleAffectSettings(Chunk, Position, Terrain.settings.HeightmapResolution, deformer);
 
         /*private float GetColorPerIndex(int layer, int x, int y, int n)
         {
             return deformationLayersCache[layer][x, y, n];
         }*/
-        public override void SetChunk(Chunk chunk)
+        public override void SetChunk(IChunk chunk)
         {
             IsDirty = true;
             Chunk = chunk;

@@ -65,7 +65,7 @@ namespace Core.TerrainGenerator.Settings
             WriteToTerrainData(channel.Chunk, channel.Position);
         }
 
-        public void WriteToTerrainData(Chunk data, Vector3 pos)
+        public void WriteToTerrainData(IChunk data, Vector3 pos)
         {
             throw new NotImplementedException();
 

@@ -1,14 +1,13 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.TerrainGenerator.Settings;
 using Core.World;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Core.TerrainGenerator
 {
-    public class Chunk
+    public class Chunk : IChunk
     {
         private const int MaxMeshVertices = 10000;
 
@@ -21,7 +20,7 @@ namespace Core.TerrainGenerator
         //    new Dictionary<Subchunk, (Vector2Int min, Vector2Int max)>();
         private readonly int _pieces = 1;
         private readonly Material _material;
-        public bool IsChunkVisible;
+        public bool IsChunkVisible { get; set; }
         
         private static List<Material> _pool = new ();
 
@@ -44,7 +43,10 @@ namespace Core.TerrainGenerator
 #if UNITY_EDITOR
         static Chunk()
         {
-            UnityEditor.EditorApplication.playModeStateChanged += (state) => ClearPool();
+            UnityEditor.EditorApplication.playModeStateChanged += (state) =>
+            {
+                if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode) ClearPool();
+            };
         }
 #endif
 
@@ -130,6 +132,15 @@ namespace Core.TerrainGenerator
             }
         }
 
+        public void OnChunksRefreshed()
+        {
+            
+        }
+
+        public Transform transform { get; }
+
+        public Vector2Int Coord { get; }
+
         public void SetHeights(RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize)
         {
             foreach (SubChunk subchunk in _subchunks)
@@ -138,6 +149,11 @@ namespace Core.TerrainGenerator
             }
 
             _isHeightDirty = true;
+        }
+
+        public void Enable()
+        {
+            
         }
 
         private bool IsIntersecting(Vector2Int aMin, Vector2Int aMax, int bMinX, int bMinY, int bMaxX, int bMaxY)
@@ -159,7 +175,7 @@ namespace Core.TerrainGenerator
             return Task.CompletedTask;
         }
 
-        public void Destroy()
+        public void Disable()
         {
             foreach (SubChunk subchunk in _subchunks)
             {

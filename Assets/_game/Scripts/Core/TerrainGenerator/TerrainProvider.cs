@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,7 +42,8 @@ namespace Core.TerrainGenerator
         [ShowInInspector]
         private Dictionary<Vector2Int, List<DeformationChannel>> _activeChunkChannels = new ();
         private Dictionary<Vector2Int, List<DeformationChannel>> _inactiveChunkChannels = new ();
-        private Dictionary<Vector2Int, Chunk> _chunks = new ();
+        private Dictionary<Vector2Int, IChunk> _inactiveChunks = new ();
+        private Dictionary<Vector2Int, IChunk> _activeChunks = new ();
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
         private Collision _collision;
@@ -53,6 +55,10 @@ namespace Core.TerrainGenerator
         
         public HeightmapData GetHeightmapData()
         {
+            if (_heightmapData == null)
+            {
+                _heightmapData = new HeightmapData(settings.MaxLoadedChunksByOneSide, settings.HeightmapResolution);
+            }
             return _heightmapData;
         }
 
@@ -64,9 +70,14 @@ namespace Core.TerrainGenerator
             }
         }
 
-        public Chunk GetChunk(Vector2Int position)
+        public IChunk GetChunk(Vector2Int position)
         {
-            return _chunks[position];
+            return _activeChunks[position];
+        }
+
+        public IEnumerable<IChunk> GetActiveChunks()
+        {
+            return _activeChunks.Values;
         }
 
         bool ILoadAtStart.enabled
@@ -103,7 +114,6 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            _heightmapData = new HeightmapData(settings.MaxLoadedChunksByOneSide, settings.HeightmapResolution);
             _collision = new Collision(this, settings.CollisionSettings);
             await LoadPropsForCurrentPosition();
             OnInitialize.Invoke(this);
@@ -133,58 +143,67 @@ namespace Core.TerrainGenerator
 
         void ITerrainProviderHandler.Unload()
         {
-            foreach (KeyValuePair<Vector2Int, Chunk> chunk in _chunks)
+            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
             {
-                chunk.Value?.Destroy();
+                chunk.Value?.Disable();
             }
-            _chunks.Clear();
+            _activeChunks.Clear();
         }
 
         private void OnWorldOffsetChange(Vector3 offset)
         {
             transform.position += offset;
-            foreach (KeyValuePair<Vector2Int, Chunk> chunk in _chunks)
+            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
             {
                 chunk.Value.RefreshPosition();
             }
         }
-
+        HashSet<Vector2Int> _toRemoveCache = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> _toCreateCache = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> _toUpdateCache = new HashSet<Vector2Int>();
         private async Task Load(IEnumerable<Vector2Int> props)
         {
-            foreach (KeyValuePair<Vector2Int, Chunk> chunk in _chunks)
+            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
             {
                 chunk.Value.IsChunkVisible = false;
             }
             
             foreach (Vector2Int prop in props)
             {
-                if (!_chunks.ContainsKey(prop))
+                if (!_activeChunks.ContainsKey(prop))
                 {
-                    _chunks.Add(prop, null);
+                    _activeChunks.Add(prop, null);
                 }
                 else
                 {
-                    _chunks[prop].IsChunkVisible = true;
+                    _activeChunks[prop].IsChunkVisible = true;
                 }
             }
 
-            HashSet<Vector2Int> toRemove = new HashSet<Vector2Int>();
-            HashSet<Vector2Int> toCreate = new HashSet<Vector2Int>();
-            foreach (KeyValuePair<Vector2Int, Chunk> chunk in _chunks)
+
+            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
             {
                 if (chunk.Value == null)
                 {
-                    toCreate.Add(chunk.Key);
+                    _toCreateCache.Add(chunk.Key);
                 }
-                else if(chunk.Value.IsChunkVisible == false)
+                else
                 {
-                    toRemove.Add(chunk.Key);
-                    chunk.Value.Destroy();
+                    if (chunk.Value.IsChunkVisible == false)
+                    {
+                        _toRemoveCache.Add(chunk.Key);
+                    }
+                    else
+                    {
+                        _toUpdateCache.Add(chunk.Key);
+                    }
                 }
             }
-            foreach (Vector2Int coord in toRemove)
+            foreach (Vector2Int coord in _toRemoveCache)
             {
-                _chunks.Remove(coord);
+                _activeChunks.Remove(coord, out var chunk);
+                _inactiveChunks.Add(coord, chunk);
+                chunk.Disable();
                 var channels = _activeChunkChannels[coord];
                 foreach (var deformationChannel in channels)
                 {
@@ -194,14 +213,22 @@ namespace Core.TerrainGenerator
                 _activeChunkChannels.Remove(coord);
             }
 
-            foreach (Vector2Int coord in toCreate)
+            foreach (Vector2Int coord in _toCreateCache)
             {
-                var t = CreateTerrain(coord);
-                if (t == null)
+                if (!_inactiveChunks.Remove(coord, out var chunk))
                 {
-                    continue;
+                    chunk = CreateTerrain(coord);
+                    if (chunk == null)
+                    {
+                        continue;
+                    }
                 }
-                _chunks[coord] = t;
+                else
+                {
+                    chunk.Enable();
+                }
+                
+                _activeChunks[coord] = chunk;
                 if (_inactiveChunkChannels.Remove(coord, out List<DeformationChannel> channels))
                 {
                     //Debug.Log($"Reuse chunk {coord}");
@@ -212,7 +239,7 @@ namespace Core.TerrainGenerator
                     _activeChunkChannels.Add(coord, channels);
                     foreach (var deformationChannel in channels)
                     {
-                        deformationChannel.SetChunk(_chunks[coord]);
+                        deformationChannel.SetChunk(_activeChunks[coord]);
                     }
                 }
                 else
@@ -228,7 +255,14 @@ namespace Core.TerrainGenerator
                     }
                 }
             }
+            foreach (var coord in _toUpdateCache)
+            {
+                _activeChunks[coord].OnChunksRefreshed();
+            }
             await AwaitForReadyAndApply();
+            _toRemoveCache.Clear();
+            _toCreateCache.Clear();
+            _toUpdateCache.Clear();
         }
 
         public async void RefreshProps()
@@ -306,12 +340,13 @@ namespace Core.TerrainGenerator
         }
         
 
-        private Chunk CreateTerrain(Vector2Int prop)
+        private IChunk CreateTerrain(Vector2Int prop)
         {
             try
             {
-                Chunk chunk = new Chunk($"Terrain ({prop.x}, {prop.y})", prop, transform, settings);
-
+                var instance = new GameObject();
+                instance.transform.SetParent(transform);
+                IChunk chunk = instance.AddComponent<ChunkByTesselation>().Init($"Terrain ({prop.x}, {prop.y})", prop, transform, settings, GetHeightmapData());
                 return chunk;
             }
             catch (Exception e)
@@ -418,7 +453,7 @@ namespace Core.TerrainGenerator
             _heightmapData.Dispose();
             _activeChunkChannels.Clear();
             _inactiveChunkChannels.Clear();
-            _chunks.Clear(); 
+            _activeChunks.Clear(); 
             _deformersByChunk.Clear();
             _deformersQueue.Clear();
             _tickService.Remove(this);

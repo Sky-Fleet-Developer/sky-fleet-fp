@@ -30,6 +30,7 @@ namespace Core.TerrainGenerator
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private Vector2Int chunksCenter;
         [SerializeField] private CollisionGenerationSettings collisionSettings;
+        public bool useQuadsInsteadOfTriangles;
         private List<ChannelSettings> _settings;
 
 

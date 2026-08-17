@@ -54,7 +54,7 @@ MonoBehaviour:
   - {fileID: -7671948353902161526}
   - {fileID: 4259751407393431562}
   targetDirectory: 10x10-8x8
-  material: {fileID: 2100000, guid: 8c7157b6424ca0b4fa88c766adc1682e, type: 2}
+  material: {fileID: 2100000, guid: d1d05c28251940f45bbbc6445dcb0365, type: 2}
   chunkSize: 3600
   height: 2000
   heightmapResolution: 257
@@ -68,6 +68,7 @@ MonoBehaviour:
     range: 1000
     physicsMaterial: {fileID: 0}
     layer: 0
+  useQuadsInsteadOfTriangles: 1
 --- !u!114 &4259751407393431562
 MonoBehaviour:
   m_ObjectHideFlags: 0

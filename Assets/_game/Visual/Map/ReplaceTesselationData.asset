@@ -1,0 +1,218 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979b5391fb934d5cabb3ecc9ad16dda4, type: 3}
+  m_Name: ReplaceTesselationData
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UnityEditor.ReplaceTesselationData
+  shaderPath: Assets/_game/Visual/Map/LayeredLitTesselation.shader
+  outputPath: 
+  main:
+    name: HDRP/LayeredLitTessellation_1
+    parent:
+      rid: -2
+    children:
+    - rid: 3249903868164177997
+    startIndex: 2
+    endIndex: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3249903868164177997
+      type: {class: ReplaceTesselationData/SubShader, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: der
+        parent:
+          rid: 3249903868164177998
+        children:
+        - rid: 3249903868164177999
+        - rid: 3249903868164178000
+        - rid: 3249903868164178001
+        - rid: 3249903868164178002
+        - rid: 3249903868164178003
+        - rid: 3249903868164178004
+        - rid: 3249903868164178005
+        - rid: 3249903868164178006
+        - rid: 3249903868164178007
+        - rid: 3249903868164178008
+        - rid: 3249903868164178009
+        - rid: 3249903868164178010
+        - rid: 3249903868164178011
+        - rid: 3249903868164178012
+        - rid: 3249903868164178013
+        - rid: 3249903868164178014
+        - rid: 3249903868164178015
+        startIndex: 1573
+        endIndex: 0
+    - rid: 3249903868164177998
+      type: {class: ReplaceTesselationData/Shader, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: HDRP/LayeredLitTessellation_1
+        parent:
+          rid: -2
+        children:
+        - rid: 3249903868164177997
+        startIndex: 2
+        endIndex: 0
+    - rid: 3249903868164177999
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: ScenePickingPass
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 614
+        endIndex: 651
+    - rid: 3249903868164178000
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: SceneSelectionPass
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 654
+        endIndex: 694
+    - rid: 3249903868164178001
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: GBuffer
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 698
+        endIndex: 807
+    - rid: 3249903868164178002
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: META
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 812
+        endIndex: 896
+    - rid: 3249903868164178003
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: MotionVectors
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 899
+        endIndex: 973
+    - rid: 3249903868164178004
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: ShadowCaster
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 976
+        endIndex: 1012
+    - rid: 3249903868164178005
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: DepthOnly
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1015
+        endIndex: 1090
+    - rid: 3249903868164178006
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: Forward
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1093
+        endIndex: 1235
+    - rid: 3249903868164178007
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: RayTracingPrepass
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1238
+        endIndex: 1264
+    - rid: 3249903868164178008
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: FullScreenDebug
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1267
+        endIndex: 1298
+    - rid: 3249903868164178009
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: IndirectDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1305
+        endIndex: 1360
+    - rid: 3249903868164178010
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: ForwardDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1363
+        endIndex: 1415
+    - rid: 3249903868164178011
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: GBufferDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1418
+        endIndex: 1464
+    - rid: 3249903868164178012
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: VisibilityDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1467
+        endIndex: 1498
+    - rid: 3249903868164178013
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: SubSurfaceDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1501
+        endIndex: 1541
+    - rid: 3249903868164178014
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: DebugDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1544
+        endIndex: 1570
+    - rid: 3249903868164178015
+      type: {class: ReplaceTesselationData/Pass, ns: UnityEditor, asm: Assembly-CSharp-Editor}
+      data:
+        name: PathTracingDXR
+        parent:
+          rid: 3249903868164177997
+        children: []
+        startIndex: 1573
+        endIndex: 1630

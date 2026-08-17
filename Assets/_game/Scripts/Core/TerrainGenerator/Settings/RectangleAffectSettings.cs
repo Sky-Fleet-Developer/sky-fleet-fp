@@ -34,7 +34,7 @@ namespace Core.TerrainGenerator.Settings
             cosRotation = Mathf.Cos(deformer.Rotation);
             fade = deformer.Fade;
         }
-        public RectangleAffectSettings(Chunk chunk, Vector3 terrainPosition, int resolution, IDeformer deformer)
+        public RectangleAffectSettings(IChunk chunk, Vector3 terrainPosition, int resolution, IDeformer deformer)
         {
             this.resolution = resolution;
             Rect rect = MathfUtilities.GetAffectRectangle(chunk, terrainPosition, deformer.AxisAlignedRect);

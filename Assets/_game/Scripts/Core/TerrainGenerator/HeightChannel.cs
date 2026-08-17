@@ -14,7 +14,7 @@ namespace Core.TerrainGenerator
     public class HeightChannel : DeformationChannel<HeightMapDeformerModule>
     {
         private HeightmapGpuWorker _gpuWorker;
-        public Chunk chunk { get; private set; }
+        public IChunk chunk { get; private set; }
         public int Resolution { get; }
         private HeightmapData _data;
         private TerrainProvider _terrain;
@@ -22,7 +22,7 @@ namespace Core.TerrainGenerator
         private bool _hasReleaseKey;
         private float[,] _heightmapData;
 
-        public HeightChannel(TerrainProvider terrain, HeightmapGpuWorker gpuWorker, Chunk chunk, int resolution,
+        public HeightChannel(TerrainProvider terrain, HeightmapGpuWorker gpuWorker, IChunk chunk, int resolution,
             float chunkSize,
             Vector2Int coordinates, string path) : base(terrain, coordinates, chunkSize)
         {
@@ -85,9 +85,9 @@ namespace Core.TerrainGenerator
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
-            new RectangleAffectSettings(chunk, Position, chunk.Resolution + 1, deformer);
+            new RectangleAffectSettings(chunk, Position, Terrain.settings.HeightmapResolution + 1, deformer);
 
-        public override void SetChunk(Chunk chunk)
+        public override void SetChunk(IChunk chunk)
         {
             this.chunk = chunk;
         }
@@ -102,14 +102,14 @@ namespace Core.TerrainGenerator
             return Task.CompletedTask;
         }
 
-        public override Task PostApply()
-        {
-            if (!_hasReleaseKey)
-            {
-                return Task.CompletedTask;
-            }
-            return chunk.PostProcess();
-        }
+        //public override Task PostApply()
+        //{
+        //    if (!_hasReleaseKey)
+        //    {
+        //        return Task.CompletedTask;
+        //    }
+        //    return chunk.PostProcess();
+        //}
 
         public override void OnChunkLoad()
         {

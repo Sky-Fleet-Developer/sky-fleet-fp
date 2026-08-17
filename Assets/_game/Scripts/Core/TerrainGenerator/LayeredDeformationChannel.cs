@@ -63,9 +63,11 @@ namespace Core.TerrainGenerator
         public Vector3 Position { get; }
         public Vector3 WorldPosition => Position - WorldOffset.Offset;
         public bool IsDirty { get; protected set; }
+        public TerrainProvider Terrain { get; }
 
         public DeformationChannel(TerrainProvider terrain, Vector2Int coordinates, float chunkSize)
         {
+            Terrain = terrain;
             Coordinates = coordinates;
             Position = new Vector3(coordinates.x * chunkSize, 0, coordinates.y * chunkSize);
             IsDirty = true;
@@ -91,7 +93,7 @@ namespace Core.TerrainGenerator
         private Task applyToTerrainTask = null;
         public abstract RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer);
 
-        public abstract void SetChunk(Chunk chunk);
+        public abstract void SetChunk(IChunk chunk);
         
         public virtual void OnChunkLoad(){}
         public virtual void OnChunkUnload(){}

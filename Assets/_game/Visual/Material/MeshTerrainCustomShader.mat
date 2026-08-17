@@ -21,11 +21,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MeshTerrain
-  m_Shader: {fileID: 4800000, guid: eab0538d9d5746246806a9611c04ac4d, type: 3}
+  m_Name: MeshTerrainCustomShader
+  m_Shader: {fileID: -6465566751694194690, guid: 376b5d4842538af4b858a751964c7592, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _DISABLE_SSR_TRANSPARENT
+  - _TESSELLATION_PHONG
+  m_InvalidKeywords:
   - _HEIGHTMAP0
   - _HEIGHTMAP1
   - _HEIGHTMAP2
@@ -38,7 +41,6 @@ Material:
   - _NORMALMAP_TANGENT_SPACE2
   - _NORMALMAP_TANGENT_SPACE3
   - _SPECULAR_OCCLUSION_NONE
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -46,14 +48,13 @@ Material:
   stringTagMap:
     MotionVector: User
   disabledShaderPasses:
-  - DistortionVectors
+  - RayTracingPrepass
   - MOTIONVECTORS
   - DecalMeshForwardEmissive
   - DecalProjectorForwardEmissive
   - TransparentDepthPrepass
   - TransparentDepthPostpass
   - TransparentBackface
-  - RayTracingPrepass
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -183,6 +184,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LayerInfluenceMaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LayerMask:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -388,6 +393,7 @@ Material:
     - _Anisotropy: 0
     - _BlendMode: 0
     - _CoatMask: 0
+    - _ConservativeDepthOffsetEnable: 0
     - _CullMode: 2
     - _CullModeForward: 2
     - _Cutoff: 0.5
@@ -451,6 +457,7 @@ Material:
     - _DoubleSidedNormalMode: 1
     - _DrawOrder: 0
     - _DstBlend: 0
+    - _DstBlend2: 0
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
     - _EmissiveIntensity: 1
@@ -461,6 +468,8 @@ Material:
     - _EnableHeightBlend: 0
     - _EnableInstancedPerPixelNormal: 1
     - _EnergyConservingSpecularColor: 1
+    - _ExcludeFromTUAndAA: 0
+    - _Height: 1500
     - _HeightAmplitude: 0.02
     - _HeightAmplitude0: 0.02
     - _HeightAmplitude1: 0.03
@@ -533,6 +542,7 @@ Material:
     - _LinkDetailsWithBase3: 1
     - _MaskBlendSrc: 1
     - _MaterialID: 1
+    - _MaterialTypeMask: 2
     - _Metallic: 0
     - _Metallic0: 0
     - _Metallic1: 0
@@ -571,10 +581,13 @@ Material:
     - _PPDMinSamples: 5
     - _PPDPrimitiveLength: 1
     - _PPDPrimitiveWidth: 1
+    - _PerPixelSorting: 0
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
+    - _RenderQueueType: 1
+    - _RequireSplitLighting: 0
     - _Smoothness: 0.047
     - _Smoothness0: 0.1
     - _Smoothness1: 0.05
@@ -611,12 +624,14 @@ Material:
     - _SubsurfaceMask3: 1
     - _SupportDecals: 1
     - _SurfaceType: 0
+    - _TesselationFactor: 100
     - _TessellationBackFaceCullEpsilon: -0.25
     - _TessellationFactor: 4
-    - _TessellationFactorMaxDistance: 50
-    - _TessellationFactorMinDistance: 20
+    - _TessellationFactorMaxDistance: 20000
+    - _TessellationFactorMinDistance: 5000
     - _TessellationFactorTriangleSize: 100
-    - _TessellationMode: 0
+    - _TessellationMaxDisplacement: 5000
+    - _TessellationMode: 1
     - _TessellationObjectScale: 1
     - _TessellationShapeFactor: 0.75
     - _TessellationTilingScale: 1
