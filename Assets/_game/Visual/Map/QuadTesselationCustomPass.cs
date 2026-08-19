@@ -12,10 +12,18 @@ class QuadTesselationCustomPass : CustomPass
 {
     [SerializeField] private TerrainProvider terrainProvider;
     [SerializeField] private bool drawWireMesh;
-    [SerializeField] private int passIndex;
+    [SerializeField] private Pass pass;
     private Material _sourceMaterial;
     private static Mesh _quadMesh;
 
+    private enum Pass
+    {
+        ShadowCaster,
+        DepthPrepass,
+        GBuffer,
+        MotionVectors
+    }
+    
     private HeightmapData _heightmapData;
 
     private int _gBufferPass;
@@ -80,17 +88,20 @@ class QuadTesselationCustomPass : CustomPass
 
     private void Draw(CustomPassContext ctx, Matrix4x4 matrix, IChunk activeChunk)
     {
-        if (passIndex == 0)
+        switch (pass)
         {
-            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _shadowCasterPass);
-        }
-        if (passIndex == 1)
-        {
-            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _depthPrepassPass);
-        }
-        if (passIndex == 2)
-        {
-            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _gBufferPass);
+            case Pass.ShadowCaster:
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _shadowCasterPass);
+                break;
+            case Pass.DepthPrepass:
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _depthPrepassPass);
+                break;
+            case Pass.GBuffer:
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _gBufferPass);
+                break;
+            case Pass.MotionVectors:
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _motionVectorsPass);
+                break;
         }
     }
 

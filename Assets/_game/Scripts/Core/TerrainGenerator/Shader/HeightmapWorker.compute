@@ -104,36 +104,72 @@ bool HalfToCoord(half value, out uint2 coord)
     }
 }
 
-
 float get_height_from_heightmap(int2 slot, int2 pixel_coord)
 {
-    return source_heightmap[slot * heightmap_chunk_resolution + pixel_coord];
+    const uint2 offset = uint2(1, 1);
+    return source_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset];
 }
 
 void set_height_to_heightmap(uint2 slot, uint2 pixel_coord, float value)
 {
-    destination_heightmap[slot * heightmap_chunk_resolution + pixel_coord] = value;
+    const uint2 offset = uint2(1, 1);
+    destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
+}
+
+void set_height_to_heightmap_1(uint2 slot, int2 pixel_coord, float value)
+{
+    const uint2 offset = uint2(1, 1);
+    if (flip_x_y_when_import_raw_heightmap)
+    {
+        pixel_coord = pixel_coord.yx;
+    }
+    destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
 }
 
 [numthreads(8,8,1)]
 void CSInsertRawDataToTex (uint2 id : SV_DispatchThreadID)
 {
-    if (id.x >= heightmap_chunk_resolution || id.y >= heightmap_chunk_resolution)
+    if (id.x > heightmap_chunk_resolution || id.y > heightmap_chunk_resolution)
     {
         return;
     }
-
+    
     int2 slot = map[chunk_coord_x * map_size + chunk_coord_y];
     if (slot.x != -1)
     {
-          if (flip_x_y_when_import_raw_heightmap)
-          {
-              set_height_to_heightmap(slot, id.yx, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
-          }
-          else
-          {
-              set_height_to_heightmap(slot, id, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
-          }
+        if (flip_x_y_when_import_raw_heightmap)
+        {
+            set_height_to_heightmap(slot, id.yx, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        }
+        else
+        {
+            set_height_to_heightmap(slot, id, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        }
+    }
+    int2 border_id = id;
+    if (id.x == 0)
+    {
+        border_id.x = -1;
+    }
+    else if (id.x == heightmap_chunk_resolution - 1)
+    {
+        border_id.x = heightmap_chunk_resolution;
+    }
+
+    if (id.y == 0)
+    {
+        border_id.y = -1;
+    }
+    else if (id.y == heightmap_chunk_resolution - 1)
+    {
+        border_id.y = heightmap_chunk_resolution;
+    }
+
+    if (border_id.x != id.x || border_id.y != id.y)
+    {
+        set_height_to_heightmap_1(slot, int2(id.x, border_id.y), chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        set_height_to_heightmap_1(slot, int2(border_id.x, id.y), chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        set_height_to_heightmap_1(slot, border_id, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
     }
 }
 

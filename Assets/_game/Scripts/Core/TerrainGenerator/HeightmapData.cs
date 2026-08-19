@@ -38,7 +38,7 @@ namespace Core.TerrainGenerator
             _chunkResolution = chunkResolution;
 
             // Размер текстуры должен быть N*res по обоим осям, чтобы вместить сетку N x N.
-            int texSize = maxChunksSide * chunkResolution;
+            int texSize = maxChunksSide * (chunkResolution + 2);
             _texture = new RenderTexture(texSize, texSize, 0, GraphicsFormat.R16_SNorm);
             _texture.enableRandomWrite = true; // Полезно, если планируешь писать в неё через Compute Shader
             _texture.filterMode = FilterMode.Bilinear;

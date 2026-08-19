@@ -123,7 +123,10 @@ namespace Core.TerrainGenerator
             _material.SetFloat(ChunkCoordY, mapCoord.y);
             _material.SetFloat(MapSize, mapSize);
             _material.SetFloat(HeightScale, _settings.Height);
+            _material.SetFloat(WidthScale, _settings.ChunkSize);
             _material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
+            _material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2);
+            _material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
         }
 
         private Vector3 GetMyWorldPosition()
@@ -173,6 +176,10 @@ namespace Core.TerrainGenerator
         }
         
         private static Mesh _quadMesh;
+        private static readonly int PixelSizeUVSpace = Shader.PropertyToID("pixel_size_uv_space");
+        private static readonly int HeightmapChunkResolution = Shader.PropertyToID("heightmap_chunk_resolution");
+        private static readonly int WidthScale = Shader.PropertyToID("width_scale");
+
         private static void CreateMesh(bool useQuadsInsteadOfTriangles, float width, float height)
     {
         _quadMesh = new Mesh();

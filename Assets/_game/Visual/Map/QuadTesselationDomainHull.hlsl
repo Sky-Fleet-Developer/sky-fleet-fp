@@ -116,15 +116,28 @@ PackedVaryingsToPS domain_quad(TessellationFactorsQuad tessFactors, float2 uvDom
     float height;
     SampleHeightmap_float(sampler_source_heightmap, varying.vmesh.texCoord0, height);
     varying.vmesh.positionRWS.y += height * height_scale;
+
+    float height_x, height_z;
+    //float2 dir = float2(1, 1);//sign(-varying.vmesh.texCoord0 + float2(.5, .5));
+    SampleHeightmapOffset_float(sampler_source_heightmap, varying.vmesh.texCoord0 + float2(pixel_size_uv_space, 0), height_x);
+    SampleHeightmapOffset_float(sampler_source_heightmap, varying.vmesh.texCoord0 + float2(0, pixel_size_uv_space), height_z);
+
+    float dfdx = (height_x - height) * heightmap_chunk_resolution;
+    float dfdz = (height_z - height) * heightmap_chunk_resolution;
+    //float y_len = sqrt(1 - dfdx*dfdx - dfdz*dfdz);
+    float3 normal = float3(-dfdx * width_scale, height_scale, -dfdz * width_scale);
+    varying.vmesh.normalWS = normalize(normal);
+    //float3 tangent = float3(1.0 * width_scale, dfdx * height_scale, 0.0);
+    //varying.vmesh.tangentWS = float4(normalize(tangent), 0);
     #endif
     
-    #ifdef VARYINGS_DS_NEED_POSITIONPREDISPLACEMENT
-    varying.vmesh.positionPredisplacementRWS = varying.vmesh.positionRWS;
-    #endif
-
-    #ifdef HAVE_TESSELLATION_MODIFICATION
-    varying.vmesh = ApplyTessellationModification(varying.vmesh, _TimeParameters.xyz);
-    #endif
+    //#ifdef VARYINGS_DS_NEED_POSITIONPREDISPLACEMENT
+    //varying.vmesh.positionPredisplacementRWS = varying.vmesh.positionRWS;
+    //#endif
+    //
+    //#ifdef HAVE_TESSELLATION_MODIFICATION
+    //varying.vmesh = ApplyTessellationModification(varying.vmesh, _TimeParameters.xyz);
+    //#endif
     
     return VertTesselation(varying);
 }

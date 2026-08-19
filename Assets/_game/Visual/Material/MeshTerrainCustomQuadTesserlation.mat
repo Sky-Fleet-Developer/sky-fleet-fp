@@ -26,7 +26,6 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _DOUBLESIDED_ON
   - _HEIGHTMAP0
   - _HEIGHTMAP1
   - _HEIGHTMAP2
@@ -43,7 +42,7 @@ Material:
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
-  m_DoubleSidedGI: 1
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2225
   stringTagMap:
     MotionVector: User
@@ -394,8 +393,8 @@ Material:
     - _BlendMode: 0
     - _CoatMask: 0
     - _ConservativeDepthOffsetEnable: 0
-    - _CullMode: 0
-    - _CullModeForward: 0
+    - _CullMode: 2
+    - _CullModeForward: 2
     - _Cutoff: 0.5
     - _DecalBlend: 0.5
     - _DecalColorMask0: 15
@@ -452,7 +451,7 @@ Material:
     - _DistortionSrcBlend: 1
     - _DistortionVectorBias: -1
     - _DistortionVectorScale: 2
-    - _DoubleSidedEnable: 1
+    - _DoubleSidedEnable: 0
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 1
     - _DrawOrder: 0
@@ -627,7 +626,7 @@ Material:
     - _SurfaceType: 0
     - _TesselationFactor: 10
     - _TessellationBackFaceCullEpsilon: -0.25
-    - _TessellationFactor: 40
+    - _TessellationFactor: 7
     - _TessellationFactorMaxDistance: 20000
     - _TessellationFactorMinDistance: 5000
     - _TessellationFactorTriangleSize: 100
