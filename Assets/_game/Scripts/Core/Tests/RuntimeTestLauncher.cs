@@ -119,7 +119,7 @@ namespace Core.Tests
         private void InstallScene()
         {
             Bootstrapper.BindScene(MyContext.MyScene, MyContext.MyContainer);
-            Bootstrapper.InstallScene(MyContext.MyScene, MyContext.MyContainer);
+            Bootstrapper.InjectScene(MyContext.MyScene, MyContext.MyContainer);
             MyContext.IsSceneInstalled = true;
         }
     }

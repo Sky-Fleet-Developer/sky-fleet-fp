@@ -6,4 +6,8 @@ namespace Core
     {
         void InstallBindings(DiContainer container);
     }
+
+    public interface IBindMe
+    {
+    }
 }

@@ -11,10 +11,20 @@ using UnityEngine.Experimental.Rendering;
 class QuadTesselationCustomPass : CustomPass
 {
     [SerializeField] private TerrainProvider terrainProvider;
+    [SerializeField] private bool drawWireMesh;
+    [SerializeField] private int passIndex;
+    private Material _sourceMaterial;
     private static Mesh _quadMesh;
 
     private HeightmapData _heightmapData;
 
+    private int _gBufferPass;
+    private int _shadowCasterPass;
+    private int _motionVectorsPass;
+    private int _depthPrepassPass;
+
+    //private static readonly ShaderTagId gBufferPassTag = new ShaderTagId("GBuffer");
+    //private static readonly ShaderTagId forwardLitPassTag = new ShaderTagId("Forward");
     // It can be used to configure render targets and their clear state. Also to create temporary render target textures.
     // When empty this render pass will render to the active camera render target.
     // You should never call CommandBuffer.SetRenderTarget. Instead call <c>ConfigureTarget</c> and <c>ConfigureClear</c>.
@@ -26,25 +36,79 @@ class QuadTesselationCustomPass : CustomPass
             return;
         }
         _heightmapData = terrainProvider.GetHeightmapData();
-        TerrainGenerationSettings settings = terrainProvider.settings;
+        TerrainGenerationSettings settings = terrainProvider.Settings;
         if (!_quadMesh)
         {
-            CreateMesh(settings.useQuadsInsteadOfTriangles, settings.ChunkSize, settings.Height);
+            CreateMesh(settings.ChunkMeshResolution, settings.ChunkSize, settings.Height);
+        }
+
+        _sourceMaterial = settings.Material;
+        _gBufferPass = _sourceMaterial.FindPass("GBuffer");
+        //_forwardLitPass = _sourceMaterial.FindPass("Forward");
+        _shadowCasterPass = _sourceMaterial.FindPass("ShadowCaster");
+        _depthPrepassPass = _sourceMaterial.FindPass("DepthPrepass");
+        _motionVectorsPass = _sourceMaterial.FindPass("MotionVectors");
+    }
+    
+    protected override void Execute(CustomPassContext ctx)
+    {
+        if (!terrainProvider)
+        {
+            return;
+        }
+
+
+        if (drawWireMesh)
+        {
+            ctx.cmd.SetWireframe(true);
+            foreach (var activeChunk in terrainProvider.GetActiveChunks())
+            {
+                var matrix = activeChunk.transform.localToWorldMatrix;
+                Draw(ctx, matrix, activeChunk);
+            }
+            ctx.cmd.SetWireframe(false);
+        }
+        else
+        {
+            foreach (var activeChunk in terrainProvider.GetActiveChunks())
+            {
+                var matrix = activeChunk.transform.localToWorldMatrix;
+                Draw(ctx, matrix, activeChunk);
+            }
         }
     }
 
-    private static void CreateMesh(bool useQuadsInsteadOfTriangles, float width, float height)
+    private void Draw(CustomPassContext ctx, Matrix4x4 matrix, IChunk activeChunk)
+    {
+        if (passIndex == 0)
+        {
+            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _shadowCasterPass);
+        }
+        if (passIndex == 1)
+        {
+            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _depthPrepassPass);
+        }
+        if (passIndex == 2)
+        {
+            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _gBufferPass);
+        }
+    }
+
+
+    private static void CreateMesh(int resolution, float width, float height)
     {
         _quadMesh = new Mesh();
         _quadMesh.name = "TerrainQuad";
-        int indexCount = useQuadsInsteadOfTriangles ? 4 : 6;
+        int indexCount = resolution * resolution * 4;
+        int verticesPerSide = resolution + 1;
+        int vertexCount = verticesPerSide * verticesPerSide;
         SubMeshDescriptor subMeshDescriptor = new SubMeshDescriptor();
         subMeshDescriptor.baseVertex = 0;
         subMeshDescriptor.firstVertex = 0;
         subMeshDescriptor.indexCount = indexCount;
         subMeshDescriptor.indexStart = 0;
-        subMeshDescriptor.topology = useQuadsInsteadOfTriangles ? MeshTopology.Quads : MeshTopology.Triangles;
-        subMeshDescriptor.vertexCount = 4;
+        subMeshDescriptor.topology = MeshTopology.Quads;
+        subMeshDescriptor.vertexCount = vertexCount;
         subMeshDescriptor.bounds = new Bounds(Vector3.zero, Vector3.one);
         List<SubMeshDescriptor> subMeshes = new List<SubMeshDescriptor>(1) { subMeshDescriptor };
 
@@ -54,18 +118,42 @@ class QuadTesselationCustomPass : CustomPass
             new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
             new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2),
         };
-        _quadMesh.SetVertexBufferParams(4, layout);
+        _quadMesh.SetVertexBufferParams(vertexCount, layout);
         _quadMesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
-        PackedVertex[] initVertexData = new PackedVertex[]
+        float step = width / resolution;
+        float resInv = 1f / resolution;
+        PackedVertex[] vertices = new PackedVertex[vertexCount];
+        int[] indices = new int[indexCount];
+        int tIndex = 0;
+        for (int j = 0; j <= resolution; j++)
         {
-            new(new float3(0, 0, 0), new float3(0, 1, 0), new float2(0, 0)),
-            new(new float3(0, 0, width), new float3(0, 1, 0), new float2(0, 1)),
-            new(new float3(width, 0, width), new float3(0, 1, 0), new float2(1, 1)),
-            new(new float3(width, 0, 0), new float3(0, 1, 0), new float2(1, 0)),
-        };
-        int[] indices = useQuadsInsteadOfTriangles ? new int[] { 0, 1, 2, 3 } : new int[] { 0, 1, 2, 2, 3, 0 };
+            for (int i = 0; i <= resolution; i++)
+            {
+                int vIndex = i * verticesPerSide + j;
 
-        _quadMesh.SetVertexBufferData(initVertexData, 0, 0, 4, 0,
+                PackedVertex vert = new PackedVertex();
+                vert.Position = new float3(j * step, 0, i * step);
+                vert.Normal = new float3(0, 1, 0);
+                vert.UV = new float2(j * resInv, i * resInv);
+                vertices[vIndex] = vert;
+
+                if (i < resolution && j < resolution)
+                {
+                    // Индексы четырех вершин текущего квадрата
+                    int bottomLeft = vIndex;
+                    int bottomRight = vIndex + 1;
+                    int topLeft = vIndex + verticesPerSide;
+                    int topRight = vIndex + verticesPerSide + 1;
+
+                    indices[tIndex++] = bottomLeft;
+                    indices[tIndex++] = topLeft;
+                    indices[tIndex++] = topRight;
+                    indices[tIndex++] = bottomRight;
+                }
+            }
+        }
+
+        _quadMesh.SetVertexBufferData(vertices, 0, 0, vertexCount, 0,
             MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
             MeshUpdateFlags.DontValidateIndices);
         _quadMesh.SetIndexBufferData(indices, 0, 0, indexCount,
@@ -78,18 +166,6 @@ class QuadTesselationCustomPass : CustomPass
             MeshUpdateFlags.DontResetBoneBounds);
     }
 
-    protected override void Execute(CustomPassContext ctx)
-    {
-        if (!terrainProvider)
-        {
-            return;
-        }
-        foreach (var activeChunk in terrainProvider.GetActiveChunks())
-        {
-            var matrix = activeChunk.transform.localToWorldMatrix;
-            ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0);
-        }
-    }
 
     protected override void Cleanup()
     {

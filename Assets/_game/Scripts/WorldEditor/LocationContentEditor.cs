@@ -189,7 +189,7 @@ namespace WorldEditor
             diContainer.Rebind<ILocationChunkLoadStrategy>().FromInstance(strategy);
 
             diContainer.Inject(strategy);
-            Bootstrapper.InstallScene(scene, diContainer);
+            Bootstrapper.InjectScene(scene, diContainer);
             
             //diContainer.Inject(_chunksSet);
             //diContainer.Inject(_locationInstaller);
@@ -584,7 +584,7 @@ namespace WorldEditor
             rangeSettings.min += _terrainProvider.settings.ChunksCenter;
             rangeSettings.max += _terrainProvider.settings.ChunksCenter;
             #else
-            Vector3Int offset = new Vector3Int(_terrainProvider.settings.ChunksCenter.x, 0, _terrainProvider.settings.ChunksCenter.y);
+            Vector3Int offset = new Vector3Int(_terrainProvider.Settings.ChunksCenter.x, 0, _terrainProvider.Settings.ChunksCenter.y);
             rangeSettings.min += offset;
             rangeSettings.max += offset;
             #endif

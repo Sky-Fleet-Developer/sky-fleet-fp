@@ -1245,7 +1245,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2814397878552879366, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
   m_PrefabInstance: {fileID: 4494832323326198457}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 4494832323326198458}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7fc0da1fbdae1214993ae6bf25c7b38d, type: 3}
@@ -10946,6 +10946,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2814397878552879366, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: _settings
+      value: 
+      objectReference: {fileID: 11400000, guid: 032a3b316246b884d8edda18c08b23ef, type: 2}
     - target: {fileID: 3056316085871211717, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: Orbits.Top.Height
       value: 7
@@ -11177,8 +11181,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 923984635791824319, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4494832323326198459}
   m_SourcePrefab: {fileID: 100100000, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+--- !u!1 &4494832323326198458 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 923984635791824319, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+  m_PrefabInstance: {fileID: 4494832323326198457}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4494832323326198459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4494832323326198458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1c48ab617d141b89196d7f4d84a66df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::Core.TerrainGenerator.TerrainCollision
 --- !u!1001 &7059872311038342742
 PrefabInstance:
   m_ObjectHideFlags: 0

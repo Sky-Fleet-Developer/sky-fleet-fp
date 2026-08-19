@@ -29,9 +29,13 @@ namespace Core.TerrainGenerator
         [Space(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private Vector2Int chunksCenter;
-        [SerializeField] private CollisionGenerationSettings collisionSettings;
+        [SerializeField] private ComputeShader gpuWorksShader;
+        [SerializeField] private int chunkMeshResolution = 10;
         public bool useQuadsInsteadOfTriangles;
+        
+        
         private List<ChannelSettings> _settings;
+        private HeightmapGpuWorker _gpuWorker;
 
 
         public DirectoryInfo directory;
@@ -44,8 +48,16 @@ namespace Core.TerrainGenerator
         public int AlphamapResolution => alphamapResolution;
         public Vector2Int ChunksCenter => chunksCenter;
         public int Height => height;
+        public int ChunkMeshResolution => chunkMeshResolution;
         public Material Material => material;
-        public CollisionGenerationSettings CollisionSettings => collisionSettings;
+        public HeightmapGpuWorker GpuWorker
+        {
+            get
+            {
+                _gpuWorker ??= new HeightmapGpuWorker(gpuWorksShader);
+                return _gpuWorker;
+            }
+        }
         
         private void OnValidate()
         {

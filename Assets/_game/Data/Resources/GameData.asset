@@ -1,5 +1,22 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5709485309580544469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9748c78485d4363840298e252a3d29e, type: 3}
+  m_Name: CollisionGenerationSettings
+  m_EditorClassIdentifier: Core::Core.TerrainGenerator.CollisionGenerationSettings
+  refreshThreshold: 100
+  range: 500
+  chunkSize: 300
+  physicsMaterial: {fileID: 0}
+  layer: 0
 --- !u!114 &-4838933943100615771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1084,6 +1101,7 @@ MonoBehaviour:
   - {fileID: 8935232688312866269}
   - {fileID: 8341189919319502898}
   - {fileID: -2708408504679486571}
+  - {fileID: -5709485309580544469}
   serializedSharedData:
     serializationVersion: 0.0.1
     cargoCheckLayer:

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Core.Explorer;
 using Core.Misc;
@@ -92,7 +93,7 @@ namespace Core
             }*/
 
             BindScene(scene, sceneContextContainer);
-            InstallScene(scene, sceneContextContainer);
+            InjectScene(scene, sceneContextContainer);
             RunServicesAsync(scene).Forget();
         }
 
@@ -104,23 +105,37 @@ namespace Core
                 {
                     continue;
                 }
-                foreach (var installer in entry.GetComponents<IMyInstaller>())
-                {
-                    installer.InstallBindings(container);
-                }
+
+                InstallEntryComponents(container, entry);
                 if (entry.name.Contains("[Translator]"))
                 {
                     for (int i = 0; i < entry.transform.childCount; i++)
                     {
-                        foreach (var installer in entry.transform.GetChild(i).GetComponents<IMyInstaller>())
+                        var child = entry.transform.GetChild(i);
+                        if (child.gameObject.activeInHierarchy)
                         {
-                            installer.InstallBindings(container);
+                            InstallEntryComponents(container, child.gameObject);
                         }
                     }
                 }
             }
         }
-        public static void InstallScene(Scene scene, DiContainer container)
+
+        private static void InstallEntryComponents(DiContainer container, GameObject entry)
+        {
+            foreach (var bindMe in entry.GetComponents<IBindMe>())
+            {
+                container.Bind(bindMe.GetType()).FromInstance(bindMe);
+            }
+
+            var installers = entry.GetComponents<IMyInstaller>();
+            foreach (var installer in installers)
+            {
+                installer.InstallBindings(container);
+            }
+        }
+
+        public static void InjectScene(Scene scene, DiContainer container)
         {
             foreach (var entry in scene.GetRootGameObjects().OrderBy(x => x.transform.GetSiblingIndex()))
             {
@@ -143,6 +158,10 @@ namespace Core
                 {
                     for (int i = 0; i < entry.transform.childCount; i++)
                     {
+                        if (!entry.transform.GetChild(i).gameObject.activeInHierarchy)
+                        {
+                            continue;
+                        }
                         foreach (var monoBehaviour in entry.transform.GetChild(i).GetComponents<MonoBehaviour>())
                         {
                             try

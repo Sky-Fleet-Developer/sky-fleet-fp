@@ -12,7 +12,7 @@ using ITickable = Core.Misc.ITickable;
 
 namespace Core.Structure
 {
-    public class StructureUpdateSystem : MonoBehaviour, ITickable, IMyInstaller
+    public class StructureUpdateSystem : MonoBehaviour, ITickable, IBindMe
     {
         public event Action<IStructure> OnStructureAdd;
         public event Action<IStructure> OnStructureRemoved;
@@ -280,11 +280,6 @@ namespace Core.Structure
                     entityContainer.FixedUpdate();
                 }
             }
-        }
-
-        public void InstallBindings(DiContainer container)
-        {
-            container.Bind<StructureUpdateSystem>().FromInstance(this).AsSingle();
         }
     }
 

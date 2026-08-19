@@ -16,7 +16,7 @@ using Random = UnityEngine.Random;
 namespace Core.Weapon
 {
     [BurstCompile]
-    public class ProjectileHandler : MonoBehaviour, IMyInstaller
+    public class ProjectileHandler : MonoBehaviour, IBindMe
     {
         [SerializeField] private ProjectileSettings projectileSettings;
         [SerializeField] private float minSpatialLength = 3f;
@@ -75,11 +75,6 @@ namespace Core.Weapon
         }
         
         public IReadOnlySlotMap<ProjectileInstance> Projectiles => _projectiles;
-        
-        public void InstallBindings(DiContainer container)
-        {
-            container.Bind<ProjectileHandler>().FromInstance(this).AsSingle();
-        }
         
         public bool PullTrigger(IKineticWeapon weapon, ItemInstance shell, out Vector3 returnImpulse)
         {

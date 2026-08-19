@@ -6,23 +6,13 @@ namespace Core.TerrainGenerator.Settings
     public class MeshHeightmapChannelSettings : ChannelSettings
     {
         [Space] public FileFormatSeeker formatMap;
-        public ComputeShader gpuWorksShader;
-        private HeightmapGpuWorker _gpuWorker;
 
-        public HeightmapGpuWorker GpuWorker
-        {
-            get
-            {
-                _gpuWorker ??= new HeightmapGpuWorker(gpuWorksShader);
-                return _gpuWorker;
-            }
-        }
 
         public override DeformationChannel MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory)
         {
-            string path = formatMap.SearchInFolder(position + terrain.settings.ChunksCenter, directory);
+            string path = formatMap.SearchInFolder(position + terrain.Settings.ChunksCenter, directory);
 
-            return new HeightChannel(terrain, GpuWorker, terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkSize, position, path);
+            return new HeightChannel(terrain, terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkSize, position, path);
         }
     }
 }

@@ -8,28 +8,14 @@ namespace Core.Data
 {
     [CreateAssetMenu(menuName = "SF/Data/GameData")]
     [DefaultExecutionOrder(-1000)]
-    public class GameData : CompoundScriptableObject, ISerializationCallbackReceiver
+    public class GameData : CompoundScriptableObject, ISerializationCallbackReceiver, IMyInstaller
     {
         [InlineProperty(LabelWidth = 160), SerializeField] private SharedGameData serializedSharedData;
         [InlineProperty(LabelWidth = 160), SerializeField] private PrivateGameData serializedPrivateData;
         public static SharedGameData Data;
         internal static PrivateGameData PrivateData;
 
-        [Inject]
-        private void InjectChildren(DiContainer diContainer)
-        {
-            foreach (var child in children)
-            {
-                diContainer.Inject(child);
-            }
-        }
-        
-        private void Initialize()
-        {
-            Data.lodDistances.Init();
-        }
-
-        public void InstallChildren(DiContainer container)
+        public void InstallBindings(DiContainer container)
         {
             foreach (var child in children)
             {
@@ -42,6 +28,20 @@ namespace Core.Data
                     container.Bind(child.GetType()).FromInstance(child);
                 }
             }
+        }
+        
+        [Inject]
+        private void InjectChildren(DiContainer diContainer)
+        {
+            foreach (var child in children)
+            {
+                diContainer.Inject(child);
+            }
+        }
+        
+        private void Initialize()
+        {
+            Data.lodDistances.Init();
         }
 
         private void OnValidate()

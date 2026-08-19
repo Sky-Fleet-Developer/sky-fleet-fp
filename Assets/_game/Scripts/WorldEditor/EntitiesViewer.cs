@@ -13,7 +13,7 @@ using ITickable = Core.Misc.ITickable;
 
 namespace WorldEditor
 {
-    public class EntitiesViewer : MonoBehaviour, ITickable, IDisposable, IMyInstaller
+    public class EntitiesViewer : MonoBehaviour, ITickable, IDisposable, IBindMe
     {
         [SerializeField] private CinemachineCamera virtualCamera;
         [Inject] private TickService _tickService;
@@ -170,11 +170,6 @@ namespace WorldEditor
             _inputActions.EntitiesViewer.Disable();
             _inputActions.EntitiesViewer.NextEntity.performed -= NextEntity;
             _inputActions.EntitiesViewer.PrevEntity.performed -= PrevEntity;
-        }
-
-        public void InstallBindings(DiContainer container)
-        {
-            container.Bind<EntitiesViewer>().FromInstance(this).AsSingle();
         }
     }
 }

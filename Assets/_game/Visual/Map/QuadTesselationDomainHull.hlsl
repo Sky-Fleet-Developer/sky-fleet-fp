@@ -73,7 +73,8 @@ struct TessellationFactorsQuad
 TessellationFactorsQuad constantHS(InputPatch<PackedVaryingsToDS, 4> patch) {
     TessellationFactorsQuad o;
     UNITY_SETUP_INSTANCE_ID(patch[0].vmesh);
-    float tessFactor = 30.0; // Тут будет ваша логика LOD на основе дистанции
+    VaryingsToDS varying0 = UnpackVaryingsToDS(patch[0]);
+    float tessFactor = varying0.vmesh.tessellationFactor;
 
     o.edge[0] = tessFactor; // Левый край
     o.edge[1] = tessFactor; // Нижний край

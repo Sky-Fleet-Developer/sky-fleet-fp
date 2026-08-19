@@ -81,7 +81,7 @@ namespace Core.TerrainGenerator
             
             Vector3 position = GetMyWorldPosition();
 
-            var worker = settings.Settings.OfType<MeshHeightmapChannelSettings>().First().GpuWorker;
+            var worker = settings.GpuWorker;
             for (int i = 0; i < _pieces * _pieces; i++)
             {
                 int x = i / _pieces;

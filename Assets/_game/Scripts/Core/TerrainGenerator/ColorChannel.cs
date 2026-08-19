@@ -35,7 +35,7 @@ namespace Core.TerrainGenerator
             this.blitShader = blitShader;
             this.layerMaskProperty = layerMaskProperty;
             this.normalizeAlphamap = normalizeAlphamap;
-            texture = new RenderTexture(terrain.settings.AlphamapResolution, terrain.settings.AlphamapResolution, 0);
+            texture = new RenderTexture(terrain.Settings.AlphamapResolution, terrain.Settings.AlphamapResolution, 0);
             texture.filterMode = FilterMode.Bilinear;
             texture.wrapMode = TextureWrapMode.Clamp;
             texture.enableRandomWrite = true;
@@ -73,16 +73,16 @@ namespace Core.TerrainGenerator
         {
             int kernelHandle = blitShader.FindKernel("BlitRGBA");
             using (ComputeBuffer buffer =
-                   new ComputeBuffer(Terrain.settings.AlphamapResolution * Terrain.settings.AlphamapResolution * layersCount, sizeof(float)))
+                   new ComputeBuffer(Terrain.Settings.AlphamapResolution * Terrain.Settings.AlphamapResolution * layersCount, sizeof(float)))
             {
                 buffer.SetData(GetLastLayer());
                 blitShader.SetBuffer(kernelHandle, "input", buffer);
                 blitShader.SetTexture(kernelHandle, "resultRGBA", texture);
-                blitShader.SetInt("resolution", Terrain.settings.AlphamapResolution);
+                blitShader.SetInt("resolution", Terrain.Settings.AlphamapResolution);
                 blitShader.SetInt("layersCount", layersCount);
                 blitShader.Dispatch(kernelHandle,
-                    Mathf.CeilToInt(Terrain.settings.AlphamapResolution / 8f + 0.5f),
-                    Mathf.CeilToInt(Terrain.settings.AlphamapResolution / 8f + 0.5f),
+                    Mathf.CeilToInt(Terrain.Settings.AlphamapResolution / 8f + 0.5f),
+                    Mathf.CeilToInt(Terrain.Settings.AlphamapResolution / 8f + 0.5f),
                     1);
             }
 
@@ -90,7 +90,7 @@ namespace Core.TerrainGenerator
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
-            new RectangleAffectSettings(Chunk, Position, Terrain.settings.HeightmapResolution, deformer);
+            new RectangleAffectSettings(Chunk, Position, Terrain.Settings.HeightmapResolution, deformer);
 
         /*private float GetColorPerIndex(int layer, int x, int y, int n)
         {

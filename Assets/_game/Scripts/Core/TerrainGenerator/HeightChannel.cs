@@ -22,12 +22,12 @@ namespace Core.TerrainGenerator
         private bool _hasReleaseKey;
         private float[,] _heightmapData;
 
-        public HeightChannel(TerrainProvider terrain, HeightmapGpuWorker gpuWorker, IChunk chunk, int resolution,
+        public HeightChannel(TerrainProvider terrain, IChunk chunk, int resolution,
             float chunkSize,
             Vector2Int coordinates, string path) : base(terrain, coordinates, chunkSize)
         {
             _terrain = terrain;
-            _gpuWorker = gpuWorker;
+            _gpuWorker = terrain.Settings.GpuWorker;
             _data = terrain.GetHeightmapData();
             this.chunk = chunk;
             Resolution = resolution;
@@ -85,7 +85,7 @@ namespace Core.TerrainGenerator
         }
 
         public override RectangleAffectSettings GetAffectSettingsForDeformer(IDeformer deformer) =>
-            new RectangleAffectSettings(chunk, Position, Terrain.settings.HeightmapResolution + 1, deformer);
+            new RectangleAffectSettings(chunk, Position, Terrain.Settings.HeightmapResolution + 1, deformer);
 
         public override void SetChunk(IChunk chunk)
         {

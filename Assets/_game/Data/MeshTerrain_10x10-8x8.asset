@@ -16,7 +16,6 @@ MonoBehaviour:
   formatMap:
     format: 10x10-8x8Height_{x}-{y}
     extension: r16
-  gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
 --- !u!114 &-1368039965201892930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,11 +62,7 @@ MonoBehaviour:
   visibleDistance: 7200
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
-  collisionSettings:
-    refreshThreshold: 100
-    range: 1000
-    physicsMaterial: {fileID: 0}
-    layer: 0
+  gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
   useQuadsInsteadOfTriangles: 1
 --- !u!114 &4259751407393431562
 MonoBehaviour:

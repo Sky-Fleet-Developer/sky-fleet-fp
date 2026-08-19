@@ -27,15 +27,17 @@ namespace Core.TerrainGenerator
     {
         public interface ITerrainProviderHandler
         {
+            public TerrainGenerationSettings Settings { get; }
             Task Initialize();
             Task LoadPropsForCurrentPosition();
             void Unload();
             bool Enabled { get; }
+            public HeightmapData GetHeightmapData();
         }
         
         public static readonly LateEvent<TerrainProvider> OnInitialize = new ();
         public static float MaxWorldHeight { get; private set; }
-        public TerrainGenerationSettings settings;
+        [SerializeField] private TerrainGenerationSettings _settings;
         [Inject] private TickService _tickService;
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
 
@@ -46,18 +48,17 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, IChunk> _activeChunks = new ();
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
-        private Collision _collision;
         [ShowInInspector] private HeightmapData _heightmapData;
         [ShowInInspector] RenderTexture HeightmapTexture => _heightmapData?.Texture;
         [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _heightmapData?._activeChunks;
-
+        public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
         
         public HeightmapData GetHeightmapData()
         {
             if (_heightmapData == null)
             {
-                _heightmapData = new HeightmapData(settings.MaxLoadedChunksByOneSide, settings.HeightmapResolution);
+                _heightmapData = new HeightmapData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
             }
             return _heightmapData;
         }
@@ -97,24 +98,23 @@ namespace Core.TerrainGenerator
         
         private async Task Initialize()
         {
-            if (settings.directory == null) throw new System.Exception("Wrong directory!");
+            if (Settings.directory == null) throw new System.Exception("Wrong directory!");
             
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
-            MaxWorldHeight = Mathf.Max(MaxWorldHeight, settings.Height);
+            MaxWorldHeight = Mathf.Max(MaxWorldHeight, Settings.Height);
             if (Application.isPlaying)
             {
                 _tickService.Add(this);
             }
-            for (var i = 0; i < settings.Settings.Count; i++)
+            for (var i = 0; i < Settings.Settings.Count; i++)
             {
-                if (settings.Settings[i] is MeshHeightmapChannelSettings)
+                if (Settings.Settings[i] is MeshHeightmapChannelSettings)
                 {
                     _heightChannelIndex = i;
                     break;
                 }
             }
 
-            _collision = new Collision(this, settings.CollisionSettings);
             await LoadPropsForCurrentPosition();
             OnInitialize.Invoke(this);
             if (_deformersQueueTask != null)
@@ -246,10 +246,10 @@ namespace Core.TerrainGenerator
                 {
                     //Debug.Log($"Create chunk {coord}");
                     _activeChunkChannels.Add(coord, new List<DeformationChannel>());
-                    foreach (ChannelSettings layerSettings in settings.Settings)
+                    foreach (ChannelSettings layerSettings in Settings.Settings)
                     {
                         DeformationChannel channel =
-                            layerSettings.MakeDeformationChannel(this, coord, settings.directory.FullName);
+                            layerSettings.MakeDeformationChannel(this, coord, Settings.directory.FullName);
 
                         if (channel != null) _activeChunkChannels[coord].Add(channel);
                     }
@@ -278,7 +278,6 @@ namespace Core.TerrainGenerator
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(WaitForChannelLoadingAndApply)));
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(v => v.PostApply())));
             UnityEngine.Profiling.Profiler.EndSample();
-            _collision?.UpdateTrackerPosition(_lastViewPosition, _lastViewCoord);
         }
 
         private async Task WaitForChannelLoadingAndApply(DeformationChannel channel)
@@ -302,14 +301,14 @@ namespace Core.TerrainGenerator
         {
             Vector3 viewPosition = GetViewPosition(); 
 
-            float sI = 1f / settings.ChunkSize;
+            float sI = 1f / Settings.ChunkSize;
             Vector2 viewCell = new Vector2(viewPosition.x * sI, viewPosition.z * sI);
 
-            _lastViewCoord = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
+            var lastViewCoord = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
 
-            for (int x = _lastViewCoord.x - 8; x <= _lastViewCoord.x + 8; x++)
+            for (int x = lastViewCoord.x - 8; x <= lastViewCoord.x + 8; x++)
             {
-                for (int y = _lastViewCoord.y - 8; y <= _lastViewCoord.y + 8; y++)
+                for (int y = lastViewCoord.y - 8; y <= lastViewCoord.y + 8; y++)
                 {
                     Vector2Int position = new Vector2Int(x, y);
                     if (IsPropInView(position, viewPosition)) yield return position;
@@ -321,11 +320,11 @@ namespace Core.TerrainGenerator
         {
             viewPosition.y = 0;
             Vector3 center = GetPropCenter(position);
-            Vector3 closestPointToProp = viewPosition + (center - viewPosition).normalized * Mathf.Min(settings.VisibleDistance, Vector3.Distance(center, viewPosition));
+            Vector3 closestPointToProp = viewPosition + (center - viewPosition).normalized * Mathf.Min(Settings.VisibleDistance, Vector3.Distance(center, viewPosition));
             Vector3 difference = closestPointToProp - center;
             difference.x = Mathf.Abs(difference.x);
             difference.z = Mathf.Abs(difference.z);
-            return difference.x < settings.ChunkSize * 0.5f && difference.z < settings.ChunkSize * 0.5f;
+            return difference.x < Settings.ChunkSize * 0.5f && difference.z < Settings.ChunkSize * 0.5f;
         }
 
         private Vector3 GetViewPosition()
@@ -346,7 +345,7 @@ namespace Core.TerrainGenerator
             {
                 var instance = new GameObject();
                 instance.transform.SetParent(transform);
-                IChunk chunk = instance.AddComponent<ChunkByTesselation>().Init($"Terrain ({prop.x}, {prop.y})", prop, transform, settings, GetHeightmapData());
+                IChunk chunk = instance.AddComponent<ChunkByTesselation>().Init($"Terrain ({prop.x}, {prop.y})", prop, transform, Settings, GetHeightmapData());
                 return chunk;
             }
             catch (Exception e)
@@ -359,13 +358,12 @@ namespace Core.TerrainGenerator
         private Task _deformersQueueTimer;
         private Task _deformersQueueTask;
         private Vector3 _lastViewPosition;
-        private Vector2Int _lastViewCoord;
         private int _heightChannelIndex;
 
         public void RegisterDeformer(IDeformer deformer)
         {
             _deformersQueue.Add(deformer);
-            IEnumerable<Vector2Int> affected = deformer.GetAffectChunks(settings.ChunkSize);
+            IEnumerable<Vector2Int> affected = deformer.GetAffectChunks(Settings.ChunkSize);
             foreach (Vector2Int coord in affected)
             {
                 if (!_deformersByChunk.ContainsKey(coord))
@@ -421,13 +419,13 @@ namespace Core.TerrainGenerator
 
         private void OnDrawGizmosSelected()
         {
-            if (!settings) return;
+            if (!Settings) return;
             DrawBoundsForProps(GetCurrentProps());
             
             Gizmos.color = Color.white * 0.5f;
             Matrix4x4 defaultMatrix = Gizmos.matrix;
             Gizmos.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 0, 1));
-            Gizmos.DrawWireSphere(GetViewPosition(), settings.VisibleDistance);
+            Gizmos.DrawWireSphere(GetViewPosition(), Settings.VisibleDistance);
             Gizmos.matrix = defaultMatrix;
         }
 
@@ -436,8 +434,8 @@ namespace Core.TerrainGenerator
             Gizmos.color = Color.white * 0.2f;
             foreach (Vector2Int position in props)
             {
-                Vector3 center = GetPropCenter(position) + Vector3.up * settings.Height * 0.5f;
-                Vector3 size = new Vector3(settings.ChunkSize, settings.Height, settings.ChunkSize);
+                Vector3 center = GetPropCenter(position) + Vector3.up * Settings.Height * 0.5f;
+                Vector3 size = new Vector3(Settings.ChunkSize, Settings.Height, Settings.ChunkSize);
                 Gizmos.DrawWireCube(center, size);
             }
             Gizmos.color = Color.white;
@@ -445,7 +443,7 @@ namespace Core.TerrainGenerator
 
         private Vector3 GetPropCenter(Vector2Int position)
         {
-            return new Vector3(position.x + 0.5f, 0, position.y + 0.5f) * settings.ChunkSize;
+            return new Vector3(position.x + 0.5f, 0, position.y + 0.5f) * Settings.ChunkSize;
         }
 
         private void OnDestroy()
@@ -462,7 +460,7 @@ namespace Core.TerrainGenerator
 
         public void InstallBindings(DiContainer container)
         {
-            container.BindInstance(this);
+            //container.BindInstance(this);
             container.Bind<ITerrainProviderHandler>().FromInstance(this);
         }
 

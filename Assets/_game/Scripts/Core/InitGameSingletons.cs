@@ -8,7 +8,6 @@ namespace Core
 {
     public class InitGameSingletons : MonoBehaviour, IMyInstaller, ILoadAtStart
     {
-        [SerializeField] private GameData gameData;
         [SerializeField] ScriptableObject[] injectTargets;
 
         [Inject]
@@ -36,7 +35,6 @@ namespace Core
                     installer.InstallBindings(container);
                 }
             }
-            gameData.InstallChildren(container);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Core.TerrainGenerator.Settings
             List<string> paths = new List<string>(); 
             foreach (FileFormatSeeker format in splatmapFormats)
             {
-               string path = format.SearchInFolder(position + terrain.settings.ChunksCenter, directory);
+               string path = format.SearchInFolder(position + terrain.Settings.ChunksCenter, directory);
                paths.Add(path);
             }
 
