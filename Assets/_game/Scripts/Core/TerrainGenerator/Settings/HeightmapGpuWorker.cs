@@ -31,8 +31,12 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int CollisionChunkResolution = Shader.PropertyToID("collision_chunk_resolution");
         private static readonly int CollisionToHeightmapMul = Shader.PropertyToID("collision_to_heightmap_mul");
         private static readonly int CollisionChunkSize = Shader.PropertyToID("collision_chunk_size");
-        private static readonly int PixelSize = Shader.PropertyToID("pixel_size");
+        private static readonly int HeightmapPixelSize = Shader.PropertyToID("heightmap_pixel_size");
+        private static readonly int CollisionPixelSize = Shader.PropertyToID("collision_pixel_size");
         private static readonly int FlipXYWhenImportRawHeightmap = Shader.PropertyToID("flip_x_y_when_import_raw_heightmap");
+        private static readonly int SlotsCountInv = Shader.PropertyToID("slots_count_inv");
+        private static readonly int HeightmapPixelSizeUVSpace = Shader.PropertyToID("heightmap_pixel_size_uv_space");
+        private static readonly int CollisionOffset = Shader.PropertyToID("collision_offset");
         private readonly int _copyHeightmapKernel;
         private readonly int _applyDeformationKernel;
         private readonly int _alignVerticesToHeightmapKernel;
@@ -163,7 +167,11 @@ namespace Core.TerrainGenerator.Settings
             }
         }
         
-        public void GetHeightmapForCollisionChunks(ComputeBuffer transportBuffer, ComputeBuffer requestBuffer, int collisionChunkResolution, int collisionChunksCount, float collisionChunkSize, RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int mapMinChunk, int mapSize, int heightmapChunkResolution, float heightmapChunkSize, float heightmapChunkHeight)
+        public void GetHeightmapForCollisionChunks(ComputeBuffer transportBuffer, ComputeBuffer requestBuffer,
+            int collisionChunkResolution, int collisionChunksCount, float collisionChunkSize, RenderTexture heightmap,
+            ComputeBuffer mapBuffer, Vector2Int mapMinChunk, int mapSize, int heightmapChunkResolution,
+            float heightmapChunkSize, float heightmapChunkHeight, int heightmapChunksCountPerSide,
+            Vector2 collisionOffset)
         {
             _shader.GetKernelThreadGroupSizes(_getCollisionMapKernel, out uint x, out uint y, out uint z);
             int chunkResPlusOne = collisionChunkResolution + 1;
@@ -174,7 +182,11 @@ namespace Core.TerrainGenerator.Settings
             _shader.SetFloat(ChunkSize, heightmapChunkSize);
             _shader.SetFloat(ChunkHeight, heightmapChunkHeight);
             _shader.SetInt(CollisionChunkResolution, collisionChunkResolution);
-            _shader.SetFloat(PixelSize, heightmapChunkSize / heightmapChunkResolution);
+            _shader.SetFloat(HeightmapPixelSizeUVSpace, 1f / (heightmapChunkResolution + 2));
+            _shader.SetFloat(HeightmapPixelSize, heightmapChunkSize / heightmapChunkResolution);
+            _shader.SetFloat(CollisionPixelSize, collisionChunkSize / collisionChunkResolution);
+            _shader.SetFloat(SlotsCountInv, 1f / heightmapChunksCountPerSide);
+            _shader.SetVector(CollisionOffset, collisionOffset);
             //_shader.SetFloat(CollisionChunkSize, collisionChunkSize);
             //_shader.SetFloat(CollisionToHeightmapMul, (float)heightmapChunkResolution / (collisionChunkResolution * collisionChunkResolution));
             BindHeightmapAsSource(_getCollisionMapKernel, heightmap, heightmapChunkResolution, mapMinChunk);

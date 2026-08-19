@@ -39,6 +39,7 @@ namespace Core.TerrainGenerator
 
 
         public DirectoryInfo directory;
+        public Vector2 HeightmapOffset;
         public IReadOnlyList<ChannelSettings> Settings => _settings;
         public float ChunkSize => chunkSize;
         public float VisibleDistance => visibleDistance;

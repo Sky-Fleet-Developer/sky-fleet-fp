@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: CollisionGenerationSettings
   m_EditorClassIdentifier: Core::Core.TerrainGenerator.CollisionGenerationSettings
   refreshThreshold: 100
-  range: 500
-  chunkSize: 300
+  range: 720
+  chunkSize: 360
+  resolution: 25
   physicsMaterial: {fileID: 0}
+  offset: {x: 0, y: 0}
   layer: 0
 --- !u!114 &-4838933943100615771
 MonoBehaviour:

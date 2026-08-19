@@ -28,7 +28,12 @@ RWStructuredBuffer<float3> destination_collision_map;
 StructuredBuffer<int2> collision_map_request;
 int collision_chunks_count;
 int collision_chunk_resolution;
-float pixel_size;
+float heightmap_pixel_size;
+float collision_pixel_size;
+float2 collision_offset;
+float heightmap_pixel_size_uv_space;
+float slots_count_inv;
+SamplerState sampler_source_heightmap;
 //int collision_chunk_size;
 //float collision_to_heightmap_mul;
 
@@ -124,6 +129,14 @@ void set_height_to_heightmap_1(uint2 slot, int2 pixel_coord, float value)
         pixel_coord = pixel_coord.yx;
     }
     destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
+}
+
+void sample_heightmap(int2 slot, float2 uv, out float height)
+{
+    float2 pix = float2(heightmap_pixel_size_uv_space, heightmap_pixel_size_uv_space);
+    float2 uv_to_sample = (slot + uv * heightmap_pixel_size_uv_space * heightmap_chunk_resolution + pix) * slots_count_inv;
+    
+    height = source_heightmap.SampleLevel(sampler_source_heightmap, uv_to_sample, 0);
 }
 
 [numthreads(8,8,1)]
@@ -244,7 +257,7 @@ void CSGetCollisionMap (uint3 id : SV_DispatchThreadID)
     }
     int2 collision_slot = collision_map_request[id.z];
     int2 collision_map_pixel_id = collision_slot * collision_chunk_resolution + id.xy; // start pixel in global space + id.xy
-    float2 uv_heightmap_space = collision_map_pixel_id * pixel_size / chunk_size; // remap space as a*b + c, get heightmap's map coordinate combined with chunk uv
+    float2 uv_heightmap_space = (collision_map_pixel_id + collision_offset) * collision_pixel_size / chunk_size; // remap space as a*b + c, get heightmap's map coordinate combined with chunk uv
     int2 map_index = floor(uv_heightmap_space); // get heightmap's map coordinate
     if (map_index.x < chunk_coord_x || map_index.y < chunk_coord_y)
     {
@@ -256,9 +269,10 @@ void CSGetCollisionMap (uint3 id : SV_DispatchThreadID)
         return;
     }
     float2 uv = uv_heightmap_space - map_index; // get remains as uv_heightmap_space % 1, uv in heightmap chunk space
-    int2 pixel_coord = floor(uv * heightmap_chunk_resolution + float2(.5, .5));
-    float height = get_height_from_heightmap(slot, pixel_coord);
+    //int2 pixel_coord = floor(uv * heightmap_chunk_resolution + float2(.5, .5));
+    float height;
+    sample_heightmap(slot, uv, height);
 
     int res_plus_one = collision_chunk_resolution + 1;
-    destination_collision_map[id.y * res_plus_one + id.x + (res_plus_one * res_plus_one * id.z)] = float3(id.x * pixel_size, height * chunk_height, id.y * pixel_size);
+    destination_collision_map[id.y * res_plus_one + id.x + (res_plus_one * res_plus_one * id.z)] = float3(id.x * collision_pixel_size, height * chunk_height, id.y * collision_pixel_size);
 }

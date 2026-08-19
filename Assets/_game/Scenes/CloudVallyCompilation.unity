@@ -5597,7 +5597,7 @@ MonoBehaviour:
         passFoldout: 0
         m_Version: 0
         terrainProvider: {fileID: 239043634}
-        drawWireMesh: 0
+        drawWireMesh: 1
         pass: 2
 --- !u!4 &1080111059
 Transform:

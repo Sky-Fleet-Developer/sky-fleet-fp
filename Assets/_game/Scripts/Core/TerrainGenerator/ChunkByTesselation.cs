@@ -179,6 +179,7 @@ namespace Core.TerrainGenerator
         private static readonly int PixelSizeUVSpace = Shader.PropertyToID("pixel_size_uv_space");
         private static readonly int HeightmapChunkResolution = Shader.PropertyToID("heightmap_chunk_resolution");
         private static readonly int WidthScale = Shader.PropertyToID("width_scale");
+        private static readonly int HeightmapOffset = Shader.PropertyToID("heightmap_offset");
 
         private static void CreateMesh(bool useQuadsInsteadOfTriangles, float width, float height)
     {

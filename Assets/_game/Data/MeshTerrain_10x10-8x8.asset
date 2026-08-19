@@ -63,8 +63,9 @@ MonoBehaviour:
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
-  chunkMeshResolution: 36
+  chunkMeshResolution: 10
   useQuadsInsteadOfTriangles: 1
+  HeightmapOffset: {x: -0.005, y: -0.005}
 --- !u!114 &4259751407393431562
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -66,9 +66,8 @@ namespace Core.TerrainGenerator
             _cooking = new ();
             _inactiveChunksPool = new ();
             _mask = new ();
-            float pixelSize = _terrainProvider.Settings.ChunkSize / _terrainProvider.Settings.HeightmapResolution;
-            _chunkResolution = Mathf.CeilToInt(_settings.chunkSize / pixelSize - 0.5f);
-            _chunkSize = _chunkResolution * pixelSize;
+            _chunkResolution = _settings.resolution;
+            _chunkSize = _settings.chunkSize;
             if (_chunkSize < 1)
             {
                 throw new Exception("Chunk size is too small for terrain collision generation");
@@ -113,7 +112,11 @@ namespace Core.TerrainGenerator
             
             Vector2Int playerCoord = new Vector2Int(Mathf.CeilToInt(p.x / _chunkSize), Mathf.CeilToInt(p.z / _chunkSize));
 
-            uint v = 0;
+            foreach (Chunk chunk in _activeChunks.Values)
+            {
+                chunk.Version = 0;
+            }
+            
             foreach (var maskItem in _mask)
             {
                 Vector2Int key = playerCoord + maskItem;
@@ -123,15 +126,13 @@ namespace Core.TerrainGenerator
                 }
                 else
                 {
-                    v = Math.Max(++activeCollider.Version, v); // Growth version and find max
+                    activeCollider.Version++;
                 }
             }
-
-            _globalVersion = v;
             
             foreach (var kv in _activeChunks)
             {
-                if (kv.Value.Version < v)
+                if (kv.Value.Version == 0)
                 {
                     _pendingRemove.Add(kv.Key);
                 }
@@ -154,7 +155,6 @@ namespace Core.TerrainGenerator
         
         private List<Vector2Int> _temp = new();
         private HeightmapData _heightmapData;
-        private uint _globalVersion;
 
         private void GetChunksDataFromGpu()
         {
@@ -163,7 +163,7 @@ namespace Core.TerrainGenerator
                 _temp.Add(_bakingQueue[i].Coord);
             }
             _requestBuffer.SetData(_temp);
-            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _heightmapData.Texture, _heightmapData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkSize, _terrainProvider.Settings.Height);
+            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _heightmapData.Texture, _heightmapData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkSize, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset);
             _temp.Clear();
         }
 
@@ -226,7 +226,6 @@ namespace Core.TerrainGenerator
                         chunk.MeshCollider.gameObject.SetActive(true);
                     }
                     
-                    chunk.Version = _globalVersion;
                     chunk.MeshCollider.transform.localPosition = new Vector3(_bakingQueue[i].Coord.x * _chunkSize, 0, _bakingQueue[i].Coord.y * _chunkSize);
                     chunk.MeshCollider.sharedMesh = chunk.Mesh;
                     _activeChunks[_bakingQueue[i].Coord] = chunk;
