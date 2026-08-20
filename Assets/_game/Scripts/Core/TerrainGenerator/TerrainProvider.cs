@@ -49,7 +49,7 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
         [ShowInInspector] private HeightmapData _heightmapData;
-        [ShowInInspector] RenderTexture HeightmapTexture => _heightmapData?.Texture;
+        [ShowInInspector] RenderTexture HeightmapTexture => _heightmapData?.HeightmapTex;
         [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _heightmapData?._activeChunks;
         public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
@@ -301,7 +301,7 @@ namespace Core.TerrainGenerator
         {
             Vector3 viewPosition = GetViewPosition(); 
 
-            float sI = 1f / Settings.ChunkSize;
+            float sI = 1f / Settings.ChunkMeshSize;
             Vector2 viewCell = new Vector2(viewPosition.x * sI, viewPosition.z * sI);
 
             var lastViewCoord = new Vector2Int(Mathf.FloorToInt(viewCell.x), Mathf.FloorToInt(viewCell.y));
@@ -324,7 +324,7 @@ namespace Core.TerrainGenerator
             Vector3 difference = closestPointToProp - center;
             difference.x = Mathf.Abs(difference.x);
             difference.z = Mathf.Abs(difference.z);
-            return difference.x < Settings.ChunkSize * 0.5f && difference.z < Settings.ChunkSize * 0.5f;
+            return difference.x < Settings.ChunkMeshSize * 0.5f && difference.z < Settings.ChunkMeshSize * 0.5f;
         }
 
         private Vector3 GetViewPosition()
@@ -363,7 +363,7 @@ namespace Core.TerrainGenerator
         public void RegisterDeformer(IDeformer deformer)
         {
             _deformersQueue.Add(deformer);
-            IEnumerable<Vector2Int> affected = deformer.GetAffectChunks(Settings.ChunkSize);
+            IEnumerable<Vector2Int> affected = deformer.GetAffectChunks(Settings.ChunkMeshSize);
             foreach (Vector2Int coord in affected)
             {
                 if (!_deformersByChunk.ContainsKey(coord))
@@ -435,7 +435,7 @@ namespace Core.TerrainGenerator
             foreach (Vector2Int position in props)
             {
                 Vector3 center = GetPropCenter(position) + Vector3.up * Settings.Height * 0.5f;
-                Vector3 size = new Vector3(Settings.ChunkSize, Settings.Height, Settings.ChunkSize);
+                Vector3 size = new Vector3(Settings.ChunkMeshSize, Settings.Height, Settings.ChunkMeshSize);
                 Gizmos.DrawWireCube(center, size);
             }
             Gizmos.color = Color.white;
@@ -443,7 +443,7 @@ namespace Core.TerrainGenerator
 
         private Vector3 GetPropCenter(Vector2Int position)
         {
-            return new Vector3(position.x + 0.5f, 0, position.y + 0.5f) * Settings.ChunkSize;
+            return new Vector3(position.x + 0.5f, 0, position.y + 0.5f) * Settings.ChunkMeshSize;
         }
 
         private void OnDestroy()

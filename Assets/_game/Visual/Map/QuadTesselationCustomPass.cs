@@ -47,7 +47,7 @@ class QuadTesselationCustomPass : CustomPass
         TerrainGenerationSettings settings = terrainProvider.Settings;
         if (!_quadMesh)
         {
-            CreateMesh(settings.ChunkMeshResolution, settings.ChunkSize, settings.Height);
+            CreateMesh(settings.ChunkMeshResolution, settings.ChunkMeshSize, settings.Height);
         }
 
         _sourceMaterial = settings.Material;

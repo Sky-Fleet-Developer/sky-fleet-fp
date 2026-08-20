@@ -72,7 +72,7 @@ namespace Core.TerrainGenerator
             buffer.SetData(_heightmapData);
             var mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
             //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
-            _gpuWorker.InsertDataToBuffer(buffer, _data.Texture, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
+            _gpuWorker.InsertDataToBuffer(buffer, _data.HeightmapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
         }
 
         protected override void ApplyToCache(HeightMapDeformerModule module)
@@ -97,7 +97,7 @@ namespace Core.TerrainGenerator
             if (_hasReleaseKey)
             {
                 //Debug.Log($"Set heights to mesh by {Coordinates}");
-                chunk.SetHeights(_data.Texture, _data.GetMapBuffer(out var mapMin, out var mapSize), Coordinates - mapMin, mapSize);
+                chunk.SetHeights(_data.HeightmapTex, _data.GetMapBuffer(out var mapMin, out var mapSize), Coordinates - mapMin, mapSize);
             }
             return Task.CompletedTask;
         }

@@ -12,7 +12,7 @@ namespace Core.TerrainGenerator.Settings
         {
             string path = formatMap.SearchInFolder(position + terrain.Settings.ChunksCenter, directory);
 
-            return new HeightChannel(terrain, terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkSize, position, path);
+            return new HeightChannel(terrain, terrain.GetChunk(position), Container.HeightmapResolution, Container.ChunkMeshSize, position, path);
         }
     }
 }

@@ -53,7 +53,7 @@ MonoBehaviour:
   - {fileID: -7671948353902161526}
   - {fileID: 4259751407393431562}
   targetDirectory: 10x10-8x8
-  material: {fileID: 2100000, guid: d1d05c28251940f45bbbc6445dcb0365, type: 2}
+  material: {fileID: 2100000, guid: 3a68f95681d57df46b5fa2258283d173, type: 2}
   chunkSize: 3600
   height: 2000
   heightmapResolution: 257
@@ -63,8 +63,7 @@ MonoBehaviour:
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
-  chunkMeshResolution: 10
-  useQuadsInsteadOfTriangles: 1
+  chunkMeshResolution: 257
   HeightmapOffset: {x: -0.005, y: -0.005}
 --- !u!114 &4259751407393431562
 MonoBehaviour:

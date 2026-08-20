@@ -21,7 +21,8 @@ namespace Core.TerrainGenerator
     {
         [SerializeField] private string targetDirectory;
         [Space, SerializeField] private Material material;
-        [Space, SerializeField] private int chunkSize = 1000;
+        [Space, SerializeField] private int chunkMeshSize = 3600;
+        [SerializeField] private int chunkMeshResolution = 257;
         [SerializeField] private int height = 600;
         [Space, SerializeField] private int heightmapResolution = 257;
         [SerializeField] private int maxLoadedChunksByOneSide = 7;
@@ -30,9 +31,6 @@ namespace Core.TerrainGenerator
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private Vector2Int chunksCenter;
         [SerializeField] private ComputeShader gpuWorksShader;
-        [SerializeField] private int chunkMeshResolution = 10;
-        public bool useQuadsInsteadOfTriangles;
-        
         
         private List<ChannelSettings> _settings;
         private HeightmapGpuWorker _gpuWorker;
@@ -41,7 +39,7 @@ namespace Core.TerrainGenerator
         public DirectoryInfo directory;
         public Vector2 HeightmapOffset;
         public IReadOnlyList<ChannelSettings> Settings => _settings;
-        public float ChunkSize => chunkSize;
+        public float ChunkMeshSize => chunkMeshSize;
         public float VisibleDistance => visibleDistance;
         public float ChunksRefreshDistance => chunksRefreshDistance;
         public int MaxLoadedChunksByOneSide => maxLoadedChunksByOneSide;

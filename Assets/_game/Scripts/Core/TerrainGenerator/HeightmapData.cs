@@ -9,8 +9,10 @@ namespace Core.TerrainGenerator
 {
     public class HeightmapData : IDisposable
     {
-        private RenderTexture _texture;
-        private ComputeBuffer _loadDataBuffer;
+        private RenderTexture _heightmapTex;
+        private RenderTexture _alphamapTex;
+        private ComputeBuffer _loadHeightDataBuffer;
+        private ComputeBuffer _loadAlphaDataBuffer;
         private ComputeBuffer _mapBuffer;
         private int2[] _mapDataContent;
         private TaskCompletionSource<bool> _loadDataTask;
@@ -29,7 +31,8 @@ namespace Core.TerrainGenerator
 
         // Очередь для вытеснения самых старых чанков, если лимит N*N превышен
         private Queue<Vector2Int> _chunkInsertionOrder;
-        public RenderTexture Texture => _texture;
+        public RenderTexture HeightmapTex => _heightmapTex;
+        public RenderTexture AlphamapTex => _alphamapTex;
         public Vector2Int MapMin => _currentMapMin;
 
         public HeightmapData(int maxChunksSide, int chunkResolution)
@@ -37,24 +40,25 @@ namespace Core.TerrainGenerator
             _maxChunksSide = maxChunksSide;
             _chunkResolution = chunkResolution;
 
-            // Размер текстуры должен быть N*res по обоим осям, чтобы вместить сетку N x N.
             int texSize = maxChunksSide * (chunkResolution + 2);
-            _texture = new RenderTexture(texSize, texSize, 0, GraphicsFormat.R16_SNorm);
-            _texture.enableRandomWrite = true; // Полезно, если планируешь писать в неё через Compute Shader
-            _texture.filterMode = FilterMode.Bilinear;
-            _texture.Create();
+            _heightmapTex = new RenderTexture(texSize, texSize, 0, GraphicsFormat.R16_SNorm);
+            _heightmapTex.enableRandomWrite = true;
+            _heightmapTex.filterMode = FilterMode.Bilinear;
+            _heightmapTex.Create();
+            _alphamapTex = new RenderTexture(texSize, texSize, 0, GraphicsFormat.R8G8B8A8_UNorm);
+            _alphamapTex.enableRandomWrite = true;
+            _alphamapTex.filterMode = FilterMode.Bilinear;
+            _alphamapTex.Create();
 
             int maxChunksTotal = maxChunksSide * maxChunksSide;
             _mapDataContent = new int2[maxChunksTotal];
 
-            // Буфер содержит int2 (2 инта = 8 байт)
             _mapBuffer = new ComputeBuffer(maxChunksTotal, sizeof(int) * 2);
 
             _activeChunks = new Dictionary<Vector2Int, int2>(maxChunksTotal);
             _chunkInsertionOrder = new Queue<Vector2Int>(maxChunksTotal);
             _versions = new Dictionary<Vector2Int, int>(maxChunksTotal);
 
-            // Инициализируем пул всех доступных позиций на сетке текстуры
             _freeTextureSlots = new Queue<int2>(maxChunksTotal);
             for (int y = 0; y < maxChunksSide; y++)
             {
@@ -64,8 +68,8 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            //int half = chunkResolution * chunkResolution / 2 + (chunkResolution * chunkResolution % 2);
-            _loadDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, 4);
+            _loadHeightDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, 4);
+            _loadAlphaDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, 4);
         }
 
         private Queue<TaskCompletionSource<ComputeBuffer>> _queue = new();
@@ -84,14 +88,14 @@ namespace Core.TerrainGenerator
             }
             else
             {
-                return Task.FromResult(_loadDataBuffer);
+                return Task.FromResult(_loadHeightDataBuffer);
             }
         }
 
         public void ReleaseLoadDataBuffer()
         {
             //Debug.Log($"Dequeue load data => {_queue.Count - 1}");
-            _queue.Dequeue().SetResult(_loadDataBuffer);
+            _queue.Dequeue().SetResult(_loadHeightDataBuffer);
             if (_queue.Count == 0)
             {
                 _last = null;
@@ -225,19 +229,33 @@ namespace Core.TerrainGenerator
 
         public void Dispose()
         {
-            if (_texture)
+            if (_heightmapTex)
             {
-                _texture.Release();
+                _heightmapTex.Release();
                 if (Application.isPlaying)
                 {
-                    UnityEngine.Object.Destroy(_texture);
+                    UnityEngine.Object.Destroy(_heightmapTex);
                 }
                 else
                 {
-                    UnityEngine.Object.DestroyImmediate(_texture);
+                    UnityEngine.Object.DestroyImmediate(_heightmapTex);
                 }
             }
-            _loadDataBuffer?.Dispose();
+
+            if (_alphamapTex)
+            {
+                _alphamapTex.Release();
+                if (Application.isPlaying)
+                {
+                    UnityEngine.Object.Destroy(_alphamapTex);
+                }
+                else
+                {
+                    UnityEngine.Object.DestroyImmediate(_alphamapTex);
+                }
+            }
+            _loadHeightDataBuffer?.Dispose();
+            _loadAlphaDataBuffer?.Dispose();
             _mapBuffer?.Dispose();
         }
     }

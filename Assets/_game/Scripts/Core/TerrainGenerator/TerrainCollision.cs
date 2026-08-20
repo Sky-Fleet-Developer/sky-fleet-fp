@@ -163,7 +163,7 @@ namespace Core.TerrainGenerator
                 _temp.Add(_bakingQueue[i].Coord);
             }
             _requestBuffer.SetData(_temp);
-            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _heightmapData.Texture, _heightmapData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkSize, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset);
+            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _heightmapData.HeightmapTex, _heightmapData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkMeshSize, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset);
             _temp.Clear();
         }
 

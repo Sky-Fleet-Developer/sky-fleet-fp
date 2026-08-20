@@ -54,7 +54,7 @@ namespace Core.TerrainGenerator
 
         private Vector2Int _coord;
 
-        public float ChunkSize => _settings.ChunkSize;
+        public float ChunkSize => _settings.ChunkMeshSize;
         public float Height => _settings.Height;
         public int Resolution => _settings.HeightmapResolution;
         public int ColorMapResolution => _settings.AlphamapResolution;
@@ -87,7 +87,7 @@ namespace Core.TerrainGenerator
                 int x = i / _pieces;
                 int y = i % _pieces;
                 var invertedLocalCoord = new Vector2Int(y, x); // need to invert local coords for chunks for correct order
-                SubChunk subChunk = new SubChunk($"{name}_{i}", parent, position, settings.ChunkSize / _pieces, settings.Height,
+                SubChunk subChunk = new SubChunk($"{name}_{i}", parent, position, settings.ChunkMeshSize / _pieces, settings.Height,
                     pieceResolution, settings.HeightmapResolution, _coord, invertedLocalCoord, _pieces, _material, worker);
 
                 Vector2Int min = new Vector2Int(x * pieceResolution, y * pieceResolution);
