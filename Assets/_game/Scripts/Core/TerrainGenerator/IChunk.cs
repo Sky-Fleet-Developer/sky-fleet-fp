@@ -8,7 +8,6 @@ namespace Core.TerrainGenerator
         Material Material { get; }
         bool IsChunkVisible { get; set; }
         Vector2Int Coord { get; }
-        void SetHeights(RenderTexture dataTexture, ComputeBuffer getMapBuffer, Vector2Int mapMin, int mapSize);
         void Enable();
         void Disable();
         void RefreshPosition();

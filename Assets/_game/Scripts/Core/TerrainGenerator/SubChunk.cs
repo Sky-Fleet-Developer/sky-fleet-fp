@@ -104,7 +104,7 @@ namespace Core.TerrainGenerator
         private readonly int _piecesAmount;
         private Vector2Int _minCoverage;
         private Vector2Int _maxCoverage;
-        private HeightmapGpuWorker _heightmapGpuWorker;
+        private MapGpuWorker _mapGpuWorker;
         private GraphicsBuffer _vertexBuffer;
         private int _heightmapResolution;
         private SubChunkId _id;
@@ -132,10 +132,10 @@ namespace Core.TerrainGenerator
             return _view.Collider ?? (_view.Collider = _view.Transform.gameObject.AddComponent<MeshCollider>());
         }
         
-        public SubChunk(string name, Transform parent, Vector3 chunkPosition, float size, float height, int subChunkResolution, int heightmapResolution, Vector2Int chunkCoords, Vector2Int coordsInChunk, int piecesAmount, Material material, HeightmapGpuWorker heightmapGpuWorker)
+        public SubChunk(string name, Transform parent, Vector3 chunkPosition, float size, float height, int subChunkResolution, int heightmapResolution, Vector2Int chunkCoords, Vector2Int coordsInChunk, int piecesAmount, Material material, MapGpuWorker mapGpuWorker)
         {
             _coordsInChunk = coordsInChunk;
-            _heightmapGpuWorker = heightmapGpuWorker;
+            _mapGpuWorker = mapGpuWorker;
             _height = height;
             _subChunkResolution = subChunkResolution;
             _heightmapResolution = heightmapResolution;
@@ -275,7 +275,7 @@ namespace Core.TerrainGenerator
 
         public void SetHeights(RenderTexture heights, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize)
         {
-            _heightmapGpuWorker.AlignVerticesToHeightmap(_vertexBuffer, heights, mapBuffer, chunkCoordMapSpace, mapSize, _subChunkResolution + 1, _heightmapResolution, _size, _height, _minCoverage);
+            _mapGpuWorker.AlignVerticesToHeightmap(_vertexBuffer, heights, mapBuffer, chunkCoordMapSpace, mapSize, _subChunkResolution + 1, _heightmapResolution, _size, _height, _minCoverage);
         }
 
         public void Recalculate()

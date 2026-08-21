@@ -14,7 +14,7 @@ namespace Core.TerrainGenerator
 {
     public class Deformer : MonoBehaviour, IDeformer, ILoadAtStart
     {
-        public T GetModules<T>() where T : class, IDeformerModule
+        public T GetModules<T>() where T : class, IModifier
         {
             Type t = typeof(T);
             foreach (SerializedDeformerModule module in modules)
@@ -184,9 +184,9 @@ namespace Core.TerrainGenerator
 
         public Vector3 InverseTransformPoint(Vector3 worldPos) => transform.InverseTransformPoint(worldPos + WorldOffset.Offset);
         public Vector3 TransformPoint(Vector3 localPos) => transform.TransformPoint(localPos - WorldOffset.Offset);
-        public virtual void OnSetDirty(IDeformerModule dirtyModule)
+        public virtual void OnSetDirty(IModifier dirtyModule)
         {
-            if (dirtyModule is HeightMapDeformerModule heightMapDeformerModule && heightMapDeformerModule.alignWithTerrain)
+            if (dirtyModule is HeightMapModifier heightMapDeformerModule && heightMapDeformerModule.alignWithTerrain)
             {
                 AlignWithTerrain();
             }

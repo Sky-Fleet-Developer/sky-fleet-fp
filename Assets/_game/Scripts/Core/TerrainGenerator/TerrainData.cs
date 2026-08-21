@@ -7,7 +7,7 @@ using UnityEngine.Experimental.Rendering;
 
 namespace Core.TerrainGenerator
 {
-    public class HeightmapData : IDisposable
+    public class TerrainData : IDisposable
     {
         private RenderTexture _heightmapTex;
         private RenderTexture _alphamapTex;
@@ -35,7 +35,7 @@ namespace Core.TerrainGenerator
         public RenderTexture AlphamapTex => _alphamapTex;
         public Vector2Int MapMin => _currentMapMin;
 
-        public HeightmapData(int maxChunksSide, int chunkResolution)
+        public TerrainData(int maxChunksSide, int chunkResolution)
         {
             _maxChunksSide = maxChunksSide;
             _chunkResolution = chunkResolution;
@@ -225,7 +225,7 @@ namespace Core.TerrainGenerator
             return _mapBuffer;
         }
         
-        ~HeightmapData() => Dispose();
+        ~TerrainData() => Dispose();
 
         public void Dispose()
         {

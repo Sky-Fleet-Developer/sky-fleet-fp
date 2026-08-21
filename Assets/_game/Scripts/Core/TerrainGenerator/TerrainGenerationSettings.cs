@@ -33,7 +33,7 @@ namespace Core.TerrainGenerator
         [SerializeField] private ComputeShader gpuWorksShader;
         
         private List<ChannelSettings> _settings;
-        private HeightmapGpuWorker _gpuWorker;
+        private MapGpuWorker _gpuWorker;
 
 
         public DirectoryInfo directory;
@@ -49,11 +49,11 @@ namespace Core.TerrainGenerator
         public int Height => height;
         public int ChunkMeshResolution => chunkMeshResolution;
         public Material Material => material;
-        public HeightmapGpuWorker GpuWorker
+        public MapGpuWorker GpuWorker
         {
             get
             {
-                _gpuWorker ??= new HeightmapGpuWorker(gpuWorksShader);
+                _gpuWorker ??= new MapGpuWorker(gpuWorksShader);
                 return _gpuWorker;
             }
         }

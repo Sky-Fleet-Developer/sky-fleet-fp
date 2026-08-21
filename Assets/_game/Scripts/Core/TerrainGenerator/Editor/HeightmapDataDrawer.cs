@@ -9,14 +9,14 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
-public class HeightmapDataDrawer : OdinValueDrawer<HeightmapData>
+public class HeightmapDataDrawer : OdinValueDrawer<TerrainData>
 {
     private bool _showWorldSpaceMode = false; // Toggle режима
     private int2 _selectedChunk = new int2(-1, -1);
     // Кэшируем поля рефлексии для производительности
-    private static readonly FieldInfo ActiveChunksField = typeof(HeightmapData).GetField("_activeChunks", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-    private static readonly FieldInfo MaxChunksSideField = typeof(HeightmapData).GetField("_maxChunksSide", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-    private static readonly FieldInfo CurrentMapMinField = typeof(HeightmapData).GetField("_currentMapMin", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+    private static readonly FieldInfo ActiveChunksField = typeof(TerrainData).GetField("_activeChunks", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+    private static readonly FieldInfo MaxChunksSideField = typeof(TerrainData).GetField("_maxChunksSide", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+    private static readonly FieldInfo CurrentMapMinField = typeof(TerrainData).GetField("_currentMapMin", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
     protected override void DrawPropertyLayout(GUIContent label)
     {
@@ -27,7 +27,7 @@ public class HeightmapDataDrawer : OdinValueDrawer<HeightmapData>
             EditorGUI.LabelField(headerRect, label, EditorStyles.boldLabel);
         }
 
-        HeightmapData data = ValueEntry.SmartValue;
+        TerrainData data = ValueEntry.SmartValue;
         if (data == null)
         {
             SirenixEditorGUI.ErrorMessageBox("HeightmapData is null");

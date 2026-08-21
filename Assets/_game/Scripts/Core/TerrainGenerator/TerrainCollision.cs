@@ -37,7 +37,7 @@ namespace Core.TerrainGenerator
         private ComputeBuffer _transportBuffer;
         private ComputeBuffer _requestBuffer;
         private NativeArray<Vector3> _verticesBuffer;
-        private HeightmapGpuWorker _gpuWorker;
+        private MapGpuWorker _gpuWorker;
         public int TickRate => 30;
 
         private class Chunk
@@ -85,7 +85,7 @@ namespace Core.TerrainGenerator
                 }
             }
 
-            _heightmapData = _terrainProvider.GetHeightmapData();
+            _terrainData = _terrainProvider.GetHeightmapData();
             _transportBuffer = new ComputeBuffer((_chunkResolution + 1) * (_chunkResolution + 1) * _mask.Count, sizeof(float) * 3, ComputeBufferType.Structured);
             _requestBuffer = new ComputeBuffer(_mask.Count, sizeof(int) * 2);
             _gpuWorker = _terrainProvider.Settings.GpuWorker;
@@ -154,7 +154,7 @@ namespace Core.TerrainGenerator
         }
         
         private List<Vector2Int> _temp = new();
-        private HeightmapData _heightmapData;
+        private TerrainData _terrainData;
 
         private void GetChunksDataFromGpu()
         {
@@ -163,7 +163,7 @@ namespace Core.TerrainGenerator
                 _temp.Add(_bakingQueue[i].Coord);
             }
             _requestBuffer.SetData(_temp);
-            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _heightmapData.HeightmapTex, _heightmapData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkMeshSize, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset);
+            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _terrainData.HeightmapTex, _terrainData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkMeshSize, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset);
             _temp.Clear();
         }
 

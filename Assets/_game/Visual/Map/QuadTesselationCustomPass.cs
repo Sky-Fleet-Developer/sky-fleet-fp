@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering;
 using UnityEngine.Experimental.Rendering;
+using TerrainData = Core.TerrainGenerator.TerrainData;
 
 [Serializable]
 class QuadTesselationCustomPass : CustomPass
@@ -24,7 +25,7 @@ class QuadTesselationCustomPass : CustomPass
         MotionVectors
     }
     
-    private HeightmapData _heightmapData;
+    private TerrainData _terrainData;
 
     private int _gBufferPass;
     private int _shadowCasterPass;
@@ -43,7 +44,7 @@ class QuadTesselationCustomPass : CustomPass
         {
             return;
         }
-        _heightmapData = terrainProvider.GetHeightmapData();
+        _terrainData = terrainProvider.GetHeightmapData();
         TerrainGenerationSettings settings = terrainProvider.Settings;
         if (!_quadMesh)
         {

@@ -32,10 +32,11 @@ namespace Core.TerrainGenerator
             Task LoadPropsForCurrentPosition();
             void Unload();
             bool Enabled { get; }
-            public HeightmapData GetHeightmapData();
+            public TerrainData GetHeightmapData();
         }
         
         public static readonly LateEvent<TerrainProvider> OnInitialize = new ();
+        private static readonly int SourceAlphamap = Shader.PropertyToID("source_alphamap");
         public static float MaxWorldHeight { get; private set; }
         [SerializeField] private TerrainGenerationSettings _settings;
         [Inject] private TickService _tickService;
@@ -48,19 +49,21 @@ namespace Core.TerrainGenerator
         private Dictionary<Vector2Int, IChunk> _activeChunks = new ();
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         private List<IDeformer> _deformersQueue = new ();
-        [ShowInInspector] private HeightmapData _heightmapData;
-        [ShowInInspector] RenderTexture HeightmapTexture => _heightmapData?.HeightmapTex;
-        [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _heightmapData?._activeChunks;
+        [ShowInInspector] private TerrainData _terrainData;
+        [ShowInInspector] RenderTexture HeightmapTexture => _terrainData?.HeightmapTex;
+        [ShowInInspector] RenderTexture AlphamapTexture => _terrainData?.AlphamapTex;
+        [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _terrainData?._activeChunks;
         public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
         
-        public HeightmapData GetHeightmapData()
+        public TerrainData GetHeightmapData()
         {
-            if (_heightmapData == null)
+            if (_terrainData == null)
             {
-                _heightmapData = new HeightmapData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
+                _terrainData = new TerrainData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
+                _settings.Material.SetTexture(SourceAlphamap, AlphamapTexture);
             }
-            return _heightmapData;
+            return _terrainData;
         }
 
         public IEnumerable<(Vector2Int, HeightChannel)> EnumerateActiveSurfaceChannels()
@@ -448,7 +451,7 @@ namespace Core.TerrainGenerator
 
         private void OnDestroy()
         {
-            _heightmapData.Dispose();
+            _terrainData.Dispose();
             _activeChunkChannels.Clear();
             _inactiveChunkChannels.Clear();
             _activeChunks.Clear(); 

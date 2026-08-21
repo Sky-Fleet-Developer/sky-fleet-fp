@@ -15,7 +15,7 @@ namespace Core.TerrainGenerator
         Vector4 LocalRect { get; }
         float Fade { get; }
         int Layer { get; }
-        T GetModules<T>() where T : class, IDeformerModule;
+        T GetModules<T>() where T : class, IModifier;
         IEnumerable<Vector2Int> GetAffectChunks(float chunkSize);
         Terrain[] GetTerrainsContacts();
         Vector2 GetLocalPointCoordinates(Vector3 worldPos);
@@ -24,6 +24,6 @@ namespace Core.TerrainGenerator
         /// <summary>
         /// Changes was applied to channel layer only, but not to landscape
         /// </summary>
-        void OnSetDirty(IDeformerModule dirtyModule);
+        void OnSetDirty(IModifier dirtyModule);
     }
 }

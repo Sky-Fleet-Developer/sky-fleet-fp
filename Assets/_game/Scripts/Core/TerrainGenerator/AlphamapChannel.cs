@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using Core.TerrainGenerator.Settings;
@@ -7,11 +8,12 @@ using UnityEngine;
 using Core.TerrainGenerator.Utility;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
+using Color = UnityEngine.Color;
 
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class HeightChannel : DeformationChannel<HeightMapModifier>
+    public class AlphamapChannel : DeformationChannel<ColorMapModifier>
     {
         private MapGpuWorker _gpuWorker;
         public IChunk chunk { get; private set; }
@@ -20,9 +22,9 @@ namespace Core.TerrainGenerator
         private TerrainProvider _terrain;
         private Vector3Int _keyToReleaseAfterUse;
         private bool _hasReleaseKey;
-        private float[,] _heightmapData;
+        private Color32[] _alphamapData;
 
-        public HeightChannel(TerrainProvider terrain, IChunk chunk, int resolution,
+        public AlphamapChannel(TerrainProvider terrain, IChunk chunk, int resolution,
             float chunkSize,
             Vector2Int coordinates, string path) : base(terrain, coordinates, chunkSize)
         {
@@ -34,8 +36,6 @@ namespace Core.TerrainGenerator
             ReadTex(path);
         }
         
-        public MapGpuWorker GetGpuWorker() => _gpuWorker;
-
         private async void ReadTex(string path)
         {
             //ComputeBuffer verticesBuffer = new ComputeBuffer((resolution + 1) * (resolution + 1), sizeof(float));
@@ -54,10 +54,9 @@ namespace Core.TerrainGenerator
                 }
                 _hasReleaseKey = true;
                 Task<ComputeBuffer> t1 = _data.GetLoadDataBuffer();
-                Task<float[,]> t2 = RawReader.ReadAsync(path);
                 ComputeBuffer buffer = await t1;
-                _heightmapData = await t2;
-                LoadHeightmapToTexture(buffer);
+                _alphamapData = LoadAtPath(path);
+                LoadToTexture(buffer);
                 _data.ReleaseLoadDataBuffer();
 
                 //verticesBuffer.SetData(data);
@@ -66,16 +65,34 @@ namespace Core.TerrainGenerator
 
             loading.SetResult(true);
         }
-
-        private void LoadHeightmapToTexture(ComputeBuffer buffer)
+        
+        private Color32[] LoadAtPath(string path) // TODO: get texture in edit-mode
         {
-            buffer.SetData(_heightmapData);
-            var mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
-            //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
-            _gpuWorker.InsertHeightmapDataToBuffer(buffer, _data.HeightmapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
+            using (Bitmap bitmap = new Bitmap(path))
+            {
+                int resolution = bitmap.Width;
+                Color32[] result = new Color32[resolution * resolution];
+                for (int u = 0; u < resolution; u++)
+                {
+                    for (int v = 0; v < resolution; v++)
+                    {
+                        var nativeColor = bitmap.GetPixel(u, resolution - v - 1);
+                        result[u + v * resolution] = new Color32(nativeColor.R, nativeColor.G, nativeColor.B, nativeColor.A);
+                    }
+                }
+                return result;
+            }
         }
 
-        protected override void ApplyToCache(HeightMapModifier module)
+        private void LoadToTexture(ComputeBuffer buffer)
+        {
+            buffer.SetData(_alphamapData);
+            var mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
+            //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
+            _gpuWorker.InsertAlphamapDataToBuffer(buffer, _data.AlphamapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
+        }
+
+        protected override void ApplyToCache(ColorMapModifier module)
         {
             if (!_hasReleaseKey)
             {
@@ -94,11 +111,6 @@ namespace Core.TerrainGenerator
 
         protected override Task ApplyToTerrain()
         {
-            //if (_hasReleaseKey)
-            //{
-            //    //Debug.Log($"Set heights to mesh by {Coordinates}");
-            //    chunk.SetHeights(_data.HeightmapTex, _data.GetMapBuffer(out var mapMin, out var mapSize), Coordinates - mapMin, mapSize);
-            //}
             return Task.CompletedTask;
         }
 
@@ -119,7 +131,7 @@ namespace Core.TerrainGenerator
 
         private async UniTask LoadAgainAsync()
         {
-            if (_heightmapData == null)
+            if (_alphamapData == null)
             {
                 return;
             }
@@ -137,7 +149,7 @@ namespace Core.TerrainGenerator
             try
             {
                 //Debug.Log($"Begin send heights to texture: {Coordinates}");
-                LoadHeightmapToTexture(buffer);
+                LoadToTexture(buffer);
                 //Debug.Log($"End send heights to texture");
             }
             catch (Exception e)

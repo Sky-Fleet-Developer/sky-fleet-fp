@@ -23,16 +23,15 @@ namespace Core.TerrainGenerator
         private static readonly int HeightScale = Shader.PropertyToID("height_scale");
 
         private TerrainGenerationSettings _settings;
-        private Material _material;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private Vector2Int _coord;
-        private HeightmapData _heightmapData;
+        private TerrainData _terrainData;
         public bool IsChunkVisible { get; set; }
 
         public Vector2Int Coord => _coord;
 
-        [ShowInInspector] public Material Material => _material;
+        [ShowInInspector] public Material Material => _settings.Material;
 
         public float ChunkSize => _settings.ChunkMeshSize;
 
@@ -43,18 +42,16 @@ namespace Core.TerrainGenerator
         }
 
         public ChunkByTesselation Init(string name, Vector2Int coord, Transform parent,
-            TerrainGenerationSettings settings, HeightmapData heightmapData)
+            TerrainGenerationSettings settings, TerrainData terrainData)
         {
-            _heightmapData = heightmapData;
+            _terrainData = terrainData;
             this.name = name;
             _coord = coord;
             _settings = settings;
 
-            GetOrCreateMaterial();
-
             //var worker = settings.Settings.OfType<MeshHeightmapChannelSettings>().First().GpuWorker;
             BindMaterialParams();
-
+            
             transform.localPosition = GetMyWorldPosition();
 
             if (!_quadMesh)
@@ -63,28 +60,23 @@ namespace Core.TerrainGenerator
             }
 
             _meshFilter.sharedMesh = _quadMesh;
-            _meshRenderer.sharedMaterial = _material;
+            _meshRenderer.sharedMaterial = _settings.Material;
 
             return this;
         }
 
-        private void GetOrCreateMaterial()
-        {
-            _material ??= Object.Instantiate(_settings.Material);
-        }
-
         private void BindMaterialParams()
         {
-            _material.SetTexture(SourceHeightmap, _heightmapData.HeightmapTex);
-            _material.SetBuffer(Map, _heightmapData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
+            Material.SetTexture(SourceHeightmap, _terrainData.HeightmapTex);
+            Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
             float hmPixSize = 1f / _settings.ChunkMeshSize;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
-            _material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.ChunkMeshSize + WorldOffset.Offset.x, mapMin.y * _settings.ChunkMeshSize + WorldOffset.Offset.z));
-            _material.SetFloat(MapSize, mapSize);
-            _material.SetFloat(HeightScale, _settings.Height);
-            _material.SetFloat(WidthScale, _settings.ChunkMeshSize);
-            _material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
-            _material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
-            _material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
+            Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.ChunkMeshSize + WorldOffset.Offset.x, mapMin.y * _settings.ChunkMeshSize + WorldOffset.Offset.z));
+            Material.SetFloat(MapSize, mapSize);
+            Material.SetFloat(HeightScale, _settings.Height);
+            Material.SetFloat(WidthScale, _settings.ChunkMeshSize);
+            Material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
+            Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
+            Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
         }
 
         private Vector3 GetMyWorldPosition()
@@ -108,30 +100,14 @@ namespace Core.TerrainGenerator
             BindMaterialParams();
         }
 
-        public void SetHeights(RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace,
-            int mapSize)
-        {
-        }
-
         public void Enable()
         {
             gameObject.SetActive(true);
-            GetOrCreateMaterial();
             BindMaterialParams();
         }
 
         public void Disable()
         {
-            if (Application.isPlaying)
-            {
-                //Debug.Log("Hide mat " + GetMyWorldPosition());
-                //_pool.Add(_material);
-            }
-            else
-            {
-                Object.DestroyImmediate(_material);
-            }
-
             gameObject.SetActive(false);
         }
 

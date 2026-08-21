@@ -3,7 +3,7 @@ namespace Core.TerrainGenerator.Settings
     /// <summary>
     /// realtime rules and data to apply deformer in current rect to current channel
     /// </summary>
-    public interface IDeformerModule
+    public interface IModifier
     {
         IDeformer Core { get; set; }
 

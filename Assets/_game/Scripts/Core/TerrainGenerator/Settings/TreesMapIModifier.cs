@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Settings
 {
     [System.Serializable]
-    public class TreesMapDeformerModule : IDeformerModule
+    public class TreesMapIModifier : IModifier
     {
         public List<TreeInstance> Trees;
 
@@ -52,7 +52,7 @@ namespace Core.TerrainGenerator.Settings
             WriteToChannel(Core.GetTerrainsContacts());
         }*/
 
-        private Vector3 GetPosTreeInDeformer(TerrainData data, Vector3 posTree)
+        private Vector3 GetPosTreeInDeformer(UnityEngine.TerrainData data, Vector3 posTree)
         {
             posTree.Scale(data.size);
             return Core.InverseTransformPoint(posTree);

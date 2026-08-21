@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Settings
 {
     [System.Serializable]
-    public class HeightMapDeformerModule : IDeformerModule
+    public class HeightMapModifier : IModifier
     {
         public float[] Heights;
         public Vector2Int Resolution;

@@ -1,9 +1,16 @@
+#pragma kernel CSInsertRawHeightToTex
+#pragma kernel CSInsertRawAlphaToTex
+#pragma kernel CSAlignVerticesToHeightmap
+#pragma kernel CSGetCollisionMap
 #include "rectangle_affect_settings.hlsl"
 #include "packed_vertex.hlsl"
 
 Texture2D<float> source_heightmap;
 RWTexture2D<float> destination_heightmap;
+Texture2D source_alphamap;
+RWTexture2D<float4> destination_alphamap;
 StructuredBuffer<float> chunk_heightmap;
+StructuredBuffer<uint> chunk_alphamap;
 StructuredBuffer<int2> map;
 //StructuredBuffer<rectangle_affect_settings> deformation_rectangle_settings;
 //StructuredBuffer<float> deformation_heightmap;
@@ -90,7 +97,6 @@ SamplerState sampler_source_heightmap;
 //}
 
 
-#pragma kernel CSInsertRawDataToTex
 
 bool HalfToCoord(half value, out uint2 coord)
 {
@@ -121,7 +127,13 @@ void set_height_to_heightmap(uint2 slot, uint2 pixel_coord, float value)
     destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
 }
 
-void set_height_to_heightmap_1(uint2 slot, int2 pixel_coord, float value)
+void set_alpha_to_map(uint2 slot, uint2 pixel_coord, float4 value)
+{
+    const uint2 offset = uint2(1, 1);
+    destination_alphamap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
+}
+
+void set_height_to_heightmap_border(uint2 slot, int2 pixel_coord, float value)
 {
     const uint2 offset = uint2(1, 1);
     if (flip_x_y_when_import_raw_heightmap)
@@ -129,6 +141,12 @@ void set_height_to_heightmap_1(uint2 slot, int2 pixel_coord, float value)
         pixel_coord = pixel_coord.yx;
     }
     destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
+}
+
+void set_height_to_alpha_border(uint2 slot, int2 pixel_coord, float value)
+{
+    const uint2 offset = uint2(1, 1);
+    destination_alphamap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
 }
 
 void sample_heightmap(int2 slot, float2 uv, out float height)
@@ -140,7 +158,7 @@ void sample_heightmap(int2 slot, float2 uv, out float height)
 }
 
 [numthreads(8,8,1)]
-void CSInsertRawDataToTex (uint2 id : SV_DispatchThreadID)
+void CSInsertRawHeightToTex (uint2 id : SV_DispatchThreadID)
 {
     if (id.x > heightmap_chunk_resolution || id.y > heightmap_chunk_resolution)
     {
@@ -180,13 +198,69 @@ void CSInsertRawDataToTex (uint2 id : SV_DispatchThreadID)
 
     if (border_id.x != id.x || border_id.y != id.y)
     {
-        set_height_to_heightmap_1(slot, int2(id.x, border_id.y), chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
-        set_height_to_heightmap_1(slot, int2(border_id.x, id.y), chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
-        set_height_to_heightmap_1(slot, border_id, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        set_height_to_heightmap_border(slot, int2(id.x, border_id.y), chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        set_height_to_heightmap_border(slot, int2(border_id.x, id.y), chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
+        set_height_to_heightmap_border(slot, border_id, chunk_heightmap[id.x * heightmap_chunk_resolution + id.y]);
     }
 }
 
-#pragma kernel CSAlignVerticesToHeightmap
+float4 unpack_uint(uint value)
+{
+    float r = (float)((value >>  0) & 0xFF) / 255.0f;
+    float g = (float)((value >>  8) & 0xFF) / 255.0f;
+    float b = (float)((value >> 16) & 0xFF) / 255.0f;
+    float a = (float)((value >> 24) & 0xFF) / 255.0f;
+
+    return float4(r, g, b, a);
+}
+
+[numthreads(8,8,1)]
+void CSInsertRawAlphaToTex (uint2 id : SV_DispatchThreadID)
+{
+    if (id.x > heightmap_chunk_resolution || id.y > heightmap_chunk_resolution)
+    {
+        return;
+    }
+    
+    int2 slot = map[chunk_coord_x * map_size + chunk_coord_y];
+    if (slot.x != -1)
+    {
+        if (flip_x_y_when_import_raw_heightmap)
+        {
+            set_alpha_to_map(slot, id.yx, unpack_uint(chunk_alphamap[id.x * heightmap_chunk_resolution + id.y]));
+        }
+        else
+        {
+            set_alpha_to_map(slot, id, unpack_uint(chunk_alphamap[id.x * heightmap_chunk_resolution + id.y]));
+        }
+    }
+    int2 border_id = id;
+    if (id.x == 0)
+    {
+        border_id.x = -1;
+    }
+    else if (id.x == heightmap_chunk_resolution - 1)
+    {
+        border_id.x = heightmap_chunk_resolution;
+    }
+
+    if (id.y == 0)
+    {
+        border_id.y = -1;
+    }
+    else if (id.y == heightmap_chunk_resolution - 1)
+    {
+        border_id.y = heightmap_chunk_resolution;
+    }
+
+    if (border_id.x != id.x || border_id.y != id.y)
+    {
+        set_height_to_alpha_border(slot, int2(id.x, border_id.y), unpack_uint(chunk_alphamap[id.x * heightmap_chunk_resolution + id.y]));
+        set_height_to_alpha_border(slot, int2(border_id.x, id.y), unpack_uint(chunk_alphamap[id.x * heightmap_chunk_resolution + id.y]));
+        set_height_to_alpha_border(slot, border_id, unpack_uint(chunk_alphamap[id.x * heightmap_chunk_resolution + id.y]));
+    }
+}
+
 
 float get_height_from_heightmap(uint2 slot, uint2 pixel_coord, float2 interpolation)
 {
@@ -246,7 +320,6 @@ void CSAlignVerticesToHeightmap (uint2 id : SV_DispatchThreadID)
     vertices[id.x * vertices_width_count + id.y] = vert;
 }
 
-#pragma kernel CSGetCollisionMap
 
 [numthreads(4,4,4)]
 void CSGetCollisionMap (uint3 id : SV_DispatchThreadID)

@@ -8,9 +8,6 @@ namespace Core.TerrainGenerator.Settings
     {
         [SerializeField, HideInInspector] private int layersCount = 3;
         [SerializeField] private bool normalizeAlphamap;
-        [SerializeField] private string layerMaskProperty = "_LayerMask";
-        [SerializeField] private ComputeShader blitShader;
-        
 
         [ShowInInspector]
         public int LayersCount
@@ -51,15 +48,15 @@ namespace Core.TerrainGenerator.Settings
 
         public override DeformationChannel MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory)
         {
-            List<string> paths = new List<string>(); 
-            foreach (FileFormatSeeker format in splatmapFormats)
-            {
-               string path = format.SearchInFolder(position + terrain.Settings.ChunksCenter, directory);
-               paths.Add(path);
-            }
+            //List<string> paths = new List<string>(); 
+            //foreach (FileFormatSeeker format in splatmapFormats)
+            //{
+            //   string path = format.SearchInFolder(position + terrain.Settings.ChunksCenter, directory);
+            //   paths.Add(path);
+            //}
 
             IChunk chunk = terrain.GetChunk(position);
-            return new ColorChannel(terrain, chunk, blitShader, layerMaskProperty, normalizeAlphamap, layersCount, paths, position);
+            return new AlphamapChannel(terrain, chunk, terrain.Settings.AlphamapResolution, terrain.Settings.ChunkMeshSize, position, splatmapFormats[0].SearchInFolder(position + terrain.Settings.ChunksCenter, directory));
         }
     }
 }

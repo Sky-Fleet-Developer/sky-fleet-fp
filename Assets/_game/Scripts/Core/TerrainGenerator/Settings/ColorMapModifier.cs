@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Settings
 {
     [System.Serializable]
-    public class ColorMapDeformerModule : IDeformerModule
+    public class ColorMapModifier : IModifier
     {
         public float[,,] SplatMaps;
         public Vector2Int Resolution;

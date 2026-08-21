@@ -9,7 +9,7 @@ namespace Core.TerrainGenerator
     [Serializable]
     public class SerializedDeformerModule
     {
-        [ShowInInspector] public IDeformerModule Module
+        [ShowInInspector] public IModifier Module
         {
             get
             {
@@ -23,7 +23,7 @@ namespace Core.TerrainGenerator
             }
         }
 
-        private IDeformerModule module;
+        private IModifier module;
         private IDeformer deformer;
 
         public Type GetLayerType()
@@ -37,7 +37,7 @@ namespace Core.TerrainGenerator
 
         public SerializedDeformerModule(IDeformer deformer, Type newLayerType)
         {
-            module = Activator.CreateInstance(newLayerType) as IDeformerModule;
+            module = Activator.CreateInstance(newLayerType) as IModifier;
             module.Init(deformer);
             Serialize();
         }
@@ -50,7 +50,7 @@ namespace Core.TerrainGenerator
         private void Deserialize()
         {
             Type t = GetLayerType();
-            module = JsonConvert.DeserializeObject(serializedData, t) as IDeformerModule;
+            module = JsonConvert.DeserializeObject(serializedData, t) as IModifier;
             module?.Init(deformer);
         }
         [Button]

@@ -11,7 +11,7 @@ using Core.Utilities;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class TreesChannel : LayeredDeformationChannel<List<TreePos>, TreesMapDeformerModule>
+    public class TreesChannel : LayeredDeformationChannel<List<TreePos>, TreesMapIModifier>
     {
         public IChunk Chunk;
 
@@ -42,7 +42,7 @@ namespace Core.TerrainGenerator
             return source.DeepClone();
         }
 
-        protected override void ApplyToCache(TreesMapDeformerModule module)
+        protected override void ApplyToCache(TreesMapIModifier module)
         {
             throw new NotImplementedException();
 

@@ -1,8 +1,6 @@
-﻿#ifndef SAMPLE_HEIGHTMAP_CBUFFER
-#define SAMPLE_HEIGHTMAP_CBUFFER
+﻿#ifndef MAP_BUFFER
+#define MAP_BUFFER
 
-Texture2D<float> source_heightmap;
-SamplerState sampler_source_heightmap;
 StructuredBuffer<uint2> map;
 int map_size; 
 float pixel_size_uv_space;

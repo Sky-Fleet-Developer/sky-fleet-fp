@@ -13,7 +13,7 @@ using UnityEngine.Networking;
 namespace Core.TerrainGenerator
 {
     [ShowInInspector]
-    public class ColorChannel : LayeredDeformationChannel<float[], ColorMapDeformerModule>
+    public class ColorChannel : LayeredDeformationChannel<float[], ColorMapModifier>
     {
         private static readonly Semaphore Semaphore = new Semaphore(3, 3);
 
@@ -49,7 +49,7 @@ namespace Core.TerrainGenerator
             return source.Clone() as float[];
         }
 
-        protected override void ApplyToCache(ColorMapDeformerModule module)
+        protected override void ApplyToCache(ColorMapModifier module)
         {
             //RectangleAffectSettings rectangleSettings = GetAffectSettingsForDeformer(module.Core);
 
@@ -153,23 +153,6 @@ namespace Core.TerrainGenerator
 
                 return result;
             }
-            /*PNGReader.ReadPNG(path, cacheTexture);
-            float[] result = new float[resolution * resolution * layersCount];
-            Color[] pixels = cacheTexture.GetPixels();
-
-            for (int u = 0; u < resolution; u++)
-            {
-                for (int v = 0; v < resolution; v++)
-                {
-                    Color pixel = pixels[u + v * resolution];
-                    for (int w = 0; w < layersCount; w++)
-                    {
-                        result[(u + v * resolution) * layersCount + w] = pixel[w];
-                    }
-                }
-            }
-
-            return result;*/
         }
 
         private async Task<Texture2D> ApplyInBuild(string path)

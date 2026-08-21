@@ -10,7 +10,7 @@ namespace Core.TerrainGenerator
     /// Runtime state and management for single chunk
     /// </summary>
     [ShowInInspector]
-    public abstract class DeformationChannel<TModule> : DeformationChannel where TModule : class, IDeformerModule
+    public abstract class DeformationChannel<TModule> : DeformationChannel where TModule : class, IModifier
     {
         protected Dictionary<int, List<TModule>> deformers = new  Dictionary<int, List<TModule>>();
         protected Dictionary<int, List<TModule>> dirtyDeformers = new  Dictionary<int, List<TModule>>();

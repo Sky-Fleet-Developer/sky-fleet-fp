@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace Core.TerrainGenerator
 {
-    public abstract class LayeredDeformationChannel<DataT, TModule> :  DeformationChannel<TModule> where TModule : class, IDeformerModule
+    public abstract class LayeredDeformationChannel<DataT, TModule> :  DeformationChannel<TModule> where TModule : class, IModifier
     {
         protected List<DataT> deformationLayersCache = new List<DataT>();
 
