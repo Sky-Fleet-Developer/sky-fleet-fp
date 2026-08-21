@@ -4,12 +4,10 @@
 
 void SampleAlphamap_float(float3 world_position, out float4 color)
 {
-    int2 slot;
+    int slot;
     float2 uv;
     WorldPositionToSlot(world_position, uv, slot);
-    uint2 chunk = SlotToMap(slot);
+    int chunk = SlotToMap(slot);
 
-    float2 uv_to_sample = SlotUvToChunkUv(chunk, uv);
-    
-    color = source_alphamap.SampleLevel(sampler_source_alphamap, uv_to_sample, 0);
+    color = source_alphamap.SampleLevel(sampler_source_alphamap, float3(uv, chunk), 0);
 }

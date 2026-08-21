@@ -10804,6 +10804,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2814397878552879366, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: matView
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2814397878552879366, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: _settings
       value: 
       objectReference: {fileID: 11400000, guid: 032a3b316246b884d8edda18c08b23ef, type: 2}

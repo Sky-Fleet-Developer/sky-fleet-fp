@@ -1,7 +1,7 @@
 ﻿#ifndef MAP_BUFFER
 #define MAP_BUFFER
 
-StructuredBuffer<uint2> map;
+StructuredBuffer<int> map;
 int map_size; 
 float pixel_size_uv_space;
 float heightmap_chunk_resolution;

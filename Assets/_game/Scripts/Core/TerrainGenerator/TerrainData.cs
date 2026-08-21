@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 
 namespace Core.TerrainGenerator
 {
@@ -14,7 +15,7 @@ namespace Core.TerrainGenerator
         private ComputeBuffer _loadHeightDataBuffer;
         private ComputeBuffer _loadAlphaDataBuffer;
         private ComputeBuffer _mapBuffer;
-        private int2[] _mapDataContent;
+        private int[] _mapDataContent;
         private TaskCompletionSource<bool> _loadDataTask;
         private bool _mapDirty = true;
         private int _maxChunksSide;
@@ -40,20 +41,23 @@ namespace Core.TerrainGenerator
             _maxChunksSide = maxChunksSide;
             _chunkResolution = chunkResolution;
 
-            int texSize = maxChunksSide * (chunkResolution + 2);
-            _heightmapTex = new RenderTexture(texSize, texSize, 0, GraphicsFormat.R16_SNorm);
+            _heightmapTex = new RenderTexture(chunkResolution, chunkResolution, -1, GraphicsFormat.R16_SNorm);
+            _heightmapTex.dimension = TextureDimension.Tex2DArray;
+            _heightmapTex.volumeDepth = maxChunksSide * maxChunksSide;
             _heightmapTex.enableRandomWrite = true;
             _heightmapTex.filterMode = FilterMode.Bilinear;
             _heightmapTex.Create();
-            _alphamapTex = new RenderTexture(texSize, texSize, 0, GraphicsFormat.R8G8B8A8_UNorm);
+            _alphamapTex = new RenderTexture(chunkResolution, chunkResolution, -1, GraphicsFormat.R8G8B8A8_UNorm);
+            _alphamapTex.volumeDepth = maxChunksSide * maxChunksSide;
+            _alphamapTex.dimension = TextureDimension.Tex2DArray;
             _alphamapTex.enableRandomWrite = true;
             _alphamapTex.filterMode = FilterMode.Bilinear;
             _alphamapTex.Create();
 
             int maxChunksTotal = maxChunksSide * maxChunksSide;
-            _mapDataContent = new int2[maxChunksTotal];
+            _mapDataContent = new int[maxChunksTotal];
 
-            _mapBuffer = new ComputeBuffer(maxChunksTotal, sizeof(int) * 2);
+            _mapBuffer = new ComputeBuffer(maxChunksTotal, sizeof(int));
 
             _activeChunks = new Dictionary<Vector2Int, int2>(maxChunksTotal);
             _chunkInsertionOrder = new Queue<Vector2Int>(maxChunksTotal);
@@ -199,7 +203,7 @@ namespace Core.TerrainGenerator
                 // 2. Очищаем старые данные (заполняем -1, чтобы в шейдере отловить пустоты)
                 for (int i = 0; i < _mapDataContent.Length; i++)
                 {
-                    _mapDataContent[i] = new int2(-1, -1);
+                    _mapDataContent[i] = -1;
                 }
 
                 // 3. Заполняем плоский массив карты
@@ -213,7 +217,7 @@ namespace Core.TerrainGenerator
                     if (localX >= 0 && localX < mapSize && localY >= 0 && localY < mapSize)
                     {
                         int index = localX * mapSize + localY;
-                        _mapDataContent[index] = kvp.Value;
+                        _mapDataContent[index] = kvp.Value.x * mapSize + kvp.Value.y;
                     }
                 }
 
