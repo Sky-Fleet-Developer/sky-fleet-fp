@@ -89,7 +89,7 @@ namespace Core.TerrainGenerator
             buffer.SetData(_alphamapData);
             var mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
             //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
-            _gpuWorker.InsertAlphamapDataToBuffer(buffer, _data.AlphamapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
+            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(_alphamapData.Length), _data.AlphamapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
         }
 
         protected override void ApplyToCache(ColorMapModifier module)

@@ -72,7 +72,7 @@ namespace Core.TerrainGenerator
             buffer.SetData(_heightmapData);
             var mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
             //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
-            _gpuWorker.InsertHeightmapDataToBuffer(buffer, _data.HeightmapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
+            _gpuWorker.InsertHeightmapDataToBuffer(buffer, (int)Mathf.Sqrt(_heightmapData.Length), _data.HeightmapTex, mapBuffer, Coordinates - mapMin, mapSize, Resolution);
         }
 
         protected override void ApplyToCache(HeightMapModifier module)

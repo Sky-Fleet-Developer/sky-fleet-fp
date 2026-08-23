@@ -40,6 +40,9 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int SourceAlphamap = Shader.PropertyToID("source_alphamap");
         private static readonly int DestinationAlphamap = Shader.PropertyToID("destination_alphamap");
         private static readonly int ChunkAlphamap = Shader.PropertyToID("chunk_alphamap");
+        private static readonly int HeightmapIDToChunkSourceID = Shader.PropertyToID("heightmap_id_to_chunk_source_id");
+        private static readonly int AlphamapIDToChunkSourceID = Shader.PropertyToID("alphamap_id_to_chunk_source_id");
+        private static readonly int AlphamapChunkResolution = Shader.PropertyToID("alphamap_chunk_resolution");
         private readonly int _copyHeightmapKernel;
         private readonly int _applyDeformationKernel;
         private readonly int _alignVerticesToHeightmapKernel;
@@ -159,7 +162,7 @@ namespace Core.TerrainGenerator.Settings
             _shader.Dispatch(_testAlignSineKernel, treadGroups, 1, 1);
         }
 
-        public void InsertHeightmapDataToBuffer(ComputeBuffer chunkSourceData, RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int heightmapChunkResolution)
+        public void InsertHeightmapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int heightmapChunkResolution)
         {
             lock (_shader)
             {
@@ -167,19 +170,21 @@ namespace Core.TerrainGenerator.Settings
                 BindMap(_insertRawHeightToTexKernel, mapBuffer, chunkCoordMapSpace, mapSize);
                 BindHeightmapAsDestination(_insertRawHeightToTexKernel, heightmap, heightmapChunkResolution);
                 _shader.SetBool(FlipXYWhenImportRawHeightmap, true);
+                _shader.SetFloat(HeightmapIDToChunkSourceID, sourceTexResolution / (float)heightmapChunkResolution);
                 _shader.SetBuffer(_insertRawHeightToTexKernel, ChunkHeightmap, chunkSourceData);
                 _shader.Dispatch(_insertRawHeightToTexKernel, treadGroups, treadGroups, 1);
             }
         }
         
-        public void InsertAlphamapDataToBuffer(ComputeBuffer chunkSourceData, RenderTexture alphamap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int heightmapChunkResolution)
+        public void InsertAlphamapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture alphamap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int alphamapChunkResolution)
         {
             lock (_shader)
             {
-                int treadGroups = heightmapChunkResolution / 8 + (heightmapChunkResolution % 8 > 0 ? 1 : 0);
+                int treadGroups = alphamapChunkResolution / 8 + (alphamapChunkResolution % 8 > 0 ? 1 : 0);
                 BindMap(_insertRawAlphaToTexKernel, mapBuffer, chunkCoordMapSpace, mapSize);
-                BindAlphamapAsDestination(_insertRawAlphaToTexKernel, alphamap, heightmapChunkResolution);
+                BindAlphamapAsDestination(_insertRawAlphaToTexKernel, alphamap, alphamapChunkResolution);
                 _shader.SetBool(FlipXYWhenImportRawHeightmap, true);
+                _shader.SetFloat(AlphamapIDToChunkSourceID, sourceTexResolution / (float)alphamapChunkResolution);
                 _shader.SetBuffer(_insertRawAlphaToTexKernel, ChunkAlphamap, chunkSourceData);
                 _shader.Dispatch(_insertRawAlphaToTexKernel, treadGroups, treadGroups, 1);
             }
@@ -238,7 +243,7 @@ namespace Core.TerrainGenerator.Settings
         
         private void BindAlphamapAsDestination(int kernelIndex, RenderTexture heightmap, int heightmapResolution)
         {
-            _shader.SetInt(HeightmapChunkResolution, heightmapResolution);
+            _shader.SetInt(AlphamapChunkResolution, heightmapResolution);
             _shader.SetTexture(kernelIndex, DestinationAlphamap, heightmap);
         }
         

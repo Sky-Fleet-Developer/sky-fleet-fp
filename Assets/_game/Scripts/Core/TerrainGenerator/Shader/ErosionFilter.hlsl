@@ -179,7 +179,6 @@ float4 ErosionFilter(
         phacelle.zw *= -freq;
         // Amount of slope as value from 0 to 1.
         float sloping = abs(phacelle.y);
-        
         // Add non-masked, normalized slope to gullySlope, for use by subsequent octaves.
         // It's normalized to use the steepest part of the sine wave everywhere.
         gullySlope += sign(phacelle.y) * phacelle.zw * strength * gullyWeight;

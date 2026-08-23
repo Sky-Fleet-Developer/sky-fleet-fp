@@ -36,8 +36,8 @@ namespace Core.TerrainGenerator
         private MapGpuWorker _gpuWorker;
 
 
-        public DirectoryInfo directory;
-        public Vector2 HeightmapOffset;
+        public DirectoryInfo Directory;
+        [FormerlySerializedAs("HeightmapOffset")] public Vector2 heightmapOffset;
         public IReadOnlyList<ChannelSettings> Settings => _settings;
         public float ChunkMeshSize => chunkMeshSize;
         public float VisibleDistance => visibleDistance;
@@ -65,8 +65,8 @@ namespace Core.TerrainGenerator
 
         private void Setup()
         {
-            directory = DirectoryUtilities.GetDirectory(targetDirectory);
-            if (directory == null) Debug.LogWarning("Wrong directory!");
+            Directory = DirectoryUtilities.GetDirectory(targetDirectory);
+            if (Directory == null) Debug.LogWarning("Wrong directory!");
             _settings ??= new List<ChannelSettings>();
             _settings.Clear();
             _settings.AddRange(children.OfType<ChannelSettings>());
@@ -76,34 +76,40 @@ namespace Core.TerrainGenerator
         [Button]
         private void MakeHeightmapLayer()
         {
-            MakeNewLayer<MeshHeightmapChannelSettings>("Heightmap");
+            MakeNewLayer<MeshHeightmapChannelSettings>("Heightmap")?.Initialize(this);
         }
 
         [Button]
         private void MakeColorLayer()
         {
-            MakeNewLayer<ColorChannelSettings>("Color map");
+            MakeNewLayer<ColorChannelSettings>("Color map")?.Initialize(this);
         }
 
         [Button]
         private void MakeTreesLayer()
         {
-            MakeNewLayer<TreesChannelSettings>("Trees map");
+            MakeNewLayer<TreesChannelSettings>("Trees map")?.Initialize(this);
+        }
+        
+        [Button]
+        private void MakeErosionSettings()
+        {
+            MakeNewLayer<ErosionSettings>("ErosionSettings");
         }
 
-        private void MakeNewLayer<T>(string n) where T : ChannelSettings
+        private T MakeNewLayer<T>(string n) where T : ScriptableObject
         {
-            if (Settings.FirstOrDefault(x => x.GetType() == typeof(T))) return;
+            if (Settings.FirstOrDefault(x => x.GetType() == typeof(T))) return null;
 
-            T newSettings = CreateInstance<T>();
-            newSettings.name = n;
-            newSettings.Initialize(this);
-            children.Add(newSettings);
+            T instance = CreateInstance<T>();
+            instance.name = n;
+            children.Add(instance);
 
-            AssetDatabase.AddObjectToAsset(newSettings, this);
+            AssetDatabase.AddObjectToAsset(instance, this);
             AssetDatabase.SaveAssets();
             EditorUtility.SetDirty(this);
-            EditorUtility.SetDirty(newSettings);
+            EditorUtility.SetDirty(instance);
+            return instance;
         }
 #endif
 
@@ -112,9 +118,9 @@ namespace Core.TerrainGenerator
         private void CorrectDirectory()
         {
             string path = PathStorage.GetPathToLandscapesDirectory();
-            if (!Directory.Exists(path))
+            if (!System.IO.Directory.Exists(path))
             {
-                Directory.CreateDirectory(path);
+                System.IO.Directory.CreateDirectory(path);
             }
         }
 

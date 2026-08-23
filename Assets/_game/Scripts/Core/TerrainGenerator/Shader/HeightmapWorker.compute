@@ -5,6 +5,8 @@
 #include "rectangle_affect_settings.hlsl"
 #include "packed_vertex.hlsl"
 #include <Assets/_game/Visual/Map/SampleMapUtility.hlsl>
+#include "ErosionSettings.hlsl"
+#include "ErodeUsingSettings.hlsl"
 
 Texture2DArray<float> source_heightmap;
 RWTexture2DArray<float> destination_heightmap;
@@ -17,9 +19,10 @@ StructuredBuffer<uint> chunk_alphamap;
 //StructuredBuffer<float> deformation_heightmap;
 RWStructuredBuffer<packed_vertex> vertices;
 
+float heightmap_id_to_chunk_source_id;
+float alphamap_id_to_chunk_source_id;
 float chunk_size;
 float chunk_height;
-//float heightmap_chunk_resolution;
 uint vertices_count;
 uint vertices_width_count;
 float normal_dx;
@@ -116,34 +119,7 @@ bool HalfToCoord(half value, out uint2 coord)
     }
 }
 
-//float get_height_from_heightmap(int slot, int2 pixel_coord)
-//{
-//    //const uint2 offset = uint2(1, 1);
-//    //return source_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset];
-//    return source_heightmap[]
-//}
 
-//void set_height_to_heightmap(uint slot, uint2 pixel_coord, float value)
-//{
-//    //const uint2 offset = uint2(1, 1);
-//    destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
-//}
-
-//void set_alpha_to_map(uint slot, uint2 pixel_coord, float4 value)
-//{
-//    //const uint2 offset = uint2(1, 1);
-//    destination_alphamap[slot * (heightmap_chunk_resolution + 2) + pixel_coord] = value;
-//}
-
-//void set_height_to_heightmap_border(uint slot, int2 pixel_coord, float value)
-//{
-//    //const uint2 offset = uint2(1, 1);
-//    if (flip_x_y_when_import_raw_heightmap)
-//    {
-//        pixel_coord = pixel_coord.yx;
-//    }
-//    destination_heightmap[slot * (heightmap_chunk_resolution + 2) + pixel_coord + offset] = value;
-//}
 
 [numthreads(8,8,1)]
 void CSInsertRawHeightToTex (uint2 id : SV_DispatchThreadID)
@@ -152,17 +128,34 @@ void CSInsertRawHeightToTex (uint2 id : SV_DispatchThreadID)
     {
         return;
     }
+
+    int2 chunk_id = floor(id * heightmap_id_to_chunk_source_id);
+    float2 interpolation = frac(id * heightmap_id_to_chunk_source_id);
+    
+    float left_bottom = chunk_heightmap[chunk_id.x * heightmap_chunk_resolution + chunk_id.y];
+    float left_top = chunk_heightmap[chunk_id.x * heightmap_chunk_resolution + chunk_id.y + 1];
+    float right_bottom = chunk_heightmap[(chunk_id.x + 1) * heightmap_chunk_resolution + chunk_id.y];
+    float right_top = chunk_heightmap[(chunk_id.x + 1) * heightmap_chunk_resolution + chunk_id.y + 1];
+    float height = lerp(lerp(left_bottom, left_top, interpolation.y), lerp(right_bottom, right_top, interpolation.y), interpolation.x);
+    
+    //int x_dx = id.x == heightmap_chunk_resolution - 1 ? -1 : 1;
+    //int y_dx = id.y == heightmap_chunk_resolution - 1 ? -1 : 1;
+    //float df_dx = chunk_heightmap[(id.x + x_dx) * heightmap_chunk_resolution + id.y] - height;
+    //float df_dy = chunk_heightmap[id.x * heightmap_chunk_resolution + id.y + y_dx] - height;
+    //
+    //float4 erosion = DefaultErosion(id / (float)heightmap_chunk_resolution, float3(height, df_dx, df_dy));
+    //height += erosion.x;
     
     int slot = map[chunk_coord_x * map_size + chunk_coord_y];
     if (slot != -1)
     {
         if (flip_x_y_when_import_raw_heightmap)
         {
-            destination_heightmap[int3(id.yx, slot)] = chunk_heightmap[id.x * heightmap_chunk_resolution + id.y];
+            destination_heightmap[int3(id.yx, slot)] = height;
         }
         else
         {
-            destination_heightmap[int3(id, slot)] = chunk_heightmap[id.x * heightmap_chunk_resolution + id.y];
+            destination_heightmap[int3(id, slot)] = height;
         }
     }
 }
@@ -180,18 +173,28 @@ float4 unpack_uint(uint value)
 [numthreads(8,8,1)]
 void CSInsertRawAlphaToTex (uint2 id : SV_DispatchThreadID)
 {
-    if (id.x > heightmap_chunk_resolution || id.y > heightmap_chunk_resolution)
+    if (id.x > alphamap_chunk_resolution || id.y > alphamap_chunk_resolution)
     {
         return;
     }
     
+    int2 chunk_id = floor(id * heightmap_id_to_chunk_source_id);
+    float2 interpolation = frac(id * heightmap_id_to_chunk_source_id);
+    
+    float4 left_bottom = unpack_uint(chunk_alphamap[chunk_id.x * alphamap_chunk_resolution + chunk_id.y]);
+    float4 left_top = unpack_uint(chunk_alphamap[chunk_id.x * alphamap_chunk_resolution + chunk_id.y + 1]);
+    float4 right_bottom = unpack_uint(chunk_alphamap[(chunk_id.x + 1) * alphamap_chunk_resolution + chunk_id.y]);
+    float4 right_top = unpack_uint(chunk_alphamap[(chunk_id.x + 1) * alphamap_chunk_resolution + chunk_id.y + 1]);
+    float4 color = lerp(lerp(left_bottom, left_top, interpolation.y), lerp(right_bottom, right_top, interpolation.y), interpolation.x);
+    
     int slot = map[chunk_coord_x * map_size + chunk_coord_y];
+    
     if (flip_x_y_when_import_raw_heightmap)
     {
-        destination_alphamap[uint3(id, slot)] = unpack_uint(chunk_alphamap[id.y * heightmap_chunk_resolution + id.x]);
+        destination_alphamap[uint3(id, slot)] = color;
     }else
     {
-        destination_alphamap[uint3(id, slot)] = unpack_uint(chunk_alphamap[id.x * heightmap_chunk_resolution + id.y]);
+        destination_alphamap[uint3(id, slot)] = color;
     }
 }
 

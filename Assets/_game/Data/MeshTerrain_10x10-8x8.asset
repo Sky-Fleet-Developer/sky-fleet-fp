@@ -16,6 +16,29 @@ MonoBehaviour:
   formatMap:
     format: 10x10-8x8Height_{x}-{y}
     extension: r16
+--- !u!114 &-5336995684767508468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7d986b3fc8f4dc291f79fa43633e94d, type: 3}
+  m_Name: ErosionSettings
+  m_EditorClassIdentifier: Core::Core.TerrainGenerator.ErosionSettings
+  scale: 0.65
+  strength: 0.22
+  gullyWeight: 0.5
+  detail: 1.5
+  onset: {x: 0.7, y: 1.25, z: 2.8, w: 1.5}
+  assumedSlope: {x: 0.7, y: 1}
+  cellScale: 0.7
+  normalization: 0.5
+  octaves: 5
+  lacunarity: 2
+  gain: 0.5
 --- !u!114 &-1368039965201892930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31,8 +54,6 @@ MonoBehaviour:
   container: {fileID: 11400000}
   layersCount: 3
   normalizeAlphamap: 0
-  layerMaskProperty: _LayerMaskMap
-  blitShader: {fileID: 7200000, guid: ca86cc731d7c8a14d84cea50dd9051c1, type: 3}
   splatmapFormats:
   - format: 10x10-8x8Ch_1_{x}-{y}
     extension: png
@@ -52,10 +73,12 @@ MonoBehaviour:
   - {fileID: -1368039965201892930}
   - {fileID: -7671948353902161526}
   - {fileID: 4259751407393431562}
+  - {fileID: -5336995684767508468}
   targetDirectory: 10x10-8x8
   material: {fileID: 2100000, guid: 3a68f95681d57df46b5fa2258283d173, type: 2}
-  chunkSize: 3600
-  height: 2000
+  chunkMeshSize: 3600
+  chunkMeshResolution: 257
+  height: 3600
   heightmapResolution: 257
   maxLoadedChunksByOneSide: 9
   alphamapResolution: 257
@@ -63,8 +86,7 @@ MonoBehaviour:
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
-  chunkMeshResolution: 257
-  HeightmapOffset: {x: -0.005, y: -0.005}
+  heightmapOffset: {x: -0.005, y: -0.005}
 --- !u!114 &4259751407393431562
 MonoBehaviour:
   m_ObjectHideFlags: 0

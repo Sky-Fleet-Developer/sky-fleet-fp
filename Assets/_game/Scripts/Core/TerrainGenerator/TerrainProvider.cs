@@ -55,6 +55,7 @@ namespace Core.TerrainGenerator
         [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _terrainData?._activeChunks;
         public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
+        private ErosionSettings _erosionSettings;
         
         public TerrainData GetHeightmapData()
         {
@@ -101,8 +102,8 @@ namespace Core.TerrainGenerator
         
         private async Task Initialize()
         {
-            if (Settings.directory == null) throw new System.Exception("Wrong directory!");
-            
+            if (Settings.Directory == null) throw new System.Exception("Wrong directory!");
+            _erosionSettings = Settings.GetChildAssets<ErosionSettings>().FirstOrDefault();
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
             MaxWorldHeight = Mathf.Max(MaxWorldHeight, Settings.Height);
             if (Application.isPlaying)
@@ -133,6 +134,10 @@ namespace Core.TerrainGenerator
         
         public void Tick()
         {
+            if (_erosionSettings && _erosionSettings.IsDirty)
+            {
+                _erosionSettings.BindToMaterial(Settings.Material);
+            }
             LoadPropsForCurrentPosition().AsUniTask().Forget();
         }
         
@@ -252,7 +257,7 @@ namespace Core.TerrainGenerator
                     foreach (ChannelSettings layerSettings in Settings.Settings)
                     {
                         DeformationChannel channel =
-                            layerSettings.MakeDeformationChannel(this, coord, Settings.directory.FullName);
+                            layerSettings.MakeDeformationChannel(this, coord, Settings.Directory.FullName);
 
                         if (channel != null) _activeChunkChannels[coord].Add(channel);
                     }

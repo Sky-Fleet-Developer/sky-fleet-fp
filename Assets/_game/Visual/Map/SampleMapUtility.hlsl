@@ -1,6 +1,8 @@
 ﻿#ifndef SAMPLE_MAP_UTILITY
 #define SAMPLE_MAP_UTILITY
 #include "MapBuffer.hlsl"
+float heightmap_chunk_resolution;
+float alphamap_chunk_resolution;
 
 void WorldPositionToSlot(float3 world_position, out int slot)
 {

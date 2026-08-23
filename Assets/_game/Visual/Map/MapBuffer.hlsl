@@ -4,7 +4,6 @@
 StructuredBuffer<int> map;
 int map_size; 
 float pixel_size_uv_space;
-float heightmap_chunk_resolution;
 float slots_count_inv;
 float height_scale;
 float width_scale;
