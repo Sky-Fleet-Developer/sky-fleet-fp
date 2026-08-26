@@ -55,9 +55,9 @@ namespace Core.TerrainGenerator.Settings
             WriteToChannel(Core.GetTerrainsContacts());
         }*/
 
-        public void WriteToChannel(DeformationChannel sourceChannel)
+        public void WriteToChannel(ChunkData sourceChannel)
         {
-            if (!(sourceChannel is HeightChannel channel)) return;
+            //if (!(sourceChannel is HeightChannel channel)) return;
 
             //RectangleAffectSettings settings = sourceChannel.GetAffectSettingsForDeformer(Core);
             //var worker = channel.GetGpuWorker();

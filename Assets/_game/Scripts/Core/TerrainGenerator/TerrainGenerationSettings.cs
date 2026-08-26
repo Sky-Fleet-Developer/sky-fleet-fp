@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Core.TerrainGenerator.LOD;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
 using Core.Utilities;
@@ -32,13 +33,15 @@ namespace Core.TerrainGenerator
         [SerializeField] private Vector2Int chunksCenter;
         [SerializeField] private ComputeShader gpuWorksShader;
         
-        private List<ChannelSettings> _settings;
+        public HeightmapSettings heightmapSettings;
+        public AlphamapSettings alphamapSettings;
+        public QuadTreeLodConfig lodConfig;
+        
         private MapGpuWorker _gpuWorker;
 
 
         public DirectoryInfo Directory;
         [FormerlySerializedAs("HeightmapOffset")] public Vector2 heightmapOffset;
-        public IReadOnlyList<ChannelSettings> Settings => _settings;
         public float ChunkMeshSize => chunkMeshSize;
         public float VisibleDistance => visibleDistance;
         public float ChunksRefreshDistance => chunksRefreshDistance;
@@ -67,29 +70,26 @@ namespace Core.TerrainGenerator
         {
             Directory = DirectoryUtilities.GetDirectory(targetDirectory);
             if (Directory == null) Debug.LogWarning("Wrong directory!");
-            _settings ??= new List<ChannelSettings>();
-            _settings.Clear();
-            _settings.AddRange(children.OfType<ChannelSettings>());
         }
 
 #if UNITY_EDITOR
-        [Button]
+        /*[Button]
         private void MakeHeightmapLayer()
         {
-            MakeNewLayer<MeshHeightmapChannelSettings>("Heightmap")?.Initialize(this);
+            MakeNewLayer<HeightmapSettings>("Heightmap")?.Initialize(this);
         }
 
         [Button]
         private void MakeColorLayer()
         {
-            MakeNewLayer<ColorChannelSettings>("Color map")?.Initialize(this);
+            MakeNewLayer<AlphamapSettings>("Color map")?.Initialize(this);
         }
 
         [Button]
         private void MakeTreesLayer()
         {
             MakeNewLayer<TreesChannelSettings>("Trees map")?.Initialize(this);
-        }
+        }*/
         
         [Button]
         private void MakeErosionSettings()
@@ -99,8 +99,6 @@ namespace Core.TerrainGenerator
 
         private T MakeNewLayer<T>(string n) where T : ScriptableObject
         {
-            if (Settings.FirstOrDefault(x => x.GetType() == typeof(T))) return null;
-
             T instance = CreateInstance<T>();
             instance.name = n;
             children.Add(instance);

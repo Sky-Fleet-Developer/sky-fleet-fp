@@ -199,7 +199,15 @@ namespace WorldEditor
             //diContainer.Inject(_itemObjectFactory);
 
             _worldOffsetHandler?.TakeControl();
-            if(_terrainProvider) _terrainProviderHandler = diContainer.ResolveAll<TerrainProvider.ITerrainProviderHandler>().FirstOrDefault(x => x.Enabled);
+            if(_terrainProvider)
+            {
+                _terrainProviderHandler = diContainer.ResolveAll<TerrainProvider.ITerrainProviderHandler>()
+                    .FirstOrDefault(x => x.Enabled);
+                if (_terrainProviderHandler != null)
+                {
+                    _terrainProviderHandler.Initialize(true);
+                }
+            }
 
             _worldGrid.Load();
             
@@ -585,8 +593,8 @@ namespace WorldEditor
             rangeSettings.max += _terrainProvider.settings.ChunksCenter;
             #else
             Vector3Int offset = new Vector3Int(_terrainProvider.Settings.ChunksCenter.x, 0, _terrainProvider.Settings.ChunksCenter.y);
-            rangeSettings.min += offset;
             rangeSettings.max += offset;
+            rangeSettings.min += offset;
             #endif
             LoadAsync(rangeSettings).Forget();
         }
@@ -620,7 +628,7 @@ namespace WorldEditor
             {
                 if (rangeSettings.size != VectorInt.zero)
                 {
-                    await _terrainProviderHandler.LoadPropsForCurrentPosition();
+                    _terrainProviderHandler.LoadPropsForCurrentPosition();
                 }
                 else
                 {

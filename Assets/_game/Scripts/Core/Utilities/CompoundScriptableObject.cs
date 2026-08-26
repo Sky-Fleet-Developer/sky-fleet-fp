@@ -110,6 +110,10 @@ namespace Core.Utilities
 
                     for (int i = 0; i < _childObjects.Count; i++)
                     {
+                        if (!_childObjects[i])
+                        {
+                            Debug.Log("Null children asset!");
+                        }
                         _childObjects[i].DrawHeader();
                         _childObjects[i].OnInspectorGUI();
                     }

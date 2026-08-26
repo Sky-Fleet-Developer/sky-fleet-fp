@@ -9,14 +9,14 @@ namespace Core.TerrainGenerator
     /// <summary>
     /// Runtime state and management for single chunk
     /// </summary>
-    [ShowInInspector]
-    public abstract class DeformationChannel<TModule> : DeformationChannel where TModule : class, IModifier
+    /*[ShowInInspector]
+    public abstract class ChunkData<TModule> : ChunkData where TModule : class, IModifier
     {
         protected Dictionary<int, List<TModule>> deformers = new  Dictionary<int, List<TModule>>();
         protected Dictionary<int, List<TModule>> dirtyDeformers = new  Dictionary<int, List<TModule>>();
         protected int maxDeformerLayer = -1;
 
-        protected DeformationChannel(TerrainProvider terrain, Vector2Int coordinates, float chunkSize) : base(terrain, coordinates, chunkSize)
+        protected ChunkData(TerrainProvider terrain, Vector2Int coordinates, float chunkSize) : base(terrain, coordinates, chunkSize)
         {
         }
         
@@ -96,5 +96,5 @@ namespace Core.TerrainGenerator
                 }
             }
         }
-    }
+    }*/
 }

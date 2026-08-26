@@ -13,49 +13,40 @@ using Object = UnityEngine.Object;
 
 namespace Core.TerrainGenerator
 {
-    public class ChunkByTesselation : MonoBehaviour, IChunk
+    public class Patch : MonoBehaviour, IPatch
     {
-        //private static List<Material> _pool = new ();
-        private static readonly int SourceHeightmap = Shader.PropertyToID("source_heightmap");
-        private static readonly int Map = Shader.PropertyToID("map");
-        private static readonly int SlotsCountInv = Shader.PropertyToID("slots_count_inv");
-        private static readonly int MapSize = Shader.PropertyToID("map_size");
-        private static readonly int HeightScale = Shader.PropertyToID("height_scale");
-
         private TerrainGenerationSettings _settings;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
-        private Vector2Int _coord;
+        private RectInt _rect;
         private TerrainData _terrainData;
-        public bool IsChunkVisible { get; set; }
 
-        public Vector2Int Coord => _coord;
+        public RectInt Rect => _rect;
 
         [ShowInInspector] public Material Material => _settings.Material;
 
         public float ChunkSize => _settings.ChunkMeshSize;
 
-        private void Awake()
-        {
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        }
 
-        public ChunkByTesselation Init(string name, Vector2Int coord, Transform parent,
+        public Patch Init(string name, Transform parent,
             TerrainGenerationSettings settings, TerrainData terrainData)
         {
             _terrainData = terrainData;
             this.name = name;
-            _coord = coord;
             _settings = settings;
 
-            //var worker = settings.Settings.OfType<MeshHeightmapChannelSettings>().First().GpuWorker;
-            BindMaterialParams();
-            
-            transform.localPosition = GetMyWorldPosition();
-
-            if (!_quadMesh)
+            if (!_meshFilter)
             {
+                _meshFilter = gameObject.AddComponent<MeshFilter>();
+                _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            }
+
+            if (!_quadMesh || _quadMeshResolution != settings.ChunkMeshResolution || !Mathf.Approximately(_quadMeshSize, settings.ChunkMeshSize))
+            {
+                if (_quadMesh)
+                {
+                    DestroyImmediate(_quadMesh);
+                }
                 CreateMesh(settings.ChunkMeshResolution, settings.ChunkMeshSize, settings.Height);
             }
 
@@ -65,28 +56,14 @@ namespace Core.TerrainGenerator
             return this;
         }
 
-        private void BindMaterialParams()
-        {
-            Material.SetTexture(SourceHeightmap, _terrainData.HeightmapTex);
-            Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
-            float hmPixSize = 1f / _settings.ChunkMeshSize;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
-            Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.ChunkMeshSize + WorldOffset.Offset.x, mapMin.y * _settings.ChunkMeshSize + WorldOffset.Offset.z));
-            Material.SetFloat(MapSize, mapSize);
-            Material.SetFloat(HeightScale, _settings.Height);
-            Material.SetFloat(WidthScale, _settings.ChunkMeshSize);
-            Material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
-            Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
-            Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
-        }
-
         private Vector3 GetMyWorldPosition()
         {
-            return new Vector3(_coord.x * ChunkSize, 0, _coord.y * ChunkSize);
+            return new Vector3(_rect.x * ChunkSize, 0, _rect.y * ChunkSize);
         }
 
         private Vector3 GetMySpacePosition()
         {
-            return WorldOffset.WorldToSpace(new Vector3(_coord.x * ChunkSize, 0, _coord.y * ChunkSize));
+            return WorldOffset.WorldToSpace(new Vector3(_rect.x * ChunkSize, 0, _rect.y * ChunkSize));
         }
 
         public void RefreshPosition()
@@ -95,34 +72,44 @@ namespace Core.TerrainGenerator
             transform.localPosition = position;
         }
 
-        public void OnChunksRefreshed()
+        public void SetRect(RectInt rect)
         {
-            BindMaterialParams();
+            _rect = rect;
+            transform.localScale = new Vector3(rect.size.x, 1, rect.size.y);
+            transform.localPosition = GetMyWorldPosition();
         }
 
         public void Enable()
         {
             gameObject.SetActive(true);
-            BindMaterialParams();
         }
 
         public void Disable()
         {
-            gameObject.SetActive(false);
+            if (Application.isPlaying)
+            {
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                if (this)
+                {
+                    DestroyImmediate(gameObject);
+                }
+            }
         }
 
         private static Mesh _quadMesh;
-        private static readonly int PixelSizeUVSpace = Shader.PropertyToID("pixel_size_uv_space");
-        private static readonly int HeightmapChunkResolution = Shader.PropertyToID("heightmap_chunk_resolution");
-        private static readonly int WidthScale = Shader.PropertyToID("width_scale");
-        private static readonly int HeightmapOffset = Shader.PropertyToID("heightmap_offset");
-        private static readonly int PositionToChunkMatrix = Shader.PropertyToID("position_to_chunk_matrix");
-        private static readonly int MapSpaceToChunkSpaceUV = Shader.PropertyToID("map_space_to_chunk_space_uv");
+        private static int _quadMeshResolution;
+        private static float _quadMeshSize;
+
 
         private static void CreateMesh(int resolution, float width, float height)
         {
             _quadMesh = new Mesh();
             _quadMesh.name = "TerrainQuad";
+            _quadMeshResolution = resolution;
+            _quadMeshSize = width;
             int indicesCount = resolution * resolution * 6;
             int verticesPerSide = resolution + 1;
             int vertexCount = verticesPerSide * verticesPerSide;

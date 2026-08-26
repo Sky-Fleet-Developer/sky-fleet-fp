@@ -7,7 +7,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using Core.TerrainGenerator.Utility;
-
+/*
 #if UNITY_EDITOR
 namespace Core.TerrainGenerator
 {
@@ -155,4 +155,4 @@ namespace Core.TerrainGenerator
         }
     }
 }
-#endif
+#endif*/

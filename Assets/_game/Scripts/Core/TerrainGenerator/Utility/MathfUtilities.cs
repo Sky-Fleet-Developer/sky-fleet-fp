@@ -82,11 +82,11 @@ namespace Core.TerrainGenerator.Utility
             return rect;
         }
         
-        public static Rect GetAffectRectangle(IChunk chunk, Vector3 terrainPosition, Rect rect)
+        public static Rect GetAffectRectangle(IPatch patch, Vector3 terrainPosition, Rect rect)
         {
             rect.position -= terrainPosition.XZ();
 
-            float terrainSizeInv = 1f / chunk.ChunkSize;
+            float terrainSizeInv = 1f / patch.ChunkSize;
 
             rect.position *= terrainSizeInv;
             rect.size *= terrainSizeInv;

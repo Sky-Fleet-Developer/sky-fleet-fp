@@ -67,7 +67,7 @@ class QuadTesselationCustomPass : CustomPass
         }
 
 
-        if (drawWireMesh)
+       /* if (drawWireMesh)
         {
             ctx.cmd.SetWireframe(true);
             foreach (var activeChunk in terrainProvider.GetActiveChunks())
@@ -84,24 +84,24 @@ class QuadTesselationCustomPass : CustomPass
                 var matrix = activeChunk.transform.localToWorldMatrix;
                 Draw(ctx, matrix, activeChunk);
             }
-        }
+        }*/
     }
 
-    private void Draw(CustomPassContext ctx, Matrix4x4 matrix, IChunk activeChunk)
+    private void Draw(CustomPassContext ctx, Matrix4x4 matrix, IPatch activePatch)
     {
         switch (pass)
         {
             case Pass.ShadowCaster:
-                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _shadowCasterPass);
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activePatch.Material, 0, _shadowCasterPass);
                 break;
             case Pass.DepthPrepass:
-                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _depthPrepassPass);
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activePatch.Material, 0, _depthPrepassPass);
                 break;
             case Pass.GBuffer:
-                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _gBufferPass);
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activePatch.Material, 0, _gBufferPass);
                 break;
             case Pass.MotionVectors:
-                ctx.cmd.DrawMesh(_quadMesh, matrix, activeChunk.Material, 0, _motionVectorsPass);
+                ctx.cmd.DrawMesh(_quadMesh, matrix, activePatch.Material, 0, _motionVectorsPass);
                 break;
         }
     }

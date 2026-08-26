@@ -62,10 +62,10 @@ void SampleHeightmap(float3 world_position, out float height)
     height = pow(fbm_perlin(world_position.xz, 1), 2);//(cos(uv.x * PI * 2) + 1) * (cos(uv.y * PI * 2) + 1) * 0.5;//source_heightmap.SampleLevel(sampler_source_heightmap, float3(uv, chunk), 0);
 }
 
-void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float2 gradient, out float3 debug_color)
+void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float3 normal, out float3 debug_color)
 {
     SampleHeightmap(world_position, height);
-    
+
     float height_x_pos, height_z_pos, height_x_neg, height_z_neg;
     SampleHeightmap(world_position + float3(1, 0, 0), height_x_pos);
     SampleHeightmap(world_position + float3(0, 0, 1), height_z_pos);
@@ -75,24 +75,26 @@ void SampleHeightmapWithGradient_float(float3 world_position, out float height, 
 
     float dfdx = (height_x_pos - height_x_neg);
     float dfdz = (height_z_pos - height_z_neg);
-    gradient = float2(-dfdx, -dfdz);
 
-    float2 wuv;
-    wuv.x = (world_position.x - position_to_chunk_matrix.z) * position_to_chunk_matrix.x;
-    wuv.y = (world_position.z - position_to_chunk_matrix.w) * position_to_chunk_matrix.y;
-    int slot;
-    float2 uv;
-    WorldPositionToSlot(world_position, uv, slot);
+    float2 gradient = float2(-dfdx, -dfdz);
+
+    float2 non_clamped_uv;
+    non_clamped_uv.x = (world_position.x - position_to_chunk_matrix.z) * position_to_chunk_matrix.x;
+    non_clamped_uv.y = (world_position.z - position_to_chunk_matrix.w) * position_to_chunk_matrix.y;
     debug_color = float3(1, 1, 1);
-    gradient *= 20;
+
     if (erosion_strength != 0 && erosion_scale != 0)
     {
         float debug;
         float ridgeMap;
-        float4 erosion = ErodeUsingSettings(wuv, float3(height, gradient), debug, ridgeMap);
-        gradient += erosion.yz;
+        float4 erosion = ErodeUsingSettings(non_clamped_uv, float3(height, gradient), height - 0.5, debug, ridgeMap);
+        gradient += erosion.yz / erosion_gully_weight * _ErosionGradientInfluence;
         height += erosion.x;
         debug_color = float3(debug, .5f, .5f);
     }
+
+    float2 world_slope = gradient * (height_scale / 2.0);
+    normal = normalize(float3(world_slope.x, 1.0, world_slope.y));
+
     height *= height_scale;
 }

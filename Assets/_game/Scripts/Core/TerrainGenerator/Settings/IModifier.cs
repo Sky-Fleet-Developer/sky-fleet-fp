@@ -11,7 +11,7 @@ namespace Core.TerrainGenerator.Settings
 
         void ReadFromTerrain();
 
-        void WriteToChannel(DeformationChannel channel);
+        void WriteToChannel(ChunkData channel);
         //TODO: void WriteToChannelIfMatch(DeformationChannel channel, Rect rect);
     }
 }

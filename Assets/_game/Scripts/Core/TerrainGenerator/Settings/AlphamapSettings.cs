@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.Settings
 {
-    public class ColorChannelSettings : ChannelSettings
+    [Serializable]
+    public class AlphamapSettings
     {
         [SerializeField, HideInInspector] private int layersCount = 3;
         [SerializeField] private bool normalizeAlphamap;
@@ -46,8 +48,13 @@ namespace Core.TerrainGenerator.Settings
         };
 
 
-        public override DeformationChannel MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory)
+        public string GetPath(Vector2Int position, string directory)
         {
+            return splatmapFormats[0].SearchInFolder(position, directory);
+        }
+        
+        //public override ChunkData MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory)
+        //{
             //List<string> paths = new List<string>(); 
             //foreach (FileFormatSeeker format in splatmapFormats)
             //{
@@ -55,8 +62,8 @@ namespace Core.TerrainGenerator.Settings
             //   paths.Add(path);
             //}
 
-            IChunk chunk = terrain.GetChunk(position);
-            return new AlphamapChannel(terrain, chunk, terrain.Settings.AlphamapResolution, terrain.Settings.ChunkMeshSize, position, splatmapFormats[0].SearchInFolder(position + terrain.Settings.ChunksCenter, directory));
-        }
+        //    IPatch patch = terrain.GetChunk(position);
+        //    return new AlphamapChannel(terrain, patch, terrain.Settings.AlphamapResolution, terrain.Settings.ChunkMeshSize, position, );
+        //}
     }
 }

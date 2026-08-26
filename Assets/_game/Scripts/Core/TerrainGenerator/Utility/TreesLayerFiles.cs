@@ -6,7 +6,7 @@ using Core.ContentSerializer;
 
 namespace Core.TerrainGenerator.Utility
 {
-    public static class TreesLayerFiles
+    /*public static class TreesLayerFiles
     {
         public static void SaveTreeLayer(string path, List<TreePos> trees)
         {
@@ -40,5 +40,5 @@ namespace Core.TerrainGenerator.Utility
                 }
             }
         }
-    }
+    }*/
 }

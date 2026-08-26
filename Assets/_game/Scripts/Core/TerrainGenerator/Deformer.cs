@@ -12,7 +12,7 @@ using Zenject;
 
 namespace Core.TerrainGenerator
 {
-    public class Deformer : MonoBehaviour, IDeformer, ILoadAtStart
+    /*public class Deformer : MonoBehaviour, IDeformer, ILoadAtStart
     {
         public T GetModules<T>() where T : class, IModifier
         {
@@ -44,11 +44,11 @@ namespace Core.TerrainGenerator
         [ShowInInspector] private Dictionary<int, List<Vector2Int>> affectedChunks = new Dictionary<int, List<Vector2Int>>();
         [Inject(Optional = true)] private TerrainProvider _terrainProvider;
 
-        /*[SerializeField, HideInInspector]
+        [SerializeField, HideInInspector]
         private string[] typesInfo;
 
         [SerializeField, HideInInspector]
-        private string[] jsonConfig;*/
+        private string[] jsonConfig;
 
 
         public Task Load()
@@ -71,13 +71,13 @@ namespace Core.TerrainGenerator
         [Button]
         public void AddDeformerSettings(System.Type deformer)
         {
-            /*IDeformerLayerSettings layerSettings = System.Activator.CreateInstance(deformer) as IDeformerLayerSettings;
+            IDeformerLayerSettings layerSettings = System.Activator.CreateInstance(deformer) as IDeformerLayerSettings;
             layerSettings.Init(this);
-            Settings.Add(layerSettings);*/
+            Settings.Add(layerSettings);
             modules.Add(new SerializedDeformerModule(this, deformer));
         }
 
-        /*[Button]
+        [Button]
         public void SaveToJson()
         {
             if (modules == null) return;
@@ -89,9 +89,9 @@ namespace Core.TerrainGenerator
                 typesInfo[i] = modules[i].GetType().FullName;
                 jsonConfig[i] = JsonConvert.SerializeObject(modules[i]);
             }
-        }*/
+        }
 
-        /*[Button]
+        [Button]
         public void ReadFromJson()
         {
             settings = new List<IDeformerLayerSettings>();
@@ -104,7 +104,7 @@ namespace Core.TerrainGenerator
                 newDeformer.Init(this);
                 settings.Add(newDeformer);
             }
-        }*/
+        }
 
         [Button]
         public void ReadFromTerrain()
@@ -216,5 +216,5 @@ namespace Core.TerrainGenerator
             Gizmos.color = Color.white;
             Gizmos.DrawWireCube(new Vector3(localRect.x, 0, localRect.y), new Vector3(localRect.z, 0, localRect.w) * (1 - fade));
         }
-    }
+    }*/
 }

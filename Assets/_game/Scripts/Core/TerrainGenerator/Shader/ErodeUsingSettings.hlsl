@@ -1,7 +1,7 @@
 ﻿#include "ErosionFilter.hlsl"
 //#include "ErosionSettings.hlsl"
 
-float4 ErodeUsingSettings(float2 uv, float3 heightAndSlope, out float debug, out float ridgeMap)
+float4 ErodeUsingSettings(float2 uv, float3 heightAndSlope, float fadeTarget, out float debug, out float ridgeMap)
 {
     // ------------------------------------------------------------------------
     // Terrain parameters not used in the erosion function itself.
@@ -19,7 +19,6 @@ float4 ErodeUsingSettings(float2 uv, float3 heightAndSlope, out float debug, out
     //     the erosion filter works, has the effect of largely preserving the minima
     //     and maxima of the terrain.
     float2 TERRAIN_HEIGHT_OFFSET = float2(0.0, 0.0);
-    float fadeTarget = heightAndSlope.x - 0.5f;
     //float ridgeMap;
     return ErosionFilter(uv, heightAndSlope, fadeTarget, erosion_strength, erosion_gully_weight, erosion_detail,
         erosion_rounding, erosion_onset, erosion_assumed_slope,

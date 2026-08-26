@@ -468,9 +468,10 @@ Material:
     - _EnableHeightBlend: 0
     - _EnableInstancedPerPixelNormal: 1
     - _EnergyConservingSpecularColor: 1
+    - _ErosionGradientInfluence: 1
     - _ErosionScale: 0.7
     - _ExcludeFromTUAndAA: 0
-    - _Height: 0.5
+    - _Height: 0.25
     - _HeightAmplitude: 0.02
     - _HeightAmplitude0: 0.02
     - _HeightAmplitude1: 0.03
@@ -589,7 +590,7 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
-    - _Smoothness: 0.51
+    - _Smoothness: 0.15
     - _Smoothness0: 0.1
     - _Smoothness1: 0.05
     - _Smoothness2: 0.356
@@ -679,21 +680,21 @@ Material:
     - _UseMainLayerInfluence: 0
     - _UseShadowThreshold: 0
     - _VertexColorMode: 0
-    - _VertexNormalStrength: 6
+    - _VertexNormalStrength: 1
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
     - _ZTestModeDistortion: 4
     - _ZTestTransparent: 4
     - _ZWrite: 1
     - erosion_cell_scale: 0.7
-    - erosion_detail: 1
+    - erosion_detail: 0.9
     - erosion_gain: 0.5
-    - erosion_gully_weight: 40
+    - erosion_gully_weight: 10000
     - erosion_lacunarity: 2.1
     - erosion_normalization: 0.6
-    - erosion_octaves: 6.69
+    - erosion_octaves: 8
     - erosion_scale: 0.7
-    - erosion_strength: 0.15
+    - erosion_strength: 0.51
     m_Colors:
     - _BaseColor: {r: 0.14503378, g: 0.26415092, b: 0.058561757, a: 1}
     - _BaseColor0: {r: 1, g: 1, b: 1, a: 1}

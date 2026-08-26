@@ -18,6 +18,6 @@ namespace Core.TerrainGenerator.Settings
         }
 #endif
 
-        public abstract DeformationChannel MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory);
+        //public abstract ChunkData MakeDeformationChannel(TerrainProvider terrain, Vector2Int position, string directory);
     }
 }

@@ -34,10 +34,10 @@ namespace Core.TerrainGenerator.Settings
             cosRotation = Mathf.Cos(deformer.Rotation);
             fade = deformer.Fade;
         }
-        public RectangleAffectSettings(IChunk chunk, Vector3 terrainPosition, int resolution, IDeformer deformer)
+        public RectangleAffectSettings(IPatch patch, Vector3 terrainPosition, int resolution, IDeformer deformer)
         {
             this.resolution = resolution;
-            Rect rect = MathfUtilities.GetAffectRectangle(chunk, terrainPosition, deformer.AxisAlignedRect);
+            Rect rect = MathfUtilities.GetAffectRectangle(patch, terrainPosition, deformer.AxisAlignedRect);
             minX = Mathf.CeilToInt(rect.x * resolution);
             minY = Mathf.CeilToInt(rect.y * resolution);
             minX = Mathf.Max(minX, 0);

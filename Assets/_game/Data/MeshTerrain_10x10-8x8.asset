@@ -9,22 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d5211ca1ab587c439e2152d94757411, type: 3}
-  m_Name: Heightmap
-  m_EditorClassIdentifier: 
-  container: {fileID: 11400000}
-  formatMap:
-    format: 10x10-8x8Height_{x}-{y}
-    extension: r16
---- !u!114 &-5336995684767508468
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7d986b3fc8f4dc291f79fa43633e94d, type: 3}
   m_Name: ErosionSettings
   m_EditorClassIdentifier: Core::Core.TerrainGenerator.ErosionSettings
@@ -39,24 +23,6 @@ MonoBehaviour:
   octaves: 5
   lacunarity: 2
   gain: 0.5
---- !u!114 &-1368039965201892930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db8a5efba01ddb64dba1efd64b982676, type: 3}
-  m_Name: Color map
-  m_EditorClassIdentifier: 
-  container: {fileID: 11400000}
-  layersCount: 3
-  normalizeAlphamap: 0
-  splatmapFormats:
-  - format: 10x10-8x8Ch_1_{x}-{y}
-    extension: png
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,15 +36,12 @@ MonoBehaviour:
   m_Name: MeshTerrain_10x10-8x8
   m_EditorClassIdentifier: 
   children:
-  - {fileID: -1368039965201892930}
   - {fileID: -7671948353902161526}
-  - {fileID: 4259751407393431562}
-  - {fileID: -5336995684767508468}
   targetDirectory: 10x10-8x8
   material: {fileID: 2100000, guid: 3a68f95681d57df46b5fa2258283d173, type: 2}
-  chunkMeshSize: 3600
-  chunkMeshResolution: 257
-  height: 3600
+  chunkMeshSize: 900
+  chunkMeshResolution: 128
+  height: 900
   heightmapResolution: 257
   maxLoadedChunksByOneSide: 9
   alphamapResolution: 257
@@ -86,22 +49,19 @@ MonoBehaviour:
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 3}
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
+  heightmapSettings:
+    formatMap:
+      format: 10x10-8x8Height_{x}-{y}
+      extension: r16
+  alphamapSettings:
+    layersCount: 3
+    normalizeAlphamap: 0
+    splatmapFormats:
+    - format: 10x10-8x8Ch_1_{x}-{y}
+      extension: png
+  lodConfig:
+    LodDistances:
+    - 3000
+    - 1000
+    - 500
   heightmapOffset: {x: -0.005, y: -0.005}
---- !u!114 &4259751407393431562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ca804ae224a69448a67bac69eb3bba9, type: 3}
-  m_Name: Trees map
-  m_EditorClassIdentifier: 
-  container: {fileID: 11400000}
-  format:
-    format: Trees_{x}_{y}
-    extension: trs
-  prototypes:
-  - {fileID: 6307873901052613052, guid: 0e3dfa09c8d7abb46a71fa2ba632df34, type: 3}

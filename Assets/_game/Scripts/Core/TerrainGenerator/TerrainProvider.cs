@@ -7,7 +7,9 @@ using Core.Utilities;
 using System.Threading.Tasks;
 using Core.Explorer;
 using Core.Misc;
+using Core.TerrainGenerator.LOD;
 using Core.TerrainGenerator.Settings;
+using Core.TerrainGenerator.Utility;
 using Sirenix.OdinInspector;
 using Core.World;
 using Cysharp.Threading.Tasks;
@@ -28,8 +30,8 @@ namespace Core.TerrainGenerator
         public interface ITerrainProviderHandler
         {
             public TerrainGenerationSettings Settings { get; }
-            Task Initialize();
-            Task LoadPropsForCurrentPosition();
+            void Initialize(bool force = false);
+            void LoadPropsForCurrentPosition();
             void Unload();
             bool Enabled { get; }
             public TerrainData GetHeightmapData();
@@ -37,18 +39,16 @@ namespace Core.TerrainGenerator
         
         public static readonly LateEvent<TerrainProvider> OnInitialize = new ();
         private static readonly int SourceAlphamap = Shader.PropertyToID("source_alphamap");
-        public static float MaxWorldHeight { get; private set; }
         [SerializeField] private TerrainGenerationSettings _settings;
         [Inject] private TickService _tickService;
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
 
         [ShowInInspector]
-        private Dictionary<Vector2Int, List<DeformationChannel>> _activeChunkChannels = new ();
-        private Dictionary<Vector2Int, List<DeformationChannel>> _inactiveChunkChannels = new ();
-        private Dictionary<Vector2Int, IChunk> _inactiveChunks = new ();
-        private Dictionary<Vector2Int, IChunk> _activeChunks = new ();
+        private Dictionary<Vector2Int, ChunkData> _activeChunks = new ();
+        private List<IPatch> _inactivePatches = new ();
+        private List<IPatch> _activePatches = new ();
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
-        private List<IDeformer> _deformersQueue = new ();
+        //private List<IDeformer> _deformersQueue = new ();
         [ShowInInspector] private TerrainData _terrainData;
         [ShowInInspector] RenderTexture HeightmapTexture => _terrainData?.HeightmapTex;
         [ShowInInspector] RenderTexture AlphamapTexture => _terrainData?.AlphamapTex;
@@ -56,34 +56,20 @@ namespace Core.TerrainGenerator
         public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
         private ErosionSettings _erosionSettings;
+        private TerrainQuadTree _quadTree;
         
         public TerrainData GetHeightmapData()
         {
-            if (_terrainData == null)
-            {
-                _terrainData = new TerrainData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
-                _settings.Material.SetTexture(SourceAlphamap, AlphamapTexture);
-            }
             return _terrainData;
         }
 
-        public IEnumerable<(Vector2Int, HeightChannel)> EnumerateActiveSurfaceChannels()
+        /*public IEnumerable<(Vector2Int, HeightChannel)> EnumerateActiveSurfaceChannels()
         {
             foreach (var activeChunkChannel in _activeChunkChannels)
             {
                 yield return (activeChunkChannel.Key, activeChunkChannel.Value[_heightChannelIndex] as HeightChannel);
             }
-        }
-
-        public IChunk GetChunk(Vector2Int position)
-        {
-            return _activeChunks[position];
-        }
-
-        public IEnumerable<IChunk> GetActiveChunks()
-        {
-            return _activeChunks.Values;
-        }
+        }*/
 
         bool ILoadAtStart.enabled
         {
@@ -92,222 +78,248 @@ namespace Core.TerrainGenerator
 
         Task ILoadAtStart.Load()
         {
-            return Initialize();
+            Initialize();
+            return Task.CompletedTask;
         }
 
-        Task ITerrainProviderHandler.Initialize()
+        void ITerrainProviderHandler.Initialize(bool force)
         {
-            return Initialize();
+            if (force)
+            {
+                _initialized = false;
+            }
+            Initialize();
         }
-        
-        private async Task Initialize()
+        private bool _initialized;
+        private void Initialize()
         {
+            if(_initialized)
+            {
+                BindMaterialParams();
+                return;
+            }
+            _initialized = true;
             if (Settings.Directory == null) throw new System.Exception("Wrong directory!");
             _erosionSettings = Settings.GetChildAssets<ErosionSettings>().FirstOrDefault();
+            
+            if (_terrainData == null)
+            {
+                _terrainData = new TerrainData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
+                _settings.Material.SetTexture(SourceAlphamap, AlphamapTexture);
+            }
+            BindMaterialParams();
+
+            WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
-            MaxWorldHeight = Mathf.Max(MaxWorldHeight, Settings.Height);
             if (Application.isPlaying)
             {
                 _tickService.Add(this);
+                OnInitialize.Invoke(this);
             }
-            for (var i = 0; i < Settings.Settings.Count; i++)
-            {
-                if (Settings.Settings[i] is MeshHeightmapChannelSettings)
-                {
-                    _heightChannelIndex = i;
-                    break;
-                }
-            }
-
-            await LoadPropsForCurrentPosition();
-            OnInitialize.Invoke(this);
-            if (_deformersQueueTask != null)
-            {
-                await _deformersQueueTask;
-            } 
+            //if (_deformersQueueTask != null)
+            //{
+            //    await _deformersQueueTask;
+            //} 
         }
 
-        Task ITerrainProviderHandler.LoadPropsForCurrentPosition()
-        {
-            return LoadPropsForCurrentPosition();
-        }
-        
         public void Tick()
         {
             if (_erosionSettings && _erosionSettings.IsDirty)
             {
                 _erosionSettings.BindToMaterial(Settings.Material);
             }
-            LoadPropsForCurrentPosition().AsUniTask().Forget();
+
+            LoadPropsForCurrentPosition();
         }
         
-        private async Task LoadPropsForCurrentPosition()
+        public void LoadPropsForCurrentPosition()
         {
+            _quadTree ??= new TerrainQuadTree(Settings.lodConfig);
             var props = GetCurrentProps();
-            await Load(props);
+            Load(props);
         }
 
         public bool Enabled => gameObject.activeInHierarchy && enabled;
 
         void ITerrainProviderHandler.Unload()
         {
-            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
+            foreach (var patch in _activePatches)
             {
-                chunk.Value?.Disable();
+                patch?.Disable();
             }
-            _activeChunks.Clear();
+
+            _activePatches.Clear();
         }
 
         private void OnWorldOffsetChange(Vector3 offset)
         {
             transform.position += offset;
-            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
+            foreach (var patch in _activePatches)
             {
-                chunk.Value.RefreshPosition();
+                patch?.RefreshPosition();
             }
         }
         HashSet<Vector2Int> _toRemoveCache = new HashSet<Vector2Int>();
         HashSet<Vector2Int> _toCreateCache = new HashSet<Vector2Int>();
-        HashSet<Vector2Int> _toUpdateCache = new HashSet<Vector2Int>();
-        private async Task Load(IEnumerable<Vector2Int> props)
+        //HashSet<Vector2Int> _toUpdateCache = new HashSet<Vector2Int>();
+        private List<QuadTreeNode> _tree;
+
+        private void Load(IEnumerable<RectInt> props)
         {
-            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
+            foreach (var chunk in _activeChunks)
             {
-                chunk.Value.IsChunkVisible = false;
+                if (chunk.Value != null)
+                {
+                    chunk.Value.IsChunkVisible = false;
+                }
             }
             
-            foreach (Vector2Int prop in props)
+            for (var i = 0; i < _activePatches.Count; i++)
             {
-                if (!_activeChunks.ContainsKey(prop))
+                _activePatches[i].Disable();
+                if (_activePatches[i].Exist)
                 {
-                    _activeChunks.Add(prop, null);
-                }
-                else
-                {
-                    _activeChunks[prop].IsChunkVisible = true;
+                    _inactivePatches.Add(_activePatches[i]);
                 }
             }
-
-
-            foreach (KeyValuePair<Vector2Int, IChunk> chunk in _activeChunks)
+            
+            foreach (RectInt prop in props)
             {
-                if (chunk.Value == null)
+                foreach (var cell in prop.EnumerateYFirst())
                 {
-                    _toCreateCache.Add(chunk.Key);
-                }
-                else
-                {
-                    if (chunk.Value.IsChunkVisible == false)
+                    if (!_activeChunks.TryGetValue(cell, out var chunk) || chunk == null)
                     {
-                        _toRemoveCache.Add(chunk.Key);
+                        _toCreateCache.Add(cell);
                     }
                     else
                     {
-                        _toUpdateCache.Add(chunk.Key);
+                        chunk.IsChunkVisible = true;
                     }
+                }
+
+                IPatch patch;
+                if (_inactivePatches.Count == 0)
+                {
+                    patch = CreateTerrain(prop);
+                }
+                else
+                {
+                    patch = _inactivePatches[^1];
+                    _inactivePatches.RemoveAt(_inactivePatches.Count - 1);
+                    patch.SetRect(prop);
+                    patch.Enable();
+                }
+                _activePatches.Add(patch);
+            }
+
+            foreach (var chunk in _activeChunks)
+            {
+                if (chunk.Value is { IsChunkVisible: false })
+                {
+                    _toRemoveCache.Add(chunk.Key);
                 }
             }
             foreach (Vector2Int coord in _toRemoveCache)
             {
-                _activeChunks.Remove(coord, out var chunk);
-                _inactiveChunks.Add(coord, chunk);
-                chunk.Disable();
-                var channels = _activeChunkChannels[coord];
-                foreach (var deformationChannel in channels)
-                {
-                    deformationChannel.OnChunkUnload();
-                }
-                _inactiveChunkChannels[coord] = channels;
-                _activeChunkChannels.Remove(coord);
+                _activeChunks[coord].Dispose();
+                _activeChunks.Remove(coord);
             }
 
             foreach (Vector2Int coord in _toCreateCache)
             {
-                if (!_inactiveChunks.Remove(coord, out var chunk))
-                {
-                    chunk = CreateTerrain(coord);
-                    if (chunk == null)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    chunk.Enable();
-                }
-                
-                _activeChunks[coord] = chunk;
-                if (_inactiveChunkChannels.Remove(coord, out List<DeformationChannel> channels))
-                {
-                    //Debug.Log($"Reuse chunk {coord}");
-                    foreach (var deformationChannel in channels)
-                    {
-                        deformationChannel.OnChunkLoad();
-                    }
-                    _activeChunkChannels.Add(coord, channels);
-                    foreach (var deformationChannel in channels)
-                    {
-                        deformationChannel.SetChunk(_activeChunks[coord]);
-                    }
-                }
-                else
-                {
-                    //Debug.Log($"Create chunk {coord}");
-                    _activeChunkChannels.Add(coord, new List<DeformationChannel>());
-                    foreach (ChannelSettings layerSettings in Settings.Settings)
-                    {
-                        DeformationChannel channel =
-                            layerSettings.MakeDeformationChannel(this, coord, Settings.Directory.FullName);
-
-                        if (channel != null) _activeChunkChannels[coord].Add(channel);
-                    }
-                }
+                //Debug.Log($"Create chunk {coord}");
+                string heightmapPath = Settings.heightmapSettings.GetPath(coord + Settings.ChunksCenter, Settings.Directory.FullName);
+                string alphamapPath = Settings.alphamapSettings.GetPath(coord + Settings.ChunksCenter, Settings.Directory.FullName);
+                ChunkData chunkData = new ChunkData(heightmapPath, alphamapPath, this, coord);
+                _activeChunks[coord] = chunkData;
             }
-            foreach (var coord in _toUpdateCache)
+            /*foreach (var coord in _toUpdateCache)
             {
-                _activeChunks[coord].OnChunksRefreshed();
-            }
-            await AwaitForReadyAndApply();
+                _activePatches[coord].OnChunksRefreshed();
+            }*/
             _toRemoveCache.Clear();
             _toCreateCache.Clear();
-            _toUpdateCache.Clear();
-        }
-
-        public async void RefreshProps()
-        {
-            UnityEngine.Profiling.Profiler.BeginSample("TERRAIN");
-            await LoadPropsForCurrentPosition();
-            UnityEngine.Profiling.Profiler.EndSample();
+            //_toUpdateCache.Clear();
         }
         
-        private async Task AwaitForReadyAndApply()
+        private static readonly int PixelSizeUVSpace = Shader.PropertyToID("pixel_size_uv_space");
+        private static readonly int HeightmapChunkResolution = Shader.PropertyToID("heightmap_chunk_resolution");
+        private static readonly int WidthScale = Shader.PropertyToID("width_scale");
+        private static readonly int HeightmapOffset = Shader.PropertyToID("heightmap_offset");
+        private static readonly int PositionToChunkMatrix = Shader.PropertyToID("position_to_chunk_matrix");
+        private static readonly int MapSpaceToChunkSpaceUV = Shader.PropertyToID("map_space_to_chunk_space_uv");
+        private static readonly int SourceHeightmap = Shader.PropertyToID("source_heightmap");
+        private static readonly int Map = Shader.PropertyToID("map");
+        private static readonly int SlotsCountInv = Shader.PropertyToID("slots_count_inv");
+        private static readonly int MapSize = Shader.PropertyToID("map_size");
+        private static readonly int HeightScale = Shader.PropertyToID("height_scale");
+        
+        private void BindMaterialParams()
         {
-            UnityEngine.Profiling.Profiler.BeginSample("Apply changes");
-            await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(WaitForChannelLoadingAndApply)));
-            await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(v => v.PostApply())));
-            UnityEngine.Profiling.Profiler.EndSample();
+            Settings.Material.SetTexture(SourceHeightmap, _terrainData.HeightmapTex);
+            Settings.Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
+            float hmPixSize = 1f / _settings.ChunkMeshSize;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
+            Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.ChunkMeshSize + WorldOffset.Offset.x, mapMin.y * _settings.ChunkMeshSize + WorldOffset.Offset.z));
+            Settings.Material.SetFloat(MapSize, mapSize);
+            Settings.Material.SetFloat(HeightScale, _settings.Height);
+            Settings.Material.SetFloat(WidthScale, _settings.ChunkMeshSize);
+            Settings.Material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
+            Settings.Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
+            Settings.Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
         }
+        
+        //public async void RefreshProps()
+        //{
+        //    UnityEngine.Profiling.Profiler.BeginSample("TERRAIN");
+        //    await LoadPropsForCurrentPosition();
+        //    UnityEngine.Profiling.Profiler.EndSample();
+        //}
+        
+        //private async Task AwaitForReadyAndApply()
+        //{
+        //    UnityEngine.Profiling.Profiler.BeginSample("Apply changes");
+        //    await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(WaitForChannelLoadingAndApply)));
+        //    await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(v => v.PostApply())));
+        //    UnityEngine.Profiling.Profiler.EndSample();
+        //}
+        //
+        //private async Task WaitForChannelLoadingAndApply(ChunkData channel)
+        //{
+        //    if (channel.IsDirty)
+        //    {
+        //        await channel.LoadingTask;
+        //        if (_deformersByChunk.TryGetValue(channel.Coordinates, out HashSet<IDeformer> deformers))
+        //        {
+        //            foreach (IDeformer deformer in deformers)
+        //            {
+        //                channel.RegisterDeformer(deformer);
+        //            }
+        //            channel.ApplyDirtyToCache();
+        //        }
+        //        await channel.Apply();
+        //    }
+        //}
 
-        private async Task WaitForChannelLoadingAndApply(DeformationChannel channel)
+        private IEnumerable<RectInt> GetCurrentProps()
         {
-            if (channel.IsDirty)
+            if (_quadTree == null)
             {
-                await channel.LoadingTask;
-                if (_deformersByChunk.TryGetValue(channel.Coordinates, out HashSet<IDeformer> deformers))
-                {
-                    foreach (IDeformer deformer in deformers)
-                    {
-                        channel.RegisterDeformer(deformer);
-                    }
-                    channel.ApplyDirtyToCache();
-                }
-                await channel.Apply();
+                _quadTree = new TerrainQuadTree(Settings.lodConfig);
             }
-        }
 
-        private IEnumerable<Vector2Int> GetCurrentProps()
-        {
-            Vector3 viewPosition = GetViewPosition(); 
+            Vector3 pos = GetViewPosition();
+            var flatPos = new Vector2(pos.x, pos.z);
+            _tree ??= new List<QuadTreeNode>();
+            foreach (var root in _quadTree.GetRelevantRoots(flatPos, Settings.ChunkMeshSize, 8))
+            {
+                _quadTree.Build(root, 8, flatPos, Settings.ChunkMeshSize, _tree);
+                foreach (QuadTreeNode node in _tree)
+                {
+                    yield return new RectInt(node.CellMin, node.CellMax - node.CellMin);
+                }
+            }
+
+            /*Vector3 viewPosition = GetViewPosition();
 
             float sI = 1f / Settings.ChunkMeshSize;
             Vector2 viewCell = new Vector2(viewPosition.x * sI, viewPosition.z * sI);
@@ -321,7 +333,7 @@ namespace Core.TerrainGenerator
                     Vector2Int position = new Vector2Int(x, y);
                     if (IsPropInView(position, viewPosition)) yield return position;
                 }
-            }
+            }*/
         }
 
         private bool IsPropInView(Vector2Int position, Vector3 viewPosition)
@@ -341,20 +353,22 @@ namespace Core.TerrainGenerator
             {
                 return FindAnyObjectByType<SpawnPerson>().transform.position;
             }
-            _lastViewPosition = _playerTracker.GetPredictedWorldPosition(2, 100);
-            _lastViewPosition.y = 0;
-            return _lastViewPosition;
+            var viewPosition = _playerTracker.GetPredictedWorldPosition(2, 100);
+            viewPosition.y = 0;
+            return viewPosition;
         }
         
 
-        private IChunk CreateTerrain(Vector2Int prop)
+        private IPatch CreateTerrain(RectInt prop)
         {
             try
             {
                 var instance = new GameObject();
                 instance.transform.SetParent(transform);
-                IChunk chunk = instance.AddComponent<ChunkByTesselation>().Init($"Terrain ({prop.x}, {prop.y})", prop, transform, Settings, GetHeightmapData());
-                return chunk;
+                Patch patch = instance.AddComponent<Patch>().Init($"Terrain ({prop.xMin}, {prop.yMin})", transform, Settings, GetHeightmapData());
+                patch.SetRect(prop);
+                patch.gameObject.hideFlags = HideFlags.DontSave;
+                return patch;
             }
             catch (Exception e)
             {
@@ -363,10 +377,9 @@ namespace Core.TerrainGenerator
             }
         }
 
-        private Task _deformersQueueTimer;
+       /* private Task _deformersQueueTimer;
         private Task _deformersQueueTask;
         private Vector3 _lastViewPosition;
-        private int _heightChannelIndex;
 
         public void RegisterDeformer(IDeformer deformer)
         {
@@ -380,9 +393,9 @@ namespace Core.TerrainGenerator
                 }
                 
                 _deformersByChunk[coord].Add(deformer);
-                if (_activeChunkChannels.TryGetValue(coord, out List<DeformationChannel> channelsList))
+                if (_activeChunkChannels.TryGetValue(coord, out List<ChunkData> channelsList))
                 {
-                    foreach (DeformationChannel channel in channelsList)
+                    foreach (ChunkData channel in channelsList)
                     {
                         channel.RegisterDeformer(deformer);
                     }
@@ -411,9 +424,9 @@ namespace Core.TerrainGenerator
             queueCompletionSource.SetResult(true);
             _deformersQueueTimer = null;
 
-            foreach (List<DeformationChannel> deformationChannels in _activeChunkChannels.Values)
+            foreach (List<ChunkData> deformationChannels in _activeChunkChannels.Values)
             {
-                foreach (DeformationChannel deformationChannel in deformationChannels)
+                foreach (ChunkData deformationChannel in deformationChannels)
                 {
                     if (deformationChannel.IsDirty) deformationChannel.ApplyDirtyToCache();
                 }
@@ -423,18 +436,54 @@ namespace Core.TerrainGenerator
             await Task.WhenAll(_activeChunkChannels.SelectMany(x => x.Value.Select(v => v.PostApply())));
 
             _deformersQueue.Clear();
-        }
+        }*/
 
-        private void OnDrawGizmosSelected()
+       private void OnDrawGizmos()
+       {
+           if (!Settings) return;
+           DrawQuadTree();
+       }
+
+       private void OnDrawGizmosSelected()
         {
             if (!Settings) return;
-            DrawBoundsForProps(GetCurrentProps());
+            //DrawBoundsForProps(GetCurrentProps());
             
             Gizmos.color = Color.white * 0.5f;
             Matrix4x4 defaultMatrix = Gizmos.matrix;
             Gizmos.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 0, 1));
             Gizmos.DrawWireSphere(GetViewPosition(), Settings.VisibleDistance);
             Gizmos.matrix = defaultMatrix;
+        }
+
+        private void DrawQuadTree()
+        {
+            if (_quadTree == null)
+            {
+                return;
+            }
+
+            Vector3 pos = _playerTracker.SpacePosition;
+            var flatPos = new Vector2(pos.x, pos.z);
+            var roots = _quadTree.GetRelevantRoots(flatPos, Settings.ChunkMeshSize, 8);
+            _tree ??= new List<QuadTreeNode>();
+            foreach (Vector2Int root in roots)
+            {
+                Vector3 p = new Vector3(root.x * Settings.ChunkMeshSize, 0, root.y * Settings.ChunkMeshSize);
+                Gizmos.color = new Color(.7f, .5f, .9f, 1); 
+                Gizmos.DrawSphere(p, Mathf.Min(UnityEditor.HandleUtility.GetHandleSize(p) * 0.5f, 200));
+                _quadTree.Build(root, 8, flatPos, Settings.ChunkMeshSize, _tree);
+                foreach (QuadTreeNode node in _tree)
+                {
+                    Vector3 min = new Vector3(node.CellMin.x * Settings.ChunkMeshSize, 0, node.CellMin.y * Settings.ChunkMeshSize);
+                    Vector3 max = new Vector3(node.CellMax.x * Settings.ChunkMeshSize, 0, node.CellMax.y * Settings.ChunkMeshSize);
+                    Vector3 center = (min + max) * 0.5f;
+                    Vector3 size = max - min;
+                    size *= 0.9f;
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawWireCube(center, size);
+                }
+            }
         }
 
         private void DrawBoundsForProps(IEnumerable<Vector2Int> props)
@@ -457,11 +506,10 @@ namespace Core.TerrainGenerator
         private void OnDestroy()
         {
             _terrainData.Dispose();
-            _activeChunkChannels.Clear();
-            _inactiveChunkChannels.Clear();
-            _activeChunks.Clear(); 
+            _activeChunks.Clear();
+            _activePatches.Clear(); 
             _deformersByChunk.Clear();
-            _deformersQueue.Clear();
+            //_deformersQueue.Clear();
             _tickService.Remove(this);
             OnInitialize.Reset();
         }
@@ -474,12 +522,12 @@ namespace Core.TerrainGenerator
 
         public bool IsDeformersClear()
         {
-            return _deformersQueue.Count == 0;
+            return true;//_deformersQueue.Count == 0;
         }
 
-        public Task ProcessDeformersTask()
-        {
-            return _deformersQueueTask;
-        }
+        //public Task ProcessDeformersTask()
+        //{
+        //    return _deformersQueueTask;
+        //}
     }
 }

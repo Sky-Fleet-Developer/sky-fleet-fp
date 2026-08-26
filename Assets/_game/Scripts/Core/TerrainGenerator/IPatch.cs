@@ -2,16 +2,16 @@ using UnityEngine;
 
 namespace Core.TerrainGenerator
 {
-    public interface IChunk
+    public interface IPatch
     {
         float ChunkSize { get; }
         Material Material { get; }
-        bool IsChunkVisible { get; set; }
-        Vector2Int Coord { get; }
+        RectInt Rect { get; }
+        bool Exist => this as UnityEngine.Object != null;
         void Enable();
         void Disable();
         void RefreshPosition();
-        void OnChunksRefreshed();
         Transform transform { get;}
+        void SetRect(RectInt rect);
     }
 }
