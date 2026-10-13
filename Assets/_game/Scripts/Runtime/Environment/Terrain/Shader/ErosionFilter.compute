@@ -1,0 +1,57 @@
+#pragma kernel CSErode
+
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/HeightmapFilterCommon.hlsl"
+#include "ErosionFilter.hlsl"
+
+float erosion_scale;
+float erosion_strength;
+float erosion_gully_weight;
+float erosion_detail;
+float4 erosion_rounding;
+float4 erosion_onset;
+float2 erosion_assumed_slope;
+float erosion_cell_scale;
+float erosion_normalization;
+int erosion_octaves;
+float erosion_lacunarity;
+float erosion_gain;
+float erosion_fade_target_offset;
+
+[numthreads(8,8,1)]
+void CSErode (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)filter_resolution || id.y >= (uint)filter_resolution)
+    {
+        return;
+    }
+
+    int2 chunk;
+    if (!FilterTryGetChunk(id.z, chunk))
+    {
+        return;
+    }
+
+    int2 pixel = int2(id.xy);
+    float height = FilterLoadHeight(id.z, chunk, pixel);
+    float height_x_pos = FilterLoadHeight(id.z, chunk, pixel + int2(1, 0));
+    float height_x_neg = FilterLoadHeight(id.z, chunk, pixel - int2(1, 0));
+    float height_y_pos = FilterLoadHeight(id.z, chunk, pixel + int2(0, 1));
+    float height_y_neg = FilterLoadHeight(id.z, chunk, pixel - int2(0, 1));
+
+    // Work in chunk units on both axes, so the slope fed to the filter is geometric
+    float height_to_chunk_units = filter_height_range / filter_chunk_size;
+    float pixels_per_chunk = filter_pixels_per_chunk;
+    float2 slope = float2(height_x_pos - height_x_neg, height_y_pos - height_y_neg) * 0.5 * pixels_per_chunk * height_to_chunk_units;
+
+    float ridge_map;
+    float debug;
+    float4 erosion = ErosionFilter(FilterPixelToChunkSpace(chunk, id.xy),
+        float3(height * height_to_chunk_units, slope), height - erosion_fade_target_offset,
+        erosion_strength, erosion_gully_weight, erosion_detail,
+        erosion_rounding, erosion_onset, erosion_assumed_slope,
+        erosion_scale, erosion_octaves, erosion_lacunarity,
+        erosion_gain, erosion_cell_scale, erosion_normalization,
+        ridge_map, debug);
+
+    filter_destination[id] = height + erosion.x / height_to_chunk_units;
+}

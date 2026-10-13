@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Core.TerrainGenerator.Filters;
 using Core.TerrainGenerator.LOD;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
@@ -50,6 +52,13 @@ namespace Core.TerrainGenerator
         public int AlphamapResolution => alphamapResolution;
         public Vector2Int ChunksCenter => chunksCenter;
         public int Height => height;
+        /// <summary>
+        /// Meters represented by normalized heightmap value 1.0.
+        /// Must match the scale applied in SampleHeightmap.hlsl (height * height_scale * 4).
+        /// </summary>
+        public float HeightRangeMeters => height * 4f;
+        /// <summary>Heightmap filters among the child assets, in list order.</summary>
+        public IEnumerable<IHeightmapFilter> HeightmapFilters => children.OfType<IHeightmapFilter>();
         public int ChunkMeshResolution => chunkMeshResolution;
         public Material Material => material;
         public MapGpuWorker GpuWorker
@@ -61,9 +70,13 @@ namespace Core.TerrainGenerator
             }
         }
         
+        /// <summary>Raised when the settings are edited in the inspector.</summary>
+        public event Action Changed;
+
         private void OnValidate()
         {
             Setup();
+            Changed?.Invoke();
         }
 
         private void Setup()
@@ -92,14 +105,27 @@ namespace Core.TerrainGenerator
         }*/
         
         [Button]
-        private void MakeErosionSettings()
+        private void AddHeightmapFilter([ValueDropdown(nameof(GetHeightmapFilterTypes))] Type filterType)
         {
-            MakeNewLayer<ErosionSettings>("ErosionSettings");
+            if (filterType == null) return;
+            MakeNewLayer(filterType, filterType.Name);
+        }
+
+        private static IEnumerable<ValueDropdownItem<Type>> GetHeightmapFilterTypes()
+        {
+            return TypeCache.GetTypesDerivedFrom<IHeightmapFilter>()
+                .Where(t => !t.IsAbstract && typeof(ScriptableObject).IsAssignableFrom(t))
+                .Select(t => new ValueDropdownItem<Type>(t.Name, t));
         }
 
         private T MakeNewLayer<T>(string n) where T : ScriptableObject
         {
-            T instance = CreateInstance<T>();
+            return (T)MakeNewLayer(typeof(T), n);
+        }
+
+        private ScriptableObject MakeNewLayer(Type type, string n)
+        {
+            ScriptableObject instance = CreateInstance(type);
             instance.name = n;
             children.Add(instance);
 

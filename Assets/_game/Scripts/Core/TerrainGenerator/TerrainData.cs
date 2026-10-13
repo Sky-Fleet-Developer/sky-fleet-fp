@@ -11,11 +11,15 @@ namespace Core.TerrainGenerator
     public class TerrainData : IDisposable
     {
         private RenderTexture _heightmapTex;
+        private RenderTexture _rawHeightmapTex;
+        private RenderTexture _scratchHeightmapTex;
         private RenderTexture _alphamapTex;
         private ComputeBuffer _loadHeightDataBuffer;
         private ComputeBuffer _loadAlphaDataBuffer;
         private ComputeBuffer _mapBuffer;
         private int[] _mapDataContent;
+        private ComputeBuffer _slotCoordsBuffer;
+        private int3[] _slotCoordsContent;
         private TaskCompletionSource<bool> _loadDataTask;
         private bool _mapDirty = true;
         private int _maxChunksSide;
@@ -32,7 +36,16 @@ namespace Core.TerrainGenerator
 
         // Очередь для вытеснения самых старых чанков, если лимит N*N превышен
         private Queue<Vector2Int> _chunkInsertionOrder;
+        /// <summary>Baked heights (raw data + heightmap filters). Used by rendering and collision.</summary>
         public RenderTexture HeightmapTex => _heightmapTex;
+        /// <summary>Heights exactly as loaded from the chunk files. Input of the heightmap bake.</summary>
+        public RenderTexture RawHeightmapTex => _rawHeightmapTex;
+        /// <summary>Per texture layer: int3(chunk.x, chunk.y, isUsed). Updated together with the map buffer.</summary>
+        public ComputeBuffer SlotCoordsBuffer => _slotCoordsBuffer;
+        public int LayerCount => _maxChunksSide * _maxChunksSide;
+        public int Resolution => _chunkResolution;
+        /// <summary>Raised when new chunk data was uploaded to the raw heightmap and has to be baked.</summary>
+        public event Action RawDataChanged;
         public RenderTexture AlphamapTex => _alphamapTex;
         public Vector2Int MapMin => _currentMapMin;
 
@@ -41,12 +54,8 @@ namespace Core.TerrainGenerator
             _maxChunksSide = maxChunksSide;
             _chunkResolution = chunkResolution;
 
-            _heightmapTex = new RenderTexture(chunkResolution, chunkResolution, -1, GraphicsFormat.R16_SNorm);
-            _heightmapTex.dimension = TextureDimension.Tex2DArray;
-            _heightmapTex.volumeDepth = maxChunksSide * maxChunksSide;
-            _heightmapTex.enableRandomWrite = true;
-            _heightmapTex.filterMode = FilterMode.Bilinear;
-            _heightmapTex.Create();
+            _heightmapTex = CreateHeightmapArray();
+            _rawHeightmapTex = CreateHeightmapArray();
             _alphamapTex = new RenderTexture(chunkResolution, chunkResolution, -1, GraphicsFormat.R8G8B8A8_UNorm);
             _alphamapTex.volumeDepth = maxChunksSide * maxChunksSide;
             _alphamapTex.dimension = TextureDimension.Tex2DArray;
@@ -58,6 +67,8 @@ namespace Core.TerrainGenerator
             _mapDataContent = new int[maxChunksTotal];
 
             _mapBuffer = new ComputeBuffer(maxChunksTotal, sizeof(int));
+            _slotCoordsContent = new int3[maxChunksTotal];
+            _slotCoordsBuffer = new ComputeBuffer(maxChunksTotal, sizeof(int) * 3);
 
             _activeChunks = new Dictionary<Vector2Int, int2>(maxChunksTotal);
             _chunkInsertionOrder = new Queue<Vector2Int>(maxChunksTotal);
@@ -74,6 +85,32 @@ namespace Core.TerrainGenerator
 
             _loadHeightDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, 4);
             _loadAlphaDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, 4);
+        }
+
+        private RenderTexture CreateHeightmapArray()
+        {
+            var texture = new RenderTexture(_chunkResolution, _chunkResolution, -1, GraphicsFormat.R16_SNorm);
+            texture.dimension = TextureDimension.Tex2DArray;
+            texture.volumeDepth = _maxChunksSide * _maxChunksSide;
+            texture.enableRandomWrite = true;
+            texture.filterMode = FilterMode.Bilinear;
+            texture.Create();
+            return texture;
+        }
+
+        /// <summary>Intermediate target for chaining several heightmap filters. Created on first use.</summary>
+        public RenderTexture GetScratchHeightmapTex()
+        {
+            if (!_scratchHeightmapTex)
+            {
+                _scratchHeightmapTex = CreateHeightmapArray();
+            }
+            return _scratchHeightmapTex;
+        }
+
+        public void NotifyRawDataChanged()
+        {
+            RawDataChanged?.Invoke();
         }
 
         private Queue<TaskCompletionSource<ComputeBuffer>> _queue = new();
@@ -242,6 +279,13 @@ namespace Core.TerrainGenerator
                 }
 
                 _mapBuffer.SetData(_mapDataContent);
+
+                Array.Clear(_slotCoordsContent, 0, _slotCoordsContent.Length);
+                foreach (var kvp in _activeChunks)
+                {
+                    _slotCoordsContent[SlotToLayer(kvp.Value)] = new int3(kvp.Key.x, kvp.Key.y, 1);
+                }
+                _slotCoordsBuffer.SetData(_slotCoordsContent);
                 _mapDirty = false;
                 MapChanged?.Invoke();
             }
@@ -252,33 +296,31 @@ namespace Core.TerrainGenerator
         
         ~TerrainData() => Dispose();
 
-        public void Dispose()
+        private static void ReleaseTexture(RenderTexture texture)
         {
-            if (_heightmapTex)
+            if (!texture)
             {
-                _heightmapTex.Release();
-                if (Application.isPlaying)
-                {
-                    UnityEngine.Object.Destroy(_heightmapTex);
-                }
-                else
-                {
-                    UnityEngine.Object.DestroyImmediate(_heightmapTex);
-                }
+                return;
             }
 
-            if (_alphamapTex)
+            texture.Release();
+            if (Application.isPlaying)
             {
-                _alphamapTex.Release();
-                if (Application.isPlaying)
-                {
-                    UnityEngine.Object.Destroy(_alphamapTex);
-                }
-                else
-                {
-                    UnityEngine.Object.DestroyImmediate(_alphamapTex);
-                }
+                UnityEngine.Object.Destroy(texture);
             }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(texture);
+            }
+        }
+
+        public void Dispose()
+        {
+            ReleaseTexture(_heightmapTex);
+            ReleaseTexture(_rawHeightmapTex);
+            ReleaseTexture(_scratchHeightmapTex);
+            ReleaseTexture(_alphamapTex);
+            _slotCoordsBuffer?.Dispose();
             _loadHeightDataBuffer?.Dispose();
             _loadAlphaDataBuffer?.Dispose();
             _mapBuffer?.Dispose();

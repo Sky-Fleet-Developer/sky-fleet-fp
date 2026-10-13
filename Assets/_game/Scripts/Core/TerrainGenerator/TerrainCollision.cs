@@ -22,7 +22,12 @@ namespace Core.TerrainGenerator
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
         [Inject] private TickService _tickService;
         private Dictionary<Vector2Int, Chunk> _activeChunks;
-        private HashSet<Vector2Int> _cooking;
+        // Chunks around the player that should have a collider
+        private readonly HashSet<Vector2Int> _desired = new();
+        // Chunks requested from the GPU and not finished yet
+        private readonly HashSet<Vector2Int> _inFlight = new();
+        // Set when a chunk had no heightmap data yet, so the next tick retries even without movement
+        private bool _retryPending;
         private List<Chunk> _inactiveChunksPool;
         private bool _isBaking;
         private List<BakingItem> _pendingBake = new();
@@ -51,6 +56,8 @@ namespace Core.TerrainGenerator
         {
             public Chunk Chunk;
             public Vector2Int Coord;
+            // Position of the chunk in the GPU request, i.e. in the readback buffer
+            public int ReadbackIndex;
 
             public BakingItem(Vector2Int coord)
             {
@@ -63,7 +70,6 @@ namespace Core.TerrainGenerator
         {
             _prevPosition = Vector2.positiveInfinity;
             _activeChunks = new ();
-            _cooking = new ();
             _inactiveChunksPool = new ();
             _mask = new ();
             _chunkResolution = _settings.resolution;
@@ -103,36 +109,26 @@ namespace Core.TerrainGenerator
         {
             Vector3 p = _playerTracker.GetPredictedWorldPosition(5, _chunkSize * .25f);
             Vector2 flatPosition = new Vector2(p.x, p.z);
-            if (Vector2.SqrMagnitude(_prevPosition - flatPosition) < _settings.refreshThreshold * _settings.refreshThreshold)
+            if (!_retryPending && Vector2.SqrMagnitude(_prevPosition - flatPosition) < _settings.refreshThreshold * _settings.refreshThreshold)
             {
                 return;
             }
-            
-            _prevPosition = flatPosition;
-            
-            Vector2Int playerCoord = new Vector2Int(Mathf.CeilToInt(p.x / _chunkSize), Mathf.CeilToInt(p.z / _chunkSize));
 
-            foreach (Chunk chunk in _activeChunks.Values)
-            {
-                chunk.Version = 0;
-            }
-            
+            _prevPosition = flatPosition;
+            _retryPending = false;
+
+            // The mask is built around the center of chunk (0, 0), so the player's chunk is found with floor
+            Vector2Int playerCoord = new Vector2Int(Mathf.FloorToInt(p.x / _chunkSize), Mathf.FloorToInt(p.z / _chunkSize));
+
+            _desired.Clear();
             foreach (var maskItem in _mask)
             {
-                Vector2Int key = playerCoord + maskItem;
-                if (!_activeChunks.TryGetValue(key, out var activeCollider) && !_cooking.Contains(key))
-                {
-                    _pendingBake.Add(new BakingItem(key));
-                }
-                else
-                {
-                    activeCollider.Version++;
-                }
+                _desired.Add(playerCoord + maskItem);
             }
-            
+
             foreach (var kv in _activeChunks)
             {
-                if (kv.Value.Version == 0)
+                if (!_desired.Contains(kv.Key))
                 {
                     _pendingRemove.Add(kv.Key);
                 }
@@ -147,6 +143,16 @@ namespace Core.TerrainGenerator
             }
             _pendingRemove.Clear();
 
+            // Rebuilt every time, so chunks that left the area before being baked are dropped
+            _pendingBake.Clear();
+            foreach (Vector2Int coord in _desired)
+            {
+                if (!_activeChunks.ContainsKey(coord) && !_inFlight.Contains(coord))
+                {
+                    _pendingBake.Add(new BakingItem(coord));
+                }
+            }
+
             if (_pendingBake.Count > 0 && !_isBaking)
             {
                 BakeMeshesAsync().Forget();
@@ -160,10 +166,12 @@ namespace Core.TerrainGenerator
         {
             for (var i = 0; i < _bakingQueue.Count; i++)
             {
+                _bakingQueue[i].ReadbackIndex = i;
                 _temp.Add(_bakingQueue[i].Coord);
             }
             _requestBuffer.SetData(_temp);
-            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _terrainData.HeightmapTex, _terrainData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.ChunkMeshSize, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset);
+            // Heightmap chunks are sized by heightmapSettings.chunkSizeMeters, not by the render patch size
+            _gpuWorker.GetHeightmapForCollisionChunks(_transportBuffer, _requestBuffer, _chunkResolution, _temp.Count, _chunkSize, _terrainData.HeightmapTex, _terrainData.GetMapBuffer(out var mapMin, out var mapSize), mapMin, mapSize,  _terrainProvider.Settings.HeightmapResolution, _terrainProvider.Settings.heightmapSettings.chunkSizeMeters, _terrainProvider.Settings.Height, _terrainProvider.Settings.MaxLoadedChunksByOneSide, _settings.offset, _terrainProvider.Settings.heightmapSettings.sharedEdgePixels);
             _temp.Clear();
         }
 
@@ -171,13 +179,42 @@ namespace Core.TerrainGenerator
         {
             //Debug.Log($"Start baking {_bakingQueue.Count} meshes");
             _isBaking = true;
+            int meshLength = (_chunkResolution + 1) * (_chunkResolution + 1);
             while (_pendingBake.Count > 0)
             {
-                (_bakingQueue, _pendingBake) = (_pendingBake, _bakingQueue);
-                
+                // The request and transport buffers hold at most _mask.Count chunks
+                int batchSize = Mathf.Min(_pendingBake.Count, _mask.Count);
+                _bakingQueue.AddRange(_pendingBake.GetRange(0, batchSize));
+                _pendingBake.RemoveRange(0, batchSize);
+                foreach (BakingItem item in _bakingQueue)
+                {
+                    _inFlight.Add(item.Coord);
+                }
+
                 GetChunksDataFromGpu();
-                
+
                 await AsyncGPUReadback.RequestIntoNativeArray(ref _verticesBuffer, _transportBuffer);
+                if (this == null)
+                {
+                    return;
+                }
+
+                // Drop chunks without heightmap data (retried on the next tick) and chunks no longer needed
+                for (var i = _bakingQueue.Count - 1; i >= 0; i--)
+                {
+                    Vector2Int coord = _bakingQueue[i].Coord;
+                    _inFlight.Remove(coord);
+                    bool hasData = HasHeightData(_bakingQueue[i].ReadbackIndex * meshLength, meshLength);
+                    if (!hasData)
+                    {
+                        _retryPending = true;
+                    }
+                    if (!hasData || !_desired.Contains(coord))
+                    {
+                        _bakingQueue.RemoveAt(i);
+                    }
+                }
+
                 for (var i = 0; i < _bakingQueue.Count; i++)
                 {
                     if (_inactiveChunksPool.Count > 0)
@@ -195,12 +232,10 @@ namespace Core.TerrainGenerator
                         _bakingQueue[i].Chunk.Mesh = CreateCollisionMesh(_chunkResolution, _chunkSize);
                     }
                     
-                    int meshLength = (_chunkResolution + 1) * (_chunkResolution + 1);
-                    _bakingQueue[i].Chunk.Mesh.SetVertexBufferData(_verticesBuffer, i * meshLength, 0, meshLength, 0,
+                    _bakingQueue[i].Chunk.Mesh.SetVertexBufferData(_verticesBuffer, _bakingQueue[i].ReadbackIndex * meshLength, 0, meshLength, 0,
                         MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds |
                         MeshUpdateFlags.DontValidateIndices);
-                    
-                    _cooking.Add(_bakingQueue[i].Coord);
+
                     //new BakeSingleMeshJob(chunk.Mesh.GetInstanceID()).Schedule().Complete();
                 }
                 
@@ -211,11 +246,11 @@ namespace Core.TerrainGenerator
                 }
                 
                 new BakeJob(meshIds).Schedule(_bakingQueue.Count, 1).Complete();
-                
+                meshIds.Dispose();
+
                 for (var i = 0; i < _bakingQueue.Count; i++)
                 {
                     var chunk = _bakingQueue[i].Chunk;
-                    _cooking.Clear();
                     if (!chunk.MeshCollider)
                     {
                         chunk.MeshCollider = new GameObject("CollisionChunk").AddComponent<MeshCollider>();
@@ -230,11 +265,22 @@ namespace Core.TerrainGenerator
                     chunk.MeshCollider.sharedMesh = chunk.Mesh;
                     _activeChunks[_bakingQueue[i].Coord] = chunk;
                 }
-                _cooking.Clear();
                 //Debug.Log($"Baked {count} meshes");
                 _bakingQueue.Clear();
             }
             _isBaking = false;
+        }
+
+        private bool HasHeightData(int start, int length)
+        {
+            for (int i = start; i < start + length; i++)
+            {
+                if (float.IsNaN(_verticesBuffer[i].y))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private struct BakeJob : IJobParallelFor
@@ -349,7 +395,7 @@ namespace Core.TerrainGenerator
             }
             foreach (var item in _bakingQueue)
             {
-                if (item.Chunk.Mesh)
+                if (item.Chunk != null && item.Chunk.Mesh)
                 {
                     UnityEngine.Object.Destroy(item.Chunk.Mesh);
                 }

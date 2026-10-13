@@ -10,19 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7d986b3fc8f4dc291f79fa43633e94d, type: 3}
-  m_Name: ErosionSettings
-  m_EditorClassIdentifier: Core::Core.TerrainGenerator.ErosionSettings
-  scale: 0.65
-  strength: 0.22
-  gullyWeight: 0.5
-  detail: 1.5
-  onset: {x: 0.7, y: 1.25, z: 2.8, w: 1.5}
+  m_Name: ErosionFilter
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.ErosionFilter
+  shader: {fileID: 7200000, guid: aab2994efdca4a7e8badbaa77bccb041, type: 3}
+  active: 1
+  scale: 2
+  strength: 0
+  gullyWeight: 20
+  detail: 0.9
+  rounding: {x: 0.5, y: 1, z: 0, w: 1}
+  onset: {x: 3, y: 1.5, z: 0, w: 1}
   assumedSlope: {x: 0.7, y: 1}
-  cellScale: 0.7
-  normalization: 0.5
+  cellScale: 0.5
+  normalization: 0.6
   octaves: 5
   lacunarity: 2
   gain: 0.5
+  fadeTargetOffset: 0.5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -71,8 +71,8 @@ namespace Core.TerrainGenerator
 
                 LoadHeightmapToTexture(heightmapData, loadBuffer, textureSlot);
                 LoadAlphamapToTexture(alphamapData, loadBuffer, textureSlot);
-                // Make the chunk visible right away instead of waiting for the next provider tick
-                _data.FlushMap();
+                // The chunk becomes visible once the heightmap is baked
+                _data.NotifyRawDataChanged();
             }
             finally
             {
@@ -131,7 +131,7 @@ namespace Core.TerrainGenerator
         {
             buffer.SetData(data);
             //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
-            _gpuWorker.InsertHeightmapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.HeightmapTex, textureSlot, Terrain.Settings.HeightmapResolution);
+            _gpuWorker.InsertHeightmapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.RawHeightmapTex, textureSlot, Terrain.Settings.HeightmapResolution);
         }
 
         private void LoadAlphamapToTexture(Color32[] data, ComputeBuffer buffer, int textureSlot)

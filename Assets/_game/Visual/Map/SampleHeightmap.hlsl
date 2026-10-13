@@ -1,6 +1,5 @@
 #include "Heightmap.hlsl"
 #include "SampleMapUtility.hlsl"
-#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/ErodeUsingSettings.hlsl"
 
 float2 hash_p(float2 p) { 
     p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3))); 
@@ -58,41 +57,45 @@ void SampleHeightmap(float3 world_position, out float height)
     //world_position.x = (world_position.x - position_to_chunk_matrix.z) * position_to_chunk_matrix.x;
     //world_position.z = (world_position.z - position_to_chunk_matrix.w) * position_to_chunk_matrix.y;
     //height = _FadeTargetRange.x + fbm_perlin(world_position.xz * _ErosionUvScale, 3) * _FadeTargetRange.y;//
-    height = source_heightmap.SampleLevel(sampler_source_heightmap, float3(uv, chunk), 0);
+    float width, height_px, elements;
+    source_heightmap.GetDimensions(width, height_px, elements);
+    height = source_heightmap.SampleLevel(sampler_source_heightmap, float3(ChunkUvToTextureUv(uv, width, heightmap_shared_edges > 0.5), chunk), 0);
+}
+
+// Distance between two neighbouring heightmap pixels in world units
+float HeightmapPixelSize()
+{
+    float width, height_px, elements;
+    source_heightmap.GetDimensions(width, height_px, elements);
+    float pixels_per_chunk = heightmap_shared_edges > 0.5 ? width - 1 : width;
+    // position_to_chunk_matrix.x = 1 / heightmap chunk size in meters
+    return 1.0 / (position_to_chunk_matrix.x * pixels_per_chunk);
 }
 
 void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float3 normal, out float3 debug_color)
 {
     SampleHeightmap(world_position, height);
 
+    // Central difference over one pixel on each side. Bilinear filtering makes the height linear inside a pixel,
+    // so a smaller step returns the constant slope of a single pixel (faceted normals), while this step
+    // returns the bilinear blend of the per-pixel slopes (smooth normals)
+    float step = HeightmapPixelSize();
     float height_x_pos, height_z_pos, height_x_neg, height_z_neg;
-    SampleHeightmap(world_position + float3(1, 0, 0), height_x_pos);
-    SampleHeightmap(world_position + float3(0, 0, 1), height_z_pos);
+    SampleHeightmap(world_position + float3(step, 0, 0), height_x_pos);
+    SampleHeightmap(world_position + float3(0, 0, step), height_z_pos);
 
-    SampleHeightmap(world_position + float3(-1, 0, 0), height_x_neg);
-    SampleHeightmap(world_position + float3(0, 0, -1), height_z_neg);
+    SampleHeightmap(world_position + float3(-step, 0, 0), height_x_neg);
+    SampleHeightmap(world_position + float3(0, 0, -step), height_z_neg);
 
     float dfdx = (height_x_pos - height_x_neg);
     float dfdz = (height_z_pos - height_z_neg);
 
+    // Erosion and other heightmap filters are already baked into source_heightmap
     float2 gradient = float2(-dfdx, -dfdz);
-
-    float2 non_clamped_uv;
-    non_clamped_uv.x = (world_position.x - position_to_chunk_matrix.z) * position_to_chunk_matrix.x;
-    non_clamped_uv.y = (world_position.z - position_to_chunk_matrix.w) * position_to_chunk_matrix.y;
     debug_color = float3(1, 1, 1);
 
-    if (erosion_strength != 0 && erosion_scale != 0)
-    {
-        float debug;
-        float ridgeMap;
-        float4 erosion = ErodeUsingSettings(non_clamped_uv, float3(height, gradient), height - 0.5, debug, ridgeMap);
-        gradient += erosion.yz / erosion_gully_weight * _ErosionGradientInfluence;
-        height += erosion.x;
-        debug_color = float3(debug, .5f, .5f);
-    }
-
-    float2 world_slope = gradient * (height_scale / 2.0);
+    // World height is height * height_scale (the graph's _Height = 0.25 cancels the * 4 below)
+    float2 world_slope = gradient * (height_scale / (2.0 * step));
     normal = normalize(float3(world_slope.x, 1.0, world_slope.y));
 
     height *= height_scale * 4;

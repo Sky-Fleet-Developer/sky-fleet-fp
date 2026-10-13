@@ -45,6 +45,14 @@ void WarpOffset(in out int2 chunk, in out float2 uv)
     }
 }
 
+// Converts chunk uv [0, 1] to texture uv for bilinear sampling.
+// shared_edges: chunk files share their edge rows with the neighbouring chunks (e.g. 257 = 256 + 1),
+// so pixel i lies at chunk uv i / (resolution - 1). Otherwise pixel i is the cell centered at (i + 0.5) / resolution.
+float2 ChunkUvToTextureUv(float2 chunk_uv, float resolution, bool shared_edges)
+{
+    return shared_edges ? (chunk_uv * (resolution - 1) + 0.5) / resolution : chunk_uv;
+}
+
 int SlotToMap(int slot)
 {
     return map[slot];

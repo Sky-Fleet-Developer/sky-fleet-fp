@@ -13,48 +13,6 @@
             "m_Id": "3308570db17a43baa3efd5e4d8829c27"
         },
         {
-            "m_Id": "aa593b7f8a9942c4a2285b171d65b14a"
-        },
-        {
-            "m_Id": "a6a24ed8e437484fb1ae9df1cb2a25e6"
-        },
-        {
-            "m_Id": "ab78a1bba2d14e0687e8e23a5bc3f68a"
-        },
-        {
-            "m_Id": "aaf4387cb386467083e4853b13ea2128"
-        },
-        {
-            "m_Id": "c2f606c19a44451da2eea342480f2353"
-        },
-        {
-            "m_Id": "d7db5e55ac3d40b08598f0bed43b9ac7"
-        },
-        {
-            "m_Id": "aced9a5a138d4fa08f6a2f331ec14eb2"
-        },
-        {
-            "m_Id": "39033378ac3543e29335f578b246b663"
-        },
-        {
-            "m_Id": "47f852aadf1648f1a9f00af3bb969774"
-        },
-        {
-            "m_Id": "ab438f868d6a445cb3c616fcaa3e078f"
-        },
-        {
-            "m_Id": "63700d9aac4e439b8520c4d5f5af06ab"
-        },
-        {
-            "m_Id": "9df746f426c74c92ba092f618fa6584f"
-        },
-        {
-            "m_Id": "437998b7a36c48c1852927fd64081710"
-        },
-        {
-            "m_Id": "341399585a1049cea5b64df10b322abd"
-        },
-        {
             "m_Id": "3166ccbd8a4a462e83c0ecc7c6542568"
         },
         {
@@ -475,7 +433,7 @@
     ],
     "m_VertexContext": {
         "m_Position": {
-            "x": -0.000011682510375976563,
+            "x": -1.1682510375976562e-05,
             "y": -99.99999237060547
         },
         "m_Blocks": [
@@ -1072,46 +1030,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "341399585a1049cea5b64df10b322abd",
-    "m_Guid": {
-        "m_GuidSerialized": "52d38707-6562-4dfe-a8c2-27a922a10925"
-    },
-    "m_Name": "ErosionUvScale",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionUvScale",
-    "m_DefaultReferenceName": "_ErosionUvScale",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 1.0,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
     "m_ObjectId": "36e2cd1f627247d8ade03e0498104ea4",
@@ -1166,46 +1084,6 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "SurfaceDescription.BaseColor"
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "39033378ac3543e29335f578b246b663",
-    "m_Guid": {
-        "m_GuidSerialized": "ac1f976a-8a98-4577-a2ac-e04db61f5421"
-    },
-    "m_Name": "ErosionNormalization",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionNormalization",
-    "m_DefaultReferenceName": "_ErosionNormalization",
-    "m_OverrideReferenceName": "erosion_normalization",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 0.5,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
 }
 
 {
@@ -1317,46 +1195,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "437998b7a36c48c1852927fd64081710",
-    "m_Guid": {
-        "m_GuidSerialized": "e550cb79-7c47-4280-9b54-09d75c07be0e"
-    },
-    "m_Name": "ErosionGradientInfluence",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionGradientInfluence",
-    "m_DefaultReferenceName": "_ErosionGradientInfluence",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 1.0,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "4783f1e82bff4be0b350b8363e37a610",
@@ -1435,46 +1273,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "47f852aadf1648f1a9f00af3bb969774",
-    "m_Guid": {
-        "m_GuidSerialized": "b334565c-81a0-43fc-a497-36336b723f8d"
-    },
-    "m_Name": "ErosionOctaves",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionOctaves",
-    "m_DefaultReferenceName": "_ErosionOctaves",
-    "m_OverrideReferenceName": "erosion_octaves",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 5.0,
-    "m_FloatType": 2,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "53d2aacb0a2e4b5c9996f32d99cb82d2",
@@ -1503,48 +1301,6 @@
         },
         {
             "m_Id": "3308570db17a43baa3efd5e4d8829c27"
-        },
-        {
-            "m_Id": "aa593b7f8a9942c4a2285b171d65b14a"
-        },
-        {
-            "m_Id": "a6a24ed8e437484fb1ae9df1cb2a25e6"
-        },
-        {
-            "m_Id": "ab78a1bba2d14e0687e8e23a5bc3f68a"
-        },
-        {
-            "m_Id": "aaf4387cb386467083e4853b13ea2128"
-        },
-        {
-            "m_Id": "c2f606c19a44451da2eea342480f2353"
-        },
-        {
-            "m_Id": "9df746f426c74c92ba092f618fa6584f"
-        },
-        {
-            "m_Id": "d7db5e55ac3d40b08598f0bed43b9ac7"
-        },
-        {
-            "m_Id": "aced9a5a138d4fa08f6a2f331ec14eb2"
-        },
-        {
-            "m_Id": "39033378ac3543e29335f578b246b663"
-        },
-        {
-            "m_Id": "47f852aadf1648f1a9f00af3bb969774"
-        },
-        {
-            "m_Id": "ab438f868d6a445cb3c616fcaa3e078f"
-        },
-        {
-            "m_Id": "63700d9aac4e439b8520c4d5f5af06ab"
-        },
-        {
-            "m_Id": "437998b7a36c48c1852927fd64081710"
-        },
-        {
-            "m_Id": "341399585a1049cea5b64df10b322abd"
         },
         {
             "m_Id": "3166ccbd8a4a462e83c0ecc7c6542568"
@@ -1666,46 +1422,6 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "63700d9aac4e439b8520c4d5f5af06ab",
-    "m_Guid": {
-        "m_GuidSerialized": "db213ccf-6fb5-4dee-bb4f-bcb83eb6ce5b"
-    },
-    "m_Name": "ErosionGain",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionGain",
-    "m_DefaultReferenceName": "_ErosionGain",
-    "m_OverrideReferenceName": "erosion_gain",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 0.5,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
 }
 
 {
@@ -2267,36 +1983,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector4ShaderProperty",
-    "m_ObjectId": "9df746f426c74c92ba092f618fa6584f",
-    "m_Guid": {
-        "m_GuidSerialized": "5d5393dc-a747-485e-aac0-50e189dbd644"
-    },
-    "m_Name": "ErosionOnset",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionOnset",
-    "m_DefaultReferenceName": "_ErosionOnset",
-    "m_OverrideReferenceName": "erosion_onset",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": {
-        "x": 0.699999988079071,
-        "y": 1.25,
-        "z": 2.799999952316284,
-        "w": 1.5
-    }
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
     "m_ObjectId": "a4f357064ff54d9ea91e710109eed2bc",
@@ -2317,46 +2003,6 @@
         "z": 0.0
     },
     "m_Labels": []
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "a6a24ed8e437484fb1ae9df1cb2a25e6",
-    "m_Guid": {
-        "m_GuidSerialized": "fdb62de1-fa3d-4f63-883d-576bbc02f54c"
-    },
-    "m_Name": "ErosionStrength",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionStrength",
-    "m_DefaultReferenceName": "_ErosionStrength",
-    "m_OverrideReferenceName": "erosion_strength",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 0.2199999988079071,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
 }
 
 {
@@ -2426,206 +2072,6 @@
         "y": 0.0
     },
     "m_Labels": []
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "aa593b7f8a9942c4a2285b171d65b14a",
-    "m_Guid": {
-        "m_GuidSerialized": "0da5484c-224c-4f39-87bd-11e01e4ca290"
-    },
-    "m_Name": "ErosionScale",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionScale",
-    "m_DefaultReferenceName": "_ErosionScale",
-    "m_OverrideReferenceName": "erosion_scale",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 0.699999988079071,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "aaf4387cb386467083e4853b13ea2128",
-    "m_Guid": {
-        "m_GuidSerialized": "5a939b27-8876-4009-88bf-b01c1cdd5089"
-    },
-    "m_Name": "ErosionDetail",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionDetail",
-    "m_DefaultReferenceName": "_ErosionDetail",
-    "m_OverrideReferenceName": "erosion_detail",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 1.5,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "ab438f868d6a445cb3c616fcaa3e078f",
-    "m_Guid": {
-        "m_GuidSerialized": "11cc9dc3-21f5-472c-bb8b-5e7a278038e3"
-    },
-    "m_Name": "ErosionLacunarity",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionLacunarity",
-    "m_DefaultReferenceName": "_ErosionLacunarity",
-    "m_OverrideReferenceName": "erosion_lacunarity",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 2.0,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "ab78a1bba2d14e0687e8e23a5bc3f68a",
-    "m_Guid": {
-        "m_GuidSerialized": "66513761-7336-49a6-80c4-af71aee95785"
-    },
-    "m_Name": "ErosionGullyWeight",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionGullyWeight",
-    "m_DefaultReferenceName": "_ErosionGullyWeight",
-    "m_OverrideReferenceName": "erosion_gully_weight",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 0.5,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "aced9a5a138d4fa08f6a2f331ec14eb2",
-    "m_Guid": {
-        "m_GuidSerialized": "771c406e-8db4-4128-a598-88c532b4c12c"
-    },
-    "m_Name": "ErosionCellScale",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionCellScale",
-    "m_DefaultReferenceName": "_ErosionCellScale",
-    "m_OverrideReferenceName": "erosion_cell_scale",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": 0.699999988079071,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    },
-    "m_SliderType": 0,
-    "m_SliderPower": 3.0,
-    "m_EnumType": 0,
-    "m_CSharpEnumString": "",
-    "m_EnumNames": [
-        "Default"
-    ],
-    "m_EnumValues": [
-        0
-    ]
 }
 
 {
@@ -2860,36 +2306,6 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector4ShaderProperty",
-    "m_ObjectId": "c2f606c19a44451da2eea342480f2353",
-    "m_Guid": {
-        "m_GuidSerialized": "928c0e3c-a136-4dfa-aaa7-dba4329f8a3c"
-    },
-    "m_Name": "ErosionRounding",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionRounding",
-    "m_DefaultReferenceName": "_ErosionRounding",
-    "m_OverrideReferenceName": "erosion_rounding",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": {
-        "x": 0.10000000149011612,
-        "y": 0.5,
-        "z": 0.10000000149011612,
-        "w": 2.0
-    }
 }
 
 {
@@ -3180,36 +2596,6 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector2ShaderProperty",
-    "m_ObjectId": "d7db5e55ac3d40b08598f0bed43b9ac7",
-    "m_Guid": {
-        "m_GuidSerialized": "6304fa17-2470-4d99-9e3c-cb362b76ba04"
-    },
-    "m_Name": "ErosionAssumedSlope",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "ErosionAssumedSlope",
-    "m_DefaultReferenceName": "_ErosionAssumedSlope",
-    "m_OverrideReferenceName": "erosion_assumed_slope",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_PerRendererData": false,
-    "m_customAttributes": [],
-    "m_Value": {
-        "x": 0.699999988079071,
-        "y": 1.0,
-        "z": 0.0,
-        "w": 0.0
-    }
 }
 
 {

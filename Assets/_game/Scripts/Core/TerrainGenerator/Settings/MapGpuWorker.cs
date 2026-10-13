@@ -38,6 +38,7 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int SlotsCountInv = Shader.PropertyToID("slots_count_inv");
         private static readonly int HeightmapPixelSizeUVSpace = Shader.PropertyToID("heightmap_pixel_size_uv_space");
         private static readonly int CollisionOffset = Shader.PropertyToID("collision_offset");
+        private static readonly int HeightmapSharedEdges = Shader.PropertyToID("heightmap_shared_edges");
         private static readonly int SourceAlphamap = Shader.PropertyToID("source_alphamap");
         private static readonly int DestinationAlphamap = Shader.PropertyToID("destination_alphamap");
         private static readonly int ChunkAlphamap = Shader.PropertyToID("chunk_alphamap");
@@ -195,7 +196,7 @@ namespace Core.TerrainGenerator.Settings
             int collisionChunkResolution, int collisionChunksCount, float collisionChunkSize, RenderTexture heightmap,
             ComputeBuffer mapBuffer, Vector2Int mapMinChunk, int mapSize, int heightmapChunkResolution,
             float heightmapChunkSize, float heightmapChunkHeight, int heightmapChunksCountPerSide,
-            Vector2 collisionOffset)
+            Vector2 collisionOffset, bool heightmapSharedEdges)
         {
             _shader.GetKernelThreadGroupSizes(_getCollisionMapKernel, out uint x, out uint y, out uint z);
             int chunkResPlusOne = collisionChunkResolution + 1;
@@ -211,6 +212,7 @@ namespace Core.TerrainGenerator.Settings
             _shader.SetFloat(CollisionPixelSize, collisionChunkSize / collisionChunkResolution);
             _shader.SetFloat(SlotsCountInv, 1f / heightmapChunksCountPerSide);
             _shader.SetVector(CollisionOffset, collisionOffset);
+            _shader.SetBool(HeightmapSharedEdges, heightmapSharedEdges);
             //_shader.SetFloat(CollisionChunkSize, collisionChunkSize);
             //_shader.SetFloat(CollisionToHeightmapMul, (float)heightmapChunkResolution / (collisionChunkResolution * collisionChunkResolution));
             BindHeightmapAsSource(_getCollisionMapKernel, heightmap, heightmapChunkResolution, mapMinChunk);

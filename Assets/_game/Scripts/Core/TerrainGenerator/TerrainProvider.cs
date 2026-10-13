@@ -7,6 +7,7 @@ using Core.Utilities;
 using System.Threading.Tasks;
 using Core.Explorer;
 using Core.Misc;
+using Core.TerrainGenerator.Filters;
 using Core.TerrainGenerator.LOD;
 using Core.TerrainGenerator.Settings;
 using Core.TerrainGenerator.Utility;
@@ -58,7 +59,9 @@ namespace Core.TerrainGenerator
         [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _terrainData?._activeChunks;
         public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
-        private ErosionSettings _erosionSettings;
+        private readonly List<IHeightmapFilter> _filters = new ();
+        private readonly HeightmapBaker _heightmapBaker = new ();
+        private bool _bakeScheduled;
         private TerrainQuadTree _quadTree;
         
         public TerrainData GetHeightmapData()
@@ -103,19 +106,23 @@ namespace Core.TerrainGenerator
             }
             _initialized = true;
             if (Settings.Directory == null) throw new System.Exception("Wrong directory!");
-            _erosionSettings = Settings.GetChildAssets<ErosionSettings>().FirstOrDefault();
+            CollectFilters();
             
             if (_terrainData == null)
             {
                 _terrainData = new TerrainData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
                 _terrainData.MapChanged += BindMapToMaterial;
+                _terrainData.RawDataChanged += ScheduleBake;
                 _settings.Material.SetTexture(SourceAlphamap, AlphamapTexture);
             }
             BindMaterialParams();
             BindMapToMaterial();
+            ScheduleBake();
 
             WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+            _settings.Changed -= OnSettingsChanged;
+            _settings.Changed += OnSettingsChanged;
             if (Application.isPlaying)
             {
                 _tickService.Add(this);
@@ -129,12 +136,70 @@ namespace Core.TerrainGenerator
 
         public void Tick()
         {
-            if (_erosionSettings && _erosionSettings.IsDirty)
+            LoadPropsForCurrentPosition();
+        }
+
+        private void OnSettingsChanged()
+        {
+            if (_terrainData == null)
             {
-                _erosionSettings.BindToMaterial(Settings.Material);
+                return;
             }
 
-            LoadPropsForCurrentPosition();
+            BindMaterialParams();
+            ScheduleBake();
+        }
+
+        private void CollectFilters()
+        {
+            UnsubscribeFilters();
+            _filters.AddRange(Settings.HeightmapFilters);
+            foreach (IHeightmapFilter filter in _filters)
+            {
+                filter.Changed += ScheduleBake;
+            }
+        }
+
+        private void UnsubscribeFilters()
+        {
+            foreach (IHeightmapFilter filter in _filters)
+            {
+                if (filter != null)
+                {
+                    filter.Changed -= ScheduleBake;
+                }
+            }
+            _filters.Clear();
+        }
+
+        /// <summary>
+        /// Coalesces bake requests (chunk uploads, filter changes) into a single bake per frame,
+        /// done before rendering.
+        /// </summary>
+        private void ScheduleBake()
+        {
+            if (_bakeScheduled)
+            {
+                return;
+            }
+
+            _bakeScheduled = true;
+            BakeBeforeRendering().Forget();
+        }
+
+        private async UniTaskVoid BakeBeforeRendering()
+        {
+            await UniTask.Yield(PlayerLoopTiming.PostLateUpdate);
+            _bakeScheduled = false;
+            if (this == null || _terrainData == null)
+            {
+                return;
+            }
+
+            // Newly uploaded chunks enter the map here, so they never show unbaked heights
+            _terrainData.FlushMap();
+            _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.HeightRangeMeters,
+                _settings.heightmapSettings.sharedEdgePixels);
         }
         
         public void LoadPropsForCurrentPosition()
@@ -344,6 +409,7 @@ namespace Core.TerrainGenerator
         private static readonly int SlotsCountInv = Shader.PropertyToID("slots_count_inv");
         private static readonly int MapSize = Shader.PropertyToID("map_size");
         private static readonly int HeightScale = Shader.PropertyToID("height_scale");
+        private static readonly int HeightmapSharedEdges = Shader.PropertyToID("heightmap_shared_edges");
         
         private void BindMaterialParams()
         {
@@ -353,6 +419,7 @@ namespace Core.TerrainGenerator
             Settings.Material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
             Settings.Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
             Settings.Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
+            Settings.Material.SetFloat(HeightmapSharedEdges, _settings.heightmapSettings.sharedEdgePixels ? 1f : 0f);
         }
         
         //public async void RefreshProps()
@@ -594,11 +661,17 @@ namespace Core.TerrainGenerator
             if (_terrainData != null)
             {
                 _terrainData.MapChanged -= BindMapToMaterial;
+                _terrainData.RawDataChanged -= ScheduleBake;
                 _terrainData.Dispose();
             }
             _activeChunks.Clear();
             _activePatches.Clear(); 
             _deformersByChunk.Clear();
+            UnsubscribeFilters();
+            if (_settings)
+            {
+                _settings.Changed -= OnSettingsChanged;
+            }
             //_deformersQueue.Clear();
             _tickService.Remove(this);
             OnInitialize.Reset();

@@ -468,9 +468,6 @@ Material:
     - _EnableHeightBlend: 0
     - _EnableInstancedPerPixelNormal: 1
     - _EnergyConservingSpecularColor: 1
-    - _ErosionGradientInfluence: 0.03
-    - _ErosionScale: 0.7
-    - _ErosionUvScale: 0.06
     - _ExcludeFromTUAndAA: 0
     - _Height: 0.25
     - _HeightAmplitude: 0.02
@@ -688,15 +685,6 @@ Material:
     - _ZTestModeDistortion: 4
     - _ZTestTransparent: 4
     - _ZWrite: 1
-    - erosion_cell_scale: 0.5
-    - erosion_detail: 0.9
-    - erosion_gain: 0.5
-    - erosion_gully_weight: 20
-    - erosion_lacunarity: 2
-    - erosion_normalization: 0.6
-    - erosion_octaves: 5
-    - erosion_scale: 2
-    - erosion_strength: 0
     m_Colors:
     - _BaseColor: {r: 0.14503378, g: 0.26415092, b: 0.058561757, a: 1}
     - _BaseColor0: {r: 1, g: 1, b: 1, a: 1}
@@ -716,7 +704,6 @@ Material:
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColorHDR: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColorLDR: {r: 0, g: 0, b: 0, a: 1}
-    - _ErosionUvScale: {r: 0.4, g: 0.4, b: 0, a: 0}
     - _FadeTargetRange: {r: -1.8, g: 4.6, b: 0, a: 0}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
@@ -741,9 +728,6 @@ Material:
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
     - _UnlitColor: {r: 1, g: 0, b: 0, a: 1}
     - _UnlitColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - erosion_assumed_slope: {r: 0.7, g: 1, b: 0, a: 0}
-    - erosion_onset: {r: 3, g: 1.5, b: 0, a: 1}
-    - erosion_rounding: {r: 0.5, g: 1, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1329755177675299067
