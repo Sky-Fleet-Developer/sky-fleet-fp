@@ -9,8 +9,12 @@ namespace Runtime.Environment.Terrain
     /// Horizontal parameters are in chunk units (1.0 = heightmap chunk size); slopes are geometric,
     /// so results stay the same if chunk size or height range change together.
     /// </summary>
-    public class ErosionFilter : ScriptableObject, IHeightmapFilter
+    [Serializable]
+    public class ErosionFilter : IHeightmapFilter
     {
+        private const string ShaderPath = "TerrainFilters/ErosionFilter";
+        private const string KernelName = "CSErode";
+
         private static readonly int ScaleProperty = Shader.PropertyToID("erosion_scale");
         private static readonly int StrengthProperty = Shader.PropertyToID("erosion_strength");
         private static readonly int GullyWeightProperty = Shader.PropertyToID("erosion_gully_weight");
@@ -25,7 +29,9 @@ namespace Runtime.Environment.Terrain
         private static readonly int GainProperty = Shader.PropertyToID("erosion_gain");
         private static readonly int FadeTargetOffsetProperty = Shader.PropertyToID("erosion_fade_target_offset");
 
-        [SerializeField] private ComputeShader shader;
+        private static ComputeShader _shader;
+        private static int _kernel = -1;
+
         [SerializeField] private bool active = true;
         [Tooltip("Size of the largest gullies, in chunk units")]
         [SerializeField] private float scale = 0.7f;
@@ -44,20 +50,11 @@ namespace Runtime.Environment.Terrain
         [Tooltip("Fade target = normalized height - offset. Shifts where erosion raises (valleys) or lowers (peaks)")]
         [SerializeField] private float fadeTargetOffset = 0.5f;
 
-        private int _kernel = -1;
-        private ComputeShader _kernelShader;
-
-        public bool IsActive => active && shader && strength != 0 && scale != 0;
-        public event Action Changed;
+        public bool IsActive => active && strength != 0 && scale != 0 && GetShader();
 
         public void Apply(in HeightmapFilterContext context)
         {
-            if (_kernelShader != shader)
-            {
-                _kernelShader = shader;
-                _kernel = shader.FindKernel("CSErode");
-            }
-
+            ComputeShader shader = GetShader();
             shader.SetFloat(ScaleProperty, scale);
             shader.SetFloat(StrengthProperty, strength);
             shader.SetFloat(GullyWeightProperty, gullyWeight);
@@ -74,6 +71,19 @@ namespace Runtime.Environment.Terrain
             context.Dispatch(shader, _kernel);
         }
 
-        private void OnValidate() => Changed?.Invoke();
+        private static ComputeShader GetShader()
+        {
+            if (!_shader)
+            {
+                _shader = Resources.Load<ComputeShader>(ShaderPath);
+                if (!_shader)
+                {
+                    Debug.LogError($"Erosion filter: compute shader not found at Resources/{ShaderPath}");
+                    return null;
+                }
+                _kernel = _shader.FindKernel(KernelName);
+            }
+            return _shader;
+        }
     }
 }

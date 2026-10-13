@@ -42,6 +42,8 @@ namespace Core.TerrainGenerator
         public RenderTexture RawHeightmapTex => _rawHeightmapTex;
         /// <summary>Per texture layer: int3(chunk.x, chunk.y, isUsed). Updated together with the map buffer.</summary>
         public ComputeBuffer SlotCoordsBuffer => _slotCoordsBuffer;
+        /// <summary>CPU copy of <see cref="SlotCoordsBuffer"/> for one layer.</summary>
+        public int3 GetSlotCoords(int layer) => _slotCoordsContent[layer];
         public int LayerCount => _maxChunksSide * _maxChunksSide;
         public int Resolution => _chunkResolution;
         /// <summary>Raised when new chunk data was uploaded to the raw heightmap and has to be baked.</summary>

@@ -11,22 +11,29 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7d986b3fc8f4dc291f79fa43633e94d, type: 3}
   m_Name: ErosionFilter
-  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.ErosionFilter
-  shader: {fileID: 7200000, guid: aab2994efdca4a7e8badbaa77bccb041, type: 3}
-  active: 1
-  scale: 2
-  strength: 0
-  gullyWeight: 20
-  detail: 0.9
-  rounding: {x: 0.5, y: 1, z: 0, w: 1}
-  onset: {x: 3, y: 1.5, z: 0, w: 1}
-  assumedSlope: {x: 0.7, y: 1}
-  cellScale: 0.5
-  normalization: 0.6
-  octaves: 5
-  lacunarity: 2
-  gain: 0.5
-  fadeTargetOffset: 0.5
+  m_EditorClassIdentifier: Core::Core.TerrainGenerator.Filters.HeightmapFilterAsset
+  filter:
+    rid: 6312480000000000001
+  references:
+    version: 2
+    RefIds:
+    - rid: 6312480000000000001
+      type: {class: ErosionFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        scale: 2
+        strength: 0.0001
+        gullyWeight: 20
+        detail: 0.9
+        rounding: {x: 0.5, y: 1, z: 0, w: 1}
+        onset: {x: 3, y: 1.5, z: 0, w: 1}
+        assumedSlope: {x: 0.7, y: 1}
+        cellScale: 0.5
+        normalization: 0.6
+        octaves: 5
+        lacunarity: 2
+        gain: 0.5
+        fadeTargetOffset: 0.5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53,11 +60,15 @@ MonoBehaviour:
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 5}
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
+  biomeDebugShader: {fileID: 7200000, guid: 00a0defdaae84603ab67579a5434aa79, type: 3}
+  biomeComposeShader: {fileID: 7200000, guid: 72166e1690494535b6fc3806900eca0c, type: 3}
+  biomeTilePoolSize: 64
   heightmapSettings:
     formatMap:
       format: 10x10-8x8Height_{x}-{y}
       extension: r16
     chunkSizeMeters: 7200
+    sharedEdgePixels: 1
   alphamapSettings:
     layersCount: 3
     normalizeAlphamap: 0

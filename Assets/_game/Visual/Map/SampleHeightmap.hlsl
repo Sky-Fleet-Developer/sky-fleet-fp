@@ -62,6 +62,27 @@ void SampleHeightmap(float3 world_position, out float height)
     height = source_heightmap.SampleLevel(sampler_source_heightmap, float3(ChunkUvToTextureUv(uv, width, heightmap_shared_edges > 0.5), chunk), 0);
 }
 
+// Blended biome debug colors, same layers and pixel layout as source_heightmap. Bound by TerrainProvider.
+Texture2DArray<float4> biome_debug_map;
+SamplerState sampler_biome_debug_map;
+float biome_debug_enabled;
+
+float3 SampleBiomeDebugColor(float3 world_position)
+{
+    if (biome_debug_enabled < 0.5)
+    {
+        return float3(1, 1, 1);
+    }
+
+    int slot;
+    float2 uv;
+    WorldPositionToSlot(world_position, uv, slot);
+    int chunk = SlotToMap(slot);
+    float width, height_px, elements;
+    biome_debug_map.GetDimensions(width, height_px, elements);
+    return biome_debug_map.SampleLevel(sampler_biome_debug_map, float3(ChunkUvToTextureUv(uv, width, heightmap_shared_edges > 0.5), chunk), 0).rgb;
+}
+
 // Distance between two neighbouring heightmap pixels in world units
 float HeightmapPixelSize()
 {
@@ -92,7 +113,7 @@ void SampleHeightmapWithGradient_float(float3 world_position, out float height, 
 
     // Erosion and other heightmap filters are already baked into source_heightmap
     float2 gradient = float2(-dfdx, -dfdz);
-    debug_color = float3(1, 1, 1);
+    debug_color = SampleBiomeDebugColor(world_position);
 
     // Normalized height 1.0 equals height_scale meters
     float2 world_slope = gradient * (height_scale / (2.0 * step));

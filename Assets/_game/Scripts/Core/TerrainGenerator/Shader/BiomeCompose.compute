@@ -1,0 +1,125 @@
+#pragma kernel CSCompose
+
+#include "BiomeDiagram.hlsl"
+
+// Blends the biome sources into the raw heightmap and alphamap of world chunks. Bound by BiomeComposer.
+// Dispatch layout: id.xy = pixel, id.z = index of the composed chunk.
+// Pixel i lies at chunk uv (i + compose_pixel_offset) / compose_pixels_per_chunk, same as the heightmap.
+
+struct BiomeSource
+{
+    float2 origin_meters;  // point of the source space placed at the site
+    float tile_size;       // meters
+    float pixels_per_tile;
+    float pixel_offset;
+    int2 map_min;          // tile coordinate of biome_tile_map[map_offset]
+    int2 map_size;         // zero when no tile is loaded
+    int map_offset;
+};
+
+RWTexture2DArray<float> compose_height;
+RWTexture2DArray<float4> compose_alpha;
+StructuredBuffer<int4> compose_layers; // per composed chunk: texture layer, chunk.xy
+Texture2DArray<float> pool_height;
+Texture2DArray<float4> pool_alpha;
+SamplerState sampler_linear_clamp;
+StructuredBuffer<BiomeSource> biome_sources; // per biome
+StructuredBuffer<int> biome_tile_map;        // (tile - map_min) -> pool layer, -1 when missing
+float pool_resolution;
+int compose_resolution;
+float compose_pixels_per_chunk;
+float compose_pixel_offset;
+float compose_chunk_size; // meters
+
+// False when the biome has no data at the position
+bool SampleBiome(BiomeSite site, float2 position, out float height, out float4 alpha)
+{
+    height = 0;
+    alpha = 0;
+    BiomeSource source = biome_sources[site.biome];
+    float2 tile_space = (BiomeSiteToLocal(site, position) + source.origin_meters) / source.tile_size;
+    int2 tile = (int2)floor(tile_space);
+    int2 local = tile - source.map_min;
+    if (any(local < 0) || any(local >= source.map_size))
+    {
+        return false;
+    }
+
+    int layer = biome_tile_map[source.map_offset + local.x * source.map_size.y + local.y];
+    if (layer < 0)
+    {
+        return false;
+    }
+
+    float2 uv = tile_space - tile;
+    float2 texture_uv = (uv * source.pixels_per_tile + 0.5 - source.pixel_offset) / pool_resolution;
+    height = pool_height.SampleLevel(sampler_linear_clamp, float3(texture_uv, layer), 0);
+    alpha = pool_alpha.SampleLevel(sampler_linear_clamp, float3(texture_uv, layer), 0);
+    return true;
+}
+
+[numthreads(8,8,1)]
+void CSCompose (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)compose_resolution || id.y >= (uint)compose_resolution)
+    {
+        return;
+    }
+
+    int4 target = compose_layers[id.z];
+    float2 position = (target.yz + (id.xy + compose_pixel_offset) / compose_pixels_per_chunk) * compose_chunk_size;
+    uint2 range = biome_layer_ranges[id.z];
+
+    // Sites come in blending order, so the sites of one biome are adjacent.
+    // A biome takes the weight and the data of its strongest site that has data here.
+    float total = 0;
+    float height_sum = 0;
+    float4 alpha_sum = 0;
+    int current_biome = -1;
+    float biome_weight = 0;
+    float biome_height = 0;
+    float4 biome_alpha = 0;
+    for (uint i = 0; i <= range.y; i++)
+    {
+        BiomeSite site = (BiomeSite)0;
+        bool weighted = false;
+        if (i < range.y)
+        {
+            uint entry = biome_site_indices[range.x + i];
+            weighted = (entry & BIOME_COMPETITOR_FLAG) == 0;
+            if (weighted)
+            {
+                site = biome_sites[entry];
+            }
+        }
+
+        // Flush the previous biome when the biome changes or the list ends
+        if (i == range.y || (weighted && site.biome != current_biome))
+        {
+            total += biome_weight;
+            height_sum += biome_height * biome_weight;
+            alpha_sum += biome_alpha * biome_weight;
+            biome_weight = 0;
+            current_biome = i < range.y ? site.biome : -1;
+        }
+
+        if (!weighted)
+        {
+            continue;
+        }
+
+        float weight = BiomeSiteWeight(site, range, position);
+        float height;
+        float4 alpha;
+        if (weight > biome_weight && SampleBiome(site, position, height, alpha))
+        {
+            biome_weight = weight;
+            biome_height = height;
+            biome_alpha = alpha;
+        }
+    }
+
+    uint3 pixel = uint3(id.xy, target.x);
+    compose_height[pixel] = total > 0 ? height_sum / total : 0;
+    compose_alpha[pixel] = total > 0 ? alpha_sum / total : 0;
+}

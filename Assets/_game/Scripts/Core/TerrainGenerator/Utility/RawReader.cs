@@ -12,7 +12,7 @@ namespace Core.TerrainGenerator.Utility
         private static AsyncThreadDelegate<float[,]> _readWorkerFloat = new (Semaphore);
         public static float[,] ReadArray(string path)
         {
-            using (FileStream file = File.Open(path, FileMode.Open))
+            using (FileStream file = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 int length = (int)(file.Length / sizeof(ushort));
                 int sqrLength = (int)Math.Sqrt(length);
@@ -55,7 +55,7 @@ namespace Core.TerrainGenerator.Utility
         
         public static byte[] ReadRawData(string path)
         {
-            using (FileStream file = File.Open(path, FileMode.Open))
+            using (FileStream file = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 byte[] data = new byte[file.Length];
                 int read = file.Read(data);
@@ -69,7 +69,7 @@ namespace Core.TerrainGenerator.Utility
         
         public static async Task<byte[]> ReadRawDataAsync(string path)
         {
-            using (FileStream file = File.Open(path, FileMode.Open))
+            using (FileStream file = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 long l = file.Length;
                 l = l / 4 + (l % 4 > 0 ? 1 : 0);

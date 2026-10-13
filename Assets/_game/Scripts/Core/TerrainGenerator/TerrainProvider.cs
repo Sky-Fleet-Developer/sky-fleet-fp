@@ -7,6 +7,7 @@ using Core.Utilities;
 using System.Threading.Tasks;
 using Core.Explorer;
 using Core.Misc;
+using Core.TerrainGenerator.Biomes;
 using Core.TerrainGenerator.Filters;
 using Core.TerrainGenerator.LOD;
 using Core.TerrainGenerator.Settings;
@@ -43,9 +44,10 @@ namespace Core.TerrainGenerator
         [SerializeField] private TerrainGenerationSettings _settings;
         [Inject] private TickService _tickService;
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
+        [Inject(Optional = true)] private IBiomeSet _biomes;
 
         [ShowInInspector]
-        private Dictionary<Vector2Int, ChunkData> _activeChunks = new ();
+        private readonly HashSet<Vector2Int> _visibleChunks = new ();
         private List<IPatch> _inactivePatches = new ();
         private Dictionary<RectInt, IPatch> _activePatches = new ();
         private readonly List<RectInt> _leaves = new ();
@@ -59,9 +61,16 @@ namespace Core.TerrainGenerator
         [ShowInInspector] Dictionary<Vector2Int, int2> ActiveChunks => _terrainData?._activeChunks;
         public TerrainGenerationSettings Settings => _settings;
         public int TickRate => 60;
+        private readonly List<IHeightmapFilterSource> _filterSources = new ();
         private readonly List<IHeightmapFilter> _filters = new ();
         private readonly HeightmapBaker _heightmapBaker = new ();
+        private BiomeDebugBaker _biomeDebugBaker;
+        private BiomeComposer _composer;
+        private SettingsBiome _settingsBiome;
+        private readonly List<IBiome> _fallbackBiomes = new ();
         private bool _bakeScheduled;
+        private bool _heightmapDirty;
+        private bool _biomesDirty;
         private TerrainQuadTree _quadTree;
         
         public TerrainData GetHeightmapData()
@@ -105,7 +114,6 @@ namespace Core.TerrainGenerator
                 return;
             }
             _initialized = true;
-            if (Settings.Directory == null) throw new System.Exception("Wrong directory!");
             CollectFilters();
             
             if (_terrainData == null)
@@ -115,9 +123,23 @@ namespace Core.TerrainGenerator
                 _terrainData.RawDataChanged += ScheduleBake;
                 _settings.Material.SetTexture(SourceAlphamap, AlphamapTexture);
             }
+            if (_composer == null)
+            {
+                _composer = new BiomeComposer(Settings.BiomeComposeShader, Settings.GpuWorker, Settings.HeightmapResolution,
+                    Settings.BiomeTilePoolSize);
+                _composer.TilesLoaded += ScheduleBakeBeforeRendering;
+                _settingsBiome = new SettingsBiome(Settings, transform);
+                _fallbackBiomes.Add(_settingsBiome);
+            }
             BindMaterialParams();
             BindMapToMaterial();
             ScheduleBake();
+
+            if (_biomes != null)
+            {
+                _biomes.Changed -= OnBiomesChanged;
+                _biomes.Changed += OnBiomesChanged;
+            }
 
             WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
@@ -147,36 +169,61 @@ namespace Core.TerrainGenerator
             }
 
             BindMaterialParams();
+            _settingsBiome?.Refresh();
+            _composer?.Invalidate();
             ScheduleBake();
+        }
+
+        /// <summary>Biomes of the scene, or the whole terrain as one biome made from the settings when there are none.</summary>
+        private IReadOnlyList<IBiome> CurrentBiomes =>
+            _biomes != null && _biomes.Biomes.Count > 0 ? _biomes.Biomes : _fallbackBiomes;
+
+        private void OnBiomesChanged()
+        {
+            _composer?.Invalidate();
+            ScheduleBiomesBake();
         }
 
         private void CollectFilters()
         {
             UnsubscribeFilters();
-            _filters.AddRange(Settings.HeightmapFilters);
-            foreach (IHeightmapFilter filter in _filters)
+            _filterSources.AddRange(Settings.HeightmapFilters);
+            foreach (IHeightmapFilterSource source in _filterSources)
             {
-                filter.Changed += ScheduleBake;
+                source.Changed += ScheduleBake;
             }
         }
 
         private void UnsubscribeFilters()
         {
-            foreach (IHeightmapFilter filter in _filters)
+            foreach (IHeightmapFilterSource source in _filterSources)
             {
-                if (filter != null)
+                if (source != null)
                 {
-                    filter.Changed -= ScheduleBake;
+                    source.Changed -= ScheduleBake;
                 }
             }
-            _filters.Clear();
+            _filterSources.Clear();
         }
 
         /// <summary>
         /// Coalesces bake requests (chunk uploads, filter changes) into a single bake per frame,
-        /// done before rendering.
+        /// done before rendering. New chunks need both the heightmap and the biomes.
         /// </summary>
         private void ScheduleBake()
+        {
+            _heightmapDirty = true;
+            _biomesDirty = true;
+            ScheduleBakeBeforeRendering();
+        }
+
+        private void ScheduleBiomesBake()
+        {
+            _biomesDirty = true;
+            ScheduleBakeBeforeRendering();
+        }
+
+        private void ScheduleBakeBeforeRendering()
         {
             if (_bakeScheduled)
             {
@@ -196,10 +243,51 @@ namespace Core.TerrainGenerator
                 return;
             }
 
-            // Newly uploaded chunks enter the map here, so they never show unbaked heights
+            // Newly composed chunks enter the map here, so they never show unbaked heights
             _terrainData.FlushMap();
-            _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
-                _settings.heightmapSettings.sharedEdgePixels);
+            if (_composer.Compose(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
+                    _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels))
+            {
+                _heightmapDirty = true;
+                _biomesDirty = true;
+                _terrainData.FlushMap();
+            }
+
+            if (_heightmapDirty)
+            {
+                _heightmapDirty = false;
+                // Filters are read at bake time: a source may get a different filter assigned
+                _filters.Clear();
+                foreach (IHeightmapFilterSource source in _filterSources)
+                {
+                    if (source?.Filter != null)
+                    {
+                        _filters.Add(source.Filter);
+                    }
+                }
+                _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
+                    _settings.heightmapSettings.sharedEdgePixels);
+            }
+
+            if (_biomesDirty)
+            {
+                _biomesDirty = false;
+                BakeBiomes();
+            }
+        }
+
+        private void BakeBiomes()
+        {
+            _biomeDebugBaker ??= new BiomeDebugBaker(_settings.BiomeDebugShader);
+            // Biome positions are converted to terrain space, the space of chunk coordinates,
+            // so they stay valid when the world offset moves the terrain
+            bool hasBiomes = _biomeDebugBaker.Bake(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
+                _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels);
+            if (hasBiomes)
+            {
+                Settings.Material.SetTexture(BiomeDebugMap, _biomeDebugBaker.DebugTex);
+            }
+            Settings.Material.SetFloat(BiomeDebugEnabled, hasBiomes ? 1f : 0f);
         }
         
         public void LoadPropsForCurrentPosition()
@@ -271,8 +359,6 @@ namespace Core.TerrainGenerator
                 BindMapToMaterial();
             }
         }
-        HashSet<Vector2Int> _toRemoveCache = new HashSet<Vector2Int>();
-        HashSet<Vector2Int> _toCreateCache = new HashSet<Vector2Int>();
         //HashSet<Vector2Int> _toUpdateCache = new HashSet<Vector2Int>();
         private List<QuadTreeNode> _tree;
 
@@ -310,14 +396,6 @@ namespace Core.TerrainGenerator
 
         private void Load()
         {
-            foreach (var chunk in _activeChunks)
-            {
-                if (chunk.Value != null)
-                {
-                    chunk.Value.IsChunkVisible = false;
-                }
-            }
-
             // Patches whose leaf is unchanged stay as they are
             foreach (var pair in _activePatches)
             {
@@ -355,47 +433,15 @@ namespace Core.TerrainGenerator
             Rect minMaxChunk = new Rect((Vector2)min * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters, (Vector2)size * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters);
             RectInt chunksRange = new RectInt(new Vector2Int(Mathf.FloorToInt(minMaxChunk.xMin), Mathf.FloorToInt(minMaxChunk.yMin)), new Vector2Int(Mathf.CeilToInt(minMaxChunk.size.x), Mathf.CeilToInt(minMaxChunk.size.y)));
 
+            _visibleChunks.Clear();
             foreach (var cell in chunksRange.EnumerateYFirst())
             {
-                if (!_activeChunks.TryGetValue(cell, out var chunk) || chunk == null)
-                {
-                    _toCreateCache.Add(cell);
-                }
-                else
-                {
-                    chunk.IsChunkVisible = true;
-                }
+                _visibleChunks.Add(cell);
             }
 
-
-            foreach (var chunk in _activeChunks)
-            {
-                if (chunk.Value is { IsChunkVisible: false })
-                {
-                    _toRemoveCache.Add(chunk.Key);
-                }
-            }
-            foreach (Vector2Int coord in _toRemoveCache)
-            {
-                _activeChunks[coord].Dispose();
-                _activeChunks.Remove(coord);
-            }
-
-            foreach (Vector2Int coord in _toCreateCache)
-            {
-                //Debug.Log($"Create chunk {coord}");
-                string heightmapPath = Settings.heightmapSettings.GetPath(coord + Settings.ChunksCenter, Settings.Directory.FullName);
-                string alphamapPath = Settings.alphamapSettings.GetPath(coord + Settings.ChunksCenter, Settings.Directory.FullName);
-                ChunkData chunkData = new ChunkData(heightmapPath, alphamapPath, this, coord);
-                _activeChunks[coord] = chunkData;
-            }
-            /*foreach (var coord in _toUpdateCache)
-            {
-                _activePatches[coord].OnChunksRefreshed();
-            }*/
-            _toRemoveCache.Clear();
-            _toCreateCache.Clear();
-            //_toUpdateCache.Clear();
+            // Chunks get their data from the biomes; new ones are composed before the next rendering
+            _composer.SetVisibleChunks(_visibleChunks, _terrainData);
+            ScheduleBakeBeforeRendering();
         }
         
         private static readonly int PixelSizeUVSpace = Shader.PropertyToID("pixel_size_uv_space");
@@ -410,6 +456,8 @@ namespace Core.TerrainGenerator
         private static readonly int MapSize = Shader.PropertyToID("map_size");
         private static readonly int HeightScale = Shader.PropertyToID("height_scale");
         private static readonly int HeightmapSharedEdges = Shader.PropertyToID("heightmap_shared_edges");
+        private static readonly int BiomeDebugMap = Shader.PropertyToID("biome_debug_map");
+        private static readonly int BiomeDebugEnabled = Shader.PropertyToID("biome_debug_enabled");
         
         private void BindMaterialParams()
         {
@@ -664,7 +712,17 @@ namespace Core.TerrainGenerator
                 _terrainData.RawDataChanged -= ScheduleBake;
                 _terrainData.Dispose();
             }
-            _activeChunks.Clear();
+            _biomeDebugBaker?.Dispose();
+            if (_composer != null)
+            {
+                _composer.TilesLoaded -= ScheduleBakeBeforeRendering;
+                _composer.Dispose();
+            }
+            if (_biomes != null)
+            {
+                _biomes.Changed -= OnBiomesChanged;
+            }
+            _visibleChunks.Clear();
             _activePatches.Clear(); 
             _deformersByChunk.Clear();
             UnsubscribeFilters();

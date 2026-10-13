@@ -34,6 +34,10 @@ namespace Core.TerrainGenerator
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private Vector2Int chunksCenter;
         [SerializeField] private ComputeShader gpuWorksShader;
+        [SerializeField] private ComputeShader biomeDebugShader;
+        [SerializeField] private ComputeShader biomeComposeShader;
+        [Tooltip("Source tiles of all biomes kept in GPU memory at once")]
+        [SerializeField, Min(1)] private int biomeTilePoolSize = 64;
         
         public HeightmapSettings heightmapSettings;
         public AlphamapSettings alphamapSettings;
@@ -53,10 +57,15 @@ namespace Core.TerrainGenerator
         public Vector2Int ChunksCenter => chunksCenter;
         /// <summary>Meters represented by normalized heightmap value 1.0.</summary>
         public int Height => height;
-        /// <summary>Heightmap filters among the child assets, in list order.</summary>
-        public IEnumerable<IHeightmapFilter> HeightmapFilters => children.OfType<IHeightmapFilter>();
+        /// <summary>Global heightmap filters among the child assets, in list order.</summary>
+        public IEnumerable<IHeightmapFilterSource> HeightmapFilters => children.OfType<IHeightmapFilterSource>();
         public int ChunkMeshResolution => chunkMeshResolution;
         public Material Material => material;
+        public ComputeShader BiomeDebugShader => biomeDebugShader;
+        public ComputeShader BiomeComposeShader => biomeComposeShader;
+        public int BiomeTilePoolSize => biomeTilePoolSize;
+        /// <summary>Folder name of the terrain files inside the landscapes directory.</summary>
+        public string TargetDirectory => targetDirectory;
         public MapGpuWorker GpuWorker
         {
             get
@@ -104,13 +113,16 @@ namespace Core.TerrainGenerator
         private void AddHeightmapFilter([ValueDropdown(nameof(GetHeightmapFilterTypes))] Type filterType)
         {
             if (filterType == null) return;
-            MakeNewLayer(filterType, filterType.Name);
+            var asset = MakeNewLayer<HeightmapFilterAsset>(filterType.Name);
+            asset.Filter = (IHeightmapFilter)Activator.CreateInstance(filterType);
+            EditorUtility.SetDirty(asset);
+            AssetDatabase.SaveAssets();
         }
 
         private static IEnumerable<ValueDropdownItem<Type>> GetHeightmapFilterTypes()
         {
             return TypeCache.GetTypesDerivedFrom<IHeightmapFilter>()
-                .Where(t => !t.IsAbstract && typeof(ScriptableObject).IsAssignableFrom(t))
+                .Where(t => !t.IsAbstract && !typeof(UnityEngine.Object).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null)
                 .Select(t => new ValueDropdownItem<Type>(t.Name, t));
         }
 

@@ -1,0 +1,67 @@
+#pragma kernel CSBiomeDebug
+
+#include "BiomeDiagram.hlsl"
+
+// Dispatch layout: id.xy = pixel, id.z = texture array layer.
+// Pixel i lies at chunk uv (i + biome_pixel_offset) / biome_pixels_per_chunk, same as the heightmap.
+
+RWTexture2DArray<float4> biome_debug_destination;
+StructuredBuffer<int3> biome_slot_coords; // per layer: chunk.xy, z = 1 when the layer is used
+StructuredBuffer<float4> biome_colors;     // per biome
+int biome_resolution;
+float biome_pixels_per_chunk;
+float biome_pixel_offset;
+float biome_chunk_size; // meters
+
+[numthreads(8,8,1)]
+void CSBiomeDebug (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)biome_resolution || id.y >= (uint)biome_resolution)
+    {
+        return;
+    }
+
+    int3 slot = biome_slot_coords[id.z];
+    if (slot.z == 0)
+    {
+        return;
+    }
+
+    float2 position = (slot.xy + (id.xy + biome_pixel_offset) / biome_pixels_per_chunk) * biome_chunk_size;
+    uint2 range = biome_layer_ranges[id.z];
+
+    // Sites come in blending order, so the sites of one biome are adjacent
+    float3 color = 0;
+    float total = 0;
+    int current_biome = -1;
+    float biome_weight = 0;
+    for (uint i = 0; i < range.y; i++)
+    {
+        uint entry = biome_site_indices[range.x + i];
+        if (entry & BIOME_COMPETITOR_FLAG)
+        {
+            continue;
+        }
+
+        BiomeSite site = biome_sites[entry];
+        if (site.biome != current_biome)
+        {
+            if (current_biome >= 0)
+            {
+                color += biome_colors[current_biome].rgb * biome_weight;
+                total += biome_weight;
+            }
+            current_biome = site.biome;
+            biome_weight = 0;
+        }
+        biome_weight = max(biome_weight, BiomeSiteWeight(site, range, position));
+    }
+
+    if (current_biome >= 0)
+    {
+        color += biome_colors[current_biome].rgb * biome_weight;
+        total += biome_weight;
+    }
+
+    biome_debug_destination[id] = float4(total > 0 ? color / total : float3(1, 1, 1), 1);
+}

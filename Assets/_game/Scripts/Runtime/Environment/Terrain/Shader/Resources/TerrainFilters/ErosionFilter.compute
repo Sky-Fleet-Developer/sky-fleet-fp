@@ -1,7 +1,7 @@
 #pragma kernel CSErode
 
 #include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/HeightmapFilterCommon.hlsl"
-#include "ErosionFilter.hlsl"
+#include "Assets/_game/Scripts/Runtime/Environment/Terrain/Shader/ErosionFilter.hlsl"
 
 float erosion_scale;
 float erosion_strength;
