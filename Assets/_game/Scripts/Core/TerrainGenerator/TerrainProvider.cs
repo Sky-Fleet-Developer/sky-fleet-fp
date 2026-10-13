@@ -46,7 +46,10 @@ namespace Core.TerrainGenerator
         [ShowInInspector]
         private Dictionary<Vector2Int, ChunkData> _activeChunks = new ();
         private List<IPatch> _inactivePatches = new ();
-        private List<IPatch> _activePatches = new ();
+        private Dictionary<RectInt, IPatch> _activePatches = new ();
+        private readonly List<RectInt> _leaves = new ();
+        private readonly HashSet<RectInt> _leavesSet = new ();
+        private readonly List<RectInt> _toRemovePatchesCache = new ();
         private Dictionary<Vector2Int, HashSet<IDeformer>> _deformersByChunk = new ();
         //private List<IDeformer> _deformersQueue = new ();
         [ShowInInspector] private TerrainData _terrainData;
@@ -105,9 +108,11 @@ namespace Core.TerrainGenerator
             if (_terrainData == null)
             {
                 _terrainData = new TerrainData(Settings.MaxLoadedChunksByOneSide, Settings.HeightmapResolution);
+                _terrainData.MapChanged += BindMapToMaterial;
                 _settings.Material.SetTexture(SourceAlphamap, AlphamapTexture);
             }
             BindMaterialParams();
+            BindMapToMaterial();
 
             WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
@@ -135,18 +140,41 @@ namespace Core.TerrainGenerator
         public void LoadPropsForCurrentPosition()
         {
             _quadTree ??= new TerrainQuadTree(Settings.lodConfig);
-            var props = GetCurrentProps();
-            Load(props);
-            
-            WaitForReadyAndApply().Forget();
+            CollectCurrentLeaves();
+            if (!HaveLeavesChanged())
+            {
+                return;
+            }
+
+            Load();
+            // Chunks released by Load must leave the map before their slots are reused
+            _terrainData.FlushMap();
         }
 
-        private async UniTask WaitForReadyAndApply()
+        private bool HaveLeavesChanged()
         {
-            foreach (var keyValuePair in _activeChunks)
+            if (_leavesSet.Count != _activePatches.Count)
             {
-                await keyValuePair.Value.LoadingTask;
+                return true;
             }
+
+            foreach (RectInt leaf in _leavesSet)
+            {
+                if (!_activePatches.TryGetValue(leaf, out IPatch patch) || patch == null || !patch.Exist)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Map buffer content and the matrix that addresses it must always change together,
+        /// so this is called whenever TerrainData rebuilds the map.
+        /// </summary>
+        private void BindMapToMaterial()
+        {
             Settings.Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
             float hmPixSize = 1f / _settings.heightmapSettings.chunkSizeMeters;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
             Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.x, mapMin.y * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.z));
@@ -157,9 +185,9 @@ namespace Core.TerrainGenerator
 
         void ITerrainProviderHandler.Unload()
         {
-            foreach (var patch in _activePatches)
+            foreach (var patch in _activePatches.Values)
             {
-                patch?.Disable();
+                ReleasePatch(patch);
             }
 
             _activePatches.Clear();
@@ -168,9 +196,14 @@ namespace Core.TerrainGenerator
         private void OnWorldOffsetChange(Vector3 offset)
         {
             transform.position += offset;
-            foreach (var patch in _activePatches)
+            foreach (var patch in _activePatches.Values)
             {
                 patch?.RefreshPosition();
+            }
+
+            if (_terrainData != null)
+            {
+                BindMapToMaterial();
             }
         }
         HashSet<Vector2Int> _toRemoveCache = new HashSet<Vector2Int>();
@@ -178,7 +211,39 @@ namespace Core.TerrainGenerator
         //HashSet<Vector2Int> _toUpdateCache = new HashSet<Vector2Int>();
         private List<QuadTreeNode> _tree;
 
-        private void Load(IEnumerable<RectInt> props)
+        private void ReleasePatch(IPatch patch)
+        {
+            if (patch == null || !patch.Exist)
+            {
+                return;
+            }
+
+            patch.Disable();
+            // Disable destroys the patch in edit mode
+            if (patch.Exist)
+            {
+                _inactivePatches.Add(patch);
+            }
+        }
+
+        private IPatch AcquirePatch(RectInt rect)
+        {
+            while (_inactivePatches.Count > 0)
+            {
+                IPatch patch = _inactivePatches[^1];
+                _inactivePatches.RemoveAt(_inactivePatches.Count - 1);
+                if (patch.Exist)
+                {
+                    patch.SetRect(rect);
+                    patch.Enable();
+                    return patch;
+                }
+            }
+
+            return CreateTerrain(rect);
+        }
+
+        private void Load()
         {
             foreach (var chunk in _activeChunks)
             {
@@ -187,36 +252,39 @@ namespace Core.TerrainGenerator
                     chunk.Value.IsChunkVisible = false;
                 }
             }
-            
-            for (var i = 0; i < _activePatches.Count; i++)
+
+            // Patches whose leaf is unchanged stay as they are
+            foreach (var pair in _activePatches)
             {
-                _activePatches[i].Disable();
-                if (_activePatches[i].Exist)
+                if (!_leavesSet.Contains(pair.Key) || pair.Value == null || !pair.Value.Exist)
                 {
-                    _inactivePatches.Add(_activePatches[i]);
+                    _toRemovePatchesCache.Add(pair.Key);
                 }
             }
-            
+            foreach (RectInt rect in _toRemovePatchesCache)
+            {
+                ReleasePatch(_activePatches[rect]);
+                _activePatches.Remove(rect);
+            }
+            _toRemovePatchesCache.Clear();
+
             Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
             Vector2Int max = new Vector2Int(int.MinValue, int.MinValue);
-            foreach (RectInt prop in props)
+            foreach (RectInt prop in _leaves)
             {
                 max = Vector2Int.Max(max, prop.max);
                 min = Vector2Int.Min(min, prop.min);
 
-                IPatch patch;
-                if (_inactivePatches.Count == 0)
+                if (_activePatches.ContainsKey(prop))
                 {
-                    patch = CreateTerrain(prop);
+                    continue;
                 }
-                else
+
+                IPatch patch = AcquirePatch(prop);
+                if (patch != null)
                 {
-                    patch = _inactivePatches[^1];
-                    _inactivePatches.RemoveAt(_inactivePatches.Count - 1);
-                    patch.SetRect(prop);
-                    patch.Enable();
+                    _activePatches.Add(prop, patch);
                 }
-                _activePatches.Add(patch);
             }
             Vector2Int size = max - min;
             Rect minMaxChunk = new Rect((Vector2)min * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters, (Vector2)size * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters);
@@ -319,8 +387,10 @@ namespace Core.TerrainGenerator
         //    }
         //}
 
-        private IEnumerable<RectInt> GetCurrentProps()
+        private void CollectCurrentLeaves()
         {
+            _leaves.Clear();
+            _leavesSet.Clear();
             Vector3 pos = GetViewPosition();
             var flatPos = new Vector2(pos.x, pos.z);
             _tree ??= new List<QuadTreeNode>();
@@ -329,7 +399,9 @@ namespace Core.TerrainGenerator
                 _quadTree.Build(root, 8, flatPos, Settings.ChunkMeshSize, _tree);
                 foreach (QuadTreeNode node in _tree)
                 {
-                    yield return new RectInt(node.CellMin, node.CellMax - node.CellMin);
+                    var rect = new RectInt(node.CellMin, node.CellMax - node.CellMin);
+                    _leaves.Add(rect);
+                    _leavesSet.Add(rect);
                 }
             }
 
@@ -519,7 +591,11 @@ namespace Core.TerrainGenerator
 
         private void OnDestroy()
         {
-            _terrainData.Dispose();
+            if (_terrainData != null)
+            {
+                _terrainData.MapChanged -= BindMapToMaterial;
+                _terrainData.Dispose();
+            }
             _activeChunks.Clear();
             _activePatches.Clear(); 
             _deformersByChunk.Clear();

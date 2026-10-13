@@ -20,6 +20,7 @@ namespace Core.TerrainGenerator
         private TerrainData _data;
         private Vector3Int _keyToReleaseAfterUse;
         private bool _hasReleaseKey;
+        private bool _disposed;
         private Task _loading;
 
         public Vector2Int Coordinates { get; private set; }
@@ -47,27 +48,36 @@ namespace Core.TerrainGenerator
                 return;
             }
             var heightmapData = await heightmapLoading;
-            if (heightmapData == null)
+            if (heightmapData == null || _disposed)
             {
                 return;
             }
-            ComputeBuffer mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
 
-            if (!_data.SetChunkToMap(Coordinates, out _keyToReleaseAfterUse))
+            ComputeBuffer loadBuffer = await _data.GetLoadDataBuffer();
+            try
             {
-                Debug.LogError("Has no free slot in map! Increase TerrainGenerationSettings.maxLoadedChunks value!");
-            }
-            else
-            {
-                Debug.Log($"Set chunk {Coordinates} to map at key {_keyToReleaseAfterUse}");
-            }
-            _hasReleaseKey = true;
-            Task<ComputeBuffer> getLoadBufferTask = _data.GetLoadDataBuffer();
-            ComputeBuffer loadBuffer = await getLoadBufferTask;
-            LoadHeightmapToTexture(heightmapData, loadBuffer, mapBuffer, mapMin, mapSize);
-            LoadAlphamapToTexture(alphamapData, loadBuffer, mapBuffer, mapMin, mapSize);
+                // The chunk may have left the view while waiting for the shared upload buffer
+                if (_disposed)
+                {
+                    return;
+                }
 
-            _data.ReleaseLoadDataBuffer();
+                if (!_data.SetChunkToMap(Coordinates, out _keyToReleaseAfterUse, out int textureSlot))
+                {
+                    Debug.LogError("Has no free slot in map! Increase TerrainGenerationSettings.maxLoadedChunks value!");
+                    return;
+                }
+                _hasReleaseKey = true;
+
+                LoadHeightmapToTexture(heightmapData, loadBuffer, textureSlot);
+                LoadAlphamapToTexture(alphamapData, loadBuffer, textureSlot);
+                // Make the chunk visible right away instead of waiting for the next provider tick
+                _data.FlushMap();
+            }
+            finally
+            {
+                _data.ReleaseLoadDataBuffer();
+            }
         }
         
         private Color32[] ReadPng(string path)
@@ -117,18 +127,18 @@ namespace Core.TerrainGenerator
             }
         }
         
-        private void LoadHeightmapToTexture(float[,] data, ComputeBuffer buffer, ComputeBuffer mapBuffer, Vector2Int mapMin, int mapSize)
+        private void LoadHeightmapToTexture(float[,] data, ComputeBuffer buffer, int textureSlot)
         {
             buffer.SetData(data);
             //Debug.Log($"Send data from Heightmap {Coordinates} to texture");
-            _gpuWorker.InsertHeightmapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.HeightmapTex, mapBuffer, Coordinates - mapMin, mapSize, Terrain.Settings.HeightmapResolution);
+            _gpuWorker.InsertHeightmapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.HeightmapTex, textureSlot, Terrain.Settings.HeightmapResolution);
         }
-        
-        private void LoadAlphamapToTexture(Color32[] data, ComputeBuffer buffer, ComputeBuffer mapBuffer, Vector2Int mapMin, int mapSize)
+
+        private void LoadAlphamapToTexture(Color32[] data, ComputeBuffer buffer, int textureSlot)
         {
             buffer.SetData(data);
             //Debug.Log($"Send data from Alphamap {Coordinates} to texture");
-            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.AlphamapTex, mapBuffer, Coordinates - mapMin, mapSize, Terrain.Settings.AlphamapResolution);
+            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.AlphamapTex, textureSlot, Terrain.Settings.AlphamapResolution);
         }
         
         //public abstract void RegisterDeformer(IDeformer deformer);
@@ -137,8 +147,10 @@ namespace Core.TerrainGenerator
 
         public void Dispose()
         {
+            _disposed = true;
             if (_hasReleaseKey)
             {
+                _hasReleaseKey = false;
                 _data.ReleaseChunk(_keyToReleaseAfterUse);
             }
         }

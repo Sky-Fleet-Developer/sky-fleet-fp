@@ -22,6 +22,7 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int MapSize = Shader.PropertyToID("map_size");
         private static readonly int ChunkCoordX = Shader.PropertyToID("chunk_coord_x");
         private static readonly int ChunkCoordY = Shader.PropertyToID("chunk_coord_y");
+        private static readonly int DestinationSlot = Shader.PropertyToID("destination_slot");
         private static readonly int Map = Shader.PropertyToID("map");
         private static readonly int ChunkHeightmap = Shader.PropertyToID("chunk_heightmap");
         private static readonly int DestinationCollisionMap = Shader.PropertyToID("destination_collision_map");
@@ -162,12 +163,12 @@ namespace Core.TerrainGenerator.Settings
             _shader.Dispatch(_testAlignSineKernel, treadGroups, 1, 1);
         }
 
-        public void InsertHeightmapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture heightmap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int heightmapChunkResolution)
+        public void InsertHeightmapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture heightmap, int destinationSlot, int heightmapChunkResolution)
         {
             lock (_shader)
             {
                 int treadGroups = heightmapChunkResolution / 8 + (heightmapChunkResolution % 8 > 0 ? 1 : 0);
-                BindMap(_insertRawHeightToTexKernel, mapBuffer, chunkCoordMapSpace, mapSize);
+                _shader.SetInt(DestinationSlot, destinationSlot);
                 BindHeightmapAsDestination(_insertRawHeightToTexKernel, heightmap, heightmapChunkResolution);
                 _shader.SetBool(FlipXYWhenImportRawHeightmap, true);
                 _shader.SetFloat(HeightmapIDToChunkSourceID, sourceTexResolution / (float)heightmapChunkResolution);
@@ -176,12 +177,12 @@ namespace Core.TerrainGenerator.Settings
             }
         }
         
-        public void InsertAlphamapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture alphamap, ComputeBuffer mapBuffer, Vector2Int chunkCoordMapSpace, int mapSize, int alphamapChunkResolution)
+        public void InsertAlphamapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture alphamap, int destinationSlot, int alphamapChunkResolution)
         {
             lock (_shader)
             {
                 int treadGroups = alphamapChunkResolution / 8 + (alphamapChunkResolution % 8 > 0 ? 1 : 0);
-                BindMap(_insertRawAlphaToTexKernel, mapBuffer, chunkCoordMapSpace, mapSize);
+                _shader.SetInt(DestinationSlot, destinationSlot);
                 BindAlphamapAsDestination(_insertRawAlphaToTexKernel, alphamap, alphamapChunkResolution);
                 _shader.SetBool(FlipXYWhenImportRawHeightmap, true);
                 _shader.SetFloat(AlphamapIDToChunkSourceID, sourceTexResolution / (float)alphamapChunkResolution);

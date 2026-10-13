@@ -29,6 +29,8 @@ float normal_dx;
 float normal_dt;
 int chunk_coord_x;
 int chunk_coord_y;
+// Texture array layer to write into, for the insert kernels.
+uint destination_slot;
 //int map_size;
 uint heightmap_start_x;
 uint heightmap_start_y;
@@ -146,17 +148,13 @@ void CSInsertRawHeightToTex (uint2 id : SV_DispatchThreadID)
     //float4 erosion = DefaultErosion(id / (float)heightmap_chunk_resolution, float3(height, df_dx, df_dy));
     //height += erosion.x;
     
-    int slot = map[chunk_coord_x * map_size + chunk_coord_y];
-    if (slot != -1)
+    if (flip_x_y_when_import_raw_heightmap)
     {
-        if (flip_x_y_when_import_raw_heightmap)
-        {
-            destination_heightmap[int3(id.yx, slot)] = height;
-        }
-        else
-        {
-            destination_heightmap[int3(id, slot)] = height;
-        }
+        destination_heightmap[uint3(id.yx, destination_slot)] = height;
+    }
+    else
+    {
+        destination_heightmap[uint3(id, destination_slot)] = height;
     }
 }
 
@@ -173,13 +171,13 @@ float4 unpack_uint(uint value)
 [numthreads(8,8,1)]
 void CSInsertRawAlphaToTex (uint2 id : SV_DispatchThreadID)
 {
-    if (id.x > alphamap_chunk_resolution || id.y > alphamap_chunk_resolution)
+    if (id.x >= alphamap_chunk_resolution || id.y >= alphamap_chunk_resolution)
     {
         return;
     }
-    
-    int2 chunk_id = floor(id * heightmap_id_to_chunk_source_id);
-    float2 interpolation = frac(id * heightmap_id_to_chunk_source_id);
+
+    int2 chunk_id = floor(id * alphamap_id_to_chunk_source_id);
+    float2 interpolation = frac(id * alphamap_id_to_chunk_source_id);
     
     float4 left_bottom = unpack_uint(chunk_alphamap[chunk_id.x * alphamap_chunk_resolution + chunk_id.y]);
     float4 left_top = unpack_uint(chunk_alphamap[chunk_id.x * alphamap_chunk_resolution + chunk_id.y + 1]);
@@ -187,15 +185,7 @@ void CSInsertRawAlphaToTex (uint2 id : SV_DispatchThreadID)
     float4 right_top = unpack_uint(chunk_alphamap[(chunk_id.x + 1) * alphamap_chunk_resolution + chunk_id.y + 1]);
     float4 color = lerp(lerp(left_bottom, left_top, interpolation.y), lerp(right_bottom, right_top, interpolation.y), interpolation.x);
     
-    int slot = map[chunk_coord_x * map_size + chunk_coord_y];
-    
-    if (flip_x_y_when_import_raw_heightmap)
-    {
-        destination_alphamap[uint3(id, slot)] = color;
-    }else
-    {
-        destination_alphamap[uint3(id, slot)] = color;
-    }
+    destination_alphamap[uint3(id, destination_slot)] = color;
 }
 
 

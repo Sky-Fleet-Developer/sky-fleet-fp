@@ -106,14 +106,17 @@ namespace Core.TerrainGenerator
             }
         }
 
-        public bool SetChunkToMap(Vector2Int coord, out Vector3Int keyToReleaseAfterUse)
+        /// <param name="textureSlot">texture array layer assigned to the chunk</param>
+        public bool SetChunkToMap(Vector2Int coord, out Vector3Int keyToReleaseAfterUse, out int textureSlot)
         {
             // Значение по умолчанию, означающее, что ничего вытеснять не пришлось
             keyToReleaseAfterUse = new Vector3Int(int.MinValue, int.MinValue, int.MinValue);
+            textureSlot = -1;
 
-            if (_activeChunks.ContainsKey(coord))
+            if (_activeChunks.TryGetValue(coord, out int2 existingSlot))
             {
                 keyToReleaseAfterUse = new Vector3Int(coord.x, coord.y, _versions[coord]);
+                textureSlot = SlotToLayer(existingSlot);
                 return true; // Чанк уже загружен в память
             }
 
@@ -124,6 +127,7 @@ namespace Core.TerrainGenerator
                 {
                     var releaseKey = _chunkInsertionOrder.Dequeue();
                     int2 freedSlot = _activeChunks[releaseKey];
+                    Debug.LogWarning($"Terrain texture slots are full: chunk {releaseKey} evicted for {coord}. Increase TerrainGenerationSettings.maxLoadedChunksByOneSide.");
 
                     _activeChunks.Remove(releaseKey);
                     _freeTextureSlots.Enqueue(freedSlot);
@@ -142,9 +146,13 @@ namespace Core.TerrainGenerator
             _versions[coord] = version;
             _chunkInsertionOrder.Enqueue(coord);
             keyToReleaseAfterUse = new Vector3Int(coord.x, coord.y, version);
+            textureSlot = SlotToLayer(slot);
             _mapDirty = true;
             return true;
         }
+
+        // Must match the layer index written to the map buffer in GetMapBuffer
+        private int SlotToLayer(int2 slot) => slot.x * _maxChunksSide + slot.y;
 
         public void ReleaseChunk(Vector3Int key)
         {
@@ -175,11 +183,23 @@ namespace Core.TerrainGenerator
             _chunkInsertionOrder = newQueue;
         }
 
+        /// <summary>
+        /// Raised right after the map buffer is rebuilt. Anything that caches mapMin
+        /// (e.g. material matrices) must refresh it here, or it will address wrong slots.
+        /// </summary>
+        public event Action MapChanged;
+
+        /// <summary>Rebuilds the map buffer now if chunks were added or released since the last rebuild.</summary>
+        public void FlushMap()
+        {
+            GetMapBuffer(out _, out _);
+        }
+
         public ComputeBuffer GetMapBuffer(out Vector2Int mapMin, out int mapSize)
         {
             mapSize = _maxChunksSide;
 
-            //if (_mapDirty)
+            if (_mapDirty)
             {
                 // 1. Вычисляем mapMin (левый нижний угол активной области)
                 if (_activeChunks.Count > 0)
@@ -217,12 +237,13 @@ namespace Core.TerrainGenerator
                     if (localX >= 0 && localX < mapSize && localY >= 0 && localY < mapSize)
                     {
                         int index = localX * mapSize + localY;
-                        _mapDataContent[index] = kvp.Value.x * mapSize + kvp.Value.y;
+                        _mapDataContent[index] = SlotToLayer(kvp.Value);
                     }
                 }
 
                 _mapBuffer.SetData(_mapDataContent);
                 _mapDirty = false;
+                MapChanged?.Invoke();
             }
 
             mapMin = _currentMapMin;
