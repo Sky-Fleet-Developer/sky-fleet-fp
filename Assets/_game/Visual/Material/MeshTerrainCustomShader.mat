@@ -469,7 +469,6 @@ Material:
     - _EnableInstancedPerPixelNormal: 1
     - _EnergyConservingSpecularColor: 1
     - _ExcludeFromTUAndAA: 0
-    - _Height: 0.25
     - _HeightAmplitude: 0.02
     - _HeightAmplitude0: 0.02
     - _HeightAmplitude1: 0.03

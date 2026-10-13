@@ -94,9 +94,9 @@ void SampleHeightmapWithGradient_float(float3 world_position, out float height, 
     float2 gradient = float2(-dfdx, -dfdz);
     debug_color = float3(1, 1, 1);
 
-    // World height is height * height_scale (the graph's _Height = 0.25 cancels the * 4 below)
+    // Normalized height 1.0 equals height_scale meters
     float2 world_slope = gradient * (height_scale / (2.0 * step));
     normal = normalize(float3(world_slope.x, 1.0, world_slope.y));
 
-    height *= height_scale * 4;
+    height *= height_scale;
 }

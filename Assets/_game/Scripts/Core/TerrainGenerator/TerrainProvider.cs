@@ -198,7 +198,7 @@ namespace Core.TerrainGenerator
 
             // Newly uploaded chunks enter the map here, so they never show unbaked heights
             _terrainData.FlushMap();
-            _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.HeightRangeMeters,
+            _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
                 _settings.heightmapSettings.sharedEdgePixels);
         }
         

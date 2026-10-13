@@ -51,12 +51,8 @@ namespace Core.TerrainGenerator
         public int HeightmapResolution => heightmapResolution;
         public int AlphamapResolution => alphamapResolution;
         public Vector2Int ChunksCenter => chunksCenter;
+        /// <summary>Meters represented by normalized heightmap value 1.0.</summary>
         public int Height => height;
-        /// <summary>
-        /// Meters represented by normalized heightmap value 1.0.
-        /// Must match the scale applied in SampleHeightmap.hlsl (height * height_scale * 4).
-        /// </summary>
-        public float HeightRangeMeters => height * 4f;
         /// <summary>Heightmap filters among the child assets, in list order.</summary>
         public IEnumerable<IHeightmapFilter> HeightmapFilters => children.OfType<IHeightmapFilter>();
         public int ChunkMeshResolution => chunkMeshResolution;
