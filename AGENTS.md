@@ -29,6 +29,17 @@ All game-specific content lives under `Assets/_game/`:
 
 Third-party code is in `Assets/Plugins/`, `Assets/NWH/`, `Assets/TextMesh Pro/` and similar — treat these as vendor code and do not modify them unless explicitly asked.
 
+## Feature development rules
+
+These rules are mandatory for every new feature.
+
+1. **Abstraction → realization.** Design the abstraction first, then implement it.
+   - **Abstraction** (interfaces, abstract classes, data contracts, events, configs) goes in the **`Core`** assembly.
+   - **Realization** (concrete implementations, MonoBehaviours, views, scene-bound logic) goes in the **`Runtime`** assembly.
+2. **Isolation.** A new feature should be as independent of other features as possible. It must not reach into other features' concrete classes.
+3. **Link through Core + DI.** Features talk to each other only through `Core` abstractions, with dependencies injected via Zenject (bind the realization to its abstraction in an installer). Avoid direct references between `Runtime` implementations, static access, and `FindObjectOfType`-style lookups.
+4. **Stop on heavy cross-feature changes.** If a new feature turns out to need significant changes to other existing features, **stop and report to the user** before continuing. Explain what would need to change and why, and propose options (e.g., a new abstraction in `Core`), instead of modifying those features on your own.
+
 ## Architecture notes
 
 - Startup is driven by `Core.Bootstrapper` via `[RuntimeInitializeOnLoadMethod(BeforeSceneLoad)]`; it builds the project-level Zenject `DiContainer` and the session context. Prefer registering new services through the existing installers rather than adding singletons.
