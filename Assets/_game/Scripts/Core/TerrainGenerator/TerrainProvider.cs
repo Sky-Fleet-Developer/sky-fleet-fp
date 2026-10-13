@@ -137,6 +137,20 @@ namespace Core.TerrainGenerator
             _quadTree ??= new TerrainQuadTree(Settings.lodConfig);
             var props = GetCurrentProps();
             Load(props);
+            
+            WaitForReadyAndApply().Forget();
+        }
+
+        private async UniTask WaitForReadyAndApply()
+        {
+            foreach (var keyValuePair in _activeChunks)
+            {
+                await keyValuePair.Value.LoadingTask;
+            }
+            Settings.Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
+            float hmPixSize = 1f / _settings.heightmapSettings.chunkSizeMeters;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
+            Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.x, mapMin.y * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.z));
+            Settings.Material.SetFloat(MapSize, mapSize);
         }
 
         public bool Enabled => gameObject.activeInHierarchy && enabled;
@@ -183,19 +197,12 @@ namespace Core.TerrainGenerator
                 }
             }
             
+            Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
+            Vector2Int max = new Vector2Int(int.MinValue, int.MinValue);
             foreach (RectInt prop in props)
             {
-                foreach (var cell in prop.EnumerateYFirst())
-                {
-                    if (!_activeChunks.TryGetValue(cell, out var chunk) || chunk == null)
-                    {
-                        _toCreateCache.Add(cell);
-                    }
-                    else
-                    {
-                        chunk.IsChunkVisible = true;
-                    }
-                }
+                max = Vector2Int.Max(max, prop.max);
+                min = Vector2Int.Min(min, prop.min);
 
                 IPatch patch;
                 if (_inactivePatches.Count == 0)
@@ -211,6 +218,22 @@ namespace Core.TerrainGenerator
                 }
                 _activePatches.Add(patch);
             }
+            Vector2Int size = max - min;
+            Rect minMaxChunk = new Rect((Vector2)min * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters, (Vector2)size * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters);
+            RectInt chunksRange = new RectInt(new Vector2Int(Mathf.FloorToInt(minMaxChunk.xMin), Mathf.FloorToInt(minMaxChunk.yMin)), new Vector2Int(Mathf.CeilToInt(minMaxChunk.size.x), Mathf.CeilToInt(minMaxChunk.size.y)));
+
+            foreach (var cell in chunksRange.EnumerateYFirst())
+            {
+                if (!_activeChunks.TryGetValue(cell, out var chunk) || chunk == null)
+                {
+                    _toCreateCache.Add(cell);
+                }
+                else
+                {
+                    chunk.IsChunkVisible = true;
+                }
+            }
+
 
             foreach (var chunk in _activeChunks)
             {
@@ -257,10 +280,6 @@ namespace Core.TerrainGenerator
         private void BindMaterialParams()
         {
             Settings.Material.SetTexture(SourceHeightmap, _terrainData.HeightmapTex);
-            Settings.Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
-            float hmPixSize = 1f / _settings.ChunkMeshSize;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
-            Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.ChunkMeshSize + WorldOffset.Offset.x, mapMin.y * _settings.ChunkMeshSize + WorldOffset.Offset.z));
-            Settings.Material.SetFloat(MapSize, mapSize);
             Settings.Material.SetFloat(HeightScale, _settings.Height);
             Settings.Material.SetFloat(WidthScale, _settings.ChunkMeshSize);
             Settings.Material.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
@@ -302,11 +321,6 @@ namespace Core.TerrainGenerator
 
         private IEnumerable<RectInt> GetCurrentProps()
         {
-            if (_quadTree == null)
-            {
-                _quadTree = new TerrainQuadTree(Settings.lodConfig);
-            }
-
             Vector3 pos = GetViewPosition();
             var flatPos = new Vector2(pos.x, pos.z);
             _tree ??= new List<QuadTreeNode>();

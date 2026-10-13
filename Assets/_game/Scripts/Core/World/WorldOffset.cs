@@ -9,7 +9,7 @@ using Zenject;
 namespace Core.World
 {
 
-    public class WorldOffset : MonoBehaviour, ILoadAtStart, IMyInstaller, WorldOffset.IWorldOffsetHandler
+    public class WorldOffset : MonoBehaviour, IMyInstaller, WorldOffset.IWorldOffsetHandler
     {
         [ShowInInspector]
         public static Vector3 Offset
@@ -27,23 +27,14 @@ namespace Core.World
         [Inject(Optional = true)] private IWorldOffsetHandler _worldOffsetHandler;
         [Inject(Optional = true)] private Session _session;
         private Grid _grid;
-        private Transform anchor;
-        private bool _isEnabled = false;
+        private Transform _anchor;
         private bool _isManualControl = false;
-        bool ILoadAtStart.enabled => _isEnabled;
 
-        private void Awake()
+        private void Start()
         {
-            _isEnabled = gameObject.activeInHierarchy;
             gameObject.SetActive(false);
-            Offset = Vector3.zero;
-        }
-
-        public Task Load()
-        {
-            Offset = Vector3.zero;
             Bootstrapper.OnLoadComplete.Subscribe(OnInitComplete);
-            return Task.CompletedTask;
+            Offset = Vector3.zero;
         }
 
         private void OnInitComplete()
@@ -52,11 +43,11 @@ namespace Core.World
             
             if (_session.Player)
             {
-                anchor = _session.Player.transform;
+                _anchor = _session.Player.transform;
             }
             else
             {
-                anchor = transform;
+                _anchor = transform;
             }
 
             if (limit != 0)
@@ -71,7 +62,7 @@ namespace Core.World
         private void FixedUpdate()
         {
             if(_isManualControl) return;
-            if(_grid.Update(Offset - anchor.position, out Vector3Int cell))
+            if(_grid.Update(Offset - _anchor.position, out Vector3Int cell))
             {
                 Vector3 offset = (Vector3)cell * _grid.Size - Offset;
                 MakeOffset(offset);

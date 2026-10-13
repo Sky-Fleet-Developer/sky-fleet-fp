@@ -2,33 +2,31 @@
 #include "SampleMapUtility.hlsl"
 #include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/ErodeUsingSettings.hlsl"
 
-/*float2 hash(float2 p)
-{
-    p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3)));
-    return -1.0 + 2.0 * frac(sin(p) * 43758.5453123);
-}*/
+float2 hash_p(float2 p) { 
+    p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3))); 
+    return -1.0 + 2.0 * frac(sin(p) * 43758.5453123); 
+}
 
 // Базовый 2D шум Перлина
-float perlin_noise(float2 uv)
-{
-    float2 i = floor(uv);
-    float2 f = frac(uv);
+float perlin_noise(float2 uv) { 
+    float2 i = floor(uv); 
+    float2 f = frac(uv); 
 
-    // Сглаживание по кривой Эрмита (Quintic interpolation)
-    float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+    // Сглаживание по кривой Эрмита (Quintic interpolation) 
+    float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0); 
 
-    // Градиенты в четырех углах ячейки
-    float dotTopLeft     = dot(hash(i + float2(0.0, 0.0)), f - float2(0.0, 0.0));
-    float dotTopRight    = dot(hash(i + float2(1.0, 0.0)), f - float2(1.0, 0.0));
-    float dotBottomLeft  = dot(hash(i + float2(0.0, 1.0)), f - float2(0.0, 1.0));
-    float dotBottomRight = dot(hash(i + float2(1.0, 1.0)), f - float2(1.0, 1.0));
+    // Градиенты в четырех углах ячейки (корректные смещения)
+    float dotBottomLeft  = dot(hash_p(i + float2(0.0, 0.0)), f - float2(0.0, 0.0)); 
+    float dotBottomRight = dot(hash_p(i + float2(1.0, 0.0)), f - float2(1.0, 0.0)); 
+    float dotTopLeft     = dot(hash_p(i + float2(0.0, 1.0)), f - float2(0.0, 1.0)); 
+    float dotTopRight    = dot(hash_p(i + float2(1.0, 1.0)), f - float2(1.0, 1.0)); 
 
-    // Линейная интерполяция между углами
-    return lerp(
-        lerp(dotTopLeft, dotTopRight, u.x),
+    // Корректная интерполяция: сначала по X (низ и верх), затем по Y между ними
+    return lerp( 
         lerp(dotBottomLeft, dotBottomRight, u.x), 
-        u.y
-    );
+        lerp(dotTopLeft, dotTopRight, u.x), 
+        u.y 
+    ); 
 }
 
 // Генерация шума с заданным количеством октав (FBM)
@@ -55,11 +53,12 @@ void SampleHeightmap(float3 world_position, out float height)
 {
     int slot;
     float2 uv;
-    //WorldPositionToSlot(world_position, uv, slot);
-    //int chunk = SlotToMap(slot);
-    world_position.x = (world_position.x - position_to_chunk_matrix.z) * position_to_chunk_matrix.x;
-    world_position.z = (world_position.z - position_to_chunk_matrix.w) * position_to_chunk_matrix.y;
-    height = pow(fbm_perlin(world_position.xz, 1), 2);//(cos(uv.x * PI * 2) + 1) * (cos(uv.y * PI * 2) + 1) * 0.5;//source_heightmap.SampleLevel(sampler_source_heightmap, float3(uv, chunk), 0);
+    WorldPositionToSlot(world_position, uv, slot);
+    int chunk = SlotToMap(slot);
+    //world_position.x = (world_position.x - position_to_chunk_matrix.z) * position_to_chunk_matrix.x;
+    //world_position.z = (world_position.z - position_to_chunk_matrix.w) * position_to_chunk_matrix.y;
+    //height = _FadeTargetRange.x + fbm_perlin(world_position.xz * _ErosionUvScale, 3) * _FadeTargetRange.y;//
+    height = source_heightmap.SampleLevel(sampler_source_heightmap, float3(uv, chunk), 0);
 }
 
 void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float3 normal, out float3 debug_color)
@@ -96,5 +95,5 @@ void SampleHeightmapWithGradient_float(float3 world_position, out float height, 
     float2 world_slope = gradient * (height_scale / 2.0);
     normal = normalize(float3(world_slope.x, 1.0, world_slope.y));
 
-    height *= height_scale;
+    height *= height_scale * 4;
 }

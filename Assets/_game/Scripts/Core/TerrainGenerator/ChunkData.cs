@@ -40,19 +40,30 @@ namespace Core.TerrainGenerator
 
         private async Task LoadTextures(string heightmapPath, string alphamapPath)
         {
-            Task<ComputeBuffer> getLoadBufferTask = _data.GetLoadDataBuffer();
             var heightmapLoading = ReadRaw16(heightmapPath);
             var alphamapData = ReadPng(alphamapPath);
-            ComputeBuffer loadBuffer = await getLoadBufferTask;
+            if (alphamapData == null)
+            {
+                return;
+            }
             var heightmapData = await heightmapLoading;
+            if (heightmapData == null)
+            {
+                return;
+            }
             ComputeBuffer mapBuffer = _data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
 
-            
             if (!_data.SetChunkToMap(Coordinates, out _keyToReleaseAfterUse))
             {
                 Debug.LogError("Has no free slot in map! Increase TerrainGenerationSettings.maxLoadedChunks value!");
             }
+            else
+            {
+                Debug.Log($"Set chunk {Coordinates} to map at key {_keyToReleaseAfterUse}");
+            }
             _hasReleaseKey = true;
+            Task<ComputeBuffer> getLoadBufferTask = _data.GetLoadDataBuffer();
+            ComputeBuffer loadBuffer = await getLoadBufferTask;
             LoadHeightmapToTexture(heightmapData, loadBuffer, mapBuffer, mapMin, mapSize);
             LoadAlphamapToTexture(alphamapData, loadBuffer, mapBuffer, mapMin, mapSize);
 

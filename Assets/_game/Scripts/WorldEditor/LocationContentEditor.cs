@@ -628,6 +628,7 @@ namespace WorldEditor
             {
                 if (rangeSettings.size != VectorInt.zero)
                 {
+                    _terrainProviderHandler.Initialize();
                     _terrainProviderHandler.LoadPropsForCurrentPosition();
                 }
                 else
