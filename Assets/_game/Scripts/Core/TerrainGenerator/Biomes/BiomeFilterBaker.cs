@@ -149,10 +149,11 @@ namespace Core.TerrainGenerator.Biomes
         /// <see cref="FilteredAlpha"/>. Uses HeightmapTex, AlphamapTex and the scratch textures of TerrainData
         /// as intermediate targets, so the terrain must be baked after it.
         /// </summary>
+        /// <param name="borderMargin">How far biome borders may be bent, see <see cref="Settings.BiomeEdgeNoise.Margin"/>.</param>
         public void Filter(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain,
-            float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels)
+            float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels, float borderMargin)
         {
-            if (_filtered.Count == 0 || !_layerSites.Build(data, biomes, worldToTerrain, chunkSizeMeters))
+            if (_filtered.Count == 0 || !_layerSites.Build(data, biomes, worldToTerrain, chunkSizeMeters, borderMargin))
             {
                 return;
             }

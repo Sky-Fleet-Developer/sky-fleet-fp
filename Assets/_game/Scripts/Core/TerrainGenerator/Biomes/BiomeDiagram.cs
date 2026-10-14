@@ -179,8 +179,18 @@ namespace Core.TerrainGenerator.Biomes
         /// A site is a competitor (<see cref="CompetitorFlag"/>) when it lowers the weight of a weighted site there.
         /// Signed distances are linear in position, so checking the rectangle corners is exact.
         /// </summary>
-        public static void SelectSites(IReadOnlyList<BiomeSite> sites, Rect rect, List<uint> result, List<bool> weightedCache)
+        /// <param name="margin">
+        /// Widens the rectangle on every side: weights are evaluated at positions shifted by up to this distance
+        /// (<see cref="Settings.BiomeEdgeNoise.Margin"/>).
+        /// </param>
+        public static void SelectSites(IReadOnlyList<BiomeSite> sites, Rect rect, List<uint> result, List<bool> weightedCache,
+            float margin = 0)
         {
+            if (margin > 0)
+            {
+                rect = new Rect(rect.xMin - margin, rect.yMin - margin, rect.width + 2 * margin, rect.height + 2 * margin);
+            }
+
             result.Clear();
             weightedCache.Clear();
             for (int a = 0; a < sites.Count; a++)

@@ -26,8 +26,10 @@ namespace Core.TerrainGenerator.Biomes
 
         public IReadOnlyList<BiomeSite> Sites => _sites;
 
+        /// <param name="margin">How far biome borders may be bent, see <see cref="Settings.BiomeEdgeNoise.Margin"/>.</param>
         /// <returns>False when there are no sites.</returns>
-        public bool Build(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters)
+        public bool Build(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters,
+            float margin)
         {
             BiomeDiagram.CollectSites(biomes, worldToTerrain, _sites);
             if (_sites.Count == 0)
@@ -53,7 +55,7 @@ namespace Core.TerrainGenerator.Biomes
                 }
 
                 var rect = new Rect(slot.x * chunkSizeMeters, slot.y * chunkSizeMeters, chunkSizeMeters, chunkSizeMeters);
-                BiomeDiagram.SelectSites(_sites, rect, _layerIndices, _weightedCache);
+                BiomeDiagram.SelectSites(_sites, rect, _layerIndices, _weightedCache, margin);
                 _layerRanges[layer] = new uint2((uint)_indices.Count, (uint)_layerIndices.Count);
                 _indices.AddRange(_layerIndices);
             }

@@ -165,9 +165,10 @@ namespace Core.TerrainGenerator.Biomes
         /// <param name="heightRangeMeters">Meters represented by normalized height 1.0.</param>
         /// <param name="filtersChanged">Settings of a biome filter changed: filter and blend everything again.</param>
         /// <param name="surfaces">Surface ids the alphamap channels of the biome sources are written as.</param>
+        /// <param name="edgeNoise">Bends the biome borders. A change needs <see cref="Invalidate"/>.</param>
         public bool Compose(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters,
             bool sharedEdgePixels, float heightRangeMeters, AlphamapSettings alphamap, bool filtersChanged,
-            TerrainSurfaces surfaces)
+            TerrainSurfaces surfaces, BiomeEdgeNoise edgeNoise)
         {
             if (!_shader)
             {
@@ -187,7 +188,7 @@ namespace Core.TerrainGenerator.Biomes
             if (_requirementsDirty)
             {
                 _requirementsDirty = false;
-                UpdateRequirements(biomes, chunkSizeMeters);
+                UpdateRequirements(biomes, chunkSizeMeters, edgeNoise.Margin);
             }
 
             _toCompose.Clear();
@@ -214,7 +215,8 @@ namespace Core.TerrainGenerator.Biomes
                     chunk.Composed = true;
                 }
 
-                _filterBaker.Filter(data, biomes, worldToTerrain, chunkSizeMeters, heightRangeMeters, sharedEdgePixels);
+                _filterBaker.Filter(data, biomes, worldToTerrain, chunkSizeMeters, heightRangeMeters, sharedEdgePixels,
+                    edgeNoise.Margin);
                 _toCompose.Clear();
                 foreach (WorldChunk chunk in _chunks.Values)
                 {
@@ -225,6 +227,7 @@ namespace Core.TerrainGenerator.Biomes
                 }
             }
 
+            edgeNoise.Bind(_shader);
             Blend(data, chunkSizeMeters, sharedEdgePixels, heightRangeMeters, alphamap);
             foreach (WorldChunk chunk in _toCompose)
             {
@@ -233,13 +236,13 @@ namespace Core.TerrainGenerator.Biomes
             return true;
         }
 
-        private void UpdateRequirements(IReadOnlyList<IBiome> biomes, float chunkSizeMeters)
+        private void UpdateRequirements(IReadOnlyList<IBiome> biomes, float chunkSizeMeters, float margin)
         {
             _pool.BeginRequirements();
             foreach (WorldChunk chunk in _chunks.Values)
             {
                 var rect = new Rect(chunk.Coord.x * chunkSizeMeters, chunk.Coord.y * chunkSizeMeters, chunkSizeMeters, chunkSizeMeters);
-                BiomeDiagram.SelectSites(_sites, rect, chunk.Sites, _weightedCache);
+                BiomeDiagram.SelectSites(_sites, rect, chunk.Sites, _weightedCache, margin);
                 chunk.Tiles.Clear();
                 foreach (uint entry in chunk.Sites)
                 {

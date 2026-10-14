@@ -61,6 +61,67 @@ StructuredBuffer<BiomeSite> biome_sites;
 StructuredBuffer<uint> biome_site_indices; // per layer: sites that matter, in blending order; may carry BIOME_COMPETITOR_FLAG
 StructuredBuffer<uint2> biome_layer_ranges; // per layer: start and count in biome_site_indices
 
+// Border noise, bound by Core.TerrainGenerator.Settings.BiomeEdgeNoise. Weights are evaluated at a position shifted
+// by fractal gradient noise, so the borders bend; the biome data is still sampled at the true position
+float biome_warp_amplitude; // meters, largest shift along each axis; 0 = no warp
+float biome_warp_frequency; // 1 / wavelength in meters
+int biome_warp_octaves;
+float2 biome_warp_offset;
+
+uint BiomeHash(int2 cell, uint channel)
+{
+    // pcg2d
+    uint2 v = asuint(cell) * 1664525u + 1013904223u + channel * 2654435769u;
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+    v ^= v >> 16u;
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+    v ^= v >> 16u;
+    return v.x;
+}
+
+float BiomeGradientDot(int2 cell, uint channel, float2 delta)
+{
+    float angle = BiomeHash(cell, channel) * (6.28318530718 / 4294967296.0);
+    return dot(float2(cos(angle), sin(angle)), delta);
+}
+
+// Gradient noise in [-1, 1]
+float BiomeNoise(float2 p, uint channel)
+{
+    int2 cell = (int2)floor(p);
+    float2 f = p - cell;
+    float2 u = f * f * f * (f * (f * 6 - 15) + 10);
+    float n00 = BiomeGradientDot(cell, channel, f);
+    float n10 = BiomeGradientDot(cell + int2(1, 0), channel, f - float2(1, 0));
+    float n01 = BiomeGradientDot(cell + int2(0, 1), channel, f - float2(0, 1));
+    float n11 = BiomeGradientDot(cell + int2(1, 1), channel, f - float2(1, 1));
+    return lerp(lerp(n00, n10, u.x), lerp(n01, n11, u.x), u.y) * 1.41421356;
+}
+
+// Position at which biome weights are evaluated. Shifted by at most biome_warp_amplitude along each axis
+float2 BiomeWarp(float2 position)
+{
+    if (biome_warp_amplitude <= 0)
+    {
+        return position;
+    }
+
+    float2 p = position * biome_warp_frequency + biome_warp_offset;
+    float2 sum = 0;
+    float weight = 1;
+    float total = 0;
+    for (int i = 0; i < biome_warp_octaves; i++)
+    {
+        sum += weight * float2(BiomeNoise(p, 0), BiomeNoise(p, 1));
+        total += weight;
+        weight *= 0.5;
+        p = p * 2 + float2(13.7, 7.3);
+    }
+    return position + clamp(sum / max(total, 1e-5), -1, 1) * biome_warp_amplitude;
+}
+
 // Signed distance from the power bisector of a and c, positive on the side of a
 float BiomeSignedDistance(BiomeSite a, BiomeSite c, float2 position)
 {
@@ -85,9 +146,10 @@ float BiomeTransition(BiomeSite a, BiomeSite c, float sd)
     return smoothstep(0, 1, saturate((sd + c.blend_distance) / band));
 }
 
-// Weight of the site a at a position, against the other entries of the layer range
+// Weight of the site a at a position, against the other entries of the layer range. The borders are bent by BiomeWarp
 float BiomeSiteWeight(BiomeSite a, uint2 range, float2 position)
 {
+    position = BiomeWarp(position);
     float weight = 1;
     for (uint j = 0; j < range.y && weight > 0; j++)
     {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Core.TerrainGenerator.Settings;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
@@ -38,14 +39,14 @@ namespace Core.TerrainGenerator.Biomes
 
         /// <returns>False when there is nothing to show: no shader or no biomes.</returns>
         public bool Bake(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters,
-            bool sharedEdgePixels)
+            bool sharedEdgePixels, BiomeEdgeNoise edgeNoise)
         {
             if (!_shader || biomes == null || biomes.Count == 0)
             {
                 return false;
             }
 
-            if (!_layerSites.Build(data, biomes, worldToTerrain, chunkSizeMeters))
+            if (!_layerSites.Build(data, biomes, worldToTerrain, chunkSizeMeters, edgeNoise.Margin))
             {
                 return false;
             }
@@ -64,6 +65,7 @@ namespace Core.TerrainGenerator.Biomes
 
             int kernel = _shader.FindKernel(KernelName);
             _layerSites.Bind(_shader, kernel);
+            edgeNoise.Bind(_shader);
             _shader.SetTexture(kernel, DestinationProperty, _debugTex);
             _shader.SetBuffer(kernel, SlotCoordsProperty, data.SlotCoordsBuffer);
             _shader.SetBuffer(kernel, ColorsProperty, _colorsBuffer);

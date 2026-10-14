@@ -334,7 +334,7 @@ namespace Core.TerrainGenerator
             _biomeFiltersChanged = false;
             if (_composer.Compose(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
                     _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels, _settings.Height,
-                    _settings.alphamapSettings, biomeFiltersChanged, _surfaces))
+                    _settings.alphamapSettings, biomeFiltersChanged, _surfaces, _settings.biomeEdgeNoise))
             {
                 _heightmapDirty = true;
                 _biomesDirty = true;
@@ -371,7 +371,7 @@ namespace Core.TerrainGenerator
             // Biome positions are converted to terrain space, the space of chunk coordinates,
             // so they stay valid when the world offset moves the terrain
             bool hasBiomes = _biomeDebugBaker.Bake(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
-                _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels);
+                _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels, _settings.biomeEdgeNoise);
             if (hasBiomes)
             {
                 Settings.Material.SetTexture(BiomeDebugMap, _biomeDebugBaker.DebugTex);
