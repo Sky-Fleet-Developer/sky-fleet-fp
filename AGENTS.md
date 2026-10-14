@@ -50,6 +50,7 @@ These rules are mandatory for every new feature.
 
 - Follow the style of surrounding code: file-scoped classes inside `namespace Core.<Area>` / `Runtime.<Area>` matching the folder.
 - Private fields: `_camelCase`; public members and types: `PascalCase`.
+- Private serialized fields (`[SerializeField] private`) use plain `camelCase` without the underscore. Older code still has `_camelCase` serialized fields; don't rename them in a dedicated pass, but fix the ones you touch along the way, adding `[FormerlySerializedAs("_oldName")]` so serialized data is kept.
 - Use `[SerializeField] private` for inspector fields; Odin attributes are available and already used.
 - Keep editor-only code behind `#if UNITY_EDITOR` or in Editor assemblies so player builds compile.
 

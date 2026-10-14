@@ -37,6 +37,7 @@ namespace Core.TerrainGenerator
             void Unload();
             bool Enabled { get; }
             public TerrainData GetHeightmapData();
+            TerrainViewMode ViewMode { get; set; }
         }
         
         public static readonly LateEvent<TerrainProvider> OnInitialize = new ();
@@ -45,6 +46,30 @@ namespace Core.TerrainGenerator
         [Inject] private TickService _tickService;
         [Inject(Id = "Player")] private IDynamicPositionProvider _playerTracker;
         [Inject(Optional = true)] private IBiomeSet _biomes;
+
+        [Title("View")]
+        [SerializeField] private TerrainViewMode viewMode = TerrainViewMode.Biomes;
+        [SerializeField, ShowIf(nameof(viewMode), TerrainViewMode.Heightmap)]
+        private Gradient heightGradient = new ()
+        {
+            colorKeys = new[]
+            {
+                new GradientColorKey(new Color(0.1f, 0.2f, 0.6f), 0f),
+                new GradientColorKey(new Color(0.2f, 0.6f, 0.25f), 0.3f),
+                new GradientColorKey(new Color(0.9f, 0.8f, 0.3f), 0.55f),
+                new GradientColorKey(new Color(0.5f, 0.3f, 0.15f), 0.8f),
+                new GradientColorKey(Color.white, 1f),
+            },
+        };
+        [Tooltip("Normalized heights mapped to the ends of the gradient")]
+        [SerializeField, MinMaxSlider(0, 1, true), ShowIf(nameof(viewMode), TerrainViewMode.Heightmap)]
+        private Vector2 heightViewRange = new (0, 1);
+        [Tooltip("Grid of MaxLoadedChunksByOneSide x MaxLoadedChunksByOneSide cells, one per texture slot. Generated when empty")]
+        [SerializeField, ShowIf(nameof(viewMode), TerrainViewMode.Uv)]
+        private Texture2D slotTexture;
+        private Texture2D _heightGradientTex;
+        private Texture2D _generatedSlotTex;
+        private TerrainViewMode? _appliedViewMode;
 
         [ShowInInspector]
         private readonly HashSet<Vector2Int> _visibleChunks = new ();
@@ -64,6 +89,8 @@ namespace Core.TerrainGenerator
         private readonly List<IHeightmapFilterSource> _filterSources = new ();
         private readonly List<IHeightmapFilter> _filters = new ();
         private readonly HeightmapBaker _heightmapBaker = new ();
+        private readonly List<IHeightmapFilterSource> _biomeFilterSources = new ();
+        private BiomeFilterBaker _biomeFilterBaker;
         private BiomeDebugBaker _biomeDebugBaker;
         private BiomeComposer _composer;
         private SettingsBiome _settingsBiome;
@@ -76,6 +103,16 @@ namespace Core.TerrainGenerator
         public TerrainData GetHeightmapData()
         {
             return _terrainData;
+        }
+
+        public TerrainViewMode ViewMode
+        {
+            get => viewMode;
+            set
+            {
+                viewMode = value;
+                ApplyViewMode();
+            }
         }
 
         /*public IEnumerable<(Vector2Int, HeightChannel)> EnumerateActiveSurfaceChannels()
@@ -140,6 +177,7 @@ namespace Core.TerrainGenerator
                 _biomes.Changed -= OnBiomesChanged;
                 _biomes.Changed += OnBiomesChanged;
             }
+            CollectBiomeFilters();
 
             WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
             WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
@@ -181,7 +219,39 @@ namespace Core.TerrainGenerator
         private void OnBiomesChanged()
         {
             _composer?.Invalidate();
+            CollectBiomeFilters();
             ScheduleBiomesBake();
+        }
+
+        // Biome filter edits only need a heightmap bake; added or removed filters change the biomes
+        private void CollectBiomeFilters()
+        {
+            UnsubscribeBiomeFilters();
+            foreach (IBiome biome in CurrentBiomes)
+            {
+                if (biome.Filters == null)
+                {
+                    continue;
+                }
+
+                foreach (IHeightmapFilterSource source in biome.Filters)
+                {
+                    if (source != null)
+                    {
+                        _biomeFilterSources.Add(source);
+                        source.Changed += ScheduleHeightmapBake;
+                    }
+                }
+            }
+        }
+
+        private void UnsubscribeBiomeFilters()
+        {
+            foreach (IHeightmapFilterSource source in _biomeFilterSources)
+            {
+                source.Changed -= ScheduleHeightmapBake;
+            }
+            _biomeFilterSources.Clear();
         }
 
         private void CollectFilters()
@@ -214,6 +284,12 @@ namespace Core.TerrainGenerator
         {
             _heightmapDirty = true;
             _biomesDirty = true;
+            ScheduleBakeBeforeRendering();
+        }
+
+        private void ScheduleHeightmapBake()
+        {
+            _heightmapDirty = true;
             ScheduleBakeBeforeRendering();
         }
 
@@ -265,11 +341,16 @@ namespace Core.TerrainGenerator
                         _filters.Add(source.Filter);
                     }
                 }
-                _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
+                // Biome filters first: they shape the biomes, the global filters then work on the whole terrain
+                _biomeFilterBaker ??= new BiomeFilterBaker();
+                RenderTexture input = _biomeFilterBaker.Bake(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
+                    _settings.heightmapSettings.chunkSizeMeters, _settings.Height, _settings.heightmapSettings.sharedEdgePixels);
+                _heightmapBaker.Bake(_terrainData, input, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
                     _settings.heightmapSettings.sharedEdgePixels);
             }
 
-            if (_biomesDirty)
+            // Biome colors are only shown in their view mode; they stay dirty until it's switched on
+            if (_biomesDirty && viewMode == TerrainViewMode.Biomes)
             {
                 _biomesDirty = false;
                 BakeBiomes();
@@ -429,9 +510,12 @@ namespace Core.TerrainGenerator
                     _activePatches.Add(prop, patch);
                 }
             }
-            Vector2Int size = max - min;
-            Rect minMaxChunk = new Rect((Vector2)min * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters, (Vector2)size * Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters);
-            RectInt chunksRange = new RectInt(new Vector2Int(Mathf.FloorToInt(minMaxChunk.xMin), Mathf.FloorToInt(minMaxChunk.yMin)), new Vector2Int(Mathf.CeilToInt(minMaxChunk.size.x), Mathf.CeilToInt(minMaxChunk.size.y)));
+            // Patch cells -> heightmap chunks. Both ends are rounded outwards: rounding the size instead of the far end
+            // drops the last chunk row/column whenever the near end is rounded down
+            float cellsToChunks = Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters;
+            Vector2Int chunksMin = Vector2Int.FloorToInt((Vector2)min * cellsToChunks);
+            Vector2Int chunksMax = Vector2Int.CeilToInt((Vector2)max * cellsToChunks);
+            RectInt chunksRange = new RectInt(chunksMin, chunksMax - chunksMin);
 
             _visibleChunks.Clear();
             foreach (var cell in chunksRange.EnumerateYFirst())
@@ -458,6 +542,10 @@ namespace Core.TerrainGenerator
         private static readonly int HeightmapSharedEdges = Shader.PropertyToID("heightmap_shared_edges");
         private static readonly int BiomeDebugMap = Shader.PropertyToID("biome_debug_map");
         private static readonly int BiomeDebugEnabled = Shader.PropertyToID("biome_debug_enabled");
+        private static readonly int TerrainViewModeProperty = Shader.PropertyToID("terrain_view_mode");
+        private static readonly int TerrainHeightGradient = Shader.PropertyToID("terrain_height_gradient");
+        private static readonly int TerrainHeightViewRange = Shader.PropertyToID("terrain_height_view_range");
+        private static readonly int TerrainSlotTexture = Shader.PropertyToID("terrain_slot_texture");
         
         private void BindMaterialParams()
         {
@@ -468,6 +556,97 @@ namespace Core.TerrainGenerator
             Settings.Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
             Settings.Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
             Settings.Material.SetFloat(HeightmapSharedEdges, _settings.heightmapSettings.sharedEdgePixels ? 1f : 0f);
+            ApplyViewMode();
+        }
+
+        private void OnValidate()
+        {
+            if (_initialized && _terrainData != null && _settings)
+            {
+                ApplyViewMode();
+            }
+        }
+
+        private void ApplyViewMode()
+        {
+            if (_terrainData == null)
+            {
+                return;
+            }
+
+            Material material = Settings.Material;
+            material.SetFloat(TerrainViewModeProperty, (float)viewMode);
+            switch (viewMode)
+            {
+                case TerrainViewMode.Heightmap:
+                    material.SetTexture(TerrainHeightGradient, BakeHeightGradient());
+                    material.SetVector(TerrainHeightViewRange, heightViewRange);
+                    break;
+                case TerrainViewMode.Uv:
+                    material.SetTexture(TerrainSlotTexture, GetSlotTexture());
+                    break;
+            }
+
+            if (_appliedViewMode != viewMode && viewMode == TerrainViewMode.Biomes)
+            {
+                ScheduleBiomesBake();
+            }
+            _appliedViewMode = viewMode;
+        }
+
+        private Texture2D BakeHeightGradient()
+        {
+            const int width = 256;
+            if (!_heightGradientTex)
+            {
+                _heightGradientTex = new Texture2D(width, 1, TextureFormat.RGBA32, false, false)
+                {
+                    name = "Terrain height gradient",
+                    wrapMode = TextureWrapMode.Clamp,
+                    filterMode = FilterMode.Bilinear,
+                    hideFlags = HideFlags.DontSave,
+                };
+            }
+
+            for (int i = 0; i < width; i++)
+            {
+                _heightGradientTex.SetPixel(i, 0, heightGradient.Evaluate(i / (width - 1f)));
+            }
+            _heightGradientTex.Apply(false);
+            return _heightGradientTex;
+        }
+
+        private Texture GetSlotTexture()
+        {
+            if (slotTexture)
+            {
+                return slotTexture;
+            }
+
+            int side = _settings.MaxLoadedChunksByOneSide;
+            if (!_generatedSlotTex || _generatedSlotTex.width != side * 128)
+            {
+                DestroyTexture(_generatedSlotTex);
+                _generatedSlotTex = SlotDebugTexture.Create(side);
+            }
+            return _generatedSlotTex;
+        }
+
+        private static void DestroyTexture(Texture texture)
+        {
+            if (!texture)
+            {
+                return;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(texture);
+            }
+            else
+            {
+                DestroyImmediate(texture);
+            }
         }
         
         //public async void RefreshProps()
@@ -713,6 +892,9 @@ namespace Core.TerrainGenerator
                 _terrainData.Dispose();
             }
             _biomeDebugBaker?.Dispose();
+            _biomeFilterBaker?.Dispose();
+            DestroyTexture(_heightGradientTex);
+            DestroyTexture(_generatedSlotTex);
             if (_composer != null)
             {
                 _composer.TilesLoaded -= ScheduleBakeBeforeRendering;
@@ -726,6 +908,7 @@ namespace Core.TerrainGenerator
             _activePatches.Clear(); 
             _deformersByChunk.Clear();
             UnsubscribeFilters();
+            UnsubscribeBiomeFilters();
             if (_settings)
             {
                 _settings.Changed -= OnSettingsChanged;

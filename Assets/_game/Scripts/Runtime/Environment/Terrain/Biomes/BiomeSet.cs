@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Core;
 using Core.TerrainGenerator.Biomes;
 using Core.TerrainGenerator.Biomes.Sources;
+using Core.TerrainGenerator.Filters;
 using Core.World;
 using UnityEngine;
 using Zenject;
@@ -125,6 +126,16 @@ namespace Runtime.Environment.Terrain.Biomes
                 else
                 {
                     snapshot.Add(Vector4.zero);
+                }
+
+                // Filter settings report their own changes; only the set of filters is tracked here
+                IReadOnlyList<IHeightmapFilterSource> filters = biome.Filters;
+                int filterCount = filters?.Count ?? 0;
+                snapshot.Add(new Vector4(filterCount, 0, 0, 0));
+                for (int i = 0; i < filterCount; i++)
+                {
+                    int hash = RuntimeHelpers.GetHashCode(filters[i]);
+                    snapshot.Add(new Vector4(Low(hash), High(hash), 0, 0));
                 }
             }
         }

@@ -4,14 +4,16 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Filters
 {
     /// <summary>
-    /// Produces TerrainData.HeightmapTex from TerrainData.RawHeightmapTex by running the active filters in order.
+    /// Produces TerrainData.HeightmapTex from the given source heights (the raw heightmap, or the biome filtered one)
+    /// by running the active filters in order.
     /// Every bake processes all loaded chunks, so chunk edges are recomputed once their neighbours arrive.
     /// </summary>
     public class HeightmapBaker
     {
         private readonly List<IHeightmapFilter> _activeFilters = new();
 
-        public void Bake(TerrainData data, IReadOnlyList<IHeightmapFilter> filters, float chunkSizeMeters, float heightRangeMeters,
+        /// <param name="input">Source heights; must not be HeightmapTex or the scratch heightmap.</param>
+        public void Bake(TerrainData data, RenderTexture input, IReadOnlyList<IHeightmapFilter> filters, float chunkSizeMeters, float heightRangeMeters,
             bool sharedEdgePixels)
         {
             _activeFilters.Clear();
@@ -25,7 +27,7 @@ namespace Core.TerrainGenerator.Filters
 
             if (_activeFilters.Count == 0)
             {
-                Graphics.CopyTexture(data.RawHeightmapTex, data.HeightmapTex);
+                Graphics.CopyTexture(input, data.HeightmapTex);
                 return;
             }
 
@@ -34,7 +36,7 @@ namespace Core.TerrainGenerator.Filters
             RenderTexture scratch = _activeFilters.Count > 1 ? data.GetScratchHeightmapTex() : null;
 
             // Ping-pong so that the last filter writes into the final texture
-            RenderTexture source = data.RawHeightmapTex;
+            RenderTexture source = input;
             RenderTexture destination = _activeFilters.Count % 2 == 1 ? final : scratch;
             foreach (IHeightmapFilter filter in _activeFilters)
             {

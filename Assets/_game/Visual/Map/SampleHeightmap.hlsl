@@ -83,6 +83,50 @@ float3 SampleBiomeDebugColor(float3 world_position)
     return biome_debug_map.SampleLevel(sampler_biome_debug_map, float3(ChunkUvToTextureUv(uv, width, heightmap_shared_edges > 0.5), chunk), 0).rgb;
 }
 
+// TerrainViewMode, bound by TerrainProvider: 0 shaded, 1 biomes, 2 heightmap, 3 uv
+float terrain_view_mode;
+Texture2D<float4> terrain_height_gradient;
+SamplerState sampler_terrain_height_gradient;
+float2 terrain_height_view_range; // normalized heights mapped to the ends of the gradient
+// Grid of map_size x map_size cells, cell (x, y) shows texture slot (x, y)
+Texture2D<float4> terrain_slot_texture;
+SamplerState sampler_terrain_slot_texture;
+
+float3 SampleHeightViewColor(float normalized_height)
+{
+    float t = saturate((normalized_height - terrain_height_view_range.x) / max(terrain_height_view_range.y - terrain_height_view_range.x, 1e-5));
+    return terrain_height_gradient.SampleLevel(sampler_terrain_height_gradient, float2(t, 0.5), 0).rgb;
+}
+
+float3 SampleSlotViewColor(float3 world_position)
+{
+    int slot;
+    float2 uv;
+    WorldPositionToSlot(world_position, uv, slot);
+    // Texture array layer = slot.x * map_size + slot.y, see TerrainData.SlotToLayer
+    int layer = SlotToMap(slot);
+    float2 slot_coord = float2(layer / (int)map_size, layer % (int)map_size);
+    return terrain_slot_texture.SampleLevel(sampler_terrain_slot_texture, (slot_coord + uv) / map_size, 0).rgb;
+}
+
+float3 SampleViewModeColor(float3 world_position, float normalized_height)
+{
+    int mode = (int)round(terrain_view_mode);
+    if (mode == 1)
+    {
+        return SampleBiomeDebugColor(world_position);
+    }
+    if (mode == 2)
+    {
+        return SampleHeightViewColor(normalized_height);
+    }
+    if (mode == 3)
+    {
+        return SampleSlotViewColor(world_position);
+    }
+    return float3(1, 1, 1);
+}
+
 // Distance between two neighbouring heightmap pixels in world units
 float HeightmapPixelSize()
 {
@@ -113,7 +157,7 @@ void SampleHeightmapWithGradient_float(float3 world_position, out float height, 
 
     // Erosion and other heightmap filters are already baked into source_heightmap
     float2 gradient = float2(-dfdx, -dfdz);
-    debug_color = SampleBiomeDebugColor(world_position);
+    debug_color = SampleViewModeColor(world_position, height);
 
     // Normalized height 1.0 equals height_scale meters
     float2 world_slope = gradient * (height_scale / (2.0 * step));

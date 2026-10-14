@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Core.TerrainGenerator.Biomes.Sources;
+using Core.TerrainGenerator.Filters;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.Biomes
@@ -25,6 +27,8 @@ namespace Core.TerrainGenerator.Biomes
         public float BlendDistance => 0;
         public Color DebugColor => Color.white;
         public IBiomeSource Source => _source;
+        // Global filters already cover the whole terrain
+        public IReadOnlyList<IHeightmapFilterSource> Filters => Array.Empty<IHeightmapFilterSource>();
 
         /// <summary>Applies changed settings to the source.</summary>
         public void Refresh()
