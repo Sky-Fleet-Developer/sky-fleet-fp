@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6697aba9e930e01408e9907ba9cf2e0c, type: 3}
+  m_Name: Dirt
+  m_EditorClassIdentifier: Core::Core.TerrainGenerator.Surfaces.SurfaceType
+  albedo: {fileID: 2800000, guid: e187e8a5b6a80b14f9ec08e10131a6f6, type: 3}
+  normal: {fileID: 2800000, guid: fc3091637b6c91e458a15dc6584833f0, type: 3}
+  height: {fileID: 0}
+  metallic: 0
+  roughness: 0.7
+  tileSize: 4

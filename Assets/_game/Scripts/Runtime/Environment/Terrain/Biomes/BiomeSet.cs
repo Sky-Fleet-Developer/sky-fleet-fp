@@ -5,6 +5,7 @@ using Core;
 using Core.TerrainGenerator.Biomes;
 using Core.TerrainGenerator.Biomes.Sources;
 using Core.TerrainGenerator.Filters;
+using Core.TerrainGenerator.Surfaces;
 using Core.World;
 using UnityEngine;
 using Zenject;
@@ -15,6 +16,8 @@ namespace Runtime.Environment.Terrain.Biomes
     /// Collects the biomes among its descendants and provides them as <see cref="IBiomeSet"/>.
     /// Blending order is the hierarchy order: siblings top to bottom, a parent before its children.
     /// Place it at the scene root (or under a [Translator] object), so the Bootstrapper installs it.
+    /// Changes are looked for every frame in play mode, and on every editor update in edit mode
+    /// while <see cref="Changed"/> has subscribers (e.g. a terrain loaded by the location editor).
     /// </summary>
     public class BiomeSet : MonoBehaviour, IBiomeSet, IMyInstaller
     {
@@ -40,7 +43,24 @@ namespace Runtime.Environment.Terrain.Biomes
             }
         }
 
-        public event Action Changed;
+        private Action _changed;
+#if UNITY_EDITOR
+        private bool _editorPolling;
+#endif
+
+        public event Action Changed
+        {
+            add
+            {
+                _changed += value;
+                UpdateEditorPolling();
+            }
+            remove
+            {
+                _changed -= value;
+                UpdateEditorPolling();
+            }
+        }
 
         public void InstallBindings(DiContainer container)
         {
@@ -55,11 +75,61 @@ namespace Runtime.Environment.Terrain.Biomes
 
         private void LateUpdate()
         {
+            RefreshAndNotify();
+        }
+
+        private void RefreshAndNotify()
+        {
             if (Refresh())
             {
-                Changed?.Invoke();
+                _changed?.Invoke();
             }
         }
+
+        private void OnDestroy()
+        {
+            _changed = null;
+            UpdateEditorPolling();
+        }
+
+        // LateUpdate doesn't run in edit mode
+        private void UpdateEditorPolling()
+        {
+#if UNITY_EDITOR
+            bool poll = _changed != null && this != null;
+            if (poll == _editorPolling)
+            {
+                return;
+            }
+
+            _editorPolling = poll;
+            if (poll)
+            {
+                UnityEditor.EditorApplication.update += OnEditorUpdate;
+            }
+            else
+            {
+                UnityEditor.EditorApplication.update -= OnEditorUpdate;
+            }
+#endif
+        }
+
+#if UNITY_EDITOR
+        private void OnEditorUpdate()
+        {
+            if (this == null)
+            {
+                UnityEditor.EditorApplication.update -= OnEditorUpdate;
+                _editorPolling = false;
+                return;
+            }
+
+            if (!Application.isPlaying && isActiveAndEnabled)
+            {
+                RefreshAndNotify();
+            }
+        }
+#endif
 
         /// <returns>True when the biomes differ from the previous refresh.</returns>
         private bool Refresh()
@@ -122,6 +192,12 @@ namespace Runtime.Environment.Terrain.Biomes
                     int contentHash = source.ContentKey?.GetHashCode() ?? 0;
                     snapshot.Add(new Vector4(Low(contentHash), High(contentHash),
                         Low(RuntimeHelpers.GetHashCode(source)), High(RuntimeHelpers.GetHashCode(source))));
+                    for (int channel = 0; channel < 4; channel++)
+                    {
+                        SurfaceChannel binding = source.GetSurfaceChannel(channel);
+                        int surfaceHash = binding.Surface ? RuntimeHelpers.GetHashCode(binding.Surface) : 0;
+                        snapshot.Add(new Vector4((int)binding.Mode, Low(surfaceHash), High(surfaceHash), 0));
+                    }
                 }
                 else
                 {

@@ -4,48 +4,85 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Filters
 {
     /// <summary>
-    /// Produces TerrainData.HeightmapTex from the given source heights (the raw heightmap, or the biome filtered one)
-    /// by running the active filters in order.
+    /// Produces TerrainData.HeightmapTex and TerrainData.AlphamapTex from the blended raw heightmap and alphamap
+    /// by running the active global filters in order.
     /// Every bake processes all loaded chunks, so chunk edges are recomputed once their neighbours arrive.
     /// </summary>
     public class HeightmapBaker
     {
-        private readonly List<IHeightmapFilter> _activeFilters = new();
+        private static readonly List<IHeightmapFilter> ActiveFilters = new ();
+        private static readonly List<bool> WritesAlphamap = new ();
 
-        /// <param name="input">Source heights; must not be HeightmapTex or the scratch heightmap.</param>
-        public void Bake(TerrainData data, RenderTexture input, IReadOnlyList<IHeightmapFilter> filters, float chunkSizeMeters, float heightRangeMeters,
+        public void Bake(TerrainData data, IReadOnlyList<IHeightmapFilter> filters, float chunkSizeMeters, float heightRangeMeters,
             bool sharedEdgePixels)
         {
-            _activeFilters.Clear();
+            RunChain(filters, data, data.SlotCoordsBuffer, data.RawHeightmapTex, data.RawAlphamapTex, chunkSizeMeters,
+                heightRangeMeters, sharedEdgePixels);
+        }
+
+        /// <summary>
+        /// Runs the active filters in order from the given heights and alphamap. The result ends in TerrainData.HeightmapTex
+        /// and TerrainData.AlphamapTex; the scratch textures of TerrainData are used in between. Heights ping-pong
+        /// through every filter, the alphamap only through the filters that write it.
+        /// </summary>
+        /// <param name="heights">Source heights; must not be HeightmapTex or the scratch heightmap.</param>
+        /// <param name="alphamap">Source alphamap; must not be AlphamapTex or the scratch alphamap.</param>
+        /// <param name="slotCoords">Per layer int3(chunk, isUsed): layers marked unused are skipped by the filters.</param>
+        public static void RunChain(IReadOnlyList<IHeightmapFilter> filters, TerrainData data, ComputeBuffer slotCoords,
+            RenderTexture heights, RenderTexture alphamap, float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels)
+        {
+            // Read once: the flags decide the ping-pong order
+            ActiveFilters.Clear();
+            WritesAlphamap.Clear();
+            int alphaWriters = 0;
             foreach (IHeightmapFilter filter in filters)
             {
                 if (filter != null && filter.IsActive)
                 {
-                    _activeFilters.Add(filter);
+                    ActiveFilters.Add(filter);
+                    WritesAlphamap.Add(filter.WritesAlphamap);
+                    alphaWriters += filter.WritesAlphamap ? 1 : 0;
                 }
             }
 
-            if (_activeFilters.Count == 0)
+            RenderTexture heightsFinal = data.HeightmapTex;
+            RenderTexture alphaFinal = data.AlphamapTex;
+            if (ActiveFilters.Count == 0)
             {
-                Graphics.CopyTexture(input, data.HeightmapTex);
+                Graphics.CopyTexture(heights, heightsFinal);
+                Graphics.CopyTexture(alphamap, alphaFinal);
                 return;
             }
 
-            ComputeBuffer map = data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
-            RenderTexture final = data.HeightmapTex;
-            RenderTexture scratch = _activeFilters.Count > 1 ? data.GetScratchHeightmapTex() : null;
-
-            // Ping-pong so that the last filter writes into the final texture
-            RenderTexture source = input;
-            RenderTexture destination = _activeFilters.Count % 2 == 1 ? final : scratch;
-            foreach (IHeightmapFilter filter in _activeFilters)
+            if (alphaWriters == 0)
             {
-                var context = new HeightmapFilterContext(source, destination, data.SlotCoordsBuffer, map, mapMin,
-                    mapSize, data.LayerCount, data.Resolution, chunkSizeMeters, heightRangeMeters, sharedEdgePixels);
-                filter.Apply(context);
+                Graphics.CopyTexture(alphamap, alphaFinal);
+            }
 
-                source = destination;
-                destination = destination == final ? scratch : final;
+            ComputeBuffer map = data.GetMapBuffer(out Vector2Int mapMin, out int mapSize);
+            RenderTexture heightsScratch = ActiveFilters.Count > 1 ? data.GetScratchHeightmapTex() : null;
+            RenderTexture alphaScratch = alphaWriters > 1 ? data.GetScratchAlphamapTex() : null;
+
+            // Ping-pong so that the last writer of each map writes into its final texture
+            RenderTexture heightsSource = heights;
+            RenderTexture heightsDestination = ActiveFilters.Count % 2 == 1 ? heightsFinal : heightsScratch;
+            RenderTexture alphaSource = alphamap;
+            RenderTexture alphaDestination = alphaWriters % 2 == 1 ? alphaFinal : alphaScratch;
+            for (int i = 0; i < ActiveFilters.Count; i++)
+            {
+                bool writesAlphamap = WritesAlphamap[i];
+                var context = new HeightmapFilterContext(heightsSource, heightsDestination, alphaSource,
+                    writesAlphamap ? alphaDestination : null, slotCoords, map, mapMin, mapSize, data.LayerCount,
+                    data.Resolution, chunkSizeMeters, heightRangeMeters, sharedEdgePixels);
+                ActiveFilters[i].Apply(context);
+
+                heightsSource = heightsDestination;
+                heightsDestination = heightsDestination == heightsFinal ? heightsScratch : heightsFinal;
+                if (writesAlphamap)
+                {
+                    alphaSource = alphaDestination;
+                    alphaDestination = alphaDestination == alphaFinal ? alphaScratch : alphaFinal;
+                }
             }
         }
     }

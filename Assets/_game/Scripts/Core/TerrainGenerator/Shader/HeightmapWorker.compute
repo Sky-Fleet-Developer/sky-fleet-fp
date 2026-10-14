@@ -17,8 +17,6 @@ StructuredBuffer<uint> chunk_alphamap;
 //StructuredBuffer<float> deformation_heightmap;
 RWStructuredBuffer<packed_vertex> vertices;
 
-float heightmap_id_to_chunk_source_id;
-float alphamap_id_to_chunk_source_id;
 float chunk_size;
 float chunk_height;
 uint vertices_count;
@@ -122,6 +120,33 @@ bool HalfToCoord(half value, out uint2 coord)
 
 
 
+// Raw chunk data upload. The source buffer holds chunk_source_resolution^2 values and is resampled to the
+// destination resolution keeping the pixel layout: with shared edge pixels pixel i lies at i / (resolution - 1),
+// otherwise it is the cell centered at (i + 0.5) / resolution.
+int chunk_source_resolution;
+bool chunk_source_shared_edges;
+
+// Source pixel coordinate of a destination pixel, clamped to the source
+float2 ChunkSourceCoordinate(uint2 id, float destination_resolution)
+{
+    float source = chunk_source_resolution;
+    float2 coordinate = chunk_source_shared_edges
+        ? id * (source - 1) / max(destination_resolution - 1, 1)
+        : (id + 0.5) * source / destination_resolution - 0.5;
+    return clamp(coordinate, 0, source - 1);
+}
+
+// Buffer index of source pixel (x, y). Row-major: rows go along y, like the files are read
+// (RawReader heights[y, x], ReadPng pixels[x + y * width])
+uint ChunkSourceIndex(int2 pixel)
+{
+    if (!flip_x_y_when_import_raw_heightmap)
+    {
+        pixel = pixel.yx;
+    }
+    return pixel.y * chunk_source_resolution + pixel.x;
+}
+
 [numthreads(8,8,1)]
 void CSInsertRawHeightToTex (uint2 id : SV_DispatchThreadID)
 {
@@ -130,31 +155,14 @@ void CSInsertRawHeightToTex (uint2 id : SV_DispatchThreadID)
         return;
     }
 
-    int2 chunk_id = floor(id * heightmap_id_to_chunk_source_id);
-    float2 interpolation = frac(id * heightmap_id_to_chunk_source_id);
-    
-    float left_bottom = chunk_heightmap[chunk_id.x * heightmap_chunk_resolution + chunk_id.y];
-    float left_top = chunk_heightmap[chunk_id.x * heightmap_chunk_resolution + chunk_id.y + 1];
-    float right_bottom = chunk_heightmap[(chunk_id.x + 1) * heightmap_chunk_resolution + chunk_id.y];
-    float right_top = chunk_heightmap[(chunk_id.x + 1) * heightmap_chunk_resolution + chunk_id.y + 1];
-    float height = lerp(lerp(left_bottom, left_top, interpolation.y), lerp(right_bottom, right_top, interpolation.y), interpolation.x);
-    
-    //int x_dx = id.x == heightmap_chunk_resolution - 1 ? -1 : 1;
-    //int y_dx = id.y == heightmap_chunk_resolution - 1 ? -1 : 1;
-    //float df_dx = chunk_heightmap[(id.x + x_dx) * heightmap_chunk_resolution + id.y] - height;
-    //float df_dy = chunk_heightmap[id.x * heightmap_chunk_resolution + id.y + y_dx] - height;
-    //
-    //float4 erosion = DefaultErosion(id / (float)heightmap_chunk_resolution, float3(height, df_dx, df_dy));
-    //height += erosion.x;
-    
-    if (flip_x_y_when_import_raw_heightmap)
-    {
-        destination_heightmap[uint3(id.yx, destination_slot)] = height;
-    }
-    else
-    {
-        destination_heightmap[uint3(id, destination_slot)] = height;
-    }
+    float2 coordinate = ChunkSourceCoordinate(id, heightmap_chunk_resolution);
+    int2 p0 = (int2)floor(coordinate);
+    int2 p1 = min(p0 + 1, chunk_source_resolution - 1);
+    float2 interpolation = coordinate - p0;
+
+    float bottom = lerp(chunk_heightmap[ChunkSourceIndex(p0)], chunk_heightmap[ChunkSourceIndex(int2(p1.x, p0.y))], interpolation.x);
+    float top = lerp(chunk_heightmap[ChunkSourceIndex(int2(p0.x, p1.y))], chunk_heightmap[ChunkSourceIndex(p1)], interpolation.x);
+    destination_heightmap[uint3(id, destination_slot)] = lerp(bottom, top, interpolation.y);
 }
 
 float4 unpack_uint(uint value)
@@ -167,6 +175,11 @@ float4 unpack_uint(uint value)
     return float4(r, g, b, a);
 }
 
+float4 LoadChunkAlpha(int2 pixel)
+{
+    return unpack_uint(chunk_alphamap[ChunkSourceIndex(pixel)]);
+}
+
 [numthreads(8,8,1)]
 void CSInsertRawAlphaToTex (uint2 id : SV_DispatchThreadID)
 {
@@ -175,16 +188,14 @@ void CSInsertRawAlphaToTex (uint2 id : SV_DispatchThreadID)
         return;
     }
 
-    int2 chunk_id = floor(id * alphamap_id_to_chunk_source_id);
-    float2 interpolation = frac(id * alphamap_id_to_chunk_source_id);
-    
-    float4 left_bottom = unpack_uint(chunk_alphamap[chunk_id.x * alphamap_chunk_resolution + chunk_id.y]);
-    float4 left_top = unpack_uint(chunk_alphamap[chunk_id.x * alphamap_chunk_resolution + chunk_id.y + 1]);
-    float4 right_bottom = unpack_uint(chunk_alphamap[(chunk_id.x + 1) * alphamap_chunk_resolution + chunk_id.y]);
-    float4 right_top = unpack_uint(chunk_alphamap[(chunk_id.x + 1) * alphamap_chunk_resolution + chunk_id.y + 1]);
-    float4 color = lerp(lerp(left_bottom, left_top, interpolation.y), lerp(right_bottom, right_top, interpolation.y), interpolation.x);
-    
-    destination_alphamap[uint3(id, destination_slot)] = color;
+    float2 coordinate = ChunkSourceCoordinate(id, alphamap_chunk_resolution);
+    int2 p0 = (int2)floor(coordinate);
+    int2 p1 = min(p0 + 1, chunk_source_resolution - 1);
+    float2 interpolation = coordinate - p0;
+
+    float4 bottom = lerp(LoadChunkAlpha(p0), LoadChunkAlpha(int2(p1.x, p0.y)), interpolation.x);
+    float4 top = lerp(LoadChunkAlpha(int2(p0.x, p1.y)), LoadChunkAlpha(p1), interpolation.x);
+    destination_alphamap[uint3(id, destination_slot)] = lerp(bottom, top, interpolation.y);
 }
 
 

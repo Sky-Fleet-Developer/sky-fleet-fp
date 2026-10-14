@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Core.TerrainGenerator.Biomes.Sources;
 using Core.TerrainGenerator.Settings;
+using Core.TerrainGenerator.Surfaces;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -12,17 +13,23 @@ namespace Core.TerrainGenerator.Biomes
     /// Produces the raw heightmap and alphamap of the visible world chunks by blending the biome sources.
     /// A chunk is composed once all source tiles it needs are loaded (or known to be missing), so it never shows
     /// half loaded data. Biomes without data at a point give their weight to the other biomes there.
+    /// <para>
+    /// Biomes with filters are filtered before blending (<see cref="BiomeFilterBaker"/>): the own heights of a new
+    /// chunk are written first, then the filters run, then the chunks are blended from the filtered heights.
+    /// Filters read across chunk edges, so with filtered biomes every chunk is blended again whenever any changes.
+    /// </para>
     /// </summary>
     public class BiomeComposer : IDisposable
     {
         private const string KernelName = "CSCompose";
+        private const string OwnHeightKernelName = "CSBiomeOwnHeight";
         private const int ThreadGroupSize = 8;
         private const int MaxTilesPerSiteAndChunk = 64;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct SourceData
         {
-            public const int Stride = sizeof(float) * 5 + sizeof(int) * 5;
+            public const int Stride = sizeof(float) * 5 + sizeof(int) * 11;
 
             public Vector2 OriginMeters;
             public float TileSize;
@@ -31,6 +38,9 @@ namespace Core.TerrainGenerator.Biomes
             public Vector2Int MapMin;
             public Vector2Int MapSize;
             public int MapOffset;
+            public int FilteredSlot;
+            public int FilteredAlphaSlot;
+            public int4 ChannelSurfaces;
         }
 
         private class WorldChunk
@@ -62,21 +72,30 @@ namespace Core.TerrainGenerator.Biomes
         private static readonly int HeightRangeProperty = Shader.PropertyToID("compose_height_range");
         private static readonly int AlphaHeightRangeProperty = Shader.PropertyToID("compose_alpha_height_range");
         private static readonly int AlphaSoftnessProperty = Shader.PropertyToID("compose_alpha_softness");
+        private static readonly int FilteredHeightsProperty = Shader.PropertyToID("filtered_heights");
+        private static readonly int FilteredAlphaProperty = Shader.PropertyToID("filtered_alpha");
+        private static readonly int OwnAlphaProperty = Shader.PropertyToID("own_alpha");
+        private static readonly int FilteredLayerCountProperty = Shader.PropertyToID("filtered_layer_count");
+        private static readonly int OwnHeightProperty = Shader.PropertyToID("own_height");
+        private static readonly int OwnSiteRangeProperty = Shader.PropertyToID("own_site_range");
 
         private readonly ComputeShader _shader;
         private readonly BiomeTilePool _pool;
+        private readonly BiomeFilterBaker _filterBaker = new ();
         private readonly Dictionary<Vector2Int, WorldChunk> _chunks = new ();
         private readonly List<Vector2Int> _removeCache = new ();
         private readonly List<BiomeSite> _sites = new ();
         private readonly List<bool> _weightedCache = new ();
         private readonly List<WorldChunk> _toCompose = new ();
         private readonly List<int4> _composeLayers = new ();
+        private readonly List<int4> _ownLayers = new ();
         private readonly List<uint> _indices = new ();
         private readonly List<uint2> _ranges = new ();
         private readonly List<SourceData> _sourceData = new ();
         private readonly List<int> _tileMap = new ();
         private readonly List<(Vector2Int coord, int layer)> _readyTiles = new ();
         private ComputeBuffer _composeLayersBuffer;
+        private ComputeBuffer _ownLayersBuffer;
         private ComputeBuffer _sitesBuffer;
         private ComputeBuffer _indicesBuffer;
         private ComputeBuffer _rangesBuffer;
@@ -139,10 +158,16 @@ namespace Core.TerrainGenerator.Biomes
             _requirementsDirty = true;
         }
 
-        /// <summary>Composes the chunks that are ready. Returns true when raw data changed.</summary>
+        /// <summary>
+        /// Composes the chunks that are ready. Returns true when raw data changed.
+        /// Uses HeightmapTex and AlphamapTex as intermediate targets for biome filters, so the terrain must be baked after it.
+        /// </summary>
         /// <param name="heightRangeMeters">Meters represented by normalized height 1.0.</param>
+        /// <param name="filtersChanged">Settings of a biome filter changed: filter and blend everything again.</param>
+        /// <param name="surfaces">Surface ids the alphamap channels of the biome sources are written as.</param>
         public bool Compose(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters,
-            bool sharedEdgePixels, float heightRangeMeters, AlphamapSettings alphamap)
+            bool sharedEdgePixels, float heightRangeMeters, AlphamapSettings alphamap, bool filtersChanged,
+            TerrainSurfaces surfaces)
         {
             if (!_shader)
             {
@@ -150,6 +175,15 @@ namespace Core.TerrainGenerator.Biomes
             }
 
             BiomeDiagram.CollectSites(biomes, worldToTerrain, _sites);
+            if (_filterBaker.UpdateFilteredBiomes(biomes, data))
+            {
+                // Own heights of the new set of filtered biomes are missing
+                foreach (WorldChunk chunk in _chunks.Values)
+                {
+                    chunk.Composed = false;
+                }
+            }
+
             if (_requirementsDirty)
             {
                 _requirementsDirty = false;
@@ -165,12 +199,33 @@ namespace Core.TerrainGenerator.Biomes
                 }
             }
 
-            if (_toCompose.Count == 0)
+            bool filtered = _filterBaker.Count > 0;
+            if (_toCompose.Count == 0 && !(filtered && filtersChanged))
             {
                 return false;
             }
 
-            Dispatch(data, biomes, chunkSizeMeters, sharedEdgePixels, heightRangeMeters, alphamap);
+            UploadBiomes(biomes, surfaces);
+            if (filtered)
+            {
+                WriteOwnHeights(data, chunkSizeMeters, sharedEdgePixels);
+                foreach (WorldChunk chunk in _toCompose)
+                {
+                    chunk.Composed = true;
+                }
+
+                _filterBaker.Filter(data, biomes, worldToTerrain, chunkSizeMeters, heightRangeMeters, sharedEdgePixels);
+                _toCompose.Clear();
+                foreach (WorldChunk chunk in _chunks.Values)
+                {
+                    if (chunk.Composed)
+                    {
+                        _toCompose.Add(chunk);
+                    }
+                }
+            }
+
+            Blend(data, chunkSizeMeters, sharedEdgePixels, heightRangeMeters, alphamap);
             foreach (WorldChunk chunk in _toCompose)
             {
                 chunk.Composed = true;
@@ -265,8 +320,69 @@ namespace Core.TerrainGenerator.Biomes
             return true;
         }
 
-        private void Dispatch(TerrainData data, IReadOnlyList<IBiome> biomes, float chunkSizeMeters, bool sharedEdgePixels,
-            float heightRangeMeters, AlphamapSettings alphamap)
+        // Per biome: where its source lies, which pool layers hold its tiles and where its filtered heights are
+        private void UploadBiomes(IReadOnlyList<IBiome> biomes, TerrainSurfaces surfaces)
+        {
+            _sourceData.Clear();
+            _tileMap.Clear();
+            for (int i = 0; i < biomes.Count; i++)
+            {
+                SourceData source = BuildSourceData(biomes[i].Source);
+                source.FilteredSlot = _filterBaker.GetSlot(i);
+                source.FilteredAlphaSlot = _filterBaker.GetAlphaSlot(i);
+                source.ChannelSurfaces = surfaces.GetChannelIds(biomes[i].Source);
+                _sourceData.Add(source);
+            }
+
+            Upload(ref _sitesBuffer, _sites, BiomeSite.Stride);
+            Upload(ref _sourcesBuffer, _sourceData, SourceData.Stride);
+            Upload(ref _tileMapBuffer, _tileMap, sizeof(int));
+        }
+
+        // Own heights of every filtered biome in the chunks to compose
+        private void WriteOwnHeights(TerrainData data, float chunkSizeMeters, bool sharedEdgePixels)
+        {
+            if (_toCompose.Count == 0)
+            {
+                return;
+            }
+
+            _ownLayers.Clear();
+            foreach (WorldChunk chunk in _toCompose)
+            {
+                _ownLayers.Add(new int4(chunk.Layer, chunk.Coord.x, chunk.Coord.y, 0));
+            }
+            Upload(ref _ownLayersBuffer, _ownLayers, sizeof(int) * 4);
+
+            int kernel = _shader.FindKernel(OwnHeightKernelName);
+            BindCommon(kernel, data, chunkSizeMeters, sharedEdgePixels);
+            _shader.SetBuffer(kernel, ComposeLayersProperty, _ownLayersBuffer);
+            int groups = Mathf.CeilToInt(data.Resolution / (float)ThreadGroupSize);
+            for (int slot = 0; slot < _filterBaker.Count; slot++)
+            {
+                // Sites of one biome are adjacent
+                int biome = _filterBaker.GetBiomeIndex(slot);
+                int start = _sites.FindIndex(site => site.Biome == biome);
+                if (start < 0)
+                {
+                    continue;
+                }
+
+                int count = 0;
+                while (start + count < _sites.Count && _sites[start + count].Biome == biome)
+                {
+                    count++;
+                }
+
+                _shader.SetTexture(kernel, OwnHeightProperty, _filterBaker.GetOwnHeightTex(slot));
+                _shader.SetTexture(kernel, OwnAlphaProperty, _filterBaker.GetOwnAlphaTex(slot));
+                _shader.SetInts(OwnSiteRangeProperty, start, count);
+                _shader.Dispatch(kernel, groups, groups, _toCompose.Count);
+            }
+        }
+
+        private void Blend(TerrainData data, float chunkSizeMeters, bool sharedEdgePixels, float heightRangeMeters,
+            AlphamapSettings alphamap)
         {
             // Per composed chunk: its layer, its chunk coordinate and its range of sites
             _composeLayers.Clear();
@@ -279,30 +395,34 @@ namespace Core.TerrainGenerator.Biomes
                 _indices.AddRange(chunk.Sites);
             }
 
-            // Per biome: where its source lies and which pool layers hold its tiles
-            _sourceData.Clear();
-            _tileMap.Clear();
-            foreach (IBiome biome in biomes)
-            {
-                _sourceData.Add(BuildSourceData(biome.Source));
-            }
-
             Upload(ref _composeLayersBuffer, _composeLayers, sizeof(int) * 4);
-            Upload(ref _sitesBuffer, _sites, BiomeSite.Stride);
             Upload(ref _indicesBuffer, _indices, sizeof(uint));
             Upload(ref _rangesBuffer, _ranges, sizeof(uint) * 2);
-            Upload(ref _sourcesBuffer, _sourceData, SourceData.Stride);
-            Upload(ref _tileMapBuffer, _tileMap, sizeof(int));
 
             int kernel = _shader.FindKernel(KernelName);
+            BindCommon(kernel, data, chunkSizeMeters, sharedEdgePixels);
             _shader.SetTexture(kernel, ComposeHeightProperty, data.RawHeightmapTex);
-            _shader.SetTexture(kernel, ComposeAlphaProperty, data.AlphamapTex);
-            _shader.SetTexture(kernel, PoolHeightProperty, _pool.HeightTex);
-            _shader.SetTexture(kernel, PoolAlphaProperty, _pool.AlphaTex);
+            _shader.SetTexture(kernel, ComposeAlphaProperty, data.RawAlphamapTex);
+            _shader.SetTexture(kernel, FilteredHeightsProperty, _filterBaker.FilteredHeights);
+            _shader.SetTexture(kernel, FilteredAlphaProperty, _filterBaker.FilteredAlpha);
             _shader.SetBuffer(kernel, ComposeLayersProperty, _composeLayersBuffer);
-            _shader.SetBuffer(kernel, SitesProperty, _sitesBuffer);
             _shader.SetBuffer(kernel, SiteIndicesProperty, _indicesBuffer);
             _shader.SetBuffer(kernel, LayerRangesProperty, _rangesBuffer);
+            _shader.SetInt(FilteredLayerCountProperty, data.LayerCount);
+            _shader.SetFloat(HeightRangeProperty, heightRangeMeters);
+            _shader.SetFloat(AlphaHeightRangeProperty, alphamap.HeightBlendRange);
+            _shader.SetFloat(AlphaSoftnessProperty, alphamap.HeightBlendSoftness);
+
+            int groups = Mathf.CeilToInt(data.Resolution / (float)ThreadGroupSize);
+            _shader.Dispatch(kernel, groups, groups, _toCompose.Count);
+        }
+
+        // Source data and chunk layout, shared by the kernels
+        private void BindCommon(int kernel, TerrainData data, float chunkSizeMeters, bool sharedEdgePixels)
+        {
+            _shader.SetTexture(kernel, PoolHeightProperty, _pool.HeightTex);
+            _shader.SetTexture(kernel, PoolAlphaProperty, _pool.AlphaTex);
+            _shader.SetBuffer(kernel, SitesProperty, _sitesBuffer);
             _shader.SetBuffer(kernel, SourcesProperty, _sourcesBuffer);
             _shader.SetBuffer(kernel, TileMapProperty, _tileMapBuffer);
             _shader.SetFloat(PoolResolutionProperty, _pool.Resolution);
@@ -310,12 +430,6 @@ namespace Core.TerrainGenerator.Biomes
             _shader.SetFloat(PixelsPerChunkProperty, sharedEdgePixels ? data.Resolution - 1 : data.Resolution);
             _shader.SetFloat(PixelOffsetProperty, sharedEdgePixels ? 0f : 0.5f);
             _shader.SetFloat(ChunkSizeProperty, chunkSizeMeters);
-            _shader.SetFloat(HeightRangeProperty, heightRangeMeters);
-            _shader.SetFloat(AlphaHeightRangeProperty, alphamap.HeightBlendRange);
-            _shader.SetFloat(AlphaSoftnessProperty, alphamap.HeightBlendSoftness);
-
-            int groups = Mathf.CeilToInt(data.Resolution / (float)ThreadGroupSize);
-            _shader.Dispatch(kernel, groups, groups, _toCompose.Count);
         }
 
         private SourceData BuildSourceData(IBiomeSource source)
@@ -401,6 +515,8 @@ namespace Core.TerrainGenerator.Biomes
             _pool.TileLoaded -= OnTileLoaded;
             _pool.Dispose();
             _composeLayersBuffer?.Dispose();
+            _ownLayersBuffer?.Dispose();
+            _filterBaker.Dispose();
             _sitesBuffer?.Dispose();
             _indicesBuffer?.Dispose();
             _rangesBuffer?.Dispose();

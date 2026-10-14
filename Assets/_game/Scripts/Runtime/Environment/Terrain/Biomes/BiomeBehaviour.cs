@@ -8,7 +8,8 @@ namespace Runtime.Environment.Terrain.Biomes
 {
     /// <summary>
     /// A biome centered at this GameObject. Must be a descendant of a <see cref="BiomeSet"/>;
-    /// its place in the hierarchy defines the blending order. The source data rotates with the GameObject around Y.
+    /// its place in the hierarchy defines the blending order. The source data rotates with the GameObject around Y,
+    /// and the GameObject height above the terrain origin is added to the biome heights.
     /// Heightmap filters (<see cref="IHeightmapFilterSource"/> components) on this GameObject and its descendants
     /// belong to the biome, in hierarchy order; a nested biome owns the filters below it.
     /// </summary>

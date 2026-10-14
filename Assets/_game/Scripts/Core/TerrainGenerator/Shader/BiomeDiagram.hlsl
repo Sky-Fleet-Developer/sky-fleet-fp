@@ -11,6 +11,7 @@ struct BiomeSite
     int biome;       // index in blending order
     float2 rotation; // cos, sin of the site rotation around Y
     int blend_mode;  // BIOME_BLEND_*
+    float height_offset; // meters, added to the heights of the biome data placed by this site
 };
 
 // Core.TerrainGenerator.Biomes.BiomeBlendMode

@@ -138,7 +138,7 @@ namespace Core.TerrainGenerator
         {
             buffer.SetData(data);
             //Debug.Log($"Send data from Alphamap {Coordinates} to texture");
-            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.AlphamapTex, textureSlot, Terrain.Settings.AlphamapResolution);
+            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(data.Length), _data.RawAlphamapTex, textureSlot, Terrain.Settings.AlphamapResolution);
         }
         
         //public abstract void RegisterDeformer(IDeformer deformer);

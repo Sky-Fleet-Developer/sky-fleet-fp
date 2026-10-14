@@ -1,5 +1,6 @@
 #include "Heightmap.hlsl"
 #include "SampleMapUtility.hlsl"
+#include "TerrainView.hlsl"
 
 float2 hash_p(float2 p) { 
     p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3))); 
@@ -83,8 +84,6 @@ float3 SampleBiomeDebugColor(float3 world_position)
     return biome_debug_map.SampleLevel(sampler_biome_debug_map, float3(ChunkUvToTextureUv(uv, width, heightmap_shared_edges > 0.5), chunk), 0).rgb;
 }
 
-// TerrainViewMode, bound by TerrainProvider: 0 shaded, 1 biomes, 2 heightmap, 3 uv
-float terrain_view_mode;
 Texture2D<float4> terrain_height_gradient;
 SamplerState sampler_terrain_height_gradient;
 float2 terrain_height_view_range; // normalized heights mapped to the ends of the gradient
@@ -105,26 +104,28 @@ float3 SampleSlotViewColor(float3 world_position)
     WorldPositionToSlot(world_position, uv, slot);
     // Texture array layer = slot.x * map_size + slot.y, see TerrainData.SlotToLayer
     int layer = SlotToMap(slot);
-    float2 slot_coord = float2(layer / (int)map_size, layer % (int)map_size);
+    uint size = (uint)map_size;
+    float2 slot_coord = float2((uint)layer / size, (uint)layer % size);
     return terrain_slot_texture.SampleLevel(sampler_terrain_slot_texture, (slot_coord + uv) / map_size, 0).rgb;
 }
 
 float3 SampleViewModeColor(float3 world_position, float normalized_height)
 {
-    int mode = (int)round(terrain_view_mode);
+    int mode = TerrainViewMode();
+    float3 color = float3(1, 1, 1);
     if (mode == 1)
     {
-        return SampleBiomeDebugColor(world_position);
+        color = SampleBiomeDebugColor(world_position);
     }
-    if (mode == 2)
+    else if (mode == 2)
     {
-        return SampleHeightViewColor(normalized_height);
+        color = SampleHeightViewColor(normalized_height);
     }
-    if (mode == 3)
+    else if (mode == 3)
     {
-        return SampleSlotViewColor(world_position);
+        color = SampleSlotViewColor(world_position);
     }
-    return float3(1, 1, 1);
+    return color;
 }
 
 // Distance between two neighbouring heightmap pixels in world units

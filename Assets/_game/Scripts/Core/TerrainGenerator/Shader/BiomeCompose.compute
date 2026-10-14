@@ -1,8 +1,14 @@
 #pragma kernel CSCompose
+#pragma kernel CSBiomeOwnHeight
 
 #include "BiomeDiagram.hlsl"
+#include "SurfaceAlphamap.hlsl"
 
 // Blends the biome sources into the raw heightmap and alphamap of world chunks. Bound by BiomeComposer.
+// Biomes with filters read their filtered heights (filtered_heights) instead of their source tiles,
+// and their filtered alphamap (filtered_alpha) when one of their filters writes it.
+// Source tiles hold channel weights; biome_sources maps the channels to surface ids. The output alphamap
+// is encoded (SurfaceAlphamap.hlsl).
 // Dispatch layout: id.xy = pixel, id.z = index of the composed chunk.
 // Pixel i lies at chunk uv (i + compose_pixel_offset) / compose_pixels_per_chunk, same as the heightmap.
 
@@ -15,6 +21,9 @@ struct BiomeSource
     int2 map_min;          // tile coordinate of biome_tile_map[map_offset]
     int2 map_size;         // zero when no tile is loaded
     int map_offset;
+    int filtered_slot;     // block of filtered_heights holding the biome's filtered heights, -1 without filters
+    int filtered_alpha_slot; // block of filtered_alpha holding the biome's filtered alphamap, -1 when not filtered
+    int4 channel_surfaces; // surface id of each channel of the source alphamap, -1 for ignored channels
 };
 
 RWTexture2DArray<float> compose_height;
@@ -33,9 +42,13 @@ float compose_chunk_size; // meters
 float compose_height_range; // meters represented by normalized height 1.0
 float compose_alpha_height_range; // height blending of the alphamap: meters that outweigh a whole biome weight; 0 = by weight
 float compose_alpha_softness;     // height blending of the alphamap: width of the transition, in weight units
+// Per filtered biome a block of filtered_layer_count layers, laid out like the heightmap
+Texture2DArray<float> filtered_heights;
+Texture2DArray<float4> filtered_alpha;
+int filtered_layer_count;
 
-// False when the biome has no data at the position
-bool SampleBiome(BiomeSite site, float2 position, out float height, out float4 alpha)
+// Source tile data of a site: heights and channel weights. False when the biome has no data at the position
+bool SampleBiomeSource(BiomeSite site, float2 position, out float height, out float4 alpha)
 {
     height = 0;
     alpha = 0;
@@ -56,8 +69,30 @@ bool SampleBiome(BiomeSite site, float2 position, out float height, out float4 a
 
     float2 uv = tile_space - tile;
     float2 texture_uv = (uv * source.pixels_per_tile + 0.5 - source.pixel_offset) / pool_resolution;
-    height = pool_height.SampleLevel(sampler_linear_clamp, float3(texture_uv, layer), 0);
+    height = pool_height.SampleLevel(sampler_linear_clamp, float3(texture_uv, layer), 0)
+        + site.height_offset / max(compose_height_range, 1e-5);
     alpha = pool_alpha.SampleLevel(sampler_linear_clamp, float3(texture_uv, layer), 0);
+    return true;
+}
+
+// Data of a site at a heightmap pixel; the data of a biome with filters comes filtered.
+// alpha holds channel weights, or the encoded alphamap when the biome's alphamap is filtered
+bool SampleBiome(BiomeSite site, float2 position, uint3 pixel, out float height, out float4 alpha)
+{
+    if (!SampleBiomeSource(site, position, height, alpha))
+    {
+        return false;
+    }
+
+    BiomeSource source = biome_sources[site.biome];
+    if (source.filtered_slot >= 0)
+    {
+        height = filtered_heights[uint3(pixel.xy, source.filtered_slot * filtered_layer_count + pixel.z)];
+    }
+    if (source.filtered_alpha_slot >= 0)
+    {
+        alpha = filtered_alpha[uint3(pixel.xy, source.filtered_alpha_slot * filtered_layer_count + pixel.z)];
+    }
     return true;
 }
 
@@ -68,10 +103,11 @@ bool SampleBiome(BiomeSite site, float2 position, out float height, out float4 a
 static int pixel_count;
 static float pixel_weight[MAX_PIXEL_BIOMES];
 static float pixel_height[MAX_PIXEL_BIOMES]; // normal: biome height; layer: layer height, then the height with the layer fully applied
-static float4 pixel_alpha[MAX_PIXEL_BIOMES];
+static float4 pixel_alpha[MAX_PIXEL_BIOMES]; // as returned by SampleBiome
 static int pixel_blend_mode[MAX_PIXEL_BIOMES];
+static int pixel_biome[MAX_PIXEL_BIOMES];
 
-void AddPixelBiome(float weight, float height, float4 alpha, int blend_mode)
+void AddPixelBiome(int biome, float weight, float height, float4 alpha, int blend_mode)
 {
     // Biomes beyond the limit are dropped: that many overlapping biomes at one point is not expected
     if (weight <= 0 || pixel_count >= MAX_PIXEL_BIOMES)
@@ -83,13 +119,14 @@ void AddPixelBiome(float weight, float height, float4 alpha, int blend_mode)
     pixel_height[pixel_count] = height;
     pixel_alpha[pixel_count] = alpha;
     pixel_blend_mode[pixel_count] = blend_mode;
+    pixel_biome[pixel_count] = biome;
     pixel_count++;
 }
 
 // Adds the normal biomes or the layers with data at the position, in blending order.
 // Sites come in blending order, so the sites of one biome are adjacent.
 // A biome takes the weight and the data of its strongest site that has data here.
-void CollectPixelBiomes(uint2 range, float2 position, bool layers)
+void CollectPixelBiomes(uint2 range, float2 position, uint3 pixel, bool layers)
 {
     int current_biome = -1;
     int current_mode = 0;
@@ -113,7 +150,7 @@ void CollectPixelBiomes(uint2 range, float2 position, bool layers)
         // Flush the previous biome when the biome changes or the list ends
         if (i == range.y || (weighted && site.biome != current_biome))
         {
-            AddPixelBiome(biome_weight, biome_height, biome_alpha, current_mode);
+            AddPixelBiome(current_biome, biome_weight, biome_height, biome_alpha, current_mode);
             biome_weight = 0;
             current_biome = site.biome;
             current_mode = site.blend_mode;
@@ -127,7 +164,7 @@ void CollectPixelBiomes(uint2 range, float2 position, bool layers)
         float weight = BiomeSiteWeight(site, range, position);
         float height;
         float4 alpha;
-        if (weight > biome_weight && SampleBiome(site, position, height, alpha))
+        if (weight > biome_weight && SampleBiome(site, position, pixel, height, alpha))
         {
             biome_weight = weight;
             biome_height = height;
@@ -136,32 +173,58 @@ void CollectPixelBiomes(uint2 range, float2 position, bool layers)
     }
 }
 
-// Height-based blending: a biome whose terrain is higher wins the transition,
+// Surfaces of one biome at the pixel, added with the given weight
+void AddBiomeSurfaces(int k, float weight)
+{
+    BiomeSource source = biome_sources[pixel_biome[k]];
+    float4 alpha = pixel_alpha[k];
+    if (source.filtered_alpha_slot >= 0)
+    {
+        SurfacesAddEncoded(alpha, weight);
+        return;
+    }
+
+    // Channel weights of a file need not sum to 1: each biome brings its whole weight
+    float4 used = float4(source.channel_surfaces >= 0) * alpha;
+    float sum = used.x + used.y + used.z + used.w;
+    if (sum > 0)
+    {
+        SurfacesAddChannels(source.channel_surfaces, used, weight / sum);
+    }
+}
+
+// Score of a biome for height-based blending: its weight, raised or lowered by how much its terrain stands above or
+// below the blended terrain. The height advantage is scaled by the weight, so it fades out together with the biome
+// toward the outer edge of the blend strip and the alphamap hands over continuously there
+float AlphaScore(int k, float reference_height)
+{
+    float advantage = (pixel_height[k] - reference_height) * compose_height_range / max(compose_alpha_height_range, 1e-5);
+    return pixel_weight[k] * (1 + advantage);
+}
+
+// Height-based blending of the biomes: a biome whose terrain is higher wins the transition,
 // within compose_alpha_softness of the best score. Weights keep biomes out of where they have no influence.
-float4 BlendAlpha()
+// reference_height: the blended terrain height of the pixel. Returns the encoded alphamap of the surfaces of all biomes
+float4 BlendAlpha(float reference_height)
 {
     float best = -3.0e38;
     for (int k = 0; k < pixel_count; k++)
     {
-        float score = pixel_weight[k] + pixel_height[k] * compose_height_range / max(compose_alpha_height_range, 1e-5);
-        best = max(best, score);
+        best = max(best, AlphaScore(k, reference_height));
     }
 
     float threshold = best - max(compose_alpha_softness, 1e-5);
-    float total = 0;
-    float4 sum = 0;
+    SurfacesBegin();
     for (int j = 0; j < pixel_count; j++)
     {
         float weight = pixel_weight[j];
         if (compose_alpha_height_range > 0)
         {
-            float score = weight + pixel_height[j] * compose_height_range / compose_alpha_height_range;
-            weight *= max(score - threshold, 0);
+            weight *= max(AlphaScore(j, reference_height) - threshold, 0);
         }
-        total += weight;
-        sum += pixel_alpha[j] * weight;
+        AddBiomeSurfaces(j, weight);
     }
-    return total > 0 ? sum / total : 0;
+    return SurfacesEncode();
 }
 
 [numthreads(8,8,1)]
@@ -177,8 +240,9 @@ void CSCompose (uint3 id : SV_DispatchThreadID)
     uint2 range = biome_layer_ranges[id.z];
 
     // Base: normal biomes mixed by their normalized weights. Biomes without data here give their weight to the others
+    uint3 pixel = uint3(id.xy, target.x);
     pixel_count = 0;
-    CollectPixelBiomes(range, position, false);
+    CollectPixelBiomes(range, position, pixel, false);
     int normal_count = pixel_count;
     float total = 0;
     float height = 0;
@@ -195,7 +259,7 @@ void CSCompose (uint3 id : SV_DispatchThreadID)
 
     // Layers on top in blending order, each scaled by its own weight.
     // In the alphamap a layer takes its weight from everything below it
-    CollectPixelBiomes(range, position, true);
+    CollectPixelBiomes(range, position, pixel, true);
     for (int l = normal_count; l < pixel_count; l++)
     {
         float weight = pixel_weight[l];
@@ -208,7 +272,51 @@ void CSCompose (uint3 id : SV_DispatchThreadID)
         height = lerp(height, applied, weight);
     }
 
-    uint3 pixel = uint3(id.xy, target.x);
     compose_height[pixel] = height;
-    compose_alpha[pixel] = BlendAlpha();
+    compose_alpha[pixel] = BlendAlpha(height);
+}
+
+// Heights and alphamap of one biome alone, the input of its filters. Written for every composed chunk, also where the biome
+// has no influence, so filters reading across chunk edges see its terrain. Each pixel takes the nearest site of the
+// biome in the power diagram that has data there; 0 where none has.
+RWTexture2DArray<float> own_height;
+RWTexture2DArray<float4> own_alpha;
+uint2 own_site_range; // start and count of the biome's sites in biome_sites
+
+[numthreads(8,8,1)]
+void CSBiomeOwnHeight (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)compose_resolution || id.y >= (uint)compose_resolution)
+    {
+        return;
+    }
+
+    int4 target = compose_layers[id.z];
+    float2 position = (target.yz + (id.xy + compose_pixel_offset) / compose_pixels_per_chunk) * compose_chunk_size;
+
+    float best = 3.0e38;
+    float height = 0;
+    float4 alpha = 0;
+    int4 channel_surfaces = -1;
+    for (uint i = 0; i < own_site_range.y; i++)
+    {
+        BiomeSite site = biome_sites[own_site_range.x + i];
+        float2 delta = position - site.position;
+        float power = dot(delta, delta) - site.radius * site.radius;
+        float site_height;
+        float4 site_alpha;
+        if (power < best && SampleBiomeSource(site, position, site_height, site_alpha))
+        {
+            best = power;
+            height = site_height;
+            alpha = site_alpha;
+            channel_surfaces = biome_sources[site.biome].channel_surfaces;
+        }
+    }
+
+    // Filters see the encoded alphamap, like the terrain alphamap
+    SurfacesBegin();
+    SurfacesAddChannels(channel_surfaces, alpha, 1);
+    own_height[uint3(id.xy, target.x)] = height;
+    own_alpha[uint3(id.xy, target.x)] = SurfacesEncode();
 }

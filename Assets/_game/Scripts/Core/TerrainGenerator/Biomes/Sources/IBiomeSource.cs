@@ -1,3 +1,4 @@
+using Core.TerrainGenerator.Surfaces;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -30,8 +31,12 @@ namespace Core.TerrainGenerator.Biomes.Sources
 
         /// <summary>
         /// Writes the heights (normalized, 0..1) and the alphamap of a tile into the target.
+        /// The alphamap holds one weight per channel; <see cref="GetSurfaceChannel"/> tells which surface each paints.
         /// Returns false when the source has no data for the tile.
         /// </summary>
         UniTask<bool> LoadTile(Vector2Int tile, BiomeTileTarget target);
+
+        /// <summary>Surface type painted by a channel (0..3: r, g, b, a) of the alphamap.</summary>
+        SurfaceChannel GetSurfaceChannel(int channel);
     }
 }

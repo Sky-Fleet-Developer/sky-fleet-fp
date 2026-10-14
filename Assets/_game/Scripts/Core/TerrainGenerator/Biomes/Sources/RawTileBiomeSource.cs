@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using Core.TerrainGenerator.Surfaces;
 using Core.TerrainGenerator.Utility;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Core.TerrainGenerator.Biomes.Sources
     /// <summary>
     /// Reads tiles from files: heights from .r16 (16 bit raw), alphamap from .png.
     /// File names are built from the tile coordinates, e.g. "Height_{x}-{y}".
+    /// Each channel of the png is the weight of one surface type, see <see cref="GetSurfaceChannel"/>.
     /// </summary>
     [Serializable]
     public class RawTileBiomeSource : IBiomeSource
@@ -23,6 +25,9 @@ namespace Core.TerrainGenerator.Biomes.Sources
         [SerializeField] private Vector2 origin;
         [Tooltip("Tile files overlap by one pixel: the edge row of a tile equals the edge row of its neighbour (e.g. 257 = 256 + 1)")]
         [SerializeField] private bool sharedEdgePixels = true;
+        [Tooltip("Surface type painted by each channel of the alphamap: r, g, b, a. " +
+                 "Default: channel i paints surface i of the terrain settings")]
+        [SerializeField] private SurfaceChannel[] surfaceChannels = new SurfaceChannel[4];
 
         [NonSerialized] private string _resolvedDirectoryName;
         [NonSerialized] private DirectoryInfo _resolvedDirectory;
@@ -43,6 +48,11 @@ namespace Core.TerrainGenerator.Biomes.Sources
             this.tileSizeMeters = tileSizeMeters;
             this.origin = origin;
             this.sharedEdgePixels = sharedEdgePixels;
+        }
+
+        public SurfaceChannel GetSurfaceChannel(int channel)
+        {
+            return surfaceChannels != null && channel < surfaceChannels.Length ? surfaceChannels[channel] : default;
         }
 
         public async UniTask<bool> LoadTile(Vector2Int tile, BiomeTileTarget target)
@@ -71,9 +81,9 @@ namespace Core.TerrainGenerator.Biomes.Sources
                 return heights != null;
             }
 
-            target.UploadHeights(heights);
+            target.UploadHeights(heights, sharedEdgePixels);
             // Without an alphamap file the tile gets no texture layers rather than the previous tile's ones
-            target.UploadAlpha(alpha ?? new Color32[target.Resolution * target.Resolution]);
+            target.UploadAlpha(alpha ?? new Color32[target.Resolution * target.Resolution], sharedEdgePixels);
             return true;
         }
 
@@ -95,13 +105,15 @@ namespace Core.TerrainGenerator.Biomes.Sources
         {
             using var bitmap = new Bitmap(path);
             int resolution = bitmap.Width;
+            // A png without alpha reads as fully opaque: that's no weight for the alpha channel's surface
+            bool hasAlpha = Image.IsAlphaPixelFormat(bitmap.PixelFormat);
             var result = new Color32[resolution * resolution];
             for (int u = 0; u < resolution; u++)
             {
                 for (int v = 0; v < resolution; v++)
                 {
                     System.Drawing.Color color = bitmap.GetPixel(u, resolution - v - 1);
-                    result[u + v * resolution] = new Color32(color.R, color.G, color.B, color.A);
+                    result[u + v * resolution] = new Color32(color.R, color.G, color.B, hasAlpha ? color.A : (byte)0);
                 }
             }
             return result;

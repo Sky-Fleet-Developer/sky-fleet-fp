@@ -42,8 +42,8 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int SourceAlphamap = Shader.PropertyToID("source_alphamap");
         private static readonly int DestinationAlphamap = Shader.PropertyToID("destination_alphamap");
         private static readonly int ChunkAlphamap = Shader.PropertyToID("chunk_alphamap");
-        private static readonly int HeightmapIDToChunkSourceID = Shader.PropertyToID("heightmap_id_to_chunk_source_id");
-        private static readonly int AlphamapIDToChunkSourceID = Shader.PropertyToID("alphamap_id_to_chunk_source_id");
+        private static readonly int ChunkSourceResolution = Shader.PropertyToID("chunk_source_resolution");
+        private static readonly int ChunkSourceSharedEdges = Shader.PropertyToID("chunk_source_shared_edges");
         private static readonly int AlphamapChunkResolution = Shader.PropertyToID("alphamap_chunk_resolution");
         private readonly int _copyHeightmapKernel;
         private readonly int _applyDeformationKernel;
@@ -164,7 +164,12 @@ namespace Core.TerrainGenerator.Settings
             _shader.Dispatch(_testAlignSineKernel, treadGroups, 1, 1);
         }
 
-        public void InsertHeightmapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture heightmap, int destinationSlot, int heightmapChunkResolution)
+        /// <summary>
+        /// Resamples square heights (rows along z, as RawReader reads them) into a heightmap layer.
+        /// sharedEdgePixels: the pixel layout of both the source and the layer, see HeightmapSettings.sharedEdgePixels.
+        /// </summary>
+        public void InsertHeightmapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture heightmap,
+            int destinationSlot, int heightmapChunkResolution, bool sharedEdgePixels = true)
         {
             lock (_shader)
             {
@@ -172,13 +177,19 @@ namespace Core.TerrainGenerator.Settings
                 _shader.SetInt(DestinationSlot, destinationSlot);
                 BindHeightmapAsDestination(_insertRawHeightToTexKernel, heightmap, heightmapChunkResolution);
                 _shader.SetBool(FlipXYWhenImportRawHeightmap, true);
-                _shader.SetFloat(HeightmapIDToChunkSourceID, sourceTexResolution / (float)heightmapChunkResolution);
+                _shader.SetInt(ChunkSourceResolution, sourceTexResolution);
+                _shader.SetBool(ChunkSourceSharedEdges, sharedEdgePixels);
                 _shader.SetBuffer(_insertRawHeightToTexKernel, ChunkHeightmap, chunkSourceData);
                 _shader.Dispatch(_insertRawHeightToTexKernel, treadGroups, treadGroups, 1);
             }
         }
         
-        public void InsertAlphamapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture alphamap, int destinationSlot, int alphamapChunkResolution)
+        /// <summary>
+        /// Resamples a square alphamap (pixels[x + y * width], as ReadPng reads them) into an alphamap layer.
+        /// sharedEdgePixels: the pixel layout of both the source and the layer, see HeightmapSettings.sharedEdgePixels.
+        /// </summary>
+        public void InsertAlphamapDataToBuffer(ComputeBuffer chunkSourceData, int sourceTexResolution, RenderTexture alphamap,
+            int destinationSlot, int alphamapChunkResolution, bool sharedEdgePixels = true)
         {
             lock (_shader)
             {
@@ -186,7 +197,8 @@ namespace Core.TerrainGenerator.Settings
                 _shader.SetInt(DestinationSlot, destinationSlot);
                 BindAlphamapAsDestination(_insertRawAlphaToTexKernel, alphamap, alphamapChunkResolution);
                 _shader.SetBool(FlipXYWhenImportRawHeightmap, true);
-                _shader.SetFloat(AlphamapIDToChunkSourceID, sourceTexResolution / (float)alphamapChunkResolution);
+                _shader.SetInt(ChunkSourceResolution, sourceTexResolution);
+                _shader.SetBool(ChunkSourceSharedEdges, sharedEdgePixels);
                 _shader.SetBuffer(_insertRawAlphaToTexKernel, ChunkAlphamap, chunkSourceData);
                 _shader.Dispatch(_insertRawAlphaToTexKernel, treadGroups, treadGroups, 1);
             }

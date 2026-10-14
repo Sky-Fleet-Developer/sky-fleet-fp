@@ -15,7 +15,7 @@ namespace Core.TerrainGenerator.Biomes.Sources
 
         /// <summary>Heights, Texture2DArray, normalized 0..1.</summary>
         public RenderTexture Height { get; }
-        /// <summary>Alphamap, Texture2DArray RGBA.</summary>
+        /// <summary>Alphamap, Texture2DArray RGBA: one surface weight per channel.</summary>
         public RenderTexture Alpha { get; }
         public int Layer { get; }
         public int Resolution { get; }
@@ -36,7 +36,8 @@ namespace Core.TerrainGenerator.Biomes.Sources
         public void Invalidate() => IsValid = false;
 
         /// <summary>Uploads square heights as read by RawReader, resampled to the pool resolution.</summary>
-        public void UploadHeights(float[,] heights)
+        /// <param name="sharedEdgePixels">Pixel layout of the source, <see cref="IBiomeSource.SharedEdgePixels"/>.</param>
+        public void UploadHeights(float[,] heights, bool sharedEdgePixels)
         {
             if (!IsValid)
             {
@@ -45,11 +46,15 @@ namespace Core.TerrainGenerator.Biomes.Sources
 
             ComputeBuffer buffer = _getUploadBuffer(heights.Length);
             buffer.SetData(heights);
-            _gpuWorker.InsertHeightmapDataToBuffer(buffer, heights.GetLength(0), Height, Layer, Resolution);
+            _gpuWorker.InsertHeightmapDataToBuffer(buffer, heights.GetLength(0), Height, Layer, Resolution, sharedEdgePixels);
         }
 
-        /// <summary>Uploads a square alphamap as read from a PNG, resampled to the pool resolution.</summary>
-        public void UploadAlpha(Color32[] alpha)
+        /// <summary>
+        /// Uploads a square alphamap as read from a PNG (pixels[x + y * width], y up), resampled to the pool resolution.
+        /// It covers the tile exactly like the heights.
+        /// </summary>
+        /// <param name="sharedEdgePixels">Pixel layout of the source, <see cref="IBiomeSource.SharedEdgePixels"/>.</param>
+        public void UploadAlpha(Color32[] alpha, bool sharedEdgePixels)
         {
             if (!IsValid)
             {
@@ -58,7 +63,7 @@ namespace Core.TerrainGenerator.Biomes.Sources
 
             ComputeBuffer buffer = _getUploadBuffer(alpha.Length);
             buffer.SetData(alpha);
-            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(alpha.Length), Alpha, Layer, Resolution);
+            _gpuWorker.InsertAlphamapDataToBuffer(buffer, (int)Mathf.Sqrt(alpha.Length), Alpha, Layer, Resolution, sharedEdgePixels);
         }
     }
 }

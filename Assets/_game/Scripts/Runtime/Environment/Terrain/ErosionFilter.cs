@@ -51,6 +51,7 @@ namespace Runtime.Environment.Terrain
         [SerializeField] private float fadeTargetOffset = 0.5f;
 
         public bool IsActive => active && strength != 0 && scale != 0 && GetShader();
+        public bool WritesAlphamap => false;
 
         public void Apply(in HeightmapFilterContext context)
         {

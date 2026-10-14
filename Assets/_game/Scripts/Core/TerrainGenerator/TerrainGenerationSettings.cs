@@ -41,6 +41,7 @@ namespace Core.TerrainGenerator
         
         public HeightmapSettings heightmapSettings;
         public AlphamapSettings alphamapSettings;
+        public SurfaceSettings surfaceSettings = new ();
         public QuadTreeLodConfig lodConfig;
         
         private MapGpuWorker _gpuWorker;

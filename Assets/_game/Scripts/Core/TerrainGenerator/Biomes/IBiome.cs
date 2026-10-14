@@ -27,8 +27,8 @@ namespace Core.TerrainGenerator.Biomes
         IBiomeSource Source { get; }
 
         /// <summary>
-        /// Heightmap filters of the biome, in order. They run before the global filters, only on the chunks
-        /// where the biome has influence, and are mixed in by the biome weight. May be null.
+        /// Heightmap filters of the biome, in order. They filter the biome's own heights before the biomes are blended,
+        /// only on the chunks where the biome has influence; the global filters run after blending. May be null.
         /// </summary>
         IReadOnlyList<IHeightmapFilterSource> Filters { get; }
 
@@ -38,7 +38,9 @@ namespace Core.TerrainGenerator.Biomes
 
     public struct BiomeSitePose
     {
-        /// <summary>World position. Only x and z are used.</summary>
+        /// <summary>
+        /// World position. x and z place the site; y, relative to the terrain, offsets the biome heights there (meters).
+        /// </summary>
         public Vector3 Position;
         /// <summary>World rotation around the Y axis, in degrees.</summary>
         public float Yaw;

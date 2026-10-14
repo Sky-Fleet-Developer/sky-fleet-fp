@@ -11,6 +11,7 @@ using Core.TerrainGenerator.Biomes;
 using Core.TerrainGenerator.Filters;
 using Core.TerrainGenerator.LOD;
 using Core.TerrainGenerator.Settings;
+using Core.TerrainGenerator.Surfaces;
 using Core.TerrainGenerator.Utility;
 using Sirenix.OdinInspector;
 using Core.World;
@@ -62,7 +63,7 @@ namespace Core.TerrainGenerator
             },
         };
         [Tooltip("Normalized heights mapped to the ends of the gradient")]
-        [SerializeField, MinMaxSlider(0, 1, true), ShowIf(nameof(viewMode), TerrainViewMode.Heightmap)]
+        [SerializeField, MinMaxSlider(-0.5f, 1.5f, true), ShowIf(nameof(viewMode), TerrainViewMode.Heightmap)]
         private Vector2 heightViewRange = new (0, 1);
         [Tooltip("Grid of MaxLoadedChunksByOneSide x MaxLoadedChunksByOneSide cells, one per texture slot. Generated when empty")]
         [SerializeField, ShowIf(nameof(viewMode), TerrainViewMode.Uv)]
@@ -90,7 +91,8 @@ namespace Core.TerrainGenerator
         private readonly List<IHeightmapFilter> _filters = new ();
         private readonly HeightmapBaker _heightmapBaker = new ();
         private readonly List<IHeightmapFilterSource> _biomeFilterSources = new ();
-        private BiomeFilterBaker _biomeFilterBaker;
+        private bool _biomeFiltersChanged;
+        private TerrainSurfaces _surfaces;
         private BiomeDebugBaker _biomeDebugBaker;
         private BiomeComposer _composer;
         private SettingsBiome _settingsBiome;
@@ -168,6 +170,11 @@ namespace Core.TerrainGenerator
                 _settingsBiome = new SettingsBiome(Settings, transform);
                 _fallbackBiomes.Add(_settingsBiome);
             }
+            if (_surfaces == null)
+            {
+                _surfaces = new TerrainSurfaces();
+                _surfaces.Changed += OnSurfaceTypeChanged;
+            }
             BindMaterialParams();
             BindMapToMaterial();
             ScheduleBake();
@@ -219,11 +226,12 @@ namespace Core.TerrainGenerator
         private void OnBiomesChanged()
         {
             _composer?.Invalidate();
+            RefreshSurfaces();
             CollectBiomeFilters();
             ScheduleBiomesBake();
         }
 
-        // Biome filter edits only need a heightmap bake; added or removed filters change the biomes
+        // Biome filter edits only need filtering and blending again; added or removed filters change the biomes
         private void CollectBiomeFilters()
         {
             UnsubscribeBiomeFilters();
@@ -239,7 +247,7 @@ namespace Core.TerrainGenerator
                     if (source != null)
                     {
                         _biomeFilterSources.Add(source);
-                        source.Changed += ScheduleHeightmapBake;
+                        source.Changed += OnBiomeFilterChanged;
                     }
                 }
             }
@@ -249,7 +257,7 @@ namespace Core.TerrainGenerator
         {
             foreach (IHeightmapFilterSource source in _biomeFilterSources)
             {
-                source.Changed -= ScheduleHeightmapBake;
+                source.Changed -= OnBiomeFilterChanged;
             }
             _biomeFilterSources.Clear();
         }
@@ -287,9 +295,9 @@ namespace Core.TerrainGenerator
             ScheduleBakeBeforeRendering();
         }
 
-        private void ScheduleHeightmapBake()
+        private void OnBiomeFilterChanged()
         {
-            _heightmapDirty = true;
+            _biomeFiltersChanged = true;
             ScheduleBakeBeforeRendering();
         }
 
@@ -319,11 +327,14 @@ namespace Core.TerrainGenerator
                 return;
             }
 
-            // Newly composed chunks enter the map here, so they never show unbaked heights
+            // Newly composed chunks enter the map here, so they never show unbaked heights.
+            // Biome filters run inside composing, before the biomes are blended
             _terrainData.FlushMap();
+            bool biomeFiltersChanged = _biomeFiltersChanged;
+            _biomeFiltersChanged = false;
             if (_composer.Compose(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
                     _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels, _settings.Height,
-                    _settings.alphamapSettings))
+                    _settings.alphamapSettings, biomeFiltersChanged, _surfaces))
             {
                 _heightmapDirty = true;
                 _biomesDirty = true;
@@ -342,11 +353,7 @@ namespace Core.TerrainGenerator
                         _filters.Add(source.Filter);
                     }
                 }
-                // Biome filters first: they shape the biomes, the global filters then work on the whole terrain
-                _biomeFilterBaker ??= new BiomeFilterBaker();
-                RenderTexture input = _biomeFilterBaker.Bake(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
-                    _settings.heightmapSettings.chunkSizeMeters, _settings.Height, _settings.heightmapSettings.sharedEdgePixels);
-                _heightmapBaker.Bake(_terrainData, input, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
+                _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
                     _settings.heightmapSettings.sharedEdgePixels);
             }
 
@@ -414,6 +421,7 @@ namespace Core.TerrainGenerator
             float hmPixSize = 1f / _settings.heightmapSettings.chunkSizeMeters;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
             Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.x, mapMin.y * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.z));
             Settings.Material.SetFloat(MapSize, mapSize);
+            Settings.Material.SetVector(TerrainMapOrigin, (Vector2)mapMin * _settings.heightmapSettings.chunkSizeMeters);
         }
 
         public bool Enabled => gameObject.activeInHierarchy && enabled;
@@ -547,6 +555,7 @@ namespace Core.TerrainGenerator
         private static readonly int TerrainHeightGradient = Shader.PropertyToID("terrain_height_gradient");
         private static readonly int TerrainHeightViewRange = Shader.PropertyToID("terrain_height_view_range");
         private static readonly int TerrainSlotTexture = Shader.PropertyToID("terrain_slot_texture");
+        private static readonly int TerrainMapOrigin = Shader.PropertyToID("terrain_map_origin");
         
         private void BindMaterialParams()
         {
@@ -557,7 +566,30 @@ namespace Core.TerrainGenerator
             Settings.Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
             Settings.Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
             Settings.Material.SetFloat(HeightmapSharedEdges, _settings.heightmapSettings.sharedEdgePixels ? 1f : 0f);
+            RefreshSurfaces();
             ApplyViewMode();
+        }
+
+        // Surface types of the settings and the biomes; alphamaps written with outdated ids are composed again
+        private void RefreshSurfaces()
+        {
+            if (_surfaces == null)
+            {
+                return;
+            }
+
+            if (_surfaces.Collect(_settings.surfaceSettings, CurrentBiomes))
+            {
+                _composer?.Invalidate();
+                ScheduleBake();
+            }
+            _surfaces.Bind(Settings.Material, _settings.surfaceSettings);
+        }
+
+        // Edited textures or parameters: the alphamap stays valid
+        private void OnSurfaceTypeChanged()
+        {
+            _surfaces.Bind(Settings.Material, _settings.surfaceSettings);
         }
 
         private void OnValidate()
@@ -893,7 +925,11 @@ namespace Core.TerrainGenerator
                 _terrainData.Dispose();
             }
             _biomeDebugBaker?.Dispose();
-            _biomeFilterBaker?.Dispose();
+            if (_surfaces != null)
+            {
+                _surfaces.Changed -= OnSurfaceTypeChanged;
+                _surfaces.Dispose();
+            }
             DestroyTexture(_heightGradientTex);
             DestroyTexture(_generatedSlotTex);
             if (_composer != null)

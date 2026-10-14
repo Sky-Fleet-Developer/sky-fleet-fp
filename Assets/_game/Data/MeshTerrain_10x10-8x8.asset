@@ -20,7 +20,7 @@ MonoBehaviour:
     - rid: 6312480000000000001
       type: {class: ErosionFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
       data:
-        active: 1
+        active: 0
         scale: 2
         strength: 0.0001
         gullyWeight: 20
@@ -72,9 +72,18 @@ MonoBehaviour:
   alphamapSettings:
     layersCount: 3
     normalizeAlphamap: 0
+    heightBlendRange: 50
+    heightBlendSoftness: 0.2
     splatmapFormats:
     - format: 10x10-8x8Ch_1_{x}-{y}
       extension: png
+  surfaceSettings:
+    surfaces:
+    - {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+    - {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+    - {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+    textureResolution: 1024
+    blendDepth: 0.2
   lodConfig:
     LodDistances:
     - 3000

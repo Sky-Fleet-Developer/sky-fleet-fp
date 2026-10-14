@@ -14,6 +14,8 @@ namespace Core.TerrainGenerator
         private RenderTexture _rawHeightmapTex;
         private RenderTexture _scratchHeightmapTex;
         private RenderTexture _alphamapTex;
+        private RenderTexture _rawAlphamapTex;
+        private RenderTexture _scratchAlphamapTex;
         private ComputeBuffer _loadHeightDataBuffer;
         private ComputeBuffer _loadAlphaDataBuffer;
         private ComputeBuffer _mapBuffer;
@@ -48,7 +50,10 @@ namespace Core.TerrainGenerator
         public int Resolution => _chunkResolution;
         /// <summary>Raised when new chunk data was uploaded to the raw heightmap and has to be baked.</summary>
         public event Action RawDataChanged;
+        /// <summary>Baked alphamap (raw data + filters that write the alphamap). Used by rendering.</summary>
         public RenderTexture AlphamapTex => _alphamapTex;
+        /// <summary>Alphamap as blended from the biomes. Input of the bake.</summary>
+        public RenderTexture RawAlphamapTex => _rawAlphamapTex;
         public Vector2Int MapMin => _currentMapMin;
 
         public TerrainData(int maxChunksSide, int chunkResolution)
@@ -58,12 +63,8 @@ namespace Core.TerrainGenerator
 
             _heightmapTex = CreateHeightmapArray();
             _rawHeightmapTex = CreateHeightmapArray();
-            _alphamapTex = new RenderTexture(chunkResolution, chunkResolution, -1, GraphicsFormat.R8G8B8A8_UNorm);
-            _alphamapTex.volumeDepth = maxChunksSide * maxChunksSide;
-            _alphamapTex.dimension = TextureDimension.Tex2DArray;
-            _alphamapTex.enableRandomWrite = true;
-            _alphamapTex.filterMode = FilterMode.Bilinear;
-            _alphamapTex.Create();
+            _alphamapTex = CreateAlphamapArray();
+            _rawAlphamapTex = CreateAlphamapArray();
 
             int maxChunksTotal = maxChunksSide * maxChunksSide;
             _mapDataContent = new int[maxChunksTotal];
@@ -98,6 +99,27 @@ namespace Core.TerrainGenerator
             texture.filterMode = FilterMode.Bilinear;
             texture.Create();
             return texture;
+        }
+
+        private RenderTexture CreateAlphamapArray()
+        {
+            var texture = new RenderTexture(_chunkResolution, _chunkResolution, -1, GraphicsFormat.R8G8B8A8_UNorm);
+            texture.volumeDepth = _maxChunksSide * _maxChunksSide;
+            texture.dimension = TextureDimension.Tex2DArray;
+            texture.enableRandomWrite = true;
+            texture.filterMode = FilterMode.Bilinear;
+            texture.Create();
+            return texture;
+        }
+
+        /// <summary>Intermediate target for chaining several filters that write the alphamap. Created on first use.</summary>
+        public RenderTexture GetScratchAlphamapTex()
+        {
+            if (!_scratchAlphamapTex)
+            {
+                _scratchAlphamapTex = CreateAlphamapArray();
+            }
+            return _scratchAlphamapTex;
         }
 
         /// <summary>Intermediate target for chaining several heightmap filters. Created on first use.</summary>
@@ -322,6 +344,8 @@ namespace Core.TerrainGenerator
             ReleaseTexture(_rawHeightmapTex);
             ReleaseTexture(_scratchHeightmapTex);
             ReleaseTexture(_alphamapTex);
+            ReleaseTexture(_rawAlphamapTex);
+            ReleaseTexture(_scratchAlphamapTex);
             _slotCoordsBuffer?.Dispose();
             _loadHeightDataBuffer?.Dispose();
             _loadAlphaDataBuffer?.Dispose();

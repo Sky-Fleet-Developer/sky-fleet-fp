@@ -8,7 +8,7 @@ namespace Core.TerrainGenerator.Biomes
     [StructLayout(LayoutKind.Sequential)]
     public struct BiomeSite
     {
-        public const int Stride = sizeof(float) * 6 + sizeof(int) * 2;
+        public const int Stride = sizeof(float) * 7 + sizeof(int) * 2;
 
         /// <summary>Terrain space x, z in meters.</summary>
         public Vector2 Position;
@@ -20,6 +20,8 @@ namespace Core.TerrainGenerator.Biomes
         public Vector2 Rotation;
         /// <summary><see cref="BiomeBlendMode"/> of the biome.</summary>
         public int BlendMode;
+        /// <summary>Added to the heights of the biome data placed by this site, in meters. Terrain space y of the site.</summary>
+        public float HeightOffset;
 
         public bool IsLayer => BlendMode != (int)BiomeBlendMode.Normal;
 
@@ -73,6 +75,7 @@ namespace Core.TerrainGenerator.Biomes
                         Biome = i,
                         Rotation = new Vector2(Mathf.Cos(yaw), Mathf.Sin(yaw)),
                         BlendMode = (int)biome.BlendMode,
+                        HeightOffset = local.y,
                     });
                 }
             }
