@@ -33,11 +33,13 @@ void CSBiomeFilterBlend (uint3 id : SV_DispatchThreadID)
     float2 position = (slot.xy + (id.xy + blend_pixel_offset) / blend_pixels_per_chunk) * blend_chunk_size;
     uint2 range = biome_layer_ranges[id.z];
 
-    // Weight of a biome is the max weight of its sites, normalized over the biomes, same as the debug view.
-    // Sites come in blending order, so the sites of one biome are adjacent
+    // Weight of a biome is the max weight of its sites, same as the debug view: normal biomes are normalized
+    // among themselves, layers keep their own weight. Sites come in blending order, so the sites of one biome are adjacent
     float total = 0;
     float target = 0;
+    bool target_is_layer = false;
     int current_biome = -1;
+    bool current_is_layer = false;
     float biome_weight = 0;
     for (uint i = 0; i <= range.y; i++)
     {
@@ -50,19 +52,28 @@ void CSBiomeFilterBlend (uint3 id : SV_DispatchThreadID)
             if (weighted)
             {
                 site = biome_sites[entry];
+                if (site.biome == blend_biome)
+                {
+                    target_is_layer = BiomeIsLayer(site);
+                }
             }
         }
 
         // Flush the previous biome when the biome changes or the list ends
         if (i == range.y || (weighted && site.biome != current_biome))
         {
-            total += biome_weight;
+            // Layers don't take weight from the normal biomes
+            if (current_biome >= 0 && !current_is_layer)
+            {
+                total += biome_weight;
+            }
             if (current_biome == blend_biome)
             {
                 target = biome_weight;
             }
             biome_weight = 0;
             current_biome = i < range.y ? site.biome : -1;
+            current_is_layer = BiomeIsLayer(site);
         }
 
         if (weighted)
@@ -76,5 +87,6 @@ void CSBiomeFilterBlend (uint3 id : SV_DispatchThreadID)
         return;
     }
 
-    blend_result[id] = lerp(blend_before[id], blend_filtered[id], target / total);
+    float weight = target_is_layer ? target : target / max(total, 1e-5);
+    blend_result[id] = lerp(blend_before[id], blend_filtered[id], weight);
 }

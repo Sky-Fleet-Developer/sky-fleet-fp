@@ -109,7 +109,7 @@ namespace Runtime.Environment.Terrain.Biomes
                 snapshot.Add(biome.DebugColor);
                 _sitesCache.Clear();
                 biome.GetSites(_sitesCache);
-                snapshot.Add(new Vector4(biome.Radius, biome.BlendDistance, _sitesCache.Count, 0));
+                snapshot.Add(new Vector4(biome.Radius, biome.BlendDistance, _sitesCache.Count, (int)biome.BlendMode));
                 foreach (BiomeSitePose site in _sitesCache)
                 {
                     snapshot.Add(new Vector4(site.Position.x, site.Position.y, site.Position.z, site.Yaw));

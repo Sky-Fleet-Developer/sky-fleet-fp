@@ -18,11 +18,14 @@ namespace Runtime.Environment.Terrain.Biomes
         [SerializeField, Min(0)] private float radius;
         [Tooltip("Distance from the cell border into the biome, in meters, where the biome influence reaches 100%")]
         [SerializeField, Min(0)] private float blendDistance = 500;
+        [Tooltip("Normal biomes share the world; other modes make the biome a layer applied on top of them")]
+        [SerializeField] private BiomeBlendMode blendMode = BiomeBlendMode.Normal;
         [SerializeField] private Color debugColor = Color.white;
         [SerializeReference] private IBiomeSource source = new RawTileBiomeSource();
 
         public float Radius => radius;
         public float BlendDistance => blendDistance;
+        public BiomeBlendMode BlendMode => blendMode;
         public Color DebugColor => debugColor;
         public IBiomeSource Source => source;
 

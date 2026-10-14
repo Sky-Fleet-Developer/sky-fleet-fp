@@ -59,6 +59,9 @@ namespace Core.TerrainGenerator.Biomes
         private static readonly int PixelsPerChunkProperty = Shader.PropertyToID("compose_pixels_per_chunk");
         private static readonly int PixelOffsetProperty = Shader.PropertyToID("compose_pixel_offset");
         private static readonly int ChunkSizeProperty = Shader.PropertyToID("compose_chunk_size");
+        private static readonly int HeightRangeProperty = Shader.PropertyToID("compose_height_range");
+        private static readonly int AlphaHeightRangeProperty = Shader.PropertyToID("compose_alpha_height_range");
+        private static readonly int AlphaSoftnessProperty = Shader.PropertyToID("compose_alpha_softness");
 
         private readonly ComputeShader _shader;
         private readonly BiomeTilePool _pool;
@@ -137,8 +140,9 @@ namespace Core.TerrainGenerator.Biomes
         }
 
         /// <summary>Composes the chunks that are ready. Returns true when raw data changed.</summary>
+        /// <param name="heightRangeMeters">Meters represented by normalized height 1.0.</param>
         public bool Compose(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters,
-            bool sharedEdgePixels)
+            bool sharedEdgePixels, float heightRangeMeters, AlphamapSettings alphamap)
         {
             if (!_shader)
             {
@@ -166,7 +170,7 @@ namespace Core.TerrainGenerator.Biomes
                 return false;
             }
 
-            Dispatch(data, biomes, chunkSizeMeters, sharedEdgePixels);
+            Dispatch(data, biomes, chunkSizeMeters, sharedEdgePixels, heightRangeMeters, alphamap);
             foreach (WorldChunk chunk in _toCompose)
             {
                 chunk.Composed = true;
@@ -261,7 +265,8 @@ namespace Core.TerrainGenerator.Biomes
             return true;
         }
 
-        private void Dispatch(TerrainData data, IReadOnlyList<IBiome> biomes, float chunkSizeMeters, bool sharedEdgePixels)
+        private void Dispatch(TerrainData data, IReadOnlyList<IBiome> biomes, float chunkSizeMeters, bool sharedEdgePixels,
+            float heightRangeMeters, AlphamapSettings alphamap)
         {
             // Per composed chunk: its layer, its chunk coordinate and its range of sites
             _composeLayers.Clear();
@@ -305,6 +310,9 @@ namespace Core.TerrainGenerator.Biomes
             _shader.SetFloat(PixelsPerChunkProperty, sharedEdgePixels ? data.Resolution - 1 : data.Resolution);
             _shader.SetFloat(PixelOffsetProperty, sharedEdgePixels ? 0f : 0.5f);
             _shader.SetFloat(ChunkSizeProperty, chunkSizeMeters);
+            _shader.SetFloat(HeightRangeProperty, heightRangeMeters);
+            _shader.SetFloat(AlphaHeightRangeProperty, alphamap.HeightBlendRange);
+            _shader.SetFloat(AlphaSoftnessProperty, alphamap.HeightBlendSoftness);
 
             int groups = Mathf.CeilToInt(data.Resolution / (float)ThreadGroupSize);
             _shader.Dispatch(kernel, groups, groups, _toCompose.Count);

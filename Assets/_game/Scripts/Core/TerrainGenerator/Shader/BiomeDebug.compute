@@ -30,38 +30,60 @@ void CSBiomeDebug (uint3 id : SV_DispatchThreadID)
     float2 position = (slot.xy + (id.xy + biome_pixel_offset) / biome_pixels_per_chunk) * biome_chunk_size;
     uint2 range = biome_layer_ranges[id.z];
 
-    // Sites come in blending order, so the sites of one biome are adjacent
+    // Normal biomes mixed by their normalized weights, then the layers on top, each by its own weight
     float3 color = 0;
     float total = 0;
-    int current_biome = -1;
-    float biome_weight = 0;
-    for (uint i = 0; i < range.y; i++)
+    for (int p = 0; p < 2; p++) //look's like "pass" is a reserved name for hlsl
     {
-        uint entry = biome_site_indices[range.x + i];
-        if (entry & BIOME_COMPETITOR_FLAG)
+        bool layers = p == 1;
+        if (layers)
         {
-            continue;
+            color = total > 0 ? color / total : float3(1, 1, 1);
         }
 
-        BiomeSite site = biome_sites[entry];
-        if (site.biome != current_biome)
+        // Sites come in blending order, so the sites of one biome are adjacent
+        int current_biome = -1;
+        float biome_weight = 0;
+        for (uint i = 0; i <= range.y; i++)
         {
-            if (current_biome >= 0)
+            BiomeSite site = (BiomeSite)0;
+            bool weighted = false;
+            if (i < range.y)
             {
-                color += biome_colors[current_biome].rgb * biome_weight;
-                total += biome_weight;
+                uint entry = biome_site_indices[range.x + i];
+                if ((entry & BIOME_COMPETITOR_FLAG) == 0)
+                {
+                    site = biome_sites[entry];
+                    weighted = BiomeIsLayer(site) == layers;
+                }
             }
-            current_biome = site.biome;
-            biome_weight = 0;
+
+            // Flush the previous biome when the biome changes or the list ends
+            if (i == range.y || (weighted && site.biome != current_biome))
+            {
+                if (current_biome >= 0 && biome_weight > 0)
+                {
+                    float3 biome_color = biome_colors[current_biome].rgb;
+                    if (layers)
+                    {
+                        color = lerp(color, biome_color, biome_weight);
+                    }
+                    else
+                    {
+                        color += biome_color * biome_weight;
+                        total += biome_weight;
+                    }
+                }
+                current_biome = site.biome;
+                biome_weight = 0;
+            }
+
+            if (weighted)
+            {
+                biome_weight = max(biome_weight, BiomeSiteWeight(site, range, position));
+            }
         }
-        biome_weight = max(biome_weight, BiomeSiteWeight(site, range, position));
     }
 
-    if (current_biome >= 0)
-    {
-        color += biome_colors[current_biome].rgb * biome_weight;
-        total += biome_weight;
-    }
-
-    biome_debug_destination[id] = float4(total > 0 ? color / total : float3(1, 1, 1), 1);
+    biome_debug_destination[id] = float4(color, 1);
 }

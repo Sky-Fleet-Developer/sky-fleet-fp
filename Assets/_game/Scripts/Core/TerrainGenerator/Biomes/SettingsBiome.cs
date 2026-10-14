@@ -25,6 +25,7 @@ namespace Core.TerrainGenerator.Biomes
 
         public float Radius => 0;
         public float BlendDistance => 0;
+        public BiomeBlendMode BlendMode => BiomeBlendMode.Normal;
         public Color DebugColor => Color.white;
         public IBiomeSource Source => _source;
         // Global filters already cover the whole terrain

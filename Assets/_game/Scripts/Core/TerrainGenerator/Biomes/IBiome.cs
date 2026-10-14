@@ -17,6 +17,9 @@ namespace Core.TerrainGenerator.Biomes
         /// <summary>Distance from the cell border into the biome, in meters, where the biome influence reaches 100%.</summary>
         float BlendDistance { get; }
 
+        /// <summary>How the biome heights combine with the terrain.</summary>
+        BiomeBlendMode BlendMode { get; }
+
         /// <summary>Color of the biome in the terrain debug view.</summary>
         Color DebugColor { get; }
 

@@ -322,7 +322,8 @@ namespace Core.TerrainGenerator
             // Newly composed chunks enter the map here, so they never show unbaked heights
             _terrainData.FlushMap();
             if (_composer.Compose(_terrainData, CurrentBiomes, transform.worldToLocalMatrix,
-                    _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels))
+                    _settings.heightmapSettings.chunkSizeMeters, _settings.heightmapSettings.sharedEdgePixels, _settings.Height,
+                    _settings.alphamapSettings))
             {
                 _heightmapDirty = true;
                 _biomesDirty = true;

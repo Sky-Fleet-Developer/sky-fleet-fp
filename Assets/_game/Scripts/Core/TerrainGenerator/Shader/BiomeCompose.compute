@@ -30,6 +30,9 @@ int compose_resolution;
 float compose_pixels_per_chunk;
 float compose_pixel_offset;
 float compose_chunk_size; // meters
+float compose_height_range; // meters represented by normalized height 1.0
+float compose_alpha_height_range; // height blending of the alphamap: meters that outweigh a whole biome weight; 0 = by weight
+float compose_alpha_softness;     // height blending of the alphamap: width of the transition, in weight units
 
 // False when the biome has no data at the position
 bool SampleBiome(BiomeSite site, float2 position, out float height, out float4 alpha)
@@ -58,24 +61,38 @@ bool SampleBiome(BiomeSite site, float2 position, out float height, out float4 a
     return true;
 }
 
-[numthreads(8,8,1)]
-void CSCompose (uint3 id : SV_DispatchThreadID)
+// Biomes affecting one pixel, in the order they are applied. Plain static arrays: FXC can't write
+// arrays inside a struct at a dynamic index without unrolling the loop
+#define MAX_PIXEL_BIOMES 16
+
+static int pixel_count;
+static float pixel_weight[MAX_PIXEL_BIOMES];
+static float pixel_height[MAX_PIXEL_BIOMES]; // normal: biome height; layer: layer height, then the height with the layer fully applied
+static float4 pixel_alpha[MAX_PIXEL_BIOMES];
+static int pixel_blend_mode[MAX_PIXEL_BIOMES];
+
+void AddPixelBiome(float weight, float height, float4 alpha, int blend_mode)
 {
-    if (id.x >= (uint)compose_resolution || id.y >= (uint)compose_resolution)
+    // Biomes beyond the limit are dropped: that many overlapping biomes at one point is not expected
+    if (weight <= 0 || pixel_count >= MAX_PIXEL_BIOMES)
     {
         return;
     }
 
-    int4 target = compose_layers[id.z];
-    float2 position = (target.yz + (id.xy + compose_pixel_offset) / compose_pixels_per_chunk) * compose_chunk_size;
-    uint2 range = biome_layer_ranges[id.z];
+    pixel_weight[pixel_count] = weight;
+    pixel_height[pixel_count] = height;
+    pixel_alpha[pixel_count] = alpha;
+    pixel_blend_mode[pixel_count] = blend_mode;
+    pixel_count++;
+}
 
-    // Sites come in blending order, so the sites of one biome are adjacent.
-    // A biome takes the weight and the data of its strongest site that has data here.
-    float total = 0;
-    float height_sum = 0;
-    float4 alpha_sum = 0;
+// Adds the normal biomes or the layers with data at the position, in blending order.
+// Sites come in blending order, so the sites of one biome are adjacent.
+// A biome takes the weight and the data of its strongest site that has data here.
+void CollectPixelBiomes(uint2 range, float2 position, bool layers)
+{
     int current_biome = -1;
+    int current_mode = 0;
     float biome_weight = 0;
     float biome_height = 0;
     float4 biome_alpha = 0;
@@ -86,21 +103,20 @@ void CSCompose (uint3 id : SV_DispatchThreadID)
         if (i < range.y)
         {
             uint entry = biome_site_indices[range.x + i];
-            weighted = (entry & BIOME_COMPETITOR_FLAG) == 0;
-            if (weighted)
+            if ((entry & BIOME_COMPETITOR_FLAG) == 0)
             {
                 site = biome_sites[entry];
+                weighted = BiomeIsLayer(site) == layers;
             }
         }
 
         // Flush the previous biome when the biome changes or the list ends
         if (i == range.y || (weighted && site.biome != current_biome))
         {
-            total += biome_weight;
-            height_sum += biome_height * biome_weight;
-            alpha_sum += biome_alpha * biome_weight;
+            AddPixelBiome(biome_weight, biome_height, biome_alpha, current_mode);
             biome_weight = 0;
-            current_biome = i < range.y ? site.biome : -1;
+            current_biome = site.biome;
+            current_mode = site.blend_mode;
         }
 
         if (!weighted)
@@ -118,8 +134,81 @@ void CSCompose (uint3 id : SV_DispatchThreadID)
             biome_alpha = alpha;
         }
     }
+}
+
+// Height-based blending: a biome whose terrain is higher wins the transition,
+// within compose_alpha_softness of the best score. Weights keep biomes out of where they have no influence.
+float4 BlendAlpha()
+{
+    float best = -3.0e38;
+    for (int k = 0; k < pixel_count; k++)
+    {
+        float score = pixel_weight[k] + pixel_height[k] * compose_height_range / max(compose_alpha_height_range, 1e-5);
+        best = max(best, score);
+    }
+
+    float threshold = best - max(compose_alpha_softness, 1e-5);
+    float total = 0;
+    float4 sum = 0;
+    for (int j = 0; j < pixel_count; j++)
+    {
+        float weight = pixel_weight[j];
+        if (compose_alpha_height_range > 0)
+        {
+            float score = weight + pixel_height[j] * compose_height_range / compose_alpha_height_range;
+            weight *= max(score - threshold, 0);
+        }
+        total += weight;
+        sum += pixel_alpha[j] * weight;
+    }
+    return total > 0 ? sum / total : 0;
+}
+
+[numthreads(8,8,1)]
+void CSCompose (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)compose_resolution || id.y >= (uint)compose_resolution)
+    {
+        return;
+    }
+
+    int4 target = compose_layers[id.z];
+    float2 position = (target.yz + (id.xy + compose_pixel_offset) / compose_pixels_per_chunk) * compose_chunk_size;
+    uint2 range = biome_layer_ranges[id.z];
+
+    // Base: normal biomes mixed by their normalized weights. Biomes without data here give their weight to the others
+    pixel_count = 0;
+    CollectPixelBiomes(range, position, false);
+    int normal_count = pixel_count;
+    float total = 0;
+    float height = 0;
+    for (int k = 0; k < normal_count; k++)
+    {
+        total += pixel_weight[k];
+        height += pixel_height[k] * pixel_weight[k];
+    }
+    height = total > 0 ? height / total : 0;
+    for (int n = 0; n < normal_count; n++)
+    {
+        pixel_weight[n] /= total;
+    }
+
+    // Layers on top in blending order, each scaled by its own weight.
+    // In the alphamap a layer takes its weight from everything below it
+    CollectPixelBiomes(range, position, true);
+    for (int l = normal_count; l < pixel_count; l++)
+    {
+        float weight = pixel_weight[l];
+        float applied = BiomeApplyLayer(pixel_blend_mode[l], height, pixel_height[l]);
+        for (int below = 0; below < l; below++)
+        {
+            pixel_weight[below] *= 1 - weight;
+        }
+        pixel_height[l] = applied;
+        height = lerp(height, applied, weight);
+    }
 
     uint3 pixel = uint3(id.xy, target.x);
-    compose_height[pixel] = total > 0 ? height_sum / total : 0;
-    compose_alpha[pixel] = total > 0 ? alpha_sum / total : 0;
+    compose_height[pixel] = height;
+    compose_alpha[pixel] = BlendAlpha();
 }

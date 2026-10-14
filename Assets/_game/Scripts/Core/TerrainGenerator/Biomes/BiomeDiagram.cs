@@ -8,7 +8,7 @@ namespace Core.TerrainGenerator.Biomes
     [StructLayout(LayoutKind.Sequential)]
     public struct BiomeSite
     {
-        public const int Stride = sizeof(float) * 6 + sizeof(int);
+        public const int Stride = sizeof(float) * 6 + sizeof(int) * 2;
 
         /// <summary>Terrain space x, z in meters.</summary>
         public Vector2 Position;
@@ -18,6 +18,10 @@ namespace Core.TerrainGenerator.Biomes
         public int Biome;
         /// <summary>Cosine and sine of the site rotation around Y in terrain space.</summary>
         public Vector2 Rotation;
+        /// <summary><see cref="BiomeBlendMode"/> of the biome.</summary>
+        public int BlendMode;
+
+        public bool IsLayer => BlendMode != (int)BiomeBlendMode.Normal;
 
         /// <summary>Converts a terrain space position into the unrotated space of the site, relative to the site.</summary>
         public Vector2 ToLocal(Vector2 position)
@@ -34,7 +38,12 @@ namespace Core.TerrainGenerator.Biomes
     /// Weight of a site a: product over the sites c of other biomes of smoothstep(t),
     /// t = (sd + blend_c) / (blend_a + blend_c), where sd is the signed distance from the a|c power bisector
     /// (positive on the a side). At the border both sides weigh 50%; at blend_a inside the cell of a the weight is 100%.
-    /// Weight of a biome: the max weight of its sites. Weights are normalized over the biomes.
+    /// Weight of a biome: the max weight of its sites. Normal biomes are normalized among themselves;
+    /// layers (<see cref="BiomeBlendMode"/>) keep their own weight.
+    /// </para>
+    /// <para>
+    /// Normal sites only compete with normal sites, so normal biomes cover the world without the layers.
+    /// Layer sites compete with every site, so a layer covers its cell of the full diagram.
     /// </para>
     /// </summary>
     public static class BiomeDiagram
@@ -63,6 +72,7 @@ namespace Core.TerrainGenerator.Biomes
                         BlendDistance = Mathf.Max(0, biome.BlendDistance),
                         Biome = i,
                         Rotation = new Vector2(Mathf.Cos(yaw), Mathf.Sin(yaw)),
+                        BlendMode = (int)biome.BlendMode,
                     });
                 }
             }
@@ -83,6 +93,12 @@ namespace Core.TerrainGenerator.Biomes
             return Vector2.Dot(position - middle, delta / length) + (a.Radius * a.Radius - c.Radius * c.Radius) / (2f * length);
         }
 
+        /// <summary>True when c lowers the weight of a.</summary>
+        public static bool Competes(in BiomeSite a, in BiomeSite c)
+        {
+            return c.Biome != a.Biome && (a.IsLayer || !c.IsLayer);
+        }
+
         /// <summary>Weight factor of a against c at a signed distance sd from their bisector.</summary>
         public static float Transition(in BiomeSite a, in BiomeSite c, float sd)
         {
@@ -96,7 +112,9 @@ namespace Core.TerrainGenerator.Biomes
             return t * t * (3f - 2f * t);
         }
 
-        /// <summary>Normalized biome weights at a terrain space position. weights.Count = biome count.</summary>
+        /// <summary>
+        /// Biome weights at a terrain space position, normal biomes normalized among themselves. weights.Count = biome count.
+        /// </summary>
         public static void EvaluateWeights(IReadOnlyList<BiomeSite> sites, int biomeCount, Vector2 position, List<float> weights)
         {
             weights.Clear();
@@ -111,7 +129,7 @@ namespace Core.TerrainGenerator.Biomes
                 float weight = 1;
                 for (int c = 0; c < sites.Count && weight > 0; c++)
                 {
-                    if (sites[c].Biome != sites[a].Biome)
+                    if (Competes(sites[a], sites[c]))
                     {
                         weight *= Transition(sites[a], sites[c], SignedDistance(sites[a], sites[c], position));
                     }
@@ -121,9 +139,18 @@ namespace Core.TerrainGenerator.Biomes
                 weights[biome] = Mathf.Max(weights[biome], weight);
             }
 
-            foreach (float weight in weights)
+            var isLayer = new bool[biomeCount];
+            foreach (BiomeSite site in sites)
             {
-                total += weight;
+                isLayer[site.Biome] = site.IsLayer;
+            }
+
+            for (int i = 0; i < biomeCount; i++)
+            {
+                if (!isLayer[i])
+                {
+                    total += weights[i];
+                }
             }
 
             if (total <= 0)
@@ -133,7 +160,10 @@ namespace Core.TerrainGenerator.Biomes
 
             for (int i = 0; i < biomeCount; i++)
             {
-                weights[i] /= total;
+                if (!isLayer[i])
+                {
+                    weights[i] /= total;
+                }
             }
         }
 
@@ -155,7 +185,7 @@ namespace Core.TerrainGenerator.Biomes
                 bool weighted = true;
                 for (int c = 0; c < sites.Count && weighted; c++)
                 {
-                    if (sites[c].Biome == sites[a].Biome)
+                    if (!Competes(sites[a], sites[c]))
                     {
                         continue;
                     }
@@ -176,7 +206,7 @@ namespace Core.TerrainGenerator.Biomes
 
                 for (int a = 0; a < sites.Count; a++)
                 {
-                    if (!weightedCache[a] || sites[a].Biome == sites[c].Biome)
+                    if (!weightedCache[a] || !Competes(sites[a], sites[c]))
                     {
                         continue;
                     }
@@ -215,7 +245,7 @@ namespace Core.TerrainGenerator.Biomes
 
             for (int c = 0; c < sites.Count && polygon.Count > 0; c++)
             {
-                if (sites[c].Biome != sites[site].Biome)
+                if (Competes(sites[site], sites[c]))
                 {
                     Clip(polygon, sites[site], sites[c], offset);
                 }
