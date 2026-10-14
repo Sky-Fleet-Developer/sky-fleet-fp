@@ -15,9 +15,19 @@ namespace Core.TerrainGenerator.Settings
         [Tooltip("Height-based blending: height difference (0..1 of the height maps) over which surfaces mix. " +
                  "Smaller is sharper")]
         [SerializeField, Range(0.001f, 1)] private float blendDepth = 0.2f;
+        [Tooltip("Hides the tiling of the surface textures: every repetition is offset and rotated at random and " +
+                 "neighbouring repetitions are blended. Takes three times the texture samples")]
+        [SerializeField] private bool stochasticTiling = true;
+        [Tooltip("How much the height maps decide the blend between repetitions: higher parts cover lower ones")]
+        [SerializeField, Range(0, 1)] private float stochasticContrast = 0.6f;
+        [Tooltip("Largest random rotation of a repetition, in turns. 0 only offsets them")]
+        [SerializeField, Range(0, 1)] private float stochasticRotation = 1;
 
         public IReadOnlyList<SurfaceType> Surfaces => surfaces;
         public int TextureResolution => textureResolution;
         public float BlendDepth => blendDepth;
+        public bool StochasticTiling => stochasticTiling;
+        public float StochasticContrast => stochasticContrast;
+        public float StochasticRotation => stochasticRotation;
     }
 }

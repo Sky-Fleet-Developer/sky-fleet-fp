@@ -72,8 +72,8 @@ MonoBehaviour:
   alphamapSettings:
     layersCount: 3
     normalizeAlphamap: 0
-    heightBlendRange: 50
-    heightBlendSoftness: 0.2
+    heightBlendRange: 250
+    heightBlendSoftness: 0.9
     splatmapFormats:
     - format: 10x10-8x8Ch_1_{x}-{y}
       extension: png
@@ -83,7 +83,15 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
     - {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
     textureResolution: 1024
-    blendDepth: 0.2
+    blendDepth: 0.1
+    stochasticTiling: 1
+    stochasticContrast: 0.6
+    stochasticRotation: 1
+  biomeEdgeNoise:
+    amplitude: 1500
+    wavelength: 3000
+    octaves: 3
+    seed: 0
   lodConfig:
     LodDistances:
     - 3000

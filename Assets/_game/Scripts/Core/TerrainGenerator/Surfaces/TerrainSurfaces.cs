@@ -28,11 +28,12 @@ namespace Core.TerrainGenerator.Surfaces
         [StructLayout(LayoutKind.Sequential)]
         private struct SurfaceData
         {
-            public const int Stride = sizeof(float) * 3;
+            public const int Stride = sizeof(float) * 5;
 
             public float Metallic;
             public float Smoothness;
             public float TileSize;
+            public Vector2 HeightRemap;
         }
 
         private static readonly int AlbedoProperty = Shader.PropertyToID("terrain_surface_albedo");
@@ -41,6 +42,9 @@ namespace Core.TerrainGenerator.Surfaces
         private static readonly int SurfacesProperty = Shader.PropertyToID("terrain_surfaces");
         private static readonly int CountProperty = Shader.PropertyToID("terrain_surface_count");
         private static readonly int BlendDepthProperty = Shader.PropertyToID("terrain_surface_blend_depth");
+        private static readonly int StochasticProperty = Shader.PropertyToID("terrain_surface_stochastic");
+        private static readonly int StochasticContrastProperty = Shader.PropertyToID("terrain_surface_stochastic_contrast");
+        private static readonly int StochasticRotationProperty = Shader.PropertyToID("terrain_surface_stochastic_rotation");
 
         private readonly List<SurfaceType> _surfaces = new ();
         private readonly List<SurfaceType> _collected = new ();
@@ -164,6 +168,9 @@ namespace Core.TerrainGenerator.Surfaces
             material.SetBuffer(SurfacesProperty, _buffer);
             material.SetFloat(CountProperty, _surfaces.Count);
             material.SetFloat(BlendDepthProperty, settings?.BlendDepth ?? 0.2f);
+            material.SetFloat(StochasticProperty, settings?.StochasticTiling ?? false ? 1f : 0f);
+            material.SetFloat(StochasticContrastProperty, settings?.StochasticContrast ?? 0.6f);
+            material.SetFloat(StochasticRotationProperty, settings?.StochasticRotation ?? 1f);
         }
 
         private void OnSurfaceChanged()
@@ -195,6 +202,7 @@ namespace Core.TerrainGenerator.Surfaces
                     Metallic = surface ? surface.Metallic : 0,
                     Smoothness = surface ? 1 - surface.Roughness : 0.3f,
                     TileSize = surface ? surface.TileSize : 4,
+                    HeightRemap = surface ? surface.HeightRemap : new Vector2(0, 1),
                 });
             }
 
