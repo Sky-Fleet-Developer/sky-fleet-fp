@@ -11,5 +11,7 @@ namespace Core.TerrainGenerator
         Heightmap = 2,
         /// <summary>Texture array slot used by each chunk, with the chunk uv inside it.</summary>
         Uv = 3,
+        /// <summary>Patch size of the quadtree LOD per cell, patch borders outlined.</summary>
+        Lod = 4,
     }
 }

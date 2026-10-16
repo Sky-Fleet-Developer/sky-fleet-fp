@@ -15,7 +15,7 @@ MonoBehaviour:
   albedo: {fileID: 2800000, guid: de7714bb44ad4f540a86aefc2ffa965e, type: 3}
   normal: {fileID: 2800000, guid: b333918dccbdc0044b418f217a995523, type: 3}
   height: {fileID: 2800000, guid: de7714bb44ad4f540a86aefc2ffa965e, type: 3}
-  heightRemap: {x: 0.2015504, y: 1}
-  metallic: 0
-  roughness: 0.7
-  tileSize: 8
+  heightRemap: {x: 0, y: 1}
+  metallic: 0.1
+  roughness: 0.579
+  tileSize: 15

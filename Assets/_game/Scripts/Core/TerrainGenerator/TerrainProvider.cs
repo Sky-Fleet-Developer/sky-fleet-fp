@@ -101,6 +101,7 @@ namespace Core.TerrainGenerator
         private bool _heightmapDirty;
         private bool _biomesDirty;
         private TerrainQuadTree _quadTree;
+        private readonly PatchLodMap _lodMap = new ();
         
         public TerrainData GetHeightmapData()
         {
@@ -526,6 +527,10 @@ namespace Core.TerrainGenerator
             Vector2Int chunksMax = Vector2Int.CeilToInt((Vector2)max * cellsToChunks);
             RectInt chunksRange = new RectInt(chunksMin, chunksMax - chunksMin);
 
+            // Patches find the LOD of their neighbours in it, to stitch their edges
+            _lodMap.Bake(_leaves);
+            _lodMap.Bind(Settings.Material);
+
             _visibleChunks.Clear();
             foreach (var cell in chunksRange.EnumerateYFirst())
             {
@@ -556,6 +561,7 @@ namespace Core.TerrainGenerator
         private static readonly int TerrainHeightViewRange = Shader.PropertyToID("terrain_height_view_range");
         private static readonly int TerrainSlotTexture = Shader.PropertyToID("terrain_slot_texture");
         private static readonly int TerrainMapOrigin = Shader.PropertyToID("terrain_map_origin");
+        private static readonly int TerrainPatchResolution = Shader.PropertyToID("terrain_patch_resolution");
         
         private void BindMaterialParams()
         {
@@ -566,6 +572,8 @@ namespace Core.TerrainGenerator
             Settings.Material.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2); // 2 pix for border
             Settings.Material.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
             Settings.Material.SetFloat(HeightmapSharedEdges, _settings.heightmapSettings.sharedEdgePixels ? 1f : 0f);
+            Settings.Material.SetFloat(TerrainPatchResolution, _settings.ChunkMeshResolution);
+            _lodMap.Bind(Settings.Material);
             RefreshSurfaces();
             ApplyViewMode();
         }
@@ -925,6 +933,7 @@ namespace Core.TerrainGenerator
                 _terrainData.Dispose();
             }
             _biomeDebugBaker?.Dispose();
+            _lodMap.Dispose();
             if (_surfaces != null)
             {
                 _surfaces.Changed -= OnSurfaceTypeChanged;

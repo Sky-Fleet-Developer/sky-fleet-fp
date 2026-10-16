@@ -1,6 +1,7 @@
 #include "Heightmap.hlsl"
 #include "SampleMapUtility.hlsl"
 #include "TerrainView.hlsl"
+#include "TerrainLodMap.hlsl"
 
 float2 hash_p(float2 p) { 
     p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3))); 
@@ -138,7 +139,8 @@ float HeightmapPixelSize()
     return 1.0 / (position_to_chunk_matrix.x * pixels_per_chunk);
 }
 
-void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float3 normal, out float3 debug_color)
+// Normalized height and the normal of the heightmap at a point
+void SampleHeightAndNormal(float3 world_position, out float height, out float3 normal)
 {
     SampleHeightmap(world_position, height);
 
@@ -158,11 +160,32 @@ void SampleHeightmapWithGradient_float(float3 world_position, out float height, 
 
     // Erosion and other heightmap filters are already baked into source_heightmap
     float2 gradient = float2(-dfdx, -dfdz);
-    debug_color = SampleViewModeColor(world_position, height);
 
     // Normalized height 1.0 equals height_scale meters
     float2 world_slope = gradient * (height_scale / (2.0 * step));
     normal = normalize(float3(world_slope.x, 1.0, world_slope.y));
+}
 
+// Vertex height and normal of the terrain patches. On a border with a coarser patch the vertex takes the height and
+// normal the coarser patch interpolates there, so the border has neither cracks nor a lighting seam
+void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float3 normal, out float3 debug_color)
+{
+    float2 offset_a, offset_b;
+    float t;
+    if (TerrainStitch(TerrainSpacePosition(world_position), offset_a, offset_b, t))
+    {
+        float height_a, height_b;
+        float3 normal_a, normal_b;
+        SampleHeightAndNormal(world_position + float3(offset_a.x, 0, offset_a.y), height_a, normal_a);
+        SampleHeightAndNormal(world_position + float3(offset_b.x, 0, offset_b.y), height_b, normal_b);
+        height = lerp(height_a, height_b, t);
+        normal = normalize(lerp(normal_a, normal_b, t));
+    }
+    else
+    {
+        SampleHeightAndNormal(world_position, height, normal);
+    }
+
+    debug_color = SampleViewModeColor(world_position, height);
     height *= height_scale;
 }

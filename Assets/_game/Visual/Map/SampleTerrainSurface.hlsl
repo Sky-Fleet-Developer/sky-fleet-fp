@@ -5,6 +5,7 @@
 #include "Heightmap.hlsl"
 #include "SampleMapUtility.hlsl"
 #include "TerrainView.hlsl"
+#include "TerrainLodMap.hlsl"
 #include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/SurfaceAlphamap.hlsl"
 
 // Surface types of the terrain, bound by TerrainProvider (Core.TerrainGenerator.Surfaces.TerrainSurfaces).
@@ -26,7 +27,6 @@ Texture2DArray<float> terrain_surface_height;
 SamplerState terrain_surface_trilinear_repeat_aniso8_sampler;
 float terrain_surface_count;
 float terrain_surface_blend_depth; // height-based blending: height difference over which surfaces mix
-float2 terrain_map_origin; // terrain space meters of the map corner, so textures stay put when the world origin moves
 // Stochastic tiling (Heitz & Neyret 2018, Mikkelsen 2022 "hex-tiling"): every texture repetition is offset and rotated
 // at random over a triangle grid, and the three tiles around a pixel are blended, so the tiling doesn't show
 float terrain_surface_stochastic;          // 1 on, 0 plain tiling
@@ -88,7 +88,20 @@ void TerrainSurfaceTileTransform(int2 vertex, int id, out float2 cos_sin, out fl
 void SampleTerrainSurfaceStochastic(int id, float2 uv, float2 gx, float2 gy, out float3 albedo, out float3 normal, out float height)
 {
     // Triangle grid: cells of about a third of a texture repetition (2 * sqrt(3) per repetition)
-    float2 grid = uv * 3.46410162;
+    const float cells_per_repetition = 3.46410162;
+    float2 grid = uv * cells_per_repetition;
+
+    // Prefiltering of the tile pattern itself. The mips filter each tile, but not the choice between tiles: once a grid
+    // cell shrinks to a few pixels, neighbouring pixels land in different random tiles and the sharp blend between
+    // them, and that aliases into noise. A pixel covering several cells sees the average of several random patches,
+    // which is smoother than one patch of the pixel's size, so the footprint is widened to match (per axis, to keep
+    // the anisotropic filtering), and the blend is softened to plain barycentric weights before that point.
+    float2 footprint = float2(length(gx), length(gy)) * cells_per_repetition; // grid cells per pixel along ddx, ddy
+    float coarse = smoothstep(0.1, 0.5, max(footprint.x, footprint.y));
+    float2 widen = max(1, footprint * 2);
+    gx *= widen.x;
+    gy *= widen.y;
+
     float2 skewed = float2(grid.x - 0.57735027 * grid.y, 1.15470054 * grid.y);
     int2 base = (int2)floor(skewed);
     float2 f = skewed - base;
@@ -112,9 +125,10 @@ void SampleTerrainSurfaceStochastic(int id, float2 uv, float2 gx, float2 gy, out
         heights[i] = tile_height;
     }
 
-    // Higher parts of a tile cover lower parts of its neighbours, then a sharp falloff keeps the tiles crisp
-    weights *= lerp(1, heights + 0.05, terrain_surface_stochastic_contrast);
-    weights = pow(max(weights, 0), 7);
+    // Higher parts of a tile cover lower parts of its neighbours, then a sharp falloff keeps the tiles crisp.
+    // Both fade out with distance, where they would only alias
+    weights *= lerp(1, heights + 0.05, terrain_surface_stochastic_contrast * (1 - coarse));
+    weights = pow(max(weights, 0), lerp(7, 1, coarse));
     weights /= max(weights.x + weights.y + weights.z, 1e-6);
 
     albedo = albedos[0] * weights.x + albedos[1] * weights.y + albedos[2] * weights.z;
@@ -143,7 +157,7 @@ void SampleTerrainSurface_float(float3 world_position, float3 normal_ws, float3 
     float3 debug_color, out float3 base_color, out float3 normal_ts, out float metallic, out float smoothness)
 {
     // Derivatives before any branch
-    float2 terrain_xz = world_position.xz - position_to_chunk_matrix.zw + terrain_map_origin;
+    float2 terrain_xz = TerrainSpacePosition(world_position);
     float2 terrain_ddx = ddx(terrain_xz);
     float2 terrain_ddy = ddy(terrain_xz);
 
@@ -151,6 +165,11 @@ void SampleTerrainSurface_float(float3 world_position, float3 normal_ws, float3 
     normal_ts = float3(0, 0, 1);
     metallic = 0;
     smoothness = 0.3;
+    if (TerrainViewMode() == 4)
+    {
+        base_color = TerrainLodViewColor(terrain_xz);
+        return;
+    }
     if (TerrainViewMode() != 0 || terrain_surface_count < 1)
     {
         return;
