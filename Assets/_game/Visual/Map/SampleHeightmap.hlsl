@@ -1,3 +1,7 @@
+// Geomorphing of the patches, toggled by QuadTreeLodConfig.Geomorphing. Read by the shader graph through
+// "Use Pragmas" of the custom function node
+#pragma multi_compile_local_vertex _ TERRAIN_GEOMORPH
+
 #include "Heightmap.hlsl"
 #include "SampleMapUtility.hlsl"
 #include "TerrainView.hlsl"
@@ -166,26 +170,51 @@ void SampleHeightAndNormal(float3 world_position, out float height, out float3 n
     normal = normalize(float3(world_slope.x, 1.0, world_slope.y));
 }
 
-// Vertex height and normal of the terrain patches. On a border with a coarser patch the vertex takes the height and
-// normal the coarser patch interpolates there, so the border has neither cracks nor a lighting seam
-void SampleHeightmapWithGradient_float(float3 world_position, out float height, out float3 normal, out float3 debug_color)
+// Height and normal of the vertex at index (see TerrainVertexIndex) of a patch of patch_size cells. With geomorphing
+// they blend towards the ones the parent patch has there: the vertices off the parent grid lie on its straight edges,
+// between two of its vertices. The triangles of Patch.CreateMesh are split along the (+1, -1) diagonal, so the
+// vertices in the middle of a parent quad lie on that diagonal
+void SamplePatchVertex(int2 index, float patch_size, out float height, out float3 normal)
 {
-    float2 offset_a, offset_b;
-    float t;
-    if (TerrainStitch(TerrainSpacePosition(world_position), offset_a, offset_b, t))
+    SampleHeightAndNormal(TerrainToWorldPosition(TerrainVertexPosition(index)), height, normal);
+#if defined(TERRAIN_GEOMORPH)
+    float morph = TerrainMorph(TerrainVertexPosition(index), patch_size);
+    int step = max((int)patch_size, 1); // between the vertices of the patch
+    int2 odd = int2(FloorDiv(index.x, step), FloorDiv(index.y, step)) & 1;
+    if (morph > 0 && any(odd))
     {
+        int2 offset = odd.x && odd.y ? int2(step, -step) : (odd.x ? int2(step, 0) : int2(0, step));
         float height_a, height_b;
         float3 normal_a, normal_b;
-        SampleHeightAndNormal(world_position + float3(offset_a.x, 0, offset_a.y), height_a, normal_a);
-        SampleHeightAndNormal(world_position + float3(offset_b.x, 0, offset_b.y), height_b, normal_b);
-        height = lerp(height_a, height_b, t);
-        normal = normalize(lerp(normal_a, normal_b, t));
+        SampleHeightAndNormal(TerrainToWorldPosition(TerrainVertexPosition(index + offset)), height_a, normal_a);
+        SampleHeightAndNormal(TerrainToWorldPosition(TerrainVertexPosition(index - offset)), height_b, normal_b);
+        height = lerp(height, (height_a + height_b) * 0.5, morph);
+        normal = normalize(lerp(normal, normalize(normal_a + normal_b), morph));
     }
-    else
-    {
-        SampleHeightAndNormal(world_position, height, normal);
-    }
+#endif
+}
 
-    debug_color = SampleViewModeColor(world_position, height);
+// Vertex of the terrain patches: height, normal and the object space position to draw it at. Everything is computed
+// from the integer vertex index, so a vertex shared by two patches comes out bit-identical from both, and on a border
+// with a coarser patch the vertex collapses onto a vertex of that patch (see TerrainStitch): the patches are watertight.
+// object_position: the mesh vertex, in the space of the patch transform (scaled by the patch size in cells)
+void SampleHeightmapWithGradient_float(float3 world_position, float3 object_position,
+    out float height, out float3 normal, out float3 debug_color, out float3 position_os)
+{
+    int2 index = TerrainVertexIndex(TerrainSpacePosition(world_position));
+    float patch_size;
+    int2 target;
+    TerrainStitch(index, patch_size, target);
+    SamplePatchVertex(target, patch_size, height, normal);
+
+    debug_color = SampleViewModeColor(TerrainToWorldPosition(TerrainVertexPosition(target)), height);
     height *= height_scale;
+
+    // The mesh vertices lie on the same grid in object space, one unit per vertex whatever the patch size: the exact
+    // vertex is restored by rounding, then moved by the collapse, which is a whole number of this patch's vertices.
+    // The mesh is flat at y = 0
+    int own_size = max((int)round(GetObjectToWorldMatrix()._m00), 1);
+    int2 mesh_index = (int2)round(object_position.xz / TerrainVertexStep()) + (target - index) / own_size;
+    float2 mesh_xz = mesh_index * TerrainVertexStep();
+    position_os = float3(mesh_xz.x, height, mesh_xz.y);
 }

@@ -97,4 +97,6 @@ MonoBehaviour:
     - 3000
     - 1000
     - 500
+    Geomorphing: 1
+    MorphRange: 0.3
   heightmapOffset: {x: -0.005, y: -0.005}

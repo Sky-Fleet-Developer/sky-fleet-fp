@@ -102,6 +102,8 @@ namespace Core.TerrainGenerator
         private bool _biomesDirty;
         private TerrainQuadTree _quadTree;
         private readonly PatchLodMap _lodMap = new ();
+        private readonly float[] _morphEnds = new float[8];
+        private Vector2 _lodViewPosition;
         
         public TerrainData GetHeightmapData()
         {
@@ -384,6 +386,8 @@ namespace Core.TerrainGenerator
         {
             _quadTree ??= new TerrainQuadTree(Settings.lodConfig);
             CollectCurrentLeaves();
+            // Geomorphing follows the view continuously, the leaves only change at the merge distances
+            Settings.Material.SetVector(TerrainLodViewPosition, _lodViewPosition);
             if (!HaveLeavesChanged())
             {
                 return;
@@ -420,7 +424,11 @@ namespace Core.TerrainGenerator
         {
             Settings.Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
             float hmPixSize = 1f / _settings.heightmapSettings.chunkSizeMeters;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
-            Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapMin.x * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.x, mapMin.y * _settings.heightmapSettings.chunkSizeMeters - WorldOffset.Offset.z));
+            // Rendered positions are in scene space; terrain space (patches, chunks, biomes) is the local space of this
+            // transform, which the world offset moves along with everything else: terrain = scene - transform.position
+            Vector2 mapCorner = (Vector2)mapMin * _settings.heightmapSettings.chunkSizeMeters;
+            Vector3 origin = transform.position;
+            Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapCorner.x + origin.x, mapCorner.y + origin.z));
             Settings.Material.SetFloat(MapSize, mapSize);
             Settings.Material.SetVector(TerrainMapOrigin, (Vector2)mapMin * _settings.heightmapSettings.chunkSizeMeters);
         }
@@ -562,6 +570,10 @@ namespace Core.TerrainGenerator
         private static readonly int TerrainSlotTexture = Shader.PropertyToID("terrain_slot_texture");
         private static readonly int TerrainMapOrigin = Shader.PropertyToID("terrain_map_origin");
         private static readonly int TerrainPatchResolution = Shader.PropertyToID("terrain_patch_resolution");
+        private static readonly int TerrainMorphEnd = Shader.PropertyToID("terrain_morph_end");
+        private static readonly int TerrainMorphRange = Shader.PropertyToID("terrain_morph_range");
+        private static readonly int TerrainLodViewPosition = Shader.PropertyToID("terrain_lod_view_position");
+        private const string GeomorphKeyword = "TERRAIN_GEOMORPH";
         
         private void BindMaterialParams()
         {
@@ -574,8 +586,23 @@ namespace Core.TerrainGenerator
             Settings.Material.SetFloat(HeightmapSharedEdges, _settings.heightmapSettings.sharedEdgePixels ? 1f : 0f);
             Settings.Material.SetFloat(TerrainPatchResolution, _settings.ChunkMeshResolution);
             _lodMap.Bind(Settings.Material);
+            BindGeomorphing();
             RefreshSurfaces();
             ApplyViewMode();
+        }
+
+        private void BindGeomorphing()
+        {
+            Material material = Settings.Material;
+            QuadTreeLodConfig config = _settings.lodConfig;
+            material.SetKeyword(new UnityEngine.Rendering.LocalKeyword(material.shader, GeomorphKeyword), config.Geomorphing);
+            // By log2 of the patch size. Finite, so the shader never gets infinity - infinity
+            for (int i = 0; i < _morphEnds.Length; i++)
+            {
+                _morphEnds[i] = Mathf.Min(config.MergeDistance(1 << i), 1e30f);
+            }
+            material.SetFloatArray(TerrainMorphEnd, _morphEnds);
+            material.SetFloat(TerrainMorphRange, config.MorphRange);
         }
 
         // Surface types of the settings and the biomes; alphamaps written with outdated ids are composed again
@@ -728,10 +755,11 @@ namespace Core.TerrainGenerator
             _leavesSet.Clear();
             Vector3 pos = GetViewPosition();
             var flatPos = new Vector2(pos.x, pos.z);
+            _lodViewPosition = flatPos;
             _tree ??= new List<QuadTreeNode>();
-            foreach (var root in _quadTree.GetRelevantRoots(flatPos, Settings.ChunkMeshSize, 8))
+            foreach (var root in _quadTree.GetRelevantRoots(flatPos, Settings.ChunkMeshSize, QuadTreeLodConfig.RootSizeInCells))
             {
-                _quadTree.Build(root, 8, flatPos, Settings.ChunkMeshSize, _tree);
+                _quadTree.Build(root, QuadTreeLodConfig.RootSizeInCells, flatPos, Settings.ChunkMeshSize, _tree);
                 foreach (QuadTreeNode node in _tree)
                 {
                     var rect = new RectInt(node.CellMin, node.CellMax - node.CellMin);
@@ -884,16 +912,18 @@ namespace Core.TerrainGenerator
                 return;
             }
 
-            Vector3 pos = _playerTracker.SpacePosition;
-            var flatPos = new Vector2(pos.x, pos.z);
-            var roots = _quadTree.GetRelevantRoots(flatPos, Settings.ChunkMeshSize, 8);
+            // The tree as it was last built, drawn in terrain space
+            Vector2 flatPos = _lodViewPosition;
+            Matrix4x4 defaultMatrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.Translate(transform.position);
+            var roots = _quadTree.GetRelevantRoots(flatPos, Settings.ChunkMeshSize, QuadTreeLodConfig.RootSizeInCells);
             _tree ??= new List<QuadTreeNode>();
             foreach (Vector2Int root in roots)
             {
                 Vector3 p = new Vector3(root.x * Settings.ChunkMeshSize, 0, root.y * Settings.ChunkMeshSize);
                 Gizmos.color = new Color(.7f, .5f, .9f, 1); 
                 Gizmos.DrawSphere(p, Mathf.Min(UnityEditor.HandleUtility.GetHandleSize(p) * 0.5f, 200));
-                _quadTree.Build(root, 8, flatPos, Settings.ChunkMeshSize, _tree);
+                _quadTree.Build(root, QuadTreeLodConfig.RootSizeInCells, flatPos, Settings.ChunkMeshSize, _tree);
                 foreach (QuadTreeNode node in _tree)
                 {
                     Vector3 min = new Vector3(node.CellMin.x * Settings.ChunkMeshSize, 0, node.CellMin.y * Settings.ChunkMeshSize);
@@ -905,6 +935,7 @@ namespace Core.TerrainGenerator
                     Gizmos.DrawWireCube(center, size);
                 }
             }
+            Gizmos.matrix = defaultMatrix;
         }
 
         private void DrawBoundsForProps(IEnumerable<Vector2Int> props)

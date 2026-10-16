@@ -25,49 +25,84 @@ float TerrainPatchSize(int2 cell)
     return terrain_lod_map.Load(int3(texel, 0));
 }
 
-// A vertex on the border between patches of different sizes must lie on the straight segment the coarser patch draws
-// between its own two vertices there, or the border cracks. Returns false when the vertex needs nothing; otherwise
-// the terrain space offsets from the vertex to those two coarse vertices and the blend between them.
-// Only the finer side moves: the vertices of the coarser one lie on its own grid, where the blend is 0.
-// Cell corners are skipped, they lie on the grid of every patch while the resolution is a multiple of the patch sizes
-bool TerrainStitch(float2 terrain_xz, out float2 offset_a, out float2 offset_b, out float t)
+int FloorDiv(int a, int b) // b > 0
 {
-    offset_a = 0;
-    offset_b = 0;
-    t = 0;
+    return (a < 0 ? a - b + 1 : a) / b;
+}
 
-    float2 cells = terrain_xz / width_scale;
-    // Closer than a quarter of the finest vertex step to a cell border
-    bool2 on_border = abs(cells - round(cells)) * terrain_patch_resolution < 0.25;
+// The vertex grid of the patches of one cell, the finest one. The vertices of every patch lie on it, so a vertex is
+// addressed by its integer index there: the same whichever patch draws it, free of the rounding of each patch transform.
+// One unit = width_scale / terrain_patch_resolution meters; the vertices of a patch of S cells are S units apart
+float TerrainVertexStep()
+{
+    return width_scale / terrain_patch_resolution;
+}
+
+int2 TerrainVertexIndex(float2 terrain_xz)
+{
+    return (int2)round(terrain_xz / TerrainVertexStep());
+}
+
+float2 TerrainVertexPosition(int2 index)
+{
+    return index * TerrainVertexStep();
+}
+
+// The patch whose vertex grid a vertex follows (its own, or the coarser one on a border between patches of different
+// sizes) and the vertex it becomes. On such a border the vertices of the finer side collapse onto the nearest vertex
+// of the coarser side, so both sides end in exactly the same vertices: a vertex merely lying on the coarse edge would
+// be a T-junction, which leaves pixel holes after rasterization however exact the math is. The vertices of the
+// coarser side lie on its own grid and stay. Cell corners stay too, they lie on the grid of every patch while the
+// resolution is a multiple of the patch sizes
+void TerrainStitch(int2 index, out float patch_size, out int2 target)
+{
+    target = index;
+    int resolution = (int)terrain_patch_resolution;
+    int2 cell = int2(FloorDiv(index.x, resolution), FloorDiv(index.y, resolution));
+    patch_size = TerrainPatchSize(cell);
+
+    bool2 on_border = index == cell * resolution;
     if (on_border.x == on_border.y)
     {
-        return false;
+        return;
     }
 
     // x: across the border, y: along it
-    float2 local = on_border.x ? cells : cells.yx;
-    int border = (int)round(local.x);
-    int row = (int)floor(local.y);
-    float size_before = TerrainPatchSize(on_border.x ? int2(border - 1, row) : int2(row, border - 1));
-    float size_after = TerrainPatchSize(on_border.x ? int2(border, row) : int2(row, border));
+    int2 local = on_border.x ? index : index.yx;
+    int2 local_cell = on_border.x ? cell : cell.yx;
+    float size_before = TerrainPatchSize(on_border.x ? int2(local_cell.x - 1, local_cell.y) : int2(local_cell.y, local_cell.x - 1));
+    float size_after = TerrainPatchSize(cell);
+    patch_size = max(size_before, size_after);
     // Same LOD on both sides, or the edge of the loaded patches
     if (size_before == size_after || min(size_before, size_after) < 0.5)
     {
-        return false;
+        return;
     }
 
-    float step = max(size_before, size_after) / terrain_patch_resolution; // cells between the coarse vertices
-    float k = local.y / step;
-    t = frac(k);
-    if (t < 1e-3 || t > 1 - 1e-3)
+    int step = (int)patch_size; // between the coarse vertices
+    int below = FloorDiv(local.y, step) * step;
+    int along = (local.y - below) * 2 <= step ? below : below + step;
+    target = on_border.x ? int2(local.x, along) : int2(along, local.x);
+}
+
+// Geomorphing (TERRAIN_GEOMORPH): approaching the distance where a patch merges into its parent, its vertices blend to
+// the heights the parent's coarser grid gives them, so the LOD switch changes nothing on screen.
+// Bound by TerrainProvider from QuadTreeLodConfig
+float terrain_morph_end[8]; // by log2 of the patch size: view distance where the patch merges into its parent
+float terrain_morph_range; // part of that distance over which the vertices blend
+float2 terrain_lod_view_position; // terrain space xz the quadtree is built around
+
+// 0: the heights of the patch itself, 1: the heights of its parent
+float TerrainMorph(float2 terrain_xz, float patch_size)
+{
+    if (patch_size < 0.5)
     {
-        return false;
+        return 0;
     }
 
-    float2 along = on_border.x ? float2(0, 1) : float2(1, 0);
-    offset_a = along * (-t * step * width_scale);
-    offset_b = along * ((1 - t) * step * width_scale);
-    return true;
+    float end = terrain_morph_end[clamp((int)round(log2(patch_size)), 0, 7)];
+    float start = end * (1 - terrain_morph_range);
+    return saturate((distance(terrain_xz, terrain_lod_view_position) - start) / max(end - start, 1e-3));
 }
 
 // Color of the LOD view mode: one color per patch size, patch borders darkened. Pixel shader only (uses fwidth)

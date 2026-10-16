@@ -335,15 +335,29 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "f67571a387bd402a91c54949f286e354"
+                    "m_Id": "29874e01d81246618d0e4a93e5cbde37"
                 },
-                "m_SlotId": 5
+                "m_SlotId": 7
             },
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "2c99aecc7e6b40808039e61e7f9f9dac"
                 },
                 "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "854159899f794ac59954251323f413b6"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "29874e01d81246618d0e4a93e5cbde37"
+                },
+                "m_SlotId": 6
             }
         },
         {
@@ -840,6 +854,12 @@
         },
         {
             "m_Id": "eade540dfc3a4f6b968f918c0c67b5f9"
+        },
+        {
+            "m_Id": "1a3565e8d7774ecca8de826da6afd902"
+        },
+        {
+            "m_Id": "dc226a4388c548019cfd96d4b78dcf0b"
         }
     ],
     "synonyms": [
@@ -856,7 +876,7 @@
     "m_SourceType": 0,
     "m_FunctionName": "SampleHeightmapWithGradient",
     "m_FunctionSource": "d5bbc9e9f98bb0a4eb57414a14ddb043",
-    "m_FunctionSourceUsePragmas": false,
+    "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "Enter function body here..."
 }
 
@@ -3361,6 +3381,52 @@
     "m_StageCapability": 3,
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
+    "m_ObjectId": "1a3565e8d7774ecca8de826da6afd902",
+    "m_Id": 6,
+    "m_DisplayName": "ObjectPosition",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "ObjectPosition",
+    "m_StageCapability": 1,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
+    "m_ObjectId": "dc226a4388c548019cfd96d4b78dcf0b",
+    "m_Id": 7,
+    "m_DisplayName": "PositionOS",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "PositionOS",
+    "m_StageCapability": 1,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
     "m_Labels": []
 }
 

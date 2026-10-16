@@ -16,4 +16,11 @@ float2 TerrainSpacePosition(float3 world_position)
     return world_position.xz - position_to_chunk_matrix.zw + terrain_map_origin;
 }
 
+// Absolute world position (height 0) of a terrain space point, the inverse of TerrainSpacePosition
+float3 TerrainToWorldPosition(float2 terrain_xz)
+{
+    float2 xz = terrain_xz + position_to_chunk_matrix.zw - terrain_map_origin;
+    return float3(xz.x, 0, xz.y);
+}
+
 #endif
