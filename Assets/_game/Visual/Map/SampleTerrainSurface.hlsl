@@ -1,12 +1,9 @@
 #ifndef SAMPLE_TERRAIN_SURFACE
 #define SAMPLE_TERRAIN_SURFACE
 
-#include "Alphamap.hlsl"
-#include "Heightmap.hlsl"
-#include "SampleMapUtility.hlsl"
+#include "TerrainSurfaceWeights.hlsl"
 #include "TerrainView.hlsl"
 #include "TerrainLodMap.hlsl"
-#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/SurfaceAlphamap.hlsl"
 
 // Surface types of the terrain, bound by TerrainProvider (Core.TerrainGenerator.Surfaces.TerrainSurfaces).
 // Layer id of the texture arrays = surface id of the alphamap.
@@ -32,6 +29,13 @@ float terrain_surface_blend_depth; // height-based blending: height difference o
 float terrain_surface_stochastic;          // 1 on, 0 plain tiling
 float terrain_surface_stochastic_contrast; // 0..1: how much the height maps decide the blend between tiles
 float terrain_surface_stochastic_rotation; // 0..1: largest random rotation of a tile, in turns
+
+// Far tint (Core.TerrainGenerator.ITerrainFarTint): detail layers that fade out with distance (grass) hand the terrain
+// their color, which the surfaces blend towards past the end of their range
+StructuredBuffer<float4> terrain_far_tint; // by surface id: rgb color, a amount
+float terrain_far_tint_count; // entries of terrain_far_tint, 0 when there's no tint
+float3 terrain_far_tint_center; // absolute world position the distance is measured from
+float2 terrain_far_tint_range; // distances where the tint starts and is complete
 
 // Surfaces sampled per pixel, the strongest of the alphamap texels around it
 #define TERRAIN_SURFACE_SAMPLES 4
@@ -149,6 +153,34 @@ void SampleTerrainSurfaceTextures(int id, float2 uv, float2 gx, float2 gy, out f
     }
 }
 
+// Color of the LOD view mode: one color per patch size, patch borders darkened. Pixel shader only (uses fwidth)
+float3 TerrainLodViewColor(float2 terrain_xz)
+{
+    static const float3 palette[5] =
+    {
+        float3(0.2, 0.75, 0.3),  // 1 cell
+        float3(0.95, 0.85, 0.2), // 2
+        float3(0.95, 0.5, 0.15), // 4
+        float3(0.85, 0.2, 0.2),  // 8
+        float3(0.55, 0.25, 0.8), // 16 and more
+    };
+
+    float2 cells = terrain_xz / width_scale;
+    float size = TerrainPatchSize((int2)floor(cells));
+    if (size < 0.5)
+    {
+        return float3(0.1, 0.1, 0.1);
+    }
+
+    float3 color = palette[clamp((int)round(log2(size)), 0, 4)];
+    // Patches are aligned to their own size, so the position inside the patch is a fraction
+    float2 patch_uv = cells / size;
+    float2 inside = frac(patch_uv);
+    float2 border_pixels = min(inside, 1 - inside) / max(fwidth(patch_uv), 1e-6);
+    float border = saturate(min(border_pixels.x, border_pixels.y) - 0.5);
+    return color * lerp(0.15, 1, border);
+}
+
 // Terrain surface of a pixel. Surfaces are blended by their height maps: within terrain_surface_blend_depth of the
 // highest (height + weight), the higher surface wins. The surface normal is planar mapped on the terrain (u = +x,
 // v = +z) and returned in the tangent space of the given basis. In the other view modes debug_color is returned.
@@ -175,23 +207,7 @@ void SampleTerrainSurface_float(float3 world_position, float3 normal_ws, float3 
         return;
     }
 
-    // The encoded alphamap can't be filtered: decode the four texels around the pixel and weigh them bilinearly
-    int slot;
-    float2 chunk_uv;
-    WorldPositionToSlot(world_position, chunk_uv, slot);
-    int layer = SlotToMap(slot);
-    float width, height, elements;
-    source_alphamap.GetDimensions(width, height, elements);
-    float2 texel = heightmap_shared_edges > 0.5 ? chunk_uv * (width - 1) : chunk_uv * width - 0.5;
-    float2 cell = floor(texel);
-    float2 f = texel - cell;
-    int2 i0 = clamp((int2)cell, 0, (int)width - 1);
-    int2 i1 = clamp((int2)cell + 1, 0, (int)width - 1);
-    SurfacesBegin();
-    SurfacesAddEncoded(source_alphamap.Load(int4(i0.x, i0.y, layer, 0)), (1 - f.x) * (1 - f.y));
-    SurfacesAddEncoded(source_alphamap.Load(int4(i1.x, i0.y, layer, 0)), f.x * (1 - f.y));
-    SurfacesAddEncoded(source_alphamap.Load(int4(i0.x, i1.y, layer, 0)), (1 - f.x) * f.y);
-    SurfacesAddEncoded(source_alphamap.Load(int4(i1.x, i1.y, layer, 0)), f.x * f.y);
+    CollectTerrainSurfaces(world_position);
     SurfacesSortStrongest(TERRAIN_SURFACE_SAMPLES);
     int samples = min(surface_candidate_count, TERRAIN_SURFACE_SAMPLES);
     if (samples == 0)
@@ -238,6 +254,7 @@ void SampleTerrainSurface_float(float3 world_position, float3 normal_ws, float3 
     float3 color = 0;
     float3 detail_normal = 0;
     float2 surface_sum = 0;
+    float4 far_tint = 0;
     [unroll]
     for (int b = 0; b < TERRAIN_SURFACE_SAMPLES; b++)
     {
@@ -246,9 +263,20 @@ void SampleTerrainSurface_float(float3 world_position, float3 normal_ws, float3 
         color += albedo[b] * blend;
         detail_normal += detail[b] * blend;
         surface_sum += surface[b] * blend;
+        int tint_id = surface_candidate_id[b];
+        if (b < samples && tint_id < terrain_far_tint_count)
+        {
+            far_tint += terrain_far_tint[tint_id] * blend;
+        }
     }
 
     base_color = color / blend_total;
+    if (terrain_far_tint_count > 0)
+    {
+        far_tint /= blend_total;
+        float far = smoothstep(terrain_far_tint_range.x, terrain_far_tint_range.y, distance(world_position, terrain_far_tint_center));
+        base_color = lerp(base_color, far_tint.rgb, saturate(far_tint.a * far));
+    }
     metallic = surface_sum.x / blend_total;
     smoothness = surface_sum.y / blend_total;
 

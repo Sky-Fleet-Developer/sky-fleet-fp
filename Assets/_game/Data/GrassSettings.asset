@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 031b80b1cd354c8f8e5668fb8e55151a, type: 3}
+  m_Name: GrassSettings
+  m_EditorClassIdentifier: 
+  range: 500
+  fade: 0.15
+  fullDensityDistance: 15
+  maxWidening: 4
+  detailedMeshDistance: 25
+  detailedSegments: 4
+  tileSize: 8
+  maxDetailedBlades: 100000
+  maxBlades: 300000
+  terrainOcclusion: 1
+  occlusionSteps: 16
+  rootDarkening: 0.5
+  smoothness: 0.2
+  terrainNormal: 0.7
+  windDirection: 45
+  windStrength: 0.3
+  windWaveLength: 20
+  windSpeed: 6
+  windGustiness: 0.6
+  windFlutter: 0.3
+  layers:
+  - surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+    density: 40
+    height: {x: 0.25, y: 0.6}
+    width: 0.04
+    bend: 0.3
+    rootColor: {r: 0.16, g: 0.24, b: 0.06, a: 1}
+    tipColor: {r: 0.45, g: 0.55, b: 0.18, a: 1}
+    colorVariation: 0.15
+    farTint: 0.7

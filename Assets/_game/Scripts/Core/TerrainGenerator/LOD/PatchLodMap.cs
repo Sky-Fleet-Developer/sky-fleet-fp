@@ -70,6 +70,17 @@ namespace Core.TerrainGenerator.LOD
             material.SetVector(LodMapRectProperty, new Vector4(_rect.xMin, _rect.yMin, _rect.width, _rect.height));
         }
 
+        public void Bind(ComputeShader shader, int kernel)
+        {
+            if (!_texture)
+            {
+                return;
+            }
+
+            shader.SetTexture(kernel, LodMapProperty, _texture);
+            shader.SetVector(LodMapRectProperty, new Vector4(_rect.xMin, _rect.yMin, _rect.width, _rect.height));
+        }
+
         private void EnsureTexture(int width, int height)
         {
             if (_texture && _texture.width == width && _texture.height == height)

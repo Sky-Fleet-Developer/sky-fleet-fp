@@ -105,32 +105,4 @@ float TerrainMorph(float2 terrain_xz, float patch_size)
     return saturate((distance(terrain_xz, terrain_lod_view_position) - start) / max(end - start, 1e-3));
 }
 
-// Color of the LOD view mode: one color per patch size, patch borders darkened. Pixel shader only (uses fwidth)
-float3 TerrainLodViewColor(float2 terrain_xz)
-{
-    static const float3 palette[5] =
-    {
-        float3(0.2, 0.75, 0.3),  // 1 cell
-        float3(0.95, 0.85, 0.2), // 2
-        float3(0.95, 0.5, 0.15), // 4
-        float3(0.85, 0.2, 0.2),  // 8
-        float3(0.55, 0.25, 0.8), // 16 and more
-    };
-
-    float2 cells = terrain_xz / width_scale;
-    float size = TerrainPatchSize((int2)floor(cells));
-    if (size < 0.5)
-    {
-        return float3(0.1, 0.1, 0.1);
-    }
-
-    float3 color = palette[clamp((int)round(log2(size)), 0, 4)];
-    // Patches are aligned to their own size, so the position inside the patch is a fraction
-    float2 patch_uv = cells / size;
-    float2 inside = frac(patch_uv);
-    float2 border_pixels = min(inside, 1 - inside) / max(fwidth(patch_uv), 1e-6);
-    float border = saturate(min(border_pixels.x, border_pixels.y) - 0.5);
-    return color * lerp(0.15, 1, border);
-}
-
 #endif

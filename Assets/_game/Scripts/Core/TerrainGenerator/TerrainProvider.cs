@@ -28,7 +28,8 @@ namespace Core.TerrainGenerator
     /// <summary>
     /// runtime generating terrain chunks by TerrainGenerationSettings
     /// </summary>
-    public class TerrainProvider : MonoBehaviour, ILoadAtStart, IMyInstaller, TerrainProvider.ITerrainProviderHandler, ITickable
+    public class TerrainProvider : MonoBehaviour, ILoadAtStart, IMyInstaller, TerrainProvider.ITerrainProviderHandler, ITickable,
+        ITerrainGpuData, ITerrainFarTint
     {
         public interface ITerrainProviderHandler
         {
@@ -103,6 +104,16 @@ namespace Core.TerrainGenerator
         private TerrainQuadTree _quadTree;
         private readonly PatchLodMap _lodMap = new ();
         private readonly float[] _morphEnds = new float[8];
+        // The same for compute shaders, where every array element takes a float4
+        private readonly float[] _morphEndsPadded = new float[8 * 4];
+        private ComputeBuffer _mapBuffer;
+        private Vector4 _positionToChunk;
+        private Vector2 _mapCorner;
+        private int _mapSize;
+        private GraphicsBuffer _farTint;
+        private GraphicsBuffer _noFarTint;
+        private Vector3 _farTintCenter;
+        private Vector2 _farTintRange;
         private Vector2 _lodViewPosition;
         
         public TerrainData GetHeightmapData()
@@ -422,15 +433,95 @@ namespace Core.TerrainGenerator
         /// </summary>
         private void BindMapToMaterial()
         {
-            Settings.Material.SetBuffer(Map, _terrainData.GetMapBuffer(out Vector2Int mapMin, out int mapSize));
+            // Kept for ITerrainGpuData: compute users get the map the material has, without flushing it themselves
+            _mapBuffer = _terrainData.GetMapBuffer(out Vector2Int mapMin, out _mapSize);
+            Settings.Material.SetBuffer(Map, _mapBuffer);
             float hmPixSize = 1f / _settings.heightmapSettings.chunkSizeMeters;//((_settings.HeightmapResolution + 2) * _settings.MaxLoadedChunksByOneSide);
             // Rendered positions are in scene space; terrain space (patches, chunks, biomes) is the local space of this
             // transform, which the world offset moves along with everything else: terrain = scene - transform.position
-            Vector2 mapCorner = (Vector2)mapMin * _settings.heightmapSettings.chunkSizeMeters;
+            _mapCorner = (Vector2)mapMin * _settings.heightmapSettings.chunkSizeMeters;
             Vector3 origin = transform.position;
-            Settings.Material.SetVector(PositionToChunkMatrix, new Vector4(hmPixSize, hmPixSize, mapCorner.x + origin.x, mapCorner.y + origin.z));
-            Settings.Material.SetFloat(MapSize, mapSize);
-            Settings.Material.SetVector(TerrainMapOrigin, (Vector2)mapMin * _settings.heightmapSettings.chunkSizeMeters);
+            _positionToChunk = new Vector4(hmPixSize, hmPixSize, _mapCorner.x + origin.x, _mapCorner.y + origin.z);
+            Settings.Material.SetVector(PositionToChunkMatrix, _positionToChunk);
+            Settings.Material.SetFloat(MapSize, _mapSize);
+            Settings.Material.SetVector(TerrainMapOrigin, _mapCorner);
+        }
+
+        public bool IsReady => _terrainData != null && _terrainData.HeightmapTex && _terrainData.AlphamapTex &&
+                               _mapBuffer != null && _lodMap.Texture;
+
+        public IReadOnlyList<SurfaceType> Surfaces => _surfaces != null ? _surfaces.Surfaces : Array.Empty<SurfaceType>();
+
+        public event Action SurfacesChanged;
+
+        public void Bind(ComputeShader shader, int kernel)
+        {
+            if (!IsReady)
+            {
+                return;
+            }
+
+            shader.SetTexture(kernel, SourceHeightmap, _terrainData.HeightmapTex);
+            shader.SetTexture(kernel, SourceAlphamap, _terrainData.AlphamapTex);
+            shader.SetBuffer(kernel, Map, _mapBuffer);
+            shader.SetInt(MapSize, _mapSize);
+            shader.SetVector(PositionToChunkMatrix, _positionToChunk);
+            shader.SetVector(TerrainMapOrigin, _mapCorner);
+            shader.SetFloat(HeightScale, _settings.Height);
+            shader.SetFloat(WidthScale, _settings.ChunkMeshSize);
+            shader.SetFloat(SlotsCountInv, 1f / _settings.MaxLoadedChunksByOneSide);
+            shader.SetFloat(HeightmapChunkResolution, _settings.HeightmapResolution + 2);
+            shader.SetFloat(PixelSizeUVSpace, 1f / (_settings.HeightmapResolution + 2));
+            shader.SetFloat(HeightmapSharedEdges, _settings.heightmapSettings.sharedEdgePixels ? 1f : 0f);
+            shader.SetVector(TerrainOrigin, transform.position);
+
+            _lodMap.Bind(shader, kernel);
+            shader.SetFloat(TerrainPatchResolution, _settings.ChunkMeshResolution);
+            QuadTreeLodConfig config = _settings.lodConfig;
+            shader.SetKeyword(new UnityEngine.Rendering.LocalKeyword(shader, GeomorphKeyword), config.Geomorphing);
+            for (int i = 0; i < _morphEnds.Length; i++)
+            {
+                _morphEndsPadded[i * 4] = Mathf.Min(config.MergeDistance(1 << i), 1e30f);
+            }
+            shader.SetFloats(TerrainMorphEnd, _morphEndsPadded);
+            shader.SetFloat(TerrainMorphRange, config.MorphRange);
+            shader.SetVector(TerrainLodViewPosition, _lodViewPosition);
+        }
+
+        public void SetFarTint(GraphicsBuffer perSurface, Vector3 center, Vector2 range)
+        {
+            _farTint = perSurface;
+            _farTintCenter = center;
+            _farTintRange = range;
+            ApplyFarTint();
+        }
+
+        public void ClearFarTint()
+        {
+            _farTint = null;
+            ApplyFarTint();
+        }
+
+        private void ApplyFarTint()
+        {
+            if (!_settings || !Settings.Material)
+            {
+                return;
+            }
+
+            // Every buffer the shader reads must be bound, so no tint has a buffer too
+            bool hasTint = _farTint != null && _farTint.IsValid();
+            if (!hasTint && _noFarTint == null)
+            {
+                _noFarTint = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 4);
+                _noFarTint.SetData(new[] { Vector4.zero });
+            }
+
+            Material material = Settings.Material;
+            material.SetBuffer(TerrainFarTint, hasTint ? _farTint : _noFarTint);
+            material.SetFloat(TerrainFarTintCount, hasTint ? _farTint.count : 0);
+            material.SetVector(TerrainFarTintCenter, _farTintCenter);
+            material.SetVector(TerrainFarTintRange, _farTintRange);
         }
 
         public bool Enabled => gameObject.activeInHierarchy && enabled;
@@ -573,6 +664,11 @@ namespace Core.TerrainGenerator
         private static readonly int TerrainMorphEnd = Shader.PropertyToID("terrain_morph_end");
         private static readonly int TerrainMorphRange = Shader.PropertyToID("terrain_morph_range");
         private static readonly int TerrainLodViewPosition = Shader.PropertyToID("terrain_lod_view_position");
+        private static readonly int TerrainOrigin = Shader.PropertyToID("terrain_origin");
+        private static readonly int TerrainFarTint = Shader.PropertyToID("terrain_far_tint");
+        private static readonly int TerrainFarTintCount = Shader.PropertyToID("terrain_far_tint_count");
+        private static readonly int TerrainFarTintCenter = Shader.PropertyToID("terrain_far_tint_center");
+        private static readonly int TerrainFarTintRange = Shader.PropertyToID("terrain_far_tint_range");
         private const string GeomorphKeyword = "TERRAIN_GEOMORPH";
         
         private void BindMaterialParams()
@@ -587,6 +683,7 @@ namespace Core.TerrainGenerator
             Settings.Material.SetFloat(TerrainPatchResolution, _settings.ChunkMeshResolution);
             _lodMap.Bind(Settings.Material);
             BindGeomorphing();
+            ApplyFarTint();
             RefreshSurfaces();
             ApplyViewMode();
         }
@@ -615,6 +712,7 @@ namespace Core.TerrainGenerator
 
             if (_surfaces.Collect(_settings.surfaceSettings, CurrentBiomes))
             {
+                SurfacesChanged?.Invoke();
                 _composer?.Invalidate();
                 ScheduleBake();
             }
@@ -964,6 +1062,8 @@ namespace Core.TerrainGenerator
                 _terrainData.Dispose();
             }
             _biomeDebugBaker?.Dispose();
+            _noFarTint?.Dispose();
+            _noFarTint = null;
             _lodMap.Dispose();
             if (_surfaces != null)
             {
@@ -999,6 +1099,8 @@ namespace Core.TerrainGenerator
         {
             //container.BindInstance(this);
             container.Bind<ITerrainProviderHandler>().FromInstance(this);
+            container.Bind<ITerrainGpuData>().FromInstance(this);
+            container.Bind<ITerrainFarTint>().FromInstance(this);
         }
 
         public bool IsDeformersClear()

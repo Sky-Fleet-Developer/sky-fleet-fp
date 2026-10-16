@@ -3891,6 +3891,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 708548471}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &723269118
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 723269119}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &723269119
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 723269118}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &740464862
 GameObject:
   m_ObjectHideFlags: 0
@@ -4890,6 +4921,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 954079859}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &972297350
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 972297351}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &972297351
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972297350}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &976190860
 GameObject:
   m_ObjectHideFlags: 0
@@ -6041,6 +6103,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1174316335}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1213506550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1213506551}
+  - component: {fileID: 1213506552}
+  m_Layer: 0
+  m_Name: GrassRenderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1213506551
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213506550}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1517862727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1213506552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213506550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ce386b8885e127409a9a7ddcf385c27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Grass.GrassRenderer
+  settings: {fileID: 11400000, guid: c239a2ef15c14ad096fe0441313a3ada, type: 2}
+  placement: {fileID: 7200000, guid: 6f84699afa9e5024c8b0dee33e9334c8, type: 3}
+  bladeShader: {fileID: -6465566751694194690, guid: c451e52679e8c9345a48e72ba12f3495, type: 3}
+  drawGrass: 1
 --- !u!1 &1226703979
 GameObject:
   m_ObjectHideFlags: 0
@@ -7628,6 +7738,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1490493607}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1517862727 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+  m_PrefabInstance: {fileID: 4494832323326198457}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1518571401
 GameObject:
   m_ObjectHideFlags: 0
@@ -11542,6 +11657,18 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: -0.023375738
       objectReference: {fileID: 0}
+    - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -10500
+      objectReference: {fileID: 0}
+    - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -500
+      objectReference: {fileID: 0}
+    - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3000
+      objectReference: {fileID: 0}
     - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.z
       value: -8
@@ -11578,7 +11705,10 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 7648995866182422052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
     - {fileID: 4963882073451471490, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1213506551}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 923984635791824319, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       insertIndex: -1
@@ -11682,3 +11812,5 @@ SceneRoots:
   - {fileID: 618855680}
   - {fileID: 1251779718}
   - {fileID: 1791452257}
+  - {fileID: 723269119}
+  - {fileID: 972297351}

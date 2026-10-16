@@ -1,0 +1,321 @@
+// Grass placement, every frame on the GPU (Runtime.Grass.GrassRenderer):
+//   Reset       clears the counters
+//   CullTiles   one thread per tile around the camera: range, frustum and terrain occlusion; visible tiles are listed
+//   PlaceBlades one group per visible tile: blades on the terrain mesh, by the surface types under them
+//   ClampArgs   turns the blade counts into the index counts of the draws, within the blade buffers
+// Positions: terrain space (TerrainSpacePosition) for the stable placement grid, absolute world for everything drawn.
+
+#pragma kernel Reset
+#pragma kernel CullTiles
+#pragma kernel PlaceBlades
+#pragma kernel ClampArgs
+
+#pragma multi_compile_local _ TERRAIN_GEOMORPH
+
+#include "Assets/_game/Visual/Map/TerrainHeight.hlsl"
+#include "Assets/_game/Visual/Map/TerrainSurfaceWeights.hlsl"
+#include "GrassCommon.hlsl"
+
+// Matches GraphicsBuffer.IndirectDrawIndexedArgs
+struct GrassDrawArgs
+{
+    uint index_count;
+    uint instance_count;
+    uint start_index;
+    uint base_vertex;
+    uint start_instance;
+};
+
+StructuredBuffer<GrassSurface> grass_surfaces; // by surface id
+uint grass_surface_count;
+float grass_max_density; // blades per square meter of the densest surface
+
+float3 grass_camera; // absolute world
+float4 grass_frustum[6]; // planes, inside where dot(xyz, p) + w >= 0
+float grass_range; // meters
+float grass_fade; // part of the range over which the blades fade out
+float grass_full_density_distance;
+float grass_max_widening;
+float grass_detailed_distance; // blades closer use the detailed mesh
+float grass_max_height; // tallest blade, for the tile bounds
+float grass_tile_size;
+int grass_tiles_side;
+float grass_occlusion; // 1: skip tiles behind the terrain
+int grass_occlusion_steps;
+uint2 grass_max_blades; // capacity of the blade buffers: detailed, simple
+uint2 grass_indices_per_blade; // of the blade meshes: detailed, simple
+
+RWStructuredBuffer<uint> grass_dispatch_args; // thread groups of PlaceBlades
+// 0: detailed mesh, 1: simple mesh. The meshes hold a blade for every slot of the buffers and are drawn once:
+// instance_count counts the blades while they are placed, ClampArgs makes it the index count
+RWStructuredBuffer<GrassDrawArgs> grass_draw_args;
+RWStructuredBuffer<int4> grass_visible_tiles; // xy tile, z nearest distance (asint)
+RWStructuredBuffer<GrassBlade> grass_blades_detailed;
+RWStructuredBuffer<GrassBlade> grass_blades_simple;
+
+uint GrassHash(uint3 v)
+{
+    // pcg3d
+    v = v * 1664525u + 1013904223u;
+    v.x += v.y * v.z;
+    v.y += v.z * v.x;
+    v.z += v.x * v.y;
+    v ^= v >> 16u;
+    v.x += v.y * v.z;
+    v.y += v.z * v.x;
+    v.z += v.x * v.y;
+    return v.x ^ v.y ^ v.z;
+}
+
+float GrassRandom(int2 tile, uint index, uint salt)
+{
+    return GrassHash(uint3(asuint(tile.x), asuint(tile.y), index * 16u + salt)) * (1.0 / 4294967296.0);
+}
+
+// Height of the heightmap above sea level of the scene, in meters
+float TerrainWorldHeight(float3 world_position)
+{
+    float height;
+    SampleHeightmap(world_position, height);
+    return height * height_scale + terrain_origin.y;
+}
+
+// Share of the full density kept at a distance: full near the camera, then falling with the square of the distance,
+// so the blades per pixel stay about the same
+float GrassDensityFactor(float distance)
+{
+    float ratio = grass_full_density_distance / max(distance, 1e-3);
+    return min(1, ratio * ratio);
+}
+
+int2 GrassFirstTile()
+{
+    float2 camera = TerrainSpacePosition(grass_camera);
+    return (int2)floor(camera / grass_tile_size) - (grass_tiles_side >> 1);
+}
+
+bool InFrustum(float3 box_min, float3 box_max)
+{
+    [unroll]
+    for (int i = 0; i < 6; i++)
+    {
+        float4 plane = grass_frustum[i];
+        float3 farthest = float3(plane.x >= 0 ? box_max.x : box_min.x, plane.y >= 0 ? box_max.y : box_min.y,
+            plane.z >= 0 ? box_max.z : box_min.z);
+        if (dot(plane.xyz, farthest) + plane.w < 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+// The terrain doesn't rise above the line from the camera to the target
+bool InSight(float3 target)
+{
+    // A little slack: the mesh and the bilinear heightmap differ slightly
+    const float margin = 0.5;
+    for (int i = 1; i < grass_occlusion_steps; i++)
+    {
+        float3 p = lerp(grass_camera, target, (float)i / grass_occlusion_steps);
+        if (TerrainWorldHeight(p) > p.y + margin)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+[numthreads(1, 1, 1)]
+void Reset()
+{
+    grass_dispatch_args[0] = 0;
+    grass_dispatch_args[1] = 1;
+    grass_dispatch_args[2] = 1;
+    grass_draw_args[0].instance_count = 0;
+    grass_draw_args[1].instance_count = 0;
+}
+
+[numthreads(8, 8, 1)]
+void CullTiles(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id.xy >= (uint)grass_tiles_side))
+    {
+        return;
+    }
+
+    int2 tile = GrassFirstTile() + (int2)id.xy;
+    float2 tile_min = tile * grass_tile_size;
+    float2 tile_max = tile_min + grass_tile_size;
+    float3 world_min = TerrainToWorldPosition(tile_min);
+    float3 world_max = TerrainToWorldPosition(tile_max);
+    if (distance(clamp(grass_camera.xz, world_min.xz, world_max.xz), grass_camera.xz) > grass_range)
+    {
+        return;
+    }
+
+    // Height bounds from the corners and the middle; the blades and the mesh add a margin
+    float h00 = TerrainWorldHeight(world_min);
+    float h11 = TerrainWorldHeight(world_max);
+    float h10 = TerrainWorldHeight(float3(world_max.x, 0, world_min.z));
+    float h01 = TerrainWorldHeight(float3(world_min.x, 0, world_max.z));
+    float hc = TerrainWorldHeight((world_min + world_max) * 0.5);
+    float low = min(min(min(h00, h11), min(h10, h01)), hc) - 1;
+    float high = max(max(max(h00, h11), max(h10, h01)), hc) + 1;
+    float3 box_min = float3(world_min.x, low, world_min.z);
+    float3 box_max = float3(world_max.x, high + grass_max_height, world_max.z);
+
+    float nearest = distance(clamp(grass_camera, box_min, box_max), grass_camera);
+    if (nearest > grass_range || !InFrustum(box_min, box_max))
+    {
+        return;
+    }
+
+    // Behind a hill when the terrain hides the middle and every corner of the top of the tile.
+    // Tiles around the camera are always drawn
+    if (grass_occlusion > 0.5 && nearest > grass_tile_size * 2)
+    {
+        float top = box_max.y;
+        bool visible = InSight(float3((world_min.x + world_max.x) * 0.5, top, (world_min.z + world_max.z) * 0.5))
+            || InSight(float3(world_min.x, top, world_min.z)) || InSight(float3(world_max.x, top, world_min.z))
+            || InSight(float3(world_min.x, top, world_max.z)) || InSight(float3(world_max.x, top, world_max.z));
+        if (!visible)
+        {
+            return;
+        }
+    }
+
+    uint index;
+    InterlockedAdd(grass_dispatch_args[0], 1, index);
+    grass_visible_tiles[index] = int4(tile, asint(nearest), 0);
+}
+
+#define PLACE_THREADS 64
+
+[numthreads(PLACE_THREADS, 1, 1)]
+void PlaceBlades(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+{
+    int4 visible = grass_visible_tiles[group.x];
+    int2 tile = visible.xy;
+    float nearest = asfloat(visible.z);
+
+    // Candidates of the tile at full density. The candidates follow a low discrepancy sequence, so every prefix of it
+    // covers the tile evenly: thinning with distance keeps the first ones, and the blades stay put as it changes
+    float full_count = grass_tile_size * grass_tile_size * grass_max_density;
+    uint count = (uint)ceil(full_count * GrassDensityFactor(nearest));
+    float2 seed = float2(GrassRandom(tile, 0, 15), GrassRandom(tile, 1, 15));
+    float fade_start = grass_range * (1 - grass_fade);
+
+    for (uint i = thread; i < count; i += PLACE_THREADS)
+    {
+        float2 jitter = frac(seed + (i + 1) * float2(0.7548776662, 0.5698402910));
+        float2 terrain_xz = (tile + jitter) * grass_tile_size;
+        float3 world_flat = TerrainToWorldPosition(terrain_xz);
+        // The 3D distance is at least the horizontal one: a cheap first rejection
+        float flat_distance = distance(world_flat.xz, grass_camera.xz);
+        if ((float)i >= full_count * GrassDensityFactor(flat_distance) + 1 || flat_distance > grass_range)
+        {
+            continue;
+        }
+
+        // Grass of the surfaces under the candidate, by their weights
+        CollectTerrainSurfaces(world_flat);
+        float total = 0;
+        for (int s = 0; s < surface_candidate_count; s++)
+        {
+            uint id = (uint)surface_candidate_id[s];
+            total += id < grass_surface_count ? grass_surfaces[id].density * surface_candidate_weight[s] : 0;
+        }
+        if (GrassRandom(tile, i, 1) * grass_max_density >= total)
+        {
+            continue;
+        }
+
+        float pick = GrassRandom(tile, i, 2) * total;
+        GrassSurface surface = (GrassSurface)0;
+        for (int c = 0; c < surface_candidate_count; c++)
+        {
+            uint id = (uint)surface_candidate_id[c];
+            float share = id < grass_surface_count ? grass_surfaces[id].density * surface_candidate_weight[c] : 0;
+            if (share > 0)
+            {
+                surface = grass_surfaces[id];
+                pick -= share;
+                if (pick <= 0)
+                {
+                    break;
+                }
+            }
+        }
+
+        float3 root = float3(world_flat.x, TerrainMeshHeight(terrain_xz) + terrain_origin.y, world_flat.z);
+        float distance_to_camera = distance(root, grass_camera);
+        // Past its share of the density the candidate grows in over one rank, so thinning doesn't pop
+        float grow = saturate(full_count * GrassDensityFactor(distance_to_camera) - i);
+        float fade = 1 - smoothstep(fade_start, grass_range, distance_to_camera);
+        float scale = grow * fade;
+        if (scale <= 0.01)
+        {
+            continue;
+        }
+
+        float height = lerp(surface.height.x, surface.height.y, GrassRandom(tile, i, 3)) * scale;
+        float3 middle = root + float3(0, height * 0.5, 0);
+        bool visible_blade = true;
+        [unroll]
+        for (int p = 0; p < 6; p++)
+        {
+            visible_blade = visible_blade && dot(grass_frustum[p].xyz, middle) + grass_frustum[p].w >= -height;
+        }
+        if (!visible_blade)
+        {
+            continue;
+        }
+
+        float terrain_height;
+        float3 normal;
+        SampleHeightAndNormal(world_flat, terrain_height, normal);
+
+        // Far blades are fewer and wider, so the grass keeps covering the ground
+        float widening = min(grass_max_widening, rsqrt(GrassDensityFactor(distance_to_camera)));
+        float shade = 1 + (GrassRandom(tile, i, 4) - 0.5) * 2 * surface.color_variation;
+        float3 tint = float3(1 + (GrassRandom(tile, i, 5) - 0.5) * surface.color_variation, 1, 1);
+
+        GrassBlade blade;
+        blade.position = root;
+        blade.facing = GrassRandom(tile, i, 6) * 6.28318;
+        blade.size = float2(surface.width * widening, height);
+        blade.bend = surface.bend * (0.5 + GrassRandom(tile, i, 7));
+        blade.base_color = PackGrassColor(surface.base_color * shade * tint);
+        blade.tip_color = PackGrassColor(surface.tip_color * shade * tint);
+        blade.normal_xz = normal.xz;
+        blade.padding = 0;
+
+        uint index;
+        if (distance_to_camera < grass_detailed_distance)
+        {
+            InterlockedAdd(grass_draw_args[0].instance_count, 1, index);
+            if (index < grass_max_blades.x)
+            {
+                grass_blades_detailed[index] = blade;
+            }
+        }
+        else
+        {
+            InterlockedAdd(grass_draw_args[1].instance_count, 1, index);
+            if (index < grass_max_blades.y)
+            {
+                grass_blades_simple[index] = blade;
+            }
+        }
+    }
+}
+
+[numthreads(1, 1, 1)]
+void ClampArgs()
+{
+    grass_draw_args[0].index_count = min(grass_draw_args[0].instance_count, grass_max_blades.x) * grass_indices_per_blade.x;
+    grass_draw_args[0].instance_count = 1;
+    grass_draw_args[1].index_count = min(grass_draw_args[1].instance_count, grass_max_blades.y) * grass_indices_per_blade.y;
+    grass_draw_args[1].instance_count = 1;
+}
