@@ -22,6 +22,18 @@ namespace Core.TerrainGenerator
         event Action SurfacesChanged;
 
         /// <summary>
+        /// Raised after the heights were baked again: chunks were loaded or released, or the generation changed. Things
+        /// placed once from the heights (not every frame) should place again; heights of unchanged chunks stay the same.
+        /// </summary>
+        event Action HeightsChanged;
+
+        /// <summary>
+        /// Scene position of the origin of terrain space. Terrain space (chunk coordinates, the placement grids) is
+        /// the scene minus this; it moves with the world offset. Heights are relative to its y.
+        /// </summary>
+        Vector3 Origin { get; }
+
+        /// <summary>
         /// Binds the current terrain data to a kernel. Call it every frame before dispatching: the data moves with
         /// the loaded chunks, the LOD and the world offset. The shader must declare
         /// <c>#pragma multi_compile_local _ TERRAIN_GEOMORPH</c>.

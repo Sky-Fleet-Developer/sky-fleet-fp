@@ -5,18 +5,18 @@
 // from the buffer the placement writes, without instancing: a batch mesh holds a copy of its shape for every plant of
 // its part of the buffer, and the placement sets how many of them are drawn. The vertex id tells the copy, so the
 // shape mesh keeps its own positions, normals and colors. Vertex color alpha holds the submesh of the vertex, the part
-// of the shape its layer may give its own color (GrassBladeMesh).
+// of the shape its layer may give its own color (ScatterBatchMesh).
 // Shape space: x across and z forward (scaled by the plant width), y up from 0 at the root to 1 at the top (scaled by
 // the plant height); the plant leans to +z.
 // (Procedural instancing doesn't work from a shader graph: its pragma comes after the instancing library.)
 
 #include "GrassCommon.hlsl"
 
-StructuredBuffer<GrassBlade> grass_blades;
+StructuredBuffer<GrassBlade> scatter_instances;
 StructuredBuffer<GrassLayer> grass_layers;
 StructuredBuffer<uint> grass_palette; // own colors of the parts of the layers, linear rgb8
-float grass_blade_offset;       // per batch: its first plant in grass_blades
-float grass_vertices_per_plant; // per batch: vertices of its shape
+float scatter_instance_offset;       // per batch: its first plant in scatter_instances
+float scatter_vertices_per_instance; // per batch: vertices of its shape
 float4 grass_wind;       // xy direction (unit), z strength in plant heights, w wave length in meters
 float4 grass_wind_shape; // x speed in m/s, y gustiness 0..1, z flutter 0..1
 float4 grass_look;       // x darkening at the root, y smoothness, z how much the plants take the terrain normal
@@ -43,8 +43,8 @@ void GrassVertex_float(float3 mesh_position, float3 mesh_normal, float4 vertex_c
     tangent_os = float3(1, 0, 0);
     grass_color = float4(0.2, 0.45, 0.1, 1);
 #else
-    uint slot = (uint)vertex_id / (uint)max(grass_vertices_per_plant, 1);
-    GrassBlade blade = grass_blades[(uint)grass_blade_offset + slot];
+    uint slot = (uint)vertex_id / (uint)max(scatter_vertices_per_instance, 1);
+    GrassBlade blade = scatter_instances[(uint)scatter_instance_offset + slot];
     float t = saturate(mesh_position.y);
     float2 forward = float2(sin(blade.facing), cos(blade.facing));
     float2 across = float2(forward.y, -forward.x);
@@ -80,7 +80,7 @@ void GrassVertex_float(float3 mesh_position, float3 mesh_normal, float4 vertex_c
         if (count > 0)
         {
             // Random per plant and part, the same every frame: the plants stay put
-            uint pick = GrassHash(uint3(asuint(blade.position.x), asuint(blade.position.z), part)) % count;
+            uint pick = ScatterHash(uint3(asuint(blade.position.x), asuint(blade.position.z), part)) % count;
             color = UnpackGrassColor(grass_palette[(part_colors & 0xFFFFF) + pick]) * GrassVariationTint(blade.variation);
         }
     }

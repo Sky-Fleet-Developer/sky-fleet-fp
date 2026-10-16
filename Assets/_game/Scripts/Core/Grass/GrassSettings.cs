@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Core.Scatter;
 using Core.TerrainGenerator.Surfaces;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -100,7 +101,7 @@ namespace Core.Grass
 
     /// <summary>Plants growing on one surface type, mixed with the other layers of the same surface.</summary>
     [Serializable]
-    public class GrassLayer
+    public class GrassLayer : IScatterLayer
     {
         [PropertyTooltip("Surface type the grass grows on. Where surfaces blend, the grass thins out with their weight")]
         [SerializeField] private SurfaceType surface;
@@ -108,6 +109,9 @@ namespace Core.Grass
         [SerializeField] private GrassShape shape;
         [PropertyTooltip("Blades per square meter at full density")]
         [SerializeField, MinValue(0)] private float density = 40;
+        [PropertyTooltip("Weight of the surface type in the alphamap below which the blades don't grow at all. Above it " +
+                         "they still thin out with the weight")]
+        [SerializeField, PropertyRange(0, 1)] private float minSurfaceWeight;
         [PropertyTooltip("Height of the blades in meters")]
         [SerializeField, MinMaxSlider(0.02f, 3, true)] private Vector2 height = new (0.25f, 0.6f);
         [PropertyTooltip("Width of the blades at the root, meters. Shapes are scaled by it across and forward")]
@@ -145,6 +149,7 @@ namespace Core.Grass
         public SurfaceType Surface => surface;
         public GrassShape Shape => shape;
         public float Density => density;
+        public float MinSurfaceWeight => minSurfaceWeight;
         public Vector2 Height => height;
         public float Width => width;
         public float Bend => bend;

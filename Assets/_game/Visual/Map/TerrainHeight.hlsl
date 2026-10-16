@@ -27,6 +27,18 @@ void SampleHeightmap(float3 world_position, out float height)
     height = source_heightmap.SampleLevel(sampler_source_heightmap, float3(ChunkUvToTextureUv(uv, width, heightmap_shared_edges > 0.5), chunk), 0);
 }
 
+// The chunk under a point is loaded, so its heights are real
+bool TerrainHasHeight(float3 world_position)
+{
+    float2 p = (world_position.xz - position_to_chunk_matrix.zw) * position_to_chunk_matrix.xy;
+    int2 slot = (int2)floor(p);
+    if (any(slot < 0) || any(slot >= map_size))
+    {
+        return false;
+    }
+    return map[slot.x * map_size + slot.y] >= 0;
+}
+
 // Distance between two neighbouring heightmap pixels in world units
 float HeightmapPixelSize()
 {

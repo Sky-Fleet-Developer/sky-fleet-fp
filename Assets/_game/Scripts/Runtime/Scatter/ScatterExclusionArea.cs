@@ -1,18 +1,19 @@
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using Core.Grass;
+using Core.Scatter;
 using UnityEngine;
 using Zenject;
 
-namespace Runtime.Grass
+namespace Runtime.Scatter
 {
     /// <summary>
-    /// Keeps the grass out of a box, sphere or polygon around this transform, following it as it moves.
-    /// Needs injection (an object spawned through the container, or a scene root) to find the grass.
+    /// Keeps the scattered details (grass, small stones) out of a box, sphere or polygon around this transform,
+    /// following it as it moves. Needs injection (an object spawned through the container, or a scene root) to find
+    /// the scatter system.
     /// </summary>
-    public class GrassExclusionArea : MonoBehaviour, IGrassArea
+    public class ScatterExclusionArea : MonoBehaviour, IScatterArea
     {
-        [SerializeField] private GrassAreaShape shape = GrassAreaShape.Box;
+        [SerializeField] private ScatterAreaShape shape = ScatterAreaShape.Box;
         [PropertyTooltip("Box: size in meters, centered on the transform")]
         [SerializeField] private Vector3 size = new (4, 4, 4);
         [PropertyTooltip("Sphere: radius in meters")]
@@ -21,20 +22,20 @@ namespace Runtime.Grass
         [SerializeField] private List<Vector2> polygon = new () { new (-2, -2), new (-2, 2), new (2, 2), new (2, -2) };
         [PropertyTooltip("Polygon: local heights of the bottom and the top of the area")]
         [SerializeField] private Vector2 polygonHeight = new (-2, 4);
-        [PropertyTooltip("Meters outside the area over which the grass grows back to its full height")]
+        [PropertyTooltip("Meters outside the area over which the details grow back to their full size")]
         [SerializeField, MinValue(0)] private float edge = 0.5f;
 
-        private IGrass _grass;
+        private IScatter _scatter;
 
-        public GrassAreaData Area => new ()
+        public ScatterAreaData Area => new ()
         {
             Shape = shape,
             // Unscaled, so the sizes stay in meters
             WorldToLocal = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one).inverse,
             Size = shape switch
             {
-                GrassAreaShape.Sphere => new Vector3(radius, 0, 0),
-                GrassAreaShape.Polygon => new Vector3(0, polygonHeight.x, polygonHeight.y),
+                ScatterAreaShape.Sphere => new Vector3(radius, 0, 0),
+                ScatterAreaShape.Polygon => new Vector3(0, polygonHeight.x, polygonHeight.y),
                 _ => size,
             },
             Edge = edge,
@@ -42,18 +43,18 @@ namespace Runtime.Grass
         };
 
         [Inject]
-        private void Construct([InjectOptional] IGrass grass)
+        private void Construct([InjectOptional] IScatter scatter)
         {
-            _grass = grass;
+            _scatter = scatter;
             if (isActiveAndEnabled)
             {
-                _grass?.AddArea(this);
+                _scatter?.AddArea(this);
             }
         }
 
-        private void OnEnable() => _grass?.AddArea(this);
+        private void OnEnable() => _scatter?.AddArea(this);
 
-        private void OnDisable() => _grass?.RemoveArea(this);
+        private void OnDisable() => _scatter?.RemoveArea(this);
 
         private void OnDrawGizmosSelected()
         {
@@ -61,13 +62,13 @@ namespace Runtime.Grass
             Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
             switch (shape)
             {
-                case GrassAreaShape.Box:
+                case ScatterAreaShape.Box:
                     Gizmos.DrawWireCube(Vector3.zero, size);
                     break;
-                case GrassAreaShape.Sphere:
+                case ScatterAreaShape.Sphere:
                     Gizmos.DrawWireSphere(Vector3.zero, radius);
                     break;
-                case GrassAreaShape.Polygon:
+                case ScatterAreaShape.Polygon:
                     for (int i = 0; i < polygon.Count; i++)
                     {
                         Vector2 a = polygon[i];

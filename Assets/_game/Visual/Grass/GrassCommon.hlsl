@@ -2,7 +2,9 @@
 #define GRASS_COMMON
 
 // Data of the grass, shared by the placement (GrassPlacement.compute) and the plant shader (Grass.hlsl).
-// Matches Runtime.Grass.GrassRenderer
+// Matches Runtime.Grass.GrassRenderer. What every kind of scattered detail has is in ScatterCommon.hlsl
+
+#include "Assets/_game/Visual/Scatter/ScatterCommon.hlsl"
 
 // One plant, written by the placement every frame
 struct GrassBlade
@@ -18,10 +20,9 @@ struct GrassBlade
     uint variation;   // PackGrassVariation: its layer, and its random shade and hue for the part colors
 };
 
-// Plants of one grass layer (Core.Grass.GrassLayer). The layers of a surface type are listed one after another
+// Look of the plants of one grass layer (Core.Grass.GrassLayer), at the index of its ScatterLayer
 struct GrassLayer
 {
-    float density;         // plants per square meter
     float2 height;         // meters, min and max
     float width;           // meters
     float bend;            // lean of the top, in plant heights
@@ -29,30 +30,8 @@ struct GrassLayer
     float3 base_color;     // linear
     float3 tip_color;      // linear
     uint shape;            // index of the shape: its near batch is shape * 2, its far batch shape * 2 + 1
-    float4 noise;          // density patches: x frequency (0: none), y..z noise values of the edges, w 1: inverted
-    uint noise_seed;
     uint4 part_colors;     // by submesh of the shape: its colors in grass_palette, first (low 20 bits) and count
                            // (high 12 bits); no colors: the root and tip colors
-};
-
-// A part of the plant buffer drawn with one mesh, which holds a copy of its shape for every slot of the part
-struct GrassBatch
-{
-    uint offset;            // first plant in the buffer
-    uint capacity;          // plants
-    uint indices_per_plant; // of the shape mesh
-    uint padding;
-};
-
-// Area without grass (Core.Grass.GrassAreaData)
-struct GrassArea
-{
-    float4x4 world_to_local;
-    float3 size;     // box: size; sphere: x radius; polygon: y bottom, z top
-    float edge;      // meters outside over which the grass grows back
-    uint shape;      // 0 box, 1 sphere, 2 polygon
-    uint polygon_start;
-    uint polygon_count;
 };
 
 // Sphere pushing the grass (Core.Grass.GrassPusherData)
@@ -62,20 +41,6 @@ struct GrassPusher
     float radius;
     float strength;
 };
-
-uint GrassHash(uint3 v)
-{
-    // pcg3d
-    v = v * 1664525u + 1013904223u;
-    v.x += v.y * v.z;
-    v.y += v.z * v.x;
-    v.z += v.x * v.y;
-    v ^= v >> 16u;
-    v.x += v.y * v.z;
-    v.y += v.z * v.x;
-    v.z += v.x * v.y;
-    return v.x ^ v.y ^ v.z;
-}
 
 uint PackGrassColor(float3 color)
 {

@@ -378,6 +378,7 @@ namespace Core.TerrainGenerator
                     _settings.heightmapSettings.sharedEdgePixels);
                 // Patch culling bounds follow the baked heights
                 _heightRanges.Measure(_terrainData);
+                HeightsChanged?.Invoke();
             }
 
             // Biome colors are only shown in their view mode; they stay dirty until it's switched on
@@ -462,6 +463,10 @@ namespace Core.TerrainGenerator
         public IReadOnlyList<SurfaceType> Surfaces => _surfaces != null ? _surfaces.Surfaces : Array.Empty<SurfaceType>();
 
         public event Action SurfacesChanged;
+
+        public event Action HeightsChanged;
+
+        public Vector3 Origin => transform.position;
 
         public void Bind(ComputeShader shader, int kernel)
         {
@@ -1032,6 +1037,7 @@ namespace Core.TerrainGenerator
             _deformersQueue.Clear();
         }*/
 
+       #if UNITY_EDITOR
        private void OnDrawGizmos()
        {
            if (!Settings) return;
@@ -1082,6 +1088,7 @@ namespace Core.TerrainGenerator
             }
             Gizmos.matrix = defaultMatrix;
         }
+        #endif
 
         private void DrawBoundsForProps(IEnumerable<Vector2Int> props)
         {

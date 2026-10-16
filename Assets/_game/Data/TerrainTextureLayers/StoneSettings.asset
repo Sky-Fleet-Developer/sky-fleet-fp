@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98c941abe98ba24caf73a3f8704f1bd, type: 3}
+  m_Name: StoneSettings
+  m_EditorClassIdentifier: Core::Core.Stones.StoneSettings
+  range: 150
+  fade: 0.15
+  fullDensityDistance: 30
+  detailedMeshDistance: 40
+  tileSize: 8
+  terrainOcclusion: 1
+  occlusionSteps: 16
+  castShadows: 1
+  farShadows: 0
+  textures: {fileID: 11400000, guid: fbe36bc6b0e2a6b4688ea30c6edc3c09, type: 2}
+  texelDensity: 512
+  stochasticTiling: 1
+  stochasticContrast: 0.6
+  stochasticRotation: 1
+  smoothness: 1
+  normalStrength: 1
+  vertexOcclusion: 1
+  vertexColorOcclusion: 1
+  groundOcclusion: 0.852
+  groundOcclusionHeight: 0.869
+  occlusionOnColor: 0.5
+  layers:
+  - surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+    shapes:
+    - {fileID: 11400000, guid: 6e50c67eb20be6c48b41278ccc2898b5, type: 2}
+    - {fileID: 11400000, guid: 8ea4b1daf9c7f524db4effc0de7d32e3, type: 2}
+    density: 0.52
+    minSurfaceWeight: 0.5
+    size: {x: 0.6678, y: 1.4302499}
+    slopeAlignment: {x: 0.6, y: 1}
+    maxRotation: {x: 15, y: 180, z: 15}
+    sink: {x: 0, y: 0.475}
+    grassCover: 0.8
+    textures: 00000000
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    colorVariation: 0.15
+    noiseScale: 0
+    noiseCoverage: 0.5
+    noiseSoftness: 0.3
+    noiseSeed: 0
+    noiseInvert: 0

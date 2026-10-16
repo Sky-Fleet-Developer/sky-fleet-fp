@@ -4,6 +4,7 @@
 #include "TerrainSurfaceWeights.hlsl"
 #include "TerrainView.hlsl"
 #include "TerrainLodMap.hlsl"
+#include "Assets/_game/Visual/Common/StochasticTiling.hlsl"
 
 // Surface types of the terrain, bound by TerrainProvider (Core.TerrainGenerator.Surfaces.TerrainSurfaces).
 // Layer id of the texture arrays = surface id of the alphamap.
@@ -24,8 +25,7 @@ Texture2DArray<float> terrain_surface_height;
 SamplerState terrain_surface_trilinear_repeat_aniso8_sampler;
 float terrain_surface_count;
 float terrain_surface_blend_depth; // height-based blending: height difference over which surfaces mix
-// Stochastic tiling (Heitz & Neyret 2018, Mikkelsen 2022 "hex-tiling"): every texture repetition is offset and rotated
-// at random over a triangle grid, and the three tiles around a pixel are blended, so the tiling doesn't show
+// Stochastic tiling (StochasticTiling.hlsl): texture repetitions offset and rotated at random, so the tiling doesn't show
 float terrain_surface_stochastic;          // 1 on, 0 plain tiling
 float terrain_surface_stochastic_contrast; // 0..1: how much the height maps decide the blend between tiles
 float terrain_surface_stochastic_rotation; // 0..1: largest random rotation of a tile, in turns
@@ -48,93 +48,35 @@ float3 DecodeTerrainSurfaceNormal(float4 packed)
     return float3(xy, sqrt(saturate(1 - dot(xy, xy))));
 }
 
-uint TerrainSurfaceHash(int2 cell, uint salt)
-{
-    // pcg2d
-    uint2 v = asuint(cell) * 1664525u + 1013904223u + salt * 2654435769u;
-    v.x += v.y * 1664525u;
-    v.y += v.x * 1664525u;
-    v ^= v >> 16u;
-    v.x += v.y * 1664525u;
-    v.y += v.x * 1664525u;
-    v ^= v >> 16u;
-    return v.x ^ v.y;
-}
-
-float2 RotateTerrainVector(float2 v, float2 cos_sin)
-{
-    return float2(v.x * cos_sin.x - v.y * cos_sin.y, v.x * cos_sin.y + v.y * cos_sin.x);
-}
-
 // One repetition of a surface: uv rotated and offset. The normal comes back in uv space (rotated back)
 void SampleTerrainSurfaceTile(int id, float2 uv, float2 gx, float2 gy, float2 cos_sin, float2 offset,
     out float3 albedo, out float3 normal, out float height)
 {
-    float3 uvw = float3(RotateTerrainVector(uv, cos_sin) + offset, id);
-    float2 tile_gx = RotateTerrainVector(gx, cos_sin);
-    float2 tile_gy = RotateTerrainVector(gy, cos_sin);
+    float3 uvw = float3(StochasticRotate(uv, cos_sin) + offset, id);
+    float2 tile_gx = StochasticRotate(gx, cos_sin);
+    float2 tile_gy = StochasticRotate(gy, cos_sin);
     albedo = terrain_surface_albedo.SampleGrad(terrain_surface_trilinear_repeat_aniso8_sampler, uvw, tile_gx, tile_gy).rgb;
     normal = DecodeTerrainSurfaceNormal(terrain_surface_normal.SampleGrad(terrain_surface_trilinear_repeat_aniso8_sampler, uvw, tile_gx, tile_gy));
-    normal.xy = RotateTerrainVector(normal.xy, float2(cos_sin.x, -cos_sin.y));
+    normal.xy = StochasticRotate(normal.xy, float2(cos_sin.x, -cos_sin.y));
     height = terrain_surface_height.SampleGrad(terrain_surface_trilinear_repeat_aniso8_sampler, uvw, tile_gx, tile_gy);
 }
 
-// Random rotation and offset of the tile at a triangle grid vertex
-void TerrainSurfaceTileTransform(int2 vertex, int id, out float2 cos_sin, out float2 offset)
-{
-    uint hash = TerrainSurfaceHash(vertex, (uint)id);
-    offset = float2(hash & 0xFFFF, hash >> 16) / 65536.0;
-    float angle = TerrainSurfaceHash(vertex, (uint)id + 101u) * (6.28318530718 / 4294967296.0) * terrain_surface_stochastic_rotation;
-    cos_sin = float2(cos(angle), sin(angle));
-}
-
-// Stochastic tiling of a surface: the three tiles of the triangle grid around uv, blended
+// Stochastic tiling of a surface (StochasticTiling.hlsl): the three tiles of the triangle grid around uv, blended
 void SampleTerrainSurfaceStochastic(int id, float2 uv, float2 gx, float2 gy, out float3 albedo, out float3 normal, out float height)
 {
-    // Triangle grid: cells of about a third of a texture repetition (2 * sqrt(3) per repetition)
-    const float cells_per_repetition = 3.46410162;
-    float2 grid = uv * cells_per_repetition;
-
-    // Prefiltering of the tile pattern itself. The mips filter each tile, but not the choice between tiles: once a grid
-    // cell shrinks to a few pixels, neighbouring pixels land in different random tiles and the sharp blend between
-    // them, and that aliases into noise. A pixel covering several cells sees the average of several random patches,
-    // which is smoother than one patch of the pixel's size, so the footprint is widened to match (per axis, to keep
-    // the anisotropic filtering), and the blend is softened to plain barycentric weights before that point.
-    float2 footprint = float2(length(gx), length(gy)) * cells_per_repetition; // grid cells per pixel along ddx, ddy
-    float coarse = smoothstep(0.1, 0.5, max(footprint.x, footprint.y));
-    float2 widen = max(1, footprint * 2);
-    gx *= widen.x;
-    gy *= widen.y;
-
-    float2 skewed = float2(grid.x - 0.57735027 * grid.y, 1.15470054 * grid.y);
-    int2 base = (int2)floor(skewed);
-    float2 f = skewed - base;
-    float rest = 1 - f.x - f.y;
-    int2 v0 = rest > 0 ? base : base + int2(1, 1);
-    int2 v1 = base + (rest > 0 ? int2(0, 1) : int2(1, 0));
-    int2 v2 = base + (rest > 0 ? int2(1, 0) : int2(0, 1));
-    float3 weights = rest > 0 ? float3(rest, f.y, f.x) : float3(-rest, 1 - f.y, 1 - f.x);
-
+    StochasticTiles tiles = StochasticTilesSetup(uv, gx, gy, (uint)id, terrain_surface_stochastic_rotation);
     float3 albedos[3];
     float3 normals[3];
     float3 heights;
-    int2 vertices[3] = { v0, v1, v2 };
     [unroll]
     for (int i = 0; i < 3; i++)
     {
-        float2 cos_sin, offset;
-        TerrainSurfaceTileTransform(vertices[i], id, cos_sin, offset);
         float tile_height;
-        SampleTerrainSurfaceTile(id, uv, gx, gy, cos_sin, offset, albedos[i], normals[i], tile_height);
+        SampleTerrainSurfaceTile(id, uv, tiles.gx, tiles.gy, tiles.cos_sin[i], tiles.offset[i], albedos[i], normals[i], tile_height);
         heights[i] = tile_height;
     }
 
-    // Higher parts of a tile cover lower parts of its neighbours, then a sharp falloff keeps the tiles crisp.
-    // Both fade out with distance, where they would only alias
-    weights *= lerp(1, heights + 0.05, terrain_surface_stochastic_contrast * (1 - coarse));
-    weights = pow(max(weights, 0), lerp(7, 1, coarse));
-    weights /= max(weights.x + weights.y + weights.z, 1e-6);
-
+    float3 weights = StochasticTilesWeights(tiles, heights, terrain_surface_stochastic_contrast);
     albedo = albedos[0] * weights.x + albedos[1] * weights.y + albedos[2] * weights.z;
     normal = normalize(normals[0] * weights.x + normals[1] * weights.y + normals[2] * weights.z);
     height = dot(heights, weights);

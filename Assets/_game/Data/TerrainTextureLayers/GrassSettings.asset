@@ -37,6 +37,7 @@ MonoBehaviour:
   - surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
     shape: {fileID: 11400000, guid: cd4e8e23c4688fa47a252beba3c633c8, type: 2}
     density: 25
+    minSurfaceWeight: 0.45
     height: {x: 0.85852814, y: 2.071169}
     width: 0.3
     bend: 0.132
@@ -62,6 +63,7 @@ MonoBehaviour:
   - surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
     shape: {fileID: 0}
     density: 50
+    minSurfaceWeight: 0.4
     height: {x: 0.58761907, y: 0.75532466}
     width: 0.05
     bend: 0.132

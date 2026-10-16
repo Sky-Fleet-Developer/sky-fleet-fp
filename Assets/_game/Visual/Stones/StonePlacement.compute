@@ -1,0 +1,78 @@
+// Small stone placement, every frame on the GPU (Runtime.Stones.StoneRenderer). Tiles, candidates, layers and areas are
+// shared with the other scattered details (Visual/Scatter/ScatterPlacement.hlsl); here the stones are built: shape,
+// size, orientation on the slope, sink and texture.
+
+#pragma kernel Reset
+#pragma kernel CullTiles
+#pragma kernel Place
+#pragma kernel ClampArgs
+
+#pragma multi_compile_local _ TERRAIN_GEOMORPH
+
+#include "Assets/_game/Visual/Scatter/ScatterPlacement.hlsl"
+#include "Assets/_game/Visual/Scatter/ScatterOrientation.hlsl"
+#include "StoneCommon.hlsl"
+
+StructuredBuffer<StoneLayer> stone_layers;       // at the indices of scatter_layers
+StructuredBuffer<uint> stone_layer_shapes;       // shape indices: shape s has near batch s * 2, far batch s * 2 + 1
+StructuredBuffer<uint> stone_layer_textures;     // texture indices
+StructuredBuffer<float> stone_shape_normalize;   // by shape: 1 / its largest dimension, in shape units
+uint stone_texture_count;
+
+RWStructuredBuffer<StoneInstance> scatter_instances;
+
+[numthreads(SCATTER_PLACE_THREADS, 1, 1)]
+void Place(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+{
+    ScatterTile t = ScatterLoadTile(group.x);
+    for (uint i = thread; i < t.count; i += SCATTER_PLACE_THREADS)
+    {
+        ScatterCandidate c;
+        if (!ScatterTryCandidate(t, i, c))
+        {
+            continue;
+        }
+
+        StoneLayer layer = stone_layers[c.layer];
+        float size = lerp(layer.size.x, layer.size.y, ScatterRandom(t.tile, i, 3)) * c.scale;
+        // Covered for the grass also when out of view: the grass there may cast shadows into it
+        ScatterCoverWrite(c.root.xz, size * 0.5 * layer.cover);
+        if (!ScatterSphereInFrustum(c.root + float3(0, size * 0.5, 0), size) && !ScatterKeepOutsideView(c))
+        {
+            continue;
+        }
+
+        uint shape = stone_layer_shapes[layer.shape_start + ScatterPickIndex(ScatterRandom(t.tile, i, 4), layer.shape_count)];
+
+        float terrain_height;
+        float3 normal;
+        SampleHeightAndNormal(c.world_flat, terrain_height, normal);
+
+        float alignment = lerp(layer.slope_alignment.x, layer.slope_alignment.y, ScatterRandom(t.tile, i, 5));
+        float3 angles = (float3(ScatterRandom(t.tile, i, 6), ScatterRandom(t.tile, i, 7), ScatterRandom(t.tile, i, 8)) * 2 - 1)
+            * layer.max_rotation;
+        float3 up;
+        float4 rotation = ScatterOrientation(normal, alignment, angles, up);
+        float sink = lerp(layer.sink.x, layer.sink.y, ScatterRandom(t.tile, i, 9)) * size;
+
+        uint texture_index = layer.texture_count > 0
+            ? stone_layer_textures[layer.texture_start + ScatterPickIndex(ScatterRandom(t.tile, i, 10), layer.texture_count)]
+            : ScatterPickIndex(ScatterRandom(t.tile, i, 10), max(stone_texture_count, 1));
+        uint salt = (uint)(ScatterRandom(t.tile, i, 13) * 65535);
+        float shade = 1 + (ScatterRandom(t.tile, i, 11) - 0.5) * 2 * layer.color_variation;
+        float hue = 1 + (ScatterRandom(t.tile, i, 12) - 0.5) * layer.color_variation;
+
+        StoneInstance stone;
+        stone.position = c.root - up * sink;
+        stone.scale = size * stone_shape_normalize[shape];
+        stone.rotation = rotation;
+        stone.texture_salt = (texture_index & 0xFFFF) | (salt << 16);
+        stone.tint = PackStoneTint(layer.tint * shade * float3(hue, 1, 1));
+
+        uint slot;
+        if (ScatterAllocate(shape * 2 + (c.near ? 0 : 1), slot))
+        {
+            scatter_instances[slot] = stone;
+        }
+    }
+}
