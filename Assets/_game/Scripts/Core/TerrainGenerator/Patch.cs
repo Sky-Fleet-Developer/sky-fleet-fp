@@ -79,6 +79,15 @@ namespace Core.TerrainGenerator
             transform.localPosition = GetMyWorldPosition();
         }
 
+        public void SetHeightRange(float min, float max)
+        {
+            // Local space of the patch: one unit per cell size in x and z, the transform scales it up to the rect.
+            // The mesh is shared by all the patches, so the bounds are the renderer's
+            float size = ChunkSize;
+            _meshRenderer.localBounds = new Bounds(new Vector3(size * 0.5f, (min + max) * 0.5f, size * 0.5f),
+                new Vector3(size, max - min, size));
+        }
+
         public void Enable()
         {
             gameObject.SetActive(true);

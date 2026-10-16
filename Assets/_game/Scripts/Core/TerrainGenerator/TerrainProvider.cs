@@ -91,6 +91,7 @@ namespace Core.TerrainGenerator
         private readonly List<IHeightmapFilterSource> _filterSources = new ();
         private readonly List<IHeightmapFilter> _filters = new ();
         private readonly HeightmapBaker _heightmapBaker = new ();
+        private readonly ChunkHeightRanges _heightRanges = new ();
         private readonly List<IHeightmapFilterSource> _biomeFilterSources = new ();
         private bool _biomeFiltersChanged;
         private TerrainSurfaces _surfaces;
@@ -208,6 +209,8 @@ namespace Core.TerrainGenerator
 
             _settings.Changed -= OnSettingsChanged;
             _settings.Changed += OnSettingsChanged;
+            _heightRanges.Changed -= ApplyHeightRanges;
+            _heightRanges.Changed += ApplyHeightRanges;
             if (Application.isPlaying)
             {
                 _tickService.Add(this);
@@ -373,6 +376,8 @@ namespace Core.TerrainGenerator
                 }
                 _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
                     _settings.heightmapSettings.sharedEdgePixels);
+                // Patch culling bounds follow the baked heights
+                _heightRanges.Measure(_terrainData);
             }
 
             // Biome colors are only shown in their view mode; they stay dirty until it's switched on
@@ -588,6 +593,46 @@ namespace Core.TerrainGenerator
             return CreateTerrain(rect);
         }
 
+        /// <summary>
+        /// Patch cells -> heightmap chunks they overlap. Both ends are rounded outwards: rounding the size instead of
+        /// the far end drops the last chunk row/column whenever the near end is rounded down
+        /// </summary>
+        private RectInt CellsToChunks(RectInt cells)
+        {
+            float cellsToChunks = Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters;
+            Vector2Int chunksMin = Vector2Int.FloorToInt((Vector2)cells.min * cellsToChunks);
+            Vector2Int chunksMax = Vector2Int.CeilToInt((Vector2)cells.max * cellsToChunks);
+            return new RectInt(chunksMin, chunksMax - chunksMin);
+        }
+
+        private void ApplyHeightRanges()
+        {
+            foreach (IPatch patch in _activePatches.Values)
+            {
+                if (patch != null && patch.Exist)
+                {
+                    ApplyHeightRange(patch);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Culling bounds of a patch from the height ranges of all the chunks under it: a patch can lie over several
+        /// chunks. Until all of them are measured the bounds hold every height the heightmap can store
+        /// </summary>
+        private void ApplyHeightRange(IPatch patch)
+        {
+            float height = _settings.Height;
+            if (_heightRanges.TryGetRange(CellsToChunks(patch.Rect), out float min, out float max))
+            {
+                patch.SetHeightRange(min * height - HeightRangePadding, max * height + HeightRangePadding);
+            }
+            else
+            {
+                patch.SetHeightRange(-height, height);
+            }
+        }
+
         private void Load()
         {
             // Patches whose leaf is unchanged stay as they are
@@ -620,15 +665,11 @@ namespace Core.TerrainGenerator
                 IPatch patch = AcquirePatch(prop);
                 if (patch != null)
                 {
+                    ApplyHeightRange(patch);
                     _activePatches.Add(prop, patch);
                 }
             }
-            // Patch cells -> heightmap chunks. Both ends are rounded outwards: rounding the size instead of the far end
-            // drops the last chunk row/column whenever the near end is rounded down
-            float cellsToChunks = Settings.ChunkMeshSize / _settings.heightmapSettings.chunkSizeMeters;
-            Vector2Int chunksMin = Vector2Int.FloorToInt((Vector2)min * cellsToChunks);
-            Vector2Int chunksMax = Vector2Int.CeilToInt((Vector2)max * cellsToChunks);
-            RectInt chunksRange = new RectInt(chunksMin, chunksMax - chunksMin);
+            RectInt chunksRange = CellsToChunks(new RectInt(min, max - min));
 
             // Patches find the LOD of their neighbours in it, to stitch their edges
             _lodMap.Bake(_leaves);
@@ -674,6 +715,8 @@ namespace Core.TerrainGenerator
         private static readonly int TerrainFarTintCenter = Shader.PropertyToID("terrain_far_tint_center");
         private static readonly int TerrainFarTintRange = Shader.PropertyToID("terrain_far_tint_range");
         private const string GeomorphKeyword = "TERRAIN_GEOMORPH";
+        // Meters added above and below the measured heights of a patch, so flat ground never gets flat bounds
+        private const float HeightRangePadding = 1f;
         
         private void BindMaterialParams()
         {
@@ -1066,6 +1109,8 @@ namespace Core.TerrainGenerator
                 _terrainData.Dispose();
             }
             _biomeDebugBaker?.Dispose();
+            _heightRanges.Changed -= ApplyHeightRanges;
+            _heightRanges.Dispose();
             _noFarTint?.Dispose();
             _noFarTint = null;
             _lodMap.Dispose();

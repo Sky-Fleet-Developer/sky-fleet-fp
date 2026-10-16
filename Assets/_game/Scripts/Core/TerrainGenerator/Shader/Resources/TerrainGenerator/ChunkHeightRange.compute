@@ -1,0 +1,57 @@
+#pragma kernel CSClear
+#pragma kernel CSReduce
+
+// Min and max height of every texture array layer of the baked heightmap. Heights are R16_SNorm, so they are
+// compared as integers: exact, and the atomics work on them directly. See ChunkHeightRanges.cs
+
+#define GROUP_SIZE 8
+#define HEIGHT_TO_INT 32767.0
+
+Texture2DArray<float> height_range_source;
+StructuredBuffer<int3> height_range_slot_coords; // per layer: chunk.xy, z = 1 when the layer is used
+RWStructuredBuffer<int> height_range_result;     // per layer: [2 * layer] = min, [2 * layer + 1] = max
+int height_range_resolution;
+int height_range_layer_count;
+
+groupshared int gs_min;
+groupshared int gs_max;
+
+[numthreads(64, 1, 1)]
+void CSClear(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x < (uint)height_range_layer_count)
+    {
+        height_range_result[id.x * 2] = 0x7fffffff;
+        height_range_result[id.x * 2 + 1] = (int)0x80000000;
+    }
+}
+
+[numthreads(GROUP_SIZE, GROUP_SIZE, 1)]
+void CSReduce(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uint group_index : SV_GroupIndex)
+{
+    // No early return: every thread has to reach the barriers, unused layers just skip the work
+    uint layer = group_id.z;
+    bool used = height_range_slot_coords[layer].z != 0;
+
+    if (group_index == 0)
+    {
+        gs_min = 0x7fffffff;
+        gs_max = (int)0x80000000;
+    }
+    GroupMemoryBarrierWithGroupSync();
+
+    if (used && id.x < (uint)height_range_resolution && id.y < (uint)height_range_resolution)
+    {
+        int height = (int)round(height_range_source[uint3(id.xy, layer)] * HEIGHT_TO_INT);
+        InterlockedMin(gs_min, height);
+        InterlockedMax(gs_max, height);
+    }
+    GroupMemoryBarrierWithGroupSync();
+
+    // One global atomic per group
+    if (used && group_index == 0)
+    {
+        InterlockedMin(height_range_result[layer * 2], gs_min);
+        InterlockedMax(height_range_result[layer * 2 + 1], gs_max);
+    }
+}
