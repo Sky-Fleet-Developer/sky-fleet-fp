@@ -160,6 +160,81 @@ Transform:
   - {fileID: 1905721703}
   m_Father: {fileID: 618855680}
   m_LocalEulerAnglesHint: {x: 54.616, y: -299.983, z: 61.746}
+--- !u!1 &45779304
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 45779305}
+  - component: {fileID: 45779306}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (10)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &45779305
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45779304}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.5257736, z: -0, w: 0.8506246}
+  m_LocalPosition: {x: 14818.619, y: 0, z: 35584.535}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: -63.441, z: 0}
+--- !u!114 &45779306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45779304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 0
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.2705882, g: 0.8388236, b: 0.9019608, a: 1}
+  source:
+    rid: 3711589827910565969
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565969
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
 --- !u!1 &47174032
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,6 +586,81 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7448c88323e76b45b038a800458b4a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::Core.World.WorldOffsetAnchor
+--- !u!1 &137487982
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 137487983}
+  - component: {fileID: 137487984}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (8)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &137487983
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137487982}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.5257736, z: -0, w: 0.8506246}
+  m_LocalPosition: {x: -7379, y: 0, z: 35349}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: -63.441, z: 0}
+--- !u!114 &137487984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137487982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 0
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.9019608, g: 0.2705882, b: 0.34505194, a: 1}
+  source:
+    rid: 3711589827910565967
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565967
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
 --- !u!1 &139675108
 GameObject:
   m_ObjectHideFlags: 0
@@ -844,6 +994,81 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 177865610}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &186657175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 186657176}
+  - component: {fileID: 186657177}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &186657176
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186657175}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9884, y: 0, z: -4795}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &186657177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186657175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 0
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.2705882, g: 0.8388236, b: 0.9019608, a: 1}
+  source:
+    rid: 3711589827910565969
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565969
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
 --- !u!1 &207885727
 GameObject:
   m_ObjectHideFlags: 0
@@ -1428,6 +1653,82 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dee2e65b479663d40a6f62a3e31eac53, type: 3}
+--- !u!1 &266921918
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 266921919}
+  - component: {fileID: 266921920}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (7)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &266921919
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266921918}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.5257736, z: -0, w: 0.8506246}
+  m_LocalPosition: {x: -342, y: 245, z: 36350}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 821836990}
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: -63.441, z: 0}
+--- !u!114 &266921920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266921918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 4304.2
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.30215696, g: 0.2705882, b: 0.9019608, a: 1}
+  source:
+    rid: 3711589827910565970
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565970
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
 --- !u!1 &275288555
 GameObject:
   m_ObjectHideFlags: 0
@@ -1898,10 +2199,12 @@ Transform:
   m_GameObject: {fileID: 407047559}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4183, y: 0, z: 2316}
+  m_LocalPosition: {x: 8149, y: -143, z: 1813}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1475452828}
+  - {fileID: 601576671}
   m_Father: {fileID: 1251779718}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &407047561
@@ -1918,7 +2221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
   radius: 0
   blendDistance: 1066
-  blendMode: 0
+  blendMode: 5
   debugColor: {r: 0.2705882, g: 0.8388236, b: 0.9019608, a: 1}
   source:
     rid: 3711589827910565969
@@ -1964,7 +2267,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &423672322
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3055,6 +3358,68 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 567902457}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &601576670
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 601576671}
+  - component: {fileID: 601576672}
+  m_Layer: 0
+  m_Name: Terrace
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &601576671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 601576670}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 407047560}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &601576672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 601576670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9529db4b6f4c0b96ae8a8b3850ea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.HeightmapFilterBehaviour
+  filter:
+    rid: 3711589888919076941
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589888919076941
+      type: {class: TerraceFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        interval: 100
+        offset: 0
+        topBevel: 0.485
+        bottomBevel: 0.3
+        strength: 1
+        levelNoiseAmplitude: 120
+        levelNoiseScale: 0.7
+        levelNoiseOctaves: 2
+        levelNoiseSeed: 0
 --- !u!1 &607613340
 GameObject:
   m_ObjectHideFlags: 0
@@ -3891,7 +4256,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 708548471}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &723269118
+--- !u!1 &731629063
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3899,7 +4264,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 723269119}
+  - component: {fileID: 731629064}
   m_Layer: 0
   m_Name: '[Tick]'
   m_TagString: Untagged
@@ -3907,13 +4272,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &723269119
+--- !u!4 &731629064
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 723269118}
+  m_GameObject: {fileID: 731629063}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -4144,6 +4509,68 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748424664}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &792917755
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 792917756}
+  - component: {fileID: 792917757}
+  m_Layer: 0
+  m_Name: Terrace
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &792917756
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792917755}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1578550542}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &792917757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792917755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9529db4b6f4c0b96ae8a8b3850ea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.HeightmapFilterBehaviour
+  filter:
+    rid: 3711589888919076941
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589888919076941
+      type: {class: TerraceFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        interval: 100
+        offset: 0
+        topBevel: 0.485
+        bottomBevel: 0.3
+        strength: 1
+        levelNoiseAmplitude: 120
+        levelNoiseScale: 0.7
+        levelNoiseOctaves: 2
+        levelNoiseSeed: 0
 --- !u!1 &800094118
 GameObject:
   m_ObjectHideFlags: 0
@@ -4255,6 +4682,72 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 800094118}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &821836989
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 821836990}
+  - component: {fileID: 821836991}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &821836990
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821836989}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 266921919}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &821836991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821836989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9529db4b6f4c0b96ae8a8b3850ea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.HeightmapFilterBehaviour
+  filter:
+    rid: 3711589827910565972
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565972
+      type: {class: ErosionFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        scale: 0.2
+        strength: 0.1
+        gullyWeight: 0.5
+        detail: 0.9
+        rounding: {x: 0.5, y: 1, z: 0, w: 1}
+        onset: {x: 3, y: 1.5, z: 0, w: 1}
+        assumedSlope: {x: 0.7, y: 1}
+        cellScale: 0.5
+        normalization: 0.6
+        octaves: 2
+        lacunarity: 2
+        gain: 0.5
+        fadeTargetOffset: 0.5
 --- !u!1 &826065283
 GameObject:
   m_ObjectHideFlags: 0
@@ -4921,37 +5414,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 954079859}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &972297350
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 972297351}
-  m_Layer: 0
-  m_Name: '[Tick]'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &972297351
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 972297350}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &976190860
 GameObject:
   m_ObjectHideFlags: 0
@@ -5285,6 +5747,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 995490817}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &997924191
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 997924192}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &997924192
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 997924191}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1015867956
 GameObject:
   m_ObjectHideFlags: 0
@@ -5548,6 +6041,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1077085458}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1113495353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1113495354}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1113495354
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113495353}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1120961720
 GameObject:
   m_ObjectHideFlags: 0
@@ -5770,6 +6294,81 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1123980745}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1127802578
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1127802579}
+  - component: {fileID: 1127802580}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (11)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1127802579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127802578}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.5257736, z: -0, w: 0.8506246}
+  m_LocalPosition: {x: 1653.9292, y: 0, z: 27283.832}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: -63.441, z: 0}
+--- !u!114 &1127802580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127802578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 0
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.9019608, g: 0.7664377, b: 0.2705882, a: 1}
+  source:
+    rid: 3711589827910565968
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565968
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
 --- !u!1 &1145746778
 GameObject:
   m_ObjectHideFlags: 0
@@ -6528,10 +7127,17 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2086729937}
+  - {fileID: 1740535268}
   - {fileID: 1408749231}
+  - {fileID: 266921919}
   - {fileID: 1339929528}
+  - {fileID: 137487983}
   - {fileID: 407047560}
+  - {fileID: 1578550542}
+  - {fileID: 186657176}
+  - {fileID: 45779305}
   - {fileID: 1619479162}
+  - {fileID: 1127802579}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1254066000
@@ -7434,6 +8040,66 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1444124963}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1475452827
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1475452828}
+  - component: {fileID: 1475452829}
+  m_Layer: 0
+  m_Name: DomainWarp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1475452828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1475452827}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 407047560}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1475452829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1475452827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9529db4b6f4c0b96ae8a8b3850ea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.HeightmapFilterBehaviour
+  filter:
+    rid: 3711589888919076942
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589888919076942
+      type: {class: DomainWarpFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        scale: 0.7
+        amplitude: 0.512
+        octaves: 3
+        lacunarity: 2
+        gain: 0.5
+        iterations: 1
+        seed: 0
 --- !u!1 &1478945161
 GameObject:
   m_ObjectHideFlags: 0
@@ -7738,6 +8404,66 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1490493607}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1511827178
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1511827179}
+  - component: {fileID: 1511827180}
+  m_Layer: 0
+  m_Name: DomainWarp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1511827179
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511827178}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1578550542}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1511827180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511827178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9529db4b6f4c0b96ae8a8b3850ea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.HeightmapFilterBehaviour
+  filter:
+    rid: 3711589888919076942
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589888919076942
+      type: {class: DomainWarpFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        scale: 0.7
+        amplitude: 0.512
+        octaves: 3
+        lacunarity: 2
+        gain: 0.5
+        iterations: 1
+        seed: 0
 --- !u!4 &1517862727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2718442238139209658, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
@@ -7965,6 +8691,83 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1567157209}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1578550541
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1578550542}
+  - component: {fileID: 1578550543}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (9)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1578550542
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578550541}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.5257736, z: -0, w: 0.8506246}
+  m_LocalPosition: {x: 2461.544, y: -143, z: 39267.57}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1511827179}
+  - {fileID: 792917756}
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: -63.441, z: 0}
+--- !u!114 &1578550543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578550541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 0
+  blendDistance: 1066
+  blendMode: 5
+  debugColor: {r: 0.2705882, g: 0.8388236, b: 0.9019608, a: 1}
+  source:
+    rid: 3711589827910565969
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565969
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
 --- !u!1 &1619479161
 GameObject:
   m_ObjectHideFlags: 0
@@ -8357,6 +9160,112 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1685965402}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1740535267
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1740535268}
+  - component: {fileID: 1740535269}
+  m_Layer: 0
+  m_Name: BiomeBehaviour (6)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1740535268
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740535267}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.5257736, z: -0, w: 0.8506246}
+  m_LocalPosition: {x: 15451, y: 0, z: 25858}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: -63.441, z: 0}
+--- !u!114 &1740535269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740535267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 0
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.6976825, g: 0.27, b: 0.9, a: 1}
+  source:
+    rid: 3711589827910565966
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589827910565966
+      type: {class: RawTileBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        directory: 10x10-8x8
+        heightmapFormat:
+          format: 10x10-8x8Height_{x}-{y}
+          extension: r16
+        alphamapFormat:
+          format: 10x10-8x8Ch_1_{x}-{y}
+          extension: png
+        tileSizeMeters: 7200
+        origin: {x: 4, y: 4}
+        sharedEdgePixels: 1
+        surfaceChannels:
+        - mode: 1
+          surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+        - mode: 1
+          surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
+        - mode: 2
+          surface: {fileID: 0}
+--- !u!1 &1770709787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1770709788}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1770709788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1770709787}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1773360786
 GameObject:
   m_ObjectHideFlags: 0
@@ -8579,37 +9488,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1776325223}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1791452256
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1791452257}
-  m_Layer: 0
-  m_Name: '[Tick]'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1791452257
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1791452256}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1796107616
 GameObject:
   m_ObjectHideFlags: 0
@@ -10476,6 +11354,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1990484127}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1991063757
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1991063758}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1991063758
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991063757}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2013410473
 GameObject:
   m_ObjectHideFlags: 1
@@ -11507,11 +12416,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2473.9343
+      value: 2483
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.5160875
+      value: -1.5161
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.w
@@ -11658,16 +12567,8 @@ PrefabInstance:
       value: -0.023375738
       objectReference: {fileID: 0}
     - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -10500
-      objectReference: {fileID: 0}
-    - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -500
-      objectReference: {fileID: 0}
-    - target: {fileID: 8684531937093414052, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 3000
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8860458673863485206, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.z
@@ -11811,6 +12712,8 @@ SceneRoots:
   - {fileID: 1908695881}
   - {fileID: 618855680}
   - {fileID: 1251779718}
-  - {fileID: 1791452257}
-  - {fileID: 723269119}
-  - {fileID: 972297351}
+  - {fileID: 731629064}
+  - {fileID: 1770709788}
+  - {fileID: 1113495354}
+  - {fileID: 1991063758}
+  - {fileID: 997924192}

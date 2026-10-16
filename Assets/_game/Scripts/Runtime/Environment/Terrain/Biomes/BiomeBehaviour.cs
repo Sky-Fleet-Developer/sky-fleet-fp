@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Core.TerrainGenerator.Biomes;
 using Core.TerrainGenerator.Biomes.Sources;
 using Core.TerrainGenerator.Filters;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Runtime.Environment.Terrain.Biomes
@@ -16,9 +17,9 @@ namespace Runtime.Environment.Terrain.Biomes
     public class BiomeBehaviour : MonoBehaviour, IBiome
     {
         [Tooltip("Power weight of the cell, in meters: a larger radius pushes the cell borders outwards")]
-        [SerializeField, Min(0)] private float radius;
+        [SerializeField, MinValue(0)] private float radius;
         [Tooltip("Distance from the cell border into the biome, in meters, where the biome influence reaches 100%")]
-        [SerializeField, Min(0)] private float blendDistance = 500;
+        [SerializeField, MinValue(0)] private float blendDistance = 500;
         [Tooltip("Normal biomes share the world; other modes make the biome a layer applied on top of them")]
         [SerializeField] private BiomeBlendMode blendMode = BiomeBlendMode.Normal;
         [SerializeField] private Color debugColor = Color.white;

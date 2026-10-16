@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
@@ -16,12 +17,12 @@ namespace Core.TerrainGenerator.Settings
         private static readonly int OctavesProperty = Shader.PropertyToID("biome_warp_octaves");
         private static readonly int OffsetProperty = Shader.PropertyToID("biome_warp_offset");
 
-        [Tooltip("Largest shift of a biome border along each axis, in meters. 0 keeps the borders straight")]
-        [SerializeField, Min(0)] private float amplitude = 400;
-        [Tooltip("Size of the largest bends, in meters")]
-        [SerializeField, Min(1)] private float wavelength = 3000;
-        [Tooltip("Each octave adds bends of half the size and half the amplitude")]
-        [SerializeField, Range(1, 6)] private int octaves = 3;
+        [PropertyTooltip("Largest shift of a biome border along each axis, in meters. 0 keeps the borders straight")]
+        [SerializeField, MinValue(0)] private float amplitude = 400;
+        [PropertyTooltip("Size of the largest bends, in meters")]
+        [SerializeField, MinValue(1)] private float wavelength = 3000;
+        [PropertyTooltip("Each octave adds bends of half the size and half the amplitude")]
+        [SerializeField, PropertyRange(1, 6)] private int octaves = 3;
         [SerializeField] private int seed;
 
         /// <summary>

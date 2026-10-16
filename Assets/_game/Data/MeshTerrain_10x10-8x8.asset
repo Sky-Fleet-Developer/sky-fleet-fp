@@ -56,7 +56,7 @@ MonoBehaviour:
   heightmapResolution: 257
   maxLoadedChunksByOneSide: 9
   alphamapResolution: 257
-  visibleDistance: 7200
+  visibleDistance: 14400
   chunksRefreshDistance: 1000
   chunksCenter: {x: 5, y: 5}
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
@@ -86,7 +86,7 @@ MonoBehaviour:
     blendDepth: 0.1
     stochasticTiling: 1
     stochasticContrast: 0.6
-    stochasticRotation: 1
+    stochasticRotation: 0.1
   biomeEdgeNoise:
     amplitude: 1500
     wavelength: 3000
@@ -94,6 +94,7 @@ MonoBehaviour:
     seed: 0
   lodConfig:
     LodDistances:
+    - 6000
     - 3000
     - 1000
     - 500

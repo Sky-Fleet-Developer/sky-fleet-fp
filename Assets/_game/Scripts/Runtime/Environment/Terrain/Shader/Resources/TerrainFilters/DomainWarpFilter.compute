@@ -1,0 +1,77 @@
+#pragma kernel CSWarp
+
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/HeightmapFilterCommon.hlsl"
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/HeightmapFilterAlphamap.hlsl"
+#include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise2D.hlsl"
+
+float warp_scale;     // chunk units
+float warp_amplitude; // chunk units
+int warp_octaves;
+float warp_lacunarity;
+float warp_gain;
+int warp_iterations;
+float4 warp_seed_offset; // xy: noise offset of the x channel, zw: of the y channel
+
+// fBm displacement in [-1, 1] per axis
+float2 WarpNoise(float2 position)
+{
+    float2 sum = 0;
+    float amplitude = 1;
+    float normalization = 0;
+    float frequency = 1 / warp_scale;
+    for (int octave = 0; octave < warp_octaves; octave++)
+    {
+        float2 p = position * frequency;
+        // Shift each octave so that octave lattices don't line up at the origin
+        float2 octave_offset = octave * float2(17.31, 41.73);
+        sum += amplitude * float2(
+            SimplexNoise(p + warp_seed_offset.xy + octave_offset),
+            SimplexNoise(p + warp_seed_offset.zw + octave_offset));
+        normalization += amplitude;
+        amplitude *= warp_gain;
+        frequency *= warp_lacunarity;
+    }
+    return sum / max(normalization, 1e-5);
+}
+
+[numthreads(8,8,1)]
+void CSWarp (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)filter_resolution || id.y >= (uint)filter_resolution)
+    {
+        return;
+    }
+
+    int2 chunk;
+    if (!FilterTryGetChunk(id.z, chunk))
+    {
+        return;
+    }
+
+    // Evaluated in absolute chunk space, so shared edge pixels of neighbouring chunks warp identically
+    float2 position = FilterPixelToChunkSpace(chunk, id.xy);
+    float2 displacement = 0;
+    for (int i = 0; i < warp_iterations; i++)
+    {
+        displacement = warp_amplitude * WarpNoise(position + displacement);
+    }
+
+    // Keep the bilinear footprint within the direct neighbours, the furthest a filter can read
+    float max_pixels = filter_pixels_per_chunk - 1;
+    float2 sample_pixel = id.xy + clamp(displacement * filter_pixels_per_chunk, -max_pixels, max_pixels);
+    int2 base = int2(floor(sample_pixel));
+    float2 t = sample_pixel - base;
+
+    float h00 = FilterLoadHeight(id.z, chunk, base);
+    float h10 = FilterLoadHeight(id.z, chunk, base + int2(1, 0));
+    float h01 = FilterLoadHeight(id.z, chunk, base + int2(0, 1));
+    float h11 = FilterLoadHeight(id.z, chunk, base + int2(1, 1));
+    filter_destination[id] = lerp(lerp(h00, h10, t.x), lerp(h01, h11, t.x), t.y);
+
+    // Bilinear blend of normalized weights stays normalized
+    float4 a00 = FilterLoadAlpha(id.z, chunk, base);
+    float4 a10 = FilterLoadAlpha(id.z, chunk, base + int2(1, 0));
+    float4 a01 = FilterLoadAlpha(id.z, chunk, base + int2(0, 1));
+    float4 a11 = FilterLoadAlpha(id.z, chunk, base + int2(1, 1));
+    filter_alpha_destination[id] = lerp(lerp(a00, a10, t.x), lerp(a01, a11, t.x), t.y);
+}

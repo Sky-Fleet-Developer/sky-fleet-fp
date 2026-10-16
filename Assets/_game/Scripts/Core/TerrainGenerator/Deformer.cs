@@ -35,7 +35,7 @@ namespace Core.TerrainGenerator
         public int Layer => layer;
 
         [SerializeField] private Vector4 localRect;
-        [SerializeField, Range(0f, 1f)] private float fade = 0.2f;
+        [SerializeField, PropertyRange(0f, 1f)] private float fade = 0.2f;
         [SerializeField] private int layer;
 
         [SerializeField] private List<SerializedDeformerModule> modules;

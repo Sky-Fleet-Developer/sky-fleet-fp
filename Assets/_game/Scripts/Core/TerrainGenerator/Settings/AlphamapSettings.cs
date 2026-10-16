@@ -10,12 +10,12 @@ namespace Core.TerrainGenerator.Settings
     {
         [SerializeField, HideInInspector] private int layersCount = 3;
         [SerializeField] private bool normalizeAlphamap;
-        [Tooltip("Height-based blending of the biome alphamaps: a biome whose terrain stands this many meters above the blended " +
+        [PropertyTooltip("Height-based blending of the biome alphamaps: a biome whose terrain stands this many meters above the blended " +
                  "terrain counts twice its weight, so the biome with the higher terrain wins the transition. " +
                  "The advantage fades with the biome weight toward the edge of the blend strip. 0 blends by weight only")]
-        [SerializeField, Min(0)] private float heightBlendRange = 50;
-        [Tooltip("Height-based blending of the biome alphamaps: width of the transition, in biome weight units")]
-        [SerializeField, Range(0.01f, 1)] private float heightBlendSoftness = 0.2f;
+        [SerializeField, MinValue(0)] private float heightBlendRange = 50;
+        [PropertyTooltip("Height-based blending of the biome alphamaps: width of the transition, in biome weight units")]
+        [SerializeField, PropertyRange(0.01f, 1)] private float heightBlendSoftness = 0.2f;
 
         public float HeightBlendRange => heightBlendRange;
         public float HeightBlendSoftness => heightBlendSoftness;

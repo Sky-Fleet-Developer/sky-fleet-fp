@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GrassSettings
   m_EditorClassIdentifier: 
   range: 500
-  fade: 0.15
+  fade: 0.3
   fullDensityDistance: 15
   maxWidening: 4
   detailedMeshDistance: 25
@@ -23,9 +23,10 @@ MonoBehaviour:
   maxBlades: 300000
   terrainOcclusion: 1
   occlusionSteps: 16
-  rootDarkening: 0.5
+  rootDarkening: 0.992
   smoothness: 0.2
   terrainNormal: 0.7
+  castShadows: 1
   windDirection: 45
   windStrength: 0.3
   windWaveLength: 20
@@ -34,11 +35,43 @@ MonoBehaviour:
   windFlutter: 0.3
   layers:
   - surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
-    density: 40
-    height: {x: 0.25, y: 0.6}
-    width: 0.04
-    bend: 0.3
+    shape: {fileID: 11400000, guid: cd4e8e23c4688fa47a252beba3c633c8, type: 2}
+    density: 25
+    height: {x: 0.85852814, y: 2.071169}
+    width: 0.3
+    bend: 0.132
     rootColor: {r: 0.16, g: 0.24, b: 0.06, a: 1}
     tipColor: {r: 0.45, g: 0.55, b: 0.18, a: 1}
-    colorVariation: 0.15
+    colorVariation: 0.566
     farTint: 0.7
+    parts:
+    - overrideColor: 0
+      colors:
+      - {r: 1, g: 1, b: 1, a: 1}
+    - overrideColor: 1
+      colors:
+      - {r: 0.6698113, g: 0.16113384, b: 0.16113384, a: 1}
+      - {r: 0.754717, g: 0.44567442, b: 0.13883947, a: 1}
+      - {r: 0.7075472, g: 0.5898875, b: 0.06341223, a: 1}
+      - {r: 0.8301887, g: 0.6015324, b: 0.34069067, a: 1}
+    noiseScale: 1
+    noiseCoverage: 0.5
+    noiseSoftness: 0.3
+    noiseSeed: 0
+    noiseInvert: 0
+  - surface: {fileID: 11400000, guid: 9c40356a1ddc90a44bc5359e29e4cbaf, type: 2}
+    shape: {fileID: 0}
+    density: 50
+    height: {x: 0.58761907, y: 0.75532466}
+    width: 0.05
+    bend: 0.132
+    rootColor: {r: 0.16, g: 0.24, b: 0.06, a: 1}
+    tipColor: {r: 0.45, g: 0.55, b: 0.18, a: 1}
+    colorVariation: 0.566
+    farTint: 0.7
+    parts: []
+    noiseScale: 0
+    noiseCoverage: 0.5
+    noiseSoftness: 0.3
+    noiseSeed: 0
+    noiseInvert: 0

@@ -23,21 +23,21 @@ namespace Core.TerrainGenerator
     public class TerrainGenerationSettings : CompoundScriptableObject, ISerializationCallbackReceiver
     {
         [SerializeField] private string targetDirectory;
-        [Space, SerializeField] private Material material;
-        [Space, SerializeField] private int chunkMeshSize = 3600;
+        [PropertySpace, SerializeField] private Material material;
+        [PropertySpace, SerializeField] private int chunkMeshSize = 3600;
         [SerializeField] private int chunkMeshResolution = 257;
         [SerializeField] private int height = 600;
-        [Space, SerializeField] private int heightmapResolution = 257;
+        [PropertySpace, SerializeField] private int heightmapResolution = 257;
         [SerializeField] private int maxLoadedChunksByOneSide = 7;
         [SerializeField] private int alphamapResolution = 257;
-        [Space(20), SerializeField] private float visibleDistance = 1000;
+        [PropertySpace(20), SerializeField] private float visibleDistance = 1000;
         [SerializeField] private float chunksRefreshDistance = 300;
         [SerializeField] private Vector2Int chunksCenter;
         [SerializeField] private ComputeShader gpuWorksShader;
         [SerializeField] private ComputeShader biomeDebugShader;
         [SerializeField] private ComputeShader biomeComposeShader;
-        [Tooltip("Source tiles of all biomes kept in GPU memory at once")]
-        [SerializeField, Min(1)] private int biomeTilePoolSize = 64;
+        [PropertyTooltip("Source tiles of all biomes kept in GPU memory at once")]
+        [SerializeField, MinValue(1)] private int biomeTilePoolSize = 64;
         
         public HeightmapSettings heightmapSettings;
         public AlphamapSettings alphamapSettings;

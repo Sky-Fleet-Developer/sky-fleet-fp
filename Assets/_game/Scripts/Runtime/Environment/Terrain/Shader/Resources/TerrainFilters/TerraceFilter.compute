@@ -1,0 +1,82 @@
+#pragma kernel CSTerrace
+
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/HeightmapFilterCommon.hlsl"
+#include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise2D.hlsl"
+
+float terrace_interval;     // normalized height
+float terrace_offset;       // normalized height
+float terrace_top_bevel;    // fraction of the interval, top + bottom <= 1
+float terrace_bottom_bevel; // fraction of the interval
+float terrace_strength;
+float terrace_noise_amplitude; // normalized height
+float terrace_noise_scale;     // chunk units
+int terrace_noise_octaves;
+float2 terrace_noise_seed_offset;
+
+// fBm in [-1, 1]
+float LevelNoise(float2 position)
+{
+    float sum = 0;
+    float amplitude = 1;
+    float normalization = 0;
+    float frequency = 1 / terrace_noise_scale;
+    for (int octave = 0; octave < terrace_noise_octaves; octave++)
+    {
+        sum += amplitude * SimplexNoise(position * frequency + terrace_noise_seed_offset + octave * float2(17.31, 41.73));
+        normalization += amplitude;
+        amplitude *= 0.5;
+        frequency *= 2;
+    }
+    return sum / max(normalization, 1e-5);
+}
+
+// Step profile: maps the position within a step t in [0, 1] to the height above its floor in [0, 1].
+// Flat floor, then a riser of width bottom + top: it accelerates over the bottom bevel and decelerates
+// over the top bevel (two parabolas with matching slope), meeting the next floor flat.
+float TerraceProfile(float t, float bottom, float top)
+{
+    float riser = bottom + top;
+    float x = t - (1 - riser);
+    if (x <= 0)
+    {
+        return 0;
+    }
+    // Peak slope that makes the riser climb exactly one step
+    float slope = 2 / riser;
+    if (x < bottom)
+    {
+        return slope * x * x / (2 * bottom);
+    }
+    float rest = riser - x;
+    return 1 - slope * rest * rest / (2 * max(top, 1e-6));
+}
+
+[numthreads(8,8,1)]
+void CSTerrace (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)filter_resolution || id.y >= (uint)filter_resolution)
+    {
+        return;
+    }
+
+    int2 chunk;
+    if (!FilterTryGetChunk(id.z, chunk))
+    {
+        return;
+    }
+
+    // Evaluated in absolute chunk space, so shared edge pixels of neighbouring chunks get the same levels
+    float offset = terrace_offset;
+    if (terrace_noise_amplitude > 0)
+    {
+        offset += terrace_noise_amplitude * LevelNoise(FilterPixelToChunkSpace(chunk, id.xy));
+    }
+
+    float height = filter_source[id];
+    float steps = (height - offset) / terrace_interval;
+    float step_floor = floor(steps);
+    float terraced = (step_floor + TerraceProfile(steps - step_floor, terrace_bottom_bevel, terrace_top_bevel))
+        * terrace_interval + offset;
+
+    filter_destination[id] = lerp(height, terraced, terrace_strength);
+}

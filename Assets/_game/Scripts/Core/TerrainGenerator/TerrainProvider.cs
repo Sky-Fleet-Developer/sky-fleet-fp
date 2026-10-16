@@ -63,10 +63,10 @@ namespace Core.TerrainGenerator
                 new GradientColorKey(Color.white, 1f),
             },
         };
-        [Tooltip("Normalized heights mapped to the ends of the gradient")]
+        [PropertyTooltip("Normalized heights mapped to the ends of the gradient")]
         [SerializeField, MinMaxSlider(-0.5f, 1.5f, true), ShowIf(nameof(viewMode), TerrainViewMode.Heightmap)]
         private Vector2 heightViewRange = new (0, 1);
-        [Tooltip("Grid of MaxLoadedChunksByOneSide x MaxLoadedChunksByOneSide cells, one per texture slot. Generated when empty")]
+        [PropertyTooltip("Grid of MaxLoadedChunksByOneSide x MaxLoadedChunksByOneSide cells, one per texture slot. Generated when empty")]
         [SerializeField, ShowIf(nameof(viewMode), TerrainViewMode.Uv)]
         private Texture2D slotTexture;
         private Texture2D _heightGradientTex;
@@ -201,7 +201,11 @@ namespace Core.TerrainGenerator
             CollectBiomeFilters();
 
             WorldOffset.OnWorldOffsetChange -= OnWorldOffsetChange;
-            WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+            if (Application.isPlaying)
+            {
+                WorldOffset.OnWorldOffsetChange += OnWorldOffsetChange;
+            }
+
             _settings.Changed -= OnSettingsChanged;
             _settings.Changed += OnSettingsChanged;
             if (Application.isPlaying)

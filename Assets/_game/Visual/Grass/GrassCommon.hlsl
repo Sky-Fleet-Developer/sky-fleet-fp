@@ -1,33 +1,81 @@
 #ifndef GRASS_COMMON
 #define GRASS_COMMON
 
-// Data of the grass blades, shared by the placement (GrassPlacement.compute) and the blade shader (Grass.hlsl).
+// Data of the grass, shared by the placement (GrassPlacement.compute) and the plant shader (Grass.hlsl).
 // Matches Runtime.Grass.GrassRenderer
 
-// One blade, written by the placement every frame
+// One plant, written by the placement every frame
 struct GrassBlade
 {
     float3 position;  // absolute world position of the root
-    float facing;     // radians around y: the direction the blade leans to
+    float facing;     // radians around y: the direction the plant leans to (blade space +z)
     float2 size;      // width, height in meters
-    float bend;       // lean of the tip, in blade heights
+    float bend;       // lean of the top, in plant heights
     uint base_color;  // linear rgb8 at the root
-    uint tip_color;   // linear rgb8 at the tip
-    float2 normal_xz; // terrain normal under the blade (y is positive)
-    float padding;
+    uint tip_color;   // linear rgb8 at the top
+    float2 normal_xz; // terrain normal under the plant (y is positive)
+    float2 push;      // lean away from the pushers, in plant heights, world xz
+    uint variation;   // PackGrassVariation: its layer, and its random shade and hue for the part colors
 };
 
-// Grass of a surface type, by surface id
-struct GrassSurface
+// Plants of one grass layer (Core.Grass.GrassLayer). The layers of a surface type are listed one after another
+struct GrassLayer
 {
-    float density;         // blades per square meter
+    float density;         // plants per square meter
     float2 height;         // meters, min and max
     float width;           // meters
-    float bend;            // lean of the tip, in blade heights
+    float bend;            // lean of the top, in plant heights
     float color_variation; // 0..1
     float3 base_color;     // linear
     float3 tip_color;      // linear
+    uint shape;            // index of the shape: its near batch is shape * 2, its far batch shape * 2 + 1
+    float4 noise;          // density patches: x frequency (0: none), y..z noise values of the edges, w 1: inverted
+    uint noise_seed;
+    uint4 part_colors;     // by submesh of the shape: its colors in grass_palette, first (low 20 bits) and count
+                           // (high 12 bits); no colors: the root and tip colors
 };
+
+// A part of the plant buffer drawn with one mesh, which holds a copy of its shape for every slot of the part
+struct GrassBatch
+{
+    uint offset;            // first plant in the buffer
+    uint capacity;          // plants
+    uint indices_per_plant; // of the shape mesh
+    uint padding;
+};
+
+// Area without grass (Core.Grass.GrassAreaData)
+struct GrassArea
+{
+    float4x4 world_to_local;
+    float3 size;     // box: size; sphere: x radius; polygon: y bottom, z top
+    float edge;      // meters outside over which the grass grows back
+    uint shape;      // 0 box, 1 sphere, 2 polygon
+    uint polygon_start;
+    uint polygon_count;
+};
+
+// Sphere pushing the grass (Core.Grass.GrassPusherData)
+struct GrassPusher
+{
+    float3 center;
+    float radius;
+    float strength;
+};
+
+uint GrassHash(uint3 v)
+{
+    // pcg3d
+    v = v * 1664525u + 1013904223u;
+    v.x += v.y * v.z;
+    v.y += v.z * v.x;
+    v.z += v.x * v.y;
+    v ^= v >> 16u;
+    v.x += v.y * v.z;
+    v.y += v.z * v.x;
+    v.z += v.x * v.y;
+    return v.x ^ v.y ^ v.z;
+}
 
 uint PackGrassColor(float3 color)
 {
@@ -38,6 +86,27 @@ uint PackGrassColor(float3 color)
 float3 UnpackGrassColor(uint packed)
 {
     return float3(packed & 255, (packed >> 8) & 255, (packed >> 16) & 255) / 255.0;
+}
+
+// Layer index (16 bits), shade 0..2 and hue (red) 0.5..1.5 of a plant
+uint PackGrassVariation(uint layer, float shade, float hue)
+{
+    uint s = (uint)round(saturate(shade * 0.5) * 255);
+    uint h = (uint)round(saturate(hue - 0.5) * 255);
+    return (layer & 0xFFFF) | (s << 16) | (h << 24);
+}
+
+uint GrassVariationLayer(uint packed)
+{
+    return packed & 0xFFFF;
+}
+
+// The shade and hue as one multiplier of a color
+float3 GrassVariationTint(uint packed)
+{
+    float shade = ((packed >> 16) & 255) / 255.0 * 2;
+    float hue = ((packed >> 24) & 255) / 255.0 + 0.5;
+    return float3(hue, 1, 1) * shade;
 }
 
 #endif

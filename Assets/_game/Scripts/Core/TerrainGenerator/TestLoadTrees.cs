@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 
@@ -5,7 +6,7 @@ public class TestLoadTrees : MonoBehaviour
 {
     [SerializeField] private string path;
     [SerializeField] private GameObject prefab;
-    [Space]
+    [PropertySpace]
     [SerializeField] private float area;
 
     /*[Button]

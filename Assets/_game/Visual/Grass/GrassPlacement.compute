@@ -1,8 +1,11 @@
 // Grass placement, every frame on the GPU (Runtime.Grass.GrassRenderer):
 //   Reset       clears the counters
 //   CullTiles   one thread per tile around the camera: range, frustum and terrain occlusion; visible tiles are listed
-//   PlaceBlades one group per visible tile: blades on the terrain mesh, by the surface types under them
-//   ClampArgs   turns the blade counts into the index counts of the draws, within the blade buffers
+//   PlaceBlades one group per visible tile: plants on the terrain mesh, of the grass layers of the surface types
+//               under them, out of the areas without grass and pushed by the pushers
+//   ClampArgs   turns the plant counts into the index counts of the draws, within the parts of the plant buffer
+// Plants are drawn in batches, one per shape and distance (near, far): each batch has a part of the plant buffer and a
+// mesh holding its shape once for every plant of that part.
 // Positions: terrain space (TerrainSpacePosition) for the stable placement grid, absolute world for everything drawn.
 
 #pragma kernel Reset
@@ -26,50 +29,83 @@ struct GrassDrawArgs
     uint start_instance;
 };
 
-StructuredBuffer<GrassSurface> grass_surfaces; // by surface id
+StructuredBuffer<GrassLayer> grass_layers; // grouped by surface type
+StructuredBuffer<uint2> grass_surface_layers; // by surface id: first layer, layer count
 uint grass_surface_count;
-float grass_max_density; // blades per square meter of the densest surface
+float grass_max_density; // plants per square meter of the densest surface, all its layers together
 
 float3 grass_camera; // absolute world
 float4 grass_frustum[6]; // planes, inside where dot(xyz, p) + w >= 0
 float grass_range; // meters
-float grass_fade; // part of the range over which the blades fade out
+float grass_fade; // part of the range over which the plants fade out
 float grass_full_density_distance;
 float grass_max_widening;
-float grass_detailed_distance; // blades closer use the detailed mesh
-float grass_max_height; // tallest blade, for the tile bounds
+float grass_detailed_distance; // plants closer use the near batches
+float grass_max_height; // tallest plant, for the tile bounds
 float grass_tile_size;
 int grass_tiles_side;
 float grass_occlusion; // 1: skip tiles behind the terrain
 int grass_occlusion_steps;
-uint2 grass_max_blades; // capacity of the blade buffers: detailed, simple
-uint2 grass_indices_per_blade; // of the blade meshes: detailed, simple
+float grass_shadows; // 1: near plants cast shadows, so they are kept outside the view too
+
+StructuredBuffer<GrassBatch> grass_batches;
+uint grass_batch_count;
+StructuredBuffer<GrassArea> grass_areas;
+uint grass_area_count;
+StructuredBuffer<float2> grass_polygons; // points of the polygon areas
+StructuredBuffer<GrassPusher> grass_pushers;
+uint grass_pusher_count;
 
 RWStructuredBuffer<uint> grass_dispatch_args; // thread groups of PlaceBlades
-// 0: detailed mesh, 1: simple mesh. The meshes hold a blade for every slot of the buffers and are drawn once:
-// instance_count counts the blades while they are placed, ClampArgs makes it the index count
+// One per batch, each drawn once: instance_count counts the plants while they are placed, ClampArgs turns it into
+// the index count
 RWStructuredBuffer<GrassDrawArgs> grass_draw_args;
 RWStructuredBuffer<int4> grass_visible_tiles; // xy tile, z nearest distance (asint)
-RWStructuredBuffer<GrassBlade> grass_blades_detailed;
-RWStructuredBuffer<GrassBlade> grass_blades_simple;
-
-uint GrassHash(uint3 v)
-{
-    // pcg3d
-    v = v * 1664525u + 1013904223u;
-    v.x += v.y * v.z;
-    v.y += v.z * v.x;
-    v.z += v.x * v.y;
-    v ^= v >> 16u;
-    v.x += v.y * v.z;
-    v.y += v.z * v.x;
-    v.z += v.x * v.y;
-    return v.x ^ v.y ^ v.z;
-}
+RWStructuredBuffer<GrassBlade> grass_blades;
 
 float GrassRandom(int2 tile, uint index, uint salt)
 {
     return GrassHash(uint3(asuint(tile.x), asuint(tile.y), index * 16u + salt)) * (1.0 / 4294967296.0);
+}
+
+// A layer of a surface: random per candidate, independent from layer to layer
+float GrassLayerRandom(int2 tile, uint index, uint layer)
+{
+    return GrassHash(uint3(asuint(tile.x), asuint(tile.y) ^ ((layer + 1) * 0x9E3779B9u), index * 16u + 2)) *
+        (1.0 / 4294967296.0);
+}
+
+float GrassLattice(int2 cell, uint seed)
+{
+    return GrassHash(uint3(asuint(cell.x), asuint(cell.y), seed * 977u + 12345u)) * (1.0 / 4294967296.0);
+}
+
+// 0..1, smooth between random values at whole coordinates
+float GrassValueNoise(float2 p, uint seed)
+{
+    float2 cell = floor(p);
+    float2 f = p - cell;
+    float2 u = f * f * f * (f * (f * 6 - 15) + 10);
+    int2 i = (int2)cell;
+    float a = GrassLattice(i, seed);
+    float b = GrassLattice(i + int2(1, 0), seed);
+    float c = GrassLattice(i + int2(0, 1), seed);
+    float d = GrassLattice(i + int2(1, 1), seed);
+    return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
+}
+
+// Share of the density of a layer kept at a point of the terrain: its patches.
+// The edges of the patches come from the distribution of this noise (Runtime.Grass.GrassRenderer.NoiseThreshold)
+float GrassLayerNoise(GrassLayer layer, float2 terrain_xz)
+{
+    if (layer.noise.x <= 0)
+    {
+        return 1;
+    }
+    float2 p = terrain_xz * layer.noise.x;
+    float n = (GrassValueNoise(p, layer.noise_seed * 2) + 0.5 * GrassValueNoise(p * 2.03 + 0.37, layer.noise_seed * 2 + 1)) / 1.5;
+    n = layer.noise.w > 0.5 ? 1 - n : n;
+    return smoothstep(layer.noise.y, layer.noise.z, n);
 }
 
 // Height of the heightmap above sea level of the scene, in meters
@@ -81,7 +117,7 @@ float TerrainWorldHeight(float3 world_position)
 }
 
 // Share of the full density kept at a distance: full near the camera, then falling with the square of the distance,
-// so the blades per pixel stay about the same
+// so the plants per pixel stay about the same
 float GrassDensityFactor(float distance)
 {
     float ratio = grass_full_density_distance / max(distance, 1e-3);
@@ -126,14 +162,92 @@ bool InSight(float3 target)
     return true;
 }
 
-[numthreads(1, 1, 1)]
-void Reset()
+// Signed distance to a polygon in the xz plane: negative inside
+float PolygonDistance(float2 p, uint start, uint count)
 {
-    grass_dispatch_args[0] = 0;
-    grass_dispatch_args[1] = 1;
-    grass_dispatch_args[2] = 1;
-    grass_draw_args[0].instance_count = 0;
-    grass_draw_args[1].instance_count = 0;
+    float2 first = grass_polygons[start];
+    float distance_squared = dot(p - first, p - first);
+    float inside = 1;
+    uint previous = count - 1;
+    for (uint i = 0; i < count; i++)
+    {
+        float2 a = grass_polygons[start + i];
+        float2 b = grass_polygons[start + previous];
+        float2 edge = b - a;
+        float2 to_point = p - a;
+        float2 off_edge = to_point - edge * saturate(dot(to_point, edge) / max(dot(edge, edge), 1e-12));
+        distance_squared = min(distance_squared, dot(off_edge, off_edge));
+        // Every edge crossed by a ray along +x flips inside and outside
+        bool3 crossing = bool3(p.y >= a.y, p.y < b.y, edge.x * to_point.y > edge.y * to_point.x);
+        if (all(crossing) || !any(crossing))
+        {
+            inside = -inside;
+        }
+        previous = i;
+    }
+    return inside * sqrt(distance_squared);
+}
+
+// 0 inside an area without grass, growing back to 1 over the edge of the area
+float AreaScale(float3 root)
+{
+    float scale = 1;
+    for (uint a = 0; a < grass_area_count; a++)
+    {
+        GrassArea area = grass_areas[a];
+        float3 p = mul(area.world_to_local, float4(root, 1)).xyz;
+        float distance;
+        if (area.shape == 0)
+        {
+            float3 q = abs(p) - area.size * 0.5;
+            distance = length(max(q, 0)) + min(max(q.x, max(q.y, q.z)), 0);
+        }
+        else if (area.shape == 1)
+        {
+            distance = length(p) - area.size.x;
+        }
+        else
+        {
+            float vertical = max(area.size.y - p.y, p.y - area.size.z);
+            distance = max(PolygonDistance(p.xz, area.polygon_start, area.polygon_count), vertical);
+        }
+        scale = min(scale, area.edge > 0 ? saturate(distance / area.edge) : (distance > 0 ? 1 : 0));
+    }
+    return scale;
+}
+
+// Lean away from the pushers, in plant heights: strongest where the center of a pusher is nearest to the plant
+float2 PushAt(float3 root, float height, float facing)
+{
+    float2 push = 0;
+    for (uint i = 0; i < grass_pusher_count; i++)
+    {
+        GrassPusher pusher = grass_pushers[i];
+        float3 nearest = float3(root.x, clamp(pusher.center.y, root.y, root.y + height), root.z);
+        float strength = saturate(1 - distance(pusher.center, nearest) / max(pusher.radius, 1e-3)) * pusher.strength;
+        float2 away = root.xz - pusher.center.xz;
+        float length_away = length(away);
+        // Right under the center the plant falls its own way
+        float2 direction = length_away > 1e-3 ? away / length_away : float2(sin(facing), cos(facing));
+        push += direction * strength;
+    }
+    float length_push = length(push);
+    return length_push > 2 ? push * (2 / length_push) : push;
+}
+
+[numthreads(64, 1, 1)]
+void Reset(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x == 0)
+    {
+        grass_dispatch_args[0] = 0;
+        grass_dispatch_args[1] = 1;
+        grass_dispatch_args[2] = 1;
+    }
+    if (id.x < grass_batch_count)
+    {
+        grass_draw_args[id.x].instance_count = 0;
+    }
 }
 
 [numthreads(8, 8, 1)]
@@ -154,7 +268,7 @@ void CullTiles(uint3 id : SV_DispatchThreadID)
         return;
     }
 
-    // Height bounds from the corners and the middle; the blades and the mesh add a margin
+    // Height bounds from the corners and the middle; the plants and the mesh add a margin
     float h00 = TerrainWorldHeight(world_min);
     float h11 = TerrainWorldHeight(world_max);
     float h10 = TerrainWorldHeight(float3(world_max.x, 0, world_min.z));
@@ -166,7 +280,9 @@ void CullTiles(uint3 id : SV_DispatchThreadID)
     float3 box_max = float3(world_max.x, high + grass_max_height, world_max.z);
 
     float nearest = distance(clamp(grass_camera, box_min, box_max), grass_camera);
-    if (nearest > grass_range || !InFrustum(box_min, box_max))
+    // Near plants casting shadows are needed outside the view too
+    bool shadow_casters = grass_shadows > 0.5 && nearest < grass_detailed_distance;
+    if (nearest > grass_range || !(shadow_casters || InFrustum(box_min, box_max)))
     {
         return;
     }
@@ -200,7 +316,7 @@ void PlaceBlades(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
     float nearest = asfloat(visible.z);
 
     // Candidates of the tile at full density. The candidates follow a low discrepancy sequence, so every prefix of it
-    // covers the tile evenly: thinning with distance keeps the first ones, and the blades stay put as it changes
+    // covers the tile evenly: thinning with distance keeps the first ones, and the plants stay put as it changes
     float full_count = grass_tile_size * grass_tile_size * grass_max_density;
     uint count = (uint)ceil(full_count * GrassDensityFactor(nearest));
     float2 seed = float2(GrassRandom(tile, 0, 15), GrassRandom(tile, 1, 15));
@@ -218,34 +334,39 @@ void PlaceBlades(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
             continue;
         }
 
-        // Grass of the surfaces under the candidate, by their weights
+        // Layers of the surfaces under the candidate, each by the weight of its surface, its density and its patches.
+        // One of them is picked by its share of the total (weighted reservoir sampling), and the candidate grows with
+        // the total's share of the densest surface
         CollectTerrainSurfaces(world_flat);
         float total = 0;
+        GrassLayer chosen = (GrassLayer)0;
+        uint chosen_index = 0;
         for (int s = 0; s < surface_candidate_count; s++)
         {
             uint id = (uint)surface_candidate_id[s];
-            total += id < grass_surface_count ? grass_surfaces[id].density * surface_candidate_weight[s] : 0;
+            if (id >= grass_surface_count)
+            {
+                continue;
+            }
+            uint2 layers = grass_surface_layers[id];
+            for (uint l = layers.x; l < layers.x + layers.y; l++)
+            {
+                GrassLayer layer = grass_layers[l];
+                float share = layer.density * surface_candidate_weight[s] * GrassLayerNoise(layer, terrain_xz);
+                if (share > 0)
+                {
+                    total += share;
+                    if (GrassLayerRandom(tile, i, l) * total < share)
+                    {
+                        chosen = layer;
+                        chosen_index = l;
+                    }
+                }
+            }
         }
         if (GrassRandom(tile, i, 1) * grass_max_density >= total)
         {
             continue;
-        }
-
-        float pick = GrassRandom(tile, i, 2) * total;
-        GrassSurface surface = (GrassSurface)0;
-        for (int c = 0; c < surface_candidate_count; c++)
-        {
-            uint id = (uint)surface_candidate_id[c];
-            float share = id < grass_surface_count ? grass_surfaces[id].density * surface_candidate_weight[c] : 0;
-            if (share > 0)
-            {
-                surface = grass_surfaces[id];
-                pick -= share;
-                if (pick <= 0)
-                {
-                    break;
-                }
-            }
         }
 
         float3 root = float3(world_flat.x, TerrainMeshHeight(terrain_xz) + terrain_origin.y, world_flat.z);
@@ -258,16 +379,22 @@ void PlaceBlades(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
         {
             continue;
         }
+        scale *= AreaScale(root);
+        if (scale <= 0.01)
+        {
+            continue;
+        }
 
-        float height = lerp(surface.height.x, surface.height.y, GrassRandom(tile, i, 3)) * scale;
+        bool near = distance_to_camera < grass_detailed_distance;
+        float height = lerp(chosen.height.x, chosen.height.y, GrassRandom(tile, i, 3)) * scale;
         float3 middle = root + float3(0, height * 0.5, 0);
-        bool visible_blade = true;
+        bool visible_plant = true;
         [unroll]
         for (int p = 0; p < 6; p++)
         {
-            visible_blade = visible_blade && dot(grass_frustum[p].xyz, middle) + grass_frustum[p].w >= -height;
+            visible_plant = visible_plant && dot(grass_frustum[p].xyz, middle) + grass_frustum[p].w >= -height;
         }
-        if (!visible_blade)
+        if (!visible_plant && !(near && grass_shadows > 0.5))
         {
             continue;
         }
@@ -276,46 +403,42 @@ void PlaceBlades(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
         float3 normal;
         SampleHeightAndNormal(world_flat, terrain_height, normal);
 
-        // Far blades are fewer and wider, so the grass keeps covering the ground
+        // Far plants are fewer and wider, so the grass keeps covering the ground
         float widening = min(grass_max_widening, rsqrt(GrassDensityFactor(distance_to_camera)));
-        float shade = 1 + (GrassRandom(tile, i, 4) - 0.5) * 2 * surface.color_variation;
-        float3 tint = float3(1 + (GrassRandom(tile, i, 5) - 0.5) * surface.color_variation, 1, 1);
+        float shade = 1 + (GrassRandom(tile, i, 4) - 0.5) * 2 * chosen.color_variation;
+        float3 tint = float3(1 + (GrassRandom(tile, i, 5) - 0.5) * chosen.color_variation, 1, 1);
 
         GrassBlade blade;
         blade.position = root;
         blade.facing = GrassRandom(tile, i, 6) * 6.28318;
-        blade.size = float2(surface.width * widening, height);
-        blade.bend = surface.bend * (0.5 + GrassRandom(tile, i, 7));
-        blade.base_color = PackGrassColor(surface.base_color * shade * tint);
-        blade.tip_color = PackGrassColor(surface.tip_color * shade * tint);
+        blade.size = float2(chosen.width * widening, height);
+        blade.bend = chosen.bend * (0.5 + GrassRandom(tile, i, 7));
+        blade.base_color = PackGrassColor(chosen.base_color * shade * tint);
+        blade.tip_color = PackGrassColor(chosen.tip_color * shade * tint);
         blade.normal_xz = normal.xz;
-        blade.padding = 0;
+        blade.push = PushAt(root, height, blade.facing);
+        blade.variation = PackGrassVariation(chosen_index, shade, tint.x);
 
+        uint batch = min(chosen.shape * 2 + (near ? 0 : 1), grass_batch_count - 1);
         uint index;
-        if (distance_to_camera < grass_detailed_distance)
+        InterlockedAdd(grass_draw_args[batch].instance_count, 1, index);
+        GrassBatch part = grass_batches[batch];
+        if (index < part.capacity)
         {
-            InterlockedAdd(grass_draw_args[0].instance_count, 1, index);
-            if (index < grass_max_blades.x)
-            {
-                grass_blades_detailed[index] = blade;
-            }
-        }
-        else
-        {
-            InterlockedAdd(grass_draw_args[1].instance_count, 1, index);
-            if (index < grass_max_blades.y)
-            {
-                grass_blades_simple[index] = blade;
-            }
+            grass_blades[part.offset + index] = blade;
         }
     }
 }
 
-[numthreads(1, 1, 1)]
-void ClampArgs()
+[numthreads(64, 1, 1)]
+void ClampArgs(uint3 id : SV_DispatchThreadID)
 {
-    grass_draw_args[0].index_count = min(grass_draw_args[0].instance_count, grass_max_blades.x) * grass_indices_per_blade.x;
-    grass_draw_args[0].instance_count = 1;
-    grass_draw_args[1].index_count = min(grass_draw_args[1].instance_count, grass_max_blades.y) * grass_indices_per_blade.y;
-    grass_draw_args[1].instance_count = 1;
+    if (id.x >= grass_batch_count)
+    {
+        return;
+    }
+
+    GrassBatch part = grass_batches[id.x];
+    grass_draw_args[id.x].index_count = min(grass_draw_args[id.x].instance_count, part.capacity) * part.indices_per_plant;
+    grass_draw_args[id.x].instance_count = 1;
 }

@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -17,10 +18,10 @@ namespace Core.TerrainGenerator
 
         public string pathToSave;
 
-        [Space] public int sizeRandomMap;
+        [PropertySpace] public int sizeRandomMap;
 
-        [Range(0, 1)] public float minValueFilter;
-        [Range(0.0f, 0.5f)] public float minDist;
+        [PropertyRange(0, 1)] public float minValueFilter;
+        [PropertyRange(0.0f, 0.5f)] public float minDist;
 
         private Texture2D generateRandomPos;
         private Texture2D loadMapTrees;

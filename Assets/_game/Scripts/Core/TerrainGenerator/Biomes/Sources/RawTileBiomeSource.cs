@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using System.Drawing;
 using System.IO;
@@ -16,16 +17,16 @@ namespace Core.TerrainGenerator.Biomes.Sources
     [Serializable]
     public class RawTileBiomeSource : IBiomeSource
     {
-        [Tooltip("Folder name inside the landscapes directory")]
+        [PropertyTooltip("Folder name inside the landscapes directory")]
         [SerializeField] private string directory;
         [SerializeField] private FileFormatSeeker heightmapFormat = new () { format = "Height_{x}-{y}", extension = "r16" };
         [SerializeField] private FileFormatSeeker alphamapFormat = new () { format = "Splat_{x}-{y}", extension = "png" };
-        [SerializeField, Min(1)] private float tileSizeMeters = 7200;
-        [Tooltip("Point of the tile grid placed at the biome site, in tiles. (5, 5) puts the corner of tile 5-5 at the site")]
+        [SerializeField, MinValue(1)] private float tileSizeMeters = 7200;
+        [PropertyTooltip("Point of the tile grid placed at the biome site, in tiles. (5, 5) puts the corner of tile 5-5 at the site")]
         [SerializeField] private Vector2 origin;
-        [Tooltip("Tile files overlap by one pixel: the edge row of a tile equals the edge row of its neighbour (e.g. 257 = 256 + 1)")]
+        [PropertyTooltip("Tile files overlap by one pixel: the edge row of a tile equals the edge row of its neighbour (e.g. 257 = 256 + 1)")]
         [SerializeField] private bool sharedEdgePixels = true;
-        [Tooltip("Surface type painted by each channel of the alphamap: r, g, b, a. " +
+        [PropertyTooltip("Surface type painted by each channel of the alphamap: r, g, b, a. " +
                  "Default: channel i paints surface i of the terrain settings")]
         [SerializeField] private SurfaceChannel[] surfaceChannels = new SurfaceChannel[4];
 

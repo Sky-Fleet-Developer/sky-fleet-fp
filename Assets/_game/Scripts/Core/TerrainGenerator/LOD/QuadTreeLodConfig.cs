@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.LOD
@@ -12,14 +13,14 @@ namespace Core.TerrainGenerator.LOD
     public class QuadTreeLodConfig
     {
         /// <summary>Size in cells of the quadtree roots, the largest patches.</summary>
-        public const int RootSizeInCells = 8;
+        public const int RootSizeInCells = 16;
 
         public float[] LodDistances;
-        [Tooltip("Vertices of a patch blend to the heights of its parent while approaching the distance where they merge, " +
+        [PropertyTooltip("Vertices of a patch blend to the heights of its parent while approaching the distance where they merge, " +
                  "so LOD switches don't pop. Costs extra heightmap samples in the vertex shader")]
         public bool Geomorphing;
-        [Tooltip("Part of the merge distance over which the vertices blend")]
-        [Range(0.05f, 0.5f)] public float MorphRange = 0.3f;
+        [PropertyTooltip("Part of the merge distance over which the vertices blend")]
+        [PropertyRange(0.05f, 0.5f)] public float MorphRange = 0.3f;
 
         public int MaxDepth => LodDistances.Length;
 
