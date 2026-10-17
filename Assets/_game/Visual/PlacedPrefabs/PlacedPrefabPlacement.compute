@@ -1,0 +1,187 @@
+// Placement of prefab instances (rocks, trees...) on the GPU, once per tile and not every frame
+// (Runtime.PlacedPrefabs.PlacedPrefabSpawner): the places are read back and spawned as prefab instances. Candidates,
+// layers and areas are shared with the scattered details (Visual/Scatter/ScatterPlacement.hlsl), without the thinning
+// with distance; here the instances are built and kept in terrain space, which doesn't move with the world offset.
+// Each kind (spawner component) binds its own layers and prefabs before dispatching.
+// One group per requested tile. A tile whose terrain isn't loaded yet is reported (count PLACED_NOT_LOADED) and asked
+// again after the next bake of the heights.
+
+#pragma kernel PlaceInstances
+#pragma kernel CoverInstances
+
+#pragma multi_compile_local _ TERRAIN_GEOMORPH
+
+#include "Assets/_game/Visual/Scatter/ScatterPlacement.hlsl"
+#include "Assets/_game/Visual/Scatter/ScatterOrientation.hlsl"
+
+#define PLACED_NOT_LOADED 0xFFFFFFFFu
+
+// Instances of one layer (Core.PlacedPrefabs.IPlacedPrefabLayer), at the index of its ScatterLayer
+struct PlacedLayer
+{
+    float2 scale;           // of the prefab, min and max
+    float2 slope_cos;       // terrain normal y: min (steepest), max (flattest)
+    float2 slope_alignment; // 0 upright .. 1 along the terrain normal, min and max
+    float3 max_rotation;    // radians around x, y, z
+    float2 sink;            // meters at scale 1, min and max
+    uint prefab_start;      // its prefabs in placed_layer_prefabs
+    uint prefab_count;
+    float cover;            // radius of the ground covered for stones and grass, in half instance widths
+    float2 age_range;       // surface weights (the age of the grove) in which the layer has its full density
+    float age_fade;         // weights outside the range over which it fades out
+};
+
+// One instance, in terrain space (Core.TerrainGenerator.ITerrainGpuData.Origin): matches
+// Runtime.PlacedPrefabs.PlacedPrefabSpawner.InstanceData
+struct PlacedInstance
+{
+    float3 position; // pivot, terrain space: x, z and the height above the terrain origin
+    float scale;
+    float4 rotation; // quaternion
+    uint prefab;     // index into the prefabs of all layers
+    uint id;         // candidate index in its tile: stable while the tile stays the same
+    float cover;     // meters around the pivot covered for stones and grass
+};
+
+StructuredBuffer<PlacedLayer> placed_layers;     // at the indices of scatter_layers
+StructuredBuffer<uint> placed_layer_prefabs;     // prefab indices
+StructuredBuffer<float> placed_prefab_half_width; // by prefab: meters at scale 1, along x or z
+StructuredBuffer<int2> placed_tiles;             // tiles to place, in units of scatter_tile_size
+uint placed_max_per_tile;
+
+// Share of the density of a layer at an age, the weight of its surface here: full inside its range of ages, fading out
+// over its fade outside (Core.PlacedPrefabs.PlacedAge does the same on the CPU)
+float PlacedAge(PlacedLayer layer, float age)
+{
+    float fade = max(layer.age_fade, 1e-3);
+    float rise = saturate((age - (layer.age_range.x - fade)) / fade);
+    float fall = saturate((layer.age_range.y + fade - age) / fade);
+    return rise * rise * (3 - 2 * rise) * fall * fall * (3 - 2 * fall);
+}
+
+RWStructuredBuffer<PlacedInstance> placed_instances; // placed_max_per_tile per requested tile
+RWStructuredBuffer<uint> placed_counts;              // per requested tile; PLACED_NOT_LOADED when its terrain isn't loaded
+
+groupshared uint placed_tile_loaded;
+groupshared uint placed_tile_count;
+
+[numthreads(SCATTER_PLACE_THREADS, 1, 1)]
+void PlaceInstances(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+{
+    uint tile_index = group.x;
+    int2 tile = placed_tiles[tile_index];
+    if (thread == 0)
+    {
+        // The corners, edges and middle of the tile must have real heights
+        bool loaded = true;
+        for (int y = 0; y <= 2; y++)
+        {
+            for (int x = 0; x <= 2; x++)
+            {
+                float2 terrain_xz = (tile + float2(x, y) * 0.5) * scatter_tile_size;
+                loaded = loaded && TerrainHasHeight(TerrainToWorldPosition(terrain_xz));
+            }
+        }
+        placed_tile_loaded = loaded ? 1 : 0;
+        placed_tile_count = 0;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    if (placed_tile_loaded == 0)
+    {
+        if (thread == 0)
+        {
+            placed_counts[tile_index] = PLACED_NOT_LOADED;
+        }
+        return;
+    }
+
+    ScatterTile t;
+    t.tile = tile;
+    t.full_count = scatter_tile_size * scatter_tile_size * scatter_max_density;
+    t.count = (uint)ceil(t.full_count);
+    t.seed = float2(ScatterRandom(tile, 0, 15), ScatterRandom(tile, 1, 15));
+
+    for (uint i = thread; i < t.count; i += SCATTER_PLACE_THREADS)
+    {
+        ScatterCandidate c;
+        if (!ScatterTryCandidate(t, i, c))
+        {
+            continue;
+        }
+
+        PlacedLayer layer = placed_layers[c.layer];
+        // Instances of the layer thin out outside of its range of ages
+        if (ScatterRandom(t.tile, i, 10) >= PlacedAge(layer, c.surface_weight))
+        {
+            continue;
+        }
+
+        float height;
+        float3 normal;
+        SampleHeightAndNormal(c.world_flat, height, normal);
+        if (normal.y < layer.slope_cos.x || normal.y > layer.slope_cos.y)
+        {
+            continue;
+        }
+
+        float alignment = lerp(layer.slope_alignment.x, layer.slope_alignment.y, ScatterRandom(t.tile, i, 5));
+        float3 angles = (float3(ScatterRandom(t.tile, i, 6), ScatterRandom(t.tile, i, 7), ScatterRandom(t.tile, i, 8)) * 2 - 1)
+            * layer.max_rotation;
+        float3 up;
+        float4 rotation = ScatterOrientation(normal, alignment, angles, up);
+        // Shrinking at the areas shows as smaller instances
+        float scale = lerp(layer.scale.x, layer.scale.y, ScatterRandom(t.tile, i, 3)) * c.scale;
+        float sink = lerp(layer.sink.x, layer.sink.y, ScatterRandom(t.tile, i, 9)) * scale;
+
+        PlacedInstance instance;
+        instance.position = float3(c.terrain_xz.x, height * height_scale, c.terrain_xz.y) - up * sink;
+        instance.scale = scale;
+        instance.rotation = rotation;
+        instance.prefab = placed_layer_prefabs[layer.prefab_start + ScatterPickIndex(ScatterRandom(t.tile, i, 4), layer.prefab_count)];
+        instance.id = i;
+        instance.cover = layer.cover * placed_prefab_half_width[instance.prefab] * scale;
+
+        uint slot;
+        InterlockedAdd(placed_tile_count, 1, slot);
+        if (slot < placed_max_per_tile)
+        {
+            placed_instances[tile_index * placed_max_per_tile + slot] = instance;
+        }
+    }
+
+    GroupMemoryBarrierWithGroupSync();
+    if (thread == 0)
+    {
+        placed_counts[tile_index] = min(placed_tile_count, placed_max_per_tile);
+    }
+}
+
+// Cover of the spawned instances for the stones and grass of this frame (layer large of the cover), every frame:
+// one group per instance, its threads sharing the cells of its disc
+StructuredBuffer<float4> placed_cover; // by spawned instance: terrain space x, z, radius in meters
+uint placed_cover_count;
+float3 placed_origin;                  // scene position of the terrain space origin
+
+[numthreads(8, 8, 1)]
+void CoverInstances(uint3 group : SV_GroupID, uint3 thread : SV_GroupThreadID)
+{
+    if (group.x >= placed_cover_count || scatter_cover_write < 0)
+    {
+        return;
+    }
+
+    float4 disc = placed_cover[group.x];
+    float radius = disc.z;
+    float2 p = ScatterCoverPosition(disc.xy + placed_origin.xz);
+    int reach = (int)ceil(radius / scatter_cover_cell);
+    int2 center = (int2)floor(p);
+    int2 low = max(center - reach, 0);
+    int2 high = min(center + reach, scatter_cover_size - 1);
+    for (int y = low.y + (int)thread.y; y <= high.y; y += 8)
+    {
+        for (int x = low.x + (int)thread.x; x <= high.x; x += 8)
+        {
+            ScatterCoverWriteCell(int2(x, y), p, radius);
+        }
+    }
+}

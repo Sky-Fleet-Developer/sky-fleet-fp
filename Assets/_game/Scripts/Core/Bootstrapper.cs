@@ -228,7 +228,8 @@ namespace Core
             remoteConfigurationHandler = new RemoteConfigurationHandler();
             var configsLoading = remoteConfigurationHandler.LoadConfigurations();
             container.Bind<RemoteConfigurationHandler>().FromInstance(remoteConfigurationHandler);
-            var tickService = new GameObject("[Tick]").AddComponent<TickService>();
+            var tickServiceGameObject = GameObject.Find("[Tick]");
+            var tickService = (tickServiceGameObject ?? new GameObject("[Tick]")).AddComponent<TickService>();
             if (Application.isPlaying)
             {
                 Object.DontDestroyOnLoad(tickService.gameObject);

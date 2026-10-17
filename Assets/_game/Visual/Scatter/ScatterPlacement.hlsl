@@ -333,6 +333,7 @@ struct ScatterTile
 struct ScatterCandidate
 {
     uint layer;         // index into scatter_layers and the layers of the kind
+    float surface_weight; // alphamap weight of the surface of that layer here
     float2 terrain_xz;
     float3 world_flat;  // absolute world x, z (y is not the terrain height)
     float3 root;        // absolute world, on the terrain mesh
@@ -395,6 +396,7 @@ bool ScatterTryCandidate(ScatterTile t, uint i, out ScatterCandidate c)
                 if (ScatterLayerRandom(t.tile, i, l) * total < share)
                 {
                     c.layer = l;
+                    c.surface_weight = weight;
                 }
             }
         }
