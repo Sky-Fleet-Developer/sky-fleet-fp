@@ -4047,6 +4047,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 633563785}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &683484943
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 683484944}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &683484944
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683484943}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &692541333
 GameObject:
   m_ObjectHideFlags: 0
@@ -6238,6 +6269,98 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1120961720}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1121908215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121908216}
+  - component: {fileID: 1121908217}
+  m_Layer: 0
+  m_Name: TreesBiome
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1121908216
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121908215}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3790, y: 245, z: 9108}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2087996431}
+  m_Father: {fileID: 1251779718}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1121908217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121908215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  radius: 4304.2
+  blendDistance: 1066
+  blendMode: 0
+  debugColor: {r: 0.30215696, g: 0.2705882, b: 0.9019608, a: 1}
+  source:
+    rid: 3711589915586199629
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589915586199629
+      type: {class: NoiseBiomeSource, ns: Core.TerrainGenerator.Biomes.Sources, asm: Core}
+      data:
+        seed: 0
+        wavelengthMeters: 500
+        octaves: 4
+        persistence: 0.5
+        lacunarity: 2
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        baseHeight: 0
+        amplitude: 0.02
+        tileSizeMeters: 7200
+        groundSurface:
+          mode: 2
+          surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
 --- !u!1 &1123980745
 GameObject:
   m_ObjectHideFlags: 0
@@ -7247,6 +7370,7 @@ Transform:
   - {fileID: 2086729937}
   - {fileID: 1740535268}
   - {fileID: 1408749231}
+  - {fileID: 1121908216}
   - {fileID: 266921919}
   - {fileID: 1339929528}
   - {fileID: 137487983}
@@ -12020,37 +12144,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2046366118}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &2075084126
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2075084127}
-  m_Layer: 0
-  m_Name: '[Tick]'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2075084127
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2075084126}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2086729936
 GameObject:
   m_ObjectHideFlags: 0
@@ -12126,6 +12219,88 @@ MonoBehaviour:
           surface: {fileID: 11400000, guid: 08da5ef3bc6f1824c9115162315710ee, type: 2}
         - mode: 2
           surface: {fileID: 0}
+--- !u!1 &2087996430
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2087996431}
+  - component: {fileID: 2087996432}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2087996431
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087996430}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1121908216}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2087996432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2087996430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9529db4b6f4c0b96ae8a8b3850ea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.HeightmapFilterBehaviour
+  filter:
+    rid: 3711589915586199630
+  references:
+    version: 2
+    RefIds:
+    - rid: 3711589915586199630
+      type: {class: SurfaceFromHeightFilter, ns: Runtime.Environment.Terrain, asm: Runtime}
+      data:
+        active: 1
+        surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
+        heightMin: 0
+        heightMax: 0.02
+        weightCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        strength: 1
+        keepHeight: 1
 --- !u!1 &2100102589 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 52167800360736485, guid: 0b735169160b97744aec9c8a4edc840c, type: 3}
@@ -12499,15 +12674,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -98
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 606
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 4209774599177273067, guid: de6ef20493435d6499795b4e5f6f61be, type: 3}
       propertyPath: m_LocalRotation.w
@@ -12809,4 +12984,4 @@ SceneRoots:
   - {fileID: 618855680}
   - {fileID: 1251779718}
   - {fileID: 617145228}
-  - {fileID: 2075084127}
+  - {fileID: 683484944}

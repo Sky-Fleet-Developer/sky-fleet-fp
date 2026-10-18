@@ -34,7 +34,7 @@ Material:
   m_InvalidKeywords:
   - _NORMALMAP_TANGENT_SPACE
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2225
   stringTagMap:
@@ -70,7 +70,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Cracks:
-        m_Texture: {fileID: 2800000, guid: 6c7784009204f804d8536449cc728597, type: 3}
+        m_Texture: {fileID: 2800000, guid: aa33508c6a1929143829c6c54f08a663, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailMap:
@@ -229,8 +229,8 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _LayerDarkening: 1
-    - _LayerDepth: 0.0511
-    - _Layers: 5
+    - _LayerDepth: 0.0831
+    - _Layers: 3
     - _LinkDetailsWithBase: 1
     - _MaterialID: 0
     - _MaterialTypeMask: 2
@@ -306,10 +306,10 @@ Material:
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SurfaceRemap: {r: 0, g: 0.31, b: 0, a: 0}
+    - _SurfaceRemap: {r: 0, g: 0.35, b: 0, a: 0}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _TintDeep: {r: 0.015256405, g: 0.17, b: 0.12858972, a: 1}
-    - _TintLight: {r: 0.14219134, g: 0.4821175, b: 0.511, a: 1}
+    - _TintDeep: {r: 0.023069764, g: 0.248, b: 0.21981475, a: 1}
+    - _TintLight: {r: 0.005165978, g: 0.53438056, b: 0.73800004, a: 1}
     - _TransmittanceColor: {r: 0.35, g: 0.9, b: 0.95, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}

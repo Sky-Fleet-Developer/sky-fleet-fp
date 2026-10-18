@@ -113,6 +113,7 @@ namespace GameEditor.Trees
             };
 
             UseCrystalGraph(materials[1]);
+            UsePetalTexture(materials[2]);
 
             foreach (Stage stage in System.Enum.GetValues(typeof(Stage)))
             {
@@ -263,7 +264,8 @@ namespace GameEditor.Trees
                 var coatRadii = Radii(top, u => (radius(u * top / Segments) + p.sheathGap
                                                  + Mathf.Lerp(thickness, endThickness, u * top / Segments))
                                                 * (1 + 0.12f * ((float) rng.NextDouble() - 0.5f)));
-                builder.CrystalTube(coatPoints, coatRadii, !forks);
+                var trunkRadii = Radii(top, u => radius(u * top / Segments));
+                builder.CrystalTube(coatPoints, coatRadii, !forks, trunkRadii);
 
                 var end = Tangent(coatPoints, top);
                 if (forks) builder.Collar(coatPoints[top], end, coatRadii[top]);
@@ -300,6 +302,46 @@ namespace GameEditor.Trees
         /// <summary>A stable pseudo-random value 0..1 of a point.</summary>
         private static float Hash01(Vector3 point) =>
             Mathf.Repeat(Mathf.Sin(Vector3.Dot(point, new Vector3(12.9898f, 78.233f, 37.719f))) * 43758.547f, 1f);
+
+        /// <summary>
+        /// Half width of a petal, 0..1, along it: it swells quickly to the widest part near a third of the length and then
+        /// narrows in a straight line to a sharp point.
+        /// </summary>
+        private static float PetalProfile(float t)
+        {
+            const float widest = 0.33f;
+            return t < widest
+                ? Mathf.Pow(Mathf.Max(0f, Mathf.Sin(Mathf.PI * 0.5f * t / widest)), 0.8f)
+                : Mathf.Pow(Mathf.Max(0f, 1f - (t - widest) / (1f - widest)), 1.15f); // not below 0: pow of that is NaN
+        }
+
+        /// <summary>
+        /// Half the height of the outline of the leaf in the petal texture (0..0.5 of its height) at a position along it:
+        /// rounded at the base, broad in the middle, narrowing to the point at the right end.
+        /// </summary>
+        private static readonly Vector2[] PetalOutline =
+        {
+            new (0.00f, 0.12f), new (0.04f, 0.30f), new (0.10f, 0.39f), new (0.25f, 0.45f), new (0.50f, 0.45f),
+            new (0.70f, 0.37f), new (0.85f, 0.23f), new (0.94f, 0.11f), new (0.985f, 0.03f),
+        };
+
+        /// <summary>
+        /// The uv of a petal vertex: along it in x, across it in y. Across spans the width of the leaf outline at that
+        /// place (side is -1..1 around the petal), so the edges of the mesh are the edges of the leaf in the texture.
+        /// </summary>
+        private static Vector2 PetalUv(float along, float side)
+        {
+            var u = Mathf.Clamp(along, 0f, PetalOutline[PetalOutline.Length - 1].x);
+            var half = PetalOutline[PetalOutline.Length - 1].y;
+            for (var i = 1; i < PetalOutline.Length; i++)
+            {
+                if (u > PetalOutline[i].x) continue;
+                half = Mathf.Lerp(PetalOutline[i - 1].y, PetalOutline[i].y, Mathf.InverseLerp(PetalOutline[i - 1].x, PetalOutline[i].x, u));
+                break;
+            }
+
+            return new Vector2(u, 0.5f + side * half * 0.97f);
+        }
 
         /// <summary>1 at the nodes of a stalk, 0 between them.</summary>
         private static float Pulse(float u, int nodes) => Mathf.Pow(Mathf.Max(0, Mathf.Cos(Mathf.PI * 2 * nodes * u)), 6);
@@ -347,12 +389,22 @@ namespace GameEditor.Trees
         private static Vector3 Tangent(Vector3[] points, int index) =>
             (points[index] - points[Mathf.Max(index - 1, 0)]).normalized;
 
+        /// <summary>The trunk axis at a vertex of the crystal coat: a point on it, its radius, its direction.</summary>
+        private struct Axis
+        {
+            public Vector3 center;
+            public float radius;
+            public Vector3 direction;
+        }
+
         private class MeshBuilder
         {
             private readonly List<Vector3> vertices = new ();
             private readonly List<Vector3> normals = new ();
             private readonly List<Vector2> uvs = new ();
             private readonly List<Color> colors = new ();
+            private readonly List<Vector4> axisCenters = new ();
+            private readonly List<Vector3> axisDirections = new ();
             private readonly List<int>[] triangles = { new (), new (), new () };
             private readonly Random rng;
             private readonly float age;
@@ -377,7 +429,7 @@ namespace GameEditor.Trees
             /// end: its corners are pushed along the tube by up to that many radii.
             /// </summary>
             public void Tube(int sub, Vector3[] points, float[] radii, int sides, bool flat, Vector2 squash, Vector3 hint,
-                bool capStart, float tipJitter)
+                bool capStart, float tipJitter, float[] trunkRadii = null)
             {
                 var count = points.Length;
                 var rings = new Vector3[count][];
@@ -388,6 +440,11 @@ namespace GameEditor.Trees
                 Color Paint(int ring) => sub != CrystalSub
                     ? Color.clear
                     : new Color(crystalId, ring / (float) Mathf.Max(1, count - 1), age, Mathf.Clamp01(radii[ring] / 0.9f));
+                // The trunk inside the crystal, read by CyanCrystal.hlsl from two uv channels: where its axis passes the
+                // ring and how thick it is (radius 0: no trunk in this crystal), and the direction of the axis
+                Axis AxisOf(int ring) => trunkRadii == null || sub != CrystalSub
+                    ? default
+                    : new Axis { center = points[ring], radius = trunkRadii[ring], direction = Tangent(points, ring) };
                 var reference = hint != Vector3.zero ? hint : Mathf.Abs(Tangent(points, 1).y) > 0.9f ? Vector3.right : Vector3.up;
                 var u = reference;
                 for (var i = 0; i < count; i++)
@@ -420,8 +477,16 @@ namespace GameEditor.Trees
                         for (var s = 0; s < sides; s++)
                         {
                             vertices.Add(rings[i][s]);
-                            normals.Add((rings[i][s] - points[i]).normalized);
-                            uvs.Add(new Vector2(s / (float) sides, i / (float) (count - 1)));
+                            // A ring that is a point (the tip of a petal) has no outward direction: it looks along the stalk
+                            var outward = rings[i][s] - points[i];
+                            normals.Add(outward.sqrMagnitude > 1e-10f
+                                ? outward.normalized
+                                : (points[Mathf.Min(i + 1, count - 1)] - points[Mathf.Max(i - 1, 0)]).normalized);
+                            // A petal is mapped like its texture: along the petal in x, across it in y (the two faces
+                            // share the same texture), inside the outline of the leaf
+                            uvs.Add(sub == PetalSub
+                                ? PetalUv(i / (float) (count - 1), Mathf.Cos(Mathf.PI * 2 * s / sides))
+                                : new Vector2(s / (float) sides, i / (float) (count - 1)));
                             colors.Add(Color.clear);
                         }
                     }
@@ -435,8 +500,8 @@ namespace GameEditor.Trees
                         var next = (s + 1) % sides;
                         if (flat)
                         {
-                            AddFlat(list, rings[i][s], rings[i][next], rings[i + 1][s], Paint(i), Paint(i), Paint(i + 1));
-                            AddFlat(list, rings[i][next], rings[i + 1][next], rings[i + 1][s], Paint(i), Paint(i + 1), Paint(i + 1));
+                            AddFlat(list, rings[i][s], rings[i][next], rings[i + 1][s], Paint(i), Paint(i), Paint(i + 1), AxisOf(i), AxisOf(i), AxisOf(i + 1));
+                            AddFlat(list, rings[i][next], rings[i + 1][next], rings[i + 1][s], Paint(i), Paint(i + 1), Paint(i + 1), AxisOf(i), AxisOf(i + 1), AxisOf(i + 1));
                         }
                         else
                         {
@@ -453,8 +518,8 @@ namespace GameEditor.Trees
                 for (var s = 0; s < sides; s++)
                 {
                     var next = (s + 1) % sides;
-                    if (radii[last] > 0.001f) AddFlat(list, capCenter, rings[last][s], rings[last][next], Paint(last), Paint(last), Paint(last));
-                    if (capStart && radii[0] > 0.001f) AddFlat(list, points[0], rings[0][next], rings[0][s], Paint(0), Paint(0), Paint(0));
+                    if (radii[last] > 0.001f) AddFlat(list, capCenter, rings[last][s], rings[last][next], Paint(last), Paint(last), Paint(last), AxisOf(last), AxisOf(last), AxisOf(last));
+                    if (capStart && radii[0] > 0.001f) AddFlat(list, points[0], rings[0][next], rings[0][s], Paint(0), Paint(0), Paint(0), AxisOf(0), AxisOf(0), AxisOf(0));
                 }
             }
 
@@ -471,7 +536,7 @@ namespace GameEditor.Trees
             /// A chain of crystal prisms along points; it is one solid with all the other crystals (CrystalField), meshed
             /// when the mesh is made. The last end is broken when asked.
             /// </summary>
-            public void CrystalTube(Vector3[] points, float[] radii, bool brokenTip)
+            public void CrystalTube(Vector3[] points, float[] radii, bool brokenTip, float[] trunkRadii = null)
             {
                 if (SolidCrystal)
                 {
@@ -480,7 +545,7 @@ namespace GameEditor.Trees
                 }
 
                 // Plain prisms with a jagged tip: few vertices. The crystal is opaque, so shells inside each other don't show
-                Tube(CrystalSub, points, radii, 6, true, Vector2.one, Vector3.zero, true, brokenTip ? 0.6f : 0);
+                Tube(CrystalSub, points, radii, 6, true, Vector2.one, Vector3.zero, true, brokenTip ? 0.6f : 0, trunkRadii);
             }
 
             /// <summary>
@@ -547,8 +612,8 @@ namespace GameEditor.Trees
                     var tangential = Vector3.Cross(axis, radial);
                     var direction = axis * Mathf.Cos(tilt) + radial * Mathf.Sin(tilt);
                     var petalLength = length * Range(random, 0.85f, 1.15f);
-                    var points = Curve(tip, direction, axis * (petalLength * 0.25f), petalLength, 7);
-                    var radii = Radii(7, t => width * Mathf.Pow(Mathf.Sin(Mathf.PI * Mathf.Pow(t, 0.7f)), 0.8f));
+                    var points = Curve(tip, direction, axis * (petalLength * 0.25f), petalLength, 9);
+                    var radii = Radii(9, t => width * PetalProfile(t));
                     Tube(PetalSub, points, radii, 8, false, new Vector2(1, 0.35f), tangential, false, 0);
                 }
             }
@@ -590,6 +655,9 @@ namespace GameEditor.Trees
                 mesh.SetNormals(normals);
                 mesh.SetUVs(0, uvs);
                 mesh.SetColors(colors);
+                PadAxes();
+                mesh.SetUVs(1, axisCenters);
+                mesh.SetUVs(2, axisDirections);
                 mesh.subMeshCount = triangles.Length;
                 for (var i = 0; i < triangles.Length; i++) mesh.SetTriangles(triangles[i], i, false);
                 mesh.RecalculateBounds();
@@ -598,8 +666,23 @@ namespace GameEditor.Trees
 
             private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
-            private void AddFlat(List<int> list, Vector3 a, Vector3 b, Vector3 c, Color colorA, Color colorB, Color colorC)
+            /// <summary>Vertices made by other code have no trunk axis: zeros up to the current count.</summary>
+            private void PadAxes()
             {
+                while (axisCenters.Count < vertices.Count) axisCenters.Add(Vector4.zero);
+                while (axisDirections.Count < vertices.Count) axisDirections.Add(Vector3.zero);
+            }
+
+            private void AddFlat(List<int> list, Vector3 a, Vector3 b, Vector3 c, Color colorA, Color colorB, Color colorC,
+                Axis axisA = default, Axis axisB = default, Axis axisC = default)
+            {
+                PadAxes();
+                foreach (var axis in new[] { axisA, axisB, axisC })
+                {
+                    axisCenters.Add(new Vector4(axis.center.x, axis.center.y, axis.center.z, axis.radius));
+                    axisDirections.Add(axis.direction);
+                }
+
                 var normal = Vector3.Cross(b - a, c - a).normalized;
                 var index = vertices.Count;
                 vertices.Add(a); vertices.Add(b); vertices.Add(c);
@@ -702,6 +785,20 @@ namespace GameEditor.Trees
             changed |= AssignTexture(material, "_IceNormal", textures + "Ice/ice_0002_normal_directx_2k.png");
             changed |= AssignTexture(material, "_IceRoughness", textures + "Ice/ice_0002_roughness_2k.jpg");
             if (changed) EditorUtility.SetDirty(material);
+        }
+
+        /// <summary>
+        /// The petal texture (a leaf outline, base on the left and the point on the right). It carries the color, so the flat orange of the
+        /// placeholder is turned to white, and only when the texture is assigned here: what is set by hand stays.
+        /// </summary>
+        private static void UsePetalTexture(Material material)
+        {
+            if (!AssignTexture(material, "_BaseColorMap", "Assets/_game/Visual/Trees/Textures/petal_2.png")) return;
+
+            material.SetColor("_BaseColor", Color.white);
+            material.SetColor("_EmissiveColor", new Color(0.03f, 0.01f, 0.005f));
+            HDMaterial.ValidateMaterial(material);
+            EditorUtility.SetDirty(material);
         }
 
         private static bool AssignTexture(Material material, string property, string path)

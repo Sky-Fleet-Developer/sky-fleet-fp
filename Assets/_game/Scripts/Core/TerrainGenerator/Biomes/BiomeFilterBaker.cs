@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Core.TerrainGenerator.Filters;
+using Core.TerrainGenerator.Surfaces;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -151,7 +152,7 @@ namespace Core.TerrainGenerator.Biomes
         /// </summary>
         /// <param name="borderMargin">How far biome borders may be bent, see <see cref="Settings.BiomeEdgeNoise.Margin"/>.</param>
         public void Filter(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain,
-            float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels, float borderMargin)
+            float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels, float borderMargin, TerrainSurfaces surfaces)
         {
             if (_filtered.Count == 0 || !_layerSites.Build(data, biomes, worldToTerrain, chunkSizeMeters, borderMargin))
             {
@@ -188,7 +189,7 @@ namespace Core.TerrainGenerator.Biomes
                 }
 
                 HeightmapBaker.RunChain(_activeFilters, data, slotCoords, biome.OwnHeight, biome.OwnAlpha,
-                    chunkSizeMeters, heightRangeMeters, sharedEdgePixels);
+                    chunkSizeMeters, heightRangeMeters, sharedEdgePixels, surfaces);
 
                 // Blending reads the filtered data only where the biome has influence
                 for (int layer = 0; layer < data.LayerCount; layer++)

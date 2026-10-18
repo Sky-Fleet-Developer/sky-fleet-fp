@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Core.TerrainGenerator.Biomes;
 using Core.TerrainGenerator.Biomes.Sources;
+using Core.TerrainGenerator.Filters;
 using Core.TerrainGenerator.Settings;
 using Unity.Mathematics;
 using UnityEngine;
@@ -93,6 +94,29 @@ namespace Core.TerrainGenerator.Surfaces
                         _collected.Add(binding.Surface);
                     }
                 }
+
+                // Surfaces written by the filters of the biome
+                IReadOnlyList<IHeightmapFilterSource> filters = biome.Filters;
+                if (filters == null)
+                {
+                    continue;
+                }
+
+                foreach (IHeightmapFilterSource filterSource in filters)
+                {
+                    if (filterSource?.Filter is not IHeightmapFilterSurfaces filter)
+                    {
+                        continue;
+                    }
+
+                    foreach (SurfaceType surface in filter.Surfaces)
+                    {
+                        if (surface && !_collected.Contains(surface))
+                        {
+                            _collected.Add(surface);
+                        }
+                    }
+                }
             }
 
             if (_collected.Count > MaxSurfaces)
@@ -130,6 +154,9 @@ namespace Core.TerrainGenerator.Surfaces
             }
             return changed;
         }
+
+        /// <summary>Id of a surface type in the alphamap, -1 when the terrain doesn't use it.</summary>
+        public int GetSurfaceId(SurfaceType surface) => surface ? _surfaces.IndexOf(surface) : -1;
 
         /// <summary>Surface id of each channel of the source alphamap, -1 for channels that paint nothing.</summary>
         public int4 GetChannelIds(IBiomeSource source)

@@ -19,12 +19,12 @@ MonoBehaviour:
   tilesPerRequest: 16
   spawnsPerFrame: 48
   layers:
-  - surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+  - surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
     prefabs:
     - {fileID: 1805686648130468248, guid: 4031831cc151a80498e9bcbf9e9fe09d, type: 3}
     - {fileID: 2745005450930083251, guid: 9ef9247f6616fcd4998455ba21c4b06b, type: 3}
     - {fileID: 2732063381744912419, guid: 5b15631368958934fa2773df71f2f8da, type: 3}
-    density: 0.003
+    density: 0.001
     minSurfaceWeight: 0.25
     slope: {x: 0, y: 35}
     scale: {x: 1, y: 3}
@@ -38,14 +38,14 @@ MonoBehaviour:
     noiseSeed: 0
     noiseInvert: 0
     useAge: 1
-    ageRange: {x: 0.66, y: 1}
+    ageRange: {x: 0.66, y: 0.9}
     ageFade: 0.1
-  - surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+  - surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
     prefabs:
     - {fileID: 3292522268198624933, guid: afb1ee17eaa1bd149930b9d0acecb314, type: 3}
     - {fileID: 9176313650963222822, guid: ab8d3c1200f12d74486d7f76f250cb14, type: 3}
     - {fileID: 7383582218124486021, guid: 90468a1076efc9244ac5bf2d8300d6cb, type: 3}
-    density: 0.007
+    density: 0.0025
     minSurfaceWeight: 0.25
     slope: {x: 0, y: 35}
     scale: {x: 1, y: 3}
@@ -59,14 +59,14 @@ MonoBehaviour:
     noiseSeed: 0
     noiseInvert: 0
     useAge: 1
-    ageRange: {x: 0.33, y: 0.66}
+    ageRange: {x: 0.5, y: 0.66}
     ageFade: 0.1
-  - surface: {fileID: 11400000, guid: 72be1a7ce86b2d8438b86c736892cc74, type: 2}
+  - surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
     prefabs:
     - {fileID: 138021471464789434, guid: 001049481dc91fe4dafc0c7b408fbc32, type: 3}
     - {fileID: 4584457369827957835, guid: 737cdf63c223dc4408e5a3f3b754c26b, type: 3}
     - {fileID: 5418906888212225585, guid: 0d6311d5ba6845f4fa6fddc3f9a58c9d, type: 3}
-    density: 0.015
+    density: 0.01
     minSurfaceWeight: 0.25
     slope: {x: 0, y: 35}
     scale: {x: 1, y: 3}
@@ -80,5 +80,5 @@ MonoBehaviour:
     noiseSeed: 0
     noiseInvert: 0
     useAge: 1
-    ageRange: {x: 0, y: 0.33}
-    ageFade: 0.1
+    ageRange: {x: 0, y: 0.4}
+    ageFade: 0.3

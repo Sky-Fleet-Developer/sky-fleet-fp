@@ -1,0 +1,57 @@
+#pragma kernel CSNoiseTile
+
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/PerlinNoise.hlsl"
+
+// One tile of the noise biome source (NoiseBiomeSource.cs): fractal Perlin noise shaped by a curve, written as the heights of
+// the tile, and a constant ground weight as its alphamap. Pixel (x, y) of the tile lies at the tile coordinate
+// (x, y) / tile_pixels_per_tile, so the noise continues over the tile edges.
+
+RWTexture2DArray<float> tile_height;
+RWTexture2DArray<float4> tile_alpha;
+int tile_layer;
+int tile_resolution;
+int2 tile_coord;
+float tile_pixels_per_tile; // resolution - 1 with shared edge pixels, else resolution
+float tile_pixel_offset;    // 0 with shared edge pixels, else 0.5
+float tile_size_meters;
+
+uint noise_seed;
+float noise_wavelength_meters;
+int noise_octaves;
+float noise_persistence;
+float noise_lacunarity;
+float noise_base;      // normalized height of noise value 0
+float noise_amplitude; // normalized height added by noise value 1
+float4 noise_curve[64]; // the curve over the noise 0..1, 256 samples packed by four
+float4 tile_ground;     // alpha channel weights
+
+float CurveSample(int index)
+{
+    return noise_curve[index >> 2][index & 3];
+}
+
+// The curve at a value 0..1, linear between the samples
+float EvaluateCurve(float value)
+{
+    float scaled = saturate(value) * 255.0;
+    int index = min((int)scaled, 254);
+    return lerp(CurveSample(index), CurveSample(index + 1), scaled - index);
+}
+
+[numthreads(8, 8, 1)]
+void CSNoiseTile(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)tile_resolution || id.y >= (uint)tile_resolution)
+    {
+        return;
+    }
+
+    float2 position = tile_coord + (id.xy + tile_pixel_offset) / tile_pixels_per_tile;
+    float2 noise_position = position * (tile_size_meters / noise_wavelength_meters);
+    float noise = PerlinFbm(noise_position, noise_seed, noise_octaves, noise_persistence, noise_lacunarity);
+    float shaped = saturate(EvaluateCurve(noise));
+
+    uint3 texel = uint3(id.xy, tile_layer);
+    tile_height[texel] = saturate(noise_base + shaped * noise_amplitude);
+    tile_alpha[texel] = tile_ground;
+}

@@ -319,6 +319,8 @@ namespace Core.TerrainGenerator
         private void OnBiomeFilterChanged()
         {
             _biomeFiltersChanged = true;
+            // A filter may have got another surface type to write
+            RefreshSurfaces();
             ScheduleBakeBeforeRendering();
         }
 
@@ -375,7 +377,7 @@ namespace Core.TerrainGenerator
                     }
                 }
                 _heightmapBaker.Bake(_terrainData, _filters, _settings.heightmapSettings.chunkSizeMeters, _settings.Height,
-                    _settings.heightmapSettings.sharedEdgePixels);
+                    _settings.heightmapSettings.sharedEdgePixels, _surfaces);
                 // Patch culling bounds follow the baked heights
                 _heightRanges.Measure(_terrainData);
                 HeightsChanged?.Invoke();

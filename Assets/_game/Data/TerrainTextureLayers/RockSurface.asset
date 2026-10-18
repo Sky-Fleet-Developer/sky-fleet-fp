@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6697aba9e930e01408e9907ba9cf2e0c, type: 3}
-  m_Name: Grass
+  m_Name: RockSurface
   m_EditorClassIdentifier: Core::Core.TerrainGenerator.Surfaces.SurfaceType
-  albedo: {fileID: 2800000, guid: ba85afdabac98a748b7808563c8fd60b, type: 3}
-  normal: {fileID: 2800000, guid: fc3091637b6c91e458a15dc6584833f0, type: 3}
-  height: {fileID: 2800000, guid: ba85afdabac98a748b7808563c8fd60b, type: 3}
-  heightRemap: {x: 0.19379845, y: 1}
-  metallic: 0
-  roughness: 0.665
-  tileSize: 8
+  albedo: {fileID: 2800000, guid: de7714bb44ad4f540a86aefc2ffa965e, type: 3}
+  normal: {fileID: 2800000, guid: b333918dccbdc0044b418f217a995523, type: 3}
+  height: {fileID: 2800000, guid: de7714bb44ad4f540a86aefc2ffa965e, type: 3}
+  heightRemap: {x: 0, y: 1}
+  metallic: 0.1
+  roughness: 0.579
+  tileSize: 15

@@ -1,3 +1,4 @@
+using Core.TerrainGenerator.Surfaces;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.Filters
@@ -47,10 +48,13 @@ namespace Core.TerrainGenerator.Filters
         /// False: pixel i is a cell centered at (i + 0.5) / resolution.
         /// </summary>
         public readonly bool SharedEdgePixels;
+        /// <summary>The surface ids the alphamap is written with; null when the terrain has none.</summary>
+        private readonly TerrainSurfaces _surfaces;
 
         public HeightmapFilterContext(RenderTexture source, RenderTexture destination, RenderTexture alphaSource,
             RenderTexture alphaDestination, ComputeBuffer slotCoords, ComputeBuffer map, Vector2Int mapMin, int mapSize,
-            int layerCount, int resolution, float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels)
+            int layerCount, int resolution, float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels,
+            TerrainSurfaces surfaces = null)
         {
             Source = source;
             Destination = destination;
@@ -65,7 +69,14 @@ namespace Core.TerrainGenerator.Filters
             ChunkSizeMeters = chunkSizeMeters;
             HeightRangeMeters = heightRangeMeters;
             SharedEdgePixels = sharedEdgePixels;
+            _surfaces = surfaces;
         }
+
+        /// <summary>
+        /// Id of a surface type in the alphamap (SurfaceAlphamap.hlsl), -1 when the terrain doesn't use it. A filter that
+        /// writes a surface reports it by <see cref="IHeightmapFilterSurfaces"/> so that it gets an id.
+        /// </summary>
+        public int GetSurfaceId(SurfaceType surface) => _surfaces != null ? _surfaces.GetSurfaceId(surface) : -1;
 
         /// <summary>Binds the common filter_* parameters declared in HeightmapFilterCommon.hlsl.</summary>
         public void Bind(ComputeShader shader, int kernel)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.TerrainGenerator.Surfaces;
 using UnityEngine;
 
 namespace Core.TerrainGenerator.Filters
@@ -14,10 +15,10 @@ namespace Core.TerrainGenerator.Filters
         private static readonly List<bool> WritesAlphamap = new ();
 
         public void Bake(TerrainData data, IReadOnlyList<IHeightmapFilter> filters, float chunkSizeMeters, float heightRangeMeters,
-            bool sharedEdgePixels)
+            bool sharedEdgePixels, TerrainSurfaces surfaces)
         {
             RunChain(filters, data, data.SlotCoordsBuffer, data.RawHeightmapTex, data.RawAlphamapTex, chunkSizeMeters,
-                heightRangeMeters, sharedEdgePixels);
+                heightRangeMeters, sharedEdgePixels, surfaces);
         }
 
         /// <summary>
@@ -29,7 +30,8 @@ namespace Core.TerrainGenerator.Filters
         /// <param name="alphamap">Source alphamap; must not be AlphamapTex or the scratch alphamap.</param>
         /// <param name="slotCoords">Per layer int3(chunk, isUsed): layers marked unused are skipped by the filters.</param>
         public static void RunChain(IReadOnlyList<IHeightmapFilter> filters, TerrainData data, ComputeBuffer slotCoords,
-            RenderTexture heights, RenderTexture alphamap, float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels)
+            RenderTexture heights, RenderTexture alphamap, float chunkSizeMeters, float heightRangeMeters, bool sharedEdgePixels,
+            TerrainSurfaces surfaces)
         {
             // Read once: the flags decide the ping-pong order
             ActiveFilters.Clear();
@@ -73,7 +75,7 @@ namespace Core.TerrainGenerator.Filters
                 bool writesAlphamap = WritesAlphamap[i];
                 var context = new HeightmapFilterContext(heightsSource, heightsDestination, alphaSource,
                     writesAlphamap ? alphaDestination : null, slotCoords, map, mapMin, mapSize, data.LayerCount,
-                    data.Resolution, chunkSizeMeters, heightRangeMeters, sharedEdgePixels);
+                    data.Resolution, chunkSizeMeters, heightRangeMeters, sharedEdgePixels, surfaces);
                 ActiveFilters[i].Apply(context);
 
                 heightsSource = heightsDestination;

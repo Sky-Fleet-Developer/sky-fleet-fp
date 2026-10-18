@@ -216,7 +216,7 @@ namespace Core.TerrainGenerator.Biomes
                 }
 
                 _filterBaker.Filter(data, biomes, worldToTerrain, chunkSizeMeters, heightRangeMeters, sharedEdgePixels,
-                    edgeNoise.Margin);
+                    edgeNoise.Margin, surfaces);
                 _toCompose.Clear();
                 foreach (WorldChunk chunk in _chunks.Values)
                 {

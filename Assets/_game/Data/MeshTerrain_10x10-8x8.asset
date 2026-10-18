@@ -62,7 +62,7 @@ MonoBehaviour:
   gpuWorksShader: {fileID: 7200000, guid: 829cf78ad1ceb4241a7a7fb63a620a5e, type: 3}
   biomeDebugShader: {fileID: 7200000, guid: 00a0defdaae84603ab67579a5434aa79, type: 3}
   biomeComposeShader: {fileID: 7200000, guid: 72166e1690494535b6fc3806900eca0c, type: 3}
-  biomeTilePoolSize: 64
+  biomeTilePoolSize: 128
   heightmapSettings:
     formatMap:
       format: 10x10-8x8Height_{x}-{y}

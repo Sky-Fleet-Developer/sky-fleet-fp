@@ -1,0 +1,52 @@
+#pragma kernel CSSurfaceFromHeight
+
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/HeightmapFilterAlphamap.hlsl"
+#include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/SurfaceAlphamap.hlsl"
+
+// Mixes a surface into the alphamap by the height (SurfaceFromHeightFilter.cs). The weight is read from a curve of the height
+// between surface_height_min and surface_height_max; what the pixel had is scaled down by it, so the share of the surface
+// in the two strongest surfaces of the pixel equals the weight.
+
+int surface_id;
+float surface_height_min;  // normalized height
+float surface_height_max;
+float surface_strength;
+float surface_keep_height; // heights are multiplied by it
+float4 surface_curve[16];  // the weight over the height between min and max, 64 samples packed by four
+
+float CurveSample(int index)
+{
+    return surface_curve[index >> 2][index & 3];
+}
+
+float EvaluateCurve(float value)
+{
+    float scaled = saturate(value) * 63.0;
+    int index = min((int)scaled, 62);
+    return lerp(CurveSample(index), CurveSample(index + 1), scaled - index);
+}
+
+[numthreads(8, 8, 1)]
+void CSSurfaceFromHeight(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)filter_resolution || id.y >= (uint)filter_resolution)
+    {
+        return;
+    }
+
+    int2 chunk;
+    if (!FilterTryGetChunk(id.z, chunk))
+    {
+        return;
+    }
+
+    float height = filter_source[id];
+    float t = saturate((height - surface_height_min) / max(surface_height_max - surface_height_min, 1e-6));
+    float weight = saturate(EvaluateCurve(t) * surface_strength);
+
+    SurfacesBegin();
+    SurfacesAddEncoded(filter_alpha_source[id], 1.0 - weight);
+    SurfacesAdd(surface_id, weight);
+    filter_alpha_destination[id] = SurfacesEncode();
+    filter_destination[id] = height * surface_keep_height;
+}
