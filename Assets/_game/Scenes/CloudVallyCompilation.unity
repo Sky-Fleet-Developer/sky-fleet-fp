@@ -204,6 +204,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -630,6 +665,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -1038,6 +1108,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -1698,6 +1803,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 4304.2
   blendDistance: 1066
   blendMode: 0
@@ -1951,6 +2091,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309675152}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &309835674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 309835675}
+  m_Layer: 0
+  m_Name: '[Tick]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &309835675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309835674}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &383155471
 GameObject:
   m_ObjectHideFlags: 0
@@ -2219,6 +2390,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 5
@@ -4047,37 +4253,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 633563785}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &683484943
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 683484944}
-  m_Layer: 0
-  m_Name: '[Tick]'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &683484944
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 683484943}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &692541333
 GameObject:
   m_ObjectHideFlags: 0
@@ -6295,7 +6470,7 @@ Transform:
   m_GameObject: {fileID: 1121908215}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3790, y: 245, z: 9108}
+  m_LocalPosition: {x: 767, y: 0, z: 2985}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6314,10 +6489,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 1
+    size: {x: 5000, y: 5000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 1000
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 4304.2
   blendDistance: 1066
-  blendMode: 0
-  debugColor: {r: 0.30215696, g: 0.2705882, b: 0.9019608, a: 1}
+  blendMode: 2
+  debugColor: {r: 0.29069543, g: 0.9019608, b: 0.2705882, a: 1}
   source:
     rid: 3711589915586199629
   references:
@@ -6356,10 +6566,28 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         baseHeight: 0
-        amplitude: 0.02
+        amplitude: 0.373
         tileSizeMeters: 7200
+        writeHeight: 0
+        surfaces:
+        - surface:
+            mode: 1
+            surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
+          weight: 2
+        - surface:
+            mode: 2
+            surface: {fileID: 0}
+          weight: 0
+        - surface:
+            mode: 2
+            surface: {fileID: 0}
+          weight: 0
+        - surface:
+            mode: 2
+            surface: {fileID: 0}
+          weight: 0
         groundSurface:
-          mode: 2
+          mode: 1
           surface: {fileID: 11400000, guid: b6fc3c3266fe0eb408f491051bfca606, type: 2}
 --- !u!1 &1123980745
 GameObject:
@@ -6516,6 +6744,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -7370,7 +7633,6 @@ Transform:
   - {fileID: 2086729937}
   - {fileID: 1740535268}
   - {fileID: 1408749231}
-  - {fileID: 1121908216}
   - {fileID: 266921919}
   - {fileID: 1339929528}
   - {fileID: 137487983}
@@ -7380,6 +7642,7 @@ Transform:
   - {fileID: 45779305}
   - {fileID: 1619479162}
   - {fileID: 1127802579}
+  - {fileID: 1121908216}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1254066000
@@ -8031,6 +8294,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -8140,6 +8438,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 4304.2
   blendDistance: 1066
   blendMode: 0
@@ -8979,6 +9312,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 5
@@ -9054,6 +9422,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -9446,6 +9849,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 1066
   blendMode: 0
@@ -12188,6 +12626,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f35cd50ba14aada70e629146d42964, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Runtime::Runtime.Environment.Terrain.Biomes.BiomeBehaviour
+  shape:
+    type: 0
+    size: {x: 1000, y: 1000}
+    radius: 500
+    points:
+    - {x: -500, y: -500}
+    - {x: -500, y: 500}
+    - {x: 500, y: 500}
+    - {x: 500, y: -500}
+    fadeDistance: 100
+    fadeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    bendByEdgeNoise: 0
   radius: 0
   blendDistance: 500
   blendMode: 0
@@ -12235,7 +12708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2087996431
 Transform:
   m_ObjectHideFlags: 0
@@ -12984,4 +13457,4 @@ SceneRoots:
   - {fileID: 618855680}
   - {fileID: 1251779718}
   - {fileID: 617145228}
-  - {fileID: 683484944}
+  - {fileID: 309835675}

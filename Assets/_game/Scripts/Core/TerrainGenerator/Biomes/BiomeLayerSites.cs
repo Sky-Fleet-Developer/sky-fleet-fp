@@ -19,6 +19,7 @@ namespace Core.TerrainGenerator.Biomes
         private readonly List<uint> _indices = new ();
         private readonly List<uint> _layerIndices = new ();
         private readonly List<bool> _weightedCache = new ();
+        private readonly BiomeShapeData _shapes = new ();
         private uint2[] _layerRanges;
         private ComputeBuffer _sitesBuffer;
         private ComputeBuffer _indicesBuffer;
@@ -31,7 +32,7 @@ namespace Core.TerrainGenerator.Biomes
         public bool Build(TerrainData data, IReadOnlyList<IBiome> biomes, Matrix4x4 worldToTerrain, float chunkSizeMeters,
             float margin)
         {
-            BiomeDiagram.CollectSites(biomes, worldToTerrain, _sites);
+            BiomeDiagram.CollectSites(biomes, worldToTerrain, _sites, _shapes);
             if (_sites.Count == 0)
             {
                 return false;
@@ -81,6 +82,7 @@ namespace Core.TerrainGenerator.Biomes
         {
             BufferUtility.Upload(ref _sitesBuffer, _sites, BiomeSite.Stride);
             BufferUtility.Upload(ref _indicesBuffer, _indices, sizeof(uint));
+            _shapes.Upload();
             if (_layerRangesBuffer == null || _layerRangesBuffer.count != _layerRanges.Length)
             {
                 _layerRangesBuffer?.Dispose();
@@ -94,10 +96,12 @@ namespace Core.TerrainGenerator.Biomes
             shader.SetBuffer(kernel, SitesProperty, _sitesBuffer);
             shader.SetBuffer(kernel, SiteIndicesProperty, _indicesBuffer);
             shader.SetBuffer(kernel, LayerRangesProperty, _layerRangesBuffer);
+            _shapes.Bind(shader, kernel);
         }
 
         public void Dispose()
         {
+            _shapes.Dispose();
             _sitesBuffer?.Dispose();
             _indicesBuffer?.Dispose();
             _layerRangesBuffer?.Dispose();

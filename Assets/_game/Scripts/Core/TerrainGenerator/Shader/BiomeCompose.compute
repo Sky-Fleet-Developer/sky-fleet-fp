@@ -173,6 +173,24 @@ void CollectPixelBiomes(uint2 range, float2 position, uint3 pixel, bool layers)
     }
 }
 
+// Sum of the channel weights of a biome that paint a surface here
+float PixelChannelSum(int k)
+{
+    float4 used = float4(biome_sources[pixel_biome[k]].channel_surfaces >= 0) * pixel_alpha[k];
+    return used.x + used.y + used.z + used.w;
+}
+
+// Share of the surfaces below that a layer covers where it has full weight: its channel weights up to 1, so a layer
+// that paints a surface only partly (e.g. by noise) leaves the rest to the surfaces below. 1 for a filtered alphamap
+float PixelCoverage(int k)
+{
+    if (biome_sources[pixel_biome[k]].filtered_alpha_slot >= 0)
+    {
+        return 1;
+    }
+    return saturate(PixelChannelSum(k));
+}
+
 // Surfaces of one biome at the pixel, added with the given weight
 void AddBiomeSurfaces(int k, float weight)
 {
@@ -184,12 +202,14 @@ void AddBiomeSurfaces(int k, float weight)
         return;
     }
 
-    // Channel weights of a file need not sum to 1: each biome brings its whole weight
+    // Channel weights of a file need not sum to 1: a normal biome brings its whole weight. A layer brings the channel
+    // weights as they are up to a sum of 1 (see PixelCoverage)
     float4 used = float4(source.channel_surfaces >= 0) * alpha;
-    float sum = used.x + used.y + used.z + used.w;
+    float sum = PixelChannelSum(k);
     if (sum > 0)
     {
-        SurfacesAddChannels(source.channel_surfaces, used, weight / sum);
+        float divisor = pixel_blend_mode[k] == BIOME_BLEND_NORMAL ? sum : max(sum, 1);
+        SurfacesAddChannels(source.channel_surfaces, used, weight / divisor);
     }
 }
 
@@ -264,9 +284,10 @@ void CSCompose (uint3 id : SV_DispatchThreadID)
     {
         float weight = pixel_weight[l];
         float applied = BiomeApplyLayer(pixel_blend_mode[l], height, pixel_height[l]);
+        float surface_weight = weight * PixelCoverage(l);
         for (int below = 0; below < l; below++)
         {
-            pixel_weight[below] *= 1 - weight;
+            pixel_weight[below] *= 1 - surface_weight;
         }
         pixel_height[l] = applied;
         height = lerp(height, applied, weight);

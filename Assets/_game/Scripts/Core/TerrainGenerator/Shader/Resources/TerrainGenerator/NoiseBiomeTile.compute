@@ -3,7 +3,7 @@
 #include "Assets/_game/Scripts/Core/TerrainGenerator/Shader/PerlinNoise.hlsl"
 
 // One tile of the noise biome source (NoiseBiomeSource.cs): fractal Perlin noise shaped by a curve, written as the heights of
-// the tile, and a constant ground weight as its alphamap. Pixel (x, y) of the tile lies at the tile coordinate
+// the tile (when tile_write_height is set), and per alphamap channel a weight: off, constant, the shaped noise or its inverse. Pixel (x, y) of the tile lies at the tile coordinate
 // (x, y) / tile_pixels_per_tile, so the noise continues over the tile edges.
 
 RWTexture2DArray<float> tile_height;
@@ -23,7 +23,24 @@ float noise_lacunarity;
 float noise_base;      // normalized height of noise value 0
 float noise_amplitude; // normalized height added by noise value 1
 float4 noise_curve[64]; // the curve over the noise 0..1, 256 samples packed by four
-float4 tile_ground;     // alpha channel weights
+int tile_write_height;  // 0: the heights are 0
+int4 tile_channel_weights; // per alpha channel NOISE_WEIGHT_*
+
+#define NOISE_WEIGHT_OFF 0
+#define NOISE_WEIGHT_CONSTANT 1
+#define NOISE_WEIGHT_NOISE 2
+#define NOISE_WEIGHT_INVERSE 3
+
+float ChannelWeight(int mode, float shaped)
+{
+    switch (mode)
+    {
+        case NOISE_WEIGHT_CONSTANT: return 1;
+        case NOISE_WEIGHT_NOISE: return shaped;
+        case NOISE_WEIGHT_INVERSE: return 1 - shaped;
+        default: return 0;
+    }
+}
 
 float CurveSample(int index)
 {
@@ -52,6 +69,7 @@ void CSNoiseTile(uint3 id : SV_DispatchThreadID)
     float shaped = saturate(EvaluateCurve(noise));
 
     uint3 texel = uint3(id.xy, tile_layer);
-    tile_height[texel] = saturate(noise_base + shaped * noise_amplitude);
-    tile_alpha[texel] = tile_ground;
+    tile_height[texel] = tile_write_height != 0 ? saturate(noise_base + shaped * noise_amplitude) : 0;
+    tile_alpha[texel] = float4(ChannelWeight(tile_channel_weights.x, shaped), ChannelWeight(tile_channel_weights.y, shaped),
+        ChannelWeight(tile_channel_weights.z, shaped), ChannelWeight(tile_channel_weights.w, shaped));
 }

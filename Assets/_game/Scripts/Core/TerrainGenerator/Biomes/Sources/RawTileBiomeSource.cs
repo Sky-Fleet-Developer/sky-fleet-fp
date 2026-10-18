@@ -26,6 +26,13 @@ namespace Core.TerrainGenerator.Biomes.Sources
         [SerializeField] private Vector2 origin;
         [PropertyTooltip("Tile files overlap by one pixel: the edge row of a tile equals the edge row of its neighbour (e.g. 257 = 256 + 1)")]
         [SerializeField] private bool sharedEdgePixels = true;
+        [PropertyTooltip("Remap of the heights (normalized, 0..1): the input range of the file becomes the output range. " +
+                 "(0, 1) to (0, 1) keeps them. Swapping the output range turns the relief upside down; " +
+                 "a narrow output range flattens it, a raised one lifts it")]
+        [SerializeField] private Vector2 heightInputRange = new (0, 1);
+        [SerializeField] private Vector2 heightOutputRange = new (0, 1);
+        [PropertyTooltip("Heights outside the input range take the ends of the output range. Off: they continue the line")]
+        [SerializeField] private bool clampHeights = true;
         [PropertyTooltip("Surface type painted by each channel of the alphamap: r, g, b, a. " +
                  "Default: channel i paints surface i of the terrain settings")]
         [SerializeField] private SurfaceChannel[] surfaceChannels = new SurfaceChannel[4];
@@ -38,7 +45,10 @@ namespace Core.TerrainGenerator.Biomes.Sources
         public bool SharedEdgePixels => sharedEdgePixels;
         public string ContentKey => string.IsNullOrEmpty(directory) || heightmapFormat == null
             ? null
-            : $"raw|{directory}|{heightmapFormat.format}.{heightmapFormat.extension}|{alphamapFormat?.format}.{alphamapFormat?.extension}";
+            : $"raw|{directory}|{heightmapFormat.format}.{heightmapFormat.extension}|{alphamapFormat?.format}.{alphamapFormat?.extension}" +
+              (IsHeightRemapped ? $"|remap{heightInputRange}{heightOutputRange}{clampHeights}" : "");
+
+        private bool IsHeightRemapped => heightInputRange != new Vector2(0, 1) || heightOutputRange != new Vector2(0, 1);
 
         public void Configure(string directory, FileFormatSeeker heightmapFormat, FileFormatSeeker alphamapFormat,
             float tileSizeMeters, Vector2 origin, bool sharedEdgePixels)
@@ -82,10 +92,39 @@ namespace Core.TerrainGenerator.Biomes.Sources
                 return heights != null;
             }
 
+            RemapHeights(heights);
             target.UploadHeights(heights, sharedEdgePixels);
             // Without an alphamap file the tile gets no texture layers rather than the previous tile's ones
             target.UploadAlpha(alpha ?? new Color32[target.Resolution * target.Resolution], sharedEdgePixels);
             return true;
+        }
+
+        // Tiles are remapped as they are loaded and cached remapped, so ContentKey carries the remap
+        private void RemapHeights(float[,] heights)
+        {
+            if (!IsHeightRemapped)
+            {
+                return;
+            }
+
+            float inputWidth = heightInputRange.y - heightInputRange.x;
+            if (Mathf.Abs(inputWidth) < 1e-6f)
+            {
+                inputWidth = 1e-6f;
+            }
+
+            for (int x = 0; x < heights.GetLength(0); x++)
+            {
+                for (int y = 0; y < heights.GetLength(1); y++)
+                {
+                    float t = (heights[x, y] - heightInputRange.x) / inputWidth;
+                    if (clampHeights)
+                    {
+                        t = Mathf.Clamp01(t);
+                    }
+                    heights[x, y] = Mathf.Clamp01(Mathf.LerpUnclamped(heightOutputRange.x, heightOutputRange.y, t));
+                }
+            }
         }
 
         private DirectoryInfo GetDirectory()

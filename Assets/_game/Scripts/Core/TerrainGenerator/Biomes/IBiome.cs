@@ -17,6 +17,12 @@ namespace Core.TerrainGenerator.Biomes
         /// <summary>Distance from the cell border into the biome, in meters, where the biome influence reaches 100%.</summary>
         float BlendDistance { get; }
 
+        /// <summary>
+        /// Area of the biome. Null or <see cref="BiomeShapeType.Cell"/>: the cell of the diagram, see <see cref="Radius"/> and
+        /// <see cref="BlendDistance"/>. Otherwise a shape outside of the diagram, which makes the biome a layer.
+        /// </summary>
+        BiomeShape Shape { get; }
+
         /// <summary>How the biome heights combine with the terrain.</summary>
         BiomeBlendMode BlendMode { get; }
 

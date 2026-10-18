@@ -7,15 +7,37 @@ using UnityEngine;
 namespace Core.TerrainGenerator.Biomes.Sources
 {
     /// <summary>
-    /// Made on the GPU, no files: fractal Perlin noise shaped by a curve is the heights of the biome, and the ground
-    /// surface covers it all. The noise is a function of the position, so the tiles continue each other and the biome
-    /// has no end. Heights are normalized (1 = the height range of the terrain): they are only as high as
-    /// <see cref="amplitude"/> says. A biome filter turns the heights into surface weights
-    /// (e.g. SurfaceFromHeightFilter) when the noise is only needed as a map.
+    /// Made on the GPU, no files: fractal Perlin noise shaped by a curve. Where it goes is set per destination: the
+    /// heights of the biome (<see cref="writeHeight"/>) and the weight of each of the four surface channels
+    /// (<see cref="NoiseSurfaceWeight"/>): off, constant, the shaped noise, or its inverse. The noise is a function of
+    /// the position, so the tiles continue each other and the biome has no end. Heights are normalized (1 = the height
+    /// range of the terrain): they are only as high as <see cref="amplitude"/> says. A biome filter can still turn the
+    /// heights into surface weights (e.g. SurfaceFromHeightFilter).
     /// </summary>
     [Serializable]
     public class NoiseBiomeSource : IBiomeSource
     {
+        /// <summary>Weight a surface channel gets from the noise. Values match NOISE_WEIGHT_* in NoiseBiomeTile.compute.</summary>
+        public enum NoiseSurfaceWeight
+        {
+            Off = 0,
+            /// <summary>1 everywhere.</summary>
+            Constant = 1,
+            /// <summary>The noise after the curve, 0..1.</summary>
+            Noise = 2,
+            /// <summary>1 minus the noise after the curve.</summary>
+            InverseNoise = 3,
+        }
+
+        [Serializable]
+        public struct SurfaceDestination
+        {
+            [PropertyTooltip("Surface type painted by this channel")]
+            [HorizontalGroup, HideLabel] public SurfaceChannel surface;
+            [PropertyTooltip("Weight of the surface")]
+            [HorizontalGroup, HideLabel] public NoiseSurfaceWeight weight;
+        }
+
         private const string ShaderPath = "TerrainGenerator/NoiseBiomeTile";
         private const string KernelName = "CSNoiseTile";
         private const int CurveSamples = 256;
@@ -28,7 +50,8 @@ namespace Core.TerrainGenerator.Biomes.Sources
         private static readonly int PixelsPerTileProperty = Shader.PropertyToID("tile_pixels_per_tile");
         private static readonly int PixelOffsetProperty = Shader.PropertyToID("tile_pixel_offset");
         private static readonly int TileSizeProperty = Shader.PropertyToID("tile_size_meters");
-        private static readonly int GroundProperty = Shader.PropertyToID("tile_ground");
+        private static readonly int WriteHeightProperty = Shader.PropertyToID("tile_write_height");
+        private static readonly int ChannelWeightsProperty = Shader.PropertyToID("tile_channel_weights");
         private static readonly int SeedProperty = Shader.PropertyToID("noise_seed");
         private static readonly int WavelengthProperty = Shader.PropertyToID("noise_wavelength_meters");
         private static readonly int OctavesProperty = Shader.PropertyToID("noise_octaves");
@@ -60,8 +83,14 @@ namespace Core.TerrainGenerator.Biomes.Sources
         [SerializeField, PropertyRange(0, 1)] private float amplitude = 0.02f;
         [PropertyTooltip("Size of a tile in meters. The noise does not depend on it, only the memory of one tile does")]
         [SerializeField, MinValue(1)] private float tileSizeMeters = 1024;
-        [PropertyTooltip("Surface type of the whole biome. Default: surface 0 of the terrain settings")]
-        [SerializeField] private SurfaceChannel groundSurface;
+        [PropertyTooltip("Write the noise as the heights of the biome. Off: the biome is flat (height 0)")]
+        [SerializeField] private bool writeHeight = true;
+        [PropertyTooltip("Surfaces painted by the four alphamap channels, each with its weight from the noise. " +
+                 "Weights are normalized between the channels where they are all above 0")]
+        [SerializeField, ListDrawerSettings(IsReadOnly = true, ShowFoldout = false)]
+        private SurfaceDestination[] surfaces = DefaultSurfaces();
+        // Before the destinations: the surface of the whole biome. Still used by channel 0 while that is on Default
+        [SerializeField, HideInInspector] private SurfaceChannel groundSurface;
 
         public float TileSizeMeters => tileSizeMeters;
         public Vector2 Origin => Vector2.zero;
@@ -69,11 +98,30 @@ namespace Core.TerrainGenerator.Biomes.Sources
 
         /// <summary>Equal settings give equal content, so biomes with the same noise share the tiles.</summary>
         public string ContentKey => $"noise|{seed}|{wavelengthMeters}|{octaves}|{persistence}|{lacunarity}|{baseHeight}|{amplitude}|" +
-                                    $"{tileSizeMeters}|{GetCurveHash()}";
+                                    $"{tileSizeMeters}|{GetCurveHash()}|{writeHeight}|{GetWeight(0)}{GetWeight(1)}{GetWeight(2)}{GetWeight(3)}";
 
         public SurfaceChannel GetSurfaceChannel(int channel)
         {
-            return channel == 0 ? groundSurface : new SurfaceChannel(SurfaceChannelMode.Ignore);
+            if (channel < 0 || channel > 3 || GetWeight(channel) == NoiseSurfaceWeight.Off)
+            {
+                return new SurfaceChannel(SurfaceChannelMode.Ignore);
+            }
+
+            SurfaceChannel binding = surfaces != null && channel < surfaces.Length ? surfaces[channel].surface : default;
+            return channel == 0 && binding.Mode == SurfaceChannelMode.Default ? groundSurface : binding;
+        }
+
+        private NoiseSurfaceWeight GetWeight(int channel)
+        {
+            return surfaces != null && channel < surfaces.Length ? surfaces[channel].weight : NoiseSurfaceWeight.Off;
+        }
+
+        // The ground surface covers everything, like before the destinations existed
+        private static SurfaceDestination[] DefaultSurfaces()
+        {
+            var result = new SurfaceDestination[4];
+            result[0].weight = NoiseSurfaceWeight.Constant;
+            return result;
         }
 
         public UniTask<bool> LoadTile(Vector2Int tile, BiomeTileTarget target)
@@ -93,7 +141,8 @@ namespace Core.TerrainGenerator.Biomes.Sources
             shader.SetFloat(PixelsPerTileProperty, target.Resolution - 1);
             shader.SetFloat(PixelOffsetProperty, 0);
             shader.SetFloat(TileSizeProperty, tileSizeMeters);
-            shader.SetVector(GroundProperty, new Vector4(1, 0, 0, 0));
+            shader.SetInt(WriteHeightProperty, writeHeight ? 1 : 0);
+            shader.SetInts(ChannelWeightsProperty, (int)GetWeight(0), (int)GetWeight(1), (int)GetWeight(2), (int)GetWeight(3));
             shader.SetInt(SeedProperty, seed);
             shader.SetFloat(WavelengthProperty, Mathf.Max(1, wavelengthMeters));
             shader.SetInt(OctavesProperty, Mathf.Clamp(octaves, 1, 8));

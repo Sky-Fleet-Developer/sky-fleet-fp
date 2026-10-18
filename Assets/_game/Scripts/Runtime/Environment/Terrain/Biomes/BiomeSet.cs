@@ -180,6 +180,7 @@ namespace Runtime.Environment.Terrain.Biomes
                 _sitesCache.Clear();
                 biome.GetSites(_sitesCache);
                 snapshot.Add(new Vector4(biome.Radius, biome.BlendDistance, _sitesCache.Count, (int)biome.BlendMode));
+                biome.Shape?.AppendSnapshot(snapshot);
                 foreach (BiomeSitePose site in _sitesCache)
                 {
                     snapshot.Add(new Vector4(site.Position.x, site.Position.y, site.Position.z, site.Yaw));
@@ -255,6 +256,7 @@ namespace Runtime.Environment.Terrain.Biomes
         }
 
         private readonly List<BiomeSite> _gizmoSites = new ();
+        private readonly BiomeShapeData _gizmoShapes = new ();
         private readonly List<Vector2> _gizmoPolygon = new ();
 
         private void OnDrawGizmos()
@@ -266,7 +268,7 @@ namespace Runtime.Environment.Terrain.Biomes
 
             _collected.Clear();
             Collect(transform, _collected);
-            BiomeDiagram.CollectSites(_collected, Matrix4x4.identity, _gizmoSites);
+            BiomeDiagram.CollectSites(_collected, Matrix4x4.identity, _gizmoSites, _gizmoShapes);
             if (_gizmoSites.Count == 0)
             {
                 return;
@@ -284,6 +286,20 @@ namespace Runtime.Environment.Terrain.Biomes
                 Gizmos.DrawSphere(center, markerSize);
                 // Rotation of the source data: the local +z axis of the site
                 Gizmos.DrawLine(center, center + new Vector3(site.Rotation.y, 0, site.Rotation.x) * markerSize * 20f);
+
+                if (site.IsShaped)
+                {
+                    // Outline, and where the fade reaches 100% (polygons are not inset)
+                    BiomeDiagram.GetShapeOutline(site, _gizmoShapes, 0, _gizmoPolygon);
+                    DrawPolygon(y);
+                    if (site.FadeDistance > 0 && site.Shape != (int)BiomeShapeType.Polygon)
+                    {
+                        Gizmos.color = new Color(color.r, color.g, color.b, color.a * 0.4f);
+                        BiomeDiagram.GetShapeOutline(site, _gizmoShapes, site.FadeDistance, _gizmoPolygon);
+                        DrawPolygon(y);
+                    }
+                    continue;
+                }
 
                 // Cell border
                 BiomeDiagram.GetCellPolygon(_gizmoSites, i, 0, bounds, _gizmoPolygon);

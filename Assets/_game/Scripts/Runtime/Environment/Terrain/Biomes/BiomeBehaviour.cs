@@ -16,10 +16,13 @@ namespace Runtime.Environment.Terrain.Biomes
     /// </summary>
     public class BiomeBehaviour : MonoBehaviour, IBiome
     {
+        [PropertyTooltip("Area of the biome: a cell of the diagram, or a rectangle, circle or polygon outside of the diagram. " +
+            "Shaped biomes are layers (Normal acts as Override) and don't change the cells of the other biomes")]
+        [SerializeField] private BiomeShape shape = new ();
         [Tooltip("Power weight of the cell, in meters: a larger radius pushes the cell borders outwards")]
-        [SerializeField, MinValue(0)] private float radius;
+        [SerializeField, MinValue(0), ShowIf(nameof(IsCell))] private float radius;
         [Tooltip("Distance from the cell border into the biome, in meters, where the biome influence reaches 100%")]
-        [SerializeField, MinValue(0)] private float blendDistance = 500;
+        [SerializeField, MinValue(0), ShowIf(nameof(IsCell))] private float blendDistance = 500;
         [Tooltip("Normal biomes share the world; other modes make the biome a layer applied on top of them")]
         [SerializeField] private BiomeBlendMode blendMode = BiomeBlendMode.Normal;
         [SerializeField] private Color debugColor = Color.white;
@@ -27,9 +30,12 @@ namespace Runtime.Environment.Terrain.Biomes
 
         public float Radius => radius;
         public float BlendDistance => blendDistance;
+        public BiomeShape Shape => shape;
         public BiomeBlendMode BlendMode => blendMode;
         public Color DebugColor => debugColor;
         public IBiomeSource Source => source;
+
+        private bool IsCell => shape == null || !shape.IsShaped;
 
         private readonly List<IHeightmapFilterSource> _filters = new ();
         private readonly List<IHeightmapFilterSource> _filterComponentsCache = new ();

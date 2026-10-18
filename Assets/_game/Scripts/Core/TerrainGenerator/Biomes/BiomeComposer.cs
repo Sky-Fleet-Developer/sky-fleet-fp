@@ -85,6 +85,7 @@ namespace Core.TerrainGenerator.Biomes
         private readonly Dictionary<Vector2Int, WorldChunk> _chunks = new ();
         private readonly List<Vector2Int> _removeCache = new ();
         private readonly List<BiomeSite> _sites = new ();
+        private readonly BiomeShapeData _shapes = new ();
         private readonly List<bool> _weightedCache = new ();
         private readonly List<WorldChunk> _toCompose = new ();
         private readonly List<int4> _composeLayers = new ();
@@ -175,7 +176,7 @@ namespace Core.TerrainGenerator.Biomes
                 return false;
             }
 
-            BiomeDiagram.CollectSites(biomes, worldToTerrain, _sites);
+            BiomeDiagram.CollectSites(biomes, worldToTerrain, _sites, _shapes);
             if (_filterBaker.UpdateFilteredBiomes(biomes, data))
             {
                 // Own heights of the new set of filtered biomes are missing
@@ -340,6 +341,7 @@ namespace Core.TerrainGenerator.Biomes
             Upload(ref _sitesBuffer, _sites, BiomeSite.Stride);
             Upload(ref _sourcesBuffer, _sourceData, SourceData.Stride);
             Upload(ref _tileMapBuffer, _tileMap, sizeof(int));
+            _shapes.Upload();
         }
 
         // Own heights of every filtered biome in the chunks to compose
@@ -428,6 +430,7 @@ namespace Core.TerrainGenerator.Biomes
             _shader.SetBuffer(kernel, SitesProperty, _sitesBuffer);
             _shader.SetBuffer(kernel, SourcesProperty, _sourcesBuffer);
             _shader.SetBuffer(kernel, TileMapProperty, _tileMapBuffer);
+            _shapes.Bind(_shader, kernel);
             _shader.SetFloat(PoolResolutionProperty, _pool.Resolution);
             _shader.SetInt(ResolutionProperty, data.Resolution);
             _shader.SetFloat(PixelsPerChunkProperty, sharedEdgePixels ? data.Resolution - 1 : data.Resolution);
@@ -520,6 +523,7 @@ namespace Core.TerrainGenerator.Biomes
             _composeLayersBuffer?.Dispose();
             _ownLayersBuffer?.Dispose();
             _filterBaker.Dispose();
+            _shapes.Dispose();
             _sitesBuffer?.Dispose();
             _indicesBuffer?.Dispose();
             _rangesBuffer?.Dispose();
