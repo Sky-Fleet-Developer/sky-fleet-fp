@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Core.Misc
 {
-    public struct SmKey
+    public readonly struct SmKey : IEquatable<SmKey>
     {
         public readonly int Index;
         public readonly int Generation;
@@ -15,6 +15,13 @@ namespace Core.Misc
             Index = index;
             Generation = generation;
         }
+
+        public bool Equals(SmKey other) => Index == other.Index && Generation == other.Generation;
+        public override bool Equals(object obj) => obj is SmKey other && Equals(other);
+        public override int GetHashCode() => (Index * 397) ^ Generation;
+        public static bool operator ==(SmKey a, SmKey b) => a.Equals(b);
+        public static bool operator !=(SmKey a, SmKey b) => !a.Equals(b);
+        public override string ToString() => $"{Index}:{Generation}";
     }
 
     public interface IReadOnlySlotMap<T> : IEnumerable<KeyValuePair<SmKey, T>>

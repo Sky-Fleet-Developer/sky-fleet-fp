@@ -17,12 +17,15 @@ namespace GameEditor.Trees
         [MenuItem("Terrain/Trees/Create Cyan LOD1 Materials")]
         public static void Create()
         {
+            if (EnsureCreated()) Debug.Log($"Cyan LOD1 materials made in {Folder}");
+            else Debug.LogError($"Shader graph not found: {ShaderPath}");
+        }
+
+        /// <summary>Makes the materials that don't exist yet; false when the shader graph is not there.</summary>
+        public static bool EnsureCreated()
+        {
             var shader = AssetDatabase.LoadAssetAtPath<Shader>(ShaderPath);
-            if (shader == null)
-            {
-                Debug.LogError($"Shader graph not found: {ShaderPath}");
-                return;
-            }
+            if (shader == null) return false;
 
             if (!AssetDatabase.IsValidFolder(Folder))
             {
@@ -34,7 +37,7 @@ namespace GameEditor.Trees
             // Petal: gradient along the petal from the uv, both faces
             Make(shader, "Petal", new Color(0.55f, 0.2f, 0.08f), new Color(0.95f, 0.55f, 0.2f), 1, 0.5f, 0.1f, true);
             AssetDatabase.SaveAssets();
-            Debug.Log($"Cyan LOD1 materials made in {Folder}");
+            return true;
         }
 
         private static void Make(Shader shader, string name, Color tintBase, Color tintTip, float gradientSource,

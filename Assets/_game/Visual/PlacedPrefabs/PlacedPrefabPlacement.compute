@@ -7,7 +7,11 @@
 // again after the next bake of the heights.
 
 #pragma kernel PlaceInstances
+#pragma kernel PlaceInstancesToSlots
 #pragma kernel CoverInstances
+#pragma kernel FarReset
+#pragma kernel FarCull
+#pragma kernel FarArgs
 
 #pragma multi_compile_local _ TERRAIN_GEOMORPH
 
@@ -47,6 +51,7 @@ StructuredBuffer<PlacedLayer> placed_layers;     // at the indices of scatter_la
 StructuredBuffer<uint> placed_layer_prefabs;     // prefab indices
 StructuredBuffer<float> placed_prefab_half_width; // by prefab: meters at scale 1, along x or z
 StructuredBuffer<int2> placed_tiles;             // tiles to place, in units of scatter_tile_size
+StructuredBuffer<uint> placed_slots;             // PlaceInstancesToSlots: the slot of the pool each of them goes into
 uint placed_max_per_tile;
 
 // Share of the density of a layer at an age, the weight of its surface here: full inside its range of ages, fading out
@@ -59,16 +64,15 @@ float PlacedAge(PlacedLayer layer, float age)
     return rise * rise * (3 - 2 * rise) * fall * fall * (3 - 2 * fall);
 }
 
-RWStructuredBuffer<PlacedInstance> placed_instances; // placed_max_per_tile per requested tile
-RWStructuredBuffer<uint> placed_counts;              // per requested tile; PLACED_NOT_LOADED when its terrain isn't loaded
+RWStructuredBuffer<PlacedInstance> placed_instances; // placed_max_per_tile per requested tile (per slot of the pool)
+RWStructuredBuffer<uint> placed_counts;              // per requested tile (slot); PLACED_NOT_LOADED when its terrain isn't loaded
 
 groupshared uint placed_tile_loaded;
 groupshared uint placed_tile_count;
 
-[numthreads(SCATTER_PLACE_THREADS, 1, 1)]
-void PlaceInstances(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+// The tile requested at tile_index is placed into output_index of placed_instances and placed_counts
+void PlaceTile(uint tile_index, uint output_index, uint thread)
 {
-    uint tile_index = group.x;
     int2 tile = placed_tiles[tile_index];
     if (thread == 0)
     {
@@ -90,7 +94,7 @@ void PlaceInstances(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
     {
         if (thread == 0)
         {
-            placed_counts[tile_index] = PLACED_NOT_LOADED;
+            placed_counts[output_index] = PLACED_NOT_LOADED;
         }
         return;
     }
@@ -145,15 +149,29 @@ void PlaceInstances(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
         InterlockedAdd(placed_tile_count, 1, slot);
         if (slot < placed_max_per_tile)
         {
-            placed_instances[tile_index * placed_max_per_tile + slot] = instance;
+            placed_instances[output_index * placed_max_per_tile + slot] = instance;
         }
     }
 
     GroupMemoryBarrierWithGroupSync();
     if (thread == 0)
     {
-        placed_counts[tile_index] = min(placed_tile_count, placed_max_per_tile);
+        placed_counts[output_index] = min(placed_tile_count, placed_max_per_tile);
     }
+}
+
+// Near ring: the requested tiles go one after the other into the buffers, which are read back
+[numthreads(SCATTER_PLACE_THREADS, 1, 1)]
+void PlaceInstances(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+{
+    PlaceTile(group.x, group.x, thread);
+}
+
+// Far field: the buffers are a pool of slots that stays on the GPU, each requested tile has its slot
+[numthreads(SCATTER_PLACE_THREADS, 1, 1)]
+void PlaceInstancesToSlots(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+{
+    PlaceTile(group.x, placed_slots[group.x], thread);
 }
 
 // Cover of the spawned instances for the stones and grass of this frame (layer large of the cover), every frame:
@@ -184,4 +202,106 @@ void CoverInstances(uint3 group : SV_GroupID, uint3 thread : SV_GroupThreadID)
             ScatterCoverWriteCell(int2(x, y), p, radius);
         }
     }
+}
+
+// ---- Far field (Runtime.Trees.TreeFarField): the instances of the pool of slots that are seen are collected per
+// prefab, to be drawn as impostors. FarReset, FarCull (one group per slot of the pool) and FarArgs run every frame.
+
+// Matches Runtime.Trees.TreeFarField.FarInstance
+struct FarInstance
+{
+    float3 position; // pivot, absolute world
+    float scale;
+    float4 rotation; // quaternion
+};
+
+StructuredBuffer<float4> far_prefabs;               // by prefab: center of its impostor in the prefab's space, radius (0: has none)
+RWStructuredBuffer<FarInstance> far_visible;        // far_capacity per prefab
+RWStructuredBuffer<uint> far_visible_counts;        // by prefab
+RWStructuredBuffer<ScatterDrawArgs> far_draw_args;  // by prefab
+float4 far_frustum[6];                              // planes: normal xyz pointing inwards, distance w
+float3 far_camera;                                  // absolute world
+float2 far_distances;                               // nearest and farthest distance of an instance, meters
+uint far_capacity;
+uint far_prefab_count;
+uint far_indices_per_instance;
+
+float3 FarRotate(float4 q, float3 v)
+{
+    float3 t = 2 * cross(q.xyz, v);
+    return v + q.w * t + cross(q.xyz, t);
+}
+
+[numthreads(64, 1, 1)]
+void FarReset(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x < far_prefab_count)
+    {
+        far_visible_counts[id.x] = 0;
+    }
+}
+
+[numthreads(64, 1, 1)]
+void FarCull(uint3 group : SV_GroupID, uint thread : SV_GroupIndex)
+{
+    uint slot = group.x;
+    uint count = placed_counts[slot];
+    if (count == PLACED_NOT_LOADED)
+    {
+        return;
+    }
+
+    count = min(count, placed_max_per_tile);
+    for (uint i = thread; i < count; i += 64)
+    {
+        PlacedInstance instance = placed_instances[slot * placed_max_per_tile + i];
+        float4 impostor = far_prefabs[instance.prefab];
+        if (impostor.w <= 0)
+        {
+            continue;
+        }
+
+        float3 world = instance.position + placed_origin;
+        float radius = impostor.w * instance.scale;
+        float3 center = world + FarRotate(instance.rotation, impostor.xyz * instance.scale);
+        float distance_to_camera = length(center - far_camera);
+        if (distance_to_camera < far_distances.x || distance_to_camera > far_distances.y)
+        {
+            continue;
+        }
+
+        bool visible = true;
+        [unroll]
+        for (int plane = 0; plane < 6; plane++)
+        {
+            visible = visible && dot(far_frustum[plane].xyz, center) + far_frustum[plane].w >= -radius;
+        }
+        if (!visible)
+        {
+            continue;
+        }
+
+        uint index;
+        InterlockedAdd(far_visible_counts[instance.prefab], 1, index);
+        if (index < far_capacity)
+        {
+            FarInstance visible_instance;
+            visible_instance.position = world;
+            visible_instance.scale = instance.scale;
+            visible_instance.rotation = instance.rotation;
+            far_visible[instance.prefab * far_capacity + index] = visible_instance;
+        }
+    }
+}
+
+[numthreads(64, 1, 1)]
+void FarArgs(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= far_prefab_count)
+    {
+        return;
+    }
+
+    far_draw_args[id.x].index_count = min(far_visible_counts[id.x], far_capacity) * far_indices_per_instance;
+    far_draw_args[id.x].instance_count = 1;
 }

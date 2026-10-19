@@ -37,6 +37,7 @@ namespace Core.World
         public Rigidbody Rigidbody => _rigidbody;
 
         public ItemInstance ItemInstance => _itemInstance;
+        public IEntityComponents Components { get; } = new EntityComponents();
         public Vector3 SpacePosition => _objectInstance == null ? _positionCache : _transformCacheSystem.Read(_objectInstanceTransform).Position;
         public Quaternion Rotation => _objectInstance == null ? _rotationCache : _transformCacheSystem.Read(_objectInstanceTransform).Rotation;
 

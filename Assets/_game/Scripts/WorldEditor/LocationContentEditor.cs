@@ -433,8 +433,10 @@ namespace WorldEditor
                 {
                     if (GUILayout.Button("<<", GUILayout.Width(25), GUILayout.Height(22)))
                     {
-                        _worldSpace.AddEntity(new ItemEntity(source.itemDescription, source.transform.localPosition,
-                            source.transform.localRotation));
+                        var entity = new ItemEntity(source.itemDescription, source.transform.localPosition,
+                            source.transform.localRotation);
+                        EntityIdentityAuthoring.ApplyTo(source.gameObject, entity);
+                        _worldSpace.AddEntity(entity);
                     }
                 }
 

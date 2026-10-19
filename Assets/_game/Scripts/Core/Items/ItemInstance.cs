@@ -43,10 +43,6 @@ namespace Core.Items
             _properties = description.properties.DeepClone();
             TrySetupUniqId(sign);
             TrySetupContainerId();
-            if (ContainerKey != null)
-            {
-                _containerRegistrationCallback(ContainerKey, sign.Id);
-            }
         }
         
         public ItemInstance(ItemSign sign, float amount, Action<string, string> containerRegistrationCallback,
@@ -58,10 +54,6 @@ namespace Core.Items
             _sign = sign;
             TrySetupUniqId(sign);
             TrySetupContainerId();
-            if (ContainerKey != null)
-            {
-                _containerRegistrationCallback(ContainerKey, sign.Id);
-            }
         }
 
         public void SetSignatureProperty(string value)
@@ -90,6 +82,8 @@ namespace Core.Items
                 {
                     _containerKey = $"{Identifier}{StuffSlotsTable.GridIdentifierKey}{postfix}";
                 }
+                
+                _containerRegistrationCallback(ContainerKey, _sign.Id);
             }
             else
             {
@@ -97,21 +91,26 @@ namespace Core.Items
             }
         }
 
-        private void TrySetupUniqId(ItemSign sign, string uniqId = null)
+        private void TrySetupUniqId(ItemSign sign)
         {
             if (sign.HasTag(ItemSign.IdentifiableTag))
             {
-                uniqId ??= Guid.NewGuid().ToString();
-                _properties.Add(new Property{name = ItemSign.IdentifiableTag, values = new []{new PropertyValue{stringValue = uniqId}}});
-                if(IsContainer)
+                int identifiablePropertyIndex = _properties.FindIndex(p => p.name == ItemSign.IdentifiableTag);
+                string uniqId;
+                if (identifiablePropertyIndex != -1)
                 {
-                    TrySetupContainerId();
-                    _containerRegistrationCallback(ContainerKey, sign.Id);
+                    uniqId = _properties[identifiablePropertyIndex].values[Property.IdentifiableInstance_Identifier].stringValue;
+                    if (string.IsNullOrEmpty(uniqId))
+                    {
+                        uniqId = Guid.NewGuid().ToString();
+                        _properties[identifiablePropertyIndex].values[Property.IdentifiableInstance_Identifier].stringValue = uniqId;
+                    }
                 }
-            }
-            else if (!string.IsNullOrEmpty(uniqId))
-            {
-                Debug.LogError($"Error when creating item instance: Trying setup uniqId to item without Identifiable tag. Wanted id: {uniqId}, item sign: {sign.Id}");
+                else
+                {
+                    uniqId = Guid.NewGuid().ToString();
+                    _properties.Add(new Property{name = ItemSign.IdentifiableTag, values = new []{new PropertyValue{stringValue = uniqId}}});
+                }
             }
         }
 

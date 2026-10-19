@@ -8,6 +8,7 @@ namespace Core.World
     {
         protected static int IdCounter = 0;
         public int Id { get; }
+        IEntityComponents Components { get; }
         Vector3 SpacePosition { get; }
         Vector3 WorldPosition => WorldOffset.SpaceToWorld(SpacePosition);
         void OnLodChanged(int lod);

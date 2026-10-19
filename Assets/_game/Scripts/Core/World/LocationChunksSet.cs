@@ -43,6 +43,9 @@ namespace Core.World
         [Inject] private Location _location;
         [Inject] private DiContainer _diContainer;
         [Inject] private ILocationChunkLoadStrategy _loadStrategy;
+        [Inject(Optional = true)] private IWorldSaveSlot _saveSlot;
+        private IWorldSaveSlot SaveSlot => _saveSlot ??= new DefaultWorldSaveSlot();
+        private string SaveDirectory => SaveSlot.GetLocationDirectory(_location.name);
         private Task _setRangeTask;
         //private HashSet<(IWorldEntity entity, VectorInt target)> _notSorted = new ();
         public Task SetRangeTask => _setRangeTask;
@@ -175,7 +178,7 @@ namespace Core.World
                 _chunks[coord] = chunk;
             }
 
-            await _location.ReadChunk(chunk, coord);
+            await _location.ReadChunk(chunk, coord, SaveDirectory);
             chunk.Lock();
             await _loadStrategy.Load(chunk, coord);
             chunk.Unlock();
@@ -189,7 +192,7 @@ namespace Core.World
 
         private async Task Save(VectorInt coord)
         {
-            await _location.WriteChunk(_chunks[coord], coord);
+            await _location.WriteChunk(_chunks[coord], coord, SaveDirectory);
         }
 
         private async Task Unload(VectorInt coord)
@@ -206,7 +209,7 @@ namespace Core.World
             try
             {
                 _chunks.Remove(coord);
-                await _location.WriteChunk(chunk, coord);
+                await _location.WriteChunk(chunk, coord, SaveDirectory);
                 await _loadStrategy.Unload(chunk, coord);
             }
             catch (Exception e)

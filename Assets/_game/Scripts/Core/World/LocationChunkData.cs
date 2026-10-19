@@ -54,6 +54,14 @@ namespace Core.World
                     var typename = e.Value.GetType().FullName;
                     stream.WriteString(typename);
                     Serializers.GetSerializer(typename).Serialize(e.Value, stream);
+                    var components = e.Value.Components;
+                    stream.WriteInt(components.Count);
+                    foreach (var component in components)
+                    {
+                        var componentType = component.GetType().FullName;
+                        stream.WriteString(componentType);
+                        Serializers.GetSerializer(componentType).Serialize(component, stream);
+                    }
                     e = e.Next;
                 }
             }
@@ -76,6 +84,12 @@ namespace Core.World
                         continue;
                     }
                     var instance = (IWorldEntity)Serializers.GetSerializer(typename).Deserialize(stream);
+                    int componentsCount = stream.ReadInt();
+                    for (var c = 0; c < componentsCount; c++)
+                    {
+                        string componentType = stream.ReadString();
+                        instance.Components.Set((IEntityComponent)Serializers.GetSerializer(componentType).Deserialize(stream));
+                    }
                     data._entities.AddLast(instance);
                 }
             }

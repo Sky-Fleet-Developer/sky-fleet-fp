@@ -24,23 +24,6 @@ namespace Runtime.PlacedPrefabs
     public abstract class PlacedPrefabSpawner : MonoBehaviour, IPlacedPrefabs
     {
         [StructLayout(LayoutKind.Sequential)]
-        private struct LayerData
-        {
-            public const int Stride = sizeof(float) * 17;
-
-            public Vector2 Scale;
-            public Vector2 SlopeCos;
-            public Vector2 SlopeAlignment;
-            public Vector3 MaxRotation;
-            public Vector2 Sink;
-            public uint PrefabStart;
-            public uint PrefabCount;
-            public float Cover;
-            public Vector2 AgeRange;
-            public float AgeFade;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
         private struct InstanceData
         {
             public const int Stride = sizeof(float) * 11;
@@ -97,14 +80,10 @@ namespace Runtime.PlacedPrefabs
         private readonly List<Tile> _candidates = new ();
         private readonly List<Vector2Int> _released = new ();
         private readonly Queue<TileResult> _results = new ();
-        private readonly List<GameObject> _prefabs = new ();
         private readonly Dictionary<int, Stack<GameObject>> _pools = new ();
-        private readonly List<LayerData> _layerData = new ();
-        private readonly List<uint> _layerPrefabData = new ();
-        private readonly List<float> _prefabHalfWidths = new ();
         private readonly List<Vector4> _coverData = new ();
         private readonly Dictionary<uint, Spawned> _oldItems = new ();
-        private readonly ScatterLayerTable _layerTable = new ();
+        private readonly PlacedPrefabLayerSet _layerSet = new ();
         private Transform _root;
         private int _kernel = -1;
         private int _coverKernel = -1;
@@ -126,9 +105,6 @@ namespace Runtime.PlacedPrefabs
         private bool _instancesRead;
         private bool _countsRead;
 
-        private GraphicsBuffer _layers;
-        private GraphicsBuffer _layerPrefabs;
-        private GraphicsBuffer _prefabHalfWidthBuffer;
         private GraphicsBuffer _coverBuffer;
         private GraphicsBuffer _tileBuffer;
         private GraphicsBuffer _instanceBuffer;
@@ -137,13 +113,10 @@ namespace Runtime.PlacedPrefabs
         private GraphicsBuffer _emptyPolygons;
         private GraphicsBuffer _emptyCover;
 
-        private static readonly int LayersProperty = Shader.PropertyToID("placed_layers");
-        private static readonly int LayerPrefabsProperty = Shader.PropertyToID("placed_layer_prefabs");
         private static readonly int TilesProperty = Shader.PropertyToID("placed_tiles");
         private static readonly int MaxPerTileProperty = Shader.PropertyToID("placed_max_per_tile");
         private static readonly int InstancesProperty = Shader.PropertyToID("placed_instances");
         private static readonly int CountsProperty = Shader.PropertyToID("placed_counts");
-        private static readonly int PrefabHalfWidthProperty = Shader.PropertyToID("placed_prefab_half_width");
         private static readonly int CoverProperty = Shader.PropertyToID("placed_cover");
         private static readonly int CoverCountProperty = Shader.PropertyToID("placed_cover_count");
         private static readonly int OriginProperty = Shader.PropertyToID("placed_origin");
@@ -186,7 +159,7 @@ namespace Runtime.PlacedPrefabs
             {
                 RebuildLayers();
             }
-            if (_layerTable.MaxDensity <= 0)
+            if (_layerSet.MaxDensity <= 0)
             {
                 return;
             }
@@ -349,7 +322,7 @@ namespace Runtime.PlacedPrefabs
                 _kernel = shader.FindKernel("PlaceInstances");
             }
             _terrain.Bind(shader, _kernel);
-            _layerTable.Bind(shader, _kernel);
+            _layerSet.Bind(shader, _kernel);
             if (_areas != null)
             {
                 _areas.Bind(shader, _kernel);
@@ -371,9 +344,6 @@ namespace Runtime.PlacedPrefabs
             shader.SetFloat(DetailedDistanceProperty, 0);
             shader.SetFloat(TileSizeProperty, size);
             shader.SetInt(MaxPerTileProperty, maxPerTile);
-            shader.SetBuffer(_kernel, LayersProperty, _layers);
-            shader.SetBuffer(_kernel, LayerPrefabsProperty, _layerPrefabs);
-            shader.SetBuffer(_kernel, PrefabHalfWidthProperty, _prefabHalfWidthBuffer);
             shader.SetBuffer(_kernel, TilesProperty, _tileBuffer);
             shader.SetBuffer(_kernel, InstancesProperty, _instanceBuffer);
             shader.SetBuffer(_kernel, CountsProperty, _countBuffer);
@@ -503,7 +473,8 @@ namespace Runtime.PlacedPrefabs
             foreach (InstanceData instance in placed)
             {
                 int prefab = (int)instance.Prefab;
-                if (prefab < 0 || prefab >= _prefabs.Count || !_prefabs[prefab])
+                IReadOnlyList<GameObject> prefabs = _layerSet.Prefabs;
+                if (prefab < 0 || prefab >= prefabs.Count || !prefabs[prefab])
                 {
                     continue;
                 }
@@ -520,7 +491,7 @@ namespace Runtime.PlacedPrefabs
                     work++;
                 }
 
-                if (SetTransform(target.transform, instance, _prefabs[prefab].transform.localScale))
+                if (SetTransform(target.transform, instance, prefabs[prefab].transform.localScale))
                 {
                     work++;
                 }
@@ -573,7 +544,14 @@ namespace Runtime.PlacedPrefabs
                     }
                 }
             }
-            return Instantiate(_prefabs[prefab], _root);
+            GameObject created = Instantiate(_layerSet.Prefabs[prefab], _root);
+            OnInstantiated(created);
+            return created;
+        }
+
+        /// <summary>A new instance was made (not taken from the pool): a kind sets it up here.</summary>
+        protected virtual void OnInstantiated(GameObject instance)
+        {
         }
 
         private void Release(Spawned item)
@@ -620,112 +598,7 @@ namespace Runtime.PlacedPrefabs
             ReleaseAll();
             DestroyPools();
             _heightsVersion++;
-
-            _prefabs.Clear();
-            _prefabHalfWidths.Clear();
-            _layerData.Clear();
-            _layerPrefabData.Clear();
-            _layerTable.Build(_terrain.Surfaces, PlacedSettings.Layers, (_, layer) =>
-            {
-                int prefabStart = _layerPrefabData.Count;
-                foreach (GameObject prefab in layer.Prefabs)
-                {
-                    if (!prefab)
-                    {
-                        continue;
-                    }
-                    int index = _prefabs.IndexOf(prefab);
-                    if (index < 0)
-                    {
-                        index = _prefabs.Count;
-                        _prefabs.Add(prefab);
-                        _prefabHalfWidths.Add(HalfWidth(prefab));
-                    }
-                    _layerPrefabData.Add((uint)index);
-                }
-
-                // Normal y is the cosine of the slope: the steepest slope gives the smallest
-                _layerData.Add(new LayerData
-                {
-                    Scale = layer.Scale,
-                    SlopeCos = new Vector2(Mathf.Cos(layer.Slope.y * Mathf.Deg2Rad) - 1e-4f,
-                        Mathf.Cos(layer.Slope.x * Mathf.Deg2Rad) + 1e-4f),
-                    SlopeAlignment = layer.SlopeAlignment,
-                    MaxRotation = layer.MaxRotation * Mathf.Deg2Rad,
-                    Sink = layer.Sink,
-                    PrefabStart = (uint)prefabStart,
-                    PrefabCount = (uint)(_layerPrefabData.Count - prefabStart),
-                    Cover = layer.GroundCover,
-                    // Without an age range the layer has its full density at every age
-                    AgeRange = layer.UseAge ? layer.AgeRange : new Vector2(-1, 2),
-                    AgeFade = layer.UseAge ? layer.AgeFade : 1,
-                });
-            }, HasPrefab);
-
-            // At least one element: every buffer a kernel reads must be bound
-            if (_layerData.Count == 0)
-            {
-                _layerData.Add(default);
-            }
-            if (_layerPrefabData.Count == 0)
-            {
-                _layerPrefabData.Add(0);
-            }
-            if (_prefabHalfWidths.Count == 0)
-            {
-                _prefabHalfWidths.Add(0);
-            }
-            ScatterUtility.EnsureBuffer(ref _layers, _layerData.Count, LayerData.Stride);
-            ScatterUtility.EnsureBuffer(ref _layerPrefabs, _layerPrefabData.Count, sizeof(uint));
-            ScatterUtility.EnsureBuffer(ref _prefabHalfWidthBuffer, _prefabHalfWidths.Count, sizeof(float));
-            _layers.SetData(_layerData);
-            _layerPrefabs.SetData(_layerPrefabData);
-            _prefabHalfWidthBuffer.SetData(_prefabHalfWidths);
-        }
-
-        // Half the larger of the width and depth of the meshes of a prefab, as its root is spawned at scale 1
-        private static float HalfWidth(GameObject prefab)
-        {
-            Transform root = prefab.transform;
-            Matrix4x4 toRoot = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, root.localScale) * root.worldToLocalMatrix;
-            var bounds = new Bounds();
-            bool found = false;
-            foreach (MeshFilter filter in prefab.GetComponentsInChildren<MeshFilter>(true))
-            {
-                if (!filter.sharedMesh)
-                {
-                    continue;
-                }
-                Bounds mesh = filter.sharedMesh.bounds;
-                Matrix4x4 toScaledRoot = toRoot * filter.transform.localToWorldMatrix;
-                for (int corner = 0; corner < 8; corner++)
-                {
-                    Vector3 sign = new Vector3((corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1);
-                    Vector3 point = toScaledRoot.MultiplyPoint3x4(mesh.center + Vector3.Scale(mesh.extents, sign));
-                    if (found)
-                    {
-                        bounds.Encapsulate(point);
-                    }
-                    else
-                    {
-                        bounds = new Bounds(point, Vector3.zero);
-                        found = true;
-                    }
-                }
-            }
-            return found ? 0.5f * Mathf.Max(bounds.size.x, bounds.size.z) : 0.5f;
-        }
-
-        private static bool HasPrefab(IPlacedPrefabLayer layer)
-        {
-            foreach (GameObject prefab in layer.Prefabs)
-            {
-                if (prefab)
-                {
-                    return true;
-                }
-            }
-            return false;
+            _layerSet.Build(_terrain, PlacedSettings);
         }
 
         private void DestroyPools()
@@ -791,10 +664,7 @@ namespace Runtime.PlacedPrefabs
             _requestId++;
             DisposeReadData(ref _readInstances);
             DisposeReadData(ref _readCounts);
-            _layerTable.Dispose();
-            _layers?.Release();
-            _layerPrefabs?.Release();
-            _prefabHalfWidthBuffer?.Release();
+            _layerSet.Dispose();
             _coverBuffer?.Release();
             _tileBuffer?.Release();
             _instanceBuffer?.Release();

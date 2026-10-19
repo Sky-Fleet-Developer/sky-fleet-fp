@@ -25,6 +25,7 @@ namespace Core.World
         public int Id { get; } = IWorldEntity.IdCounter++;
 
         public Vector3 SpacePosition => _positionCache;
+        public IEntityComponents Components { get; } = new EntityComponents();
         
         public AssetEntity(){}
 

@@ -107,8 +107,7 @@ namespace Core.World
 
             public void Populate(Stream stream, ref UnitEntity obj)
             {
-                var entity = new UnitEntity();
-                var boxed = (object)entity;
+                var boxed = (object)obj;
                 BaseSerializer.Populate(stream, ref boxed);
             }
         }

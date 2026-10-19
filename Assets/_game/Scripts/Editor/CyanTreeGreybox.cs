@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Trees;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
@@ -115,9 +116,15 @@ namespace GameEditor.Trees
             UseCrystalGraph(materials[1]);
             UsePetalTexture(materials[2]);
 
+            var lod1Materials = Lod1Materials(materials);
+            var lod2Materials = Lod2Materials();
+
             foreach (Stage stage in System.Enum.GetValues(typeof(Stage)))
             {
-                for (var variant = 0; variant < Variants; variant++) BuildPrefab(stage, variant, materials);
+                for (var variant = 0; variant < Variants; variant++)
+                {
+                    BuildPrefab(stage, variant, materials, lod1Materials, lod2Materials);
+                }
             }
 
             AssetDatabase.SaveAssets();
@@ -125,41 +132,110 @@ namespace GameEditor.Trees
             Debug.Log($"Cyan tree greybox built in {Folder}");
         }
 
-        private static void BuildPrefab(Stage stage, int variant, Material[] materials)
+        private static void BuildPrefab(Stage stage, int variant, Material[] materials, Material[] lod1Materials,
+            Material[] lod2Materials)
         {
             var name = $"CyanTree_{stage}_{variant}";
-            var mesh = BuildMesh(stage, variant, name, out var colliderRadius, out var treeHeight);
-            mesh = SaveMesh(mesh, $"{Folder}/{name}_Mesh.asset");
+            var description = Describe(stage, variant);
+            var mesh = SaveMesh(BuildLod0(description, name), $"{Folder}/{name}_Mesh.asset");
+
+            // The prefab is made again: the impostor baked from it stays assigned
+            var prefabPath = $"{Folder}/{name}.prefab";
+            var previous = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            var impostorReference = previous ? previous.GetComponent<TreeImpostorReference>() : null;
+            var impostor = impostorReference ? impostorReference.Impostor : null;
 
             var go = new GameObject(name);
-            go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            go.AddComponent<MeshRenderer>().sharedMaterials = materials;
+            if (HasLods(stage))
+            {
+                // The distances the levels switch at come from the TreeSettings when the tree is spawned; these are
+                // only what the prefab shows in the Editor
+                var lod1 = SaveMesh(BuildLod1(description, $"{name}_Lod1"), $"{Folder}/{name}_Lod1_Mesh.asset");
+                var lod2 = SaveMesh(BuildLod2(description, $"{name}_Lod2"), $"{Folder}/{name}_Lod2_Mesh.asset");
+                var group = go.AddComponent<LODGroup>();
+                group.fadeMode = LODFadeMode.None;
+                group.SetLODs(new[]
+                {
+                    new LOD(0.25f, new[] { AddLodRenderer(go, "LOD0", mesh, materials) }),
+                    new LOD(0.08f, new[] { AddLodRenderer(go, "LOD1", lod1, lod1Materials) }),
+                    new LOD(0.02f, new[] { AddLodRenderer(go, "LOD2", lod2, lod2Materials) }),
+                });
+                group.RecalculateBounds();
+                Debug.Log($"{name} vertices/triangles: LOD0 {Stats(mesh)}, LOD1 {Stats(lod1)}, LOD2 {Stats(lod2)}");
+            }
+            else
+            {
+                go.AddComponent<MeshFilter>().sharedMesh = mesh;
+                go.AddComponent<MeshRenderer>().sharedMaterials = materials;
+            }
+
             var capsule = go.AddComponent<CapsuleCollider>();
             capsule.direction = 1;
-            capsule.radius = colliderRadius;
-            capsule.height = treeHeight * 0.9f;
-            capsule.center = new Vector3(0, treeHeight * 0.45f, 0);
-            PrefabUtility.SaveAsPrefabAsset(go, $"{Folder}/{name}.prefab");
+            capsule.radius = description.colliderRadius;
+            capsule.height = description.height * 0.9f;
+            capsule.center = new Vector3(0, description.height * 0.45f, 0);
+            if (impostor) go.AddComponent<TreeImpostorReference>().Impostor = impostor;
+            PrefabUtility.SaveAsPrefabAsset(go, prefabPath);
             Object.DestroyImmediate(go);
         }
 
-        private static Mesh BuildMesh(Stage stage, int variant, string name, out float colliderRadius, out float treeHeight)
+        private static string Stats(Mesh mesh)
+        {
+            long triangles = 0;
+            for (var i = 0; i < mesh.subMeshCount; i++) triangles += mesh.GetIndexCount(i) / 3;
+            return $"{mesh.vertexCount}/{triangles}";
+        }
+
+        private static Renderer AddLodRenderer(GameObject parent, string name, Mesh mesh, Material[] materials)
+        {
+            var child = new GameObject(name);
+            child.transform.SetParent(parent.transform, false);
+            child.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = child.AddComponent<MeshRenderer>();
+            renderer.sharedMaterials = materials;
+            return renderer;
+        }
+
+        /// <summary>Grows the tree of a stage and variant into its description.</summary>
+        private static TreeDescription Describe(Stage stage, int variant)
         {
             var p = StageOf(stage);
-            var rng = new Random((int) stage * 100 + variant * 7 + 1);
+            var seed = (int) stage * 100 + variant * 7 + 1;
+            var rng = new Random(seed);
             // Age of the tree for the crystal shader: old crystal is cloudy; a little different from variant to variant
             var age = Mathf.Clamp01((stage == Stage.Young ? 0.1f : stage == Stage.Mature ? 0.5f : 0.95f) + (variant - 1) * 0.05f);
-            var grower = new Grower(p, rng, age, stage == Stage.Young ? 0.035f : stage == Stage.Mature ? 0.055f : 0.09f);
+            var description = new TreeDescription(p, rng, seed, age, stage == Stage.Young ? 0.035f : stage == Stage.Mature ? 0.055f : 0.09f);
+            var grower = new Grower(p, rng, description);
 
             var length = Range(rng, p.shootLength.x, p.shootLength.y);
             var lean = HorizontalDirection(Range(rng, 0, Mathf.PI * 2)) * p.lean;
             grower.Shoot(Vector3.zero, (Vector3.up + lean).normalized, length, p.trunkBase, 0, p.sheathBase);
             grower.Foot();
 
-            colliderRadius = p.trunkBase + p.sheathGap + p.sheathBase;
-            treeHeight = grower.Height;
-            return grower.Mesh(name);
+            description.colliderRadius = p.trunkBase + p.sheathGap + p.sheathBase;
+            description.height = grower.Height;
+            return description;
         }
+
+        /// <summary>
+        /// The full model: every part of the description at full resolution (detailed crystals, all the petals). Chips
+        /// and cracks are meant to be baked into this one later.
+        /// </summary>
+        private static Mesh BuildLod0(TreeDescription description, string name)
+        {
+            var builder = new MeshBuilder(new Random(description.seed), description.age, description.crystalCell);
+            foreach (var stalk in description.stalks) builder.Stalk(stalk);
+            foreach (var crystal in description.crystals) builder.Crystal(crystal);
+            foreach (var rosette in description.rosettes)
+            {
+                foreach (var petal in rosette.petals) builder.Petal(petal);
+            }
+
+            return builder.ToMesh(name);
+        }
+
+        /// <summary>Ancient trees are spawned as rocks, so they have no levels of detail.</summary>
+        private static bool HasLods(Stage stage) => stage != Stage.Ancient;
 
         /// <summary>Grows the tree shoot by shoot into a mesh builder.</summary>
         private class Grower
@@ -167,18 +243,16 @@ namespace GameEditor.Trees
             private const int Segments = 12;
             private readonly StageParams p;
             private readonly Random rng;
-            private readonly MeshBuilder builder;
+            private readonly TreeDescription description;
 
             public float Height { get; private set; }
 
-            public Grower(StageParams p, Random rng, float age, float crystalCell)
+            public Grower(StageParams p, Random rng, TreeDescription description)
             {
                 this.p = p;
                 this.rng = rng;
-                builder = new MeshBuilder(rng, age, crystalCell);
+                this.description = description;
             }
-
-            public Mesh Mesh(string name) => builder.ToMesh(name);
 
             /// <summary>
             /// A shoot: a segmented stalk with a crystal coat that ends in a broken tip, lateral shoots with small buds at
@@ -190,11 +264,11 @@ namespace GameEditor.Trees
                 var bend = side * (length * Range(rng, 0.02f, 0.08f)) + Vector3.up * (length * 0.06f);
                 var points = Curve(origin, direction, bend, length, Segments);
                 float Radius(float u) => radius * Mathf.Lerp(1f, 0.6f, u) * (1 + 0.22f * Pulse(u, p.nodes));
-                builder.Tube(TrunkSub, points, Radii(Segments, Radius), 8, false, Vector2.one, Vector3.zero, false, 0);
+                description.AddStalk(points, Radii(Segments, Radius), 8, generation, false);
                 Height = Mathf.Max(Height, points[Segments].y);
 
                 var endThickness = Coat(points, Radius, generation, thickness);
-                Laterals(points, direction, length, radius);
+                Laterals(points, direction, length, radius, generation);
 
                 var tip = points[Segments];
                 var tipDirection = Tangent(points, Segments);
@@ -202,7 +276,7 @@ namespace GameEditor.Trees
                 {
                     if (p.petalsPerRosette > 0)
                     {
-                        builder.Rosette(tip, tipDirection, BudScale(generation), p, rng);
+                        description.AddRosette(tip, tipDirection, BudScale(generation), false);
                         Height = Mathf.Max(Height, tip.y + p.petalLength * 0.5f);
                     }
 
@@ -231,7 +305,7 @@ namespace GameEditor.Trees
                     var direction = Vector3.up * Mathf.Cos(splay) + outward * Mathf.Sin(splay);
                     var origin = outward * (footRadius * Range(rng, 0.6f, 1.1f)) + Vector3.down * 0.3f;
                     var length = Height * Range(rng, p.columnHeight.x, p.columnHeight.y);
-                    builder.Crystal(origin, direction, length, Range(rng, p.columnRadius.x, p.columnRadius.y), true);
+                    description.AddColumn(origin, direction, length, Range(rng, p.columnRadius.x, p.columnRadius.y), true, 0);
                 }
 
                 // Shards rise from the lower part of the first shoot, pointing up
@@ -242,8 +316,8 @@ namespace GameEditor.Trees
                     var outward = HorizontalDirection(azimuth);
                     var direction = Vector3.up * Mathf.Cos(splay) + outward * Mathf.Sin(splay);
                     var origin = outward * (p.trunkBase + p.sheathBase * 0.7f) + Vector3.up * Range(rng, 0.1f, Height * 0.3f);
-                    builder.Crystal(origin, direction, Range(rng, p.shardLength.x, p.shardLength.y),
-                        Range(rng, p.shardRadius.x, p.shardRadius.y), false);
+                    description.AddColumn(origin, direction, Range(rng, p.shardLength.x, p.shardLength.y),
+                        Range(rng, p.shardRadius.x, p.shardRadius.y), false, 0);
                 }
             }
 
@@ -265,16 +339,16 @@ namespace GameEditor.Trees
                                                  + Mathf.Lerp(thickness, endThickness, u * top / Segments))
                                                 * (1 + 0.12f * ((float) rng.NextDouble() - 0.5f)));
                 var trunkRadii = Radii(top, u => radius(u * top / Segments));
-                builder.CrystalTube(coatPoints, coatRadii, !forks, trunkRadii);
+                description.AddCrystal(CrystalKind.Coat, coatPoints, coatRadii, !forks, generation, trunkRadii);
 
                 var end = Tangent(coatPoints, top);
-                if (forks) builder.Collar(coatPoints[top], end, coatRadii[top]);
-                else if (top < Segments) builder.Bush(coatPoints[top], end, coatRadii[top]);
+                if (forks) description.AddCollar(coatPoints[top], end, coatRadii[top], generation);
+                else if (top < Segments) description.AddBush(coatPoints[top], end, coatRadii[top], generation);
                 return endThickness;
             }
 
             /// <summary>Small shoots at the base of a shoot, spreading out sideways; each ends in a smaller bud.</summary>
-            private void Laterals(Vector3[] points, Vector3 direction, float length, float radius)
+            private void Laterals(Vector3[] points, Vector3 direction, float length, float radius, int generation)
             {
                 var count = rng.Next(p.lateralMin, p.lateralMax + 1);
                 for (var k = 0; k < count; k++)
@@ -287,11 +361,10 @@ namespace GameEditor.Trees
                     var lateralLength = length * Range(rng, p.lateralLength.x, p.lateralLength.y);
                     var lateral = Curve(origin, lateralDirection, Vector3.up * (lateralLength * 0.35f), lateralLength, 6);
                     var start = radius * 0.45f;
-                    builder.Tube(TrunkSub, lateral, Radii(6, u => Mathf.Lerp(start, 0.012f, u)), 6, false, Vector2.one,
-                        Vector3.zero, false, 0);
+                    description.AddStalk(lateral, Radii(6, u => Mathf.Lerp(start, 0.012f, u)), 6, generation, true);
                     if (p.petalsPerRosette > 0)
                     {
-                        builder.Rosette(lateral[6], Tangent(lateral, 6), BudScale(p.maxGeneration) * Range(rng, 0.65f, 0.85f), p, rng);
+                        description.AddRosette(lateral[6], Tangent(lateral, 6), BudScale(p.maxGeneration) * Range(rng, 0.65f, 0.85f), true);
                     }
                 }
             }
@@ -425,11 +498,11 @@ namespace GameEditor.Trees
             /// <summary>
             /// A tube along points with a radius at each of them. Flat: every face has its own normal (crystal).
             /// squash scales the cross section along its first and second axis; hint is the direction of the first.
-            /// Both ends are closed unless they taper to a point; capStart closes the start too. tipJitter breaks the
-            /// end: its corners are pushed along the tube by up to that many radii.
+            /// Both ends are closed unless they taper to a point; capStart closes the start too. tipOffsets breaks the
+            /// end: its corners are pushed along the tube by that many jitter radii each.
             /// </summary>
             public void Tube(int sub, Vector3[] points, float[] radii, int sides, bool flat, Vector2 squash, Vector3 hint,
-                bool capStart, float tipJitter, float[] trunkRadii = null)
+                bool capStart, float[] tipOffsets, float[] trunkRadii = null)
             {
                 var count = points.Length;
                 var rings = new Vector3[count][];
@@ -463,10 +536,10 @@ namespace GameEditor.Trees
                 var last = count - 1;
                 var lastTangent = Tangent(points, last);
                 var capCenter = points[last];
-                if (tipJitter > 0)
+                if (tipOffsets != null)
                 {
-                    for (var s = 0; s < sides; s++) rings[last][s] += lastTangent * (Range(rng, -0.3f, 1f) * tipJitter * radii[last]);
-                    capCenter += lastTangent * (tipJitter * radii[last] * 0.35f);
+                    for (var s = 0; s < sides; s++) rings[last][s] += lastTangent * (tipOffsets[s] * BrokenTipJitter * radii[last]);
+                    capCenter += lastTangent * (BrokenTipJitter * radii[last] * 0.35f);
                 }
 
                 var smoothBase = vertices.Count;
@@ -523,99 +596,62 @@ namespace GameEditor.Trees
                 }
             }
 
-            /// <summary>A crystal: a straight hexagonal column with a broken tip, optionally with a bush of small ones on it.</summary>
-            public void Crystal(Vector3 origin, Vector3 direction, float length, float radius, bool bush)
-            {
-                direction.Normalize();
-                var top = origin + direction * length;
-                CrystalTube(new[] { origin, top }, new[] { radius, radius * 0.95f }, true);
-                if (bush) Bush(top, direction, radius);
-            }
-
             /// <summary>
             /// A chain of crystal prisms along points; it is one solid with all the other crystals (CrystalField), meshed
-            /// when the mesh is made. The last end is broken when asked.
+            /// when the mesh is made. The last end is broken when it has tip offsets.
             /// </summary>
-            public void CrystalTube(Vector3[] points, float[] radii, bool brokenTip, float[] trunkRadii = null)
+            public void Crystal(CrystalPart crystal)
             {
                 if (SolidCrystal)
                 {
-                    crystals.AddTube(points, radii, Hash01(points[0]), rng, brokenTip);
+                    crystals.AddTube(crystal.points, crystal.radii, Hash01(crystal.points[0]), rng, crystal.tipOffsets != null);
                     return;
                 }
 
                 // Plain prisms with a jagged tip: few vertices. The crystal is opaque, so shells inside each other don't show
-                Tube(CrystalSub, points, radii, 6, true, Vector2.one, Vector3.zero, true, brokenTip ? 0.6f : 0, trunkRadii);
+                Tube(CrystalSub, crystal.points, crystal.radii, CrystalSides, true, Vector2.one, Vector3.zero, true,
+                    crystal.tipOffsets, crystal.trunkRadii);
             }
 
             /// <summary>
-            /// The node where a shoot flowered and forked: the crystal grew outward there, a swelling with a few short
-            /// crystals leaning out of it.
+            /// Raw geometry (a flower of a low level of detail): the normal of a vertex is the average of the faces around it.
             /// </summary>
-            public void Collar(Vector3 center, Vector3 axis, float radius)
+            public void Solid(int sub, List<Vector3> solidVertices, List<Vector2> solidUvs, List<int> solidTriangles)
             {
-                axis.Normalize();
-                var half = radius * 0.6f;
-                CrystalTube(new[] { center - axis * half, center + axis * half }, new[] { radius * 1.18f, radius * 1.18f }, false);
-
-                var count = rng.Next(3, 6);
-                for (var k = 0; k < count; k++)
+                var start = vertices.Count;
+                var sums = new Vector3[solidVertices.Count];
+                for (var t = 0; t < solidTriangles.Count; t += 3)
                 {
-                    var azimuth = Mathf.PI * 2 * (k + Range(rng, -0.3f, 0.3f)) / count;
-                    var outward = Perpendicular(axis, azimuth);
-                    var tilt = Range(rng, 25, 55) * Mathf.Deg2Rad;
-                    var direction = axis * Mathf.Cos(tilt) + outward * Mathf.Sin(tilt);
-                    var origin = center + outward * (radius * 0.8f) - axis * (radius * 0.2f);
-                    var small = radius * Range(rng, 0.2f, 0.35f);
-                    var length = radius * Range(rng, 0.7f, 1.4f) + 0.08f;
-                    CrystalTube(new[] { origin, origin + direction * length }, new[] { small, small * 0.9f }, true);
+                    var a = solidTriangles[t];
+                    var b = solidTriangles[t + 1];
+                    var c = solidTriangles[t + 2];
+                    // Not normalized: a bigger face weighs more
+                    var normal = Vector3.Cross(solidVertices[b] - solidVertices[a], solidVertices[c] - solidVertices[a]);
+                    sums[a] += normal;
+                    sums[b] += normal;
+                    sums[c] += normal;
                 }
+
+                for (var i = 0; i < solidVertices.Count; i++)
+                {
+                    vertices.Add(solidVertices[i]);
+                    normals.Add(sums[i].sqrMagnitude > 1e-12f ? sums[i].normalized : Vector3.up);
+                    uvs.Add(solidUvs[i]);
+                    colors.Add(Color.clear);
+                }
+
+                foreach (var index in solidTriangles) triangles[sub].Add(start + index);
             }
 
-            /// <summary>A chaotic bush of small crystals crowding around a point, leaning away from the axis.</summary>
-            public void Bush(Vector3 center, Vector3 axis, float radius)
-            {
-                var count = rng.Next(3, 6);
-                for (var k = 0; k < count; k++)
-                {
-                    var offset = Perpendicular(axis, Range(rng, 0, Mathf.PI * 2)) * (radius * Range(rng, 0, 0.6f));
-                    var direction = (axis + Perpendicular(axis, Range(rng, 0, Mathf.PI * 2)) * Range(rng, 0.1f, 0.6f)).normalized;
-                    var length = radius * Range(rng, 0.5f, 1.5f) + 0.05f;
-                    var small = radius * Range(rng, 0.18f, 0.35f);
-                    CrystalTube(new[] { center + offset, center + offset + direction * length }, new[] { small, small * 0.9f }, true);
-                }
-            }
+            public void Stalk(StalkPart stalk) =>
+                Tube(TrunkSub, stalk.points, stalk.radii, stalk.sides, false, Vector2.one, Vector3.zero, false, null);
 
-            /// <summary>
-            /// A bud opened into a succulent rosette: fleshy petals in rings, spreading far out sideways, the inner rings
-            /// stand more upright and are smaller.
-            /// </summary>
-            public void Rosette(Vector3 tip, Vector3 axis, float scale, StageParams stage, Random random)
+            /// <summary>A fleshy petal: a flat tube whose width follows the profile of the leaf.</summary>
+            public void Petal(PetalPart petal)
             {
-                axis.Normalize();
-                var count = stage.petalsPerRosette;
-                var length = stage.petalLength * scale;
-                var width = stage.petalWidth * scale;
-                Ring(tip, axis, count, length, width, 50, 85, random, 0);
-                Ring(tip, axis, Mathf.Max(3, count * 2 / 3), length * 0.75f, width * 0.85f, 25, 55, random, 0.5f);
-                Ring(tip, axis, 3, length * 0.45f, width * 0.7f, 5, 20, random, 0.25f);
-            }
-
-            private void Ring(Vector3 tip, Vector3 axis, int count, float length, float width, float minTilt, float maxTilt,
-                Random random, float phase)
-            {
-                for (var i = 0; i < count; i++)
-                {
-                    var azimuth = Mathf.PI * 2 * (i + phase) / count + Range(random, -0.15f, 0.15f);
-                    var tilt = Range(random, minTilt, maxTilt) * Mathf.Deg2Rad;
-                    var radial = Perpendicular(axis, azimuth);
-                    var tangential = Vector3.Cross(axis, radial);
-                    var direction = axis * Mathf.Cos(tilt) + radial * Mathf.Sin(tilt);
-                    var petalLength = length * Range(random, 0.85f, 1.15f);
-                    var points = Curve(tip, direction, axis * (petalLength * 0.25f), petalLength, 9);
-                    var radii = Radii(9, t => width * PetalProfile(t));
-                    Tube(PetalSub, points, radii, 8, false, new Vector2(1, 0.35f), tangential, false, 0);
-                }
+                var points = Curve(petal.tip, petal.direction, petal.axis * (petal.length * 0.25f), petal.length, 9);
+                var radii = Radii(9, t => petal.width * PetalProfile(t));
+                Tube(PetalSub, points, radii, 8, false, new Vector2(1, 0.35f), petal.tangential, false, null);
             }
 
             public Mesh ToMesh(string name)

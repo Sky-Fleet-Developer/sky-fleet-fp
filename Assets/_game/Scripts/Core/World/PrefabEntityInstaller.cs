@@ -27,12 +27,16 @@ namespace Core.World
                 var instance = GetComponent<IRemotePrefab>();
                 if (instance != null)
                 {
-                    _worldSpace.AddEntity(new AssetEntity(instance.transform.gameObject, instance.AssetId));
+                    var entity = new AssetEntity(instance.transform.gameObject, instance.AssetId);
+                    EntityIdentityAuthoring.ApplyTo(gameObject, entity);
+                    _worldSpace.AddEntity(entity);
                     Destroy(this);
                 }
                 else
                 {
-                    _worldSpace.AddEntity(new AssetEntity(prefabReference.AssetGUID, transform.position, transform.rotation));
+                    var entity = new AssetEntity(prefabReference.AssetGUID, transform.position, transform.rotation);
+                    EntityIdentityAuthoring.ApplyTo(gameObject, entity);
+                    _worldSpace.AddEntity(entity);
                     Destroy(gameObject);
                 }
             });

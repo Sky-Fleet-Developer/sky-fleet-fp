@@ -18,72 +18,74 @@ namespace Core.World
         [SerializeField, FolderPath(AbsolutePath = true)] private string dataPath;
         [SerializeField] private string dataFileFormat2d = "{x}_{y}.txt";
         [SerializeField] private string dataFileFormat3d = "{x}_{y}_{z}.txt";
-        private string _correctedFormat_3d;
-        private string _correctedFormat_2d;
 
-        private void OnValidate()
+        private string GetChunkPath(string directory, VectorInt coord)
         {
-            _correctedFormat_3d = null;
-            _correctedFormat_2d = null;
-        }
-
 #if FLAT_SPACE
-        private string GetDataFilePath()
-        {
-            _correctedFormat_2d ??= $"{dataPath}/{dataFileFormat2d.Replace("{x}", "{0}").Replace("{y}", "{1}")}";
-            return _correctedFormat_2d;
-        }
+            string format = dataFileFormat2d.Replace("{x}", "{0}").Replace("{y}", "{1}");
+            return Path.Combine(directory, string.Format(format, coord.x, coord.y));
 #else
-        private string GetDataFilePath()
-        {
-            _correctedFormat_3d ??= $"{dataPath}/{dataFileFormat3d.Replace("{x}", "{0}").Replace("{y}", "{1}").Replace("{z}", "{2}")}";
-            return _correctedFormat_3d;
-        }
+            string format = dataFileFormat3d.Replace("{x}", "{0}").Replace("{y}", "{1}").Replace("{z}", "{2}");
+            return Path.Combine(directory, string.Format(format, coord.x, coord.y, coord.z));
 #endif
-        
-        public async Task WriteChunk(LocationChunkData chunkData, VectorInt coord)
+        }
+
+        /// <summary>
+        /// In play mode changes go to <paramref name="saveDirectory"/> and the authored folder stays untouched.
+        /// An emptied chunk leaves a zero-length file there, so the authored entities do not come back.
+        /// Outside play mode (world editor) the authored folder is written.
+        /// </summary>
+        public async Task WriteChunk(LocationChunkData chunkData, VectorInt coord, string saveDirectory = null)
         {
-            if (Application.isPlaying)
+            bool toSave = Application.isPlaying;
+            if (toSave && string.IsNullOrEmpty(saveDirectory))
             {
                 return;
             }
-#if FLAT_SPACE
-            string path = string.Format(GetDataFilePath(), coord.x, coord.y);
-#else
-            string path = string.Format(GetDataFilePath(), coord.x, coord.y, coord.z);
-#endif
+
+            string authoredPath = GetChunkPath(dataPath, coord);
+            string path = toSave ? GetChunkPath(saveDirectory, coord) : authoredPath;
 
             if (chunkData.IsEmpty)
             {
-                if (File.Exists(path))
+                if (toSave && File.Exists(authoredPath))
+                {
+                    Directory.CreateDirectory(saveDirectory);
+                    File.WriteAllBytes(path, System.Array.Empty<byte>());
+                }
+                else if (File.Exists(path))
                 {
                     File.Delete(path);
                 }
                 return;
             }
 
-            if (!Directory.Exists(dataPath))
-            {
-                Directory.CreateDirectory(dataPath);
-            }
-            await using FileStream stream = File.Open(path, FileMode.OpenOrCreate);
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            await using FileStream stream = File.Open(path, FileMode.Create);
             Serializers.GetSerializer(typeof(LocationChunkData)).Serialize(chunkData, stream);
         }
 
-        public async Task ReadChunk(LocationChunkData destination, VectorInt coord)
+        /// <summary>
+        /// In play mode a file in <paramref name="saveDirectory"/> wins over the authored one.
+        /// </summary>
+        public async Task ReadChunk(LocationChunkData destination, VectorInt coord, string saveDirectory = null)
         {
-#if FLAT_SPACE
-            string path = string.Format(GetDataFilePath(), coord.x, coord.y);
-#else
-            string path = string.Format(GetDataFilePath(), coord.x, coord.y, coord.z);
-#endif
-            if (File.Exists(path))
+            string path = GetChunkPath(dataPath, coord);
+            if (Application.isPlaying && !string.IsNullOrEmpty(saveDirectory))
             {
-                await using FileStream stream = File.Open(path, FileMode.Open);
-                var serializer = Serializers.GetSerializer(typeof(LocationChunkData));
-                object chunkDataRef = destination;
-                serializer?.Populate(stream, ref chunkDataRef);
+                string savedPath = GetChunkPath(saveDirectory, coord);
+                if (File.Exists(savedPath))
+                {
+                    path = savedPath;
+                }
             }
+
+            if (!File.Exists(path) || new FileInfo(path).Length == 0) return;
+
+            await using FileStream stream = File.Open(path, FileMode.Open, FileAccess.Read);
+            var serializer = Serializers.GetSerializer(typeof(LocationChunkData));
+            object chunkDataRef = destination;
+            serializer?.Populate(stream, ref chunkDataRef);
         }
     }
 }

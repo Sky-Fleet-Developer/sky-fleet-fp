@@ -46,11 +46,15 @@ namespace Core.Items
                     var unit = GetComponent<IUnit>();
                     if (unit != null)
                     {
-                        _worldSpace.AddEntity(new UnitEntity(unit, itemObject, itemDescription));
+                        var entity = new UnitEntity(unit, itemObject, itemDescription);
+                        EntityIdentityAuthoring.ApplyTo(gameObject, entity);
+                        _worldSpace.AddEntity(entity);
                     }
                     else
                     {
-                        _worldSpace.AddEntity(new ItemEntity(itemObject, itemDescription));
+                        var entity = new ItemEntity(itemObject, itemDescription);
+                        EntityIdentityAuthoring.ApplyTo(gameObject, entity);
+                        _worldSpace.AddEntity(entity);
                     }
                 }
                 Destroy(this);

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcf50b127a8011541860c5510f0a6613, type: 3}
+  m_Name: CyanTree_Young_1_Impostor
+  m_EditorClassIdentifier: Core::Core.Trees.TreeImpostor
+  albedo: {fileID: 2800000, guid: c69302520c11a5048afa9d89083f4e29, type: 3}
+  normalDepth: {fileID: 2800000, guid: 922dab8ad696fea41866508f0ea7d0f3, type: 3}
+  framesPerSide: 8
+  center: {x: 0.45894703, y: 2.9324493, z: 0.23089367}
+  radius: 3.3610768
