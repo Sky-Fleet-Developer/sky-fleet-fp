@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Core.ContentSerializer;
 using UnityEngine;
 
 namespace Core.Misc
@@ -68,6 +70,50 @@ namespace Core.Misc
         }
         
         public int Count => _count;
+
+        /// <summary>
+        /// Writes the full state, including generations and the free list, so the keys issued earlier stay valid after <see cref="Read"/>.
+        /// </summary>
+        public void Write(Stream stream, Action<Stream, T> writeValue)
+        {
+            stream.WriteInt(_slots.Length);
+            stream.WriteInt(_count);
+            stream.WriteInt(_freeHead);
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                stream.WriteInt(_slots[i].DenseIndex);
+                stream.WriteInt(_slots[i].Generation);
+                stream.WriteInt(_slots[i].NextFree);
+            }
+
+            for (int i = 0; i < _count; i++)
+            {
+                stream.WriteInt(_dense[i]);
+                writeValue(stream, _values[i]);
+            }
+        }
+
+        public static SlotMap<T> Read(Stream stream, Func<Stream, T> readValue)
+        {
+            int capacity = stream.ReadInt();
+            var map = new SlotMap<T>(Mathf.Max(1, capacity));
+            map._count = stream.ReadInt();
+            map._freeHead = stream.ReadInt();
+            for (int i = 0; i < capacity; i++)
+            {
+                map._slots[i].DenseIndex = stream.ReadInt();
+                map._slots[i].Generation = stream.ReadInt();
+                map._slots[i].NextFree = stream.ReadInt();
+            }
+
+            for (int i = 0; i < map._count; i++)
+            {
+                map._dense[i] = stream.ReadInt();
+                map._values[i] = readValue(stream);
+            }
+
+            return map;
+        }
 
         public SmKey Add(T value)
         {

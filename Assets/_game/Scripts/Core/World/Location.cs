@@ -30,6 +30,36 @@ namespace Core.World
 #endif
         }
 
+        private const string IndexFileName = "entity_index.bin";
+
+        /// <summary>
+        /// In play mode the index of the save slot wins over the authored one.
+        /// </summary>
+        /// <returns>Null if there is no index yet.</returns>
+        public async Task<byte[]> ReadIndex(string saveDirectory = null)
+        {
+            string path = Path.Combine(dataPath, IndexFileName);
+            if (Application.isPlaying && !string.IsNullOrEmpty(saveDirectory))
+            {
+                string savedPath = Path.Combine(saveDirectory, IndexFileName);
+                if (File.Exists(savedPath))
+                {
+                    path = savedPath;
+                }
+            }
+
+            return File.Exists(path) ? await File.ReadAllBytesAsync(path) : null;
+        }
+
+        public async Task WriteIndex(byte[] data, string saveDirectory = null)
+        {
+            bool toSave = Application.isPlaying;
+            if (toSave && string.IsNullOrEmpty(saveDirectory)) return;
+            string directory = toSave ? saveDirectory : dataPath;
+            Directory.CreateDirectory(directory);
+            await File.WriteAllBytesAsync(Path.Combine(directory, IndexFileName), data);
+        }
+
         /// <summary>
         /// In play mode changes go to <paramref name="saveDirectory"/> and the authored folder stays untouched.
         /// An emptied chunk leaves a zero-length file there, so the authored entities do not come back.

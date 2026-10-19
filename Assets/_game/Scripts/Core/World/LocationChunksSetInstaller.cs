@@ -18,6 +18,9 @@ namespace Core.World
         {
             _loadingChunkRuntimeStrategy = new LoadingChunkRuntimeStrategy();
             _locationChunksSet = new LocationChunksSet();
+            var entityIndex = new EntityIndex();
+            container.Bind<IEntityIndex>().FromInstance(entityIndex);
+            container.Bind<IEntityIndexTracker>().FromInstance(entityIndex);
             container.BindInstance(_locationChunksSet);
             container.Bind<ILocationChunkLoadStrategy>().FromInstance(_loadingChunkRuntimeStrategy);
         }

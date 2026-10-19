@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Core.Misc;
 using Cysharp.Threading.Tasks;
@@ -45,6 +46,9 @@ namespace Core.World
         [Inject] private ILocationChunkLoadStrategy _loadStrategy;
         [Inject(Optional = true)] private IWorldSaveSlot _saveSlot;
         private IWorldSaveSlot SaveSlot => _saveSlot ??= new DefaultWorldSaveSlot();
+        [Inject(Optional = true)] private IEntityIndexTracker _index;
+        private Task _indexLoading;
+        private readonly SemaphoreSlim _indexSaveLock = new(1, 1);
         private string SaveDirectory => SaveSlot.GetLocationDirectory(_location.name);
         private Task _setRangeTask;
         //private HashSet<(IWorldEntity entity, VectorInt target)> _notSorted = new ();
@@ -178,6 +182,7 @@ namespace Core.World
                 _chunks[coord] = chunk;
             }
 
+            await EnsureIndexLoaded();
             await _location.ReadChunk(chunk, coord, SaveDirectory);
             chunk.Lock();
             await _loadStrategy.Load(chunk, coord);
@@ -192,7 +197,38 @@ namespace Core.World
 
         private async Task Save(VectorInt coord)
         {
-            await _location.WriteChunk(_chunks[coord], coord, SaveDirectory);
+            var chunk = _chunks[coord];
+            _index?.Reconcile(coord, chunk.GetEntities());
+            await _location.WriteChunk(chunk, coord, SaveDirectory);
+            await SaveIndex();
+        }
+
+        private Task EnsureIndexLoaded()
+        {
+            if (_index == null) return Task.CompletedTask;
+            return _indexLoading ??= LoadIndex();
+        }
+
+        private async Task LoadIndex()
+        {
+            _index.Load(await _location.ReadIndex(SaveDirectory));
+        }
+
+        private async Task SaveIndex()
+        {
+            if (_index == null) return;
+            await _indexSaveLock.WaitAsync();
+            try
+            {
+                if (_index.TrySerialize(out var data))
+                {
+                    await _location.WriteIndex(data, SaveDirectory);
+                }
+            }
+            finally
+            {
+                _indexSaveLock.Release();
+            }
         }
 
         private async Task Unload(VectorInt coord)
@@ -209,7 +245,9 @@ namespace Core.World
             try
             {
                 _chunks.Remove(coord);
+                _index?.Reconcile(coord, chunk.GetEntities());
                 await _location.WriteChunk(chunk, coord, SaveDirectory);
+                await SaveIndex();
                 await _loadStrategy.Unload(chunk, coord);
             }
             catch (Exception e)
@@ -232,11 +270,13 @@ namespace Core.World
             }
 
             _chunks[cell].AddEntity(entity);
+            _index?.OnPlaced(cell, entity);
         }
 
         public void RemoveEntityFromChunk(VectorInt cell, IWorldEntity entity)
         {
             //Debug.Log($"CELLS: remove ({entity}) from chunk ({cell})");
+            _index?.OnRemoved(entity);
             if (!_chunks.ContainsKey(cell))
             {
                 if (_frozen.ContainsKey(cell))

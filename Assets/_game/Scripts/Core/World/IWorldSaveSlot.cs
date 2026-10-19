@@ -7,6 +7,9 @@ namespace Core.World
     /// </summary>
     public interface IWorldSaveSlot
     {
+        /// <returns>Root directory of the current save slot.</returns>
+        string GetSlotDirectory();
+
         /// <returns>Directory for the given location inside the current save slot.</returns>
         string GetLocationDirectory(string locationName);
     }
@@ -19,9 +22,14 @@ namespace Core.World
         private const string WorldFolder = "World";
         private const string DefaultSlotName = "Default";
 
+        public string GetSlotDirectory()
+        {
+            return Path.Combine(PathStorage.GetPathToSessionSave(), DefaultSlotName);
+        }
+
         public string GetLocationDirectory(string locationName)
         {
-            return Path.Combine(PathStorage.GetPathToSessionSave(), DefaultSlotName, WorldFolder, locationName);
+            return Path.Combine(GetSlotDirectory(), WorldFolder, locationName);
         }
     }
 }
