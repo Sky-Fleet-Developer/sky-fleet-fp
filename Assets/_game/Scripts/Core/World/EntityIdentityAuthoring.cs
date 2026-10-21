@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Core.World
@@ -8,7 +9,7 @@ namespace Core.World
     [DisallowMultipleComponent]
     public class EntityIdentityAuthoring : MonoBehaviour
     {
-        [SerializeField, Tooltip("Readable name for the narrative system ([a-z0-9_.]). Must be unique in the world.")]
+        [SerializeField, PropertyTooltip("Readable name for the narrative system ([a-z0-9_.]). Must be unique in the world.")]
         private string alias;
 
         public string Alias => EntityAliases.Normalize(alias);

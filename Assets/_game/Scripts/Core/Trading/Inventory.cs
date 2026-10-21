@@ -12,6 +12,7 @@ namespace Core.Trading
         private HashSet<IInventoryStateListener> _stateListeners = new();
         public string Key => _key;
         public bool IsEmpty => _items.Count == 0;
+        public bool IsAlive => _key != null;
 
         public Inventory(string key, BankSystem bankSystem)
         {

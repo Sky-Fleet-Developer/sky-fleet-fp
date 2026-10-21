@@ -124,9 +124,31 @@ namespace Core.World
 
         protected virtual void OnDespawn()
         {
+            CaptureObjectState();
             _transformCacheSystem.RemoveTarget(_objectInstanceTransform);
             _objectInstanceTransform = null;
             _rigidbody = null;
+        }
+
+        /// <summary>
+        /// Takes the live pose and the state of the object into the cached data, so what is saved or spawned next time is what the player left.
+        /// </summary>
+        private void CaptureObjectState()
+        {
+            if (_objectInstance == null || _objectInstanceTransform == null) return;
+            _positionCache = SpacePosition;
+            _rotationCache = Rotation;
+            ItemObjectState.Capture(_objectInstance);
+        }
+
+        /// <summary>
+        /// Brings the stored data (pose and the description with contents and block state) up to date. Called before the entity is serialized.
+        /// </summary>
+        public void CaptureState()
+        {
+            CaptureObjectState();
+            if (_itemInstance == null) return;
+            _itemDescription = _itemInstanceFactory.Describe(_itemInstance);
         }
 
         public Task GetAnyLoad()
@@ -157,6 +179,7 @@ namespace Core.World
             {
                 try
                 {
+                    entity.CaptureState();
                     ItemDescriptionSerializer.Serialize(entity._itemDescription, stream);
                     for (int i = 0; i < 3; i++)
                     {
@@ -234,6 +257,20 @@ namespace Core.World
             {
                 _loading.Dispose();
                 _loading = null;
+            }
+
+            if (_itemInstance != null)
+            {
+                try
+                {
+                    _itemInstanceFactory.Release(_itemInstance);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+
+                _itemInstance = null;
             }
         }
     }

@@ -63,5 +63,8 @@
         "jp.keijiro"
       ]
     }
+  ],
+  "testables": [
+    "com.skyfleetdeveloper.qne"
   ]
 }

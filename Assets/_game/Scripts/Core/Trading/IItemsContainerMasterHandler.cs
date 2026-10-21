@@ -21,10 +21,12 @@ namespace Core.Trading
         void Dispose();
     }
     
+    
     public interface IItemsContainerReadonly : IItemInstancesSourceReadonly
     {
         string Key { get; }
         bool IsEmpty { get; }
+        public bool IsAlive { get; }
         //IEnumerable<ItemInstance> GetItems(string id);
     }
 }

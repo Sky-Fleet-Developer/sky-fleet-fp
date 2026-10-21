@@ -131,6 +131,17 @@ namespace Core.Structure
                     Debug.LogError($"Cannot parse {value} into int!");
                 }
             }
+            else if (memberType.IsEnum)
+            {
+                if (Enum.TryParse(memberType, value, out object val))
+                {
+                    setter(block, val);
+                }
+                else
+                {
+                    Debug.LogError($"Cannot parse {value} into {memberType.Name}!");
+                }
+            }
             else if (memberType == typeof(bool))
             {
                 if (bool.TryParse(value, out bool val))

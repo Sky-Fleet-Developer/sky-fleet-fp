@@ -19,7 +19,7 @@ namespace Core.Items
         public float Amount => _amount;
         public IReadOnlyList<Property> Properties => _properties;
         public string Identifier => TryGetProperty(ItemSign.IdentifiableTag, out var property) ? property.values[Property.IdentifiableInstance_Identifier].stringValue : null;
-        public bool IsContainer => _sign.HasTag(ItemSign.ContainerTag);
+        public bool IsContainer => _sign != null && _sign.HasTag(ItemSign.ContainerTag);
         public string ContainerKey => _containerKey;
         //public bool IsUnique => _sign.HasTag(ItemSign.IdentifiableTag);
         public bool IsEmpty => _sign == null || _amount == 0;
@@ -161,6 +161,20 @@ namespace Core.Items
             return false;
         }
 
+        /// <summary>Replaces the property of the same name or adds it.</summary>
+        public void SetProperty(string propertyName, params PropertyValue[] values)
+        {
+            var property = new Property(propertyName, values);
+            for (var i = 0; i < _properties.Count; i++)
+            {
+                if (_properties[i].name != propertyName) continue;
+                _properties[i] = property;
+                return;
+            }
+
+            _properties.Add(property);
+        }
+
         public Property EnsureProperty(string propertyName)
         {
             if (!TryGetProperty(propertyName, out var property))
@@ -222,6 +236,7 @@ namespace Core.Items
 
         public void Dispose()
         {
+            if (_sign == null) return;
             if(IsContainer) _unbindInventoryToContainerSettings(Identifier);
             _sign = null;
         }

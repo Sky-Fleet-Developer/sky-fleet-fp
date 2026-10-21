@@ -18,6 +18,7 @@ namespace Core.Character.Stuff
 
         public string Key => _inventoryKey;
         public bool IsEmpty => !_slots.Any(x => x.HasItem);
+        public bool IsAlive => _slots != null;
 
         public SlotsGrid(string gridId, SlotCell[] slots)
         {

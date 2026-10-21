@@ -1,6 +1,7 @@
 using Core;
 using Core.Narrative;
 using QnE;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
@@ -15,7 +16,7 @@ namespace Runtime.Narrative
         public const string StartedKey = "game.started";
 
         [SerializeField] private string startEventId;
-        [SerializeField, Tooltip("Optional entry point of the start event.")] private string startEntry;
+        [SerializeField, PropertyTooltip("Optional entry point of the start event.")] private string startEntry;
 
         [Inject] private IQuestsAndEvents _narrative;
 

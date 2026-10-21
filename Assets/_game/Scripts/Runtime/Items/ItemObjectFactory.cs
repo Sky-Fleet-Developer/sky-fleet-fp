@@ -131,6 +131,8 @@ namespace Runtime.Items
             {
                 rigidbody.mass = item.GetMass();
             }
+
+            ItemObjectState.Restore(itemObjectHandle, item);
             
             _container = currentDiContainer;
         }

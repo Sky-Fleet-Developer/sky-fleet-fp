@@ -1,6 +1,9 @@
-﻿using Core.Character.Stuff;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Core.Character.Stuff;
 using Core.Configurations;
 using Core.Items;
+using Core.Misc;
 using Core.Trading;
 using Zenject;
 
@@ -50,6 +53,58 @@ namespace Runtime.Items
                 }
             }
             return instance;
+        }
+
+        public ItemDescription Describe(ItemInstance instance)
+        {
+            var description = new ItemDescription
+            {
+                signId = instance.Sign.Id,
+                amount = instance.Amount,
+                properties = instance.Properties.Select(x => (Property)x.Clone()).ToList(),
+                nestedItems = new List<ItemDescription>()
+            };
+            if (!instance.IsContainer) return description;
+
+            var inventory = _bankSystem.GetOrCreateInventory(instance.ContainerKey);
+            if (inventory is ISlotsGridReadonly grid)
+            {
+                foreach (var slot in grid.EnumerateSlots())
+                {
+                    if (!slot.HasItem) continue;
+                    var nested = Describe(slot.Item);
+                    nested.gridSlot = slot.SlotId;
+                    description.nestedItems.Add(nested);
+                }
+            }
+            else
+            {
+                foreach (var item in inventory.GetItems())
+                {
+                    description.nestedItems.Add(Describe(item));
+                }
+            }
+
+            return description;
+        }
+
+        public void Release(ItemInstance instance)
+        {
+            if (instance.IsContainer)
+            {
+                var inventory = _bankSystem.TakeInventory(instance.ContainerKey);
+                if (inventory != null)
+                {
+                    foreach (var item in inventory.GetItems().ToList())
+                    {
+                        Release(item);
+                    }
+
+                    inventory.Dispose();
+                }
+            }
+
+            instance.Dispose();
         }
 
         private void TryAddNestedInSlots(ItemDescription description, ISlotsGridSource slotsGridSource)

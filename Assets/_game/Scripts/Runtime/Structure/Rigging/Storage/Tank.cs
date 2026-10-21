@@ -1,4 +1,5 @@
 using Core.Graph.Wires;
+using Core.Items;
 using Core.SessionManager.SaveService;
 using Core.Structure.Rigging;
 using Sirenix.OdinInspector;
@@ -8,7 +9,7 @@ using Utilities = Core.Structure.Rigging.Utilities;
 
 namespace Runtime.Structure.Rigging.Storage
 {
-    public class Tank : BlockWithNode, ITank
+    public class Tank : BlockWithNode, ITank, IStatefulItemObject
     {
         public float CurrentAmount => currentAmount;
         public float MaximalAmount => maximalAmount;
@@ -32,6 +33,18 @@ namespace Runtime.Structure.Rigging.Storage
         [SerializeField] private float currentAmount;
 
         public StoragePort output = new StoragePort();
+
+        string IStatefulItemObject.StateKey => "tank";
+
+        string IStatefulItemObject.CaptureState() => ItemObjectState.FloatToState(currentAmount);
+
+        void IStatefulItemObject.RestoreState(string state)
+        {
+            if (ItemObjectState.TryParseFloat(state, out float value))
+            {
+                currentAmount = Mathf.Clamp(value, 0f, maximalAmount);
+            }
+        }
 
         public void FuelTick()
         {

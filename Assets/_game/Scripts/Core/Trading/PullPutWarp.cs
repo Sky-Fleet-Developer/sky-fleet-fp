@@ -58,6 +58,7 @@ namespace Core.Trading
 
             public string Key => _slotsGridSource.Key;
             public bool IsEmpty => _slotsGridSource.IsEmpty;
+            public bool IsAlive => _slotsGridSource.IsAlive;
         }
 
     }

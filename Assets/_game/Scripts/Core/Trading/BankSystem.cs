@@ -53,6 +53,17 @@ namespace Core.Trading
         }
 
 
+        /// <summary>
+        /// Removes the inventory from the bank without touching its items.
+        /// </summary>
+        /// <returns>The inventory or null if there is none.</returns>
+        public IItemsContainerMasterHandler TakeInventory(string inventoryKey)
+        {
+            if (!_inventories.TryGetValue(inventoryKey, out var inventory)) return null;
+            _inventories.Remove(inventoryKey);
+            return inventory;
+        }
+
         public void DissolveEmptyInventory(string inventoryKey)
         {
             if (_inventories.TryGetValue(inventoryKey, out IItemsContainerMasterHandler inventory) && inventory.IsEmpty)

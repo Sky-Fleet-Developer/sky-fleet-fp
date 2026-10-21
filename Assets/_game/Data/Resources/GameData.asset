@@ -110,7 +110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walletSource:
     data:
-    - id: Player_Inventory_c-slots
+    - id: Player_Inventory
       balance: 6000
     - id: iron_refinery
       balance: 100000
